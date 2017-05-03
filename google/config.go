@@ -24,6 +24,7 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
@@ -50,6 +51,7 @@ type Config struct {
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
 	clientDataproc               *dataproc.Service
+	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
@@ -64,8 +66,7 @@ type Config struct {
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
-
-	bigtableClientFactory *BigtableClientFactory
+	bigtableClientFactory        *BigtableClientFactory
 }
 
 func (c *Config) loadAndValidate() error {
@@ -194,6 +195,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientPubsub.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Dataflow Client...")
+	c.clientDataflow, err = dataflow.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDataflow.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager Client...")
 	c.clientResourceManager, err = cloudresourcemanager.New(client)
