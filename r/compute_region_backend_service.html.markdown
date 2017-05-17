@@ -1,33 +1,32 @@
 ---
 layout: "google"
-page_title: "Google: google_compute_backend_service"
-sidebar_current: "docs-google-compute-backend-service"
+page_title: "Google: google_compute_region_backend_service"
+sidebar_current: "docs-google-compute-region-backend-service"
 description: |-
-  Creates a Backend Service resource for Google Compute Engine.
+  Creates a Region Backend Service resource for Google Compute Engine.
 ---
 
-# google\_compute\_backend\_service
+# google\_compute\_region\_backend\_service
 
-A Backend Service defines a group of virtual machines that will serve traffic for load balancing.
+A Region Backend Service defines a regionally-scoped group of virtual machines that will serve traffic for load balancing.
 
-For internal load balancing, use a [google_compute_region_backend_service](/docs/providers/google/r/compute_region_backend_service.html).
+See [backendServices](https://cloud.google.com/compute/docs/reference/latest/backendServices) documentation for more on this resource type, and [Internal Load Balancing](https://cloud.google.com/compute/docs/load-balancing/internal/) documentation for more details on usage.
 
 ## Example Usage
 
-```hcl
-resource "google_compute_backend_service" "foobar" {
-  name        = "blablah"
-  description = "Hello World 1234"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
-  enable_cdn  = false
+```tf
+resource "google_compute_region_backend_service" "foobar" {
+  name             = "blablah"
+  description      = "Hello World 1234"
+  protocol         = "TCP"
+  timeout_sec      = 10
+  session_affinity = "CLIENT_IP"
 
   backend {
     group = "${google_compute_instance_group_manager.foo.instance_group}"
   }
 
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = ["${google_compute_health_check.default.self_link}"]
 }
 
 resource "google_compute_instance_group_manager" "foo" {
@@ -53,11 +52,14 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "test"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
 }
 ```
 
@@ -67,7 +69,7 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the backend service.
 
-* `health_checks` - (Required) Specifies a list of HTTP health check objects
+* `health_checks` - (Required) Specifies a list of health check objects
     for checking the health of the backend service.
 
 - - -
@@ -77,11 +79,6 @@ The following arguments are supported:
 
 * `description` - (Optional) The textual description for the backend service.
 
-* `enable_cdn` - (Optional) Whether or not to enable the Cloud CDN on the backend service.
-
-* `port_name` - (Optional) The name of a service that has been added to an
-    instance group in this backend. See [related docs](https://cloud.google.com/compute/docs/instance-groups/#specifying_service_endpoints) for details. Defaults to http.
-
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -89,11 +86,15 @@ The following arguments are supported:
     `HTTP`.
 
 * `session_affinity` - (Optional) How to distribute load. Options are `NONE` (no
-    affinity), `CLIENT_IP` (hash of the source/dest addresses / ports), and
-    `GENERATED_COOKIE` (distribute load using a generated session cookie).
+    affinity), `CLIENT_IP`, `CLIENT_IP_PROTO`, or `CLIENT_IP_PORT_PROTO`.
+    Defaults to `NONE`.
+
+* `region` - (Optional) The Region in which the created address should reside.
+    If it is not provided, the provider region is used.
 
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
+
 
 **Backend** supports the following attributes:
 
