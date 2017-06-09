@@ -69,6 +69,7 @@ func resourceComputeDisk() *schema.Resource {
 			"size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 
 			"self_link": &schema.Schema{
@@ -85,6 +86,7 @@ func resourceComputeDisk() *schema.Resource {
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "pd-standard",
 				ForceNew: true,
 			},
 			"users": &schema.Schema{
