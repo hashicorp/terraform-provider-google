@@ -284,6 +284,20 @@ func resourceContainerCluster() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
+
+						"labels": &schema.Schema{
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     schema.TypeString,
+						},
+
+						"tags": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -467,6 +481,23 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 		if v, ok = nodeConfig["image_type"]; ok {
 			cluster.NodeConfig.ImageType = v.(string)
+		}
+
+		if v, ok = nodeConfig["labels"]; ok {
+			m := make(map[string]string)
+			for k, val := range v.(map[string]interface{}) {
+				m[k] = val.(string)
+			}
+			cluster.NodeConfig.Labels = m
+		}
+
+		if v, ok := nodeConfig["tags"]; ok {
+			tagsList := v.([]interface{})
+			tags := []string{}
+			for _, v := range tagsList {
+				tags = append(tags, v.(string))
+			}
+			cluster.NodeConfig.Tags = tags
 		}
 	}
 
@@ -683,6 +714,8 @@ func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} 
 			"service_account": c.ServiceAccount,
 			"metadata":        c.Metadata,
 			"image_type":      c.ImageType,
+			"labels":          c.Labels,
+			"tags":            c.Tags,
 		},
 	}
 
