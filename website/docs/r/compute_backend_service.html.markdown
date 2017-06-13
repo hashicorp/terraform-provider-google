@@ -136,7 +136,7 @@ exported:
 
 ## Import
 
-A backend service can be imported using the `name`, e.g.
+Backend services can be imported using the `name`, e.g.
 
 ```
 $ terraform import google_compute_backend_service.website my_backend_service
