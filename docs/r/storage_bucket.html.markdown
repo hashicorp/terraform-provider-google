@@ -56,9 +56,35 @@ to `google_storage_bucket_acl.predefined_acl`.
 
 * `storage_class` - (Optional) The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
 
+* `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+
 * `website` - (Optional) Configuration if the bucket acts as a website. Structure is documented below.
 
 * `cors` - (Optional) The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+
+The `lifecycle_rule` block supports:
+
+* `action` - The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
+
+* `condition` - The Lifecycle Rule's condition configuration. A single block of this type is supported. Structure is documented below.
+
+The `action` block supports:
+
+* `type` - The type of the action of this Lifecycle Rule. Supported values include: `Delete` and `SetStorageClass`.
+
+* `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
+
+The `condition` block supports:
+
+* `age` - (Optional) Minimum age of an object in days to satisfy this condition.
+
+* `created_before` - (Optional) Creation date of an object in RFC 3339 (e.g. `2017-06-13`) to satisfy this condition.
+
+* `is_live` - (Optional) Relevant only for versioned objects. If `true`, this condition matches live objects, archived objects otherwise.
+
+* `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
+
+* `number_of_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
 
 The `website` block supports:
 
