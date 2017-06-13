@@ -82,6 +82,33 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 	})
 }
 
+func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
+	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
+	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
+	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeUrlMap_noPathRules(bsName, hcName, umName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeUrlMapExists(
+						"google_compute_url_map.foobar"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeUrlMapExists(
+						"google_compute_url_map.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeUrlMapDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -320,3 +347,40 @@ resource "google_compute_url_map" "foobar" {
     }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+
+func testAccComputeUrlMap_noPathRules(bsName, hcName, umName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+    name = "urlmap-test-%s"
+    health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+}
+
+resource "google_compute_http_health_check" "zero" {
+    name = "urlmap-test-%s"
+    request_path = "/"
+    check_interval_sec = 1
+    timeout_sec = 1
+}
+
+resource "google_compute_url_map" "foobar" {
+    name = "urlmap-test-%s"
+	default_service = "${google_compute_backend_service.foobar.self_link}"
+
+    host_rule {
+        hosts = ["mysite.com", "myothersite.com"]
+        path_matcher = "boop"
+    }
+
+    path_matcher {
+        default_service = "${google_compute_backend_service.foobar.self_link}"
+        name = "boop"
+    }
+
+	test {
+		host = "mysite.com"
+		path = "/*"
+		service = "${google_compute_backend_service.foobar.self_link}"
+	}
+}
+`, bsName, hcName, umName)
+}
