@@ -17,6 +17,9 @@ func resourceComputeBackendService() *schema.Resource {
 		Read:   resourceComputeBackendServiceRead,
 		Update: resourceComputeBackendServiceUpdate,
 		Delete: resourceComputeBackendServiceDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -241,6 +244,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
 	}
 
+	d.Set("name", service.Name)
 	d.Set("description", service.Description)
 	d.Set("enable_cdn", service.EnableCDN)
 	d.Set("port_name", service.PortName)

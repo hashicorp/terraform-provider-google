@@ -8,7 +8,7 @@ description: |-
 
 # google\_compute\_backend\_service
 
-A Backend Service defines a group of virtual machines that will serve traffic for load balancing. For more information 
+A Backend Service defines a group of virtual machines that will serve traffic for load balancing. For more information
 see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 and the [API](https://cloud.google.com/compute/docs/reference/latest/backendServices).
 
@@ -95,8 +95,8 @@ The following arguments are supported:
 
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
-    
-* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections, 
+
+* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
 but still work to finish started ones). Defaults to `0`.
 
 The `backend` block supports:
@@ -133,3 +133,11 @@ exported:
 * `fingerprint` - The fingerprint of the backend service.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+A backend service can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_backend_service.website my_backend_service
+```
