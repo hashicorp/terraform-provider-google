@@ -39,6 +39,32 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
+	var manager compute.InstanceGroupManager
+
+	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceGroupManager_targetSizeZero(template, igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceGroupManagerExists(
+						"google_compute_instance_group_manager.igm-basic", &manager),
+				),
+			},
+		},
+	})
+
+	if manager.TargetSize != 0 {
+		t.Errorf("Expected target_size to be 0, got %d", manager.TargetSize)
+	}
+}
+
 func TestAccInstanceGroupManager_update(t *testing.T) {
 	var manager compute.InstanceGroupManager
 
@@ -386,6 +412,43 @@ func testAccInstanceGroupManager_basic(template, target, igm1, igm2 string) stri
 		target_size = 2
 	}
 	`, template, target, igm1, igm2)
+}
+
+func testAccInstanceGroupManager_targetSizeZero(template, igm string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_instance_template" "igm-basic" {
+		name = "%s"
+		machine_type = "n1-standard-1"
+		can_ip_forward = false
+		tags = ["foo", "bar"]
+
+		disk {
+			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			auto_delete = true
+			boot = true
+		}
+
+		network_interface {
+			network = "default"
+		}
+
+		metadata {
+			foo = "bar"
+		}
+
+		service_account {
+			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+		}
+	}
+
+	resource "google_compute_instance_group_manager" "igm-basic" {
+		description = "Terraform test instance group manager"
+		name = "%s"
+		instance_template = "${google_compute_instance_template.igm-basic.self_link}"
+		base_instance_name = "igm-basic"
+		zone = "us-central1-c"
+	}
+	`, template, igm)
 }
 
 func testAccInstanceGroupManager_update(template, target, igm string) string {
