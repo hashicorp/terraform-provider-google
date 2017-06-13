@@ -114,6 +114,59 @@ func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
 	}
 }
 
+func TestAccComputeRegionBackendService_withConnectionDraining(t *testing.T) {
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var svc compute.BackendService
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionBackendServiceExists(
+						"google_compute_region_backend_service.foobar", &svc),
+				),
+			},
+		},
+	})
+
+	if svc.ConnectionDraining.DrainingTimeoutSec != 10 {
+		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 10, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
+	}
+}
+
+func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var svc compute.BackendService
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionBackendServiceExists(
+						"google_compute_region_backend_service.foobar", &svc),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeRegionBackendService_basic(serviceName, checkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionBackendServiceExists(
+						"google_compute_region_backend_service.foobar", &svc),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionBackendService_withSessionAffinity(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -307,4 +360,25 @@ resource "google_compute_health_check" "zero" {
   }
 }
 `, serviceName, checkName)
+}
+
+func testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName string, drainingTimeout int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  health_checks         = ["${google_compute_health_check.zero.self_link}"]
+  region                = "us-central1"
+  connection_draining_timeout_sec = %v
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, serviceName, drainingTimeout, checkName)
 }
