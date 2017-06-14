@@ -146,6 +146,5 @@ exported:
 Routers can be imported using the `region` and `name`, e.g.
 
 ```
-$ terraform import google_compute_router.router-1 us-central1/router-1
+$ terraform import google_compute_router.foobar us-central1/router-1
 ```
-

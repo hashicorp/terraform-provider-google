@@ -14,7 +14,7 @@ Manages a network within GCE.
 
 ```hcl
 resource "google_compute_network" "default" {
-  name                    = "test"
+  name                    = "foobar"
   auto_create_subnetworks = "true"
 }
 ```
@@ -63,5 +63,5 @@ exported:
 Networks can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_compute_network.public my_network_name
+$ terraform import google_compute_network.default foobar
 ```
