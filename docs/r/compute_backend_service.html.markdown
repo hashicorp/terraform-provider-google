@@ -8,7 +8,7 @@ description: |-
 
 # google\_compute\_backend\_service
 
-A Backend Service defines a group of virtual machines that will serve traffic for load balancing. For more information 
+A Backend Service defines a group of virtual machines that will serve traffic for load balancing. For more information
 see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 and the [API](https://cloud.google.com/compute/docs/reference/latest/backendServices).
 
@@ -17,31 +17,31 @@ For internal load balancing, use a [google_compute_region_backend_service](/docs
 ## Example Usage
 
 ```hcl
-resource "google_compute_backend_service" "foobar" {
-  name        = "blablah"
-  description = "Hello World 1234"
+resource "google_compute_backend_service" "website" {
+  name        = "my_backend"
+  description = "Our company website"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
   enable_cdn  = false
 
   backend {
-    group = "${google_compute_instance_group_manager.foo.instance_group}"
+    group = "${google_compute_instance_group_manager.webservers.instance_group}"
   }
 
   health_checks = ["${google_compute_http_health_check.default.self_link}"]
 }
 
-resource "google_compute_instance_group_manager" "foo" {
-  name               = "terraform-test"
-  instance_template  = "${google_compute_instance_template.foobar.self_link}"
-  base_instance_name = "foobar"
+resource "google_compute_instance_group_manager" "webservers" {
+  name               = "my_webservers"
+  instance_template  = "${google_compute_instance_template.webserver.self_link}"
+  base_instance_name = "webserver"
   zone               = "us-central1-f"
   target_size        = 1
 }
 
-resource "google_compute_instance_template" "foobar" {
-  name         = "terraform-test"
+resource "google_compute_instance_template" "webserver" {
+  name         = "standard_webserver"
   machine_type = "n1-standard-1"
 
   network_interface {
@@ -95,8 +95,8 @@ The following arguments are supported:
 
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
-    
-* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections, 
+
+* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
 but still work to finish started ones). Defaults to `0`.
 
 The `backend` block supports:
@@ -133,3 +133,11 @@ exported:
 * `fingerprint` - The fingerprint of the backend service.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Backend services can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_backend_service.website my_backend
+```
