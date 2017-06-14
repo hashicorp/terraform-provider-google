@@ -292,7 +292,7 @@ func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foo" {
 	name = "%s"
-	image = "debian-8"
+	image = "debian-8-jessie-v20170523"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
