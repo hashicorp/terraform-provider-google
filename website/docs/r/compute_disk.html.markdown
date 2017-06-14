@@ -20,7 +20,7 @@ resource "google_compute_disk" "default" {
   name  = "test-disk"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-cloud/debian-8"
+  image = "debian-8-jessie-v20170523"
 }
 ```
 
@@ -41,10 +41,8 @@ The following arguments are supported:
     to encrypt this disk.
 
 * `image` - (Optional) The image from which to initialize this disk. This can be
-    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
-    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
-    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-    `{project}/{image}`, `{family}`, or `{image}`.
+    one of: the image's `self_link`, of a full name and version, e.g.
+    `debian-8-jessie-v20170523`
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
