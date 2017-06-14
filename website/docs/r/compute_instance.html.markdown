@@ -58,8 +58,8 @@ resource "google_compute_instance" "default" {
 
 The following arguments are supported:
 
-* `disk` - (Required) Disks to attach to the instance. This can be specified
-    multiple times for multiple disks. Structure is documented below.
+* `boot_disk` - (Required) The boot disk for the instance.
+    Structure is documented below.
 
 * `machine_type` - (Required) The machine type to create. To create a custom
     machine type, value should be set as specified
@@ -80,7 +80,15 @@ The following arguments are supported:
     packets with non-matching source or destination IPs.
     This defaults to false.
 
+* `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
+    Changing this forces a new resource to be created.
+
 * `description` - (Optional) A brief description of this resource.
+
+* `disk` - (Optional) Disks to attach to the instance. This can be specified
+    multiple times for multiple disks. Structure is documented below.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance.
@@ -102,16 +110,46 @@ The following arguments are supported:
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
-* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
+---
 
-* `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
-    Changing this forces a new resource to be created.
+* `network` - (DEPRECATED) Networks to attach to the instance. This
+    can be specified multiple times for multiple networks. Structure is
+    documented below.
 
 ---
 
-* `network` - (DEPRECATED, Required) Networks to attach to the instance. This
-    can be specified multiple times for multiple networks. Structure is
-    documented below.
+The `boot_disk` block supports:
+
+* `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
+    is deleted. Defaults to true.
+
+* `device_name` - (Optional) Name with which attached disk will be accessible
+    under `/dev/disk/by-id/`
+
+* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    to encrypt this disk.
+
+* `initialize_params` - (Optional) Parameters for a new disk that will be created
+    alongside the new instance. Either `initialize_params` or `source` must be set.
+    Structure is documented below.
+
+* `source` - (Optional) The name of the existing disk (such as those managed by
+    `google_compute_disk`) to attach.
+
+The `initialize_params` block supports:
+
+* `size` - (Optional) The size of the image in gigabytes. If not specified, it
+    will inherit the size of its base image.
+
+* `type` - (Optional) The GCE disk type. May be set to pd-standard or pd-ssd.
+
+* `image` - (Optional) The image from which to initialize this disk. This can be
+    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
+    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
+    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
+    `{project}/{image}`, `{family}`, or `{image}`.
 
 The `disk` block supports: (Note that either disk or image is required, unless
 the type is "local-ssd", in which case scratch must be true).
