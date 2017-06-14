@@ -344,3 +344,15 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 	d.SetId("")
 	return nil
 }
+
+func getNamedPorts(nps []interface{}) []*compute.NamedPort {
+	namedPorts := make([]*compute.NamedPort, 0, len(nps))
+	for _, v := range nps {
+		np := v.(map[string]interface{})
+		namedPorts = append(namedPorts, &compute.NamedPort{
+			Name: np["name"].(string),
+			Port: int64(np["port"].(int)),
+		})
+	}
+	return namedPorts
+}
