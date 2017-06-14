@@ -59,7 +59,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 }
 
 resource "google_compute_autoscaler" "foobar" {
-  name   = "foobar"
+  name   = "scaler"
   zone   = "us-central1-f"
   target = "${google_compute_instance_group_manager.foobar.self_link}"
 
@@ -145,3 +145,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URL of the created resource.
+
+## Import
+
+Autoscalers can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_autoscaler.foobar scaler
+```
