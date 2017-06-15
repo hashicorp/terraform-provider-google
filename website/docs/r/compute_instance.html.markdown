@@ -131,6 +131,11 @@ the type is "local-ssd", in which case scratch must be true).
 * `scratch` - (Optional) Whether the disk is a scratch disk as opposed to a
     persistent disk (required for local-ssd).
 
+* `interface` - (Optional) Specifies the disk interface to use for attaching this disk,
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use
+    SCSI and the request will fail if you attempt to attach a persistent disk in any
+    other format than SCSI. Local SSDs can use either NVME or SCSI.
+
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it
     will inherit the size of its base image. Do not specify for local SSDs as
     their size is fixed.
