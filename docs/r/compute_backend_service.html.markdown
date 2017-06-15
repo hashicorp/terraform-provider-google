@@ -18,7 +18,7 @@ For internal load balancing, use a [google_compute_region_backend_service](/docs
 
 ```hcl
 resource "google_compute_backend_service" "website" {
-  name        = "my_backend"
+  name        = "my-backend"
   description = "Our company website"
   port_name   = "http"
   protocol    = "HTTP"
@@ -33,7 +33,7 @@ resource "google_compute_backend_service" "website" {
 }
 
 resource "google_compute_instance_group_manager" "webservers" {
-  name               = "my_webservers"
+  name               = "my-webservers"
   instance_template  = "${google_compute_instance_template.webserver.self_link}"
   base_instance_name = "webserver"
   zone               = "us-central1-f"
@@ -41,7 +41,7 @@ resource "google_compute_instance_group_manager" "webservers" {
 }
 
 resource "google_compute_instance_template" "webserver" {
-  name         = "standard_webserver"
+  name         = "standard-webserver"
   machine_type = "n1-standard-1"
 
   network_interface {
@@ -139,5 +139,5 @@ exported:
 Backend services can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_compute_backend_service.website my_backend
+$ terraform import google_compute_backend_service.website my-backend
 ```
