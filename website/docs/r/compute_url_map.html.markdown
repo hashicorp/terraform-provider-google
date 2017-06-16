@@ -96,8 +96,7 @@ resource "google_storage_bucket" "static" {
 
 The following arguments are supported:
 
-* `default_service` - (Required) The URL or [valid partial url](https://cloud.google.com/compute/docs/reference/latest/urlMaps#defaultService)
-    of the backend service or backend bucket to use when none of the given rules match.
+* `default_service` - (Required) The backend service or backend bucket to use when none of the given rules match.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
