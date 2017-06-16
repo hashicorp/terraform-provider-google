@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
-	"strings"
 )
 
 func resourceStorageBucket() *schema.Resource {
@@ -42,8 +42,8 @@ func resourceStorageBucket() *schema.Resource {
 				Default:  "US",
 				Optional: true,
 				ForceNew: true,
-				StateFunc: func(l interface{}) string {
-					return strings.ToUpper(l.(string))
+				StateFunc: func(s interface{}) string {
+					return strings.ToUpper(s.(string))
 				},
 			},
 
