@@ -14,7 +14,7 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/backendServices
 
 ## Example Usage
 
-```tf
+```hcl
 resource "google_compute_region_backend_service" "foobar" {
   name             = "blablah"
   description      = "Hello World 1234"
@@ -95,6 +95,8 @@ The following arguments are supported:
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
 
+* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained
+(not accept new connections, but still work to finish started ones). Defaults to `0`.
 
 The `backend` block supports:
 
