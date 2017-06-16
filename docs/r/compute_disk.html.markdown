@@ -65,3 +65,11 @@ exported:
     that protects this resource.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Disks can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_disk.default test-disk
+```
