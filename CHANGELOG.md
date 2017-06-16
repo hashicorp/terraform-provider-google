@@ -9,3 +9,4 @@ IMPROVEMENTS:
 * Add an additional delay when checking for sql operations [GH-15170](https://github.com/hashicorp/terraform/pull/15170)
 * Add support for importing `compute_backend_service` [GH-40]
 * Wait for disk resizes to complete [GH-1]
+* Support `connection_draining_timeout_sec` in `google_compute_region_backend_service` [GH-101]
