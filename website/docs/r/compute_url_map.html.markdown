@@ -128,8 +128,7 @@ The `path_matcher` block supports:
 
 * `name` - (Required) The name of the `path_matcher` resource.
 
-* `default_service` - (Required) The URL or [valid partial url](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatcher.defaultService)
- for the backend service or backend bucket to use if none of the given paths match.
+* `default_service` - (Required) The backend service or backend bucket to use if none of the given paths match.
 
 * `description` - (Optional) An optional description of the host rule.
 
@@ -140,8 +139,7 @@ The `path_rule` block supports:
 * `paths` - (Required) The list of [paths](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatchers.pathRules.paths)
     to match against.
 
-* `service` - (Required) The URL or [valid partial url](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatcher.defaultService)
- for the backend service or backend bucket to use if any of the given paths match.
+* `service` - (Required) The backend service or backend bucket to use if any of the given paths match.
 
 The `test` block supports:
 
