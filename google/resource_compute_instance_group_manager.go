@@ -144,7 +144,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		InstanceTemplate: d.Get("instance_template").(string),
 		TargetSize:       targetSize,
 		// Force send TargetSize to allow a value of 0.
-		ForceSendFields:  []string{"TargetSize"},
+		ForceSendFields: []string{"TargetSize"},
 	}
 
 	// Set optional fields
