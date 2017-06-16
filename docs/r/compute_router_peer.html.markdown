@@ -65,8 +65,8 @@ exported:
 
 ## Import
 
-Router BGP peers can be imported using the `region`, `router` and `name`, e.g.
+Router BGP peers can be imported using the `region`, `router`, and `name`, e.g.
 
 ```
-$ terraform import google_compute_router_peer.peer-1 us-central1/router-1/peer-1
+$ terraform import google_compute_router_peer.foobar us-central1/router-1/peer-1
 ```
