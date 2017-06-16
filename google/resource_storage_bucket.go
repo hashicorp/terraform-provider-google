@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -41,6 +42,9 @@ func resourceStorageBucket() *schema.Resource {
 				Default:  "US",
 				Optional: true,
 				ForceNew: true,
+				StateFunc: func(s interface{}) string {
+					return strings.ToUpper(s.(string))
+				},
 			},
 
 			"predefined_acl": &schema.Schema{
