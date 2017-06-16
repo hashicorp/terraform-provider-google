@@ -10,3 +10,7 @@ IMPROVEMENTS:
 * Add support for importing `compute_backend_service` [GH-40]
 * Wait for disk resizes to complete [GH-1]
 * Support `connection_draining_timeout_sec` in `google_compute_region_backend_service` [GH-101]
+
+BUG FIXES:
+
+* Changed `google_compute_instance_group_manager` `target_size` default to 0 [GH-65]
