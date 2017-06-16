@@ -74,9 +74,9 @@ The following arguments are supported:
     restart all of the instances at once. In the future, as the GCE API matures
     we will support `"ROLLING_UPDATE"` as well.
 
-* `target_size` - (Optional) If not given at creation time, this defaults to 1.
-    Do not specify this if you are managing the group with an autoscaler, as
-    this will cause fighting.
+* `target_size` - (Optional) The target number of running instances for this managed
+    instance group. This value should always be explicitly set unless this resource is attached to
+     an autoscaler, in which case it should never be set. Defaults to `0`.
 
 * `target_pools` - (Optional) The full URL of all target pools to which new
     instances in the group are added. Updating the target pools attribute does
