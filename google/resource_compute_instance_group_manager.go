@@ -132,7 +132,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	var targetSize int64 = 0
+	targetSize := int64(0)
 	if v, ok := d.GetOk("target_size"); ok {
 		targetSize = int64(v.(int))
 	}
@@ -143,6 +143,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		BaseInstanceName: d.Get("base_instance_name").(string),
 		InstanceTemplate: d.Get("instance_template").(string),
 		TargetSize:       targetSize,
+		// Force send TargetSize to allow a value of 0.
 		ForceSendFields:  []string{"TargetSize"},
 	}
 
@@ -381,11 +382,10 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.SetPartial("named_port")
 	}
 
-	// We won't ever see changes if target_size is unset
 	if d.HasChange("target_size") {
-		target_size := int64(d.Get("target_size").(int))
+		targetSize := int64(d.Get("target_size").(int))
 		op, err := config.clientCompute.InstanceGroupManagers.Resize(
-			project, d.Get("zone").(string), d.Id(), target_size).Do()
+			project, d.Get("zone").(string), d.Id(), targetSize).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
 		}

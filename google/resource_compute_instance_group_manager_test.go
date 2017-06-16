@@ -42,8 +42,8 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 	var manager compute.InstanceGroupManager
 
-	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igmName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -51,7 +51,7 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccInstanceGroupManager_targetSizeZero(template, igm),
+				Config: testAccInstanceGroupManager_targetSizeZero(templateName, igmName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerExists(
 						"google_compute_instance_group_manager.igm-basic", &manager),
