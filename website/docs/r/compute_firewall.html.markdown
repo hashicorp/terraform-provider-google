@@ -14,7 +14,7 @@ Manages a firewall resource within GCE.
 
 ```hcl
 resource "google_compute_firewall" "default" {
-  name    = "test"
+  name    = "test-firewall"
   network = "${google_compute_network.other.name}"
 
   allow {
@@ -69,3 +69,12 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+
+## Import
+
+Firewalls can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_firewall.default test-firewall
+```
