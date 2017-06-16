@@ -14,3 +14,4 @@ IMPROVEMENTS:
 BUG FIXES:
 
 * Changed `google_compute_instance_group_manager` `target_size` default to 0 [GH-65]
+* Represent GCS Bucket locations as uppercase in state. [GH-117]
