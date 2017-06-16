@@ -484,9 +484,9 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	// Build up the list of disks
 
 	disks := []*compute.AttachedDisk{}
-	var bootDisk *compute.AttachedDisk
-	if _, ok := d.GetOk("boot_disk"); ok {
-		bootDisk, err = expandBootDisk(d, config, zone, project)
+	var hasBootDisk bool
+	if _, hasBootDisk = d.GetOk("boot_disk"); hasBootDisk {
+		bootDisk, err := expandBootDisk(d, config, zone, project)
 		if err != nil {
 			return err
 		}
@@ -496,7 +496,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 
-	if disksCount+attachedDisksCount == 0 && bootDisk == nil {
+	if disksCount+attachedDisksCount == 0 && !hasBootDisk {
 		return fmt.Errorf("At least one disk, attached_disk, or boot_disk must be set")
 	}
 	for i := 0; i < disksCount; i++ {
@@ -508,7 +508,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		var disk compute.AttachedDisk
 		disk.Type = "PERSISTENT"
 		disk.Mode = "READ_WRITE"
-		disk.Boot = i == 0 && bootDisk == nil
+		disk.Boot = i == 0 && !hasBootDisk
 		disk.AutoDelete = d.Get(prefix + ".auto_delete").(bool)
 
 		if _, ok := d.GetOk(prefix + ".disk"); ok {
@@ -599,7 +599,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
 
-		disk.Boot = i == 0 && disksCount == 0 && bootDisk == nil
+		disk.Boot = i == 0 && disksCount == 0 && !hasBootDisk
 
 		if v, ok := d.GetOk(prefix + ".device_name"); ok {
 			disk.DeviceName = v.(string)
