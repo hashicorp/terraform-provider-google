@@ -165,6 +165,10 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 			},
 		},
 	})
+
+	if svc.ConnectionDraining.DrainingTimeoutSec != 0 {
+		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 0, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
+	}
 }
 
 func TestAccComputeRegionBackendService_withSessionAffinity(t *testing.T) {
