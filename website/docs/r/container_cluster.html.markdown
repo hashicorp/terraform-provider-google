@@ -40,6 +40,12 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+    
+    labels {
+      foo = "bar"
+    }
+    
+    tags = ["foo", "bar"]
   }
 }
 ```
@@ -136,6 +142,11 @@ which the cluster's instances are launched
     the cluster.
 
 * `image_type` - (Optional) The image type to use for this node.
+
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
+
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
+    valid sources or targets for network firewalls.
 
 **Addons Config** supports the following addons:
 
