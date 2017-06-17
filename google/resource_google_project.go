@@ -52,7 +52,7 @@ func resourceGoogleProject() *schema.Resource {
 			},
 			"org_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
@@ -89,10 +89,14 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	project := &cloudresourcemanager.Project{
 		ProjectId: pid,
 		Name:      d.Get("name").(string),
-		Parent: &cloudresourcemanager.ResourceId{
-			Id:   d.Get("org_id").(string),
+	}
+
+	if v, ok := d.GetOk("org_id"); ok {
+		org_id := v.(string)
+		project.Parent = &cloudresourcemanager.ResourceId{
+			Id:   org_id,
 			Type: "organization",
-		},
+		}
 	}
 
 	op, err := config.clientResourceManager.Projects.Create(project).Do()
