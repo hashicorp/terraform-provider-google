@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * Add support for importing `compute_backend_service` [GH-40]
 * Wait for disk resizes to complete [GH-1]
 * Support `connection_draining_timeout_sec` in `google_compute_region_backend_service` [GH-101]
+* Add support for labels and tags on GKE node_config [GH-7]
 
 BUG FIXES:
 
