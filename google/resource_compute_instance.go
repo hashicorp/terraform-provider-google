@@ -516,9 +516,9 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, bootDisk)
 	}
 
-	scratchDisks := []*compute.AttachedDisk{}
-	if _, ok := d.GetOk("scratch_disk"); ok {
-		scratchDisks, err = expandScratchDisks(d, config, zone)
+	var hasScratchDisk bool
+	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
+		scratchDisks, err := expandScratchDisks(d, config, zone)
 		if err != nil {
 			return err
 		}
@@ -571,7 +571,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		if v, ok := d.GetOk(prefix + ".scratch"); ok {
 			if v.(bool) {
-				if len(scratchDisks) > 0 {
+				if hasScratchDisk {
 					return fmt.Errorf("Cannot set scratch disks using both `scratch_disk` and `disk` properties")
 				}
 				disk.Type = "SCRATCH"

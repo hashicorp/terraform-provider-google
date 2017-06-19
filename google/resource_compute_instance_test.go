@@ -1431,30 +1431,31 @@ resource "google_compute_instance" "local-ssd" {
 
 func testAccComputeInstance_scratchDisk(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "scratch" {
-		name         = "%s"
-		machine_type = "n1-standard-1"
-		zone         = "us-central1-a"
+resource "google_compute_instance" "scratch" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		boot_disk {
-			initialize_params {
-				image = "debian-8-jessie-v20160803"
-			}
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
 		}
+	}
 
-		scratch_disk {
-			interface = "NVME"
-		}
+	scratch_disk {
+		interface = "NVME"
+	}
 
-		scratch_disk {
-			interface = "SCSI"
-		}
+	scratch_disk {
+		interface = "SCSI"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-	}`, instance)
+}
+`, instance)
 }
 
 func testAccComputeInstance_service_account(instance string) string {
