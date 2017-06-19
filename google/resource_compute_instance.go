@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 func stringScopeHashcode(v interface{}) int {
@@ -643,7 +644,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	scheduling := &compute.Scheduling{}
 
 	if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
-		scheduling.AutomaticRestart = val.(bool)
+		scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 	}
 
 	if val, ok := d.GetOk(prefix + ".preemptible"); ok {
@@ -981,7 +982,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		scheduling := &compute.Scheduling{}
 
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
-			scheduling.AutomaticRestart = val.(bool)
+			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
 
 		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
