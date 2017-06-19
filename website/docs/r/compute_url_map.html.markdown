@@ -96,10 +96,7 @@ resource "google_storage_bucket" "static" {
 
 The following arguments are supported:
 
-* `default_service` - (Required) The URL of the backend service or backend bucket to use when none
-    of the given rules match. See the documentation for formatting the service/bucket
-    URL
-    [here](https://cloud.google.com/compute/docs/reference/latest/urlMaps#defaultService)
+* `default_service` - (Required) The backend service or backend bucket to use when none of the given rules match.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -108,50 +105,42 @@ The following arguments are supported:
 
 * `description` - (Optional) A brief description of this resource.
 
-* `host_rule` - (Optional) A list of host rules. See below for configuration
-    options.
+* `host_rule` - (Optional) A list of host rules. Multiple blocks of this type are permitted. Structure is documented below.
 
-* `path_matcher` - (Optional) A list of paths to match. See below for
-    configuration options.
+* `path_matcher` - (Optional) A list of paths to match. Structure is documented below.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `test` - (Optional) The test to perform. See below for configuration options.
+* `test` - (Optional) The test to perform.  Multiple blocks of this type are permitted. Structure is documented below.
 
-The `host_rule` block supports: (This block can be defined multiple times).
+The `host_rule` block supports:
 
-* `hosts` (Required) - A list of hosts to match against. See the documentation
-    for formatting each host
-    [here](https://cloud.google.com/compute/docs/reference/latest/urlMaps#hostRules.hosts)
-
-* `description` - (Optional) An optional description of the host rule.
-
-* `path_matcher` - (Required) The name of the `path_matcher` (defined below)
-    to apply this host rule to.
-
-The `path_matcher` block supports: (This block can be defined multiple times)
-
-* `default_service` - (Required) The URL for the backend service or backend bucket to use if none
-    of the given paths match. See the documentation for formatting the service/bucket
-    URL [here](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatcher.defaultService)
-
-* `name` - (Required) The name of the `path_matcher` resource. Used by the
-    `host_rule` block above.
+* `hosts` (Required) - The list of [host patterns](https://cloud.google.com/compute/docs/reference/latest/urlMaps#hostRules.hosts)
+ to match.
 
 * `description` - (Optional) An optional description of the host rule.
 
-The `path_matcher.path_rule` sub-block supports: (This block can be defined
-multiple times)
+* `path_matcher` - (Required) The name of the `path_matcher` to apply this host rule to.
 
-* `paths` - (Required) The list of paths to match against. See the
-    documentation for formatting these [here](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatchers.pathRules.paths)
+The `path_matcher` block supports:
 
-* `service` - (Required) The URL for the backend service or backend bucket to use if any
-    of the given paths match. See the documentation for formatting the service/bucket
-    URL [here](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatcher.defaultService)
+* `name` - (Required) The name of the `path_matcher` resource.
 
-The optional `test` block supports: (This block can be defined multiple times)
+* `default_service` - (Required) The backend service or backend bucket to use if none of the given paths match.
+
+* `description` - (Optional) An optional description of the host rule.
+
+* `path_rule` - (Optional)  A list of path rules. Multiple blocks of this type are permitted. Structure is documented below.
+
+The `path_rule` block supports:
+
+* `paths` - (Required) The list of [paths](https://cloud.google.com/compute/docs/reference/latest/urlMaps#pathMatchers.pathRules.paths)
+    to match against.
+
+* `service` - (Required) The backend service or backend bucket to use if any of the given paths match.
+
+The `test` block supports:
 
 * `service` - (Required) The backend service or backend bucket that should be matched by this test.
 
