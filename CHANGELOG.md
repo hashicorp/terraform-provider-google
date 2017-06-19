@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * Wait for disk resizes to complete [GH-1]
 * Support `connection_draining_timeout_sec` in `google_compute_region_backend_service` [GH-101]
 * Add support for labels and tags on GKE node_config [GH-7]
+* Made `path_rule` optional in `google_compute_url_map`'s `path_matcher` block [GH-118]
 
 BUG FIXES:
 
