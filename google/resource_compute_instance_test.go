@@ -1295,45 +1295,47 @@ resource "google_compute_instance" "foobar" {
 
 func testAccComputeInstance_bootDisk(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name         = "%s"
-		machine_type = "n1-standard-1"
-		zone         = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		boot_disk {
-			initialize_params {
-				image = "debian-8-jessie-v20160803"
-			}
-			disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
 		}
+		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
 
-		network_interface {
-			network = "default"
-		}
-	}`, instance)
+	network_interface {
+		network = "default"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_disk" "foobar" {
-		name  = "%s"
-		zone  = "us-central1-a"
-		image = "debian-8-jessie-v20160803"
+resource "google_compute_disk" "foobar" {
+	name  = "%s"
+	zone  = "us-central1-a"
+	image = "debian-8-jessie-v20160803"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		source = "${google_compute_disk.foobar.name}"
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name         = "%s"
-		machine_type = "n1-standard-1"
-		zone         = "us-central1-a"
-
-		boot_disk {
-			source = "${google_compute_disk.foobar.name}"
-		}
-
-		network_interface {
-			network = "default"
-		}
-	}`, disk, instance)
+	network_interface {
+		network = "default"
+	}
+}
+`, disk, instance)
 }
 
 func testAccComputeInstance_noDisk(instance string) string {
