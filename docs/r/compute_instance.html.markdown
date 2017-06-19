@@ -102,6 +102,8 @@ The following arguments are supported:
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
+
 * `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
     Changing this forces a new resource to be created.
 
@@ -207,6 +209,8 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `tags_fingerprint` - The unique fingerprint of the tags.
+
+* `label_fingerprint` - The unique fingerprint of the labels.
 
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 
