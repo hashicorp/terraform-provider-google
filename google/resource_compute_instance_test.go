@@ -849,635 +849,660 @@ func testAccCheckComputeInstanceHasAddress(instance *compute.Instance, address s
 
 func testAccComputeInstance_basic_deprecated_network(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network {
-			source = "default"
-		}
+	network {
+		source = "default"
+	}
 
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_update_deprecated_network(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		tags = ["baz"]
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["baz"]
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network {
-			source = "default"
-		}
+	network {
+		source = "default"
+	}
 
-		metadata {
-			bar = "baz"
-		}
-	}`, instance)
+	metadata {
+		bar = "baz"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		metadata {
-			foo = "bar"
-			baz = "qux"
-		}
+	metadata {
+		foo = "bar"
+		baz = "qux"
+	}
 
-		create_timeout = 5
+	create_timeout = 5
 
-		metadata_startup_script = "echo Hello"
-	}`, instance)
+	metadata_startup_script = "echo Hello"
+}
+`, instance)
 }
 
 func testAccComputeInstance_basic2(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "debian-8"
-		}
+	disk {
+		image = "debian-8"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_basic3(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "debian-cloud/debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-cloud/debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_basic4(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "debian-cloud/debian-8"
-		}
+	disk {
+		image = "debian-cloud/debian-8"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
 
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_basic5(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
 
-		disk {
-			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 // Update zone to ForceNew, and change metadata k/v entirely
 // Generates diff mismatch
 func testAccComputeInstance_forceNewAndChangeMetadata(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		zone = "us-central1-b"
-		tags = ["baz"]
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-b"
+	tags         = ["baz"]
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-			access_config { }
-		}
+	network_interface {
+		network = "default"
+		access_config { }
+	}
 
-		metadata {
-			qux = "true"
-		}
-	}`, instance)
+	metadata {
+		qux = "true"
+	}
+}
+`, instance)
 }
 
 // Update metadata, tags, and network_interface
 func testAccComputeInstance_update(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		tags = ["baz"]
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["baz"]
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-			access_config { }
-		}
+	network_interface {
+		network = "default"
+		access_config { }
+	}
 
-		metadata {
-			bar = "baz"
-		}
-	}`, instance)
+	metadata {
+		bar = "baz"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_ip(ip, instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_address" "foo" {
-		name = "%s"
+resource "google_compute_address" "foo" {
+	name = "%s"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["foo", "bar"]
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-		tags = ["foo", "bar"]
-
-		disk {
-			image = "debian-8-jessie-v20160803"
+	network_interface {
+		network = "default"
+		access_config {
+			nat_ip = "${google_compute_address.foo.address}"
 		}
+	}
 
-		network_interface {
-			network = "default"
-			access_config {
-				nat_ip = "${google_compute_address.foo.address}"
-			}
-		}
-
-		metadata {
-			foo = "bar"
-		}
-	}`, ip, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, ip, instance)
 }
 
 func testAccComputeInstance_disks(disk, instance string, autodelete bool) string {
 	return fmt.Sprintf(`
-	resource "google_compute_disk" "foobar" {
-		name = "%s"
-		size = 10
-		type = "pd-ssd"
-		zone = "us-central1-a"
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+	disk {
+		disk        = "${google_compute_disk.foobar.name}"
+		auto_delete = %v
+	}
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		disk {
-			disk = "${google_compute_disk.foobar.name}"
-			auto_delete = %v
-		}
-
-		network_interface {
-			network = "default"
-		}
-
-		metadata {
-			foo = "bar"
-		}
-	}`, disk, instance, autodelete)
+	metadata {
+		foo = "bar"
+	}
+}
+`, disk, instance, autodelete)
 }
 
 func testAccComputeInstance_disks_encryption(disk, instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_disk" "foobar" {
-		name = "%s"
-		size = 10
-		type = "pd-ssd"
-		zone = "us-central1-a"
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
+		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+	disk {
+		disk = "${google_compute_disk.foobar.name}"
+	}
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-			disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-		}
+	network_interface {
+		network = "default"
+	}
 
-		disk {
-			disk = "${google_compute_disk.foobar.name}"
-		}
-
-		network_interface {
-			network = "default"
-		}
-
-		metadata {
-			foo = "bar"
-		}
-	}`, disk, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, disk, instance)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_disk" "foobar" {
-		name = "%s"
-		size = 10
-		type = "pd-ssd"
-		zone = "us-central1-a"
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+	network_interface {
+		network = "default"
+	}
 
-		attached_disk {
-			source = "${google_compute_disk.foobar.self_link}"
-		}
-
-		network_interface {
-			network = "default"
-		}
-
-		metadata {
-			foo = "bar"
-		}
-	}`, disk, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, disk, instance)
 }
 
 func testAccComputeInstance_noDisk(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		metadata {
-			foo = "bar"
-		}
-	}`, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_local_ssd(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "local-ssd" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+resource "google_compute_instance" "local-ssd" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		disk {
-			type = "local-ssd"
-			scratch = true
-		}
+	disk {
+		type = "local-ssd"
+		scratch = true
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-	}`, instance)
+}
+`, instance)
 }
 
 func testAccComputeInstance_service_account(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		service_account {
-			scopes = [
-				"userinfo-email",
-				"compute-ro",
-				"storage-ro",
-			]
-		}
-	}`, instance)
+	service_account {
+		scopes = [
+			"userinfo-email",
+			"compute-ro",
+			"storage-ro",
+		]
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_scheduling(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
+	disk {
+		image = "debian-8-jessie-v20160803"
+	}
 
-		network_interface {
-			network = "default"
-		}
+	network_interface {
+		network = "default"
+	}
 
-		scheduling {
-		}
-	}`, instance)
+	scheduling {
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_subnet_auto(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_network" "inst-test-network" {
-		name = "inst-test-network-%s"
-		auto_create_subnetworks = true
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+
+	auto_create_subnetworks = true
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
+	network_interface {
+		network = "${google_compute_network.inst-test-network.name}"
+		access_config {	}
+	}
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
-
-		network_interface {
-			network = "${google_compute_network.inst-test-network.name}"
-			access_config {	}
-		}
-
-	}`, acctest.RandString(10), instance)
+}
+`, acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_subnet_custom(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_network" "inst-test-network" {
-		name = "inst-test-network-%s"
-		auto_create_subnetworks = false
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
 
-	resource "google_compute_subnetwork" "inst-test-subnetwork" {
-		name = "inst-test-subnetwork-%s"
-		ip_cidr_range = "10.0.0.0/16"
-		region = "us-central1"
-		network = "${google_compute_network.inst-test-network.self_link}"
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		access_config {	}
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
-
-		network_interface {
-			subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
-			access_config {	}
-		}
-
-	}`, acctest.RandString(10), acctest.RandString(10), instance)
+}
+`, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_subnet_xpn(instance, xpn_host string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_network" "inst-test-network" {
-		name = "inst-test-network-%s"
-		auto_create_subnetworks = false
-		project = "%s"
+resource "google_compute_network" "inst-test-network" {
+	name    = "inst-test-network-%s"
+	project = "%s"
+
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+	project       = "%s"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
 
-	resource "google_compute_subnetwork" "inst-test-subnetwork" {
-		name = "inst-test-subnetwork-%s"
-		ip_cidr_range = "10.0.0.0/16"
-		region = "us-central1"
-		network = "${google_compute_network.inst-test-network.self_link}"
-		project = "%s"
+	network_interface {
+		subnetwork         = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		subnetwork_project = "${google_compute_subnetwork.inst-test-subnetwork.project}"
+		access_config {	}
 	}
 
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
-
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
-
-		network_interface {
-			subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
-			subnetwork_project = "${google_compute_subnetwork.inst-test-subnetwork.project}"
-			access_config {	}
-		}
-
-	}`, acctest.RandString(10), xpn_host, acctest.RandString(10), xpn_host, instance)
+}
+`, acctest.RandString(10), xpn_host, acctest.RandString(10), xpn_host, instance)
 }
 
 func testAccComputeInstance_address_auto(instance string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_network" "inst-test-network" {
-		name = "inst-test-network-%s"
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+}
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
-	resource "google_compute_subnetwork" "inst-test-subnetwork" {
-		name = "inst-test-subnetwork-%s"
-		ip_cidr_range = "10.0.0.0/16"
-		region = "us-central1"
-		network = "${google_compute_network.inst-test-network.self_link}"
+
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		access_config {	}
 	}
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
-
-		network_interface {
-			subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
-			access_config {	}
-		}
-
-	}`, acctest.RandString(10), acctest.RandString(10), instance)
+}
+`, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_address_custom(instance, address string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_network" "inst-test-network" {
-		name = "inst-test-network-%s"
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+}
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	disk {
+		image = "debian-8-jessie-v20160803"
 	}
-	resource "google_compute_subnetwork" "inst-test-subnetwork" {
-		name = "inst-test-subnetwork-%s"
-		ip_cidr_range = "10.0.0.0/16"
-		region = "us-central1"
-		network = "${google_compute_network.inst-test-network.self_link}"
+
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		address    = "%s"
+		access_config {	}
 	}
-	resource "google_compute_instance" "foobar" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		zone = "us-central1-a"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
-		}
-
-		network_interface {
-			subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
-		    address = "%s"
-			access_config {	}
-		}
-
-	}`, acctest.RandString(10), acctest.RandString(10), instance, address)
+}
+`, acctest.RandString(10), acctest.RandString(10), instance, address)
 }
 
 func testAccComputeInstance_private_image_family(disk, image, family, instance string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_disk" "foobar" {
-			name = "%s"
-			zone = "us-central1-a"
-			image = "debian-8-jessie-v20160803"
-		}
+resource "google_compute_disk" "foobar" {
+	name  = "%s"
+	zone  = "us-central1-a"
+	image = "debian-8-jessie-v20160803"
+}
 
-		resource "google_compute_image" "foobar" {
-			name = "%s"
-			source_disk = "${google_compute_disk.foobar.self_link}"
-			family = "%s"
-		}
+resource "google_compute_image" "foobar" {
+	name        = "%s"
+	source_disk = "${google_compute_disk.foobar.self_link}"
+	family      = "%s"
+}
 
-		resource "google_compute_instance" "foobar" {
-			name = "%s"
-			machine_type = "n1-standard-1"
-			zone = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
 
-			disk {
-				image = "${google_compute_image.foobar.family}"
-			}
+	disk {
+		image = "${google_compute_image.foobar.family}"
+	}
 
-			network_interface {
-				network = "default"
-			}
+	network_interface {
+		network = "default"
+	}
 
-			metadata {
-				foo = "bar"
-			}
-		}`, disk, image, family, instance)
+	metadata {
+		foo = "bar"
+	}
+}
+`, disk, image, family, instance)
 }
 
 func testAccComputeInstance_invalid_disk(disk, instance string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_instance" "foobar" {
-		  name         = "%s"
-		  machine_type = "f1-micro"
-		  zone         = "us-central1-a"
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
 
-		  disk {
-		    image = "ubuntu-os-cloud/ubuntu-1604-lts"
-		    type  = "pd-standard"
-		  }
+  disk {
+    image = "ubuntu-os-cloud/ubuntu-1604-lts"
+    type  = "pd-standard"
+  }
 
-		  disk {
-		    disk        = "${google_compute_disk.foobar.name}"
-		    type        = "pd-standard"
-		    device_name = "xvdb"
-		  }
+  disk {
+    disk        = "${google_compute_disk.foobar.name}"
+    type        = "pd-standard"
+    device_name = "xvdb"
+  }
 
-		  network_interface {
-		    network = "default"
-		  }
-		}
+  network_interface {
+    network = "default"
+  }
+}
 
-		resource "google_compute_disk" "foobar" {
-		  name = "%s"
-		  zone = "us-central1-a"
-		  type = "pd-standard"
-		  size = "1"
-		}`, instance, disk)
+resource "google_compute_disk" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+  type = "pd-standard"
+  size = "1"
+}
+`, instance, disk)
 }
