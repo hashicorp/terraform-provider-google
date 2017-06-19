@@ -268,6 +268,8 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.service_account", cluster.NodeConfig.ServiceAccount},
 			{"node_config.0.metadata", cluster.NodeConfig.Metadata},
 			{"node_config.0.image_type", cluster.NodeConfig.ImageType},
+			{"node_config.0.labels", cluster.NodeConfig.Labels},
+			{"node_config.0.tags", cluster.NodeConfig.Tags},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -466,6 +468,10 @@ resource "google_container_cluster" "with_node_config" {
 			foo = "bar"
 		}
 		image_type = "CONTAINER_VM"
+		labels {
+			foo = "bar"
+		}
+		tags = ["foo", "bar"]
 	}
 }`, acctest.RandString(10))
 
