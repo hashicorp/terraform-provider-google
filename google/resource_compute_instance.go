@@ -343,6 +343,18 @@ func resourceComputeInstance() *schema.Resource {
 				Computed: true,
 			},
 
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"create_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -676,6 +688,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Name:              d.Get("name").(string),
 		NetworkInterfaces: networkInterfaces,
 		Tags:              resourceInstanceTags(d),
+		Labels:            resourceInstanceLabels(d),
 		ServiceAccounts:   serviceAccounts,
 		Scheduling:        scheduling,
 	}
@@ -845,6 +858,14 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
 	}
 
+	if len(instance.Labels) > 0 {
+		d.Set("labels", instance.Labels)
+	}
+
+	if instance.LabelFingerprint != "" {
+		d.Set("label_fingerprint", instance.LabelFingerprint)
+	}
+
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 	disks := make([]map[string]interface{}, 0, disksCount)
@@ -975,6 +996,24 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetPartial("tags")
+	}
+
+	if d.HasChange("labels") {
+		labels := resourceInstanceLabels(d)
+		labelFingerprint := d.Get("label_fingerprint").(string)
+		req := compute.InstancesSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
+
+		op, err := config.clientCompute.Instances.SetLabels(project, zone, d.Id(), &req).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating labels: %s", err)
+		}
+
+		opErr := computeOperationWaitZone(config, op, project, zone, "labels to update")
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetPartial("labels")
 	}
 
 	if d.HasChange("scheduling") {
@@ -1125,6 +1164,17 @@ func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error)
 	}
 
 	return m, nil
+}
+
+func resourceInstanceLabels(d *schema.ResourceData) map[string]string {
+	labels := map[string]string{}
+	if v, ok := d.GetOk("labels"); ok {
+		labelMap := v.(map[string]interface{})
+		for k, v := range labelMap {
+			labels[k] = v.(string)
+		}
+	}
+	return labels
 }
 
 func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
