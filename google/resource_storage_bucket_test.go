@@ -87,10 +87,10 @@ func TestAccStorageBucket_lifecycleRules(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
 
 	hash_step0_lc0_action := resourceGCSBucketLifecycleRuleActionHash(map[string]interface{}{"type": "SetStorageClass", "storage_class": "NEARLINE"})
-	hash_step0_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 2, "created_before": "", "is_live": false, "number_of_newer_versions": 0})
+	hash_step0_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 2, "created_before": "", "is_live": false, "num_newer_versions": 0})
 
 	hash_step0_lc1_action := resourceGCSBucketLifecycleRuleActionHash(map[string]interface{}{"type": "Delete", "storage_class": ""})
-	hash_step0_lc1_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "number_of_newer_versions": 0})
+	hash_step0_lc1_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "num_newer_versions": 0})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -175,13 +175,13 @@ func TestAccStorageBucket_update(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
 	hash_step2_lc0_action := resourceGCSBucketLifecycleRuleActionHash(map[string]interface{}{"type": "Delete", "storage_class": ""})
-	hash_step2_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "number_of_newer_versions": 0})
+	hash_step2_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "num_newer_versions": 0})
 
 	hash_step3_lc0_action := resourceGCSBucketLifecycleRuleActionHash(map[string]interface{}{"type": "SetStorageClass", "storage_class": "NEARLINE"})
-	hash_step3_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 2, "created_before": "", "is_live": false, "number_of_newer_versions": 0})
+	hash_step3_lc0_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 2, "created_before": "", "is_live": false, "num_newer_versions": 0})
 
 	hash_step3_lc1_action := resourceGCSBucketLifecycleRuleActionHash(map[string]interface{}{"type": "Delete", "storage_class": ""})
-	hash_step3_lc1_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "number_of_newer_versions": 2})
+	hash_step3_lc1_condition := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{"age": 10, "created_before": "", "is_live": false, "num_newer_versions": 2})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -271,7 +271,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.1.condition.%d.age", hash_step3_lc1_condition), "10"),
 					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.1.condition.%d.number_of_newer_versions", hash_step3_lc1_condition), "2"),
+						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.1.condition.%d.num_newer_versions", hash_step3_lc1_condition), "2"),
 				),
 			},
 			resource.TestStep{
@@ -548,7 +548,7 @@ resource "google_storage_bucket" "bucket" {
 		}
 		condition {
 			age = 10
-			number_of_newer_versions = 2
+			num_newer_versions = 2
 		}
 	}
 }

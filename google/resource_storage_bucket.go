@@ -126,7 +126,7 @@ func resourceStorageBucket() *schema.Resource {
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
-									"number_of_newer_versions": {
+									"num_newer_versions": {
 										Type:     schema.TypeInt,
 										Optional: true,
 									},
@@ -517,7 +517,7 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 					target_lifecycle_rule.Condition.MatchesStorageClass = target_matches_storage_classes
 				}
 
-				if v, ok := condition["number_of_newer_versions"]; ok {
+				if v, ok := condition["num_newer_versions"]; ok {
 					condition_elements++
 					target_lifecycle_rule.Condition.NumNewerVersions = int64(v.(int))
 				}
@@ -578,7 +578,7 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		}
 	}
 
-	if v, ok := m["number_of_newer_versions"]; ok {
+	if v, ok := m["num_newer_versions"]; ok {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
