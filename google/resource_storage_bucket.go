@@ -210,7 +210,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.StorageClass = v.(string)
 	}
 
-	if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb, false); err != nil {
+	if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb); err != nil {
 		return err
 	}
 
@@ -273,7 +273,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	sb := &storage.Bucket{}
 
 	if d.HasChange("lifecycle_rule") {
-		if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb, true); err != nil {
+		if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb); err != nil {
 			return err
 		}
 	}
@@ -453,7 +453,7 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 	return corsRulesSchema
 }
 
-func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket, update bool) error {
+func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket) error {
 	if v, ok := d.GetOk("lifecycle_rule"); ok {
 		lifecycle_rules := v.([]interface{})
 
