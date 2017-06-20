@@ -124,6 +124,7 @@ func resourceStorageBucket() *schema.Resource {
 									"matches_storage_class": {
 										Type:     schema.TypeList,
 										Optional: true,
+										MinItems: 1,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"num_newer_versions": {
@@ -486,22 +487,22 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 
 			if v, ok := lifecycle_rule["condition"]; ok {
 				condition := v.(*schema.Set).List()[0].(map[string]interface{})
-				condition_elements := 0
+
+				if len(condition) < 1 {
+					return fmt.Errorf("At least one condition element is required")
+				}
 
 				target_lifecycle_rule.Condition = &storage.BucketLifecycleRuleCondition{}
 
 				if v, ok := condition["age"]; ok {
-					condition_elements++
 					target_lifecycle_rule.Condition.Age = int64(v.(int))
 				}
 
 				if v, ok := condition["created_before"]; ok {
-					condition_elements++
 					target_lifecycle_rule.Condition.CreatedBefore = v.(string)
 				}
 
 				if v, ok := condition["is_live"]; ok {
-					condition_elements++
 					target_lifecycle_rule.Condition.IsLive = v.(bool)
 				}
 
@@ -512,19 +513,13 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 
 					for _, v := range matches_storage_classes {
 						target_matches_storage_classes = append(target_matches_storage_classes, v.(string))
-						condition_elements++
 					}
 
 					target_lifecycle_rule.Condition.MatchesStorageClass = target_matches_storage_classes
 				}
 
 				if v, ok := condition["num_newer_versions"]; ok {
-					condition_elements++
 					target_lifecycle_rule.Condition.NumNewerVersions = int64(v.(int))
-				}
-
-				if condition_elements < 1 {
-					return fmt.Errorf("At least one condition element is required")
 				}
 
 				sb.Lifecycle.Rule = append(sb.Lifecycle.Rule, target_lifecycle_rule)
