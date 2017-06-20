@@ -197,8 +197,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "US"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "lifecycle_rule.#", "0"),
+					resource.TestCheckNoResourceAttr(
+						"google_storage_bucket.bucket", "lifecycle_rule.#"),
 				),
 			},
 			resource.TestStep{
@@ -212,8 +212,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "lifecycle_rule.#", "0"),
+					resource.TestCheckNoResourceAttr(
+						"google_storage_bucket.bucket", "lifecycle_rule.#"),
 				),
 			},
 			resource.TestStep{
