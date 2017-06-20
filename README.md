@@ -1,4 +1,4 @@
-Terraform Provider
+Terraform Provider for Google Cloud Platform
 ==================
 
 - Website: https://www.terraform.io
