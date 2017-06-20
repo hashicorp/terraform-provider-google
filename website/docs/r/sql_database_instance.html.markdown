@@ -200,5 +200,5 @@ exported:
 Database instances can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_sql_database_instance.instance instance_name
+$ terraform import google_sql_database_instance.master master-instance
 ```

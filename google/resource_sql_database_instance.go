@@ -525,6 +525,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		d.Set("name", instance.Name)
 	}
 
+	d.SetId(instance.Name)
+
 	if v, ok := d.GetOk("replica_configuration"); ok {
 		_replicaConfigurationList := v.([]interface{})
 
@@ -634,13 +636,8 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	// In the import case name won't be set yet
-	if _, ok := d.GetOk("name"); !ok {
-		d.Set("name", d.Id())
-	}
-
 	instance, err := config.clientSqlAdmin.Instances.Get(project,
-		d.Get("name").(string)).Do()
+		d.Id()).Do()
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
@@ -655,9 +652,11 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	} else {
 		_settingsList = make([]interface{}, 1)
 		_settings = make(map[string]interface{})
-		d.Set("region", instance.Region)
-		d.Set("database_version", instance.DatabaseVersion)
 	}
+
+	d.Set("name", instance.Name)
+	d.Set("region", instance.Region)
+	d.Set("database_version", instance.DatabaseVersion)
 
 	settings := instance.Settings
 	_settings["version"] = settings.SettingsVersion
