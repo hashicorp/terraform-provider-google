@@ -24,7 +24,7 @@ resource "google_sql_database_instance" "master" {
 }
 
 resource "google_sql_database" "users" {
-  name     = "users"
+  name     = "users-db"
   instance = "${google_sql_database_instance.master.name}"
 }
 ```
@@ -51,9 +51,8 @@ exported:
 
 ## Import
 
-Database resources can be imported using the `name` of the database instance
-combined with `name` of the database separated by a `:`, e.g.
+SQL databases can be imported using the `instance` and `name`, e.g.
 
 ```
-$ terraform import google_sql_database.database instance_name:database_name
+$ terraform import google_sql_database.database master-instance:users-db
 ```

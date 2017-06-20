@@ -55,6 +55,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	database_name := d.Get("name").(string)
 	instance_name := d.Get("instance").(string)
+	d.SetId(instance_name + ":" + database_name)
 
 	db := &sqladmin.Database{
 		Name:     database_name,
@@ -90,15 +91,9 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// In the import case this won't be set
-	if _, ok := d.GetOk("instance"); !ok {
-		s := strings.Split(d.Id(), ":")
-		d.Set("instance", s[0])
-		d.Set("name", s[1])
-	}
-
-	database_name := d.Get("name").(string)
-	instance_name := d.Get("instance").(string)
+	s := strings.Split(d.Id(), ":")
+	instance_name := s[0]
+	database_name := s[1]
 
 	db, err := config.clientSqlAdmin.Databases.Get(project, instance_name,
 		database_name).Do()
@@ -107,6 +102,8 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database %q in instance %q", database_name, instance_name))
 	}
 
+	d.Set("instance", db.Instance)
+	d.Set("name", db.Name)
 	d.Set("self_link", db.SelfLink)
 	d.SetId(instance_name + ":" + database_name)
 
