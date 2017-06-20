@@ -92,6 +92,12 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	s := strings.Split(d.Id(), ":")
+
+	if len(s) != 2 {
+		return fmt.Errorf("Error, failure importing database %s. "+
+			"ID format is instance:name", d.Id())
+	}
+
 	instance_name := s[0]
 	database_name := s[1]
 
