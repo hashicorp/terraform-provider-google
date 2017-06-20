@@ -64,9 +64,9 @@ to `google_storage_bucket_acl.predefined_acl`.
 
 The `lifecycle_rule` block supports:
 
-* `action` - The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
+* `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
 
-* `condition` - The Lifecycle Rule's condition configuration. A single block of this type is supported. Structure is documented below.
+* `condition` - (Required) The Lifecycle Rule's condition configuration. A single block of this type is supported. Structure is documented below.
 
 The `action` block supports:
 
@@ -74,7 +74,7 @@ The `action` block supports:
 
 * `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
 
-The `condition` block supports:
+The `condition` block supports the following elements, and requires at least one to be defined:
 
 * `age` - (Optional) Minimum age of an object in days to satisfy this condition.
 
