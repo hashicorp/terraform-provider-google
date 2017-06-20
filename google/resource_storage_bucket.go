@@ -457,12 +457,13 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 	if v, ok := d.GetOk("lifecycle_rule"); ok {
 		lifecycle_rules := v.([]interface{})
 
-		if len(lifecycle_rules) > 100 {
-			return fmt.Errorf("At most 100 lifecycle_rule blocks are allowed")
+		len_lifecycle_rules := len(lifecycle_rules)
+		if len_lifecycle_rules > 100 {
+			return fmt.Errorf("At most 100 lifecycle_rule blocks are allowed, %d given", len_lifecycle_rules)
 		}
 
 		sb.Lifecycle = &storage.BucketLifecycle{}
-		sb.Lifecycle.Rule = make([]*storage.BucketLifecycleRule, 0, len(lifecycle_rules))
+		sb.Lifecycle.Rule = make([]*storage.BucketLifecycleRule, 0, len_lifecycle_rules)
 
 		for _, lifecycle_rule := range lifecycle_rules {
 			lifecycle_rule := lifecycle_rule.(map[string]interface{})
