@@ -26,6 +26,6 @@ fi
 
 PROVIDER_URL="https:\/\/github.com\/terraform-providers\/terraform-provider-google"
 
-$SED "s/GH-([0-9]+)/\[#\1\]\($PROVIDER_URL\/\1\)/g" -e 's/\[\[#(.+)([0-9])\)]$/(\[#\1\2))/g' CHANGELOG.md
+$SED "s/GH-([0-9]+)/\[#\1\]\($PROVIDER_URL\/issues\/\1\)/g" -e 's/\[\[#(.+)([0-9])\)]$/(\[#\1\2))/g' CHANGELOG.md
 
 rm CHANGELOG.md.bak
