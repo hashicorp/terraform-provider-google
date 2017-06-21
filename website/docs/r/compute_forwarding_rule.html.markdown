@@ -17,7 +17,7 @@ documentation](https://cloud.google.com/compute/docs/load-balancing/network/forw
 
 ```tf
 resource "google_compute_forwarding_rule" "default" {
-  name       = "test"
+  name       = "website-forwarding-rule"
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
@@ -77,3 +77,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Forwarding rules can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_forwarding_rule.default website-forwarding-rule
+```

@@ -19,7 +19,7 @@ and
 
 ```hcl
 resource "google_compute_http_health_check" "default" {
-  name         = "test"
+  name         = "authentication-health-check"
   request_path = "/health_check"
 
   timeout_sec        = 1
@@ -64,3 +64,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+HTTP health checks can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_http_health_check.default authentication-health-check
+```
