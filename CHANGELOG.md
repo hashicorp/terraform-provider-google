@@ -1,4 +1,9 @@
 ## 0.1.1 (Unreleased)
+
+BUG FIXES: 
+
+* Restrict the number of health_checks in Backend Service resources to 1. [GH-145]
+
 ## 0.1.0 (June 20, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
