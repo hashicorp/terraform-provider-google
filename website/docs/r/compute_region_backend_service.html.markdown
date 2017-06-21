@@ -69,8 +69,9 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the backend service.
 
-* `health_checks` - (Required) Specifies a list of health check objects
-    for checking the health of the backend service.
+* `health_checks` - (Required) Specifies a list of health checks
+    for checking the health of the backend service. Currently at most
+    one health check can be specified, and a health check is required.
 
 - - -
 
