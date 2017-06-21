@@ -1,8 +1,8 @@
-## 0.1.1 (Unreleased)
+## 0.1.1 (June 21, 2017)
 
 BUG FIXES: 
 
-* Restrict the number of health_checks in Backend Service resources to 1. [GH-145]
+* Restrict the number of health_checks in Backend Service resources to 1. ([#145](https://github.com/terraform-providers/terraform-provider-google/145))
 
 ## 0.1.0 (June 20, 2017)
 
