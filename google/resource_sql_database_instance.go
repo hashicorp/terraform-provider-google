@@ -650,7 +650,6 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if len(_settingsList) > 0 {
 		_settings = _settingsList[0].(map[string]interface{})
 	} else {
-		_settingsList = make([]interface{}, 1)
 		_settings = make(map[string]interface{})
 	}
 
@@ -847,6 +846,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		_settings["replication_type"] = settings.ReplicationType
 	}
 
+	_settingsList = make([]interface{}, 1)
 	_settingsList[0] = _settings
 	d.Set("settings", _settingsList)
 
