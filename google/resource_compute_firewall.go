@@ -76,6 +76,7 @@ func resourceComputeFirewall() *schema.Resource {
 			"source_ranges": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
