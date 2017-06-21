@@ -2,6 +2,9 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"strings"
 	"testing"
 
 	"strconv"
@@ -63,13 +66,22 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAdditionalZones,
+				Config: testAccContainerCluster_withAdditionalZones(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_additional_zones"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateAdditionalZones(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_additional_zones"),
@@ -236,6 +248,10 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
+var setFields map[string]struct{} = map[string]struct{}{
+	"additional_zones": struct{}{},
+}
+
 func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
@@ -354,6 +370,9 @@ func getResourceAttributes(n string, s *terraform.State) (map[string]string, err
 
 func checkMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
+		if _, ok := setFields[attr]; ok {
+			return checkSetMatch(attributes, attr, gcpList)
+		}
 		return checkListMatch(attributes, attr, gcpList)
 	}
 	if gcpMap, ok := gcp.(map[string]string); ok {
@@ -364,6 +383,30 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 		return matchError(attr, tf, gcp)
 	}
 	return ""
+}
+
+func checkSetMatch(attributes map[string]string, attr string, gcpList []string) string {
+	num, err := strconv.Atoi(attributes[attr+".#"])
+	if err != nil {
+		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
+	}
+	if num != len(gcpList) {
+		return fmt.Sprintf("Cluster has mismatched %s size.\nTF Size: %d\nGCP Size: %d", attr, num, len(gcpList))
+	}
+
+	// We don't know the exact keys of the elements, so go through the whole list looking for matching ones
+	tfAttr := []string{}
+	for k, v := range attributes {
+		if strings.HasPrefix(k, attr) && !strings.HasSuffix(k, "#") {
+			tfAttr = append(tfAttr, v)
+		}
+	}
+	sort.Strings(tfAttr)
+	sort.Strings(gcpList)
+	if reflect.DeepEqual(tfAttr, gcpList) {
+		return ""
+	}
+	return matchError(attr, tfAttr, gcpList)
 }
 
 func checkListMatch(attributes map[string]string, attr string, gcpList []string) string {
@@ -402,7 +445,7 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 	return ""
 }
 
-func matchError(attr, tf string, gcp interface{}) string {
+func matchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("Cluster has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
@@ -438,9 +481,10 @@ resource "google_container_cluster" "with_master_auth" {
 	}
 }`, acctest.RandString(10))
 
-var testAccContainerCluster_withAdditionalZones = fmt.Sprintf(`
+func testAccContainerCluster_withAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
 
@@ -453,7 +497,28 @@ resource "google_container_cluster" "with_additional_zones" {
 		username = "mr.yoda"
 		password = "adoy.rm"
 	}
-}`, acctest.RandString(10))
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-b",
+		"us-central1-c",
+	]
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}`, clusterName)
+}
 
 var testAccContainerCluster_withVersion = fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
