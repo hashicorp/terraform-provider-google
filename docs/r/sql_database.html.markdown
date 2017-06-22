@@ -24,7 +24,7 @@ resource "google_sql_database_instance" "master" {
 }
 
 resource "google_sql_database" "users" {
-  name     = "users"
+  name     = "users-db"
   instance = "${google_sql_database_instance.master.name}"
 }
 ```
@@ -48,3 +48,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+SQL databases can be imported using the `instance` and `name`, e.g.
+
+```
+$ terraform import google_sql_database.database master-instance:users-db
+```
