@@ -1,8 +1,14 @@
 ## 0.1.2 (Unreleased)
 
+BACKWARDS INCOMPATIBILITIES / NOTES:
+
+* `google_sql_database_instance`: a limited number of fields will be read during import because of [GH-114]
+* `google_sql_database_instance`: `name`, `region`, `database_version`, and `master_instance_name` fields are now updated during a refresh and may display diffs
+
 IMPROVEMENTS:
 
 * Add support for importing `google_sql_database` [GH-12]
+* Add support for importing `google_sql_database_instance` [GH-11]
 
 ## 0.1.1 (June 21, 2017)
 
