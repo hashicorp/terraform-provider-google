@@ -9,6 +9,7 @@ IMPROVEMENTS:
 
 * Add support for importing `google_sql_database` [GH-12]
 * Add support for importing `google_sql_database_instance` [GH-11]
+* `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
 
 ## 0.1.1 (June 21, 2017)
 
