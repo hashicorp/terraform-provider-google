@@ -1,4 +1,9 @@
 ## 0.1.2 (Unreleased)
+
+IMPROVEMENTS:
+
+* Add support for importing `google_sql_database` [GH-12]
+
 ## 0.1.1 (June 21, 2017)
 
 BUG FIXES: 
