@@ -19,6 +19,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		Read:   resourceSqlDatabaseInstanceRead,
 		Update: resourceSqlDatabaseInstanceUpdate,
 		Delete: resourceSqlDatabaseInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
@@ -231,6 +234,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			"master_instance_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -521,6 +525,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		d.Set("name", instance.Name)
 	}
 
+	d.SetId(instance.Name)
+
 	if v, ok := d.GetOk("replica_configuration"); ok {
 		_replicaConfigurationList := v.([]interface{})
 
@@ -631,14 +637,25 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	instance, err := config.clientSqlAdmin.Instances.Get(project,
-		d.Get("name").(string)).Do()
+		d.Id()).Do()
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
 	}
 
 	_settingsList := d.Get("settings").([]interface{})
-	_settings := _settingsList[0].(map[string]interface{})
+	var _settings map[string]interface{}
+
+	// If we're importing the settings will be nil
+	if len(_settingsList) > 0 {
+		_settings = _settingsList[0].(map[string]interface{})
+	} else {
+		_settings = make(map[string]interface{})
+	}
+
+	d.Set("name", instance.Name)
+	d.Set("region", instance.Region)
+	d.Set("database_version", instance.DatabaseVersion)
 
 	settings := instance.Settings
 	_settings["version"] = settings.SettingsVersion
@@ -829,6 +846,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		_settings["replication_type"] = settings.ReplicationType
 	}
 
+	_settingsList = make([]interface{}, 1)
 	_settingsList[0] = _settings
 	d.Set("settings", _settingsList)
 
@@ -862,10 +880,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("ip_address", _ipAddresses)
-
-	if v, ok := d.GetOk("master_instance_name"); ok && v != nil {
-		d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
-	}
+	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
 
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
