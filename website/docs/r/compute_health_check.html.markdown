@@ -19,7 +19,7 @@ and
 
 ```tf
 resource "google_compute_health_check" "default" {
-  name = "test"
+  name = "internal-service-health-check"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -123,3 +123,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Health checks can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_health_check.default internal-service-health-check
+```
