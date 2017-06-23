@@ -46,17 +46,17 @@ The following arguments are supported:
 
 * `healthy_threshold` - (Optional) Consecutive successes required (default 2).
 
-* `http_health_check` - (Optional) An HTTP Health Check.
-    See *HTTP Health Check* below.
+* `http_health_check` - (Optional) An HTTP Health Check. Only one kind of Health Check can be added.
+    Structure is documented below.
 
-* `https_health_check` - (Optional) An HTTPS Health Check.
-    See *HTTPS Health Check* below.
+* `https_health_check` - (Optional) An HTTPS Health Check. Only one kind of Health Check can be added.
+    Structure is documented below.
 
-* `ssl_health_check` - (Optional) An SSL Health Check.
-    See *SSL Health Check* below.
+* `ssl_health_check` - (Optional) An SSL Health Check. Only one kind of Health Check can be added.
+    Structure is documented below.
 
-* `tcp_health_check` - (Optional) A TCP Health Check.
-    See *TCP Health Check* below.
+* `tcp_health_check` - (Optional) A TCP Health Check. Only one kind of Health Check can be added.
+    Structure is documented below.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -67,7 +67,7 @@ The following arguments are supported:
 * `unhealthy_threshold` - (Optional) Consecutive failures required (default 2).
 
 
-**HTTP Health Check** supports the following attributes:
+The `http_health_check` block supports:
 
 * `host` - (Optional) HTTP host header field (default instance's public ip).
 
@@ -79,7 +79,7 @@ The following arguments are supported:
 * `request_path` - (Optional) URL path to query (default /).
 
 
-**HTTPS Health Check** supports the following attributes:
+The `https_health_check` block supports:
 
 * `host` - (Optional) HTTPS host header field (default instance's public ip).
 
@@ -91,7 +91,7 @@ The following arguments are supported:
 * `request_path` - (Optional) URL path to query (default /).
 
 
-**SSL Health Check** supports the following attributes:
+The `ssl_health_check` block supports:
 
 * `port` - (Optional) TCP port to connect to (default 443).
 
@@ -104,7 +104,7 @@ The following arguments are supported:
 * `response` - (Optional) The response that indicates health (default "")
 
 
-**TCP Health Check** supports the following attributes:
+The `tcp_health_check` block supports:
 
 * `port` - (Optional) TCP port to connect to (default 80).
 
