@@ -45,6 +45,7 @@ func resourceComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							ForceNew: true,
 						},
 
 						"disk_encryption_key_raw": &schema.Schema{
@@ -52,6 +53,11 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:  true,
 							ForceNew:  true,
 							Sensitive: true,
+						},
+
+						"disk_encryption_key_sha256": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 
 						"initialize_params": &schema.Schema{
@@ -1351,6 +1357,9 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[s
 		"source":      sourceUrl[len(sourceUrl)-1],
 		// disk_encryption_key_raw is not returned from the API, so don't store it in state.
 		// If necessary in the future, this can be copied from what the user originally specified.
+	}
+	if disk.DiskEncryptionKey != nil {
+		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
 	}
 	if v, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
 		result["initialize_params.#"] = v.(int)
