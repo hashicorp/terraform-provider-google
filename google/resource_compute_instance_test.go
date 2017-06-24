@@ -815,7 +815,7 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 		}
 
 		for _, disk := range instance.Disks {
-			if strings.HasSuffix(disk.Source, source) && disk.AutoDelete == delete && disk.Boot == boot {
+			if strings.HasSuffix(disk.Source, "/"+source) && disk.AutoDelete == delete && disk.Boot == boot {
 				return nil
 			}
 		}
