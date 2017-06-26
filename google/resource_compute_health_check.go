@@ -448,10 +448,10 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("healthy_threshold", hchk.HealthyThreshold)
 	d.Set("timeout_sec", hchk.TimeoutSec)
 	d.Set("unhealthy_threshold", hchk.UnhealthyThreshold)
-	d.Set("tcp_health_check", hchk.TcpHealthCheck)
-	d.Set("ssl_health_check", hchk.SslHealthCheck)
-	d.Set("http_health_check", hchk.HttpHealthCheck)
-	d.Set("https_health_check", hchk.HttpsHealthCheck)
+	d.Set("tcp_health_check", flattenTcpHealthCheck(hchk.TcpHealthCheck))
+	d.Set("ssl_health_check", flattenSslHealthCheck(hchk.SslHealthCheck))
+	d.Set("http_health_check", flattenHttpHealthCheck(hchk.HttpHealthCheck))
+	d.Set("https_health_check", flattenHttpsHealthCheck(hchk.HttpsHealthCheck))
 	d.Set("self_link", hchk.SelfLink)
 	d.Set("name", hchk.Name)
 	d.Set("description", hchk.Description)
@@ -482,4 +482,64 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId("")
 	return nil
+}
+
+func flattenTcpHealthCheck(hchk *compute.TCPHealthCheck) []map[string]interface{} {
+	if hchk == nil {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, 1)
+	data := make(map[string]interface{})
+	data["port"] = hchk.Port
+	data["proxy_header"] = hchk.ProxyHeader
+	data["request"] = hchk.Request
+	data["response"] = hchk.Response
+	result = append(result, data)
+	return result
+}
+
+func flattenSslHealthCheck(hchk *compute.SSLHealthCheck) []map[string]interface{} {
+	if hchk == nil {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, 1)
+	data := make(map[string]interface{})
+	data["port"] = hchk.Port
+	data["proxy_header"] = hchk.ProxyHeader
+	data["request"] = hchk.Request
+	data["response"] = hchk.Response
+	result = append(result, data)
+	return result
+}
+
+func flattenHttpHealthCheck(hchk *compute.HTTPHealthCheck) []map[string]interface{} {
+	if hchk == nil {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, 1)
+	data := make(map[string]interface{})
+	data["host"] = hchk.Host
+	data["port"] = hchk.Port
+	data["proxy_header"] = hchk.ProxyHeader
+	data["request_path"] = hchk.RequestPath
+	result = append(result, data)
+	return result
+}
+
+func flattenHttpsHealthCheck(hchk *compute.HTTPSHealthCheck) []map[string]interface{} {
+	if hchk == nil {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, 1)
+	data := make(map[string]interface{})
+	data["host"] = hchk.Host
+	data["port"] = hchk.Port
+	data["proxy_header"] = hchk.ProxyHeader
+	data["request_path"] = hchk.RequestPath
+	result = append(result, data)
+	return result
 }
