@@ -35,9 +35,9 @@ The following arguments are supported:
 
 * `zone` - (Required) The zone to create the Bigtable instance in. Zones that support Bigtable instances are noted on the [Cloud Locations page](https://cloud.google.com/about/locations/).
 
-* `num_nodes` - (Required) The number of nodes in your Bigtable instance. Minimum of `3`. Defaults to `3`.
+* `num_nodes` - (Optional) The number of nodes in your Bigtable instance. Minimum of `3`. Defaults to `3`.
 
-* `storage_type` - (Required) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `SSD`.
+* `storage_type` - (Optional) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `SSD`.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
