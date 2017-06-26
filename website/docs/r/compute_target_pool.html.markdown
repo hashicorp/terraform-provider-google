@@ -19,7 +19,7 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/targetPools).
 
 ```hcl
 resource "google_compute_target_pool" "default" {
-  name = "test"
+  name = "instance-pool"
 
   instances = [
     "us-central1-a/myinstance1",
@@ -73,3 +73,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Target pools can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_target_pool.default instance-pool
+```

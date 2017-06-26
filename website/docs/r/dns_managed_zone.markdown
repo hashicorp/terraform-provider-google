@@ -44,3 +44,11 @@ exported:
 * `name_servers` - The list of nameservers that will be authoritative for this
     domain. Use NS records to redirect from your DNS provider to these names,
     thus making Google Cloud DNS authoritative for this zone.
+
+## Import
+
+DNS managed zones can be imported using the `name`, e.g.
+
+```
+$ terraform import google_dns_managed_zone.prod prod-zone
+```
