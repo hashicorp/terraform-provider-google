@@ -108,11 +108,11 @@ func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
 func testAccBigtableInstance(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name     = "%s"
-  cluster_id = "%s"
-  zone = "us-central1-b"
-  num_nodes = 3
-  storage_type = "HDD"
+	name         = "%s"
+	cluster_id   = "%s"
+	zone         = "us-central1-b"
+	num_nodes    = 3
+	storage_type = "HDD"
 }
 `, instanceName, instanceName)
 }

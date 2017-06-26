@@ -37,17 +37,18 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 
 			"num_nodes": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-				// 30 is the maximum number of nodes without a quota increase.
-				ValidateFunc: validation.IntBetween(3, 30),
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      3,
+				ValidateFunc: IntAtLeast(3),
 			},
 
 			"storage_type": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ForceNew:     true,
+				Default:      "SSD",
 				ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 			},
 
@@ -81,10 +82,6 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		displayName = name
 	}
 
-	clusterId := d.Get("cluster_id").(string)
-	numNodes := int32(d.Get("num_nodes").(int))
-	zone := d.Get("zone").(string)
-
 	var storageType bigtable.StorageType
 	switch value := d.Get("storage_type"); value {
 	case "HDD":
@@ -96,10 +93,10 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	instanceConf := &bigtable.InstanceConf{
 		InstanceId:  name,
 		DisplayName: displayName.(string),
-		ClusterId:   clusterId,
-		NumNodes:    numNodes,
+		ClusterId:   d.Get("cluster_id").(string),
+		NumNodes:    int32(d.Get("num_nodes").(int)),
 		StorageType: storageType,
-		Zone:        zone,
+		Zone:        d.Get("zone").(string),
 	}
 
 	c, err := config.clientFactoryBigtable.NewInstanceAdminClient(project)
@@ -135,13 +132,13 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	defer c.Close()
 
-	name := d.Id()
 	instances, err := c.Instances(ctx)
 	if err != nil {
 		return fmt.Errorf("Error retrieving instances. %s", err)
 	}
 
 	var instanceInfo *bigtable.InstanceInfo
+	name := d.Id()
 	found := false
 	for _, i := range instances {
 		if i.Name == name {
@@ -185,4 +182,23 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	d.SetId("")
 
 	return nil
+}
+
+// IntAtLeast returns a SchemaValidateFunc which tests if the provided value
+// is of type int and is above min (inclusive)
+func IntAtLeast(min int) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(int)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be int", k))
+			return
+		}
+
+		if v < min {
+			es = append(es, fmt.Errorf("expected %s to be at least %d, got %d", k, min, v))
+			return
+		}
+
+		return
+	}
 }
