@@ -17,10 +17,10 @@ Creates a Google Bigtable instance. For more information see
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name     = "tf-instance"
-  cluster_id = "tf-instance-cluster"
-  zone = "us-central1-b"
-  num_nodes = 3
+  name         = "tf-instance"
+  cluster_id   = "tf-instance-cluster"
+  zone         = "us-central1-b"
+  num_nodes    = 3
   storage_type = "HDD"
 }
 ```
@@ -33,11 +33,11 @@ The following arguments are supported:
 
 * `cluster_id` - (Required) The name of the Bigtable instance's cluster.
 
-* `zone` - (Required) The zone to create the Bigtable instance in. Note: Many zones do not support Bigtable instances.
+* `zone` - (Required) The zone to create the Bigtable instance in. Zones that support Bigtable instances are noted on the [Cloud Locations page](https://cloud.google.com/about/locations/).
 
-* `num_nodes` - (Required) The number of nodes in your Bigtable instance. Minimum of 3.
+* `num_nodes` - (Required) The number of nodes in your Bigtable instance. Minimum of `3`. Defaults to `3`.
 
-* `storage_type` - (Required) The storage type to use. One of `"SSD"` or `"HDD"`.
+* `storage_type` - (Required) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `SSD`.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.

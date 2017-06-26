@@ -90,18 +90,18 @@ func (c *Config) loadAndValidate() error {
 		// Initiate an http.Client. The following GET request will be
 		// authorized and authenticated on the behalf of
 		// your service account.
-		client = conf.Client(oauth2.NoContext)
+		client = conf.Client(context.Background())
 
 		tokenSource = conf.TokenSource(context.Background())
 	} else {
 		log.Printf("[INFO] Authenticating using DefaultClient")
 		err := error(nil)
-		client, err = google.DefaultClient(oauth2.NoContext, clientScopes...)
+		client, err = google.DefaultClient(context.Background(), clientScopes...)
 		if err != nil {
 			return err
 		}
 
-		tokenSource, err = google.DefaultTokenSource(oauth2.NoContext, clientScopes...)
+		tokenSource, err = google.DefaultTokenSource(context.Background(), clientScopes...)
 		if err != nil {
 			return err
 		}
