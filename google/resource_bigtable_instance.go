@@ -23,17 +23,23 @@ func resourceBigtableInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"cluster_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-			},
-
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 
 			"num_nodes": {
@@ -50,12 +56,6 @@ func resourceBigtableInstance() *schema.Resource {
 				ForceNew:     true,
 				Default:      "SSD",
 				ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
-			},
-
-			"zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 
 			"project": {
