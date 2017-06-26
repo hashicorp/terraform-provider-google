@@ -99,7 +99,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		Zone:        d.Get("zone").(string),
 	}
 
-	c, err := config.clientFactoryBigtable.NewInstanceAdminClient(project)
+	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
 		return fmt.Errorf("Error starting instance admin client. %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	c, err := config.clientFactoryBigtable.NewInstanceAdminClient(project)
+	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
 		return fmt.Errorf("Error starting instance admin client. %s", err)
 	}
@@ -166,7 +166,7 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	c, err := config.clientFactoryBigtable.NewInstanceAdminClient(project)
+	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
 		return fmt.Errorf("Error starting instance admin client. %s", err)
 	}

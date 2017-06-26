@@ -48,7 +48,7 @@ type Config struct {
 	clientServiceMan      *servicemanagement.APIService
 	clientBigQuery        *bigquery.Service
 
-	clientFactoryBigtable *ClientFactoryBigtable
+	bigtableClientFactory *BigtableClientFactory
 }
 
 func (c *Config) loadAndValidate() error {
@@ -193,7 +193,7 @@ func (c *Config) loadAndValidate() error {
 	c.clientBigQuery.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Bigtable Client Factory...")
-	c.clientFactoryBigtable = &ClientFactoryBigtable{
+	c.bigtableClientFactory = &BigtableClientFactory{
 		UserAgent:   userAgent,
 		TokenSource: tokenSource,
 	}
