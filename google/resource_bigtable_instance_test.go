@@ -37,7 +37,7 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		c, err := config.clientFactoryBigtable.NewInstanceAdminClient(config.Project)
+		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
 		if err != nil {
 			return fmt.Errorf("Error starting instance admin client. %s", err)
 		}
@@ -77,7 +77,7 @@ func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
-		c, err := config.clientFactoryBigtable.NewInstanceAdminClient(config.Project)
+		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
 		if err != nil {
 			return fmt.Errorf("Error starting instance admin client. %s", err)
 		}
