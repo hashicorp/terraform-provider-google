@@ -29,6 +29,9 @@ func resourceContainerCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+		MigrateState:  resourceContainerClusterMigrateState,
+
 		Schema: map[string]*schema.Schema{
 			"master_auth": {
 				Type:     schema.TypeList,
