@@ -101,3 +101,11 @@ the Google Cloud provider is configured with. If you're using the `id` field in 
 configurations, know that it is being ignored, and its value will always be seen as the
 ID of the project being used to authenticate Terraform's requests. You should move to the
 `project_id` field as soon as possible.
+
+## Import
+
+Projects can be imported using the `project_id`, e.g.
+
+```
+$ terraform import google_project.my_project your-project-id
+```
