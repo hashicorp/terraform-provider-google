@@ -13,13 +13,13 @@ Manages a network route within GCE.
 ## Example Usage
 
 ```hcl
-resource "google_compute_network" "foobar" {
-  name       = "test"
+resource "google_compute_network" "default" {
+  name       = "compute-network"
   ipv4_range = "10.0.0.0/16"
 }
 
-resource "google_compute_route" "foobar" {
-  name        = "test"
+resource "google_compute_route" "default" {
+  name        = "network-route"
   dest_range  = "15.0.0.0/24"
   network     = "${google_compute_network.foobar.name}"
   next_hop_ip = "10.0.1.5"
@@ -72,3 +72,11 @@ exported:
 * `next_hop_network` - The name of the next hop network, if available.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Network routes can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_route.default network-route
+```

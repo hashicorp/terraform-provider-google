@@ -86,3 +86,11 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `url` - The base URL of the bucket, in the format `gs://<bucket-name>`.
+
+## Import
+
+Storage buckets can be imported using the `name`, e.g.
+
+```
+$ terraform import google_storage_bucket.image-store image-store-bucket
+```
