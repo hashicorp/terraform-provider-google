@@ -16,12 +16,12 @@ func TestContainerClusterMigrateState(t *testing.T) {
 		"change additional_zones from list to set": {
 			StateVersion: 0,
 			Attributes: map[string]string{
-				"additional_zones.#": "1",
+				"additional_zones.#": "2",
 				"additional_zones.0": "us-central1-c",
 				"additional_zones.1": "us-central1-b",
 			},
 			Expected: map[string]string{
-				"additional_zones.#":          "1",
+				"additional_zones.#":          "2",
 				"additional_zones.90274510":   "us-central1-c",
 				"additional_zones.1919306328": "us-central1-b",
 			},

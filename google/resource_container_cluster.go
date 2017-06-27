@@ -667,7 +667,11 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("additional_zones") {
-		azs := convertStringArr(d.Get("additional_zones").(*schema.Set).List())
+		azSet := d.Get("additional_zones").(*schema.Set)
+		if azSet.Contains(zoneName) {
+			return fmt.Errorf("additional_zones should not contain the original 'zone'.")
+		}
+		azs := convertStringArr(azSet.List())
 		locations := append(azs, zoneName)
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
