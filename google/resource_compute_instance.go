@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -26,6 +27,86 @@ func resourceComputeInstance() *schema.Resource {
 		MigrateState:  resourceComputeInstanceMigrateState,
 
 		Schema: map[string]*schema.Schema{
+			"boot_disk": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_delete": &schema.Schema{
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
+						},
+
+						"device_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+
+						"disk_encryption_key_raw": &schema.Schema{
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
+						},
+
+						"disk_encryption_key_sha256": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"initialize_params": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"size": &schema.Schema{
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+											if v.(int) < 1 {
+												errors = append(errors, fmt.Errorf(
+													"%q must be greater than 0", k))
+											}
+											return
+										},
+									},
+
+									"type": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
+									},
+
+									"image": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
+
+						"source": &schema.Schema{
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"boot_disk.initialize_params"},
+						},
+					},
+				},
+			},
+
 			"disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -407,12 +488,23 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Build up the list of disks
+
+	disks := []*compute.AttachedDisk{}
+	var hasBootDisk bool
+	if _, hasBootDisk = d.GetOk("boot_disk"); hasBootDisk {
+		bootDisk, err := expandBootDisk(d, config, zone, project)
+		if err != nil {
+			return err
+		}
+		disks = append(disks, bootDisk)
+	}
+
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
-	if disksCount+attachedDisksCount == 0 {
-		return fmt.Errorf("At least one disk or attached_disk must be set")
+
+	if disksCount+attachedDisksCount == 0 && !hasBootDisk {
+		return fmt.Errorf("At least one disk, attached_disk, or boot_disk must be set")
 	}
-	disks := make([]*compute.AttachedDisk, 0, disksCount+attachedDisksCount)
 	for i := 0; i < disksCount; i++ {
 		prefix := fmt.Sprintf("disk.%d", i)
 
@@ -422,7 +514,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		var disk compute.AttachedDisk
 		disk.Type = "PERSISTENT"
 		disk.Mode = "READ_WRITE"
-		disk.Boot = i == 0
+		disk.Boot = i == 0 && !hasBootDisk
 		disk.AutoDelete = d.Get(prefix + ".auto_delete").(bool)
 
 		if _, ok := d.GetOk(prefix + ".disk"); ok {
@@ -513,7 +605,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
 
-		disk.Boot = i == 0 && disksCount == 0 // TODO(danawillow): This is super hacky, let's just add a boot field.
+		disk.Boot = i == 0 && disksCount == 0 && !hasBootDisk
 
 		if v, ok := d.GetOk(prefix + ".device_name"); ok {
 			disk.DeviceName = v.(string)
@@ -868,9 +960,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
-	disks := make([]map[string]interface{}, 0, disksCount)
-	attachedDisks := make([]map[string]interface{}, 0, attachedDisksCount)
 
+	if _, ok := d.GetOk("boot_disk"); ok {
+		disksCount++
+	}
 	if expectedDisks := disksCount + attachedDisksCount; len(instance.Disks) != expectedDisks {
 		return fmt.Errorf("Expected %d disks, API returned %d", expectedDisks, len(instance.Disks))
 	}
@@ -882,8 +975,14 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	dIndex := 0
 	adIndex := 0
+	disks := make([]map[string]interface{}, 0, disksCount)
+	attachedDisks := make([]map[string]interface{}, 0, attachedDisksCount)
 	for _, disk := range instance.Disks {
-		if _, ok := attachedDiskSources[disk.Source]; !ok {
+		if _, ok := d.GetOk("boot_disk"); ok && disk.Boot {
+			// This disk is a boot disk and there is a boot disk set in the config, therefore
+			// this is the boot disk set in the config.
+			d.Set("boot_disk", flattenBootDisk(d, disk))
+		} else if _, ok := attachedDiskSources[disk.Source]; !ok {
 			di := map[string]interface{}{
 				"disk":                    d.Get(fmt.Sprintf("disk.%d.disk", dIndex)),
 				"image":                   d.Get(fmt.Sprintf("disk.%d.image", dIndex)),
@@ -1192,4 +1291,83 @@ func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
 	}
 
 	return tags
+}
+
+func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*compute.AttachedDisk, error) {
+	disk := &compute.AttachedDisk{
+		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
+		Boot:       true,
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.device_name"); ok {
+		disk.DeviceName = v.(string)
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
+		disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+			RawKey: v.(string),
+		}
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.source"); ok {
+		diskName := v.(string)
+		diskData, err := config.clientCompute.Disks.Get(
+			project, zone.Name, diskName).Do()
+		if err != nil {
+			return nil, fmt.Errorf("Error loading disk '%s': %s", diskName, err)
+		}
+		disk.Source = diskData.SelfLink
+	}
+
+	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
+		disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
+			disk.InitializeParams.DiskSizeGb = int64(v.(int))
+		}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
+			diskTypeName := v.(string)
+			diskType, err := readDiskType(config, zone, diskTypeName)
+			if err != nil {
+				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
+			}
+			disk.InitializeParams.DiskType = diskType.Name
+		}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
+			imageName := v.(string)
+			imageUrl, err := resolveImage(config, imageName)
+			if err != nil {
+				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
+			}
+
+			disk.InitializeParams.SourceImage = imageUrl
+		}
+	}
+
+	return disk, nil
+}
+
+func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[string]interface{} {
+	sourceUrl := strings.Split(disk.Source, "/")
+	result := map[string]interface{}{
+		"auto_delete": disk.AutoDelete,
+		"device_name": disk.DeviceName,
+		"source":      sourceUrl[len(sourceUrl)-1],
+		// disk_encryption_key_raw is not returned from the API, so don't store it in state.
+		// If necessary in the future, this can be copied from what the user originally specified.
+	}
+	if disk.DiskEncryptionKey != nil {
+		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
+	}
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+		result["initialize_params.#"] = v.(int)
+		// initialize_params is not returned from the API, so don't store its values in state.
+		// If necessary in the future, this can be copied from what the user originally specified.
+		// However, because Terraform automatically sets `boot_disk.0.initialize_params.#` to 0 if
+		// nothing is set in state for it, set it to whatever it was set to before to avoid a perpetual diff.
+	}
+
+	return []map[string]interface{}{result}
 }

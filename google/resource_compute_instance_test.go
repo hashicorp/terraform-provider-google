@@ -267,6 +267,49 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDisk(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_bootDisk(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceBootDisk(&instance, instanceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_bootDisk_source(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_bootDisk_source(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceBootDisk(&instance, diskName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_noDisk(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -277,7 +320,7 @@ func TestAccComputeInstance_noDisk(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config:      testAccComputeInstance_noDisk(instanceName),
-				ExpectError: regexp.MustCompile("At least one disk or attached_disk must be set"),
+				ExpectError: regexp.MustCompile("At least one disk, attached_disk, or boot_disk must be set"),
 			},
 		},
 	})
@@ -751,12 +794,30 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 		}
 
 		for _, disk := range instance.Disks {
-			if strings.LastIndex(disk.Source, "/"+source) == len(disk.Source)-len(source)-1 && disk.AutoDelete == delete && disk.Boot == boot {
+			if strings.HasSuffix(disk.Source, source) && disk.AutoDelete == delete && disk.Boot == boot {
 				return nil
 			}
 		}
 
 		return fmt.Errorf("Disk not found: %s", source)
+	}
+}
+
+func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Disks == nil {
+			return fmt.Errorf("no disks")
+		}
+
+		for _, disk := range instance.Disks {
+			if disk.Boot == true {
+				if strings.HasSuffix(disk.Source, source) {
+					return nil
+				}
+			}
+		}
+
+		return fmt.Errorf("Boot disk not found with source %q", source)
 	}
 }
 
@@ -1227,6 +1288,51 @@ resource "google_compute_instance" "foobar" {
 
 	metadata {
 		foo = "bar"
+	}
+}
+`, disk, instance)
+}
+
+func testAccComputeInstance_bootDisk(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_bootDisk_source(disk, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name  = "%s"
+	zone  = "us-central1-a"
+	image = "debian-8-jessie-v20160803"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		source = "${google_compute_disk.foobar.name}"
+	}
+
+	network_interface {
+		network = "default"
 	}
 }
 `, disk, instance)
