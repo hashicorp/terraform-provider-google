@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"regexp"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -21,6 +22,12 @@ func resourceContainerCluster() *schema.Resource {
 		Read:   resourceContainerClusterRead,
 		Update: resourceContainerClusterUpdate,
 		Delete: resourceContainerClusterDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"master_auth": &schema.Schema{
@@ -363,6 +370,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		InitialNodeCount: int64(d.Get("initial_node_count").(int)),
 	}
 
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
+
 	if v, ok := d.GetOk("master_auth"); ok {
 		masterAuths := v.([]interface{})
 		masterAuth := masterAuths[0].(map[string]interface{})
@@ -539,7 +548,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Wait until it's created
-	waitErr := containerOperationWait(config, op, project, zoneName, "creating GKE cluster", 30, 3)
+	waitErr := containerOperationWait(config, op, project, zoneName, "creating GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -626,6 +635,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	zoneName := d.Get("zone").(string)
 	clusterName := d.Get("name").(string)
 	desiredNodeVersion := d.Get("node_version").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
 	req := &container.UpdateClusterRequest{
 		Update: &container.ClusterUpdate{
@@ -639,7 +649,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Wait until it's updated
-	waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster", 10, 2)
+
+	waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster", timeoutInMinutes, 2)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -660,6 +671,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	zoneName := d.Get("zone").(string)
 	clusterName := d.Get("name").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Delete(
@@ -669,7 +681,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE cluster", 10, 3)
+	waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		return waitErr
 	}
