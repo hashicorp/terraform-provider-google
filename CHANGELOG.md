@@ -9,9 +9,11 @@ IMPROVEMENTS:
 
 * compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
 * compute: Fix read method + test/document import for google_compute_health_check [GH-155]
+* compute: Add `boot_disk` property to `google_compute_instance` [GH-122]
+* compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` [GH-123]
+* container: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
-* container_cluster: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 
 ## 0.1.1 (June 21, 2017)
 
