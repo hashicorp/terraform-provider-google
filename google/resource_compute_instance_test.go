@@ -51,6 +51,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
+					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
@@ -385,6 +386,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(
 						&instance, "bar", "baz"),
+					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
 					testAccCheckComputeInstanceTag(&instance, "baz"),
 					testAccCheckComputeInstanceAccessConfig(&instance),
 				),
@@ -795,6 +797,24 @@ func testAccCheckComputeInstanceTag(instance *compute.Instance, n string) resour
 	}
 }
 
+func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Labels == nil {
+			return fmt.Errorf("no labels found on instance %s", instance.Name)
+		}
+
+		v, ok := instance.Labels[key]
+		if !ok {
+			return fmt.Errorf("No label found with key %s on instance %s", key, instance.Name)
+		}
+		if v != value {
+			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceServiceAccount(instance *compute.Instance, scope string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if count := len(instance.ServiceAccounts); count != 1 {
@@ -919,6 +939,11 @@ resource "google_compute_instance" "foobar" {
 	create_timeout = 5
 
 	metadata_startup_script = "echo Hello"
+
+	labels {
+		my_key       = "my_value"
+		my_other_key = "my_other_value"
+    }
 }
 `, instance)
 }
@@ -1050,10 +1075,11 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_update(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-	tags         = ["baz"]
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["baz"]
 
 	disk {
 		image = "debian-8-jessie-v20160803"
@@ -1066,6 +1092,14 @@ resource "google_compute_instance" "foobar" {
 
 	metadata {
 		bar = "baz"
+	}
+
+	create_timeout = 5
+
+	metadata_startup_script = "echo Hello"
+
+	labels {
+		only_me = "nothing_else"
 	}
 }
 `, instance)
