@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"golang.org/x/net/context"
+	"log"
 )
 
 func resourceBigtableTable() *schema.Resource {
@@ -99,7 +100,9 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Id()
 	_, err = c.TableInfo(ctx, name)
 	if err != nil {
-		return fmt.Errorf("Error retrieving table. Could not find %s in %s.", name, instanceName)
+		log.Printf("[WARN] Removing %s because it's gone", name)
+		d.SetId("")
+		return fmt.Errorf("Error retrieving table. Could not find %s in %s. %s", name, instanceName, err)
 	}
 
 	return nil
