@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * compute: Fix read method + test/document import for google_compute_health_check [GH-155]
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
+* container_cluster: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 
 ## 0.1.1 (June 21, 2017)
 
