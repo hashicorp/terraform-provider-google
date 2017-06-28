@@ -107,10 +107,27 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"disk": &schema.Schema{
+			"scratch_disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"interface": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "SCSI",
+							ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME"}, false),
+						},
+					},
+				},
+			},
+
+			"disk": &schema.Schema{
+				Type:       schema.TypeList,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "Use boot_disk, scratch_disk, and attached_disk instead",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// TODO(mitchellh): one of image or disk is required
@@ -499,6 +516,15 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, bootDisk)
 	}
 
+	var hasScratchDisk bool
+	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
+		scratchDisks, err := expandScratchDisks(d, config, zone)
+		if err != nil {
+			return err
+		}
+		disks = append(disks, scratchDisks...)
+	}
+
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 
@@ -545,6 +571,9 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		if v, ok := d.GetOk(prefix + ".scratch"); ok {
 			if v.(bool) {
+				if hasScratchDisk {
+					return fmt.Errorf("Cannot set scratch disks using both `scratch_disk` and `disk` properties")
+				}
 				disk.Type = "SCRATCH"
 			}
 		}
@@ -960,11 +989,12 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
+	scratchDisksCount := d.Get("scratch_disk.#").(int)
 
 	if _, ok := d.GetOk("boot_disk"); ok {
 		disksCount++
 	}
-	if expectedDisks := disksCount + attachedDisksCount; len(instance.Disks) != expectedDisks {
+	if expectedDisks := disksCount + attachedDisksCount + scratchDisksCount; len(instance.Disks) != expectedDisks {
 		return fmt.Errorf("Expected %d disks, API returned %d", expectedDisks, len(instance.Disks))
 	}
 
@@ -975,13 +1005,20 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	dIndex := 0
 	adIndex := 0
+	sIndex := 0
 	disks := make([]map[string]interface{}, 0, disksCount)
 	attachedDisks := make([]map[string]interface{}, 0, attachedDisksCount)
+	scratchDisks := make([]map[string]interface{}, 0, scratchDisksCount)
 	for _, disk := range instance.Disks {
 		if _, ok := d.GetOk("boot_disk"); ok && disk.Boot {
 			// This disk is a boot disk and there is a boot disk set in the config, therefore
 			// this is the boot disk set in the config.
 			d.Set("boot_disk", flattenBootDisk(d, disk))
+		} else if _, ok := d.GetOk("scratch_disk"); ok && disk.Type == "SCRATCH" {
+			// This disk is a scratch disk and there are scratch disks set in the config, therefore
+			// this is a scratch disk set in the config.
+			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
+			sIndex++
 		} else if _, ok := attachedDiskSources[disk.Source]; !ok {
 			di := map[string]interface{}{
 				"disk":                    d.Get(fmt.Sprintf("disk.%d.disk", dIndex)),
@@ -1013,6 +1050,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	d.Set("disk", disks)
 	d.Set("attached_disk", attachedDisks)
+	d.Set("scratch_disk", scratchDisks)
 
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
@@ -1370,4 +1408,33 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[s
 	}
 
 	return []map[string]interface{}{result}
+}
+
+func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone) ([]*compute.AttachedDisk, error) {
+	diskType, err := readDiskType(config, zone, "local-ssd")
+	if err != nil {
+		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
+	}
+
+	n := d.Get("scratch_disk.#").(int)
+	scratchDisks := make([]*compute.AttachedDisk, 0, n)
+	for i := 0; i < n; i++ {
+		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
+			AutoDelete: true,
+			Type:       "SCRATCH",
+			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
+			InitializeParams: &compute.AttachedDiskInitializeParams{
+				DiskType: diskType.SelfLink,
+			},
+		})
+	}
+
+	return scratchDisks, nil
+}
+
+func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
+	result := map[string]interface{}{
+		"interface": disk.Interface,
+	}
+	return result
 }

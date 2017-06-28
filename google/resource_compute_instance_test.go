@@ -347,6 +347,27 @@ func TestAccComputeInstance_local_ssd(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_scratchDisk(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_scratchDisk(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.scratch", &instance),
+					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_update_deprecated_network(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -794,7 +815,7 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 		}
 
 		for _, disk := range instance.Disks {
-			if strings.HasSuffix(disk.Source, source) && disk.AutoDelete == delete && disk.Boot == boot {
+			if strings.HasSuffix(disk.Source, "/"+source) && disk.AutoDelete == delete && disk.Boot == boot {
 				return nil
 			}
 		}
@@ -818,6 +839,34 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 		}
 
 		return fmt.Errorf("Boot disk not found with source %q", source)
+	}
+}
+
+func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfaces []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Disks == nil {
+			return fmt.Errorf("no disks")
+		}
+
+		i := 0
+		for _, disk := range instance.Disks {
+			if disk.Type == "SCRATCH" {
+				if i >= len(interfaces) {
+					return fmt.Errorf("Expected %d scratch disks, found more", len(interfaces))
+				}
+				if disk.Interface != interfaces[i] {
+					return fmt.Errorf("Mismatched interface on scratch disk #%d, expected: %q, found: %q",
+						i, interfaces[i], disk.Interface)
+				}
+				i++
+			}
+		}
+
+		if i != len(interfaces) {
+			return fmt.Errorf("Expected %d scratch disks, found %d", len(interfaces), i)
+		}
+
+		return nil
 	}
 }
 
@@ -1370,6 +1419,35 @@ resource "google_compute_instance" "local-ssd" {
 	disk {
 		type = "local-ssd"
 		scratch = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+}
+`, instance)
+}
+
+func testAccComputeInstance_scratchDisk(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "scratch" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	scratch_disk {
+		interface = "NVME"
+	}
+
+	scratch_disk {
+		interface = "SCSI"
 	}
 
 	network_interface {
