@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -70,4 +71,41 @@ func MetadataFormatSchema(curMDMap map[string]interface{}, md *compute.Metadata)
 	}
 
 	return newMD
+}
+
+// flattenComputeMetadata transforms a list of MetadataItems (as returned via the GCP client) into a simple map from key
+// to value.
+func flattenComputeMetadata(metadata []*compute.MetadataItems) map[string]string {
+	m := map[string]string{}
+
+	for _, item := range metadata {
+		// check for duplicates
+		if item.Value == nil {
+			continue
+		}
+		if val, ok := m[item.Key]; ok {
+			// warn loudly!
+			log.Printf("[WARN] Key '%s' already has value '%s' when flattening - ignoring incoming value '%s'",
+				item.Key,
+				val,
+				*item.Value)
+		}
+		m[item.Key] = *item.Value
+	}
+
+	return m
+}
+
+// expandComputeMetadata transforms a map representing computing metadata into a list of compute.MetadataItems suitable
+// for the GCP client.
+func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
+	metadata := make([]*compute.MetadataItems, len(m))
+
+	idx := 0
+	for key, value := range m {
+		metadata[idx] = &compute.MetadataItems{Key: key, Value: &value}
+		idx++
+	}
+
+	return metadata
 }
