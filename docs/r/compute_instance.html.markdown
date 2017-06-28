@@ -76,6 +76,9 @@ The following arguments are supported:
 
 - - -
 
+* `scratch_disk` - (Optional) Scratch disks to attach to the instance. This can be
+    specified multiple times for multiple scratch disks. Structure is documented below.
+
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of
     packets with non-matching source or destination IPs.
     This defaults to false.
@@ -84,9 +87,6 @@ The following arguments are supported:
     Changing this forces a new resource to be created.
 
 * `description` - (Optional) A brief description of this resource.
-
-* `disk` - (Optional) Disks to attach to the instance. This can be specified
-    multiple times for multiple disks. Structure is documented below.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
@@ -111,6 +111,9 @@ The following arguments are supported:
 * `tags` - (Optional) A list of tags to attach to the instance.
 
 ---
+
+* `disk` - (DEPRECATED) Disks to attach to the instance. This can be specified
+    multiple times for multiple disks. Structure is documented below.
 
 * `network` - (DEPRECATED) Networks to attach to the instance. This
     can be specified multiple times for multiple networks. Structure is
@@ -151,7 +154,12 @@ The `initialize_params` block supports:
     `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
     `{project}/{image}`, `{family}`, or `{image}`.
 
-The `disk` block supports: (Note that either disk or image is required, unless
+The `scratch_disk` block supports:
+
+* `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
+    Defaults to SCSI.
+
+(DEPRECATED) The `disk` block supports: (Note that either disk or image is required, unless
 the type is "local-ssd", in which case scratch must be true).
 
 * `disk` - The name of the existing disk (such as those managed by
