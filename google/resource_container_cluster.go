@@ -30,7 +30,7 @@ func resourceContainerCluster() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"master_auth": &schema.Schema{
+			"master_auth": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -38,26 +38,26 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"client_certificate": &schema.Schema{
+						"client_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"client_key": &schema.Schema{
+						"client_key": {
 							Type:      schema.TypeString,
 							Computed:  true,
 							Sensitive: true,
 						},
-						"cluster_ca_certificate": &schema.Schema{
+						"cluster_ca_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"password": &schema.Schema{
+						"password": {
 							Type:      schema.TypeString,
 							Required:  true,
 							ForceNew:  true,
 							Sensitive: true,
 						},
-						"username": &schema.Schema{
+						"username": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -66,7 +66,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -93,19 +93,19 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"initial_node_count": &schema.Schema{
+			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"additional_zones": &schema.Schema{
+			"additional_zones": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
@@ -113,7 +113,7 @@ func resourceContainerCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"cluster_ipv4_cidr": &schema.Schema{
+			"cluster_ipv4_cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -130,63 +130,63 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"instance_group_urls": &schema.Schema{
+			"instance_group_urls": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_service": &schema.Schema{
+			"logging_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"monitoring_service": &schema.Schema{
+			"monitoring_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "default",
 				ForceNew: true,
 			},
-			"subnetwork": &schema.Schema{
+			"subnetwork": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"addons_config": &schema.Schema{
+			"addons_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"http_load_balancing": &schema.Schema{
+						"http_load_balancing": {
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"disabled": &schema.Schema{
+									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										ForceNew: true,
@@ -194,14 +194,14 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
-						"horizontal_pod_autoscaling": &schema.Schema{
+						"horizontal_pod_autoscaling": {
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"disabled": &schema.Schema{
+									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										ForceNew: true,
@@ -212,21 +212,21 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-			"node_config": &schema.Schema{
+			"node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"machine_type": &schema.Schema{
+						"machine_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"disk_size_gb": &schema.Schema{
+						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -242,7 +242,7 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"local_ssd_count": &schema.Schema{
+						"local_ssd_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -258,7 +258,7 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"oauth_scopes": &schema.Schema{
+						"oauth_scopes": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
@@ -271,35 +271,35 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"service_account": &schema.Schema{
+						"service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"metadata": &schema.Schema{
+						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
 							Elem:     schema.TypeString,
 						},
 
-						"image_type": &schema.Schema{
+						"image_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"labels": &schema.Schema{
+						"labels": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
 							Elem:     schema.TypeString,
 						},
 
-						"tags": &schema.Schema{
+						"tags": {
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
@@ -309,26 +309,26 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"node_version": &schema.Schema{
+			"node_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"node_pool": &schema.Schema{
+			"node_pool": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"initial_node_count": &schema.Schema{
+						"initial_node_count": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: true,
 						},
 
-						"name": &schema.Schema{
+						"name": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							Computed:      true,
@@ -336,7 +336,7 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:      true,
 						},
 
-						"name_prefix": &schema.Schema{
+						"name_prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -345,7 +345,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -594,7 +594,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("endpoint", cluster.Endpoint)
 
 	masterAuth := []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"username":               cluster.MasterAuth.Username,
 			"password":               cluster.MasterAuth.Password,
 			"client_certificate":     cluster.MasterAuth.ClientCertificate,
@@ -719,7 +719,7 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 
 func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	config := []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"machine_type":    c.MachineType,
 			"disk_size_gb":    c.DiskSizeGb,
 			"local_ssd_count": c.LocalSsdCount,

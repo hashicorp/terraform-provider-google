@@ -17,8 +17,25 @@ func TestAccContainerCluster_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_basic,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withTimeout(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withTimeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -34,7 +51,7 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withMasterAuth,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -51,7 +68,7 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withAdditionalZones,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -68,7 +85,7 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withVersion,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -85,7 +102,7 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodeConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -102,7 +119,7 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodeConfigScopeAlias,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -119,7 +136,7 @@ func TestAccContainerCluster_network(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_networkRef,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -138,7 +155,7 @@ func TestAccContainerCluster_backend(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_backendRef,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -155,7 +172,7 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -172,7 +189,7 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolNamePrefix,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -189,7 +206,7 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolMultiple,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -394,6 +411,19 @@ resource "google_container_cluster" "primary" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
+}`, acctest.RandString(10))
+
+var testAccContainerCluster_withTimeout = fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	timeouts {
+		create = "30m"
+		delete = "30m"
+		update = "30m"
+	}
 }`, acctest.RandString(10))
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
