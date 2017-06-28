@@ -132,27 +132,13 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	defer c.Close()
 
-	instances, err := c.Instances(ctx)
+	instance, err := c.InstanceInfo(ctx, d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving instances. %s", err)
+		return fmt.Errorf("Error retrieving instance. Could not find %s.", d.Id())
 	}
 
-	var instanceInfo *bigtable.InstanceInfo
-	name := d.Id()
-	found := false
-	for _, i := range instances {
-		if i.Name == name {
-			instanceInfo = i
-			found = true
-			break
-		}
-	}
-	if !found {
-		return fmt.Errorf("Error retrieving instance. Could not find %s.", name)
-	}
-
-	d.Set("name", instanceInfo.Name)
-	d.Set("display_name", instanceInfo.DisplayName)
+	d.Set("name", instance.Name)
+	d.Set("display_name", instance.DisplayName)
 
 	return nil
 }
