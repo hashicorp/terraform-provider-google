@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/sqladmin/v1beta4"
@@ -167,18 +168,14 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"day": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											return validateNumericRange(v, k, 1, 7)
-										},
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 7),
 									},
 									"hour": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											return validateNumericRange(v, k, 0, 23)
-										},
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 23),
 									},
 									"update_track": &schema.Schema{
 										Type:     schema.TypeString,
@@ -1177,15 +1174,6 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
-}
-
-func validateNumericRange(v interface{}, k string, min int, max int) (ws []string, errors []error) {
-	value := v.(int)
-	if min > value || value > max {
-		errors = append(errors, fmt.Errorf(
-			"%q outside range %d-%d.", k, min, max))
-	}
-	return
 }
 
 func instanceMutexKey(project, instance_name string) string {
