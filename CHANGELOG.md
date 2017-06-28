@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * compute: Fix read method + test/document import for google_compute_health_check [GH-155]
 * compute: Add `boot_disk` property to `google_compute_instance` [GH-122]
 * compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` [GH-123]
+* compute: Add `labels` property to `google_compute_instance` [GH-150]
 * container: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
