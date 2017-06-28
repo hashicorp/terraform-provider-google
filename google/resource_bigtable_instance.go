@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"golang.org/x/net/context"
+	"log"
 )
 
 func resourceBigtableInstance() *schema.Resource {
@@ -134,7 +135,9 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	instance, err := c.InstanceInfo(ctx, d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving instance. Could not find %s.", d.Id())
+		log.Printf("[WARN] Removing %s because it's gone", d.Id())
+		d.SetId("")
+		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
 	}
 
 	d.Set("name", instance.Name)
