@@ -2,20 +2,26 @@ package google
 
 import (
 	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"testing"
 )
 
 func TestAccDataSourceGoogleSnapshot(t *testing.T) {
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: TestAccDataSourceGoogleSnapshotConfig,
+				Config: testAccComputeDataSnapshot_basic(snapshotName, diskName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleSnapshotCheck("data.google_compute_snapshot.my_snapshot", "google_compute_snapshot.foobar"),
+					testAccDataSourceGoogleSnapshotCheck(
+						"data.google_compute_snapshot.foobar", "google_compute_snapshot.foobar"),
 				),
 			},
 		},
@@ -26,12 +32,12 @@ func testAccDataSourceGoogleSnapshotCheck(data_source_name string, resource_name
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
 		if !ok {
-			return fmt.Errorf("root module has no resource called %s", data_source_name)
+			return fmt.Errorf("root module has no datasource called %s", data_source_name)
 		}
 
 		rs, ok := s.RootModule().Resources[resource_name]
 		if !ok {
-			return fmt.Errorf("can't find %s in state", resource_name)
+			return fmt.Errorf("root module has no resource called %s", resource_name)
 		}
 
 		ds_attr := ds.Primary.Attributes
@@ -40,7 +46,9 @@ func testAccDataSourceGoogleSnapshotCheck(data_source_name string, resource_name
 			"id",
 			"self_link",
 			"name",
-			"description",
+			"snapshot_encryption_key_sha256",
+			"source_disk_link",
+			"source_disk_encryption_key_sha256",
 		}
 
 		for _, attr_to_check := range snapshot_attrs_to_test {
@@ -57,12 +65,24 @@ func testAccDataSourceGoogleSnapshotCheck(data_source_name string, resource_name
 	}
 }
 
-var TestAccDataSourceGoogleSnapshotConfig = `
-resource "google_compute_snapshot" "foobar" {
-	name = "snapshot-test"
-	description = "my-description"
+func testAccComputeDataSnapshot_basic(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "debian-8-jessie-v20160921"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
 }
 
-data "google_compute_snapshot" "my_snapshot" {
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+}
+
+data "google_compute_snapshot" "foobar" {
 	name = "${google_compute_snapshot.foobar.name}"
-}`
+}
+`, diskName, snapshotName)
+}

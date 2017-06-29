@@ -12,6 +12,8 @@ func labelsSchemaComputed() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeMap,
 		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+		Set:      schema.HashString,
 		Computed: true,
 	}
 }
@@ -82,7 +84,7 @@ func dataSourceGoogleComputeSnapshot() *schema.Resource {
 				Computed: true,
 			},
 
-			"licenses": {
+			"licenses": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -99,7 +101,7 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	labels := d.Get("labels").(map[string]interface{})
+	labels := resourceSnapshotLabels(d)
 	log.Printf("[DEBUG] Labels %s", labels)
 
 	if len(labels) > 0 {
@@ -157,4 +159,15 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 
 	d.SetId(snapshot.Name)
 	return nil
+}
+
+func resourceSnapshotLabels(d *schema.ResourceData) map[string]string {
+	labels := map[string]string{}
+	if v, ok := d.GetOk("labels"); ok {
+		labelMap := v.(map[string]interface{})
+		for k, v := range labelMap {
+			labels[k] = v.(string)
+		}
+	}
+	return labels
 }
