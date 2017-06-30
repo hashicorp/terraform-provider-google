@@ -86,7 +86,7 @@ The following arguments are supported:
 
 * `zone` - (Required) The zone of the target.
 
-* `autoscaling_policy.` - (Required) The parameters of the autoscaling
+* `autoscaling_policy` - (Required) The parameters of the autoscaling
   algorithm. Structure is documented below.
 
 - - -
