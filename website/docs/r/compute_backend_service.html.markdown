@@ -73,6 +73,9 @@ The following arguments are supported:
     for checking the health of the backend service. Currently at most one health
     check can be specified, and a health check is required.
 
+* `region` - (Optional) The region this backend service has been created in. If
+    unspecified, this defaults to the region configured in the provider.
+
 - - -
 
 * `backend` - (Optional) The list of backends that serve this BackendService. Structure is documented below.

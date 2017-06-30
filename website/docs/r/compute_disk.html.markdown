@@ -66,6 +66,8 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
+* `users` - (Computed) The Users of the created resource.
+
 ## Import
 
 Disks can be imported using the `name`, e.g.
