@@ -72,6 +72,9 @@ The following arguments are supported:
 * `url_map` - (Required) The URL of a URL Map resource that defines the mapping
     from the URL to the BackendService.
 
+* `project` - (Optional) The project in which the resource belongs. If it
+    is not provided, the provider project is used.
+
 - - -
 
 * `description` - (Optional) A description of this resource. Changing this
