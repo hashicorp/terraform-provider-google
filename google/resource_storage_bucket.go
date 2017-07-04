@@ -466,8 +466,8 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 		sb.Lifecycle = &storage.BucketLifecycle{}
 		sb.Lifecycle.Rule = make([]*storage.BucketLifecycleRule, 0, len_lifecycle_rules)
 
-		for _, lifecycle_rule := range lifecycle_rules {
-			lifecycle_rule := lifecycle_rule.(map[string]interface{})
+		for _, raw_lifecycle_rule := range lifecycle_rules {
+			lifecycle_rule := raw_lifecycle_rule.(map[string]interface{})
 
 			target_lifecycle_rule := &storage.BucketLifecycleRule{}
 
