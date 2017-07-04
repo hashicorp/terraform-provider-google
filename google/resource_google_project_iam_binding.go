@@ -112,7 +112,8 @@ func resourceGoogleProjectIamBindingRead(d *schema.ResourceData, meta interface{
 		break
 	}
 	if binding == nil {
-		return fmt.Errorf("No binding for role %q in project %q", eBinding.Role, pid)
+		d.SetId("")
+		return nil
 	}
 	d.Set("etag", p.Etag)
 	d.Set("members", binding.Members)
