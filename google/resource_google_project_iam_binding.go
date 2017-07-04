@@ -74,7 +74,7 @@ func resourceGoogleProjectIamBindingCreate(d *schema.ResourceData, meta interfac
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n")
+				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
 			}
 			continue
 		} else if err != nil {
@@ -161,7 +161,7 @@ func resourceGoogleProjectIamBindingUpdate(d *schema.ResourceData, meta interfac
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n")
+				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
 			}
 			continue
 		} else if err != nil {
@@ -215,7 +215,7 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n")
+				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
 			}
 			continue
 		} else if err != nil {
