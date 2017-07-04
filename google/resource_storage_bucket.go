@@ -88,6 +88,7 @@ func resourceStorageBucket() *schema.Resource {
 						"action": {
 							Type:     schema.TypeSet,
 							Required: true,
+							MinItems: 1,
 							MaxItems: 1,
 							Set:      resourceGCSBucketLifecycleRuleActionHash,
 							Elem: &schema.Resource{
@@ -106,6 +107,7 @@ func resourceStorageBucket() *schema.Resource {
 						"condition": {
 							Type:     schema.TypeSet,
 							Required: true,
+							MinItems: 1,
 							MaxItems: 1,
 							Set:      resourceGCSBucketLifecycleRuleConditionHash,
 							Elem: &schema.Resource{
@@ -483,10 +485,6 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 
 			if v, ok := lifecycle_rule["condition"]; ok {
 				condition := v.(*schema.Set).List()[0].(map[string]interface{})
-
-				if len(condition) < 1 {
-					return fmt.Errorf("At least one condition element is required")
-				}
 
 				target_lifecycle_rule.Condition = &storage.BucketLifecycleRuleCondition{}
 
