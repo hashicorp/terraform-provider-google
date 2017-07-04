@@ -36,8 +36,7 @@ The following arguments are supported:
 * `role` - (Required) The role that should be applied. Only one
     `google_project_iam_binding` can be used per role.
 
-* `project` - (Optional) The project ID.
-    Changing this forces a new project to be created. If not specified, uses the
+* `project` - (Optional) The project ID. If not specified, uses the
     ID of the project configured with the provider.## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
