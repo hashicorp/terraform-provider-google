@@ -25,6 +25,7 @@ func resourceGoogleProjectIamBinding() *schema.Resource {
 			"role": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"members": &schema.Schema{
 				Type:     schema.TypeSet,
@@ -169,7 +170,7 @@ func resourceGoogleProjectIamBindingUpdate(d *schema.ResourceData, meta interfac
 	}
 	log.Printf("[DEBUG]: Set policy for project %q\n", pid)
 
-	return resourceGoogleProjectIamPolicyRead(d, meta)
+	return resourceGoogleProjectIamBindingRead(d, meta)
 }
 
 func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interface{}) error {
@@ -201,7 +202,7 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 			break
 		}
 		if toRemove < 0 {
-			return resourceGoogleProjectIamPolicyRead(d, meta)
+			return resourceGoogleProjectIamBindingRead(d, meta)
 		}
 
 		p.Bindings = append(p.Bindings[:toRemove], p.Bindings[toRemove+1:]...)
@@ -223,7 +224,7 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 	}
 	log.Printf("[DEBUG]: Set policy for project %q\n", pid)
 
-	return resourceGoogleProjectIamPolicyRead(d, meta)
+	return resourceGoogleProjectIamBindingRead(d, meta)
 }
 
 // Get a cloudresourcemanager.Binding from a schema.ResourceData
