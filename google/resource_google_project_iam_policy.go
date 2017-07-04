@@ -6,6 +6,7 @@ import (
 	"log"
 	"sort"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -257,7 +258,7 @@ func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pi
 		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy}).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error applying IAM policy for project %q. Policy is %#v, error is %s", pid, policy, err)
+		return errwrap.Wrap(fmt.Errorf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
 	}
 	return nil
 }
