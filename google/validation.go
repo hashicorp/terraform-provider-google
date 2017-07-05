@@ -2,8 +2,8 @@ package google
 
 import (
 	"fmt"
-	"regexp"
 	"github.com/hashicorp/terraform/helper/schema"
+	"regexp"
 )
 
 func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
