@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_bigtable_table"
-sidebar_current: "docs-google-bigtable_table"
+sidebar_current: "docs-google-bigtable-table"
 description: |-
   Creates a Google Bigtable table inside an instance.
 ---
