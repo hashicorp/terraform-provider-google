@@ -54,6 +54,7 @@ func resourceGoogleProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"policy_data": &schema.Schema{
 				Type:     schema.TypeString,
