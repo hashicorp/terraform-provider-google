@@ -38,3 +38,11 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+Project metadata items can be imported using the `key`, e.g.
+
+```
+$ terraform import google_compute_project_metadata_item.default my_metadata
+```
