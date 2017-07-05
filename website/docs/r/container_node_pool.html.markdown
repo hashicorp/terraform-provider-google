@@ -73,8 +73,6 @@ resource "google_container_cluster" "primary" {
 
 The `autoscaling` block supports:
 
-* `enabled` - (Optional) Whether autoscaling is enabled for this node pool.
-
 * `minNodeCount` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
     <= `maxNodeCount`.
 
