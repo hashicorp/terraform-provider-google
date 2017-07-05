@@ -286,3 +286,14 @@ func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return false
 }
+
+func convertStringArr(ifaceArr []interface{}) []string {
+	var arr []string
+	for _, v := range ifaceArr {
+		if v == nil {
+			continue
+		}
+		arr = append(arr, v.(string))
+	}
+	return arr
+}

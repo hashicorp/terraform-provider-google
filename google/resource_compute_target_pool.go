@@ -88,17 +88,6 @@ func resourceComputeTargetPool() *schema.Resource {
 	}
 }
 
-func convertStringArr(ifaceArr []interface{}) []string {
-	var arr []string
-	for _, v := range ifaceArr {
-		if v == nil {
-			continue
-		}
-		arr = append(arr, v.(string))
-	}
-	return arr
-}
-
 // Healthchecks need to exist before being referred to from the target pool.
 func convertHealthChecks(config *Config, project string, names []string) ([]string, error) {
 	urls := make([]string, len(names))

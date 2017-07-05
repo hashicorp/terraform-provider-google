@@ -29,6 +29,9 @@ func resourceContainerCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+		MigrateState:  resourceContainerClusterMigrateState,
+
 		Schema: map[string]*schema.Schema{
 			"master_auth": {
 				Type:     schema.TypeList,
@@ -106,10 +109,9 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"additional_zones": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -386,7 +388,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
-		locationsList := v.([]interface{})
+		locationsList := v.(*schema.Set).List()
 		locations := []string{}
 		for _, v := range locationsList {
 			location := v.(string)
@@ -634,29 +636,65 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	zoneName := d.Get("zone").(string)
 	clusterName := d.Get("name").(string)
-	desiredNodeVersion := d.Get("node_version").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
-	req := &container.UpdateClusterRequest{
-		Update: &container.ClusterUpdate{
-			DesiredNodeVersion: desiredNodeVersion,
-		},
-	}
-	op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-		project, zoneName, clusterName, req).Do()
-	if err != nil {
-		return err
+	d.Partial(true)
+
+	if d.HasChange("node_version") {
+		desiredNodeVersion := d.Get("node_version").(string)
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster version", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+			desiredNodeVersion)
+
+		d.SetPartial("node_version")
 	}
 
-	// Wait until it's updated
+	if d.HasChange("additional_zones") {
+		azSet := d.Get("additional_zones").(*schema.Set)
+		if azSet.Contains(zoneName) {
+			return fmt.Errorf("additional_zones should not contain the original 'zone'.")
+		}
+		azs := convertStringArr(azSet.List())
+		locations := append(azs, zoneName)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredLocations: locations,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
 
-	waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster", timeoutInMinutes, 2)
-	if waitErr != nil {
-		return waitErr
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster locations", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(),
+			locations)
 	}
 
-	log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
-		desiredNodeVersion)
+	d.Partial(false)
 
 	return resourceContainerClusterRead(d, meta)
 }
