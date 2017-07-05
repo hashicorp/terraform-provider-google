@@ -2,13 +2,13 @@ package google
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"cloud.google.com/go/bigtable"
 	"golang.org/x/net/context"
-	"log"
 )
 
 func resourceBigtableInstance() *schema.Resource {
