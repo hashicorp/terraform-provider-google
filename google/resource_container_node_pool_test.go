@@ -112,7 +112,7 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 				attributes["initial_node_count"], found.InitialNodeCount)
 		}
 
-		tfAS := attributes["autoscaling.0.enabled"] == "true"
+		tfAS := attributes["autoscaling.#"] == "1"
 		if gcpAS := found.Autoscaling != nil && found.Autoscaling.Enabled == true; tfAS != gcpAS {
 			return fmt.Errorf("Mismatched autoscaling status. TF State: %t. GCP State: %t", tfAS, gcpAS)
 		}

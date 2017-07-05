@@ -63,12 +63,6 @@ func resourceContainerNodePool() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enabled": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-						},
-
 						"min_node_count": &schema.Schema{
 							Type:     schema.TypeInt,
 							Required: true,
@@ -130,7 +124,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	if v, ok := d.GetOk("autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
 		nodePool.Autoscaling = &container.NodePoolAutoscaling{
-			Enabled:      autoscaling["enabled"].(bool),
+			Enabled:      true,
 			MinNodeCount: int64(autoscaling["min_node_count"].(int)),
 			MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
 		}
@@ -180,16 +174,17 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", nodePool.Name)
 	d.Set("initial_node_count", nodePool.InitialNodeCount)
+
+	autoscaling := []map[string]interface{}{}
 	if nodePool.Autoscaling != nil && nodePool.Autoscaling.Enabled {
-		autoscaling := []map[string]interface{}{
+		autoscaling = []map[string]interface{}{
 			map[string]interface{}{
-				"enabled":        nodePool.Autoscaling.Enabled,
 				"min_node_count": nodePool.Autoscaling.MinNodeCount,
 				"max_node_count": nodePool.Autoscaling.MaxNodeCount,
 			},
 		}
-		d.Set("autoscaling", autoscaling)
 	}
+	d.Set("autoscaling", autoscaling)
 
 	return nil
 }
@@ -213,7 +208,7 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 		if v, ok := d.GetOk("autoscaling"); ok {
 			autoscaling := v.([]interface{})[0].(map[string]interface{})
 			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
-				Enabled:      autoscaling["enabled"].(bool),
+				Enabled:      true,
 				MinNodeCount: int64(autoscaling["min_node_count"].(int)),
 				MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
 			}
