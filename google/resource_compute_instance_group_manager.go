@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+
 	"google.golang.org/api/compute/v1"
 )
 
@@ -28,8 +29,9 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"instance_template": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 
 			"name": &schema.Schema{
@@ -97,10 +99,13 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"target_pools": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:             schema.TypeSet,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: selfLinkRelativePathHash,
 			},
 
 			"target_size": &schema.Schema{
@@ -121,10 +126,12 @@ func getNamedPorts(nps []interface{}) []*compute.NamedPort {
 			Port: int64(np["port"].(int)),
 		})
 	}
+
 	return namedPorts
 }
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := v1
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -169,8 +176,18 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := config.clientCompute.InstanceGroupManagers.Insert(
-		project, d.Get("zone").(string), manager).Do()
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		managerV1, err := convertInstanceGroupManagerToV1(manager)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientCompute.InstanceGroupManagers.Insert(
+			project, d.Get("zone").(string), managerV1).Do()
+	}
+
 	if err != nil {
 		return fmt.Errorf("Error creating InstanceGroupManager: %s", err)
 	}
@@ -179,7 +196,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	d.SetId(manager.Name)
 
 	// Wait for the operation to complete
-	err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Creating InstanceGroupManager")
+	err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Creating InstanceGroupManager")
 	if err != nil {
 		return err
 	}
@@ -200,6 +217,7 @@ func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{}
 }
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := v1
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -212,36 +230,46 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	getInstanceGroupManager := func(zone string) (interface{}, error) {
-		return config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
-	}
-
 	var manager *compute.InstanceGroupManager
-	var e error
-	if zone, ok := d.GetOk("zone"); ok {
-		manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone.(string), d.Id()).Do()
-
-		if e != nil {
-			return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
-		}
-	} else {
-		// If the resource was imported, the only info we have is the ID. Try to find the resource
-		// by searching in the region of the project.
-		var resource interface{}
-		resource, e = getZonalResourceFromRegion(getInstanceGroupManager, region, config.clientCompute, project)
-
-		if e != nil {
-			return e
+	switch computeApiVersion {
+	case v1:
+		getInstanceGroupManager := func(zone string) (interface{}, error) {
+			return config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 		}
 
-		manager = resource.(*compute.InstanceGroupManager)
-	}
+		var v1Manager *compute.InstanceGroupManager
+		var e error
+		if zone, ok := d.GetOk("zone"); ok {
+			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone.(string), d.Id()).Do()
 
-	if manager == nil {
-		log.Printf("[WARN] Removing Instance Group Manager %q because it's gone", d.Get("name").(string))
-		// The resource doesn't exist anymore
-		d.SetId("")
-		return nil
+			if e != nil {
+				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+			}
+		} else {
+			// If the resource was imported, the only info we have is the ID. Try to find the resource
+			// by searching in the region of the project.
+			var resource interface{}
+			resource, e = getZonalResourceFromRegion(getInstanceGroupManager, region, config.clientCompute, project)
+
+			if e != nil {
+				return e
+			}
+
+			v1Manager = resource.(*compute.InstanceGroupManager)
+		}
+
+		if v1Manager == nil {
+			log.Printf("[WARN] Removing Instance Group Manager %q because it's gone", d.Get("name").(string))
+
+			// The resource doesn't exist anymore
+			d.SetId("")
+			return nil
+		}
+
+		manager, err = convertInstanceGroupManagerToV1(v1Manager)
+		if err != nil {
+			return err
+		}
 	}
 
 	zoneUrl := strings.Split(manager.Zone, "/")
@@ -266,7 +294,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 	return nil
 }
+
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := v1
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -291,14 +321,24 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			TargetPools: targetPools,
 		}
 
-		op, err := config.clientCompute.InstanceGroupManagers.SetTargetPools(
-			project, d.Get("zone").(string), d.Id(), setTargetPools).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setTargetPoolsV1, err := convertInstanceGroupManagersSetTargetPoolsRequestToV1(setTargetPools)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.InstanceGroupManagers.SetTargetPools(
+				project, d.Get("zone").(string), d.Id(), setTargetPoolsV1).Do()
+		}
+
 		if err != nil {
 			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -313,21 +353,40 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			InstanceTemplate: d.Get("instance_template").(string),
 		}
 
-		op, err := config.clientCompute.InstanceGroupManagers.SetInstanceTemplate(
-			project, d.Get("zone").(string), d.Id(), setInstanceTemplate).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setInstanceTemplateV1, err := convertInstanceGroupManagersSetInstanceTemplateRequestToV1(setInstanceTemplate)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.InstanceGroupManagers.SetInstanceTemplate(
+				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV1).Do()
+		}
+
 		if err != nil {
 			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
 
 		if d.Get("update_strategy").(string) == "RESTART" {
-			managedInstances, err := config.clientCompute.InstanceGroupManagers.ListManagedInstances(
-				project, d.Get("zone").(string), d.Id()).Do()
+			var managedInstances *compute.InstanceGroupManagersListManagedInstancesResponse
+			switch computeApiVersion {
+			case v1:
+				managedInstancesV1, err := config.clientCompute.InstanceGroupManagers.ListManagedInstances(
+					project, d.Get("zone").(string), d.Id()).Do()
+				if err != nil {
+					return fmt.Errorf("Error getting instance group managers instances: %s", err)
+				}
+
+				managedInstances, err = convertInstanceGroupManagersListManagedInstancesResponseToV1(managedInstancesV1)
+			}
 
 			managedInstanceCount := len(managedInstances.ManagedInstances)
 			instances := make([]string, managedInstanceCount)
@@ -339,15 +398,23 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				Instances: instances,
 			}
 
-			op, err = config.clientCompute.InstanceGroupManagers.RecreateInstances(
-				project, d.Get("zone").(string), d.Id(), recreateInstances).Do()
+			var op interface{}
+			switch computeApiVersion {
+			case v1:
+				recreateInstancesV1, err := convertInstanceGroupManagersRecreateInstancesRequestToV1(recreateInstances)
+				if err != nil {
+					return err
+				}
 
-			if err != nil {
-				return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+				op, err = config.clientCompute.InstanceGroupManagers.RecreateInstances(
+					project, d.Get("zone").(string), d.Id(), recreateInstancesV1).Do()
+				if err != nil {
+					return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+				}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWaitZoneTime(config, op, project, d.Get("zone").(string),
+			err = computeSharedOperationWaitZoneTime(config, op, project, d.Get("zone").(string),
 				managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
 			if err != nil {
 				return err
@@ -367,14 +434,24 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Make the request:
-		op, err := config.clientCompute.InstanceGroups.SetNamedPorts(
-			project, d.Get("zone").(string), d.Id(), setNamedPorts).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setNamedPortsV1, err := convertInstanceGroupsSetNamedPortsRequestToV1(setNamedPorts)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.InstanceGroups.SetNamedPorts(
+				project, d.Get("zone").(string), d.Id(), setNamedPortsV1).Do()
+		}
+
 		if err != nil {
 			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete:
-		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -388,14 +465,19 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			// Only do anything if the new size is set
 			target_size := int64(v.(int))
 
-			op, err := config.clientCompute.InstanceGroupManagers.Resize(
-				project, d.Get("zone").(string), d.Id(), target_size).Do()
+			var op interface{}
+			switch computeApiVersion {
+			case v1:
+				op, err = config.clientCompute.InstanceGroupManagers.Resize(
+					project, d.Get("zone").(string), d.Id(), target_size).Do()
+			}
+
 			if err != nil {
 				return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+			err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
 			if err != nil {
 				return err
 			}
@@ -410,6 +492,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := v1
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -418,13 +501,19 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	}
 
 	zone := d.Get("zone").(string)
-	op, err := config.clientCompute.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
-	attempt := 0
-	for err != nil && attempt < 20 {
-		attempt++
-		time.Sleep(2000 * time.Millisecond)
+
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
 		op, err = config.clientCompute.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
+		attempt := 0
+		for err != nil && attempt < 20 {
+			attempt++
+			time.Sleep(2000 * time.Millisecond)
+			op, err = config.clientCompute.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
+		}
 	}
+
 	if err != nil {
 		return fmt.Errorf("Error deleting instance group manager: %s", err)
 	}
@@ -432,29 +521,32 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	currentSize := int64(d.Get("target_size").(int))
 
 	// Wait for the operation to complete
-	err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
+	err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
 
 	for err != nil && currentSize > 0 {
 		if !strings.Contains(err.Error(), "timeout") {
 			return err
 		}
 
-		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			project, d.Get("zone").(string), d.Id()).Do()
+		var instanceGroupSize int64
+		switch computeApiVersion {
+		case v1:
+			instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+				project, d.Get("zone").(string), d.Id()).Do()
+			if err != nil {
+				return fmt.Errorf("Error getting instance group size: %s", err)
+			}
 
-		if err != nil {
-			return fmt.Errorf("Error getting instance group size: %s", err)
+			instanceGroupSize = instanceGroup.Size
 		}
 
-		if instanceGroup.Size >= currentSize {
+		if instanceGroupSize >= currentSize {
 			return fmt.Errorf("Error, instance group isn't shrinking during delete")
 		}
 
-		log.Printf("[INFO] timeout occured, but instance group is shrinking (%d < %d)", instanceGroup.Size, currentSize)
-
-		currentSize = instanceGroup.Size
-
-		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
+		log.Printf("[INFO] timeout occured, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
+		currentSize = instanceGroupSize
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
 	}
 
 	d.SetId("")
