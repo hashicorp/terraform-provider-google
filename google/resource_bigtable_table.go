@@ -64,11 +64,15 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 	name := d.Get("name").(string)
 	if v, ok := d.GetOk("split_keys"); ok {
 		splitKeys := convertSchemaArrayToStringArray(v.([]interface{}))
+		// This method may return before the table's creation is complete - we may need to wait until
+		// it exists in the future.
 		err = c.CreatePresplitTable(ctx, name, splitKeys)
 		if err != nil {
 			return fmt.Errorf("Error creating presplit table. %s", err)
 		}
 	} else {
+		// This method may return before the table's creation is complete - we may need to wait until
+		// it exists in the future.
 		err = c.CreateTable(ctx, name)
 		if err != nil {
 			return fmt.Errorf("Error creating table. %s", err)
@@ -128,7 +132,7 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 	name := d.Get("name").(string)
 	err = c.DeleteTable(ctx, name)
 	if err != nil {
-		return fmt.Errorf("Error deleting instance. %s", err)
+		return fmt.Errorf("Error deleting table. %s", err)
 	}
 
 	d.SetId("")
