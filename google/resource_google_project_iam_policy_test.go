@@ -658,6 +658,14 @@ data "google_iam_policy" "admin" {
 `, pid, name, org)
 }
 
+func testAccGoogleProject_createWithoutOrg(pid, name string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+}`, pid, name)
+}
+
 func testAccGoogleProject_create(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
