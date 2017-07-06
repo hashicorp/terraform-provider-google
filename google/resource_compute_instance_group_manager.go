@@ -181,7 +181,8 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	var op interface{}
 	switch computeApiVersion {
 	case v1:
-		managerV1, err := convertInstanceGroupManagerToV1(manager)
+		managerV1 := &compute.InstanceGroupManager{}
+		err := Convert(manager, managerV1)
 		if err != nil {
 			return err
 		}
@@ -323,7 +324,8 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		var op interface{}
 		switch computeApiVersion {
 		case v1:
-			setTargetPoolsV1, err := convertInstanceGroupManagersSetTargetPoolsRequestToV1(setTargetPools)
+			setTargetPoolsV1 := &compute.InstanceGroupManagersSetTargetPoolsRequest{}
+			err := Convert(setTargetPools, setTargetPoolsV1)
 			if err != nil {
 				return err
 			}
@@ -355,7 +357,8 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		var op interface{}
 		switch computeApiVersion {
 		case v1:
-			setInstanceTemplateV1, err := convertInstanceGroupManagersSetInstanceTemplateRequestToV1(setInstanceTemplate)
+			setInstanceTemplateV1 := &compute.InstanceGroupManagersSetInstanceTemplateRequest{}
+			err := Convert(setInstanceTemplate, setInstanceTemplateV1)
 			if err != nil {
 				return err
 			}
@@ -375,7 +378,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		if d.Get("update_strategy").(string) == "RESTART" {
-			var managedInstances *compute.InstanceGroupManagersListManagedInstancesResponse
+			managedInstances := &compute.InstanceGroupManagersListManagedInstancesResponse{}
 			switch computeApiVersion {
 			case v1:
 				managedInstancesV1, err := config.clientCompute.InstanceGroupManagers.ListManagedInstances(
@@ -384,7 +387,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 					return fmt.Errorf("Error getting instance group managers instances: %s", err)
 				}
 
-				managedInstances, err = convertInstanceGroupManagersListManagedInstancesResponseToV1(managedInstancesV1)
+				err = Convert(managedInstancesV1, managedInstances)
 				if err != nil {
 					return err
 				}
@@ -403,7 +406,8 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			var op interface{}
 			switch computeApiVersion {
 			case v1:
-				recreateInstancesV1, err := convertInstanceGroupManagersRecreateInstancesRequestToV1(recreateInstances)
+				recreateInstancesV1 := &compute.InstanceGroupManagersRecreateInstancesRequest{}
+				err := Convert(recreateInstances, recreateInstancesV1)
 				if err != nil {
 					return err
 				}
@@ -439,7 +443,8 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		var op interface{}
 		switch computeApiVersion {
 		case v1:
-			setNamedPortsV1, err := convertInstanceGroupsSetNamedPortsRequestToV1(setNamedPorts)
+			setNamedPortsV1 := &compute.InstanceGroupsSetNamedPortsRequest{}
+			err := Convert(setNamedPorts, setNamedPortsV1)
 			if err != nil {
 				return err
 			}
