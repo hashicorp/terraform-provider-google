@@ -131,6 +131,8 @@ func getNamedPorts(nps []interface{}) []*compute.NamedPort {
 }
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
+	// computeApiVersion will be set based on the fields used in Terraform schema in the future.
+	// Part of https://github.com/terraform-providers/terraform-provider-google/issues/93
 	computeApiVersion := v1
 	config := meta.(*Config)
 
@@ -266,10 +268,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			return nil
 		}
 
-		manager, err = convertInstanceGroupManagerToV1(v1Manager)
-		if err != nil {
-			return err
-		}
+		manager = v1Manager
 	}
 
 	zoneUrl := strings.Split(manager.Zone, "/")
@@ -386,6 +385,9 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 
 				managedInstances, err = convertInstanceGroupManagersListManagedInstancesResponseToV1(managedInstancesV1)
+				if err != nil {
+					return err
+				}
 			}
 
 			managedInstanceCount := len(managedInstances.ManagedInstances)
