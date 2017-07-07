@@ -1,6 +1,7 @@
 package google
 
 import (
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -16,6 +17,8 @@ func computeSharedOperationWaitZoneTime(config *Config, op interface{}, project 
 	switch op.(type) {
 	case *compute.Operation:
 		return computeOperationWaitZoneTime(config, op.(*compute.Operation), project, zone, minutes, activity)
+	case *computeBeta.Operation:
+		return computeBetaOperationWaitZoneTime(config, op.(*computeBeta.Operation), project, zone, minutes, activity)
 	default:
 		panic("Attempted to wait on an Operation of unknown type.")
 	}

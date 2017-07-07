@@ -8,6 +8,7 @@ type ComputeApiVersion uint8
 
 const (
 	v1 ComputeApiVersion = iota
+	v0beta
 )
 
 // Convert between two types by converting to/from JSON. Intended to switch
