@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -130,10 +131,23 @@ func getNamedPorts(nps []interface{}) []*compute.NamedPort {
 	return namedPorts
 }
 
+func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
+	namedPorts := make([]*computeBeta.NamedPort, 0, len(nps))
+	for _, v := range nps {
+		np := v.(map[string]interface{})
+		namedPorts = append(namedPorts, &computeBeta.NamedPort{
+			Name: np["name"].(string),
+			Port: int64(np["port"].(int)),
+		})
+	}
+
+	return namedPorts
+}
+
+var INSTANCE_GROUP_MANAGER_BASE_VERSION = v1
+
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
-	// computeApiVersion will be set based on the fields used in Terraform schema in the future.
-	// Part of https://github.com/terraform-providers/terraform-provider-google/issues/93
-	computeApiVersion := v1
+	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -148,7 +162,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Build the parameter
-	manager := &compute.InstanceGroupManager{
+	manager := &computeBeta.InstanceGroupManager{
 		Name:             d.Get("name").(string),
 		BaseInstanceName: d.Get("base_instance_name").(string),
 		InstanceTemplate: d.Get("instance_template").(string),
@@ -161,7 +175,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	if v, ok := d.GetOk("named_port"); ok {
-		manager.NamedPorts = getNamedPorts(v.([]interface{}))
+		manager.NamedPorts = getNamedPortsBeta(v.([]interface{}))
 	}
 
 	if attr := d.Get("target_pools").(*schema.Set); attr.Len() > 0 {
@@ -189,6 +203,15 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 
 		op, err = config.clientCompute.InstanceGroupManagers.Insert(
 			project, d.Get("zone").(string), managerV1).Do()
+	case v0beta:
+		managerV0beta := &computeBeta.InstanceGroupManager{}
+		err := Convert(manager, managerV0beta)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientComputeBeta.InstanceGroupManagers.Insert(
+			project, d.Get("zone").(string), managerV0beta).Do()
 	}
 
 	if err != nil {
@@ -207,7 +230,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
-func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{} {
+func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(namedPorts))
 	for _, namedPort := range namedPorts {
 		namedPortMap := make(map[string]interface{})
@@ -220,7 +243,7 @@ func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{}
 }
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := v1
+	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -233,7 +256,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	var manager *compute.InstanceGroupManager
+	manager := &computeBeta.InstanceGroupManager{}
 	switch computeApiVersion {
 	case v1:
 		getInstanceGroupManager := func(zone string) (interface{}, error) {
@@ -269,7 +292,45 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			return nil
 		}
 
-		manager = v1Manager
+		err = Convert(v1Manager, manager)
+		if err != nil {
+			return err
+		}
+
+	case v0beta:
+		getInstanceGroupManager := func(zone string) (interface{}, error) {
+			return config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
+		}
+
+		var v0betaManager *computeBeta.InstanceGroupManager
+		var e error
+		if zone, ok := d.GetOk("zone"); ok {
+			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone.(string), d.Id()).Do()
+
+			if e != nil {
+				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+			}
+		} else {
+			// If the resource was imported, the only info we have is the ID. Try to find the resource
+			// by searching in the region of the project.
+			var resource interface{}
+			resource, e = getZonalBetaResourceFromRegion(getInstanceGroupManager, region, config.clientComputeBeta, project)
+			if e != nil {
+				return e
+			}
+
+			v0betaManager = resource.(*computeBeta.InstanceGroupManager)
+		}
+
+		if v0betaManager == nil {
+			log.Printf("[WARN] Removing Instance Group Manager %q because it's gone", d.Get("name").(string))
+
+			// The resource doesn't exist anymore
+			d.SetId("")
+			return nil
+		}
+
+		manager = v0betaManager
 	}
 
 	zoneUrl := strings.Split(manager.Zone, "/")
@@ -281,7 +342,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
 	d.Set("target_pools", manager.TargetPools)
-	d.Set("named_port", flattenNamedPorts(manager.NamedPorts))
+	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("target_size", manager.TargetSize)
@@ -296,7 +357,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := v1
+	computeApiVersion := getComputeApiVersionUpdate(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{}, []Key{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -316,7 +377,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Build the parameter
-		setTargetPools := &compute.InstanceGroupManagersSetTargetPoolsRequest{
+		setTargetPools := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{
 			Fingerprint: d.Get("fingerprint").(string),
 			TargetPools: targetPools,
 		}
@@ -332,6 +393,15 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 			op, err = config.clientCompute.InstanceGroupManagers.SetTargetPools(
 				project, d.Get("zone").(string), d.Id(), setTargetPoolsV1).Do()
+		case v0beta:
+			setTargetPoolsV0beta := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{}
+			err := Convert(setTargetPools, setTargetPoolsV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.SetTargetPools(
+				project, d.Get("zone").(string), d.Id(), setTargetPoolsV0beta).Do()
 		}
 
 		if err != nil {
@@ -350,7 +420,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	// If instance_template changes then update
 	if d.HasChange("instance_template") {
 		// Build the parameter
-		setInstanceTemplate := &compute.InstanceGroupManagersSetInstanceTemplateRequest{
+		setInstanceTemplate := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{
 			InstanceTemplate: d.Get("instance_template").(string),
 		}
 
@@ -365,6 +435,15 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 			op, err = config.clientCompute.InstanceGroupManagers.SetInstanceTemplate(
 				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV1).Do()
+		case v0beta:
+			setInstanceTemplateV0beta := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{}
+			err := Convert(setInstanceTemplate, setInstanceTemplateV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.SetInstanceTemplate(
+				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV0beta).Do()
 		}
 
 		if err != nil {
@@ -378,7 +457,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		if d.Get("update_strategy").(string) == "RESTART" {
-			managedInstances := &compute.InstanceGroupManagersListManagedInstancesResponse{}
+			managedInstances := &computeBeta.InstanceGroupManagersListManagedInstancesResponse{}
 			switch computeApiVersion {
 			case v1:
 				managedInstancesV1, err := config.clientCompute.InstanceGroupManagers.ListManagedInstances(
@@ -391,6 +470,17 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				if err != nil {
 					return err
 				}
+			case v0beta:
+				managedInstancesV0beta, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(
+					project, d.Get("zone").(string), d.Id()).Do()
+				if err != nil {
+					return fmt.Errorf("Error getting instance group managers instances: %s", err)
+				}
+
+				err = Convert(managedInstancesV0beta, managedInstances)
+				if err != nil {
+					return err
+				}
 			}
 
 			managedInstanceCount := len(managedInstances.ManagedInstances)
@@ -399,7 +489,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				instances[i] = v.Instance
 			}
 
-			recreateInstances := &compute.InstanceGroupManagersRecreateInstancesRequest{
+			recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
 				Instances: instances,
 			}
 
@@ -414,6 +504,18 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 				op, err = config.clientCompute.InstanceGroupManagers.RecreateInstances(
 					project, d.Get("zone").(string), d.Id(), recreateInstancesV1).Do()
+				if err != nil {
+					return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+				}
+			case v0beta:
+				recreateInstancesV0beta := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{}
+				err := Convert(recreateInstances, recreateInstancesV0beta)
+				if err != nil {
+					return err
+				}
+
+				op, err = config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(
+					project, d.Get("zone").(string), d.Id(), recreateInstancesV0beta).Do()
 				if err != nil {
 					return fmt.Errorf("Error restarting instance group managers instances: %s", err)
 				}
@@ -434,8 +536,8 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("named_port") {
 
 		// Build the parameters for a "SetNamedPorts" request:
-		namedPorts := getNamedPorts(d.Get("named_port").([]interface{}))
-		setNamedPorts := &compute.InstanceGroupsSetNamedPortsRequest{
+		namedPorts := getNamedPortsBeta(d.Get("named_port").([]interface{}))
+		setNamedPorts := &computeBeta.InstanceGroupsSetNamedPortsRequest{
 			NamedPorts: namedPorts,
 		}
 
@@ -451,6 +553,15 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 			op, err = config.clientCompute.InstanceGroups.SetNamedPorts(
 				project, d.Get("zone").(string), d.Id(), setNamedPortsV1).Do()
+		case v0beta:
+			setNamedPortsV0beta := &computeBeta.InstanceGroupsSetNamedPortsRequest{}
+			err := Convert(setNamedPorts, setNamedPortsV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroups.SetNamedPorts(
+				project, d.Get("zone").(string), d.Id(), setNamedPortsV0beta).Do()
 		}
 
 		if err != nil {
@@ -477,6 +588,9 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			case v1:
 				op, err = config.clientCompute.InstanceGroupManagers.Resize(
 					project, d.Get("zone").(string), d.Id(), target_size).Do()
+			case v0beta:
+				op, err = config.clientComputeBeta.InstanceGroupManagers.Resize(
+					project, d.Get("zone").(string), d.Id(), target_size).Do()
 			}
 
 			if err != nil {
@@ -499,7 +613,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := v1
+	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -518,6 +632,14 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			attempt++
 			time.Sleep(2000 * time.Millisecond)
 			op, err = config.clientCompute.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
+		}
+	case v0beta:
+		op, err = config.clientComputeBeta.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
+		attempt := 0
+		for err != nil && attempt < 20 {
+			attempt++
+			time.Sleep(2000 * time.Millisecond)
+			op, err = config.clientComputeBeta.InstanceGroupManagers.Delete(project, zone, d.Id()).Do()
 		}
 	}
 
@@ -539,6 +661,14 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+				project, d.Get("zone").(string), d.Id()).Do()
+			if err != nil {
+				return fmt.Errorf("Error getting instance group size: %s", err)
+			}
+
+			instanceGroupSize = instanceGroup.Size
+		case v0beta:
+			instanceGroup, err := config.clientComputeBeta.InstanceGroups.Get(
 				project, d.Get("zone").(string), d.Id()).Do()
 			if err != nil {
 				return fmt.Errorf("Error getting instance group size: %s", err)
