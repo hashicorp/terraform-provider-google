@@ -19,6 +19,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
@@ -37,6 +38,7 @@ type Config struct {
 	clientBilling         *cloudbilling.Service
 	clientCompute         *compute.Service
 	clientContainer       *container.Service
+	clientDataproc        *dataproc.Service
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
@@ -180,6 +182,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientBigQuery.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
+	c.clientDataproc, err = dataproc.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDataproc.UserAgent = userAgent
 
 	return nil
 }
