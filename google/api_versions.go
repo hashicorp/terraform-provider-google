@@ -11,7 +11,7 @@ const (
 	v0beta
 )
 
-var ORDERED_COMPUTE_API_VERSIONS = []ComputeApiVersion{
+var OrderedComputeApiVersions = []ComputeApiVersion{
 	v0beta,
 	v1,
 }
@@ -37,57 +37,63 @@ type TerraformResourceData interface {
 	GetOk(string) (interface{}, bool)
 }
 
-// Compare the keys set in schema against a list of features and their versions to determine
-//what version of the API is required in order to manage the resource.
-func getComputeApiVersion(d TerraformResourceData, baseVersion ComputeApiVersion, keys []Key) ComputeApiVersion {
-	versions := map[ComputeApiVersion]struct{}{baseVersion: struct{}{}}
-	for _, key := range keys {
-		if key.InUseBy(d) {
-			versions[key.Version] = struct{}{}
+// Compare the fields set in schema against a list of features and their versions to determine
+// what version of the API is required in order to manage the resource.
+func getComputeApiVersion(d TerraformResourceData, resourceVersion ComputeApiVersion, features []Feature) ComputeApiVersion {
+	versions := map[ComputeApiVersion]struct{}{resourceVersion: struct{}{}}
+	for _, feature := range features {
+		if feature.InUseBy(d) {
+			versions[feature.Version] = struct{}{}
 		}
 	}
 
 	return maxVersion(versions)
 }
 
-// Compare the keys set in schema against a list of features and their version, and a
-// list of features that exist at the base version that can only be update at some other version,
-// to determine what version of the API is required in order to update the resource.
-func getComputeApiVersionUpdate(d TerraformResourceData, baseVersion ComputeApiVersion, keys, updateOnlyKeys []Key) ComputeApiVersion {
-	versions := map[ComputeApiVersion]struct{}{baseVersion: struct{}{}}
-	schemaVersion := getComputeApiVersion(d, baseVersion, keys)
+// Compare the fields set in schema against a list of features and their version, and a
+// list of features that exist at the base resource version that can only be update at some other
+// version, to determine what version of the API is required in order to update the resource.
+func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion ComputeApiVersion, features, updateOnlyFields []Feature) ComputeApiVersion {
+	versions := map[ComputeApiVersion]struct{}{resourceVersion: struct{}{}}
+	schemaVersion := getComputeApiVersion(d, resourceVersion, features)
 	versions[schemaVersion] = struct{}{}
 
-	for _, key := range updateOnlyKeys {
-		if key.HasChangeBy(d) {
-			versions[key.Version] = struct{}{}
+	for _, feature := range updateOnlyFields {
+		if feature.HasChangeBy(d) {
+			versions[feature.Version] = struct{}{}
 		}
 	}
 
 	return maxVersion(versions)
 }
 
-type Key struct {
+// A field of a resource and the version of the Compute API required to use it.
+type Feature struct {
 	Version ComputeApiVersion
 	Item    string
 }
 
-func (s Key) HasChangeBy(d TerraformResourceData) bool {
+// Returns true when a feature has been modified.
+// This is most important when updating a resource to remove versioned feature usage; if the
+// resource is reverting to its base version, it needs to perform a final update at the higher
+// version in order to remove high version features.
+func (s Feature) HasChangeBy(d TerraformResourceData) bool {
 	return d.HasChange(s.Item)
 }
 
-func (s Key) InUseBy(d TerraformResourceData) bool {
+// Return true when a feature appears in schema or has been modified.
+func (s Feature) InUseBy(d TerraformResourceData) bool {
 	_, ok := d.GetOk(s.Item)
 	return ok && s.HasChangeBy(d)
 }
 
 func maxVersion(versionsInUse map[ComputeApiVersion]struct{}) ComputeApiVersion {
-	for _, version := range ORDERED_COMPUTE_API_VERSIONS {
+	for _, version := range OrderedComputeApiVersions {
 		if _, ok := versionsInUse[version]; ok {
 			return version
 		}
 	}
 
 	// Fallback to the final, most stable version
-	return ORDERED_COMPUTE_API_VERSIONS[len(ORDERED_COMPUTE_API_VERSIONS)-1]
+	return OrderedComputeApiVersions[len(OrderedComputeApiVersions)-1]
 }

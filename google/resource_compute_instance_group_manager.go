@@ -144,10 +144,10 @@ func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
 	return namedPorts
 }
 
-var INSTANCE_GROUP_MANAGER_BASE_VERSION = v1
+var InstanceGroupManagerBaseVersion = v1
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -243,7 +243,7 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 }
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -357,7 +357,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersionUpdate(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{}, []Key{})
+	computeApiVersion := getComputeApiVersionUpdate(d, InstanceGroupManagerBaseVersion, []Feature{}, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -613,7 +613,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, INSTANCE_GROUP_MANAGER_BASE_VERSION, []Key{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)

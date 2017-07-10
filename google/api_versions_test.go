@@ -7,69 +7,69 @@ func TestResourceWithOnlyBaseVersionFields(t *testing.T) {
 		FieldsInSchema: []string{"normal_field"},
 	}
 
-	baseVersion := v1
-	computeApiVersion := getComputeApiVersion(d, baseVersion, []Key{})
-	if computeApiVersion != baseVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", baseVersion, computeApiVersion)
+	resourceVersion := v1
+	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{})
+	if computeApiVersion != resourceVersion {
+		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
 	}
 
-	computeApiVersion = getComputeApiVersionUpdate(d, baseVersion, []Key{}, []Key{})
-	if computeApiVersion != baseVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", baseVersion, computeApiVersion)
+	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{}, []Feature{})
+	if computeApiVersion != resourceVersion {
+		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
 	}
 }
 
 func TestResourceWithBetaFields(t *testing.T) {
-	baseVersion := v1
+	resourceVersion := v1
 	d := &ResourceDataMock{
 		FieldsInSchema: []string{"normal_field", "beta_field"},
 	}
 
 	expectedVersion := v0beta
-	computeApiVersion := getComputeApiVersion(d, baseVersion, []Key{{Version: expectedVersion, Item: "beta_field"}})
+	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
 
-	computeApiVersion = getComputeApiVersionUpdate(d, baseVersion, []Key{{Version: expectedVersion, Item: "beta_field"}}, []Key{})
+	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}}, []Feature{})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
 }
 
 func TestResourceWithBetaFieldsNotInSchema(t *testing.T) {
-	baseVersion := v1
+	resourceVersion := v1
 	d := &ResourceDataMock{
 		FieldsInSchema: []string{"normal_field"},
 	}
 
 	expectedVersion := v1
-	computeApiVersion := getComputeApiVersion(d, baseVersion, []Key{{Version: expectedVersion, Item: "beta_field"}})
+	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
 
-	computeApiVersion = getComputeApiVersionUpdate(d, baseVersion, []Key{{Version: expectedVersion, Item: "beta_field"}}, []Key{})
+	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}}, []Feature{})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
 }
 
 func TestResourceWithBetaUpdateFields(t *testing.T) {
-	baseVersion := v1
+	resourceVersion := v1
 	d := &ResourceDataMock{
 		FieldsInSchema:      []string{"normal_field", "beta_update_field"},
 		FieldsWithHasChange: []string{"beta_update_field"},
 	}
 
 	expectedVersion := v1
-	computeApiVersion := getComputeApiVersion(d, baseVersion, []Key{})
+	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
 
 	expectedVersion = v0beta
-	computeApiVersion = getComputeApiVersionUpdate(d, baseVersion, []Key{}, []Key{{Version: expectedVersion, Item: "beta_update_field"}})
+	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{}, []Feature{{Version: expectedVersion, Item: "beta_update_field"}})
 	if computeApiVersion != expectedVersion {
 		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
 	}
