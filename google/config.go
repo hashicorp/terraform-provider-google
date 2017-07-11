@@ -192,7 +192,6 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientBigQuery.UserAgent = userAgent
 
-	log.Printf("[INFO] Instantiating Google Cloud Bigtable Client Factory...")
 	c.bigtableClientFactory = &BigtableClientFactory{
 		UserAgent:   userAgent,
 		TokenSource: tokenSource,
