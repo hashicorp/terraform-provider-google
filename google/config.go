@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
 	"github.com/hashicorp/terraform/terraform"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
@@ -45,6 +47,8 @@ type Config struct {
 	clientIAM             *iam.Service
 	clientServiceMan      *servicemanagement.APIService
 	clientBigQuery        *bigquery.Service
+
+	bigtableClientFactory *BigtableClientFactory
 }
 
 func (c *Config) loadAndValidate() error {
@@ -57,6 +61,7 @@ func (c *Config) loadAndValidate() error {
 	}
 
 	var client *http.Client
+	var tokenSource oauth2.TokenSource
 
 	if c.Credentials != "" {
 		contents, _, err := pathorcontents.Read(c.Credentials)
@@ -85,12 +90,18 @@ func (c *Config) loadAndValidate() error {
 		// Initiate an http.Client. The following GET request will be
 		// authorized and authenticated on the behalf of
 		// your service account.
-		client = conf.Client(oauth2.NoContext)
+		client = conf.Client(context.Background())
 
+		tokenSource = conf.TokenSource(context.Background())
 	} else {
 		log.Printf("[INFO] Authenticating using DefaultClient")
 		err := error(nil)
-		client, err = google.DefaultClient(oauth2.NoContext, clientScopes...)
+		client, err = google.DefaultClient(context.Background(), clientScopes...)
+		if err != nil {
+			return err
+		}
+
+		tokenSource, err = google.DefaultTokenSource(context.Background(), clientScopes...)
 		if err != nil {
 			return err
 		}
@@ -180,6 +191,11 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientBigQuery.UserAgent = userAgent
+
+	c.bigtableClientFactory = &BigtableClientFactory{
+		UserAgent:   userAgent,
+		TokenSource: tokenSource,
+	}
 
 	return nil
 }
