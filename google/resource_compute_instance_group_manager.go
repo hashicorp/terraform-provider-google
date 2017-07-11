@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -114,6 +115,27 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+
+			"auto_healing_policies": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"health_check": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
+						},
+
+						"initial_delay_sec": &schema.Schema{
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntBetween(0, 3600),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -145,9 +167,10 @@ func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
 }
 
 var InstanceGroupManagerBaseVersion = v1
+var InstanceGroupManagerVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "auto_healing_policies"}}
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, InstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -189,6 +212,10 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	updateStrategy := d.Get("update_strategy").(string)
 	if !(updateStrategy == "NONE" || updateStrategy == "RESTART") {
 		return fmt.Errorf("Update strategy must be \"NONE\" or \"RESTART\"")
+	}
+
+	if v, ok := d.GetOk("auto_healing_policies"); ok {
+		manager.AutoHealingPolicies = expandAutoHealingPolicies(v.([]interface{}))
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
@@ -243,7 +270,7 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 }
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, InstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -352,12 +379,13 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		update_strategy = "RESTART"
 	}
 	d.Set("update_strategy", update_strategy.(string))
+	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 
 	return nil
 }
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersionUpdate(d, InstanceGroupManagerBaseVersion, []Feature{}, []Feature{})
+	computeApiVersion := getComputeApiVersionUpdate(d, InstanceGroupManagerBaseVersion, InstanceGroupManagerVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -607,13 +635,36 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.SetPartial("target_size")
 	}
 
+	// We will always be in v0beta inside this conditional
+	if d.HasChange("auto_healing_policies") {
+		setAutoHealingPoliciesRequest := &computeBeta.InstanceGroupManagersSetAutoHealingRequest{}
+		if v, ok := d.GetOk("auto_healing_policies"); ok {
+			setAutoHealingPoliciesRequest.AutoHealingPolicies = expandAutoHealingPolicies(v.([]interface{}))
+		}
+
+		op, err := config.clientComputeBeta.InstanceGroupManagers.SetAutoHealingPolicies(
+			project, d.Get("zone").(string), d.Id(), setAutoHealingPoliciesRequest).Do()
+
+		if err != nil {
+			return fmt.Errorf("Error updating AutoHealingPolicies: %s", err)
+		}
+
+		// Wait for the operation to complete
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating AutoHealingPolicies")
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("auto_healing_policies")
+	}
+
 	d.Partial(false)
 
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, InstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -688,4 +739,31 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 
 	d.SetId("")
 	return nil
+}
+
+func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.InstanceGroupManagerAutoHealingPolicy {
+	autoHealingPolicies := make([]*computeBeta.InstanceGroupManagerAutoHealingPolicy, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		autoHealingPolicy := computeBeta.InstanceGroupManagerAutoHealingPolicy{
+			HealthCheck:     data["health_check"].(string),
+			InitialDelaySec: int64(data["initial_delay_sec"].(int)),
+		}
+
+		autoHealingPolicies = append(autoHealingPolicies, &autoHealingPolicy)
+	}
+	return autoHealingPolicies
+}
+
+func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
+	autoHealingPoliciesSchema := make([]map[string]interface{}, 0, len(autoHealingPolicies))
+	for _, autoHealingPolicy := range autoHealingPolicies {
+		data := map[string]interface{}{
+			"health_check":      autoHealingPolicy.HealthCheck,
+			"initial_delay_sec": autoHealingPolicy.InitialDelaySec,
+		}
+
+		autoHealingPoliciesSchema = append(autoHealingPoliciesSchema, data)
+	}
+	return autoHealingPoliciesSchema
 }
