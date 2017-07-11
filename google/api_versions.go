@@ -84,7 +84,7 @@ func (s Feature) HasChangeBy(d TerraformResourceData) bool {
 // Return true when a feature appears in schema or has been modified.
 func (s Feature) InUseBy(d TerraformResourceData) bool {
 	_, ok := d.GetOk(s.Item)
-	return ok && s.HasChangeBy(d)
+	return ok || s.HasChangeBy(d)
 }
 
 func maxVersion(versionsInUse map[ComputeApiVersion]struct{}) ComputeApiVersion {
