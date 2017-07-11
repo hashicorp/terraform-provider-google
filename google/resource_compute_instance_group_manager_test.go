@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -159,6 +160,43 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
+	var manager computeBeta.InstanceGroupManager
+
+	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	hck := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceGroupManagerBetaExists(
+						"google_compute_instance_group_manager.igm-basic", &manager),
+				),
+			},
+		},
+	})
+
+	if len(manager.AutoHealingPolicies) != 1 {
+		t.Errorf("Expected # of auto healing policies to be 1, got %d", len(manager.AutoHealingPolicies))
+	}
+	autoHealingPolicy := manager.AutoHealingPolicies[0]
+
+	if !strings.Contains(autoHealingPolicy.HealthCheck, hck) {
+		t.Errorf("Expected string \"%s\" to appear in \"%s\"", hck, autoHealingPolicy.HealthCheck)
+	}
+
+	if autoHealingPolicy.InitialDelaySec != 10 {
+		t.Errorf("Expected auto healing policy inital delay to be 10, got %d", autoHealingPolicy.InitialDelaySec)
+	}
+}
+
 func testAccCheckInstanceGroupManagerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -190,6 +228,35 @@ func testAccCheckInstanceGroupManagerExists(n string, manager *compute.InstanceG
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.InstanceGroupManagers.Get(
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("InstanceGroupManager not found")
+		}
+
+		*manager = *found
+
+		return nil
+	}
+}
+
+func testAccCheckInstanceGroupManagerBetaExists(n string, manager *computeBeta.InstanceGroupManager) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.InstanceGroupManagers.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -645,4 +712,53 @@ func resourceSplitter(resource string) string {
 	splits := strings.Split(resource, "/")
 
 	return splits[len(splits)-1]
+}
+
+func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_instance_template" "igm-basic" {
+		name = "%s"
+		machine_type = "n1-standard-1"
+		can_ip_forward = false
+		tags = ["foo", "bar"]
+		disk {
+			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			auto_delete = true
+			boot = true
+		}
+		network_interface {
+			network = "default"
+		}
+		metadata {
+			foo = "bar"
+		}
+		service_account {
+			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+		}
+	}
+	resource "google_compute_target_pool" "igm-basic" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		session_affinity = "CLIENT_IP_PROTO"
+	}
+	resource "google_compute_instance_group_manager" "igm-basic" {
+		description = "Terraform test instance group manager"
+		name = "%s"
+		instance_template = "${google_compute_instance_template.igm-basic.self_link}"
+		target_pools = ["${google_compute_target_pool.igm-basic.self_link}"]
+		base_instance_name = "igm-basic"
+		zone = "us-central1-c"
+		target_size = 2
+		auto_healing_policies {
+			health_check = "${google_compute_http_health_check.zero.self_link}"
+			initial_delay_sec = "10"
+		}
+	}
+	resource "google_compute_http_health_check" "zero" {
+	  name               = "%s"
+	  request_path       = "/"
+	  check_interval_sec = 1
+	  timeout_sec        = 1
+	}
+	`, template, target, igm, hck)
 }
