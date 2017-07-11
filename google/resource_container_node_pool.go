@@ -57,6 +57,8 @@ func resourceContainerNodePool() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"node_config": schemaNodeConfig,
+
 			"autoscaling": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -121,6 +123,68 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		InitialNodeCount: int64(nodeCount),
 	}
 
+	if v, ok := d.GetOk("node_config"); ok {
+		nodeConfigs := v.([]interface{})
+		nodeConfig := nodeConfigs[0].(map[string]interface{})
+
+		nodePool.Config = &container.NodeConfig{}
+
+		if v, ok = nodeConfig["machine_type"]; ok {
+			nodePool.Config.MachineType = v.(string)
+		}
+
+		if v, ok = nodeConfig["disk_size_gb"]; ok {
+			nodePool.Config.DiskSizeGb = int64(v.(int))
+		}
+
+		if v, ok = nodeConfig["local_ssd_count"]; ok {
+			nodePool.Config.LocalSsdCount = int64(v.(int))
+		}
+
+		if v, ok := nodeConfig["oauth_scopes"]; ok {
+			scopesList := v.([]interface{})
+			scopes := []string{}
+			for _, v := range scopesList {
+				scopes = append(scopes, canonicalizeServiceScope(v.(string)))
+			}
+
+			nodePool.Config.OauthScopes = scopes
+		}
+
+		if v, ok = nodeConfig["service_account"]; ok {
+			nodePool.Config.ServiceAccount = v.(string)
+		}
+
+		if v, ok = nodeConfig["metadata"]; ok {
+			m := make(map[string]string)
+			for k, val := range v.(map[string]interface{}) {
+				m[k] = val.(string)
+			}
+			nodePool.Config.Metadata = m
+		}
+
+		if v, ok = nodeConfig["image_type"]; ok {
+			nodePool.Config.ImageType = v.(string)
+		}
+
+		if v, ok = nodeConfig["labels"]; ok {
+			m := make(map[string]string)
+			for k, val := range v.(map[string]interface{}) {
+				m[k] = val.(string)
+			}
+			nodePool.Config.Labels = m
+		}
+
+		if v, ok := nodeConfig["tags"]; ok {
+			tagsList := v.([]interface{})
+			tags := []string{}
+			for _, v := range tagsList {
+				tags = append(tags, v.(string))
+			}
+			nodePool.Config.Tags = tags
+		}
+	}
+
 	if v, ok := d.GetOk("autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
 		nodePool.Autoscaling = &container.NodePoolAutoscaling{
@@ -174,6 +238,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", nodePool.Name)
 	d.Set("initial_node_count", nodePool.InitialNodeCount)
+	d.Set("node_config", flattenClusterNodeConfig(nodePool.Config))
 
 	autoscaling := []map[string]interface{}{}
 	if nodePool.Autoscaling != nil && nodePool.Autoscaling.Enabled {
