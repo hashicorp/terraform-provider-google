@@ -83,12 +83,6 @@ type ResourceDataMock struct {
 
 func (d *ResourceDataMock) HasChange(key string) bool {
 	exists := false
-	for _, val := range d.FieldsInSchema {
-		if key == val {
-			exists = true
-		}
-	}
-
 	for _, val := range d.FieldsWithHasChange {
 		if key == val {
 			exists = true
