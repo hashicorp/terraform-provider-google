@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * compute: Add `labels` property to `google_compute_instance` [GH-150]
 * container: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 * container: Allow adding/removing zones to/from GKE clusters without recreating them [GH-152]
+* project: Allow unlinking of billing account [GH-138]
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
 
