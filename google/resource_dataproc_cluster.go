@@ -20,9 +20,6 @@ func resourceDataprocCluster() *schema.Resource {
 		Read:   resourceDataprocClusterRead,
 		Update: resourceDataprocClusterUpdate,
 		Delete: resourceDataprocClusterDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -76,14 +73,6 @@ func resourceDataprocCluster() *schema.Resource {
 				ForceNew:    true,
 			},
 
-			"no_address": {
-				Type:        schema.TypeBool,
-				Description: "If set to true, the instances in the cluster will not be assigned external IP addresses",
-				Required:    false,
-				Computed:    true,
-				ForceNew:    true,
-			},
-
 			// At most one of [ network | subnetwork ] may be specified:
 			"network": {
 				Type:     schema.TypeString,
@@ -108,15 +97,14 @@ func resourceDataprocCluster() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Required: true,
 				ForceNew: true,
 			},
 
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Elem:     schema.TypeString,
 			},
 
@@ -220,12 +208,15 @@ func resourceDataprocCluster() *schema.Resource {
 							},
 						},
 
-						"preemptible_num_workers": &schema.Schema{
+						"preemptible_num_workers": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
+
+						// "preemptible_machine_type" cannot be specified directly, it takes its
+						// value from the standard worker "machine_type" field
 
 						"preemptible_boot_disk_size_gb": {
 							Type:     schema.TypeInt,
@@ -382,6 +373,17 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		if v, ok = config["num_local_ssds"]; ok {
 			clusterConfig.WorkerConfig.DiskConfig.NumLocalSsds = int64(v.(int))
 		}
+
+		clusterConfig.SecondaryWorkerConfig = &dataproc.InstanceGroupConfig{
+			DiskConfig: &dataproc.DiskConfig{},
+		}
+
+		if v, ok = config["preemptible_num_workers"]; ok {
+			clusterConfig.SecondaryWorkerConfig.NumInstances = int64(v.(int))
+		}
+		if v, ok = config["preemptible_boot_disk_size_gb"]; ok {
+			clusterConfig.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
+		}
 	}
 
 	cluster := &dataproc.Cluster{
@@ -435,11 +437,12 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Only caters for certain changes to exit if not applicable
+	// The only items which are currently able to be updated, without a
+	// forceNew in place are the labels and/or the number of worker nodes in a cluster
 	if !(d.HasChange("labels") ||
 		d.HasChange("worker_config.0.num_workers") ||
 		d.HasChange("worker_config.0.preemptible_num_workers")) {
-		return errors.New("update resource called, but nothing is allowed to be changed - programmer issue")
+		return errors.New("*** programmer issue - update resource called however item is not allowed to be changed - investigate ***")
 	}
 
 	project, err := getProject(d, config)
@@ -454,12 +457,24 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	cluster := &dataproc.Cluster{
 		ClusterName: clusterName,
 		ProjectId:   project,
-		Config: &dataproc.ClusterConfig{
-			WorkerConfig: &dataproc.InstanceGroupConfig{},
-		},
+		Config:      &dataproc.ClusterConfig{},
 	}
+	patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
+		project, region, clusterName, cluster)
 
-	d.Partial(true)
+	updMask := ""
+
+	if d.HasChange("labels") {
+
+		v := d.Get("labels")
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		cluster.Labels = m
+
+		updMask = "labels"
+	}
 
 	if d.HasChange("worker_config.0.num_workers") {
 
@@ -467,31 +482,47 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		conf := wconfigs[0].(map[string]interface{})
 
 		desiredNumWorks := conf["num_workers"].(int)
-		cluster.Config.WorkerConfig.NumInstances = int64(desiredNumWorks)
-
-		patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
-			project, region, clusterName, cluster)
-		patch.UpdateMask("config.worker_config.num_instances")
-
-		op, err := patch.Do()
-		if err != nil {
-			return err
+		cluster.Config.WorkerConfig = &dataproc.InstanceGroupConfig{
+			NumInstances: int64(desiredNumWorks),
 		}
 
-		// Wait until it's updated
-		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		if len(updMask) > 0 {
+			updMask = updMask + ","
 		}
-
-		log.Printf("[INFO] Dataproc cluster %s has num_workers updated to %d", d.Id(),
-			desiredNumWorks)
-
-		d.SetPartial("worker_config")
+		updMask = updMask + "config.worker_config.num_instances"
 	}
 
-	d.Partial(false)
+	if d.HasChange("worker_config.0.preemptible_num_workers") {
 
+		wconfigs := d.Get("worker_config").([]interface{})
+		conf := wconfigs[0].(map[string]interface{})
+
+		desiredNumWorks := conf["preemptible_num_workers"].(int)
+		cluster.Config.SecondaryWorkerConfig = &dataproc.InstanceGroupConfig{
+			NumInstances: int64(desiredNumWorks),
+		}
+
+		if len(updMask) > 0 {
+			updMask = updMask + ","
+		}
+		updMask = updMask + "config.secondary_worker_config.num_instances"
+
+	}
+
+	patch.UpdateMask(updMask)
+
+	op, err := patch.Do()
+	if err != nil {
+		return err
+	}
+
+	// Wait until it's updated
+	waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes, 2)
+	if waitErr != nil {
+		return waitErr
+	}
+
+	log.Printf("[INFO] Dataproc cluster %s has been updated ", d.Id())
 	return resourceDataprocClusterRead(d, meta)
 }
 
@@ -582,7 +613,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
-	log.Printf("[DEBUG] Deleting Dataproc cluster %s", d.Get("name").(string))
+	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
 	op, err := config.clientDataproc.Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
 	if err != nil {
