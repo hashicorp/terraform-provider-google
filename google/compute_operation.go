@@ -78,7 +78,7 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 	state := w.Conf()
 	state.Delay = 10 * time.Second
 	state.Timeout = time.Duration(timeoutMin) * time.Minute
-	state.MinTimeout = 2 * time.Second
+	state.PollInterval = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
 		return fmt.Errorf("Error waiting for %s: %s", activity, err)
