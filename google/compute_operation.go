@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -89,6 +90,24 @@ func computeOperationWaitZone(config *Config, op *compute.Operation, project, zo
 }
 
 func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project, zone string, timeoutMin int, activity string) error {
+	w := &ComputeOperationWaiter{
+		Service:   config.clientComputeMultiversion,
+		Op:        op,
+		Project:   project,
+		ScopeType: ZONE,
+		Scope:     zone,
+	}
+
+	return waitOperation(w, timeoutMin, activity)
+}
+
+func computeBetaOperationWaitZoneTime(config *Config, betaOp *computeBeta.Operation, project, zone string, timeoutMin int, activity string) error {
+	op := &compute.Operation{}
+	err := Convert(betaOp, op)
+	if err != nil {
+		return err
+	}
+
 	w := &ComputeOperationWaiter{
 		Service:   config.clientComputeMultiversion,
 		Op:        op,
