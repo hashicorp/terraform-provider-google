@@ -3,10 +3,10 @@
 	"ignore": "appengine test github.com/hashicorp/nomad/",
 	"package": [
 		{
-			"checksumSHA1": "fEobtlzPZ57VXi864qMmblI2gsA=",
+			"checksumSHA1": "NrTYYg3++pBxH1Z8xjVg6ssQTYY=",
 			"path": "cloud.google.com/go/bigtable",
-			"revision": "69931d826ffbbcb4f8451b42d5cf7fc2ac6c7443",
-			"revisionTime": "2017-06-09T14:31:37Z"
+			"revision": "f6bedb5a8dbce75418580cedf5c2434c78d06cfa",
+			"revisionTime": "2017-06-27T21:12:08Z"
 		},
 		{
 			"checksumSHA1": "B1HkIrBavSgy6ntVyGr/eNUy44I=",

@@ -64,6 +64,8 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"google_bigquery_dataset":               resourceBigQueryDataset(),
 			"google_bigquery_table":                 resourceBigQueryTable(),
+			"google_bigtable_instance":              resourceBigtableInstance(),
+			"google_bigtable_table":                 resourceBigtableTable(),
 			"google_compute_autoscaler":             resourceComputeAutoscaler(),
 			"google_compute_address":                resourceComputeAddress(),
 			"google_compute_backend_bucket":         resourceComputeBackendBucket(),
