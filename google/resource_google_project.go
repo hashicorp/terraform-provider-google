@@ -200,8 +200,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	// Billing account has changed
 	if ok := d.HasChange("billing_account"); ok {
 		name := d.Get("billing_account").(string)
-		ba := cloudbilling.ProjectBillingInfo{
-			BillingAccountName: "billingAccounts/" + name,
+		ba := cloudbilling.ProjectBillingInfo{}
+		if name != "" {
+			ba.BillingAccountName = "billingAccounts/" + name
 		}
 		_, err = config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
 		if err != nil {
