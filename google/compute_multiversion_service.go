@@ -61,6 +61,10 @@ func (s *ComputeMultiversionService) InsertInstanceGroupManager(project string, 
 		}
 
 		v1Op, err := s.v1.InstanceGroupManagers.Insert(project, zone, v1Manager).Do()
+		if err != nil {
+			return nil, err
+		}
+
 		err = Convert(v1Op, op)
 		if err != nil {
 			return nil, err
@@ -75,6 +79,10 @@ func (s *ComputeMultiversionService) InsertInstanceGroupManager(project string, 
 		}
 
 		v0BetaOp, err := s.v0beta.InstanceGroupManagers.Insert(project, zone, v0BetaManager).Do()
+		if err != nil {
+			return nil, err
+		}
+
 		err = Convert(v0BetaOp, op)
 		if err != nil {
 			return nil, err
