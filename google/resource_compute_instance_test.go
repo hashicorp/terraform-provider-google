@@ -175,7 +175,7 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_disksWithoutAutodelete(t *testing.T) {
+func TestAccComputeInstance_deprecated_disksWithoutAutodelete(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
@@ -186,7 +186,7 @@ func TestAccComputeInstance_disksWithoutAutodelete(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_disks(diskName, instanceName, false),
+				Config: testAccComputeInstance_deprecated_disks(diskName, instanceName, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -198,7 +198,7 @@ func TestAccComputeInstance_disksWithoutAutodelete(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_disksWithAutodelete(t *testing.T) {
+func TestAccComputeInstance_deprecated_disksWithAutodelete(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
@@ -209,7 +209,7 @@ func TestAccComputeInstance_disksWithAutodelete(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_disks(diskName, instanceName, true),
+				Config: testAccComputeInstance_deprecated_disks(diskName, instanceName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -267,27 +267,6 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_bootDisk(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_bootDisk(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceBootDisk(&instance, instanceName),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -326,7 +305,7 @@ func TestAccComputeInstance_noDisk(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_local_ssd(t *testing.T) {
+func TestAccComputeInstance_deprecated_local_ssd(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -336,7 +315,7 @@ func TestAccComputeInstance_local_ssd(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_local_ssd(instanceName),
+				Config: testAccComputeInstance_deprecated_local_ssd(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.local-ssd", &instance),
@@ -634,7 +613,7 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_invalid_disk(t *testing.T) {
+func TestAccComputeInstance_deprecated_invalid_disk(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
 
@@ -644,7 +623,7 @@ func TestAccComputeInstance_invalid_disk(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config:      testAccComputeInstance_invalid_disk(diskName, instanceName),
+				Config:      testAccComputeInstance_deprecated_invalid_disk(diskName, instanceName),
 				ExpectError: regexp.MustCompile("Error: cannot define both disk and type."),
 			},
 		},
@@ -986,8 +965,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network {
@@ -1009,8 +990,10 @@ resource "google_compute_instance" "foobar" {
 	zone         = "us-central1-a"
 	tags         = ["baz"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network {
@@ -1033,8 +1016,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1067,8 +1052,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "debian-8"
+	boot_disk {
+		initialize_params{
+			image = "debian-8"
+		}
 	}
 
 	network_interface {
@@ -1091,8 +1078,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "debian-cloud/debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-cloud/debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1115,8 +1104,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "debian-cloud/debian-8"
+	boot_disk {
+		initialize_params{
+			image = "debian-cloud/debian-8"
+		}
 	}
 
 	network_interface {
@@ -1140,8 +1131,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
-	disk {
-		image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1165,8 +1158,10 @@ resource "google_compute_instance" "foobar" {
 	zone         = "us-central1-b"
 	tags         = ["baz"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1191,8 +1186,10 @@ resource "google_compute_instance" "foobar" {
 	can_ip_forward = false
 	tags           = ["baz"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1227,8 +1224,10 @@ resource "google_compute_instance" "foobar" {
 	zone         = "us-central1-a"
 	tags         = ["foo", "bar"]
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1245,7 +1244,7 @@ resource "google_compute_instance" "foobar" {
 `, ip, instance)
 }
 
-func testAccComputeInstance_disks(disk, instance string, autodelete bool) string {
+func testAccComputeInstance_deprecated_disks(disk, instance string, autodelete bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
@@ -1293,8 +1292,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	}
 
@@ -1342,27 +1343,6 @@ resource "google_compute_instance" "foobar" {
 `, disk, instance)
 }
 
-func testAccComputeInstance_bootDisk(instance string) string {
-	return fmt.Sprintf(`
-resource "google_compute_instance" "foobar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-
-	boot_disk {
-		initialize_params {
-			image = "debian-8-jessie-v20160803"
-		}
-		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
-
-	network_interface {
-		network = "default"
-	}
-}
-`, instance)
-}
-
 func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
@@ -1405,15 +1385,17 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_local_ssd(instance string) string {
+func testAccComputeInstance_deprecated_local_ssd(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "local-ssd" {
 	name         = "%s"
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	disk {
@@ -1465,8 +1447,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1491,8 +1475,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1518,8 +1504,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1551,8 +1539,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1586,8 +1576,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1616,8 +1608,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1645,8 +1639,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "debian-8-jessie-v20160803"
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
 	}
 
 	network_interface {
@@ -1678,8 +1674,10 @@ resource "google_compute_instance" "foobar" {
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
 
-	disk {
-		image = "${google_compute_image.foobar.family}"
+	boot_disk {
+		initialize_params {
+			image = "${google_compute_image.foobar.family}"
+		}
 	}
 
 	network_interface {
@@ -1693,7 +1691,7 @@ resource "google_compute_instance" "foobar" {
 `, disk, image, family, instance)
 }
 
-func testAccComputeInstance_invalid_disk(disk, instance string) string {
+func testAccComputeInstance_deprecated_invalid_disk(disk, instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
   name         = "%s"
