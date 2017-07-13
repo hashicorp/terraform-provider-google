@@ -7,27 +7,24 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
+
 	"google.golang.org/api/compute/v1"
 )
 
-// OperationWaitType is an enum specifying what type of operation
-// we're waiting on.
-type ComputeOperationWaitType byte
+type ScopeType uint8
 
 const (
-	ComputeOperationWaitInvalid ComputeOperationWaitType = iota
-	ComputeOperationWaitGlobal
-	ComputeOperationWaitRegion
-	ComputeOperationWaitZone
+	Global ScopeType = iota
+	Region
+	Zone
 )
 
 type ComputeOperationWaiter struct {
-	Service *compute.Service
-	Op      *compute.Operation
-	Project string
-	Region  string
-	Type    ComputeOperationWaitType
-	Zone    string
+	Service   *compute.Service
+	Op        *compute.Operation
+	Project   string
+	Scope     string
+	ScopeType ScopeType
 }
 
 func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
@@ -35,19 +32,15 @@ func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 		var op *compute.Operation
 		var err error
 
-		switch w.Type {
-		case ComputeOperationWaitGlobal:
-			op, err = w.Service.GlobalOperations.Get(
-				w.Project, w.Op.Name).Do()
-		case ComputeOperationWaitRegion:
-			op, err = w.Service.RegionOperations.Get(
-				w.Project, w.Region, w.Op.Name).Do()
-		case ComputeOperationWaitZone:
-			op, err = w.Service.ZoneOperations.Get(
-				w.Project, w.Zone, w.Op.Name).Do()
+		switch w.ScopeType {
+		case Global:
+			op, err = w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
+		case Region:
+			op, err = w.Service.RegionOperations.Get(w.Project, w.Scope, w.Op.Name).Do()
+		case Zone:
+			op, err = w.Service.ZoneOperations.Get(w.Project, w.Scope, w.Op.Name).Do()
 		default:
-			return nil, "bad-type", fmt.Errorf(
-				"Invalid wait type: %#v", w.Type)
+			return nil, "bad-type", fmt.Errorf("Invalid wait type: %#v", w.ScopeType)
 		}
 
 		if err != nil {
@@ -55,7 +48,6 @@ func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 		}
 
 		log.Printf("[DEBUG] Got %q when asking for operation %q", op.Status, w.Op.Name)
-
 		return op, op.Status, nil
 	}
 }
@@ -74,7 +66,6 @@ type ComputeOperationError compute.OperationError
 
 func (e ComputeOperationError) Error() string {
 	var buf bytes.Buffer
-
 	for _, err := range e.Errors {
 		buf.WriteString(err.Message + "\n")
 	}
@@ -82,18 +73,54 @@ func (e ComputeOperationError) Error() string {
 	return buf.String()
 }
 
-func computeOperationWaitGlobal(config *Config, op *compute.Operation, project string, activity string) error {
+func computeOperationWaitGlobal(config *Config, op *compute.Operation, project, activity string) error {
 	return computeOperationWaitGlobalTime(config, op, project, activity, 4)
 }
 
-func computeOperationWaitGlobalTime(config *Config, op *compute.Operation, project string, activity string, timeoutMin int) error {
+func computeOperationWaitGlobalTime(config *Config, op *compute.Operation, project, activity string, timeoutMin int) error {
 	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
-		Op:      op,
-		Project: project,
-		Type:    ComputeOperationWaitGlobal,
+		Service:   config.clientCompute,
+		Op:        op,
+		Project:   project,
+		ScopeType: Global,
 	}
 
+	return waitComputeOperationWaiter(w, timeoutMin, activity)
+}
+
+func computeOperationWaitRegion(config *Config, op *compute.Operation, project string, region, activity string) error {
+	return computeOperationWaitRegionTime(config, op, project, region, 4, activity)
+}
+
+func computeOperationWaitRegionTime(config *Config, op *compute.Operation, project, region string, timeoutMin int, activity string) error {
+	w := &ComputeOperationWaiter{
+		Service:   config.clientCompute,
+		Op:        op,
+		Project:   project,
+		ScopeType: Region,
+		Scope:     region,
+	}
+
+	return waitComputeOperationWaiter(w, timeoutMin, activity)
+}
+
+func computeOperationWaitZone(config *Config, op *compute.Operation, project, zone, activity string) error {
+	return computeOperationWaitZoneTime(config, op, project, zone, 4, activity)
+}
+
+func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project, zone string, timeoutMin int, activity string) error {
+	w := &ComputeOperationWaiter{
+		Service:   config.clientCompute,
+		Op:        op,
+		Project:   project,
+		ScopeType: Zone,
+		Scope:     zone,
+	}
+
+	return waitComputeOperationWaiter(w, timeoutMin, activity)
+}
+
+func waitComputeOperationWaiter(w *ComputeOperationWaiter, timeoutMin int, activity string) error {
 	state := w.Conf()
 	state.Delay = 10 * time.Second
 	state.Timeout = time.Duration(timeoutMin) * time.Minute
@@ -103,64 +130,10 @@ func computeOperationWaitGlobalTime(config *Config, op *compute.Operation, proje
 		return fmt.Errorf("Error waiting for %s: %s", activity, err)
 	}
 
-	op = opRaw.(*compute.Operation)
+	op := opRaw.(*compute.Operation)
 	if op.Error != nil {
 		return ComputeOperationError(*op.Error)
 	}
 
-	return nil
-}
-
-func computeOperationWaitRegion(config *Config, op *compute.Operation, project string, region, activity string) error {
-	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
-		Op:      op,
-		Project: project,
-		Type:    ComputeOperationWaitRegion,
-		Region:  region,
-	}
-
-	state := w.Conf()
-	state.Delay = 10 * time.Second
-	state.Timeout = 4 * time.Minute
-	state.MinTimeout = 2 * time.Second
-	opRaw, err := state.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
-	}
-
-	op = opRaw.(*compute.Operation)
-	if op.Error != nil {
-		return ComputeOperationError(*op.Error)
-	}
-
-	return nil
-}
-
-func computeOperationWaitZone(config *Config, op *compute.Operation, project string, zone, activity string) error {
-	return computeOperationWaitZoneTime(config, op, project, zone, 4, activity)
-}
-
-func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project string, zone string, minutes int, activity string) error {
-	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
-		Op:      op,
-		Project: project,
-		Zone:    zone,
-		Type:    ComputeOperationWaitZone,
-	}
-	state := w.Conf()
-	state.Delay = 10 * time.Second
-	state.Timeout = time.Duration(minutes) * time.Minute
-	state.MinTimeout = 2 * time.Second
-	opRaw, err := state.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
-	}
-	op = opRaw.(*compute.Operation)
-	if op.Error != nil {
-		// Return the error
-		return ComputeOperationError(*op.Error)
-	}
 	return nil
 }
