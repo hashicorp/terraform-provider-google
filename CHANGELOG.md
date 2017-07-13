@@ -5,11 +5,13 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 * `google_sql_database_instance`: a limited number of fields will be read during import because of [GH-114]
 * `google_sql_database_instance`: `name`, `region`, `database_version`, and `master_instance_name` fields are now updated during a refresh and may display diffs
 
+FEATURES:
+
+* **New Resource:** `google_bigtable_instance` [GH-177]
+* **New Resource:** `google_bigtable_table` [GH-177]
+
 IMPROVEMENTS:
 
-* bigtable: Add support for `google_bigtable_instance` and `google_bigtable_table` [GH-177]
-* compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
-* compute: Fix read method + test/document import for google_compute_health_check [GH-155]
 * compute: Add `boot_disk` property to `google_compute_instance` [GH-122]
 * compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` [GH-123]
 * compute: Add `labels` property to `google_compute_instance` [GH-150]
@@ -18,6 +20,12 @@ IMPROVEMENTS:
 * project: Allow unlinking of billing account [GH-138]
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
+
+BUG FIXES:
+
+* compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
+* compute: Fix read method + test/document import for google_compute_health_check [GH-155]
+* compute: Read named ports changes properly in google_compute_instance_group [GH-188]
 
 ## 0.1.1 (June 21, 2017)
 
