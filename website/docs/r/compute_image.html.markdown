@@ -89,5 +89,5 @@ exported:
 VM image can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_compute_image.web-image image1
+$ terraform import google_compute_image.web-image my-custom-image
 ```
