@@ -40,6 +40,12 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+    
+    labels {
+      foo = "bar"
+    }
+    
+    tags = ["foo", "bar"]
   }
 }
 ```
@@ -137,6 +143,11 @@ which the cluster's instances are launched
 
 * `image_type` - (Optional) The image type to use for this node.
 
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
+
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
+    valid sources or targets for network firewalls.
+
 **Addons Config** supports the following addons:
 
 * `http_load_balancing` - (Optional) The status of the HTTP Load Balancing
@@ -186,3 +197,13 @@ exported:
 
 * `master_auth.cluster_ca_certificate` - Base64 encoded public certificate
     that is the root of trust for the cluster
+
+<a id="timeouts"></a>
+## Timeouts
+
+`google_container_cluster` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - (Default `30 minutes`) Used for clusters
+- `update` - (Default `10 minutes`) Used for updates to clusters
+- `delete` - (Default `10 minutes`) Used for destroying clusters.

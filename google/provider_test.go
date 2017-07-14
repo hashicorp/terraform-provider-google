@@ -53,6 +53,7 @@ func testAccPreCheck(t *testing.T) {
 		"GOOGLE_CREDENTIALS",
 		"GOOGLE_CLOUD_KEYFILE_JSON",
 		"GCLOUD_KEYFILE_JSON",
+		"GOOGLE_USE_DEFAULT_CREDENTIALS",
 	}
 	if v := multiEnvSearch(creds); v == "" {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(creds, ", "))

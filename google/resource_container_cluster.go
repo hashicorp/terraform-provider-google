@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"regexp"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -22,8 +23,17 @@ func resourceContainerCluster() *schema.Resource {
 		Update: resourceContainerClusterUpdate,
 		Delete: resourceContainerClusterDelete,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
+		SchemaVersion: 1,
+		MigrateState:  resourceContainerClusterMigrateState,
+
 		Schema: map[string]*schema.Schema{
-			"master_auth": &schema.Schema{
+			"master_auth": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -31,26 +41,26 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"client_certificate": &schema.Schema{
+						"client_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"client_key": &schema.Schema{
+						"client_key": {
 							Type:      schema.TypeString,
 							Computed:  true,
 							Sensitive: true,
 						},
-						"cluster_ca_certificate": &schema.Schema{
+						"cluster_ca_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"password": &schema.Schema{
+						"password": {
 							Type:      schema.TypeString,
 							Required:  true,
 							ForceNew:  true,
 							Sensitive: true,
 						},
-						"username": &schema.Schema{
+						"username": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -59,7 +69,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -86,27 +96,26 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"initial_node_count": &schema.Schema{
+			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"additional_zones": &schema.Schema{
-				Type:     schema.TypeList,
+			"additional_zones": {
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"cluster_ipv4_cidr": &schema.Schema{
+			"cluster_ipv4_cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -123,63 +132,63 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"instance_group_urls": &schema.Schema{
+			"instance_group_urls": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_service": &schema.Schema{
+			"logging_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"monitoring_service": &schema.Schema{
+			"monitoring_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "default",
 				ForceNew: true,
 			},
-			"subnetwork": &schema.Schema{
+			"subnetwork": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"addons_config": &schema.Schema{
+			"addons_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"http_load_balancing": &schema.Schema{
+						"http_load_balancing": {
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"disabled": &schema.Schema{
+									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										ForceNew: true,
@@ -187,14 +196,14 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
-						"horizontal_pod_autoscaling": &schema.Schema{
+						"horizontal_pod_autoscaling": {
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"disabled": &schema.Schema{
+									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										ForceNew: true,
@@ -205,21 +214,21 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-			"node_config": &schema.Schema{
+			"node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"machine_type": &schema.Schema{
+						"machine_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"disk_size_gb": &schema.Schema{
+						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -235,7 +244,7 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"local_ssd_count": &schema.Schema{
+						"local_ssd_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -251,7 +260,7 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"oauth_scopes": &schema.Schema{
+						"oauth_scopes": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
@@ -264,50 +273,64 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 
-						"service_account": &schema.Schema{
+						"service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"metadata": &schema.Schema{
+						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
 							Elem:     schema.TypeString,
 						},
 
-						"image_type": &schema.Schema{
+						"image_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
+
+						"labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     schema.TypeString,
+						},
+
+						"tags": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
 
-			"node_version": &schema.Schema{
+			"node_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"node_pool": &schema.Schema{
+			"node_pool": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"initial_node_count": &schema.Schema{
+						"initial_node_count": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: true,
 						},
 
-						"name": &schema.Schema{
+						"name": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							Computed:      true,
@@ -315,7 +338,7 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:      true,
 						},
 
-						"name_prefix": &schema.Schema{
+						"name_prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -324,7 +347,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -349,6 +372,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		InitialNodeCount: int64(d.Get("initial_node_count").(int)),
 	}
 
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
+
 	if v, ok := d.GetOk("master_auth"); ok {
 		masterAuths := v.([]interface{})
 		masterAuth := masterAuths[0].(map[string]interface{})
@@ -363,7 +388,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
-		locationsList := v.([]interface{})
+		locationsList := v.(*schema.Set).List()
 		locations := []string{}
 		for _, v := range locationsList {
 			location := v.(string)
@@ -468,6 +493,23 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		if v, ok = nodeConfig["image_type"]; ok {
 			cluster.NodeConfig.ImageType = v.(string)
 		}
+
+		if v, ok = nodeConfig["labels"]; ok {
+			m := make(map[string]string)
+			for k, val := range v.(map[string]interface{}) {
+				m[k] = val.(string)
+			}
+			cluster.NodeConfig.Labels = m
+		}
+
+		if v, ok := nodeConfig["tags"]; ok {
+			tagsList := v.([]interface{})
+			tags := []string{}
+			for _, v := range tagsList {
+				tags = append(tags, v.(string))
+			}
+			cluster.NodeConfig.Tags = tags
+		}
 	}
 
 	nodePoolsCount := d.Get("node_pool.#").(int)
@@ -508,7 +550,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Wait until it's created
-	waitErr := containerOperationWait(config, op, project, zoneName, "creating GKE cluster", 30, 3)
+	waitErr := containerOperationWait(config, op, project, zoneName, "creating GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -554,7 +596,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("endpoint", cluster.Endpoint)
 
 	masterAuth := []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"username":               cluster.MasterAuth.Username,
 			"password":               cluster.MasterAuth.Password,
 			"client_certificate":     cluster.MasterAuth.ClientCertificate,
@@ -594,27 +636,65 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	zoneName := d.Get("zone").(string)
 	clusterName := d.Get("name").(string)
-	desiredNodeVersion := d.Get("node_version").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
-	req := &container.UpdateClusterRequest{
-		Update: &container.ClusterUpdate{
-			DesiredNodeVersion: desiredNodeVersion,
-		},
-	}
-	op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-		project, zoneName, clusterName, req).Do()
-	if err != nil {
-		return err
+	d.Partial(true)
+
+	if d.HasChange("node_version") {
+		desiredNodeVersion := d.Get("node_version").(string)
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster version", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+			desiredNodeVersion)
+
+		d.SetPartial("node_version")
 	}
 
-	// Wait until it's updated
-	waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster", 10, 2)
-	if waitErr != nil {
-		return waitErr
+	if d.HasChange("additional_zones") {
+		azSet := d.Get("additional_zones").(*schema.Set)
+		if azSet.Contains(zoneName) {
+			return fmt.Errorf("additional_zones should not contain the original 'zone'.")
+		}
+		azs := convertStringArr(azSet.List())
+		locations := append(azs, zoneName)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredLocations: locations,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster locations", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(),
+			locations)
 	}
 
-	log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
-		desiredNodeVersion)
+	d.Partial(false)
 
 	return resourceContainerClusterRead(d, meta)
 }
@@ -629,6 +709,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	zoneName := d.Get("zone").(string)
 	clusterName := d.Get("name").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Delete(
@@ -638,7 +719,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE cluster", 10, 3)
+	waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -676,13 +757,15 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 
 func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	config := []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"machine_type":    c.MachineType,
 			"disk_size_gb":    c.DiskSizeGb,
 			"local_ssd_count": c.LocalSsdCount,
 			"service_account": c.ServiceAccount,
 			"metadata":        c.Metadata,
 			"image_type":      c.ImageType,
+			"labels":          c.Labels,
+			"tags":            c.Tags,
 		},
 	}
 

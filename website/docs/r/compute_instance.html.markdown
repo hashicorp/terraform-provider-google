@@ -24,14 +24,14 @@ resource "google_compute_instance" "default" {
 
   tags = ["foo", "bar"]
 
-  disk {
-    image = "debian-cloud/debian-8"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-8"
+    }
   }
 
   // Local SSD disk
-  disk {
-    type    = "local-ssd"
-    scratch = true
+  scratch_disk {
   }
 
   network_interface {
@@ -58,8 +58,8 @@ resource "google_compute_instance" "default" {
 
 The following arguments are supported:
 
-* `disk` - (Required) Disks to attach to the instance. This can be specified
-    multiple times for multiple disks. Structure is documented below.
+* `boot_disk` - (Required) The boot disk for the instance.
+    Structure is documented below.
 
 * `machine_type` - (Required) The machine type to create. To create a custom
     machine type, value should be set as specified
@@ -76,11 +76,18 @@ The following arguments are supported:
 
 - - -
 
+* `attached_disk` - (Optional) List of disks to attach to the instance. Structure is documented below.
+
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of
     packets with non-matching source or destination IPs.
     This defaults to false.
 
+* `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
+    Changing this forces a new resource to be created.
+
 * `description` - (Optional) A brief description of this resource.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance.
@@ -97,21 +104,64 @@ The following arguments are supported:
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
     this configuration option are detailed below.
 
+* `scratch_disk` - (Optional) Scratch disks to attach to the instance. This can be
+    specified multiple times for multiple scratch disks. Structure is documented below.
+
 * `service_account` - (Optional) Service account to attach to the instance.
     Structure is documented below.
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
-* `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
-    Changing this forces a new resource to be created.
-
 ---
 
-* `network` - (DEPRECATED, Required) Networks to attach to the instance. This
+* `disk` - (DEPRECATED) Disks to attach to the instance. This can be specified
+    multiple times for multiple disks. Structure is documented below.
+
+* `network` - (DEPRECATED) Networks to attach to the instance. This
     can be specified multiple times for multiple networks. Structure is
     documented below.
 
-The `disk` block supports: (Note that either disk or image is required, unless
+---
+
+The `boot_disk` block supports:
+
+* `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
+    is deleted. Defaults to true.
+
+* `device_name` - (Optional) Name with which attached disk will be accessible
+    under `/dev/disk/by-id/`
+
+* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    to encrypt this disk.
+
+* `initialize_params` - (Optional) Parameters for a new disk that will be created
+    alongside the new instance. Either `initialize_params` or `source` must be set.
+    Structure is documented below.
+
+* `source` - (Optional) The name of the existing disk (such as those managed by
+    `google_compute_disk`) to attach.
+
+The `initialize_params` block supports:
+
+* `size` - (Optional) The size of the image in gigabytes. If not specified, it
+    will inherit the size of its base image.
+
+* `type` - (Optional) The GCE disk type. May be set to pd-standard or pd-ssd.
+
+* `image` - (Optional) The image from which to initialize this disk. This can be
+    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
+    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
+    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
+    `{project}/{image}`, `{family}`, or `{image}`.
+
+The `scratch_disk` block supports:
+
+* `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
+    Defaults to SCSI.
+
+(DEPRECATED) The `disk` block supports: (Note that either disk or image is required, unless
 the type is "local-ssd", in which case scratch must be true).
 
 * `disk` - The name of the existing disk (such as those managed by
@@ -136,6 +186,18 @@ the type is "local-ssd", in which case scratch must be true).
     their size is fixed.
 
 * `device_name` - (Optional) Name with which attached disk will be accessible
+    under `/dev/disk/by-id/`
+
+* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    to encrypt this disk.
+
+The `attached_disk` block supports:
+
+* `source` - (Required) The self_link of the disk to attach to this instance.
+
+* `device_name` - (Optional) Name with which the attached disk will be accessible
     under `/dev/disk/by-id/`
 
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
@@ -208,9 +270,19 @@ exported:
 
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
+* `label_fingerprint` - The unique fingerprint of the labels.
+
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+
+* `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    encoded SHA-256 hash of the [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+
+* `boot_disk.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    encoded SHA-256 hash of the [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
 
 * `disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]

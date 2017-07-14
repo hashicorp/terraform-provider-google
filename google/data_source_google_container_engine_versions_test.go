@@ -70,8 +70,8 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 		if err != nil {
 			return errors.New("failed to read number of valid master versions")
 		}
-		if noOfMasters < 2 {
-			return fmt.Errorf("expected at least 2 valid master versions, received %d, this is most likely a bug",
+		if noOfMasters < 1 {
+			return fmt.Errorf("expected at least 1 valid master versions, received %d, this is most likely a bug",
 				noOfMasters)
 		}
 

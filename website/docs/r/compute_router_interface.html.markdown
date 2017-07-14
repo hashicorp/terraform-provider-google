@@ -54,9 +54,8 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-Router interfaces can be imported using the `region`, `router` and `name`, e.g.
+Router interfaces can be imported using the `region`, `router`, and `name`, e.g.
 
 ```
-$ terraform import google_compute_router_interface.interface-1 us-central1/router-1/interface-1
+$ terraform import google_compute_router_interface.foobar us-central1/router-1/interface-1
 ```
-

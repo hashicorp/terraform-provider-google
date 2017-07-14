@@ -17,7 +17,7 @@ Creates a static IP address resource global to a Google Compute Engine project. 
 
 ```hcl
 resource "google_compute_global_address" "default" {
-  name = "test-address"
+  name = "global-appserver-ip"
 }
 ```
 
@@ -41,3 +41,11 @@ exported:
 * `address` - The assigned address.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Global addresses can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_global_address.default global-appserver-ip
+```

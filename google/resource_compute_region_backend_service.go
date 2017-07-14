@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -20,25 +19,19 @@ func resourceComputeRegionBackendService() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
-					if !regexp.MustCompile(re).MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q (%q) doesn't match regexp %q", k, value, re))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 
 			"health_checks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Required: true,
 				Set:      schema.HashString,
+				Required: true,
+				MinItems: 1,
+				MaxItems: 1,
 			},
 
 			"backend": &schema.Schema{
@@ -103,6 +96,12 @@ func resourceComputeRegionBackendService() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"connection_draining_timeout_sec": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+			},
 		},
 	}
 }
@@ -140,6 +139,14 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 	if v, ok := d.GetOk("timeout_sec"); ok {
 		service.TimeoutSec = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("connection_draining_timeout_sec"); ok {
+		connectionDraining := &compute.ConnectionDraining{
+			DrainingTimeoutSec: int64(v.(int)),
+		}
+
+		service.ConnectionDraining = connectionDraining
 	}
 
 	project, err := getProject(d, config)
@@ -195,9 +202,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	d.Set("protocol", service.Protocol)
 	d.Set("session_affinity", service.SessionAffinity)
 	d.Set("timeout_sec", service.TimeoutSec)
+	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("fingerprint", service.Fingerprint)
 	d.Set("self_link", service.SelfLink)
-
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("health_checks", service.HealthChecks)
 
@@ -245,6 +252,14 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 	if v, ok := d.GetOk("timeout_sec"); ok {
 		service.TimeoutSec = int64(v.(int))
+	}
+
+	if d.HasChange("connection_draining_timeout_sec") {
+		connectionDraining := &compute.ConnectionDraining{
+			DrainingTimeoutSec: int64(d.Get("connection_draining_timeout_sec").(int)),
+		}
+
+		service.ConnectionDraining = connectionDraining
 	}
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)

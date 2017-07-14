@@ -69,6 +69,7 @@ func resourceComputeDisk() *schema.Resource {
 			"size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 
 			"self_link": &schema.Schema{
@@ -85,6 +86,7 @@ func resourceComputeDisk() *schema.Resource {
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "pd-standard",
 				ForceNew: true,
 			},
 			"users": &schema.Schema{
@@ -197,10 +199,14 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		rb := &compute.DisksResizeRequest{
 			SizeGb: int64(d.Get("size").(int)),
 		}
-		_, err := config.clientCompute.Disks.Resize(
+		op, err := config.clientCompute.Disks.Resize(
 			project, d.Get("zone").(string), d.Id(), rb).Do()
 		if err != nil {
 			return fmt.Errorf("Error resizing disk: %s", err)
+		}
+		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Resizing Disk")
+		if err != nil {
+			return err
 		}
 	}
 

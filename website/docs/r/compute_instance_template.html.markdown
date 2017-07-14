@@ -18,9 +18,9 @@ and
 ## Example Usage
 
 ```hcl
-resource "google_compute_instance_template" "foobar" {
-  name        = "terraform-test"
-  description = "template description"
+resource "google_compute_instance_template" "default" {
+  name        = "appserver-template"
+  description = "This template is used to create app server instances."
 
   tags = ["foo", "bar"]
 
@@ -261,3 +261,11 @@ exported:
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/configuration/resources.html#lifecycle
+
+## Import
+
+Instance templates can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_instance_template.default appserver-template
+```

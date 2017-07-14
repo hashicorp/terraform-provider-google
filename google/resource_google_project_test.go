@@ -115,6 +115,13 @@ func TestAccGoogleProject_updateBilling(t *testing.T) {
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId2),
 				),
 			},
+			// Unlink the billing account
+			resource.TestStep{
+				Config: testAccGoogleProject_create(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, ""),
+				),
+			},
 		},
 	})
 }
