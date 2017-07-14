@@ -2,9 +2,11 @@ package google
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 // Compare only the relative path of two self links.
@@ -39,4 +41,9 @@ func getRelativePath(selfLink string) (string, error) {
 	}
 
 	return "projects/" + stringParts[1], nil
+}
+
+func ConvertSelfLinkToV1(link string) string {
+	reg := regexp.MustCompile("/compute/[a-zA-Z0-9]*/projects/")
+	return reg.ReplaceAllString(link, "/compute/v1/projects/")
 }

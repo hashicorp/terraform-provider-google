@@ -346,7 +346,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("target_size", manager.TargetSize)
-	d.Set("self_link", manager.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 	update_strategy, ok := d.GetOk("update_strategy")
 	if !ok {
 		update_strategy = "RESTART"
