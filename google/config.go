@@ -35,18 +35,19 @@ type Config struct {
 	Project     string
 	Region      string
 
-	clientBilling         *cloudbilling.Service
-	clientCompute         *compute.Service
-	clientComputeBeta     *computeBeta.Service
-	clientContainer       *container.Service
-	clientDns             *dns.Service
-	clientPubsub          *pubsub.Service
-	clientResourceManager *cloudresourcemanager.Service
-	clientStorage         *storage.Service
-	clientSqlAdmin        *sqladmin.Service
-	clientIAM             *iam.Service
-	clientServiceMan      *servicemanagement.APIService
-	clientBigQuery        *bigquery.Service
+	clientBilling             *cloudbilling.Service
+	clientCompute             *compute.Service
+	clientComputeBeta         *computeBeta.Service
+	clientComputeMultiversion *ComputeMultiversionService
+	clientContainer           *container.Service
+	clientDns                 *dns.Service
+	clientPubsub              *pubsub.Service
+	clientResourceManager     *cloudresourcemanager.Service
+	clientStorage             *storage.Service
+	clientSqlAdmin            *sqladmin.Service
+	clientIAM                 *iam.Service
+	clientServiceMan          *servicemanagement.APIService
+	clientBigQuery            *bigquery.Service
 }
 
 func (c *Config) loadAndValidate() error {
@@ -119,6 +120,12 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientComputeBeta.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating GCE Multiversion client...")
+	c.clientComputeMultiversion = &ComputeMultiversionService{
+		v1:     c.clientCompute,
+		v0beta: c.clientComputeBeta,
+	}
 
 	log.Printf("[INFO] Instantiating GKE client...")
 	c.clientContainer, err = container.New(client)
