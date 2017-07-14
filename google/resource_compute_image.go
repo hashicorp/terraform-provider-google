@@ -31,7 +31,8 @@ func resourceComputeImage() *schema.Resource {
 
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"family": &schema.Schema{
