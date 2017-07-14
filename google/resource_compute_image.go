@@ -8,11 +8,17 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const computeImageCreateTimeoutDefault = 4
+
 func resourceComputeImage() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeImageCreate,
 		Read:   resourceComputeImageRead,
+		Update: resourceComputeImageUpdate,
 		Delete: resourceComputeImageDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeImageImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// TODO(cblecker): one of source_disk or raw_disk is required
@@ -81,8 +87,7 @@ func resourceComputeImage() *schema.Resource {
 			"create_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  4,
-				ForceNew: true,
+				Default:  computeImageCreateTimeoutDefault,
 			},
 		},
 	}
@@ -166,8 +171,27 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Image %q", d.Get("name").(string)))
 	}
 
+	if image.SourceDisk != "" {
+		d.Set("source_disk", image.SourceDisk)
+	} else if image.RawDisk != nil {
+		// `raw_disk.*.source` is only used at image creation but is not returned when calling Get.
+		// `raw_disk.*.sha1` is not supported, the value is simply discarded by the server.
+		// Leaving `raw_disk` to current state value.
+	} else {
+		return fmt.Errorf("Either raw_disk or source_disk configuration is required.")
+	}
+
+	d.Set("name", image.Name)
+	d.Set("description", image.Description)
+	d.Set("family", image.Family)
 	d.Set("self_link", image.SelfLink)
 
+	return nil
+}
+
+func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Pass-through for updates to Terraform-specific `create_timeout` field.
+	// The Google Cloud Image resource doesn't support update.
 	return nil
 }
 
@@ -194,4 +218,14 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeImageImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// `create_timeout` field is specific to this Terraform resource implementation. Thus, this value cannot be
+	// imported from the Google Cloud REST API.
+	// Setting to default value otherwise Terraform requires a ForceNew to change the resource to match the
+	// default `create_timeout`.
+	d.Set("create_timeout", computeImageCreateTimeoutDefault)
+
+	return []*schema.ResourceData{d}, nil
 }
