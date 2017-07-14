@@ -97,3 +97,11 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `size` - The number of instances in the group.
+
+## Import
+
+Instance group can be imported using the `zone` and `name`, e.g.
+
+```
+$ terraform import google_compute_instance_group.webservers us-central1-a/terraform-webservers
+```
