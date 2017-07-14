@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * compute: Add `boot_disk` property to `google_compute_instance` [GH-122]
 * compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` [GH-123]
 * compute: Add `labels` property to `google_compute_instance` [GH-150]
+* compute: Add import support for `google_compute_image` [GH-194]
 * container: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
 * container: Allow adding/removing zones to/from GKE clusters without recreating them [GH-152]
 * project: Allow unlinking of billing account [GH-138]
@@ -24,8 +25,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
 * compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
-* compute: Fix read method + test/document import for google_compute_health_check [GH-155]
-* compute: Read named ports changes properly in google_compute_instance_group [GH-188]
+* compute: Fix read method + test/document import for `google_compute_health_check` [GH-155]
+* compute: Read named ports changes properly in `google_compute_instance_group` [GH-188]
 
 ## 0.1.1 (June 21, 2017)
 
