@@ -23,6 +23,8 @@ func TestAccComputeImage_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageDescription(&image, "description-test"),
+					testAccCheckComputeImageFamily(&image, "family-test"),
 				),
 			},
 		},
@@ -42,6 +44,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageHasSourceDisk(&image),
 				),
 			},
 		},
@@ -95,9 +98,38 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 	}
 }
 
+func testAccCheckComputeImageDescription(image *compute.Image, description string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if image.Description != description {
+			return fmt.Errorf("Wrong image description: expected '%s' got '%s'", description, image.Description)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeImageFamily(image *compute.Image, family string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if image.Family != family {
+			return fmt.Errorf("Wrong image family: expected '%s' got '%s'", family, image.Family)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if image.SourceType == "" {
+			return fmt.Errorf("No source disk")
+		}
+		return nil
+	}
+}
+
 var testAccComputeImage_basic = fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
 	name = "image-test-%s"
+	description = "description-test"
+	family = "family-test"
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
