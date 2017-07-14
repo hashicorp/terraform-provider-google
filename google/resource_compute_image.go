@@ -14,6 +14,7 @@ func resourceComputeImage() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeImageCreate,
 		Read:   resourceComputeImageRead,
+		Update: resourceComputeImageUpdate,
 		Delete: resourceComputeImageDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeImageImportState,
@@ -87,7 +88,6 @@ func resourceComputeImage() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  computeImageCreateTimeoutDefault,
-				ForceNew: true,
 			},
 		},
 	}
@@ -186,6 +186,12 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("family", image.Family)
 	d.Set("self_link", image.SelfLink)
 
+	return nil
+}
+
+func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Pass-through for updates to Terraform-specific `create_timeout` field.
+	// The Google Cloud Image resource doesn't support update.
 	return nil
 }
 
