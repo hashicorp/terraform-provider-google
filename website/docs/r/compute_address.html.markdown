@@ -43,3 +43,11 @@ exported:
 
 * `self_link` - The URI of the created resource.
 * `address` - The IP of the created resource.
+
+## Import
+
+Addresses can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_address.default test-address
+```

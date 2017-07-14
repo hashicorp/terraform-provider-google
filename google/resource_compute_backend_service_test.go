@@ -171,6 +171,27 @@ func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) 
 	}
 }
 
+func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var svc compute.BackendService
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeBackendService_withHttpsHealthCheck(serviceName, checkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.foobar", &svc),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -415,4 +436,21 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, serviceName, drainingTimeout, checkName)
+}
+
+func testAccComputeBackendService_withHttpsHealthCheck(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = ["${google_compute_https_health_check.zero.self_link}"]
+  protocol      = "HTTPS"
+}
+
+resource "google_compute_https_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
 }

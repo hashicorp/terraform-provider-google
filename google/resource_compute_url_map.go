@@ -90,7 +90,7 @@ func resourceComputeUrlMap() *schema.Resource {
 
 						"path_rule": &schema.Schema{
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"paths": &schema.Schema{

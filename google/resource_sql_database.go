@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -13,6 +14,9 @@ func resourceSqlDatabase() *schema.Resource {
 		Create: resourceSqlDatabaseCreate,
 		Read:   resourceSqlDatabaseRead,
 		Delete: resourceSqlDatabaseDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -51,6 +55,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	database_name := d.Get("name").(string)
 	instance_name := d.Get("instance").(string)
+	d.SetId(instance_name + ":" + database_name)
 
 	db := &sqladmin.Database{
 		Name:     database_name,
@@ -86,8 +91,15 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	database_name := d.Get("name").(string)
-	instance_name := d.Get("instance").(string)
+	s := strings.Split(d.Id(), ":")
+
+	if len(s) != 2 {
+		return fmt.Errorf("Error, failure importing database %s. "+
+			"ID format is instance:name", d.Id())
+	}
+
+	instance_name := s[0]
+	database_name := s[1]
 
 	db, err := config.clientSqlAdmin.Databases.Get(project, instance_name,
 		database_name).Do()
@@ -96,6 +108,8 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database %q in instance %q", database_name, instance_name))
 	}
 
+	d.Set("instance", db.Instance)
+	d.Set("name", db.Name)
 	d.Set("self_link", db.SelfLink)
 	d.SetId(instance_name + ":" + database_name)
 

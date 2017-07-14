@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -18,18 +17,10 @@ func resourceComputeBackendBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
-					if !regexp.MustCompile(re).MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q (%q) doesn't match regexp %q", k, value, re))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 
 			"bucket_name": &schema.Schema{

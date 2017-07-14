@@ -17,7 +17,7 @@ Creates a dataset resource for Google BigQuery. For more information see
 
 ```hcl
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "test"
+  dataset_id                  = "foo"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -78,3 +78,11 @@ exported:
 
 * `last_modified_time` -  The date when this dataset or any of its tables was last modified,
   in milliseconds since the epoch.
+
+## Import
+
+BigQuery datasets can be imported using the `project` and `dataset_id`, e.g.
+
+```
+$ terraform import google_bigquery_dataset.default gcp-project:foo
+```

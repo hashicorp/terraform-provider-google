@@ -2,6 +2,9 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"strings"
 	"testing"
 
 	"strconv"
@@ -17,8 +20,25 @@ func TestAccContainerCluster_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_basic,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withTimeout(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withTimeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -34,7 +54,7 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withMasterAuth,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -46,13 +66,22 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccContainerCluster_withAdditionalZones,
+			{
+				Config: testAccContainerCluster_withAdditionalZones(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_additional_zones"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateAdditionalZones(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_additional_zones"),
@@ -68,7 +97,7 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withVersion,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -85,7 +114,7 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodeConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -102,7 +131,7 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodeConfigScopeAlias,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -119,7 +148,7 @@ func TestAccContainerCluster_network(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_networkRef,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -138,7 +167,7 @@ func TestAccContainerCluster_backend(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_backendRef,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -155,7 +184,7 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -172,7 +201,7 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolNamePrefix,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -189,7 +218,7 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolMultiple,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
@@ -217,6 +246,10 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+var setFields map[string]struct{} = map[string]struct{}{
+	"additional_zones": struct{}{},
 }
 
 func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
@@ -268,6 +301,8 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.service_account", cluster.NodeConfig.ServiceAccount},
 			{"node_config.0.metadata", cluster.NodeConfig.Metadata},
 			{"node_config.0.image_type", cluster.NodeConfig.ImageType},
+			{"node_config.0.labels", cluster.NodeConfig.Labels},
+			{"node_config.0.tags", cluster.NodeConfig.Tags},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -335,6 +370,9 @@ func getResourceAttributes(n string, s *terraform.State) (map[string]string, err
 
 func checkMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
+		if _, ok := setFields[attr]; ok {
+			return checkSetMatch(attributes, attr, gcpList)
+		}
 		return checkListMatch(attributes, attr, gcpList)
 	}
 	if gcpMap, ok := gcp.(map[string]string); ok {
@@ -345,6 +383,30 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 		return matchError(attr, tf, gcp)
 	}
 	return ""
+}
+
+func checkSetMatch(attributes map[string]string, attr string, gcpList []string) string {
+	num, err := strconv.Atoi(attributes[attr+".#"])
+	if err != nil {
+		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
+	}
+	if num != len(gcpList) {
+		return fmt.Sprintf("Cluster has mismatched %s size.\nTF Size: %d\nGCP Size: %d", attr, num, len(gcpList))
+	}
+
+	// We don't know the exact keys of the elements, so go through the whole list looking for matching ones
+	tfAttr := []string{}
+	for k, v := range attributes {
+		if strings.HasPrefix(k, attr) && !strings.HasSuffix(k, "#") {
+			tfAttr = append(tfAttr, v)
+		}
+	}
+	sort.Strings(tfAttr)
+	sort.Strings(gcpList)
+	if reflect.DeepEqual(tfAttr, gcpList) {
+		return ""
+	}
+	return matchError(attr, tfAttr, gcpList)
 }
 
 func checkListMatch(attributes map[string]string, attr string, gcpList []string) string {
@@ -383,7 +445,7 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 	return ""
 }
 
-func matchError(attr, tf string, gcp interface{}) string {
+func matchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("Cluster has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
@@ -392,6 +454,19 @@ resource "google_container_cluster" "primary" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
+}`, acctest.RandString(10))
+
+var testAccContainerCluster_withTimeout = fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	timeouts {
+		create = "30m"
+		delete = "30m"
+		update = "30m"
+	}
 }`, acctest.RandString(10))
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
@@ -406,9 +481,10 @@ resource "google_container_cluster" "with_master_auth" {
 	}
 }`, acctest.RandString(10))
 
-var testAccContainerCluster_withAdditionalZones = fmt.Sprintf(`
+func testAccContainerCluster_withAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
 
@@ -421,7 +497,28 @@ resource "google_container_cluster" "with_additional_zones" {
 		username = "mr.yoda"
 		password = "adoy.rm"
 	}
-}`, acctest.RandString(10))
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-b",
+		"us-central1-c",
+	]
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}`, clusterName)
+}
 
 var testAccContainerCluster_withVersion = fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
@@ -466,6 +563,10 @@ resource "google_container_cluster" "with_node_config" {
 			foo = "bar"
 		}
 		image_type = "CONTAINER_VM"
+		labels {
+			foo = "bar"
+		}
+		tags = ["foo", "bar"]
 	}
 }`, acctest.RandString(10))
 

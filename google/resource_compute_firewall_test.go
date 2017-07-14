@@ -61,6 +61,27 @@ func TestAccComputeFirewall_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewall_noSource(t *testing.T) {
+	var firewall compute.Firewall
+	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeFirewall_noSource(networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeFirewallExists(
+						"google_compute_firewall.foobar", &firewall),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -158,6 +179,25 @@ func testAccComputeFirewall_update(network, firewall string) string {
 		allow {
 			protocol = "tcp"
 			ports = ["80-255"]
+		}
+	}`, network, firewall)
+}
+
+func testAccComputeFirewall_noSource(network, firewall string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_network" "foobar" {
+		name = "%s"
+		ipv4_range = "10.0.0.0/16"
+	}
+
+	resource "google_compute_firewall" "foobar" {
+		name = "firewall-test-%s"
+		description = "Resource created for Terraform acceptance testing"
+		network = "${google_compute_network.foobar.name}"
+
+		allow {
+			protocol = "tcp"
+			ports    = [22]
 		}
 	}`, network, firewall)
 }

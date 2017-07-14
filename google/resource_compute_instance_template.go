@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstanceTemplate() *schema.Resource {
@@ -25,15 +26,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name_prefix"},
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					// https://cloud.google.com/compute/docs/reference/latest/instanceTemplates#resource
-					value := v.(string)
-					if len(value) > 63 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be longer than 63 characters", k))
-					}
-					return
-				},
+				ValidateFunc:  validateGCPName,
 			},
 
 			"name_prefix": &schema.Schema{
@@ -519,7 +512,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	// Depreciated fields
 	if v, ok := d.GetOk("automatic_restart"); ok {
-		instanceProperties.Scheduling.AutomaticRestart = v.(bool)
+		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(v.(bool))
 	}
 
 	if v, ok := d.GetOk("on_host_maintenance"); ok {
@@ -537,7 +530,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		_scheduling := _schedulings[0].(map[string]interface{})
 
 		if vp, okp := _scheduling["automatic_restart"]; okp {
-			instanceProperties.Scheduling.AutomaticRestart = vp.(bool)
+			instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(vp.(bool))
 			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
 		}
 
@@ -679,13 +672,16 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 	return result, region
 }
 
-func flattenScheduling(scheduling *compute.Scheduling) ([]map[string]interface{}, bool) {
+func flattenScheduling(scheduling *compute.Scheduling) ([]map[string]interface{}, *bool) {
 	result := make([]map[string]interface{}, 0, 1)
 	schedulingMap := make(map[string]interface{})
-	schedulingMap["automatic_restart"] = scheduling.AutomaticRestart
+	if scheduling.AutomaticRestart != nil {
+		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
+	}
 	schedulingMap["on_host_maintenance"] = scheduling.OnHostMaintenance
 	schedulingMap["preemptible"] = scheduling.Preemptible
 	result = append(result, schedulingMap)
+	// TODO(selmanj) No need to return two values as automatic restart is captured in map
 	return result, scheduling.AutomaticRestart
 }
 

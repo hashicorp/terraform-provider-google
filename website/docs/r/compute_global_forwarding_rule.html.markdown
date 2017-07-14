@@ -75,6 +75,9 @@ The following arguments are supported:
 
 * `target` - (Required) URL of target HTTP or HTTPS proxy.
 
+* `region` - (Optional) The region this resource has been created in. If
+    unspecified, this defaults to the region configured in the provider.
+
 - - -
 
 * `description` - (Optional) Textual description field.
