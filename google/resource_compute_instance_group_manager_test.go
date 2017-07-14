@@ -197,6 +197,9 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	}
 }
 
+// This test is to make sure that a single version resource can link to a versioned resource
+// without perpetual diffs because the self links mismatch.
+// Once auto_healing_policies is no longer beta, we will need to use a new field or resource.
 func TestAccInstanceGroupManager_selfLinkStability(t *testing.T) {
 	var manager computeBeta.InstanceGroupManager
 
@@ -782,6 +785,9 @@ func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck 
 	`, template, target, igm, hck)
 }
 
+// This test is to make sure that a single version resource can link to a versioned resource
+// without perpetual diffs because the self links mismatch.
+// Once auto_healing_policies is no longer beta, we will need to use a new field or resource.
 func testAccInstanceGroupManager_selfLinkStability(template, target, igm, hck, autoscaler string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_instance_template" "igm-basic" {
