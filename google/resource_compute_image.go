@@ -215,6 +215,10 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeImageImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// `create_timeout` field is specific to this Terraform resource implementation. Thus, this value cannot be
+	// imported from the Google Cloud REST API.
+	// Setting to default value otherwise Terraform requires a ForceNew to change the resource to match the
+	// default `create_timeout`.
 	d.Set("create_timeout", computeImageCreateTimeoutDefault)
 
 	return []*schema.ResourceData{d}, nil
