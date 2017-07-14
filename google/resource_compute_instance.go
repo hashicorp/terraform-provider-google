@@ -1393,18 +1393,18 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[s
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
 		"source":      sourceUrl[len(sourceUrl)-1],
-		// disk_encryption_key_raw is not returned from the API, so don't store it in state.
-		// If necessary in the future, this can be copied from what the user originally specified.
+		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
+		// originally specified to avoid diffs.
+		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
 	}
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
 	}
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		result["initialize_params.#"] = v.(int)
-		// initialize_params is not returned from the API, so don't store its values in state.
-		// If necessary in the future, this can be copied from what the user originally specified.
-		// However, because Terraform automatically sets `boot_disk.0.initialize_params.#` to 0 if
-		// nothing is set in state for it, set it to whatever it was set to before to avoid a perpetual diff.
+	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+		// initialize_params is not returned from the API, so copy it from what the user
+		// originally specified to avoid diffs.
+		m := d.Get("boot_disk.0.initialize_params")
+		result["initialize_params"] = m
 	}
 
 	return []map[string]interface{}{result}

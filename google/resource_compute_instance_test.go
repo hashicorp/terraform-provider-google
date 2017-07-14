@@ -858,6 +858,9 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 
 		for i, disk := range instance.Disks {
 			attr := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
+			if attr == "" && disk.Boot {
+				attr = rs.Primary.Attributes["boot_disk.0.disk_encryption_key_sha256"]
+			}
 			if disk.DiskEncryptionKey == nil && attr != "" {
 				return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
 			}
