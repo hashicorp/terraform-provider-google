@@ -792,28 +792,14 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	if v, ok := _settings["location_preference"]; ok && len(v.([]interface{})) > 0 {
-		_locationPreferenceList := v.([]interface{})
-		if len(_locationPreferenceList) > 1 {
-			return fmt.Errorf("At most one location_preference block is allowed")
+	if settings.LocationPreference != nil {
+		locationPreferences := []interface{}{
+			map[string]interface{}{
+				"follow_gae_application": settings.LocationPreference.FollowGaeApplication,
+				"zone": settings.LocationPreference.Zone,
+			},
 		}
-
-		if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil &&
-			settings.LocationPreference != nil {
-			_locationPreference := _locationPreferenceList[0].(map[string]interface{})
-
-			if vp, okp := _locationPreference["follow_gae_application"]; okp && vp != nil {
-				_locationPreference["follow_gae_application"] =
-					settings.LocationPreference.FollowGaeApplication
-			}
-
-			if vp, okp := _locationPreference["zone"]; okp && vp != nil {
-				_locationPreference["zone"] = settings.LocationPreference.Zone
-			}
-
-			_locationPreferenceList[0] = _locationPreference
-			_settings["location_preference"] = _locationPreferenceList[0]
-		}
+		_settings["location_preference"] = locationPreferences
 	}
 
 	if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 &&
@@ -845,7 +831,11 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	_settingsList = make([]interface{}, 1)
 	_settingsList[0] = _settings
-	d.Set("settings", _settingsList)
+	err = d.Set("settings", _settingsList)
+	if err != nil {
+		log.Printf("[ERROR] Google Cloud SQL Database Instance Settings state failing to "+
+			" update due to: %s", err)
+	}
 
 	if v, ok := d.GetOk("replica_configuration"); ok && v != nil {
 		_replicaConfigurationList := v.([]interface{})
