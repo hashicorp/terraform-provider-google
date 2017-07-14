@@ -708,12 +708,6 @@ func testAccInstanceGroupManager_separateRegions(igm1, igm2 string) string {
 	`, igm1, igm2)
 }
 
-func resourceSplitter(resource string) string {
-	splits := strings.Split(resource, "/")
-
-	return splits[len(splits)-1]
-}
-
 func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_instance_template" "igm-basic" {
@@ -761,4 +755,10 @@ func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck 
 	  timeout_sec        = 1
 	}
 	`, template, target, igm, hck)
+}
+
+func resourceSplitter(resource string) string {
+	splits := strings.Split(resource, "/")
+
+	return splits[len(splits)-1]
 }
