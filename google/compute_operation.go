@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -20,11 +21,9 @@ const (
 )
 
 type ComputeOperationWaiter struct {
-	Service   *compute.Service
-	Op        *compute.Operation
-	Project   string
-	Scope     string
-	ScopeType ScopeType
+	Service *compute.Service
+	Op      *compute.Operation
+	Project string
 }
 
 func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
@@ -32,15 +31,30 @@ func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 		var op *compute.Operation
 		var err error
 
-		switch w.ScopeType {
+		// Find the scope type and scope name of an operation
+		var scopeType ScopeType
+		var scope string
+		if w.Op.Zone != "" {
+			scopeType = Zone
+			scopeParts := strings.Split(w.Op.Zone, "/")
+			scope = scopeParts[len(scopeParts)-1]
+		} else if w.Op.Region != "" {
+			scopeType = Region
+			scopeParts := strings.Split(w.Op.Region, "/")
+			scope = scopeParts[len(scopeParts)-1]
+		} else {
+			scopeType = Global
+		}
+
+		switch scopeType {
 		case Global:
 			op, err = w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
 		case Region:
-			op, err = w.Service.RegionOperations.Get(w.Project, w.Scope, w.Op.Name).Do()
+			op, err = w.Service.RegionOperations.Get(w.Project, scope, w.Op.Name).Do()
 		case Zone:
-			op, err = w.Service.ZoneOperations.Get(w.Project, w.Scope, w.Op.Name).Do()
+			op, err = w.Service.ZoneOperations.Get(w.Project, scope, w.Op.Name).Do()
 		default:
-			return nil, "bad-type", fmt.Errorf("Invalid wait type: %#v", w.ScopeType)
+			return nil, "bad-type", fmt.Errorf("Invalid wait type: %#v", scopeType)
 		}
 
 		if err != nil {
@@ -73,16 +87,29 @@ func (e ComputeOperationError) Error() string {
 	return buf.String()
 }
 
+func computeOperationWait(config *Config, op *compute.Operation, project, activity string) error {
+	return computeOperationWaitTime(config, op, project, activity, 4)
+}
+
+func computeOperationWaitTime(config *Config, op *compute.Operation, project, activity string, timeoutMin int) error {
+	w := &ComputeOperationWaiter{
+		Service: config.clientCompute,
+		Op:      op,
+		Project: project,
+	}
+
+	return waitComputeOperationWaiter(w, timeoutMin, activity)
+}
+
 func computeOperationWaitGlobal(config *Config, op *compute.Operation, project, activity string) error {
 	return computeOperationWaitGlobalTime(config, op, project, activity, 4)
 }
 
 func computeOperationWaitGlobalTime(config *Config, op *compute.Operation, project, activity string, timeoutMin int) error {
 	w := &ComputeOperationWaiter{
-		Service:   config.clientCompute,
-		Op:        op,
-		Project:   project,
-		ScopeType: Global,
+		Service: config.clientCompute,
+		Op:      op,
+		Project: project,
 	}
 
 	return waitComputeOperationWaiter(w, timeoutMin, activity)
@@ -94,11 +121,9 @@ func computeOperationWaitRegion(config *Config, op *compute.Operation, project s
 
 func computeOperationWaitRegionTime(config *Config, op *compute.Operation, project, region string, timeoutMin int, activity string) error {
 	w := &ComputeOperationWaiter{
-		Service:   config.clientCompute,
-		Op:        op,
-		Project:   project,
-		ScopeType: Region,
-		Scope:     region,
+		Service: config.clientCompute,
+		Op:      op,
+		Project: project,
 	}
 
 	return waitComputeOperationWaiter(w, timeoutMin, activity)
@@ -110,11 +135,9 @@ func computeOperationWaitZone(config *Config, op *compute.Operation, project, zo
 
 func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project, zone string, timeoutMin int, activity string) error {
 	w := &ComputeOperationWaiter{
-		Service:   config.clientCompute,
-		Op:        op,
-		Project:   project,
-		ScopeType: Zone,
-		Scope:     zone,
+		Service: config.clientCompute,
+		Op:      op,
+		Project: project,
 	}
 
 	return waitComputeOperationWaiter(w, timeoutMin, activity)
