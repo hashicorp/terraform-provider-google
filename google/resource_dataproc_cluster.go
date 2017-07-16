@@ -11,6 +11,7 @@ import (
 	"log"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -253,9 +254,23 @@ func resourceDataprocCluster() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-					StateFunc: func(v interface{}) string {
-						return canonicalizeServiceScope(v.(string))
-					},
+				},
+			},
+
+			"initialization_action_timeout_sec": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"initialization_actions": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: false,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 
@@ -337,6 +352,24 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	clusterConfig := &dataproc.ClusterConfig{
 		GceClusterConfig: gceConfig,
+	}
+
+	if v, ok := d.GetOk("initialization_actions"); ok {
+
+		timeoutInSecs := ""
+		if v, ok := d.GetOk("initialization_action_timeout_sec"); ok {
+			timeoutInSecs = strconv.Itoa(v.(int)) + "s"
+		}
+
+		actionList := v.([]interface{})
+		actions := []*dataproc.NodeInitializationAction{}
+		for _, v := range actionList {
+			actions = append(actions, &dataproc.NodeInitializationAction{
+				ExecutableFile:   v.(string),
+				ExecutionTimeout: timeoutInSecs,
+			})
+		}
+		clusterConfig.InitializationActions = actions
 	}
 
 	if v, ok := d.GetOk("bucket"); ok {
@@ -575,6 +608,21 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("labels", cluster.Labels)
 	d.Set("name", cluster.ClusterName)
 	d.Set("bucket", cluster.Config.ConfigBucket)
+
+	if len(cluster.Config.InitializationActions) > 0 {
+		actions := []string{}
+		for _, v := range cluster.Config.InitializationActions {
+			actions = append(actions, v.ExecutableFile)
+
+			tsecS := v.ExecutionTimeout[:len(v.ExecutionTimeout)-1]
+			tsec, err := strconv.Atoi(tsecS)
+			if err != nil {
+				return err
+			}
+			d.Set("initialization_action_timeout_sec", tsec)
+		}
+		d.Set("initialization_actions", actions)
+	}
 
 	if cluster.Config.GceClusterConfig != nil {
 		d.Set("zone", extractLastResourceFromUri(cluster.Config.GceClusterConfig.ZoneUri))

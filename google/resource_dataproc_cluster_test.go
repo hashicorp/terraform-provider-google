@@ -92,6 +92,23 @@ func TestAccDataprocCluster_withBucketRef(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withInitAction(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withInitAction(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocCluster(
+						"google_dataproc_cluster.with_init_action"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -230,6 +247,27 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 			{"worker_config.0.machine_type", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
 		}
 
+		extracted := false
+		if len(cluster.Config.InitializationActions) > 0 {
+			actions := []string{}
+			for _, v := range cluster.Config.InitializationActions {
+				actions = append(actions, v.ExecutableFile)
+
+				if !extracted {
+					tsec := v.ExecutionTimeout[:len(v.ExecutionTimeout)-2]
+					tsecI, err := strconv.Atoi(tsec)
+					if err != nil {
+						return err
+					}
+					clusterTests = append(clusterTests, clusterTestField{"initialization_action_timeout_sec", tsecI})
+					extracted = true
+				}
+			}
+			clusterTests = append(clusterTests, clusterTestField{"initialization_actions", actions})
+		} else {
+			clusterTests = append(clusterTests, clusterTestField{"initialization_actions", []string{}})
+		}
+
 		if cluster.Config.SecondaryWorkerConfig != nil {
 			clusterTests = append(clusterTests,
 				clusterTestField{"worker_config.0.preemptible_num_workers", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.NumInstances, base10)},
@@ -290,6 +328,43 @@ resource "google_dataproc_cluster" "with_master_config" {
 		num_local_ssds    = 1
 	}
 }`, acctest.RandString(10))
+
+func testAccDataprocCluster_withInitAction(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "init_bucket" {
+    name          = "tf-dataproc-acctest-%s"
+    force_destroy = "true"
+}
+
+resource "google_storage_bucket_object" "init_script" {
+  name    = "tf-acctest-init-script-%s.sh"
+  bucket  = "${google_storage_bucket.init_bucket.name}"
+  content = <<EOL
+#!/bin/bash
+ROLE=$$(/usr/share/google/get_metadata_value attributes/dataproc-role)
+if [[ "$${ROLE}" == 'Master' ]]; then
+  echo "on the master" >> /tmp/msg.txt
+else
+  echo "on the worker" >> /tmp/msg.txt
+fi
+EOL
+
+}
+
+resource "google_dataproc_cluster" "with_init_action" {
+	name   = "cluster-test-%s"
+	zone   = "us-central1-f"
+	initialization_action_timeout_sec = 500
+	initialization_actions = [
+	   "${google_storage_bucket.init_bucket.url}/${google_storage_bucket_object.init_script.name}"
+	]
+
+	worker_config {
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+	}
+}`, rnd, rnd, rnd)
+}
 
 var testAccDataprocCluster_withBucket = fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
