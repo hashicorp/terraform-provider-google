@@ -71,16 +71,10 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(instance_name + ":" + database_name)
 
 	db := &sqladmin.Database{
-		Name:     database_name,
-		Instance: instance_name,
-	}
-
-	if v, ok := d.GetOk("charset"); ok {
-		db.Charset = v.(string)
-	}
-
-	if v, ok := d.GetOk("collation"); ok {
-		db.Collation = v.(string)
+		Name:      database_name,
+		Instance:  instance_name,
+		Charset:   d.Get("charset").(string),
+		Collation: d.Get("collation").(string),
 	}
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
@@ -151,16 +145,10 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	instance_name := d.Get("instance").(string)
 
 	db := &sqladmin.Database{
-		Name:     database_name,
-		Instance: instance_name,
-	}
-
-	if v, ok := d.GetOk("charset"); ok {
-		db.Charset = v.(string)
-	}
-
-	if v, ok := d.GetOk("collation"); ok {
-		db.Collation = v.(string)
+		Name:      database_name,
+		Instance:  instance_name,
+		Charset:   d.Get("charset").(string),
+		Collation: d.Get("collation").(string),
 	}
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
