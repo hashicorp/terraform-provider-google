@@ -37,14 +37,14 @@ The following arguments are supported:
 
 * `instance` - (Required) The name of containing instance.
 
-* `charset` - (Optional) The MySQL charset value.
-
-* `collation` - (Optional) The MySQL collation value.
-
 - - -
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `charset` - (Optional) The MySQL charset value.
+
+* `collation` - (Optional) The MySQL collation value.
 
 ## Attributes Reference
 
