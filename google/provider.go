@@ -112,6 +112,7 @@ func Provider() terraform.ResourceProvider {
 			"google_pubsub_topic":                   resourcePubsubTopic(),
 			"google_pubsub_subscription":            resourcePubsubSubscription(),
 			"google_service_account":                resourceGoogleServiceAccount(),
+			"google_service_account_key":            resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                 resourceStorageBucket(),
 			"google_storage_bucket_acl":             resourceStorageBucketAcl(),
 			"google_storage_bucket_object":          resourceStorageBucketObject(),
