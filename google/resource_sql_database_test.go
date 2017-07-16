@@ -14,6 +14,28 @@ import (
 func TestAccGoogleSqlDatabase_basic(t *testing.T) {
 	var database sqladmin.Database
 
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabase_basic, acctest.RandString(10), acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(
+						"google_sql_database.database", &database),
+					testAccCheckGoogleSqlDatabaseEquals(
+						"google_sql_database.database", &database),
+				),
+			},
+		},
+	})
+}
+
+func TestAccGoogleSqlDatabase_update(t *testing.T) {
+	var database sqladmin.Database
+
 	instance_name := acctest.RandString(10)
 	database_name := acctest.RandString(10)
 
