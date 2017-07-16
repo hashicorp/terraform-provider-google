@@ -44,9 +44,10 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `charset` - (Optional) The MySQL charset value.
+* `charset` - (Optional) The MySQL charset value (default "utf8").
 
-* `collation` - (Optional) The MySQL collation value.
+* `collation` - (Optional) The MySQL collation value (default
+    "utf8_general_ci").
 
 ## Attributes Reference
 
