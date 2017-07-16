@@ -30,7 +30,7 @@ func (w *DataprocClusterOperationWaiter) RefreshFunc() resource.StateRefreshFunc
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] Progress of operation %q: is done -> %q", w.Op.Name, resp.Done)
+		log.Printf("[DEBUG] Progress of operation %s: is done -> %t", w.Op.Name, resp.Done)
 
 		if resp.Done {
 			return resp, "DONE", err

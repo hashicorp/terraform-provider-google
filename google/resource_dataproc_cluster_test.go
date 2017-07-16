@@ -7,7 +7,22 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+
+	"github.com/stretchr/testify/assert"
+	"strconv"
 )
+
+const base10 = 10
+
+func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
+	r := extractLastResourceFromUri("http://something.com/one/two/three")
+	assert.Equal(t, "three", r)
+}
+
+func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
+	r := extractLastResourceFromUri("three")
+	assert.Equal(t, "three", r)
+}
 
 func TestAccDataprocCluster_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -19,7 +34,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 				Config: testAccDataprocCluster_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
-						"google_dataproc_cluster.primary"),
+						"google_dataproc_cluster.basic"),
 				),
 			},
 		},
@@ -36,7 +51,41 @@ func TestAccDataprocCluster_withTimeout(t *testing.T) {
 				Config: testAccDataprocCluster_withTimeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
-						"google_dataproc_cluster.primary"),
+						"google_dataproc_cluster.with_timeout"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withMasterConfig(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withMasterConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocCluster(
+						"google_dataproc_cluster.with_master_config"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withBucketRef(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withBucket,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocCluster(
+						"google_dataproc_cluster.with_bucket"),
 				),
 			},
 		},
@@ -60,17 +109,36 @@ func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_withWorkerConfigScopeAlias(t *testing.T) {
+func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
+
+	saEmail := "TODO-compute@developer.gserviceaccount.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withWorkerConfigScopeAlias,
+				Config: testAccDataprocCluster_withServiceAcc(saEmail),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
-						"google_dataproc_cluster.with_worker_config_scope_alias"),
+						"google_dataproc_cluster.with_service_account"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withImageVersion(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withImageVersion,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocCluster(
+						"google_dataproc_cluster.with_image_version"),
 				),
 			},
 		},
@@ -139,11 +207,33 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 		}
 
 		clusterTests := []clusterTestField{
-			{"zone", cluster.Config.GceClusterConfig.ZoneUri},
-			{"bucket", cluster.Config.ConfigBucket},
-			{"subnetwork", cluster.Config.GceClusterConfig.SubnetworkUri},
 
-			// TODO finish
+			{"bucket", cluster.Config.ConfigBucket},
+			{"image_version", cluster.Config.SoftwareConfig.ImageVersion},
+			{"zone", extractLastResourceFromUri(cluster.Config.GceClusterConfig.ZoneUri)},
+
+			{"subnetwork", extractLastResourceFromUri(cluster.Config.GceClusterConfig.SubnetworkUri)},
+			{"service_account", cluster.Config.GceClusterConfig.ServiceAccount},
+			{"service_account_scopes", cluster.Config.GceClusterConfig.ServiceAccountScopes},
+			{"metadata", cluster.Config.GceClusterConfig.Metadata},
+			{"labels", cluster.Labels},
+			{"tags", cluster.Config.GceClusterConfig.Tags},
+
+			{"master_config.0.num_masters", strconv.FormatInt(cluster.Config.MasterConfig.NumInstances, base10)},
+			{"master_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb, base10)},
+			{"master_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds, base10)},
+			{"master_config.0.machine_type", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)},
+
+			{"worker_config.0.num_workers", strconv.FormatInt(cluster.Config.WorkerConfig.NumInstances, base10)},
+			{"worker_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb, base10)},
+			{"worker_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds, base10)},
+			{"worker_config.0.machine_type", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
+		}
+
+		if cluster.Config.SecondaryWorkerConfig != nil {
+			clusterTests = append(clusterTests,
+				clusterTestField{"worker_config.0.preemptible_num_workers", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.NumInstances, base10)},
+				clusterTestField{"worker_config.0.preemptible_boot_disk_size_gb", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb, base10)})
 		}
 
 		for _, attrs := range clusterTests {
@@ -152,7 +242,8 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 			}
 		}
 
-		// Network has to be done separately in order to normalize the two values
+		// A few attributes need to be done separately in order to normalise them.
+		// Network
 		tf, err := getNetworkNameFromSelfLink(attributes["network"])
 		if err != nil {
 			return err
@@ -170,23 +261,13 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 }
 
 var testAccDataprocCluster_basic = fmt.Sprintf(`
-resource "google_dataproc_cluster" "primary" {
+resource "google_dataproc_cluster" "basic" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-
-	master_config {
-        machine_type = "n1-standard-1"
-        boot_disk_size_gb = 10
-    }
-
-    worker_config {
-        machine_type = "n1-standard-1"
-        boot_disk_size_gb = 10
-    }
 }`, acctest.RandString(10))
 
 var testAccDataprocCluster_withTimeout = fmt.Sprintf(`
-resource "google_dataproc_cluster" "primary" {
+resource "google_dataproc_cluster" "with_timeout" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 
@@ -198,21 +279,34 @@ resource "google_dataproc_cluster" "primary" {
 }`, acctest.RandString(10))
 
 var testAccDataprocCluster_withMasterConfig = fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_master_auth" {
+resource "google_dataproc_cluster" "with_master_config" {
 	name = "cluster-test-%s"
-	zone = "us-central1-a"
+	zone = "us-central1-f"
 
 	master_config {
-		num_masters = 1
+		num_masters       = 1
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+		num_local_ssds    = 1
 	}
 }`, acctest.RandString(10))
 
-var testAccDataprocCluster_withVersion = fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_version" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	image_version = "1.1"
-}`, acctest.RandString(10))
+var testAccDataprocCluster_withBucket = fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+    name          = "tf-dataproc-bucket-%s"
+    force_destroy = "true"
+}
+
+resource "google_dataproc_cluster" "with_bucket" {
+	name   = "cluster-test-%s"
+	zone   = "us-central1-f"
+	bucket = "${google_storage_bucket.bucket.name}"
+
+	worker_config {
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
 
 var testAccDataprocCluster_withWorkerConfig = fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_worker_config" {
@@ -220,51 +314,123 @@ resource "google_dataproc_cluster" "with_worker_config" {
 	zone = "us-central1-f"
 
 	worker_config {
-		num_workers = 3
-		machine_type = "n1-standard-1"
+		num_workers       = 2
+		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
-		num_local_ssds = 1
-		service_account_scopes = [
-			"https://www.googleapis.com/auth/compute",
-			"https://www.googleapis.com/auth/devstorage.read_only",
-			"https://www.googleapis.com/auth/logging.write",
-			"https://www.googleapis.com/auth/monitoring"
-		]
-		service_account = "default"
+		num_local_ssds    = 1
+
+		preemptible_num_workers = 1
+		preemptible_boot_disk_size_gb = 10
 	}
 }`, acctest.RandString(10))
 
-var testAccDataprocCluster_withWorkerConfigScopeAlias = fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_worker_config_scope_alias" {
+var testAccDataprocCluster_withImageVersion = fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_image_version" {
+	name = "cluster-test-%s"
+	zone = "us-central1-f"
+	image_version = "1.0.44"
+}`, acctest.RandString(10))
+
+func testAccDataprocCluster_withServiceAcc(saEmail string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_service_account" {
 	name = "cluster-test-%s"
 	zone = "us-central1-f"
 
-	worker_config {
-		num_workers = 3
-		boot_disk_size_gb = "n1-standard-1"
-		disk_size_gb = 10
-		num_local_ssds = 1
-		service_account_scopes = [ "compute-rw", "storage-ro", "logging-write", "monitoring" ]
-		service_account = "default"
-	}
-}`, acctest.RandString(10))
+    master_config {
+        machine_type = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
 
+	service_account = "%s"
+
+	service_account_scopes = [
+        #    The following scopes necessary for the cluster to function properly are
+		#	always added, even if not explicitly specified:
+		#		useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
+		#		storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
+		#		logging-write:   https://www.googleapis.com/auth/logging.write
+        #
+		#	So user is expected to add these explicitly (in this order) otherwise terraform
+		#   will think there is a change to resource
+		"useraccounts-ro","storage-rw","logging-write",
+
+	    # Additional ones specifically desired by user (Note for now must be in alpha order
+	    # of fully qualified scope name)
+	    "monitoring"
+
+	]
+
+	worker_config {
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+	}
+}`, acctest.RandString(10), saEmail)
+}
+
+var rndDPName = acctest.RandString(10)
 var testAccDataprocCluster_networkRef = fmt.Sprintf(`
 resource "google_compute_network" "dataproc_network" {
 	name = "dataproc-net-%s"
 	auto_create_subnetworks = true
 }
 
-resource "google_dataproc_cluster" "with_net_ref_by_url" {
-	name = "cluster-test-%s"
+resource "google_compute_firewall" "dataproc_network_firewall" {
+	name = "dataproc-net-%s-allow-internal"
+	description = "Firewall rules for dataproc Terraform acceptance testing"
+	network = "${google_compute_network.dataproc_network.name}"
+
+	allow {
+	    protocol = "icmp"
+	}
+
+	allow {
+		protocol = "tcp"
+		ports    = ["0-65535"]
+	}
+
+	allow {
+		protocol = "udp"
+		ports    = ["0-65535"]
+	}
+}
+
+resource "google_dataproc_cluster" "with_net_ref_by_name" {
+	name = "cluster-test-%s-name"
 	zone = "us-central1-a"
+	depends_on = ["google_compute_firewall.dataproc_network_firewall"]
+
+    # to minimise cost for tests, using smaller instances
+    master_config {
+        machine_type = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+    worker_config {
+        machine_type = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+	network = "${google_compute_network.dataproc_network.name}"
+}
+
+resource "google_dataproc_cluster" "with_net_ref_by_url" {
+	name = "cluster-test-%s-url"
+	zone = "us-central1-a"
+    depends_on = ["google_compute_firewall.dataproc_network_firewall"]
+
+    # to minimise cost for tests, using smaller instances
+    master_config {
+        machine_type = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+    worker_config {
+        machine_type = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
 
 	network = "${google_compute_network.dataproc_network.self_link}"
 }
 
-resource "google_dataproc_cluster" "with_net_ref_by_name" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-
-	network = "${google_compute_network.dataproc_network.name}"
-}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, rndDPName, rndDPName, rndDPName, rndDPName)

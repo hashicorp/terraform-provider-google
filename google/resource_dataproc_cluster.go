@@ -10,6 +10,7 @@ import (
 	"errors"
 	"log"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -60,7 +61,7 @@ func resourceDataprocCluster() *schema.Resource {
 			"bucket": {
 				Type:        schema.TypeString,
 				Description: "The Google Cloud Storage bucket to use with the Google Cloud Storage connector",
-				Required:    false,
+				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
 			},
@@ -68,24 +69,25 @@ func resourceDataprocCluster() *schema.Resource {
 			"image_version": {
 				Type:        schema.TypeString,
 				Description: "The image version to use for the cluster",
-				Required:    false,
+				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
 			},
 
-			// At most one of [ network | subnetwork ] may be specified:
 			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"subnetwork"},
 			},
 
 			"subnetwork": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"network"},
 			},
 
 			"region": {
@@ -123,7 +125,7 @@ func resourceDataprocCluster() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"num_masters": &schema.Schema{
+						"num_masters": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -171,7 +173,7 @@ func resourceDataprocCluster() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"num_workers": &schema.Schema{
+						"num_workers": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
@@ -293,7 +295,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
-		gceConfig.SubnetworkUri = v.(string)
+		gceConfig.SubnetworkUri = extractLastResourceFromUri(v.(string))
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -316,6 +318,18 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 			scopes = append(scopes, canonicalizeServiceScope(v.(string)))
 		}
 
+		/*
+			The following scopes necessary for the cluster to function properly are
+			always added, even if not explicitly specified:
+				useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
+				storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
+				logging-write:   https://www.googleapis.com/auth/logging.write
+
+			We thus need to add them to the scopes as well to ensure this field is not
+			picked up as changing
+		*/
+
+		sort.Strings(scopes)
 		gceConfig.ServiceAccountScopes = scopes
 	}
 
@@ -323,6 +337,10 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	clusterConfig := &dataproc.ClusterConfig{
 		GceClusterConfig: gceConfig,
+	}
+
+	if v, ok := d.GetOk("bucket"); ok {
+		clusterConfig.ConfigBucket = v.(string)
 	}
 
 	if v, ok := d.GetOk("master_config"); ok {
@@ -340,7 +358,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 			clusterConfig.MasterConfig.NumInstances = int64(v.(int))
 		}
 		if v, ok = masterConfig["machine_type"]; ok {
-			clusterConfig.MasterConfig.MachineTypeUri = v.(string)
+			clusterConfig.MasterConfig.MachineTypeUri = extractLastResourceFromUri(v.(string))
 		}
 		if v, ok = masterConfig["boot_disk_size_gb"]; ok {
 			clusterConfig.MasterConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
@@ -365,7 +383,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 			clusterConfig.WorkerConfig.NumInstances = int64(v.(int))
 		}
 		if v, ok = config["machine_type"]; ok {
-			clusterConfig.WorkerConfig.MachineTypeUri = v.(string)
+			clusterConfig.WorkerConfig.MachineTypeUri = extractLastResourceFromUri(v.(string))
 		}
 		if v, ok = config["boot_disk_size_gb"]; ok {
 			clusterConfig.WorkerConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
@@ -390,6 +408,12 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		ClusterName: clusterName,
 		ProjectId:   project,
 		Config:      clusterConfig,
+	}
+
+	if v, ok := d.GetOk("image_version"); ok {
+		cluster.Config.SoftwareConfig = &dataproc.SoftwareConfig{
+			ImageVersion: v.(string),
+		}
 	}
 
 	if v, ok := d.GetOk("labels"); ok {
@@ -429,7 +453,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	e := resourceDataprocClusterRead(d, meta)
 	if e != nil {
-		log.Printf("Got an error reading back after creating, \n", e)
+		log.Print("[INFO] Got an error reading back after creating, \n", e)
 	}
 	return e
 }
@@ -526,6 +550,11 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	return resourceDataprocClusterRead(d, meta)
 }
 
+func extractLastResourceFromUri(rUri string) string {
+	rUris := strings.Split(rUri, "/")
+	return rUris[len(rUris)-1]
+}
+
 func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -548,16 +577,14 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("bucket", cluster.Config.ConfigBucket)
 
 	if cluster.Config.GceClusterConfig != nil {
-		zoneUrl := strings.Split(cluster.Config.GceClusterConfig.ZoneUri, "/")
-		d.Set("zone", zoneUrl[len(zoneUrl)-1])
-
-		d.Set("network", cluster.Config.GceClusterConfig.NetworkUri)
-		d.Set("subnet", cluster.Config.GceClusterConfig.SubnetworkUri)
+		d.Set("zone", extractLastResourceFromUri(cluster.Config.GceClusterConfig.ZoneUri))
+		d.Set("network", extractLastResourceFromUri(cluster.Config.GceClusterConfig.NetworkUri))
+		d.Set("subnet", extractLastResourceFromUri(cluster.Config.GceClusterConfig.SubnetworkUri))
 		d.Set("tags", cluster.Config.GceClusterConfig.Tags)
 		d.Set("metadata", cluster.Config.GceClusterConfig.Metadata)
 		d.Set("service_account", cluster.Config.GceClusterConfig.ServiceAccount)
-		d.Set("service_account_scopes", cluster.Config.GceClusterConfig.ServiceAccountScopes)
 		if len(cluster.Config.GceClusterConfig.ServiceAccountScopes) > 0 {
+			sort.Strings(cluster.Config.GceClusterConfig.ServiceAccountScopes)
 			d.Set("service_account_scopes", cluster.Config.GceClusterConfig.ServiceAccountScopes)
 		}
 
@@ -568,12 +595,11 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if cluster.Config.MasterConfig != nil {
-		mType := strings.Split(cluster.Config.MasterConfig.MachineTypeUri, "/")
 		masterConfig := []map[string]interface{}{
 			{
 				"num_masters":       cluster.Config.MasterConfig.NumInstances,
 				"boot_disk_size_gb": cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb,
-				"machine_type":      mType[len(mType)-1],
+				"machine_type":      extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri),
 				"num_local_ssds":    cluster.Config.MasterConfig.DiskConfig.NumLocalSsds,
 			},
 		}
@@ -581,12 +607,11 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if cluster.Config.WorkerConfig != nil {
-		mType := strings.Split(cluster.Config.WorkerConfig.MachineTypeUri, "/")
 		workerConfig := []map[string]interface{}{
 			{
 				"num_workers":       cluster.Config.WorkerConfig.NumInstances,
 				"boot_disk_size_gb": cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb,
-				"machine_type":      mType[len(mType)-1],
+				"machine_type":      extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri),
 				"num_local_ssds":    cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds,
 			},
 		}
