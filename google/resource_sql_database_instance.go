@@ -1079,25 +1079,26 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
+		locationPreference := &sqladmin.LocationPreference{}
 		if v, ok := _settings["location_preference"]; ok {
-			_locationPreferenceList := v.([]interface{})
-			if len(_locationPreferenceList) > 1 {
+			locationPreferenceList := v.([]interface{})
+			if len(locationPreferenceList) > 1 {
 				return fmt.Errorf("At most one location_preference block is allowed")
 			}
 
-			if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
-				settings.LocationPreference = &sqladmin.LocationPreference{}
-				_locationPreference := _locationPreferenceList[0].(map[string]interface{})
+			if len(locationPreferenceList) == 1 && locationPreferenceList[0] != nil {
+				lp := locationPreferenceList[0].(map[string]interface{})
 
-				if vp, okp := _locationPreference["follow_gae_application"]; okp {
-					settings.LocationPreference.FollowGaeApplication = vp.(string)
+				if vp, okp := lp["follow_gae_application"]; okp {
+					locationPreference.FollowGaeApplication = vp.(string)
 				}
 
-				if vp, okp := _locationPreference["zone"]; okp {
-					settings.LocationPreference.Zone = vp.(string)
+				if vp, okp := lp["zone"]; okp {
+					locationPreference.Zone = vp.(string)
 				}
 			}
 		}
+		settings.LocationPreference = locationPreference
 
 		if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 {
 			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
