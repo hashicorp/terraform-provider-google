@@ -470,54 +470,62 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 			target_lifecycle_rule := &storage.BucketLifecycleRule{}
 
 			if v, ok := lifecycle_rule["action"]; ok {
-				action := v.(*schema.Set).List()[0].(map[string]interface{})
+				if actions := v.(*schema.Set).List(); len(actions) == 1 {
+					action := actions[0].(map[string]interface{})
 
-				target_lifecycle_rule.Action = &storage.BucketLifecycleRuleAction{}
+					target_lifecycle_rule.Action = &storage.BucketLifecycleRuleAction{}
 
-				if v, ok := action["type"]; ok {
-					target_lifecycle_rule.Action.Type = v.(string)
-				}
+					if v, ok := action["type"]; ok {
+						target_lifecycle_rule.Action.Type = v.(string)
+					}
 
-				if v, ok := action["storage_class"]; ok {
-					target_lifecycle_rule.Action.StorageClass = v.(string)
+					if v, ok := action["storage_class"]; ok {
+						target_lifecycle_rule.Action.StorageClass = v.(string)
+					}
+				} else {
+					return fmt.Errorf("Exactly one action is required")
 				}
 			}
 
 			if v, ok := lifecycle_rule["condition"]; ok {
-				condition := v.(*schema.Set).List()[0].(map[string]interface{})
+				if conditions := v.(*schema.Set).List(); len(conditions) == 1 {
+					condition := conditions[0].(map[string]interface{})
 
-				target_lifecycle_rule.Condition = &storage.BucketLifecycleRuleCondition{}
+					target_lifecycle_rule.Condition = &storage.BucketLifecycleRuleCondition{}
 
-				if v, ok := condition["age"]; ok {
-					target_lifecycle_rule.Condition.Age = int64(v.(int))
-				}
-
-				if v, ok := condition["created_before"]; ok {
-					target_lifecycle_rule.Condition.CreatedBefore = v.(string)
-				}
-
-				if v, ok := condition["is_live"]; ok {
-					target_lifecycle_rule.Condition.IsLive = v.(bool)
-				}
-
-				if v, ok := condition["matches_storage_class"]; ok {
-					matches_storage_classes := v.([]interface{})
-
-					target_matches_storage_classes := make([]string, 0, len(matches_storage_classes))
-
-					for _, v := range matches_storage_classes {
-						target_matches_storage_classes = append(target_matches_storage_classes, v.(string))
+					if v, ok := condition["age"]; ok {
+						target_lifecycle_rule.Condition.Age = int64(v.(int))
 					}
 
-					target_lifecycle_rule.Condition.MatchesStorageClass = target_matches_storage_classes
-				}
+					if v, ok := condition["created_before"]; ok {
+						target_lifecycle_rule.Condition.CreatedBefore = v.(string)
+					}
 
-				if v, ok := condition["num_newer_versions"]; ok {
-					target_lifecycle_rule.Condition.NumNewerVersions = int64(v.(int))
-				}
+					if v, ok := condition["is_live"]; ok {
+						target_lifecycle_rule.Condition.IsLive = v.(bool)
+					}
 
-				sb.Lifecycle.Rule = append(sb.Lifecycle.Rule, target_lifecycle_rule)
+					if v, ok := condition["matches_storage_class"]; ok {
+						matches_storage_classes := v.([]interface{})
+
+						target_matches_storage_classes := make([]string, 0, len(matches_storage_classes))
+
+						for _, v := range matches_storage_classes {
+							target_matches_storage_classes = append(target_matches_storage_classes, v.(string))
+						}
+
+						target_lifecycle_rule.Condition.MatchesStorageClass = target_matches_storage_classes
+					}
+
+					if v, ok := condition["num_newer_versions"]; ok {
+						target_lifecycle_rule.Condition.NumNewerVersions = int64(v.(int))
+					}
+				} else {
+					return fmt.Errorf("Exactly one condition is required")
+				}
 			}
+
+			sb.Lifecycle.Rule = append(sb.Lifecycle.Rule, target_lifecycle_rule)
 		}
 	}
 
