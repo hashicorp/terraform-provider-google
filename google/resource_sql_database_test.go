@@ -33,6 +33,41 @@ func TestAccGoogleSqlDatabase_basic(t *testing.T) {
 	})
 }
 
+func TestAccGoogleSqlDatabase_update(t *testing.T) {
+	var database sqladmin.Database
+
+	instance_name := acctest.RandString(10)
+	database_name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabase_basic, instance_name, database_name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(
+						"google_sql_database.database", &database),
+					testAccCheckGoogleSqlDatabaseEquals(
+						"google_sql_database.database", &database),
+				),
+			},
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabase_latin1, instance_name, database_name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(
+						"google_sql_database.database", &database),
+					testAccCheckGoogleSqlDatabaseEquals(
+						"google_sql_database.database", &database),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleSqlDatabaseEquals(n string,
 	database *sqladmin.Database) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -43,6 +78,8 @@ func testAccCheckGoogleSqlDatabaseEquals(n string,
 
 		database_name := rs.Primary.Attributes["name"]
 		instance_name := rs.Primary.Attributes["instance"]
+		charset := rs.Primary.Attributes["charset"]
+		collation := rs.Primary.Attributes["collation"]
 
 		if database_name != database.Name {
 			return fmt.Errorf("Error name mismatch, (%s, %s)", database_name, database.Name)
@@ -50,6 +87,14 @@ func testAccCheckGoogleSqlDatabaseEquals(n string,
 
 		if instance_name != database.Instance {
 			return fmt.Errorf("Error instance_name mismatch, (%s, %s)", instance_name, database.Instance)
+		}
+
+		if charset != database.Charset {
+			return fmt.Errorf("Error charset mismatch, (%s, %s)", charset, database.Charset)
+		}
+
+		if collation != database.Collation {
+			return fmt.Errorf("Error collation mismatch, (%s, %s)", collation, database.Collation)
 		}
 
 		return nil
@@ -112,5 +157,21 @@ resource "google_sql_database_instance" "instance" {
 resource "google_sql_database" "database" {
 	name = "sqldatabasetest%s"
 	instance = "${google_sql_database_instance.instance.name}"
+}
+`
+var testGoogleSqlDatabase_latin1 = `
+resource "google_sql_database_instance" "instance" {
+	name = "sqldatabasetest%s"
+	region = "us-central"
+	settings {
+		tier = "D0"
+	}
+}
+
+resource "google_sql_database" "database" {
+	name = "sqldatabasetest%s"
+	instance = "${google_sql_database_instance.instance.name}"
+	charset = "latin1"
+	collation = "latin1_swedish_ci"
 }
 `
