@@ -21,6 +21,7 @@ IMPROVEMENTS:
 * project: Allow unlinking of billing account [GH-138]
 * sql: Add support for importing `google_sql_database` [GH-12]
 * sql: Add support for importing `google_sql_database_instance` [GH-11]
+* sql: Add `charset` and `collation` properties to `google_sql_database` [GH-183]
 
 BUG FIXES:
 
