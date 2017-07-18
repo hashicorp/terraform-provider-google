@@ -37,8 +37,6 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 					ValidateFunc: validateRegexp(sslCertificateRegex),
 					StateFunc:    toCanonicalSslCertificate,
 				},
-				MinItems: 1,
-				MaxItems: 1,
 			},
 
 			"url_map": &schema.Schema{
@@ -141,10 +139,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if d.HasChange("ssl_certificates") {
-		// Exactly one ssl certificate must be specified.
-		certs := make([]string, 1)
-		certs[0] = d.Get("ssl_certificates.0").(string)
-
+		certs := convertStringArr(d.Get("ssl_certificates").([]interface{}))
 		cert_ref := &compute.TargetHttpsProxiesSetSslCertificatesRequest{
 			SslCertificates: certs,
 		}
@@ -215,11 +210,7 @@ func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interfac
 
 func toCanonicalSslCertificate(v interface{}) string {
 	value := v.(string)
-
 	m := regexp.MustCompile(sslCertificateRegex).FindStringSubmatch(value)
-	if m == nil {
-		return value
-	}
 
 	return fmt.Sprintf(canonicalSslCertificateTemplate, m[1], m[2])
 }
