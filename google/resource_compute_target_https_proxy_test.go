@@ -26,7 +26,7 @@ func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						"google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxySslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 				),
 			},
 		},
@@ -48,7 +48,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						"google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxySslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 				),
 			},
 
@@ -58,7 +58,8 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						"google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing (updated)", &proxy),
-					testAccComputeTargetHttpsProxySslCertificate("httpsproxy-test-cert2-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert2-"+resourceSuffix, &proxy),
 				),
 			},
 		},
@@ -137,18 +138,18 @@ func testAccComputeTargetHttpsProxyDescription(description string, proxy *comput
 	}
 }
 
-func testAccComputeTargetHttpsProxySslCertificate(cert string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
+func testAccComputeTargetHttpsProxyHasSslCertificate(cert string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
+		certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
-		if len(proxy.SslCertificates) != 1 {
-			return fmt.Errorf("Should have exactly one ssl certificate")
+		for _, sslCertificate := range proxy.SslCertificates {
+			if sslCertificate == certUrl {
+				return nil
+			}
 		}
 
-		if certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert); proxy.SslCertificates[0] != certUrl {
-			return fmt.Errorf("Wrong ssl certificate: expected '%s' got '%s'", certUrl, proxy.SslCertificates[0])
-		}
-		return nil
+		return fmt.Errorf("Ssl certificate not found: expected'%s'", certUrl)
 	}
 }
 
