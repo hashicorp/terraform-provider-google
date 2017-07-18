@@ -186,14 +186,14 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	// retreive instance group
+	// retrieve instance group
 	instanceGroup, err := config.clientCompute.InstanceGroups.Get(
 		project, d.Get("zone").(string), d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Group %q", d.Get("name").(string)))
 	}
 
-	// retreive instance group members
+	// retrieve instance group members
 	var memberUrls []string
 	members, err := config.clientCompute.InstanceGroups.ListInstances(
 		project, d.Get("zone").(string), d.Id(), &compute.InstanceGroupsListInstancesRequest{
@@ -215,6 +215,8 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		d.Set("instances", memberUrls)
 	}
 
+	d.Set("named_port", flattenNamedPorts(instanceGroup.NamedPorts))
+
 	// Set computed fields
 	d.Set("network", instanceGroup.Network)
 	d.Set("size", instanceGroup.Size)
@@ -228,12 +230,6 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
-	}
-
-	// refresh the state incase referenced instances have been removed earlier in the run
-	err = resourceComputeInstanceGroupRead(d, meta)
-	if err != nil {
-		return fmt.Errorf("Error reading InstanceGroup: %s", err)
 	}
 
 	d.Partial(true)
@@ -263,13 +259,17 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			removeOp, err := config.clientCompute.InstanceGroups.RemoveInstances(
 				project, d.Get("zone").(string), d.Id(), removeReq).Do()
 			if err != nil {
-				return fmt.Errorf("Error removing instances from InstanceGroup: %s", err)
-			}
-
-			// Wait for the operation to complete
-			err = computeOperationWaitZone(config, removeOp, project, d.Get("zone").(string), "Updating InstanceGroup")
-			if err != nil {
-				return err
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+					log.Printf("[WARN] Instances already removed from InstanceGroup: %s", remove)
+				} else {
+					return fmt.Errorf("Error removing instances from InstanceGroup: %s", err)
+				}
+			} else {
+				// Wait for the operation to complete
+				err = computeOperationWaitZone(config, removeOp, project, d.Get("zone").(string), "Updating InstanceGroup")
+				if err != nil {
+					return err
+				}
 			}
 		}
 

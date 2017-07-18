@@ -13,6 +13,7 @@ func resourceSqlDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlDatabaseCreate,
 		Read:   resourceSqlDatabaseRead,
+		Update: resourceSqlDatabaseUpdate,
 		Delete: resourceSqlDatabaseDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -41,6 +42,18 @@ func resourceSqlDatabase() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"charset": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "utf8",
+			},
+
+			"collation": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "utf8_general_ci",
+			},
 		},
 	}
 }
@@ -58,8 +71,10 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(instance_name + ":" + database_name)
 
 	db := &sqladmin.Database{
-		Name:     database_name,
-		Instance: instance_name,
+		Name:      database_name,
+		Instance:  instance_name,
+		Charset:   d.Get("charset").(string),
+		Collation: d.Get("collation").(string),
 	}
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
@@ -112,8 +127,49 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", db.Name)
 	d.Set("self_link", db.SelfLink)
 	d.SetId(instance_name + ":" + database_name)
+	d.Set("charset", db.Charset)
+	d.Set("collation", db.Collation)
 
 	return nil
+}
+
+func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	database_name := d.Get("name").(string)
+	instance_name := d.Get("instance").(string)
+
+	db := &sqladmin.Database{
+		Name:      database_name,
+		Instance:  instance_name,
+		Charset:   d.Get("charset").(string),
+		Collation: d.Get("collation").(string),
+	}
+
+	mutexKV.Lock(instanceMutexKey(project, instance_name))
+	defer mutexKV.Unlock(instanceMutexKey(project, instance_name))
+	op, err := config.clientSqlAdmin.Databases.Update(project, instance_name, database_name,
+		db).Do()
+
+	if err != nil {
+		return fmt.Errorf("Error, failed to update "+
+			"database %s in instance %s: %s", database_name,
+			instance_name, err)
+	}
+
+	err = sqladminOperationWait(config, op, "Update Database")
+
+	if err != nil {
+		return fmt.Errorf("Error, failure waiting for update of %s "+
+			"into %s: %s", database_name, instance_name, err)
+	}
+
+	return resourceSqlDatabaseRead(d, meta)
 }
 
 func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {

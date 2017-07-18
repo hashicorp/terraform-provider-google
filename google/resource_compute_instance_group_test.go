@@ -59,7 +59,7 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 					testAccComputeInstanceGroup_exists(
 						"google_compute_instance_group.update", &instanceGroup),
 					testAccComputeInstanceGroup_updated(
-						"google_compute_instance_group.update", 3, &instanceGroup),
+						"google_compute_instance_group.update", 1, &instanceGroup),
 					testAccComputeInstanceGroup_named_ports(
 						"google_compute_instance_group.update",
 						map[string]int64{"http": 8081, "test": 8444},
@@ -319,7 +319,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		zone = "us-central1-c"
-		count = 1
+		count = 2
 
 		disk {
 			image = "debian-8-jessie-v20160803"
@@ -334,7 +334,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		description = "Terraform test instance group"
 		name = "%s"
 		zone = "us-central1-c"
-		instances = [ "${google_compute_instance.ig_instance.self_link}" ]
+		instances = [ "${google_compute_instance.ig_instance.*.self_link}" ]
 		named_port {
 			name = "http"
 			port = "8080"
@@ -354,7 +354,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		zone = "us-central1-c"
-		count = 3
+		count = 1
 
 		disk {
 			image = "debian-8-jessie-v20160803"

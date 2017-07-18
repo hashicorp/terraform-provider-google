@@ -28,15 +28,7 @@ func resourceComputeSslCertificate() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name_prefix"},
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
-					value := v.(string)
-					if len(value) > 63 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be longer than 63 characters", k))
-					}
-					return
-				},
+				ValidateFunc:  validateGCPName,
 			},
 
 			"name_prefix": &schema.Schema{
