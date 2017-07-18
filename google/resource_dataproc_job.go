@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/pkg/errors"
 	"google.golang.org/api/dataproc/v1"
 )
 
@@ -13,7 +14,7 @@ func resourceDataprocJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocJobCreate,
 		Read:   resourceDataprocJobRead,
-		//Update: resourceDataprocJobUpdate,
+		//Update: not supported,
 		Delete: resourceDataprocJobDelete,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -51,57 +52,8 @@ func resourceDataprocJob() *schema.Resource {
 				Elem:     schema.TypeString,
 			},
 
-			"pyspark_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-
-						"main_python_file": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-
-						"additional_python_files": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-
-						"jar_files": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-
-						"args": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-
-						"properties": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							ForceNew: true,
-							Elem:     schema.TypeString,
-						},
-					},
-				},
-			},
+			"pyspark_config": pySparkTFSchema(),
+			"spark_config":   sparkTFSchema(),
 		},
 	}
 }
@@ -133,45 +85,24 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		submitReq.Job.Labels = m
 	}
 
+	jobConfDefined := false
+
 	if v, ok := d.GetOk("pyspark_config"); ok {
+		jobConfDefined = true
 		configs := v.([]interface{})
 		config := configs[0].(map[string]interface{})
+		submitReq.Job.PysparkJob = getPySparkJob(config)
+	}
 
-		submitReq.Job.PysparkJob = &dataproc.PySparkJob{}
-		if v, ok = config["main_python_file"]; ok {
-			submitReq.Job.PysparkJob.MainPythonFileUri = v.(string)
-		}
-		if v, ok = config["args"]; ok {
-			arrList := v.([]interface{})
-			arr := []string{}
-			for _, v := range arrList {
-				arr = append(arr, v.(string))
-			}
-			submitReq.Job.PysparkJob.Args = arr
-		}
-		if v, ok = config["properties"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			submitReq.Job.PysparkJob.Properties = m
-		}
-		if v, ok = config["jar_files"]; ok {
-			arrList := v.([]interface{})
-			arr := []string{}
-			for _, v := range arrList {
-				arr = append(arr, v.(string))
-			}
-			submitReq.Job.PysparkJob.JarFileUris = arr
-		}
-		if v, ok = config["additional_python_files"]; ok {
-			arrList := v.([]interface{})
-			arr := []string{}
-			for _, v := range arrList {
-				arr = append(arr, v.(string))
-			}
-			submitReq.Job.PysparkJob.PythonFileUris = arr
-		}
+	if v, ok := d.GetOk("spark_config"); ok {
+		jobConfDefined = true
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.SparkJob = getSparkJob(config)
+	}
+
+	if !jobConfDefined {
+		return errors.New("At least one xxx_config block must be defined")
 	}
 
 	// Submit the job
@@ -194,62 +125,6 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	return e
 }
 
-/*
-func resourceDataprocJobUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	return nil
-
-	// The only items which are currently able to be updated, without a
-	// forceNew in place are the labels and/or the number of worker nodes in a cluster
-	if !d.HasChange("labels") {
-		return errors.New("*** programmer issue - update resource called however item is not allowed to be changed - investigate ***")
-	}
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	region := d.Get("region").(string)
-	jobId := d.Id()
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
-
-	job := &dataproc.Job{}
-	patch := config.clientDataproc.Projects.Regions.Jobs.Patch(
-		project, region, jobId, job)
-
-	updMask := ""
-
-	if d.HasChange("labels") {
-
-		v := d.Get("labels")
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
-		}
-		job.Labels = m
-
-		updMask = "labels"
-	}
-
-	patch.UpdateMask(updMask)
-
-	_, err = patch.Do()
-	if err != nil {
-		return err
-	}
-
-	// Wait until it's updated
-	waitErr := dataprocJobOperationWait(config, region, project, jobId, "updating Dataproc job ", timeoutInMinutes, 2)
-	if waitErr != nil {
-		return waitErr
-	}
-
-	log.Printf("[INFO] Dataproc job %s has been updated ", jobId)
-	return resourceDataprocJobRead(d, meta)
-}
-*/
-
 func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := d.Get("region").(string)
@@ -269,19 +144,12 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("cluster", job.Placement.ClusterName)
 
 	if job.PysparkJob != nil {
-
-		pySparkConfig := []map[string]interface{}{
-			{
-				"args":                    job.PysparkJob.Args,
-				"properties":              job.PysparkJob.Properties,
-				"jar_files":               job.PysparkJob.JarFileUris,
-				"main_python_file":        job.PysparkJob.MainPythonFileUri,
-				"additional_python_files": job.PysparkJob.PythonFileUris,
-			},
-		}
-
+		pySparkConfig := getTfPySparkConfig(job.PysparkJob)
 		d.Set("pyspark_config", pySparkConfig)
-
+	}
+	if job.SparkJob != nil {
+		sparkConfig := getTfSparkConfig(job.SparkJob)
+		d.Set("spark_config", sparkConfig)
 	}
 	return nil
 }
@@ -323,4 +191,218 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+// ---- PySpark Job ----
+
+func pySparkTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_python_file": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+
+				"additional_python_files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"jar_files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getTfPySparkConfig(job *dataproc.PySparkJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"args":                    job.Args,
+			"properties":              job.Properties,
+			"jar_files":               job.JarFileUris,
+			"main_python_file":        job.MainPythonFileUri,
+			"additional_python_files": job.PythonFileUris,
+		},
+	}
+}
+
+func getPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
+
+	job := &dataproc.PySparkJob{}
+	if v, ok := config["main_python_file"]; ok {
+		job.MainPythonFileUri = v.(string)
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+	if v, ok := config["jar_files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["additional_python_files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.PythonFileUris = arr
+	}
+
+	return job
+
+}
+
+// ---- Spark Job ----
+
+func sparkTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"pyspark_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_class": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"spark_config.main_jar"},
+				},
+
+				"main_jar": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"spark_config.main_class"},
+				},
+
+				"jar_files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getTfSparkConfig(job *dataproc.SparkJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"main_class": job.MainClass,
+			"main_jar":   job.MainJarFileUri,
+			"jar_files":  job.JarFileUris,
+			"args":       job.Args,
+			"properties": job.Properties,
+		},
+	}
+}
+
+func getSparkJob(config map[string]interface{}) *dataproc.SparkJob {
+
+	job := &dataproc.SparkJob{}
+	if v, ok := config["main_class"]; ok {
+		job.MainClass = v.(string)
+	}
+	if v, ok := config["main_jar"]; ok {
+		job.MainJarFileUri = v.(string)
+	}
+	if v, ok := config["jar_files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
 }
