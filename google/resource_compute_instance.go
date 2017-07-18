@@ -843,26 +843,25 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	// Select metadata keys that we have set in the past in the configuration - any not mentioned are ignored
-	keysToSelect := map[string]interface{}{}
-	existingMetadata := d.Get("metadata").(map[string]interface{})
-	for k := range existingMetadata {
-		keysToSelect[k] = struct{}{}
-	}
-	// Also include startup-script; depending on the config file it might be stored in metadata_startup_script or as a
-	// normal metadata parameter (if neither are set, we'll remove it later).
-	keysToSelect["startup-script"] = struct{}{}
-	_md := MetadataFormatSchema(keysToSelect, instance.Metadata)
+	md := flattenMetadata(instance.Metadata)
 
 	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
-		d.Set("metadata_startup_script", _md["startup-script"])
-		delete(_md, "startup-script")
-	} else if _, ok := existingMetadata["startup-script"]; !ok {
-		// Config never specified startup script, so lets remove it
-		delete(_md, "startup-script")
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
 	}
 
-	if err = d.Set("metadata", _md); err != nil {
+	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	// Delete any keys not explicitly set in our config file
+	for k := range md {
+		if _, ok := existingMetadata[k]; !ok {
+			delete(md, k)
+		}
+	}
+
+	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
