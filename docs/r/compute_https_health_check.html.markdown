@@ -61,3 +61,11 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `self_link` - The URL of the created resource.
+
+## Import
+
+HTTPS health checks can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_https_health_check.default test
+```
