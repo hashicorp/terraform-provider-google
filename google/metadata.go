@@ -103,7 +103,10 @@ func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
 
 	idx := 0
 	for key, value := range m {
-		metadata[idx] = &compute.MetadataItems{Key: key, Value: &value}
+		// Make a copy of value as we need a ptr type; if we directly use 'value' then all items will reference the same
+		// memory address
+		vtmp := value
+		metadata[idx] = &compute.MetadataItems{Key: key, Value: &vtmp}
 		idx++
 	}
 
