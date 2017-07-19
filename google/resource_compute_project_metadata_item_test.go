@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -18,6 +19,26 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 				Config: testAccProjectMetadataItem_basic("myKey", "myValue"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectMetadataItem_hasMetadata("myKey", "myValue"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
+	// Generate a config of two config keys
+	config := testAccProjectMetadataItem_basic("myKey", "myValue") +
+		testAccProjectMetadataItem_basic("myOtherKey", "myOtherValue")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProjectMetadataItem_hasMetadata("myKey", "myValue"),
+					testAccCheckProjectMetadataItem_hasMetadata("myOtherKey", "myOtherValue"),
 				),
 			},
 		},
@@ -110,9 +131,9 @@ func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
 
 func testAccProjectMetadataItem_basic(key, val string) string {
 	return fmt.Sprintf(`
-resource "google_compute_project_metadata_item" "foobar" {
+resource "google_compute_project_metadata_item" "foobar-%s" {
   key   = "%s"
   value = "%s"
 }
-`, key, val)
+`, acctest.RandString(10), key, val)
 }
