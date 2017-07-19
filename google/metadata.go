@@ -103,7 +103,8 @@ func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
 
 	idx := 0
 	for key, value := range m {
-		metadata[idx] = &compute.MetadataItems{Key: key, Value: &value}
+		vtmp := value
+		metadata[idx] = &compute.MetadataItems{Key: key, Value: &vtmp}
 		idx++
 	}
 
