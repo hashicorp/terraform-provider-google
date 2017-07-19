@@ -65,10 +65,6 @@ func TestComputeInstanceGroupMigrateState(t *testing.T) {
 		}
 
 		for k, v := range tc.ExpectedAttributes {
-			if k == "id" {
-
-			}
-
 			if is.Attributes[k] != v {
 				t.Fatalf(
 					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
@@ -103,6 +99,10 @@ func TestComputeInstanceGroupMigrateState_empty(t *testing.T) {
 		if is != nil {
 			t.Fatalf("bad %s, expected nil instancestate, got: %#v", tn, is)
 		}
+
+		// should handle non-nil but empty
+		is = &terraform.InstanceState{}
+		is, err = resourceComputeInstanceGroupMigrateState(tc.StateVersion, is, meta)
 
 		// should handle non-nil but empty
 		is = &terraform.InstanceState{}
