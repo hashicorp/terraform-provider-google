@@ -22,6 +22,10 @@ resource "google_compute_subnetwork" "default-us-east1" {
   network       = "${google_compute_network.default.self_link}"
   region        = "us-east1"
 }
+
+resource "google_compute_network" "default" {
+  name = "test"
+}
 ```
 
 ## Argument Reference
@@ -60,3 +64,11 @@ exported:
 * `gateway_address` - The IP address of the gateway.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Subnetwork can be imported using the `region` and `name`, e.g.
+
+```
+$ terraform import google_compute_subnetwork.default-us-east1 us-east1/default-us-east1
+```
