@@ -8,24 +8,43 @@ import (
 
 func TestComputeInstanceGroupMigrateState(t *testing.T) {
 	cases := map[string]struct {
-		StateVersion int
-		Attributes   map[string]string
-		Expected     map[string]string
-		Meta         interface{}
+		StateVersion       int
+		Attributes         map[string]string
+		ExpectedAttributes map[string]string
+		ExpectedId         string
+		Meta               interface{}
 	}{
-		"change instances from list to set": {
+		"v1 to v2": {
+			StateVersion: 1,
+			Attributes: map[string]string{
+				"zone": "us-central1-c",
+				"name": "instancegroup-test",
+			},
+			ExpectedAttributes: map[string]string{
+				"zone": "us-central1-c",
+				"name": "instancegroup-test",
+			},
+			ExpectedId: "us-central1-c/instancegroup-test",
+			Meta:       &Config{},
+		},
+		"v0 to v2": {
 			StateVersion: 0,
 			Attributes: map[string]string{
+				"zone":        "us-central1-c",
+				"name":        "instancegroup-test",
 				"instances.#": "1",
 				"instances.0": "https://www.googleapis.com/compute/v1/projects/project_name/zones/zone_name/instances/instancegroup-test-1",
 				"instances.1": "https://www.googleapis.com/compute/v1/projects/project_name/zones/zone_name/instances/instancegroup-test-0",
 			},
-			Expected: map[string]string{
+			ExpectedAttributes: map[string]string{
+				"zone":                 "us-central1-c",
+				"name":                 "instancegroup-test",
 				"instances.#":          "1",
 				"instances.764135222":  "https://www.googleapis.com/compute/v1/projects/project_name/zones/zone_name/instances/instancegroup-test-1",
 				"instances.1519187872": "https://www.googleapis.com/compute/v1/projects/project_name/zones/zone_name/instances/instancegroup-test-0",
 			},
-			Meta: &Config{},
+			ExpectedId: "us-central1-c/instancegroup-test",
+			Meta:       &Config{},
 		},
 	}
 
@@ -41,7 +60,11 @@ func TestComputeInstanceGroupMigrateState(t *testing.T) {
 			t.Fatalf("bad: %s, err: %#v", tn, err)
 		}
 
-		for k, v := range tc.Expected {
+		if is.ID != tc.ExpectedId {
+			t.Fatalf("bad: %s\n\n expected: %s\n got: %s", tn, tc.ExpectedId, is.ID)
+		}
+
+		for k, v := range tc.ExpectedAttributes {
 			if is.Attributes[k] != v {
 				t.Fatalf(
 					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
@@ -52,24 +75,37 @@ func TestComputeInstanceGroupMigrateState(t *testing.T) {
 }
 
 func TestComputeInstanceGroupMigrateState_empty(t *testing.T) {
-	var is *terraform.InstanceState
-	var meta *Config
-
-	// should handle nil
-	is, err := resourceComputeInstanceGroupMigrateState(0, is, meta)
-
-	if err != nil {
-		t.Fatalf("err: %#v", err)
-	}
-	if is != nil {
-		t.Fatalf("expected nil instancestate, got: %#v", is)
+	cases := map[string]struct {
+		StateVersion int
+	}{
+		"v0": {
+			StateVersion: 0,
+		},
+		"v1": {
+			StateVersion: 1,
+		},
 	}
 
-	// should handle non-nil but empty
-	is = &terraform.InstanceState{}
-	is, err = resourceComputeInstanceGroupMigrateState(0, is, meta)
+	for tn, tc := range cases {
+		var is *terraform.InstanceState
+		var meta *Config
 
-	if err != nil {
-		t.Fatalf("err: %#v", err)
+		// should handle nil
+		is, err := resourceComputeInstanceGroupMigrateState(tc.StateVersion, is, meta)
+
+		if err != nil {
+			t.Fatalf("bad %s, err: %#v", tn, err)
+		}
+		if is != nil {
+			t.Fatalf("bad %s, expected nil instancestate, got: %#v", tn, is)
+		}
+
+		// should handle non-nil but empty
+		is = &terraform.InstanceState{}
+		is, err = resourceComputeInstanceGroupMigrateState(tc.StateVersion, is, meta)
+
+		if err != nil {
+			t.Fatalf("bad %s, err: %#v", tn, err)
+		}
 	}
 }

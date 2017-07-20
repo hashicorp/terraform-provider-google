@@ -124,7 +124,7 @@ func testAccComputeInstanceGroup_destroy(s *terraform.State) error {
 			continue
 		}
 		_, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err == nil {
 			return fmt.Errorf("InstanceGroup still exists")
 		}
@@ -147,13 +147,9 @@ func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.Instanc
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("InstanceGroup not found")
 		}
 
 		*instanceGroup = *found
@@ -176,7 +172,7 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 		config := testAccProvider.Meta().(*Config)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -205,7 +201,7 @@ func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, inst
 		config := testAccProvider.Meta().(*Config)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -239,7 +235,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 			return fmt.Errorf("No ID is set")
 		}
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.ID).Do()
+			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}

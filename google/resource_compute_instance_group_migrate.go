@@ -24,6 +24,13 @@ func resourceComputeInstanceGroupMigrateState(
 		if err != nil {
 			return is, err
 		}
+		fallthrough
+	case 1:
+		log.Println("[INFO] Found Compute Instance Group State v1; migrating to v2")
+		is, err := migrateInstanceGroupStateV1toV2(is)
+		if err != nil {
+			return is, err
+		}
 		return is, nil
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
@@ -70,5 +77,13 @@ func migrateInstanceGroupStateV0toV1(is *terraform.InstanceState) (*terraform.In
 	}
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
+	return is, nil
+}
+
+func migrateInstanceGroupStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
+
+	is.ID = fmt.Sprintf("%s/%s", is.Attributes["zone"], is.Attributes["name"])
+
 	return is, nil
 }
