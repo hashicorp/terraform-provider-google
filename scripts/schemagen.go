@@ -87,7 +87,7 @@ func main() {
 
 	fmtd, err := format.Source(buf.Bytes())
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Formatting error: %s", err)
 	}
 
 	if _, err := f.Write(fmtd); err != nil {
