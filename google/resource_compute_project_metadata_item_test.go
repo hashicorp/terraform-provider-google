@@ -4,20 +4,24 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
+	// Key must be unique to avoid concurrent tests interfering with each other
+	key := "myKey" + acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic("myKey", "myValue"),
+				Config: testAccProjectMetadataItem_basic(key, "myValue"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectMetadataItem_hasMetadata("myKey", "myValue"),
+					testAccCheckProjectMetadataItem_hasMetadata(key, "myValue"),
 				),
 			},
 		},
@@ -25,15 +29,18 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
+	// Key must be unique to avoid concurrent tests interfering with each other
+	key := "myKey" + acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic("myKey", ""),
+				Config: testAccProjectMetadataItem_basic(key, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectMetadataItem_hasMetadata("myKey", ""),
+					testAccCheckProjectMetadataItem_hasMetadata(key, ""),
 				),
 			},
 		},
@@ -41,21 +48,24 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
+	// Key must be unique to avoid concurrent tests interfering with each other
+	key := "myKey" + acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic("myKey", "myValue"),
+				Config: testAccProjectMetadataItem_basic(key, "myValue"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectMetadataItem_hasMetadata("myKey", "myValue"),
+					testAccCheckProjectMetadataItem_hasMetadata(key, "myValue"),
 				),
 			},
 			{
-				Config: testAccProjectMetadataItem_basic("myKey", "myUpdatedValue"),
+				Config: testAccProjectMetadataItem_basic(key, "myUpdatedValue"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectMetadataItem_hasMetadata("myKey", "myUpdatedValue"),
+					testAccCheckProjectMetadataItem_hasMetadata(key, "myUpdatedValue"),
 				),
 			},
 		},
