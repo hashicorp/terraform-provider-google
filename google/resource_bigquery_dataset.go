@@ -238,6 +238,12 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("dataset_id", res.DatasetReference.DatasetId)
 	d.Set("default_table_expiration_ms", res.DefaultTableExpirationMs)
 
+	// Older Tables in BigQuery have no Location set in the API response. We can safely assume that these tables
+	// are in the US.
+	if res.Location == "" {
+		d.Set("location", "US")
+	}
+
 	return nil
 }
 
@@ -274,3 +280,18 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	d.SetId("")
 	return nil
 }
+
+//
+//func resourceBigQueryDatasetImport(d *schema.ResourceData, m interface{}) ([]*ResourceData, error) {
+//	x := schema.ImportStatePassthrough(d, m)
+//
+//	//
+//	//
+//	//	// HACK(jmcgill)
+//	//
+//	//	return []*ResourceData{d}, nil
+//	//}
+//	//	test := &schema.ResourceImporter{
+//	//                        State: schema.ImportStatePassthrough,
+//	//                },
+//}
