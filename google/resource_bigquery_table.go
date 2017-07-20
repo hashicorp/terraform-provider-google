@@ -92,6 +92,23 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// View: [Experimental] If specified, configures this table as a view.
+			"view": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Type: [Required] The only type supported is DAY, which will generate
+						// one partition per day based on data loading time.
+						"query": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			// TimePartitioning: [Experimental] If specified, configures time-based
 			// partitioning for this table.
 			"time_partitioning": &schema.Schema{
@@ -202,12 +219,17 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		},
 	}
 
+	// TODO(jmcgill): How do I do nested objects in a terraform configuration.
+	if v, ok := d.GetOk("view"); ok {
+		table.View = expandView(v)
+	}
+
 	if v, ok := d.GetOk("description"); ok {
 		table.Description = v.(string)
 	}
 
 	if v, ok := d.GetOk("expiration_time"); ok {
-		table.ExpirationTime = v.(int64)
+		table.ExpirationTime = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk("friendly_name"); ok {
@@ -317,6 +339,11 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("schema", schema)
 	}
 
+	if res.View != nil {
+		view := flattenView(res.View)
+		d.Set("view", view)
+	}
+
 	return nil
 }
 
@@ -392,5 +419,17 @@ func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interfa
 		result["expiration_ms"] = tp.ExpirationMs
 	}
 
+	return []map[string]interface{}{result}
+}
+
+func expandView(configured interface{}) *bigquery.ViewDefinition {
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	vd := &bigquery.ViewDefinition{Query: raw["query"].(string)}
+
+	return vd
+}
+
+func flattenView(v *bigquery.ViewDefinition) []map[string]interface{} {
+	result := map[string]interface{}{"query": v.Query}
 	return []map[string]interface{}{result}
 }
