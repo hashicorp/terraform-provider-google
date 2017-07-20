@@ -8,10 +8,7 @@ description: |-
 
 # google\_compute\_project\_metadata
 
-Manages metadata common to all instances for a project in GCE. If you
-want to manage only single key/value pairs within the project metadata
-rather than the entire set, then use
-[google_compute_project_metadata_item](compute_project_metadata_item.html).
+Manages metadata common to all instances for a project in GCE.
 
 ## Example Usage
 

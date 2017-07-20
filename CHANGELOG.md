@@ -9,7 +9,6 @@ FEATURES:
 
 * **New Resource:** `google_bigtable_instance` [GH-177]
 * **New Resource:** `google_bigtable_table` [GH-177]
-* **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 
 IMPROVEMENTS:
 
