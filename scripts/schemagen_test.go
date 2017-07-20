@@ -168,3 +168,22 @@ func TestGenerateFields_nestedList(t *testing.T) {
 		t.Fatalf("Expected: %+v\n\nGiven: %+v\n", expected, generated)
 	}
 }
+
+func TestUnderscore(t *testing.T) {
+	testCases := map[string]string{
+		"camelCase":           "camel_case",
+		"CamelCase":           "camel_case",
+		"HTTPResponseCode":    "http_response_code",
+		"HTTPResponseCodeXYZ": "http_response_code_xyz",
+		"getHTTPResponseCode": "get_http_response_code",
+		"ISCSI":               "iscsi",
+		"externalIPs":         "external_ips",
+	}
+
+	for from, to := range testCases {
+		converted := underscore(from)
+		if converted != to {
+			t.Fatalf("Expected %q after conversion, given: %q", to, converted)
+		}
+	}
+}

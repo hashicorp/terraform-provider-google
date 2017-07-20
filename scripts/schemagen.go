@@ -21,9 +21,9 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"go/format"
 	"log"
 	"os"
-	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
@@ -42,6 +42,7 @@ func main() {
 	flag.Parse()
 
 	if *api == "" || *resource == "" {
+		flag.PrintDefaults()
 		log.Fatal("usage: go run schemagen.go -api $API -resource $RESOURCE -version $VERSION")
 	}
 
@@ -70,7 +71,8 @@ func main() {
 
 	fields := generateFields(resp.Schemas, *resource)
 
-	err = googleTemplate.Execute(f, struct {
+	buf := &bytes.Buffer{}
+	err = googleTemplate.Execute(buf, struct {
 		TypeName string
 		Fields   map[string]string
 	}{
@@ -83,17 +85,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = exec.Command("gofmt", "-w", fileName).Run()
+	fmtd, err := format.Source(buf.Bytes())
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := f.Write(fmtd); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func generateFields(schemas map[string]discovery.JsonSchema, property string) map[string]string {
+func generateFields(jsonSchemas map[string]discovery.JsonSchema, property string) map[string]string {
 	fields := make(map[string]string, 0)
 
-	for k, v := range schemas[property].Properties {
-		content, err := generateField(schemas, k, v, false)
+	for k, v := range jsonSchemas[property].Properties {
+		content, err := generateField(jsonSchemas, k, v, false)
 		if err != nil {
 			log.Printf("ERROR: %s", err)
 		} else {
@@ -104,7 +110,7 @@ func generateFields(schemas map[string]discovery.JsonSchema, property string) ma
 	return fields
 }
 
-func generateField(schemas map[string]discovery.JsonSchema, field string, v discovery.JsonSchema, isNested bool) (string, error) {
+func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v discovery.JsonSchema, isNested bool) (string, error) {
 	s := &schema.Schema{
 		Description: v.Description,
 	}
@@ -124,7 +130,7 @@ func generateField(schemas map[string]discovery.JsonSchema, field string, v disc
 		s.Type = schema.TypeBool
 	case "array":
 		s.Type = schema.TypeList
-		elem, err := generateField(schemas, "", *v.Items, true)
+		elem, err := generateField(jsonSchemas, "", *v.Items, true)
 		if err != nil {
 			return "", fmt.Errorf("Unable to generate Elem for %q: %s", field, err)
 		}
@@ -136,7 +142,7 @@ func generateField(schemas map[string]discovery.JsonSchema, field string, v disc
 		s.MaxItems = 1
 
 		elem := "&schema.Resource{\nSchema: map[string]*schema.Schema{\n"
-		m := generateFields(schemas, v.Ref)
+		m := generateFields(jsonSchemas, v.Ref)
 		fieldNames := []string{}
 		for k, _ := range m {
 			fieldNames = append(fieldNames, k)
@@ -188,21 +194,19 @@ func schemaCode(s *schema.Schema, isNested bool) (string, error) {
 	return buf.String(), nil
 }
 
-// shamelessly borrowed from https://github.com/radeksimko/terraform-gen/blob/master/internal/util/util.go
+// go version of https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case,
+// with some extra logic around ending in 's' to handle the "externalIPs" case.
 func underscore(name string) string {
-	var words []string
-	var camelCase = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
-
-	for _, submatch := range camelCase.FindAllStringSubmatch(name, -1) {
-		if submatch[1] != "" {
-			words = append(words, submatch[1])
-		}
-		if submatch[2] != "" {
-			words = append(words, submatch[2])
-		}
+	endsInS := strings.HasSuffix(name, "s")
+	if endsInS {
+		name = strings.TrimSuffix(name, "s")
 	}
-
-	return strings.ToLower(strings.Join(words, "_"))
+	firstCap := regexp.MustCompile("(.)([A-Z][a-z]+)").ReplaceAllString(name, "${1}_${2}")
+	allCap := regexp.MustCompile("([a-z0-9])([A-Z])").ReplaceAllString(firstCap, "${1}_${2}")
+	if endsInS {
+		allCap = allCap + "s"
+	}
+	return strings.ToLower(allCap)
 }
 
 var schemaTemplate = template.Must(template.New("schema").Parse(`{{if .IsNested}}&schema.Schema{{end}}{{"{"}}{{if not .IsNested}}
