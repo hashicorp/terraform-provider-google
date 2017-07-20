@@ -3,14 +3,12 @@ package google
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"google.golang.org/api/compute/v1"
 )
 
 const FINGERPRINT_RETRIES = 10
-
-var FINGERPRINT_FAIL_ERRORS = []string{"Invalid fingerprint.", "Supplied fingerprint does not match current metadata fingerprint."}
+const FINGERPRINT_FAIL = "Invalid fingerprint."
 
 // Since the google compute API uses optimistic locking, there is a chance
 // we need to resubmit our updated metadata. To do this, you need to provide
@@ -19,25 +17,11 @@ func MetadataRetryWrapper(update func() error) error {
 	attempt := 0
 	for attempt < FINGERPRINT_RETRIES {
 		err := update()
-		if err == nil {
-			return nil
-		}
-
-		// Check to see if the error matches any of our fingerprint-related failure messages
-		var fingerprintError bool
-		for _, msg := range FINGERPRINT_FAIL_ERRORS {
-			if strings.Contains(err.Error(), msg) {
-				fingerprintError = true
-				break
-			}
-		}
-
-		if !fingerprintError {
-			// Something else went wrong, don't retry
+		if err != nil && err.Error() == FINGERPRINT_FAIL {
+			attempt++
+		} else {
 			return err
 		}
-
-		attempt++
 	}
 
 	return fmt.Errorf("Failed to update metadata after %d retries", attempt)
