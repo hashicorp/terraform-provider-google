@@ -1,37 +1,37 @@
-## 0.1.2 (Unreleased)
+## 0.1.2 (July 20, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 
-* `google_sql_database_instance`: a limited number of fields will be read during import because of [GH-114]
+* `google_sql_database_instance`: a limited number of fields will be read during import because of ([#114](https://github.com/terraform-providers/terraform-provider-google/issues/114))
 * `google_sql_database_instance`: `name`, `region`, `database_version`, and `master_instance_name` fields are now updated during a refresh and may display diffs
 
 FEATURES:
 
-* **New Resource:** `google_bigtable_instance` [GH-177]
-* **New Resource:** `google_bigtable_table` [GH-177]
+* **New Resource:** `google_bigtable_instance` ([#177](https://github.com/terraform-providers/terraform-provider-google/issues/177))
+* **New Resource:** `google_bigtable_table` ([#177](https://github.com/terraform-providers/terraform-provider-google/issues/177))
 
 IMPROVEMENTS:
 
-* compute: Add `boot_disk` property to `google_compute_instance` [GH-122]
-* compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` [GH-123]
-* compute: Add `labels` property to `google_compute_instance` [GH-150]
-* compute: Add import support for `google_compute_image` [GH-194]
-* compute: Add import support for `google_compute_https_health_check` [GH-213]
-* compute: Add import support for `google_compute_instance_group` [GH-201]
+* compute: Add `boot_disk` property to `google_compute_instance` ([#122](https://github.com/terraform-providers/terraform-provider-google/issues/122))
+* compute: Add `scratch_disk` property to `google_compute_instance` and deprecate `disk` ([#123](https://github.com/terraform-providers/terraform-provider-google/issues/123))
+* compute: Add `labels` property to `google_compute_instance` ([#150](https://github.com/terraform-providers/terraform-provider-google/issues/150))
+* compute: Add import support for `google_compute_image` ([#194](https://github.com/terraform-providers/terraform-provider-google/issues/194))
+* compute: Add import support for `google_compute_https_health_check` ([#213](https://github.com/terraform-providers/terraform-provider-google/issues/213))
+* compute: Add import support for `google_compute_instance_group` ([#201](https://github.com/terraform-providers/terraform-provider-google/issues/201))
 * container: Add timeout support ([#13203](https://github.com/hashicorp/terraform/issues/13203))
-* container: Allow adding/removing zones to/from GKE clusters without recreating them [GH-152]
-* project: Allow unlinking of billing account [GH-138]
-* sql: Add support for importing `google_sql_database` [GH-12]
-* sql: Add support for importing `google_sql_database_instance` [GH-11]
-* sql: Add `charset` and `collation` properties to `google_sql_database` [GH-183]
+* container: Allow adding/removing zones to/from GKE clusters without recreating them ([#152](https://github.com/terraform-providers/terraform-provider-google/issues/152))
+* project: Allow unlinking of billing account ([#138](https://github.com/terraform-providers/terraform-provider-google/issues/138))
+* sql: Add support for importing `google_sql_database` ([#12](https://github.com/terraform-providers/terraform-provider-google/issues/12))
+* sql: Add support for importing `google_sql_database_instance` ([#11](https://github.com/terraform-providers/terraform-provider-google/issues/11))
+* sql: Add `charset` and `collation` properties to `google_sql_database` ([#183](https://github.com/terraform-providers/terraform-provider-google/issues/183))
 
 BUG FIXES:
 
-* compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set [GH-147]
-* compute: Fix read method + test/document import for `google_compute_health_check` [GH-155]
-* compute: Read named ports changes properly in `google_compute_instance_group` [GH-188]
-* compute: `google_compute_image` `description` property can now be set [GH-199] 
-* compute: `google_compute_target_https_proxy` will no longer display a diff if ssl certificates are referenced using only the path [GH-210]
+* compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set ([#147](https://github.com/terraform-providers/terraform-provider-google/issues/147))
+* compute: Fix read method + test/document import for `google_compute_health_check` ([#155](https://github.com/terraform-providers/terraform-provider-google/issues/155))
+* compute: Read named ports changes properly in `google_compute_instance_group` ([#188](https://github.com/terraform-providers/terraform-provider-google/issues/188))
+* compute: `google_compute_image` `description` property can now be set [[#199](https://github.com/terraform-providers/terraform-provider-google/issues/199)] 
+* compute: `google_compute_target_https_proxy` will no longer display a diff if ssl certificates are referenced using only the path ([#210](https://github.com/terraform-providers/terraform-provider-google/issues/210))
 
 ## 0.1.1 (June 21, 2017)
 
