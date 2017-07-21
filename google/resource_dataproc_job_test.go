@@ -35,7 +35,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 			{
 				Config: testAccDataprocJob_pySpark(rnd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocJob(
+					testAccCheckDataprocJobAttrMatch(
 						"google_dataproc_job.pyspark", "pyspark_config"),
 				),
 			},
@@ -53,7 +53,7 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 			{
 				Config: testAccDataprocJob_spark(rnd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocJob(
+					testAccCheckDataprocJobAttrMatch(
 						"google_dataproc_job.spark", "spark_config"),
 				),
 			},
@@ -91,7 +91,7 @@ func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckDataprocJob(n, jobType string) resource.TestCheckFunc {
+func testAccCheckDataprocJobAttrMatch(n, jobType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
 		if err != nil {
@@ -120,14 +120,16 @@ func testAccCheckDataprocJob(n, jobType string) resource.TestCheckFunc {
 		if jobType == "pyspark_config" {
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.main_python_file", job.PysparkJob.MainPythonFileUri})
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.additional_python_files", job.PysparkJob.PythonFileUris})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.jar_files", job.PysparkJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.jars", job.PysparkJob.JarFileUris})
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.args", job.PysparkJob.Args})
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.properties", job.PysparkJob.Properties})
 		}
 		if jobType == "spark_config" {
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_class", job.SparkJob.MainClass})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_jar", job.SparkJob.MainJarFileUri})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.jar_files", job.SparkJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"spark_config.0.jars", job.SparkJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"spark_config.0.files", job.SparkJob.FileUris})
+			clusterTests = append(clusterTests, jobTestField{"spark_config.0.archives", job.SparkJob.ArchiveUris})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.args", job.SparkJob.Args})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.properties", job.SparkJob.Properties})
 		}
@@ -156,7 +158,14 @@ resource "google_dataproc_cluster" "basic" {
 	name = "dproc-job-test-%s-url"
 	zone = "us-central1-a"
 
+    # Keep the costs down with smallest config we can get away with
+	master_config {
+	    num_masters       = 1
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+	}
 	worker_config {
+	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -179,7 +188,14 @@ resource "google_dataproc_cluster" "basic" {
 	name = "dproc-job-test-%s-url"
 	zone = "us-central1-a"
 
+    # Keep the costs down with smallest config we can get away with
+	master_config {
+	    num_masters       = 1
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+	}
 	worker_config {
+	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -191,9 +207,13 @@ resource "google_dataproc_job" "spark" {
 
     spark_config {
         main_class = "org.apache.spark.examples.SparkPi"
-        jar_files  = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+        jars       = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
         args       = ["1000"]
     }
+}
+
+output "spark_status" {
+    value = "${google_dataproc_job.spark.status}"
 }
 `, rnd)
 }

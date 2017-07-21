@@ -8,6 +8,8 @@ import (
 	"google.golang.org/api/dataproc/v1"
 
 	"errors"
+	"github.com/hashicorp/terraform/helper/resource"
+	"google.golang.org/api/googleapi"
 	"log"
 	"regexp"
 	"sort"
@@ -33,10 +35,9 @@ func resourceDataprocCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Description: "The name of this cluster",
-				Required:    true,
-				ForceNew:    true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 
@@ -59,20 +60,23 @@ func resourceDataprocCluster() *schema.Resource {
 					return
 				},
 			},
+			"staging_bucket": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"bucket": {
-				Type:        schema.TypeString,
-				Description: "The Google Cloud Storage bucket to use with the Google Cloud Storage connector",
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 			},
 
 			"image_version": {
-				Type:        schema.TypeString,
-				Description: "The image version to use for the cluster",
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 
 			"network": {
@@ -283,6 +287,24 @@ func resourceDataprocCluster() *schema.Resource {
 				ForceNew: true,
 				Elem:     schema.TypeString,
 			},
+
+			"master_instance_names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"worker_instance_names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"preemptible_instance_names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -375,7 +397,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		clusterConfig.InitializationActions = actions
 	}
 
-	if v, ok := d.GetOk("bucket"); ok {
+	if v, ok := d.GetOk("staging_bucket"); ok {
 		clusterConfig.ConfigBucket = v.(string)
 	}
 
@@ -648,6 +670,10 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("image_version", cluster.Config.SoftwareConfig.ImageVersion)
 	}
 
+	d.Set("master_instance_names", []string{})
+	d.Set("worker_instance_names", []string{})
+	d.Set("preemptible_instance_names", []string{})
+
 	if cluster.Config.MasterConfig != nil {
 		masterConfig := []map[string]interface{}{
 			{
@@ -657,6 +683,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 				"num_local_ssds":    cluster.Config.MasterConfig.DiskConfig.NumLocalSsds,
 			},
 		}
+		d.Set("master_instance_names", cluster.Config.WorkerConfig.InstanceNames)
 		d.Set("master_config", masterConfig)
 	}
 
@@ -669,9 +696,12 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 				"num_local_ssds":    cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds,
 			},
 		}
+		d.Set("worker_instance_names", cluster.Config.WorkerConfig.InstanceNames)
+
 		if cluster.Config.SecondaryWorkerConfig != nil {
 			workerConfig[0]["preemptible_num_workers"] = cluster.Config.SecondaryWorkerConfig.NumInstances
 			workerConfig[0]["preemptible_boot_disk_size_gb"] = cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb
+			d.Set("preemptible_instance_names", cluster.Config.SecondaryWorkerConfig.InstanceNames)
 		}
 
 		d.Set("worker_config", workerConfig)
@@ -707,6 +737,11 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
+	err = deleteAutogenBucketIfExists(d, meta)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
 	op, err := config.clientDataproc.Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
@@ -723,6 +758,66 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[INFO] Dataproc cluster %s has been deleted", d.Id())
 
 	d.SetId("")
+
+	return nil
+}
+
+func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	// Determine if the user specified a specific override staging bucket, if so
+	// let it be ...  however if the system created it for them, we auto delete it
+	// as this will be dangling around otherwise
+
+	v, specified := d.GetOk("staging_bucket")
+	if specified {
+		log.Printf("[DEBUG] staging bucket %s (for dataproc cluster) has explicitly been set, leaving it...", v)
+		return nil
+	}
+	bucket := d.Get("bucket").(string)
+
+	log.Printf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) ...", bucket)
+
+	for {
+		res, err := config.clientStorage.Objects.List(bucket).Do()
+		if err != nil {
+			log.Fatalf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) if exists. Error Objects.List failed: %v", bucket, err)
+			return err
+		}
+
+		if len(res.Items) != 0 {
+			// purge the bucket...
+			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. \n\n")
+
+			for _, object := range res.Items {
+				log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. Found %s", object.Name)
+				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Do(); err != nil {
+					log.Fatalf("[ERROR] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
+				} else {
+					log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
+				}
+			}
+		} else {
+			break // 0 items, bucket empty
+		}
+	}
+
+	// remove empty bucket
+	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
+		err := config.clientStorage.Buckets.Delete(bucket).Do()
+		if err == nil {
+			return nil
+		}
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
+			return resource.RetryableError(gerr)
+		}
+		return resource.NonRetryableError(err)
+	})
+	if err != nil {
+		fmt.Printf("[ERROR] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error deleting bucket %s: %v\n\n", bucket, err)
+		return err
+	}
+	log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Deleted bucket %v\n\n", bucket)
 
 	return nil
 }

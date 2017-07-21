@@ -18,12 +18,17 @@ func resourceDataprocJob() *schema.Resource {
 		Delete: resourceDataprocJobDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
+
+			"cluster": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 
 			"region": {
 				Type:     schema.TypeString,
@@ -39,12 +44,6 @@ func resourceDataprocJob() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"cluster": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -52,8 +51,22 @@ func resourceDataprocJob() *schema.Resource {
 				Elem:     schema.TypeString,
 			},
 
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"pyspark_config": pySparkTFSchema(),
 			"spark_config":   sparkTFSchema(),
+
+			// ..... Still TODO .....
+			/*
+				"hadoop":
+				"hive":
+				"pig":
+				"spark-sql":
+			*/
 		},
 	}
 }
@@ -142,6 +155,7 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("labels", job.Labels)
 	d.Set("cluster", job.Placement.ClusterName)
+	d.Set("status", job.Status.State)
 
 	if job.PysparkJob != nil {
 		pySparkConfig := getTfPySparkConfig(job.PysparkJob)
@@ -337,7 +351,25 @@ func sparkTFSchema() *schema.Schema {
 					ConflictsWith: []string{"spark_config.main_class"},
 				},
 
-				"jar_files": {
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
 					Type:     schema.TypeList,
 					Optional: true,
 					ForceNew: true,
@@ -371,7 +403,9 @@ func getTfSparkConfig(job *dataproc.SparkJob) []map[string]interface{} {
 		{
 			"main_class": job.MainClass,
 			"main_jar":   job.MainJarFileUri,
-			"jar_files":  job.JarFileUris,
+			"jars":       job.JarFileUris,
+			"files":      job.FileUris,
+			"archives":   job.ArchiveUris,
 			"args":       job.Args,
 			"properties": job.Properties,
 		},
@@ -387,13 +421,29 @@ func getSparkJob(config map[string]interface{}) *dataproc.SparkJob {
 	if v, ok := config["main_jar"]; ok {
 		job.MainJarFileUri = v.(string)
 	}
-	if v, ok := config["jar_files"]; ok {
+	if v, ok := config["files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.FileUris = arr
+	}
+	if v, ok := config["jars"]; ok {
 		arrList := v.([]interface{})
 		arr := []string{}
 		for _, v := range arrList {
 			arr = append(arr, v.(string))
 		}
 		job.JarFileUris = arr
+	}
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
 	}
 	if v, ok := config["args"]; ok {
 		arrList := v.([]interface{})
