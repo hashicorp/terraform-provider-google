@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"google.golang.org/api/googleapi"
 	"regexp"
 )
 
@@ -17,21 +18,22 @@ func TestAccDataprocJob_failForMissingJobConfig(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataprocJob_missingJobConf,
-				ExpectError: regexp.MustCompile("At least one xxx_config block must be defined"),
+				Config:      testAccDataprocJob_missingJobConf(),
+				ExpectError: regexp.MustCompile("You must define and configure exactly one xxx_config block"),
 			},
 		},
 	})
 }
 
 func TestAccDataprocJob_PySpark(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_pySpark,
+				Config: testAccDataprocJob_pySpark(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJob(
 						"google_dataproc_job.pyspark", "pyspark_config"),
@@ -42,13 +44,14 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 }
 
 func TestAccDataprocJob_Spark(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_spark,
+				Config: testAccDataprocJob_spark(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJob(
 						"google_dataproc_job.spark", "spark_config"),
@@ -66,12 +69,23 @@ func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 			continue
 		}
 
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Unable to verify delete of dataproc job ID is empty")
+		}
 		attributes := rs.Primary.Attributes
+
 		_, err := config.clientDataproc.Projects.Regions.Jobs.Get(
 			config.Project, attributes["region"], rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Dataproc job still exists")
+
+		if err != nil {
+			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+				return nil
+			} else if ok {
+				return fmt.Errorf("Error make GCP platform call: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+			}
+			return fmt.Errorf("Error make GCP platform call: %s", err.Error())
 		}
+		return fmt.Errorf("Dataproc job still exists")
 	}
 
 	return nil
@@ -128,15 +142,18 @@ func testAccCheckDataprocJob(n, jobType string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDataprocJob_missingJobConf = `
+func testAccDataprocJob_missingJobConf() string {
+	return `
 resource "google_dataproc_job" "missing_config" {
     cluster      = "na"
     force_delete = true
 }`
+}
 
-var testAccDataprocJob_pySpark = fmt.Sprintf(`
+func testAccDataprocJob_pySpark(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-	name = "tf-acctest-cluster-test-%s"
+	name = "dproc-job-test-%s-url"
 	zone = "us-central1-a"
 
 	worker_config {
@@ -153,11 +170,13 @@ resource "google_dataproc_job" "pyspark" {
         main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
     }
 }
-`, acctest.RandString(10))
+`, rnd)
+}
 
-var testAccDataprocJob_spark = fmt.Sprintf(`
+func testAccDataprocJob_spark(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-	name = "tf-acctest-cluster-%s"
+	name = "dproc-job-test-%s-url"
 	zone = "us-central1-a"
 
 	worker_config {
@@ -176,4 +195,5 @@ resource "google_dataproc_job" "spark" {
         args       = ["1000"]
     }
 }
-`, acctest.RandString(10))
+`, rnd)
+}

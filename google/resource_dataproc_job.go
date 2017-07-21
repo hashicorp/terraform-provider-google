@@ -85,24 +85,24 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		submitReq.Job.Labels = m
 	}
 
-	jobConfDefined := false
+	jobConfCount := 0
 
 	if v, ok := d.GetOk("pyspark_config"); ok {
-		jobConfDefined = true
+		jobConfCount++
 		configs := v.([]interface{})
 		config := configs[0].(map[string]interface{})
 		submitReq.Job.PysparkJob = getPySparkJob(config)
 	}
 
 	if v, ok := d.GetOk("spark_config"); ok {
-		jobConfDefined = true
+		jobConfCount++
 		configs := v.([]interface{})
 		config := configs[0].(map[string]interface{})
 		submitReq.Job.SparkJob = getSparkJob(config)
 	}
 
-	if !jobConfDefined {
-		return errors.New("At least one xxx_config block must be defined")
+	if jobConfCount != 1 {
+		return errors.New("You must define and configure exactly one xxx_config block")
 	}
 
 	// Submit the job
@@ -164,16 +164,18 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 	region := d.Get("region").(string)
 	forceDelete := d.Get("force_delete").(bool)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	if forceDelete {
 		log.Printf("[DEBUG] Attempting to first cancel Dataproc job %s if its still running ...", d.Id())
 
 		_, _ = config.clientDataproc.Projects.Regions.Jobs.Cancel(
 			project, region, d.Id(), &dataproc.CancelJobRequest{}).Do()
-
-		// ignore error if we get one (Job may not need to be cancelled, simply proceed to delete)
+		// ignore error if we get one - job may be finished already and not need to
+		// be cancelled. We do however wait for the state to be one that is
+		// at least not active
 		waitErr := dataprocJobOperationWait(config, region, project, d.Id(),
-			"Cancelling Dataproc job", 2, 1)
+			"Cancelling Dataproc job", timeoutInMinutes, 1)
 		if waitErr != nil {
 			return waitErr
 		}
@@ -185,6 +187,12 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 		project, region, d.Id()).Do()
 	if err != nil {
 		return err
+	}
+
+	waitErr := dataprocDeleteOperationWait(config, region, project, d.Id(),
+		"Deleting Dataproc job", timeoutInMinutes, 1)
+	if waitErr != nil {
+		return waitErr
 	}
 
 	log.Printf("[INFO] Dataproc job %s has been deleted", d.Id())

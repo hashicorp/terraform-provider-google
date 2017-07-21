@@ -6,6 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/dataproc/v1"
+	"google.golang.org/api/googleapi"
+	"net/http"
 )
 
 type DataprocJobOperationWaiter struct {
@@ -13,6 +15,15 @@ type DataprocJobOperationWaiter struct {
 	Region    string
 	ProjectId string
 	JobId     string
+}
+
+func (w *DataprocJobOperationWaiter) ConfForDelete() *resource.StateChangeConf {
+
+	return &resource.StateChangeConf{
+		Pending: []string{"EXISTS"},
+		Target:  []string{"DELETED"},
+		Refresh: w.RefreshFuncForDelete(),
+	}
 }
 
 func (w *DataprocJobOperationWaiter) Conf() *resource.StateChangeConf {
@@ -39,9 +50,32 @@ func (w *DataprocJobOperationWaiter) Conf() *resource.StateChangeConf {
 	// only.
 
 	return &resource.StateChangeConf{
-		Pending: []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "STATE_UNSPECIFIED", "RUNNING"},
+		Pending: []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"},
 		Target:  []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"},
 		Refresh: w.RefreshFunc(),
+	}
+}
+
+func isNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	ae, ok := err.(*googleapi.Error)
+	return ok && ae.Code == http.StatusNotFound
+}
+
+func (w *DataprocJobOperationWaiter) RefreshFuncForDelete() resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		_, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
+
+		if err != nil {
+			if isNotFound(err) {
+				return "NA", "DELETED", nil
+			}
+			return nil, "", err
+		}
+
+		return "JOB", "EXISTS", err
 	}
 }
 
@@ -57,6 +91,25 @@ func (w *DataprocJobOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
+func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	w := &DataprocJobOperationWaiter{
+		Service:   config.clientDataproc,
+		Region:    region,
+		ProjectId: projectId,
+		JobId:     jobId,
+	}
+
+	state := w.ConfForDelete()
+	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
+	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
+	_, err := state.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+	}
+
+	return nil
+}
+
 func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
 	w := &DataprocJobOperationWaiter{
 		Service:   config.clientDataproc,
@@ -70,7 +123,7 @@ func dataprocJobOperationWait(config *Config, region, projectId, jobId string, a
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	_, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("Error waiting for operation %s: %s", activity, err)
 	}
 
 	return nil

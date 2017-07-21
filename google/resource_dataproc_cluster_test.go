@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/api/googleapi"
+	"os"
 	"strconv"
 )
 
@@ -24,14 +26,30 @@ func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
 	assert.Equal(t, "three", r)
 }
 
+func TestExtractInitTimeout(t *testing.T) {
+	i, _ := extractInitTimeout("500s")
+	assert.Equal(t, 500, i)
+}
+
+func TestExtractInitTimeout_badFormat(t *testing.T) {
+	_, err := extractInitTimeout("5m")
+	assert.EqualError(t, err, "Unexpected init timeout format expecting in seconds e.g. ZZZs, found : 5m")
+}
+
+func TestExtractInitTimeout_empty(t *testing.T) {
+	_, err := extractInitTimeout("")
+	assert.EqualError(t, err, "Cannot extract init timeout from empty string")
+}
+
 func TestAccDataprocCluster_basic(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_basic,
+				Config: testAccDataprocCluster_basic(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.basic"),
@@ -41,48 +59,15 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_withTimeout(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocCluster_withTimeout,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocCluster(
-						"google_dataproc_cluster.with_timeout"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataprocCluster_withMasterConfig(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocCluster_withMasterConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocCluster(
-						"google_dataproc_cluster.with_master_config"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccDataprocCluster_withBucketRef(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withBucket,
+				Config: testAccDataprocCluster_withBucket(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_bucket"),
@@ -93,16 +78,39 @@ func TestAccDataprocCluster_withBucketRef(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withInitAction(t *testing.T) {
+	rnd := acctest.RandString(10)
+	bucketName := fmt.Sprintf("dproc-cluster-test-%s-init-bucket", rnd)
+	objectName := "msg.txt"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withInitAction(acctest.RandString(10)),
+				Config: testAccDataprocCluster_withInitAction(rnd, bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_init_action"),
+					testInitActionSucceeded(
+						bucketName, objectName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withMasterConfig(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withMasterConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocCluster(
+						"google_dataproc_cluster.with_master_config"),
 				),
 			},
 		},
@@ -110,13 +118,14 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withWorkerConfig,
+				Config: testAccDataprocCluster_withWorkerConfig(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_worker_config"),
@@ -128,14 +137,15 @@ func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
 
 func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 
-	saEmail := "TODO-compute@developer.gserviceaccount.com"
+	saEmail := os.Getenv("GOOGLE_SERVICE_ACCOUNT")
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithServiceAccount(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withServiceAcc(saEmail),
+				Config: testAccDataprocCluster_withServiceAcc(saEmail, rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_service_account"),
@@ -146,13 +156,14 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withImageVersion(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withImageVersion,
+				Config: testAccDataprocCluster_withImageVersion(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_image_version"),
@@ -163,13 +174,14 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 }
 
 func TestAccDataprocCluster_network(t *testing.T) {
+	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_networkRef,
+				Config: testAccDataprocCluster_networkRef(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocCluster(
 						"google_dataproc_cluster.with_net_ref_by_url"),
@@ -189,12 +201,24 @@ func testAccCheckDataprocClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		attributes := rs.Primary.Attributes
-		_, err := config.clientDataproc.Projects.Regions.Clusters.Get(
-			config.Project, attributes["region"], attributes["name"]).Do()
-		if err == nil {
-			return fmt.Errorf("Cluster still exists")
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Unable to verify delete of dataproc cluster, ID is empty")
 		}
+		attributes := rs.Primary.Attributes
+
+		_, err := config.clientDataproc.Projects.Regions.Clusters.Get(
+			config.Project, attributes["region"], rs.Primary.ID).Do()
+
+		if err != nil {
+			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+				return nil
+			} else if ok {
+				return fmt.Errorf("Error make GCP platform call to verify dataproc cluster deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+			}
+			return fmt.Errorf("Error make GCP platform call to verify dataproc cluster deleted: %s", err.Error())
+		}
+		return fmt.Errorf("Dataproc cluster still exists")
+
 	}
 
 	return nil
@@ -253,19 +277,16 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 			for _, v := range cluster.Config.InitializationActions {
 				actions = append(actions, v.ExecutableFile)
 
-				if !extracted {
-					tsec := v.ExecutionTimeout[:len(v.ExecutionTimeout)-2]
-					tsecI, err := strconv.Atoi(tsec)
+				if !extracted && len(v.ExecutionTimeout) > 0 {
+					tsec, err := extractInitTimeout(v.ExecutionTimeout)
 					if err != nil {
 						return err
 					}
-					clusterTests = append(clusterTests, clusterTestField{"initialization_action_timeout_sec", tsecI})
+					clusterTests = append(clusterTests, clusterTestField{"initialization_action_timeout_sec", strconv.Itoa(tsec)})
 					extracted = true
 				}
 			}
 			clusterTests = append(clusterTests, clusterTestField{"initialization_actions", actions})
-		} else {
-			clusterTests = append(clusterTests, clusterTestField{"initialization_actions", []string{}})
 		}
 
 		if cluster.Config.SecondaryWorkerConfig != nil {
@@ -298,27 +319,33 @@ func testAccCheckDataprocCluster(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDataprocCluster_basic = fmt.Sprintf(`
-resource "google_dataproc_cluster" "basic" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-}`, acctest.RandString(10))
+func testInitActionSucceeded(bucket, object string) resource.TestCheckFunc {
 
-var testAccDataprocCluster_withTimeout = fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_timeout" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
+	// The init script will have created an object in the specified bucket.
+	// Ensure it exists
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		_, err := config.clientStorage.Objects.Get(bucket, object).Do()
+		if err != nil {
+			return fmt.Errorf("Unable to verify init action success: Error reading object %s in bucket %s: %v", object, bucket, err)
+		}
 
-	timeouts {
-		create = "30m"
-		delete = "30m"
-		update = "30m"
+		return nil
 	}
-}`, acctest.RandString(10))
+}
 
-var testAccDataprocCluster_withMasterConfig = fmt.Sprintf(`
+func testAccDataprocCluster_basic(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name = "dproc-cluster-test-%s"
+	zone = "us-central1-a"
+}`, rnd)
+}
+
+func testAccDataprocCluster_withMasterConfig(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_master_config" {
-	name = "cluster-test-%s"
+	name = "dproc-cluster-test-%s"
 	zone = "us-central1-f"
 
 	master_config {
@@ -327,23 +354,25 @@ resource "google_dataproc_cluster" "with_master_config" {
 		boot_disk_size_gb = 10
 		num_local_ssds    = 1
 	}
-}`, acctest.RandString(10))
+}`, rnd)
+}
 
-func testAccDataprocCluster_withInitAction(rnd string) string {
+func testAccDataprocCluster_withInitAction(rnd, bucket, objName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "init_bucket" {
-    name          = "tf-dataproc-acctest-%s"
+    name          = "%s"
     force_destroy = "true"
 }
 
 resource "google_storage_bucket_object" "init_script" {
-  name    = "tf-acctest-init-script-%s.sh"
+  name    = "dproc-cluster-test-%s-init-script.sh"
   bucket  = "${google_storage_bucket.init_bucket.name}"
   content = <<EOL
 #!/bin/bash
 ROLE=$$(/usr/share/google/get_metadata_value attributes/dataproc-role)
 if [[ "$${ROLE}" == 'Master' ]]; then
-  echo "on the master" >> /tmp/msg.txt
+  echo "on the master" >> /tmp/%s
+  gsutil cp /tmp/%s ${google_storage_bucket.init_bucket.url}
 else
   echo "on the worker" >> /tmp/msg.txt
 fi
@@ -352,7 +381,7 @@ EOL
 }
 
 resource "google_dataproc_cluster" "with_init_action" {
-	name   = "cluster-test-%s"
+	name   = "dproc-cluster-test-%s"
 	zone   = "us-central1-f"
 	initialization_action_timeout_sec = 500
 	initialization_actions = [
@@ -363,17 +392,18 @@ resource "google_dataproc_cluster" "with_init_action" {
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
-}`, rnd, rnd, rnd)
+}`, bucket, rnd, objName, objName, rnd)
 }
 
-var testAccDataprocCluster_withBucket = fmt.Sprintf(`
+func testAccDataprocCluster_withBucket(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-    name          = "tf-dataproc-bucket-%s"
+    name          = "dproc-cluster-test-%s-bucket"
     force_destroy = "true"
 }
 
 resource "google_dataproc_cluster" "with_bucket" {
-	name   = "cluster-test-%s"
+	name   = "dproc-cluster-test-%s"
 	zone   = "us-central1-f"
 	bucket = "${google_storage_bucket.bucket.name}"
 
@@ -381,11 +411,13 @@ resource "google_dataproc_cluster" "with_bucket" {
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, rnd, rnd)
+}
 
-var testAccDataprocCluster_withWorkerConfig = fmt.Sprintf(`
+func testAccDataprocCluster_withWorkerConfig(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_worker_config" {
-	name = "cluster-test-%s"
+	name = "dproc-cluster-test-%s"
 	zone = "us-central1-f"
 
 	worker_config {
@@ -397,19 +429,22 @@ resource "google_dataproc_cluster" "with_worker_config" {
 		preemptible_num_workers = 1
 		preemptible_boot_disk_size_gb = 10
 	}
-}`, acctest.RandString(10))
+}`, rnd)
+}
 
-var testAccDataprocCluster_withImageVersion = fmt.Sprintf(`
+func testAccDataprocCluster_withImageVersion(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
-	name = "cluster-test-%s"
+	name = "dproc-cluster-test-%s"
 	zone = "us-central1-f"
 	image_version = "1.0.44"
-}`, acctest.RandString(10))
+}`, rnd)
+}
 
-func testAccDataprocCluster_withServiceAcc(saEmail string) string {
+func testAccDataprocCluster_withServiceAcc(saEmail string, rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_service_account" {
-	name = "cluster-test-%s"
+	name = "dproc-cluster-test-%s"
 	zone = "us-central1-f"
 
     master_config {
@@ -432,7 +467,7 @@ resource "google_dataproc_cluster" "with_service_account" {
 
 	    # Additional ones specifically desired by user (Note for now must be in alpha order
 	    # of fully qualified scope name)
-	    "monitoring"
+	    "https://www.googleapis.com/auth/monitoring"
 
 	]
 
@@ -440,18 +475,25 @@ resource "google_dataproc_cluster" "with_service_account" {
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
-}`, acctest.RandString(10), saEmail)
+}`, rnd, saEmail)
 }
 
-var rndDPName = acctest.RandString(10)
-var testAccDataprocCluster_networkRef = fmt.Sprintf(`
+func testAccDataprocCluster_networkRef(rnd string) string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "dataproc_network" {
-	name = "dataproc-net-%s"
+	name = "dproc-cluster-test-%s-net"
 	auto_create_subnetworks = true
 }
 
+#resource "google_compute_subnetwork" "default-us-central1" {
+#  name          = "us-central1"
+#  ip_cidr_range = "10.0.0.0/16"
+#  network       = "${google_compute_network.dataproc_network.self_link}"
+#  region        = "us-central1"
+#}
+
 resource "google_compute_firewall" "dataproc_network_firewall" {
-	name = "dataproc-net-%s-allow-internal"
+	name = "dproc-cluster-test-%s-allow-internal"
 	description = "Firewall rules for dataproc Terraform acceptance testing"
 	network = "${google_compute_network.dataproc_network.name}"
 
@@ -471,7 +513,7 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_name" {
-	name = "cluster-test-%s-name"
+	name = "dproc-cluster-test-%s-name"
 	zone = "us-central1-a"
 	depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
@@ -490,7 +532,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_url" {
-	name = "cluster-test-%s-url"
+	name = "dproc-cluster-test-%s-url"
 	zone = "us-central1-a"
     depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
@@ -508,4 +550,12 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 	network = "${google_compute_network.dataproc_network.self_link}"
 }
 
-`, rndDPName, rndDPName, rndDPName, rndDPName)
+`, rnd, rnd, rnd, rnd)
+}
+
+func testAccPreCheckWithServiceAccount(t *testing.T) {
+	testAccPreCheck(t)
+	if v := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); v == "" {
+		t.Fatal("GOOGLE_SERVICE_ACCOUNT must be set for acceptance tests (dataproc)")
+	}
+}

@@ -24,8 +24,8 @@ func resourceDataprocCluster() *schema.Resource {
 		Delete: resourceDataprocClusterDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
@@ -254,6 +254,9 @@ func resourceDataprocCluster() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+					StateFunc: func(v interface{}) string {
+						return canonicalizeServiceScope(v.(string))
+					},
 				},
 			},
 
@@ -609,17 +612,20 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", cluster.ClusterName)
 	d.Set("bucket", cluster.Config.ConfigBucket)
 
+	extracted := false
 	if len(cluster.Config.InitializationActions) > 0 {
 		actions := []string{}
 		for _, v := range cluster.Config.InitializationActions {
 			actions = append(actions, v.ExecutableFile)
 
-			tsecS := v.ExecutionTimeout[:len(v.ExecutionTimeout)-1]
-			tsec, err := strconv.Atoi(tsecS)
-			if err != nil {
-				return err
+			if !extracted && len(v.ExecutionTimeout) > 0 {
+				tsec, err := extractInitTimeout(v.ExecutionTimeout)
+				if err != nil {
+					return err
+				}
+				d.Set("initialization_action_timeout_sec", tsec)
+				extracted = true
 			}
-			d.Set("initialization_action_timeout_sec", tsec)
 		}
 		d.Set("initialization_actions", actions)
 	}
@@ -672,6 +678,21 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	return nil
+}
+
+func extractInitTimeout(t string) (int, error) {
+	if t == "" {
+		return 0, fmt.Errorf("Cannot extract init timeout from empty string")
+	}
+	if t[len(t)-1:] != "s" {
+		return 0, fmt.Errorf("Unexpected init timeout format expecting in seconds e.g. ZZZs, found : %s", t)
+	}
+
+	tsec, err := strconv.Atoi(t[:len(t)-1])
+	if err != nil {
+		return 0, fmt.Errorf("Cannot convert init timeout to int: %s", err)
+	}
+	return tsec, nil
 }
 
 func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) error {
