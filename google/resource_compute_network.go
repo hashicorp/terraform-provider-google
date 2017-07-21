@@ -112,7 +112,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	// It probably maybe worked, so store the ID now
 	d.SetId(network.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Network")
+	err = computeOperationWait(config, op, project, "Creating Network")
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error deleting network: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Network")
+	err = computeOperationWait(config, op, project, "Deleting Network")
 	if err != nil {
 		return err
 	}

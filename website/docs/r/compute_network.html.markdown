@@ -1,14 +1,17 @@
 ---
 layout: "google"
 page_title: "Google: google_compute_network"
-sidebar_current: "docs-google-compute-network"
+sidebar_current: "docs-google-compute-network-x"
 description: |-
   Manages a network within GCE.
 ---
 
 # google\_compute\_network
 
-Manages a network within GCE.
+Manages a network within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/networks).
 
 ## Example Usage
 

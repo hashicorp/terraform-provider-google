@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_disk
 
-Creates a new persistent disk within GCE, based on another disk.
+Creates a new persistent disk within GCE, based on another disk. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/disks).
 
 ~> **Note:** All arguments including the disk encryption key will be stored in the raw state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
@@ -21,6 +24,9 @@ resource "google_compute_disk" "default" {
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"
+  labels {
+    environment = "dev"
+  }
 }
 ```
 
@@ -54,6 +60,8 @@ The following arguments are supported:
 
 * `type` - (Optional) The GCE disk type.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the image.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -66,7 +74,9 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
-* `users` - (Computed) The Users of the created resource.
+* `users` - The Users of the created resource.
+
+* `label_fingerprint` - The fingerprint of the assigned labels.
 
 ## Import
 

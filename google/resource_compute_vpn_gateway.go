@@ -90,7 +90,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error Inserting VPN Gateway %s into network %s: %s", name, network, err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Inserting VPN Gateway")
+	err = computeOperationWait(config, op, project, "Inserting VPN Gateway")
 	if err != nil {
 		return fmt.Errorf("Error Waiting to Insert VPN Gateway %s into network %s: %s", name, network, err)
 	}
@@ -148,7 +148,7 @@ func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error Reading VPN Gateway %s: %s", name, err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Deleting VPN Gateway")
+	err = computeOperationWait(config, op, project, "Deleting VPN Gateway")
 	if err != nil {
 		return fmt.Errorf("Error Waiting to Delete VPN Gateway %s: %s", name, err)
 	}

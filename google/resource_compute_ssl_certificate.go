@@ -48,9 +48,10 @@ func resourceComputeSslCertificate() *schema.Resource {
 			},
 
 			"private_key": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 
 			"description": &schema.Schema{
@@ -113,7 +114,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error creating ssl certificate: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating SslCertificate")
+	err = computeOperationWait(config, op, project, "Creating SslCertificate")
 	if err != nil {
 		return err
 	}
@@ -157,7 +158,7 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting ssl certificate: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting SslCertificate")
+	err = computeOperationWait(config, op, project, "Deleting SslCertificate")
 	if err != nil {
 		return err
 	}

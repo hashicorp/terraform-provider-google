@@ -22,6 +22,10 @@ resource "google_compute_subnetwork" "default-us-east1" {
   network       = "${google_compute_network.default.self_link}"
   region        = "us-east1"
 }
+
+resource "google_compute_network" "default" {
+  name = "test"
+}
 ```
 
 ## Argument Reference
@@ -52,6 +56,16 @@ The following arguments are supported:
     can access Google services without assigned external IP
     addresses.
 
+- - -
+
+* `secondary_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An array of configurations for secondary IP ranges for VM instances contained in this subnetwork. Structure is documented below.
+
+The `secondary_ip_range` block supports:
+
+* `range_name` - (Required) The name associated with this subnetwork secondary range, used when adding an alias IP range to a VM instance.
+
+* `ip_cidr_range` - (Required) The range of IP addresses belonging to this subnetwork secondary range. Ranges must be unique and non-overlapping with all primary and secondary IP ranges within a network. 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -60,3 +74,11 @@ exported:
 * `gateway_address` - The IP address of the gateway.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Subnetwork can be imported using the `region` and `name`, e.g.
+
+```
+$ terraform import google_compute_subnetwork.default-us-east1 us-east1/default-us-east1
+```

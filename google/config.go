@@ -19,12 +19,16 @@ import (
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
+	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/sourcerepo/v1"
+	"google.golang.org/api/spanner/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 )
@@ -38,10 +42,14 @@ type Config struct {
 
 	clientBilling         *cloudbilling.Service
 	clientCompute         *compute.Service
+	clientComputeBeta     *computeBeta.Service
 	clientContainer       *container.Service
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientRuntimeconfig   *runtimeconfig.Service
+	clientSpanner         *spanner.Service
+	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
 	clientIAM             *iam.Service
@@ -122,6 +130,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientCompute.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating GCE Beta client...")
+	c.clientComputeBeta, err = computeBeta.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientComputeBeta.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating GKE client...")
 	c.clientContainer, err = container.New(client)
 	if err != nil {
@@ -164,6 +179,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientResourceManager.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig Client...")
+	c.clientRuntimeconfig, err = runtimeconfig.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientRuntimeconfig.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud IAM Client...")
 	c.clientIAM, err = iam.New(client)
 	if err != nil {
@@ -196,6 +218,20 @@ func (c *Config) loadAndValidate() error {
 		UserAgent:   userAgent,
 		TokenSource: tokenSource,
 	}
+
+	log.Printf("[INFO] Instantiating Google Cloud Source Repo Client...")
+	c.clientSourceRepo, err = sourcerepo.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSourceRepo.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Spanner Client...")
+	c.clientSpanner, err = spanner.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSpanner.UserAgent = userAgent
 
 	return nil
 }

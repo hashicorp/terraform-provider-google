@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_compute_instance"
-sidebar_current: "docs-google-compute-instance"
+sidebar_current: "docs-google-compute-instance-x"
 description: |-
   Manages a VM instance resource within GCE.
 ---
@@ -71,8 +71,7 @@ The following arguments are supported:
 * `zone` - (Required) The zone that the machine should be created in.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
-    be specified multiple times for multiple networks, but GCE is currently
-    limited to just 1. Structure is documented below.
+    be specified multiple times. Structure is documented below.
 
 - - -
 
@@ -210,12 +209,14 @@ The `network_interface` block supports:
 * `network` - (Optional) The name or self_link of the network to attach this interface to.
     Either `network` or `subnetwork` must be provided.
 
-*  `subnetwork` - (Optional) The name of the subnetwork to attach this interface
-    to. The subnetwork must exist in the same region this instance will be
+*  `subnetwork` - (Optional) The name or self_link of the subnetwork to attach this
+    interface to. The subnetwork must exist in the same region this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
 *  `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
-   If it is not provided, the provider project is used.
+   If the `subnetwork` is a self_link, this field is ignored in favor of the project
+   defined in the subnetwork self_link. If the `subnetwork` is a name and this
+   field is not provided, the provider project is used.
 
 * `address` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
@@ -259,6 +260,19 @@ The `scheduling` block supports:
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
 
+---
+
+* `guest_accelerator` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
+* `min_cpu_platform` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
+`Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
+
+The `guest_accelerator` block supports:
+
+* `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
+
+* `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -271,6 +285,8 @@ exported:
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 * `label_fingerprint` - The unique fingerprint of the labels.
+
+* `cpu_platform` - The CPU platform used by this instance.
 
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 

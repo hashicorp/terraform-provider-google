@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_firewall
 
-Manages a firewall resource within GCE.
+Manages a firewall resource within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc/firewalls)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/firewalls).
 
 ## Example Usage
 
@@ -49,14 +52,37 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `source_ranges` - (Optional) A list of source CIDR ranges that this
-   firewall applies to.
+* `priority` - (Optional) The priority for this firewall. Ranges from 0-65535, inclusive. Defaults to 1000. Firewall
+    resources with lower priority values have higher precedence (e.g. a firewall resource with a priority value of 0
+    takes effect over all other firewall rules with a non-zero priority).
 
-* `source_tags` - (Optional) A list of source tags for this firewall.
+* `source_ranges` - (Optional) A list of source CIDR ranges that this
+   firewall applies to. Can't be used for `EGRESS`.
+
+* `source_tags` - (Optional) A list of source tags for this firewall. Can't be used for `EGRESS`.
 
 * `target_tags` - (Optional) A list of target tags for this firewall.
 
+- - -
+
+* `deny` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Can be specified multiple times for each deny
+    rule. Each deny block supports fields documented below. Can be specified
+    instead of allow.
+
+* `direction` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Direction of traffic to which this firewall applies;
+    One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
+
+* `destination_ranges` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of destination CIDR ranges that this
+   firewall applies to. Can't be used for `INGRESS`.
+
 The `allow` block supports:
+
+* `protocol` - (Required) The name of the protocol to allow.
+
+* `ports` - (Optional) List of ports and/or port ranges to allow. This can
+    only be specified if the protocol is TCP or UDP.
+
+The `deny` block supports:
 
 * `protocol` - (Required) The name of the protocol to allow.
 

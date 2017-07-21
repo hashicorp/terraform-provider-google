@@ -36,11 +36,10 @@ The following keys can be used to configure the provider.
 
 * `credentials` - (Optional) Contents of the JSON file used to describe your
   account credentials, downloaded from Google Cloud Console. More details on
-  retrieving this file are below. Credentials may be blank if you are running
-  Terraform from a GCE instance with a properly-configured [Compute Engine
-  Service Account](https://cloud.google.com/compute/docs/authentication). This
-  can also be specified using any of the following environment variables
-  (listed in order of precedence):
+  retrieving this file are below.
+
+  Credentials can also be specified using any of the following environment
+  variables (listed in order of precedence):
 
     * `GOOGLE_CREDENTIALS`
     * `GOOGLE_CLOUD_KEYFILE_JSON`
@@ -50,9 +49,20 @@ The following keys can be used to configure the provider.
     environment variable can also contain the path of a file to obtain credentials
     from.
 
+  If no credentials are specified, the provider will fall back to using the
+  [Google Application Default
+  Credentials](https://developers.google.com/identity/protocols/application-default-credentials).
+  If you are running Terraform from a GCE instance, see [Creating and Enabling
+  Service Accounts for
+  Instances](https://cloud.google.com/compute/docs/authentication) for
+  details. On your computer, if you have made your identity available as the
+  Application Default Credentials by running [`gcloud auth application-default
+  login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login),
+  the provider will use your identity.
+
 * `project` - (Required) The ID of the project to apply any resources to.  This
-  can be specified using any of the following environment variables (listed in
-  order of precedence):
+  can also be specified using any of the following environment variables (listed
+  in order of precedence):
 
     * `GOOGLE_PROJECT`
     * `GCLOUD_PROJECT`
@@ -85,3 +95,13 @@ the process more straightforwarded, it is documented here:
    dropdown, and select "JSON" as the key type.
 
 4. Clicking "Create" will download your `credentials`.
+
+## Beta Features
+
+Some Google Provider resources contain Beta features; Beta GCP Features have no
+deprecation policy, and no SLA, but are otherwise considered to be feature-complete
+with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
+is publicly announced, and is when they generally become publicly available.
+
+Resources will automatically be provisioned using Beta APIs when you specify a feature
+marked Beta in your Terraform config file.

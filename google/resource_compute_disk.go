@@ -55,9 +55,10 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"image": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"project": &schema.Schema{
@@ -78,9 +79,10 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"snapshot": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"type": &schema.Schema{
@@ -89,10 +91,23 @@ func resourceComputeDisk() *schema.Resource {
 				Default:  "pd-standard",
 				ForceNew: true,
 			},
+
 			"users": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -171,6 +186,10 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		disk.DiskEncryptionKey.RawKey = v.(string)
 	}
 
+	if _, ok := d.GetOk("labels"); ok {
+		disk.Labels = expandLabels(d)
+	}
+
 	op, err := config.clientCompute.Disks.Insert(
 		project, d.Get("zone").(string), disk).Do()
 	if err != nil {
@@ -180,7 +199,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	// It probably maybe worked, so store the ID now
 	d.SetId(disk.Name)
 
-	err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Creating Disk")
+	err = computeOperationWait(config, op, project, "Creating Disk")
 	if err != nil {
 		return err
 	}
@@ -194,7 +213,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
+	d.Partial(true)
 	if d.HasChange("size") {
 		rb := &compute.DisksResizeRequest{
 			SizeGb: int64(d.Get("size").(int)),
@@ -204,11 +223,32 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error resizing disk: %s", err)
 		}
-		err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Resizing Disk")
+		d.SetPartial("size")
+
+		err = computeOperationWait(config, op, project, "Resizing Disk")
 		if err != nil {
 			return err
 		}
 	}
+
+	if d.HasChange("labels") {
+		zslr := compute.ZoneSetLabelsRequest{
+			Labels:           expandLabels(d),
+			LabelFingerprint: d.Get("label_fingerprint").(string),
+		}
+		op, err := config.clientCompute.Disks.SetLabels(
+			project, d.Get("zone").(string), d.Id(), &zslr).Do()
+		if err != nil {
+			return fmt.Errorf("Error when setting labels: %s", err)
+		}
+		d.SetPartial("labels")
+
+		err = computeOperationWait(config, op, project, "Setting labels on disk")
+		if err != nil {
+			return err
+		}
+	}
+	d.Partial(false)
 
 	return resourceComputeDiskRead(d, meta)
 }
@@ -261,11 +301,11 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if disk.DiskEncryptionKey != nil && disk.DiskEncryptionKey.Sha256 != "" {
 		d.Set("disk_encryption_key_sha256", disk.DiskEncryptionKey.Sha256)
 	}
-	if disk.SourceImage != "" {
-		imageUrlParts := strings.Split(disk.SourceImage, "/")
-		d.Set("image", imageUrlParts[len(imageUrlParts)-1])
-	}
+
+	d.Set("image", disk.SourceImage)
 	d.Set("snapshot", disk.SourceSnapshot)
+	d.Set("labels", disk.Labels)
+	d.Set("label_fingerprint", disk.LabelFingerprint)
 
 	return nil
 }
@@ -301,9 +341,10 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 			}
 			for _, disk := range i.Disks {
 				if disk.Source == self {
+					zoneParts := strings.Split(i.Zone, "/")
 					detachCalls = append(detachCalls, detachArgs{
 						project:    project,
-						zone:       i.Zone,
+						zone:       zoneParts[len(zoneParts)-1],
 						instance:   i.Name,
 						deviceName: disk.DeviceName,
 					})
@@ -316,7 +357,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
-			err = computeOperationWaitZone(config, op, call.project, call.zone,
+			err = computeOperationWait(config, op, call.project,
 				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance))
 			if err != nil {
 				return err
@@ -337,8 +378,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting disk: %s", err)
 	}
 
-	zone := d.Get("zone").(string)
-	err = computeOperationWaitZone(config, op, project, zone, "Deleting Disk")
+	err = computeOperationWait(config, op, project, "Deleting Disk")
 	if err != nil {
 		return err
 	}

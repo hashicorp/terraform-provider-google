@@ -148,7 +148,7 @@ func resourceComputeRouterPeerCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, peerName))
-	err = computeOperationWaitRegion(config, op, project, region, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -267,7 +267,7 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}

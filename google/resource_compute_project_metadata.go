@@ -76,7 +76,7 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 
 		log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
 
-		return computeOperationWaitGlobal(config, op, project.Name, "SetCommonMetadata")
+		return computeOperationWait(config, op, project.Name, "SetCommonMetadata")
 	}
 
 	err = MetadataRetryWrapper(createMD)
@@ -102,9 +102,16 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
 	}
 
-	md := project.CommonInstanceMetadata
+	md := flattenMetadata(project.CommonInstanceMetadata)
+	existingMetadata := d.Get("metadata").(map[string]interface{})
+	// Remove all keys not explicitly mentioned in the terraform config
+	for k := range md {
+		if _, ok := existingMetadata[k]; !ok {
+			delete(md, k)
+		}
+	}
 
-	if err = d.Set("metadata", MetadataFormatSchema(d.Get("metadata").(map[string]interface{}), md)); err != nil {
+	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
@@ -147,7 +154,7 @@ func resourceComputeProjectMetadataUpdate(d *schema.ResourceData, meta interface
 			// Optimistic locking requires the fingerprint received to match
 			// the fingerprint we send the server, if there is a mismatch then we
 			// are working on old data, and must retry
-			return computeOperationWaitGlobal(config, op, project.Name, "SetCommonMetadata")
+			return computeOperationWait(config, op, project.Name, "SetCommonMetadata")
 		}
 
 		err := MetadataRetryWrapper(updateMD)
@@ -189,7 +196,7 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
 
-	err = computeOperationWaitGlobal(config, op, project.Name, "SetCommonMetadata")
+	err = computeOperationWait(config, op, project.Name, "SetCommonMetadata")
 	if err != nil {
 		return err
 	}
