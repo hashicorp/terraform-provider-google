@@ -280,18 +280,3 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	d.SetId("")
 	return nil
 }
-
-//
-//func resourceBigQueryDatasetImport(d *schema.ResourceData, m interface{}) ([]*ResourceData, error) {
-//	x := schema.ImportStatePassthrough(d, m)
-//
-//	//
-//	//
-//	//	// HACK(jmcgill)
-//	//
-//	//	return []*ResourceData{d}, nil
-//	//}
-//	//	test := &schema.ResourceImporter{
-//	//                        State: schema.ImportStatePassthrough,
-//	//                },
-//}
