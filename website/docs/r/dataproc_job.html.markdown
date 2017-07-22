@@ -1,0 +1,155 @@
+---
+layout: "google"
+page_title: "Google: google_dataproc_job"
+sidebar_current: "docs-google-dataproc-job"
+description: |-
+  Manages a job resource within a Dataproc cluster.
+---
+
+# google\_dataproc\_cluster
+
+Manages a job resource within a Dataproc cluster within GCE. For more information see
+[the official dataproc documentation](https://cloud.google.com/dataproc/).
+
+!> **Note:** This resource does not really support 'update' functionality. Once created
+   (aka submitted to the cluster) there is not much point in changing anything. As a result
+   changing any attributes will essentially cause the creation (submission) of a whole new job!
+
+## Example usage
+
+```hcl
+resource "google_dataproc_cluster" "mycluster" {
+	name = "dproc-cluster-unique-name"
+	zone = "us-central1-f"
+}
+
+# Submit a spark job to the cluster
+resource "google_dataproc_job" "spark" {
+    cluster      = "${google_dataproc_cluster.mycluster.name}"
+    force_delete = true
+
+    spark_config {
+        main_class = "org.apache.spark.examples.SparkPi"
+        jars       = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+        args       = ["1000"]
+    }
+}
+
+# Submit a pyspark job to the cluster
+resource "google_dataproc_job" "pyspark" {
+    cluster      = "${google_dataproc_cluster.mycluster.name}"
+    force_delete = true
+
+    pyspark_config {
+        main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    }
+}
+```
+
+## Argument Reference
+
+* `cluster` - (Required) The Dataproc cluster to submit the job to.
+
+* `xxx_config` - (Required) Exactly one of the specific job types to run on the
+   system should be specified. If you want to submit multiple jobs, this will
+   currently require the definition of multiple job blocks, or via the count
+   attribute. The following job configs are supported:
+
+       * pyspark_config - Submits a PySpark job to the cluster
+       * spark_config   - Submits a Spark job to the cluster
+
+   These job configs are not yet implemented:
+
+       * hadoop
+       * hive
+       * pig
+       * spark-sql
+
+- - -
+
+* `region` - (Optional) The region to look for the `cluster`.
+    If not specified, defaults to `global`.
+
+* `force_delete` - (Optional) By default, you can only delete inactive jobs within
+   dataproc. Setting this to true, and calling destroy, will first ensure that the
+   job is cancellded and then fully delete it from the cluster.
+
+* `labels` - (Optional) The list of labels (key/value pairs) to add.
+
+The **pyspark_config** supports:
+
+```hcl
+
+# Submit a pyspark job to the cluster
+resource "google_dataproc_job" "pyspark" {
+    cluster      = "dproc-cluster-unique-name"
+    force_delete = true
+
+    pyspark_config {
+        main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    }
+}
+```
+
+* `main_python_file`- (Required) The main .py file to run as the driver.
+
+* `additional_python_files` - (Optional) A list of additional files to include.
+
+* `jar_files` - (Optional) A list of jar files to be provided to the executor and driver classpaths.
+
+* `args` - (Optional) The arguments to pass to the driver.
+
+* `properties` - (Optional) A list of key value pairs to configure PySpark.
+
+
+The **spark_config** supports:
+
+
+```hcl
+
+# Submit a spark job to the cluster
+resource "google_dataproc_job" "pyspark" {
+    cluster      = "dproc-cluster-unique-name"
+    force_delete = true
+
+    spark_config {
+        main_class = "org.apache.spark.examples.SparkPi"
+        jar_files  = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+        args       = ["1000"]
+    }
+}
+```
+
+* `main_class`- (Optional) The class containing the main method of the driver. Must be in a
+   provided jar or jar that is already on the classpath. Conflicts with `main_jar`
+
+* `main_jar` - (Optional) The Hadoop Compatible File System (HCFS) URI of jar file containing
+   the driver jar. Conflicts with `main_class`
+
+* `args` - (Optional) The arguments to pass to the driver.
+
+* `jars` - (Optional) A list of jar files to be provided to the executor and driver classpaths.
+
+* `files` - (Optional) A list of files to be provided to the job.
+
+* `archives` - (Optional) A list of archives to be provided to the job. must be one
+   of the following file formats: .zip, .tar, .tar.gz, or .tgz..
+
+* `properties` - (Optional) A list of key value pairs to configure Spark.
+
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are
+exported:
+
+* `status` - The current status of the job.
+
+<a id="timeouts"></a>
+## Timeouts
+
+`google_dataproc_cluster` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - (Default `10 minutes`) Used for submitting a job to a dataproc cluster.
+- `delete` - (Default `10 minutes`) Used for deleting a job from a dataproc cluster.
