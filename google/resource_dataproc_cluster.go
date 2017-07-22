@@ -104,11 +104,19 @@ func resourceDataprocCluster() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+				Elem:     schema.TypeString,
+			},
+
+			"properties": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: false,
@@ -322,7 +330,11 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	// Mandatory
 	clusterName := d.Get("name").(string)
 	region := d.Get("region").(string)
-	zone := d.Get("zone").(string)
+	zone, zok := d.GetOk("zone")
+
+	if region == "global" && !zok {
+		return errors.New("zone is mandatory when region is set to 'global'")
+	}
 
 	gceConfig := &dataproc.GceClusterConfig{}
 
@@ -373,10 +385,11 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		gceConfig.ServiceAccountScopes = scopes
 	}
 
-	gceConfig.ZoneUri = zone
+	gceConfig.ZoneUri = zone.(string)
 
 	clusterConfig := &dataproc.ClusterConfig{
 		GceClusterConfig: gceConfig,
+		SoftwareConfig:   &dataproc.SoftwareConfig{},
 	}
 
 	if v, ok := d.GetOk("initialization_actions"); ok {
@@ -468,10 +481,16 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		Config:      clusterConfig,
 	}
 
-	if v, ok := d.GetOk("image_version"); ok {
-		cluster.Config.SoftwareConfig = &dataproc.SoftwareConfig{
-			ImageVersion: v.(string),
+	if v, ok := d.GetOk("properties"); ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
 		}
+		cluster.Config.SoftwareConfig.Properties = m
+	}
+
+	if v, ok := d.GetOk("image_version"); ok {
+		cluster.Config.SoftwareConfig.ImageVersion = v.(string)
 	}
 
 	if v, ok := d.GetOk("labels"); ok {
@@ -668,6 +687,8 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 
 	if cluster.Config.SoftwareConfig != nil {
 		d.Set("image_version", cluster.Config.SoftwareConfig.ImageVersion)
+		//We only want our overriden values here for now
+		//d.Set("properties", cluster.Config.SoftwareConfig.Properties)
 	}
 
 	d.Set("master_instance_names", []string{})
@@ -683,7 +704,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 				"num_local_ssds":    cluster.Config.MasterConfig.DiskConfig.NumLocalSsds,
 			},
 		}
-		d.Set("master_instance_names", cluster.Config.WorkerConfig.InstanceNames)
+		d.Set("master_instance_names", cluster.Config.MasterConfig.InstanceNames)
 		d.Set("master_config", masterConfig)
 	}
 

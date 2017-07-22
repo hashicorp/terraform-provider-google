@@ -12,6 +12,7 @@ import (
 	"google.golang.org/api/googleapi"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 )
 
@@ -40,6 +41,21 @@ func TestExtractInitTimeout_badFormat(t *testing.T) {
 func TestExtractInitTimeout_empty(t *testing.T) {
 	_, err := extractInitTimeout("")
 	assert.EqualError(t, err, "Cannot extract init timeout from empty string")
+}
+
+func TestAccDataprocCluster_missingZoneGlobalRegion(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckDataproc_missingZoneGlobalRegion(rnd),
+				ExpectError: regexp.MustCompile("zone is mandatory when region is set to 'global'"),
+			},
+		},
+	})
 }
 
 func TestAccDataprocCluster_basic(t *testing.T) {
@@ -360,23 +376,20 @@ func testInitActionSucceeded(bucket, object string) resource.TestCheckFunc {
 	}
 }
 
-func testAccDataprocCluster_basic(rnd string) string {
+func testAccCheckDataproc_missingZoneGlobalRegion(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
 	name = "dproc-cluster-test-%s"
-	zone = "us-central1-a"
+	region = "global"
+}
+`, rnd)
 }
 
-output "master_instance_names" {
-    value = "${google_dataproc_cluster.basic.master_instance_names}"
-}
-
-output "worker_instance_names" {
-    value = "${google_dataproc_cluster.basic.worker_instance_names}"
-}
-
-output "preemptible_instance_names" {
-    value = "${google_dataproc_cluster.basic.preemptible_instance_names}"
+func testAccDataprocCluster_basic(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
 }
 `, rnd)
 }
@@ -384,8 +397,8 @@ output "preemptible_instance_names" {
 func testAccDataprocCluster_withMasterConfig(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_master_config" {
-	name = "dproc-cluster-test-%s"
-	zone = "us-central1-f"
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
 
 	master_config {
 		num_masters       = 1
@@ -405,7 +418,7 @@ resource "google_storage_bucket" "init_bucket" {
 
 resource "google_storage_bucket_object" "init_script" {
   name           = "dproc-cluster-test-%s-init-script.sh"
-  staging_bucket = "${google_storage_bucket.init_bucket.name}"
+  bucket         = "${google_storage_bucket.init_bucket.name}"
   content        = <<EOL
 #!/bin/bash
 ROLE=$$(/usr/share/google/get_metadata_value attributes/dataproc-role)
@@ -421,7 +434,7 @@ EOL
 
 resource "google_dataproc_cluster" "with_init_action" {
 	name   = "dproc-cluster-test-%s"
-	zone   = "us-central1-f"
+	region = "us-central1"
 	initialization_action_timeout_sec = 500
 	initialization_actions = [
 	   "${google_storage_bucket.init_bucket.url}/${google_storage_bucket_object.init_script.name}"
@@ -450,7 +463,7 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_dataproc_cluster" "with_bucket" {
 	name   = "dproc-cluster-test-%s"
-	zone   = "us-central1-f"
+	region = "us-central1"
 	staging_bucket = "${google_storage_bucket.bucket.name}"
 
     # Keep the costs down with smallest config we can get away with
@@ -470,8 +483,8 @@ resource "google_dataproc_cluster" "with_bucket" {
 func testAccDataprocCluster_withWorkerConfig(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_worker_config" {
-	name = "dproc-cluster-test-%s"
-	zone = "us-central1-f"
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
 
     # Keep the costs down with smallest config we can get away with
 	master_config {
@@ -494,8 +507,8 @@ resource "google_dataproc_cluster" "with_worker_config" {
 func testAccDataprocCluster_withImageVersion(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
-	name = "dproc-cluster-test-%s"
-	zone = "us-central1-f"
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
 	image_version = "1.0.44"
 }`, rnd)
 }
@@ -503,8 +516,8 @@ resource "google_dataproc_cluster" "with_image_version" {
 func testAccDataprocCluster_withServiceAcc(saEmail string, rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_service_account" {
-	name = "dproc-cluster-test-%s"
-	zone = "us-central1-f"
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
 
     # Keep the costs down with smallest config we can get away with
 	master_config {
@@ -568,8 +581,8 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_name" {
-	name = "dproc-cluster-test-%s-name"
-	zone = "us-central1-a"
+	name   = "dproc-cluster-test-%s-name"
+	region = "us-central1"
 	depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
     # Keep the costs down with smallest config we can get away with
@@ -588,8 +601,8 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_url" {
-	name = "dproc-cluster-test-%s-url"
-	zone = "us-central1-a"
+	name   = "dproc-cluster-test-%s-url"
+	region = "us-central1"
     depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
     # Keep the costs down with smallest config we can get away with
