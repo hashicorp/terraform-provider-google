@@ -8,11 +8,11 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/stretchr/testify/assert"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
 	"log"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 )
@@ -20,28 +20,48 @@ import (
 const base10 = 10
 
 func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
-	r := extractLastResourceFromUri("http://something.com/one/two/three")
-	assert.Equal(t, "three", r)
+	actual := extractLastResourceFromUri("http://something.com/one/two/three")
+	expected := "three"
+	if actual != expected {
+		t.Fatalf("Expected %s, but got %s", expected, actual)
+	}
 }
 
 func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
-	r := extractLastResourceFromUri("three")
-	assert.Equal(t, "three", r)
+	actual := extractLastResourceFromUri("three")
+	expected := "three"
+	if actual != expected {
+		t.Fatalf("Expected %s, but got %s", expected, actual)
+	}
 }
 
 func TestExtractInitTimeout(t *testing.T) {
-	i, _ := extractInitTimeout("500s")
-	assert.Equal(t, 500, i)
+	actual, err := extractInitTimeout("500s")
+	expected := 500
+	if err != nil {
+		t.Fatalf("Expected %d, but got error %v", expected, err)
+	}
+	if actual != expected {
+		t.Fatalf("Expected %d, but got %d", expected, actual)
+	}
 }
 
 func TestExtractInitTimeout_badFormat(t *testing.T) {
 	_, err := extractInitTimeout("5m")
-	assert.EqualError(t, err, "Unexpected init timeout format expecting in seconds e.g. ZZZs, found : 5m")
+	expected := "Unexpected init timeout format expecting in seconds e.g. ZZZs, found : 5m"
+	if err != nil && err.Error() == expected {
+		return
+	}
+	t.Fatalf("Expected an error with message '%s', but got %v", expected, err)
 }
 
 func TestExtractInitTimeout_empty(t *testing.T) {
 	_, err := extractInitTimeout("")
-	assert.EqualError(t, err, "Cannot extract init timeout from empty string")
+	expected := "Cannot extract init timeout from empty string"
+	if err != nil && err.Error() == expected {
+		return
+	}
+	t.Fatalf("Expected an error with message '%s', but got %v", expected, err)
 }
 
 func TestAccDataprocCluster_missingZoneGlobalRegion(t *testing.T) {
@@ -224,8 +244,8 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 
 func testAccCheckDataprocClusterHasServiceScopes(t *testing.T, cluster *dataproc.Cluster, scopes ...string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		if !assert.Equal(t, scopes,
-			cluster.Config.GceClusterConfig.ServiceAccountScopes) {
+
+		if !reflect.DeepEqual(scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes) {
 			return fmt.Errorf("Cluster does not contain expected set of service account scopes : %v : instead %v",
 				scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes)
 		}
@@ -718,8 +738,9 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 func testAccPreCheckWithServiceAccount(t *testing.T) {
 	testAccPreCheck(t)
 	if v := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); v == "" {
-		t.Fatal("GOOGLE_SERVICE_ACCOUNT must be set for acceptance tests (dataproc)")
+		t.Skipf("GOOGLE_SERVICE_ACCOUNT must be set for the dataproc acceptance test testing service account functionality")
 	}
+
 }
 
 func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) resource.TestCheckFunc {
