@@ -85,6 +85,9 @@ func resourceDataprocCluster() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"subnetwork"},
+				StateFunc: func(s interface{}) string {
+					return extractLastResourceFromUri(s.(string))
+				},
 			},
 
 			"subnetwork": {
@@ -93,6 +96,9 @@ func resourceDataprocCluster() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"network"},
+				StateFunc: func(s interface{}) string {
+					return extractLastResourceFromUri(s.(string))
+				},
 			},
 
 			"region": {
@@ -336,12 +342,8 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	gceConfig := &dataproc.GceClusterConfig{}
 
-	if _, ok := d.GetOk("network"); ok {
-		network, err := getNetworkName(d, "network")
-		if err != nil {
-			return err
-		}
-		gceConfig.NetworkUri = network
+	if v, ok := d.GetOk("network"); ok {
+		gceConfig.NetworkUri = extractLastResourceFromUri(v.(string))
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
@@ -367,17 +369,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		for _, v := range scopesList {
 			scopes = append(scopes, canonicalizeServiceScope(v.(string)))
 		}
-
-		/*
-			The following scopes necessary for the cluster to function properly are
-			always added, even if not explicitly specified:
-				useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
-				storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
-				logging-write:   https://www.googleapis.com/auth/logging.write
-
-			We thus need to add them to the scopes as well to ensure this field is not
-			picked up as changing
-		*/
 
 		sort.Strings(scopes)
 		gceConfig.ServiceAccountScopes = scopes
@@ -513,7 +504,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	log.Println(op)
 	// Wait until it's created
 	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
@@ -523,7 +513,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", clusterName)
-
 	d.SetId(clusterName)
 
 	e := resourceDataprocClusterRead(d, meta)
@@ -571,7 +560,6 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 			m[k] = val.(string)
 		}
 		cluster.Labels = m
-
 		updMask = "labels"
 	}
 
@@ -605,7 +593,6 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 			updMask = updMask + ","
 		}
 		updMask = updMask + "config.secondary_worker_config.num_instances"
-
 	}
 
 	patch.UpdateMask(updMask)
@@ -775,9 +762,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Dataproc cluster %s has been deleted", d.Id())
-
 	d.SetId("")
-
 	return nil
 }
 
@@ -799,22 +784,31 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 
 	for {
 		res, err := config.clientStorage.Objects.List(bucket).Do()
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			// Bucket is now gone ...
+			break
+		}
 		if err != nil {
 			log.Fatalf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) if exists. Error Objects.List failed: %v", bucket, err)
 			return err
 		}
 
-		if len(res.Items) != 0 {
+		if len(res.Items) > 0 {
 			// purge the bucket...
 			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. \n\n")
 
 			for _, object := range res.Items {
 				log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. Found %s", object.Name)
-				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Do(); err != nil {
-					log.Fatalf("[ERROR] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
-				} else {
-					log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
+
+				err := config.clientStorage.Objects.Delete(bucket, object.Name).Do()
+				if err != nil {
+					if gerr, ok := err.(*googleapi.Error); ok && gerr.Code != 404 {
+						// Object is now gone ... ignore
+						log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
+						return err
+					}
 				}
+				log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
 			}
 		} else {
 			break // 0 items, bucket empty
@@ -827,7 +821,12 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 		if err == nil {
 			return nil
 		}
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
+		gerr, ok := err.(*googleapi.Error)
+		if gerr.Code == 404 {
+			// Bucket may be gone already ignore
+			return nil
+		}
+		if ok && gerr.Code == 429 {
 			return resource.RetryableError(gerr)
 		}
 		return resource.NonRetryableError(err)

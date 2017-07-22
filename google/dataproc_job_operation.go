@@ -28,26 +28,8 @@ func (w *DataprocJobOperationWaiter) ConfForDelete() *resource.StateChangeConf {
 
 func (w *DataprocJobOperationWaiter) Conf() *resource.StateChangeConf {
 
-	// State: Output-only. A state message specifying the overall job state.
-	//
-	// Possible values:
-	//   "STATE_UNSPECIFIED" - The job state is unknown.
-	//   "PENDING" - The job is pending; it has been submitted, but is not
-	// yet running.
-	//   "SETUP_DONE" - Job has been received by the service and completed
-	// initial setup; it will soon be submitted to the cluster.
-	//   "RUNNING" - The job is running on the cluster.
-	//   "CANCEL_PENDING" - A CancelJob request has been received, but is
-	// pending.
-	//   "CANCEL_STARTED" - Transient in-flight resources have been
-	// canceled, and the request to cancel the running job has been issued
-	// to the cluster.
-	//   "CANCELLED" - The job cancellation was successful.
-	//   "DONE" - The job has completed successfully.
-	//   "ERROR" - The job has completed, but encountered an error.
-	//   "ATTEMPT_FAILURE" - Job attempt has failed. The detail field
-	// contains failure details for this attempt.Applies to restartable jobs
-	// only.
+	// For more info on each of the states please see
+	// https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.jobs#JobStatus
 
 	return &resource.StateChangeConf{
 		Pending: []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"},

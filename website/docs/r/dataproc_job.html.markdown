@@ -19,8 +19,8 @@ Manages a job resource within a Dataproc cluster within GCE. For more informatio
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-    name = "dproc-cluster-unique-name"
-    zone = "us-central1-f"
+    name   = "dproc-cluster-unique-name"
+    region = "us-central1"
 }
 
 # Submit an example spark job to a dataproc cluster

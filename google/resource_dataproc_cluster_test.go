@@ -391,6 +391,7 @@ func testAccCheckDataprocClusterAttrMatch(n string) resource.TestCheckFunc {
 			{"image_version", cluster.Config.SoftwareConfig.ImageVersion},
 			{"zone", extractLastResourceFromUri(cluster.Config.GceClusterConfig.ZoneUri)},
 
+			{"network", extractLastResourceFromUri(cluster.Config.GceClusterConfig.NetworkUri)},
 			{"subnetwork", extractLastResourceFromUri(cluster.Config.GceClusterConfig.SubnetworkUri)},
 			{"service_account", cluster.Config.GceClusterConfig.ServiceAccount},
 			{"service_account_scopes", cluster.Config.GceClusterConfig.ServiceAccountScopes},
@@ -443,20 +444,6 @@ func testAccCheckDataprocClusterAttrMatch(n string) resource.TestCheckFunc {
 			if c := checkMatch(attributes, attrs.tf_attr, attrs.gcp_attr); c != "" {
 				return fmt.Errorf(c)
 			}
-		}
-
-		// A few attributes need to be done separately in order to normalise them.
-		// Network
-		tf, err := getNetworkNameFromSelfLink(attributes["network"])
-		if err != nil {
-			return err
-		}
-		gcp, err := getNetworkNameFromSelfLink(cluster.Config.GceClusterConfig.NetworkUri)
-		if err != nil {
-			return err
-		}
-		if tf != gcp {
-			return fmt.Errorf(matchError("network", tf, gcp))
 		}
 
 		return nil
