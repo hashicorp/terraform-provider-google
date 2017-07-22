@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
 	"log"
 	"os"
@@ -76,6 +77,32 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_singleNodeCluster(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterAttrMatch(
+						"google_dataproc_cluster.single_node_cluster"),
+					resource.TestCheckResourceAttr(
+						"google_dataproc_cluster.single_node_cluster",
+						"master_config.0.num_masters",
+						"1"),
+					resource.TestCheckResourceAttr(
+						"google_dataproc_cluster.single_node_cluster",
+						"worker_config.0.num_workers",
+						"0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withBucketRef(t *testing.T) {
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -84,10 +111,21 @@ func TestAccDataprocCluster_withBucketRef(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withBucket(rnd),
+				Config: testAccDataprocCluster_withBucketAndCluster(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterAttrMatch(
 						"google_dataproc_cluster.with_bucket"),
+				),
+			},
+			{
+				// Simulate destroy of cluster by removing it
+				Config: testAccDataprocCluster_withBucket(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterDeletedButNotCustomBucket(
+						"us-central1",
+						fmt.Sprintf("dproc-cluster-test-%s", rnd),
+						fmt.Sprintf("dproc-cluster-test-%s-bucket", rnd),
+					),
 				),
 			},
 		},
@@ -116,7 +154,7 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_withMasterConfig(t *testing.T) {
+func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -124,28 +162,10 @@ func TestAccDataprocCluster_withMasterConfig(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMasterConfig(rnd),
+				Config: testAccDataprocCluster_withConfigOverrides(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterAttrMatch(
-						"google_dataproc_cluster.with_master_config"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
-	rnd := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocCluster_withWorkerConfig(rnd),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocClusterAttrMatch(
-						"google_dataproc_cluster.with_worker_config"),
+						"google_dataproc_cluster.with_config_overrides"),
 				),
 			},
 		},
@@ -155,6 +175,7 @@ func TestAccDataprocCluster_withWorkerConfig(t *testing.T) {
 func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 
 	saEmail := os.Getenv("GOOGLE_SERVICE_ACCOUNT")
+	var cluster dataproc.Cluster
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithServiceAccount(t) },
@@ -164,6 +185,14 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 			{
 				Config: testAccDataprocCluster_withServiceAcc(saEmail, rnd),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(
+						"google_dataproc_cluster.with_service_account", &cluster),
+					testAccCheckDataprocClusterHasServiceScopes(t, &cluster,
+						"https://www.googleapis.com/auth/cloud.useraccounts.readonly",
+						"https://www.googleapis.com/auth/devstorage.read_write",
+						"https://www.googleapis.com/auth/logging.write",
+						"https://www.googleapis.com/auth/monitoring",
+					),
 					testAccCheckDataprocClusterAttrMatch(
 						"google_dataproc_cluster.with_service_account"),
 				),
@@ -174,6 +203,7 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 
 func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	rnd := acctest.RandString(10)
+	var cluster dataproc.Cluster
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -182,12 +212,39 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 			{
 				Config: testAccDataprocCluster_withImageVersion(rnd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocClusterAttrMatch(
-						"google_dataproc_cluster.with_image_version"),
+					testAccCheckDataprocClusterExists(
+						"google_dataproc_cluster.with_image_version", &cluster),
+					testAccCheckDataprocClusterImageVersion(
+						&cluster, "1.0.44"),
 				),
 			},
 		},
 	})
+}
+
+func testAccCheckDataprocClusterHasServiceScopes(t *testing.T, cluster *dataproc.Cluster, scopes ...string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		if !assert.Equal(t, scopes,
+			cluster.Config.GceClusterConfig.ServiceAccountScopes) {
+			return fmt.Errorf("Cluster does not contain expected set of service account scopes : %v : instead %v",
+				scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes)
+		}
+		return nil
+	}
+}
+func testAccCheckDataprocClusterImageVersion(cluster *dataproc.Cluster, expected string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		actual := ""
+		if cluster.Config != nil && cluster.Config.SoftwareConfig != nil {
+			actual = cluster.Config.SoftwareConfig.ImageVersion
+		}
+
+		if actual != expected {
+			return fmt.Errorf("Cluster Image version set to %s, but expected: %s",
+				actual, expected)
+		}
+		return nil
+	}
 }
 
 func TestAccDataprocCluster_network(t *testing.T) {
@@ -253,17 +310,56 @@ func validateAutoBucketsDeleted(stagingBucketName, bucket string, config *Config
 	}
 
 	log.Printf("[DEBUG] validating autogen bucket %s (for dataproc cluster) is deleted \n\n", bucket)
+	return validateBucketDoesNotExist(bucket, config)
+}
+
+func validateBucketDoesNotExist(bucket string, config *Config) error {
 	_, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			return nil
 		} else if ok {
-			return fmt.Errorf("Error make GCP platform call to verify dataproc auto generated bucket deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+			return fmt.Errorf("Error make GCP platform call to verify if bucket deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
 		}
-		return fmt.Errorf("Error make GCP platform call to verify dataproc auto generated bucket deleted: %s", err.Error())
+		return fmt.Errorf("Error make GCP platform call to verify if bucket deleted: %s", err.Error())
 	}
-	return fmt.Errorf("Dataproc auto generated bucket still exists")
+	return fmt.Errorf("bucket still exists")
+}
+
+func validateBucketExists(bucket string, config *Config) (bool, error) {
+	_, err := config.clientStorage.Buckets.Get(bucket).Do()
+
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			return false, nil
+		} else if ok {
+			return false, fmt.Errorf("Error make GCP platform call to verify if bucket deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+		}
+		return false, fmt.Errorf("Error make GCP platform call to verify if bucket deleted: %s", err.Error())
+	}
+	return true, nil
+}
+
+func testAccCheckDataprocClusterDeletedButNotCustomBucket(region, clusterName, bucketName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// Check cluster is gone
+		config := testAccProvider.Meta().(*Config)
+		err := validateClusterDeleted(config.Project, region, clusterName, config)
+		if err != nil {
+			return err
+		}
+
+		// Check Original Custom Bucket still exists
+		exists, err := validateBucketExists(bucketName, config)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("Bucket: %s does not exist", bucketName)
+		}
+		return nil
+	}
 }
 
 func testAccCheckDataprocClusterAttrMatch(n string) resource.TestCheckFunc {
@@ -301,16 +397,28 @@ func testAccCheckDataprocClusterAttrMatch(n string) resource.TestCheckFunc {
 			{"metadata", cluster.Config.GceClusterConfig.Metadata},
 			{"labels", cluster.Labels},
 			{"tags", cluster.Config.GceClusterConfig.Tags},
+		}
 
-			{"master_config.0.num_masters", strconv.FormatInt(cluster.Config.MasterConfig.NumInstances, base10)},
-			{"master_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb, base10)},
-			{"master_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds, base10)},
-			{"master_config.0.machine_type", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)},
+		if cluster.Config.MasterConfig != nil {
+			clusterTests = append(clusterTests,
+				clusterTestField{"master_config.0.num_masters", strconv.FormatInt(cluster.Config.MasterConfig.NumInstances, base10)},
+				clusterTestField{"master_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb, base10)},
+				clusterTestField{"master_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds, base10)},
+				clusterTestField{"master_config.0.machine_type", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)})
+		}
 
-			{"worker_config.0.num_workers", strconv.FormatInt(cluster.Config.WorkerConfig.NumInstances, base10)},
-			{"worker_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb, base10)},
-			{"worker_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds, base10)},
-			{"worker_config.0.machine_type", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
+		if cluster.Config.WorkerConfig != nil {
+			clusterTests = append(clusterTests,
+				clusterTestField{"worker_config.0.num_workers", strconv.FormatInt(cluster.Config.WorkerConfig.NumInstances, base10)},
+				clusterTestField{"worker_config.0.boot_disk_size_gb", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb, base10)},
+				clusterTestField{"worker_config.0.num_local_ssds", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds, base10)},
+				clusterTestField{"worker_config.0.machine_type", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)})
+		}
+
+		if cluster.Config.SecondaryWorkerConfig != nil {
+			clusterTests = append(clusterTests,
+				clusterTestField{"worker_config.0.preemptible_num_workers", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.NumInstances, base10)},
+				clusterTestField{"worker_config.0.preemptible_boot_disk_size_gb", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb, base10)})
 		}
 
 		extracted := false
@@ -329,12 +437,6 @@ func testAccCheckDataprocClusterAttrMatch(n string) resource.TestCheckFunc {
 				}
 			}
 			clusterTests = append(clusterTests, clusterTestField{"initialization_actions", actions})
-		}
-
-		if cluster.Config.SecondaryWorkerConfig != nil {
-			clusterTests = append(clusterTests,
-				clusterTestField{"worker_config.0.preemptible_num_workers", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.NumInstances, base10)},
-				clusterTestField{"worker_config.0.preemptible_boot_disk_size_gb", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb, base10)})
 		}
 
 		for _, attrs := range clusterTests {
@@ -379,7 +481,7 @@ func testInitActionSucceeded(bucket, object string) resource.TestCheckFunc {
 func testAccCheckDataproc_missingZoneGlobalRegion(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-	name = "dproc-cluster-test-%s"
+	name   = "dproc-cluster-test-%s"
 	region = "global"
 }
 `, rnd)
@@ -394,9 +496,31 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocCluster_withMasterConfig(rnd string) string {
+func testAccDataprocCluster_singleNodeCluster(rnd string) string {
 	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_master_config" {
+resource "google_dataproc_cluster" "single_node_cluster" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    # Because of current restrictions with computed AND default
+    # [list|Set] properties, we need to add this empty config
+    # here otherwise if you plan straight away afterwards you
+    # will get a diff. If you have actual config values that is
+    # fine, but if you were hoping to use the defaults, this is
+    # required
+    master_config { }
+    worker_config { }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withConfigOverrides(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_config_overrides" {
 	name   = "dproc-cluster-test-%s"
 	region = "us-central1"
 
@@ -404,7 +528,17 @@ resource "google_dataproc_cluster" "with_master_config" {
 		num_masters       = 1
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
-		num_local_ssds    = 1
+		num_local_ssds    = 0
+	}
+
+	worker_config {
+	    num_workers       = 2
+		machine_type      = "n1-standard-1"
+		boot_disk_size_gb = 10
+		num_local_ssds    = 0
+
+		preemptible_num_workers       = 1
+		preemptible_boot_disk_size_gb = 10
 	}
 }`, rnd)
 }
@@ -441,13 +575,11 @@ resource "google_dataproc_cluster" "with_init_action" {
 	]
 
     # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -459,7 +591,12 @@ func testAccDataprocCluster_withBucket(rnd string) string {
 resource "google_storage_bucket" "bucket" {
     name          = "dproc-cluster-test-%s-bucket"
     force_destroy = "true"
+}`, rnd)
 }
+
+func testAccDataprocCluster_withBucketAndCluster(rnd string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "google_dataproc_cluster" "with_bucket" {
 	name   = "dproc-cluster-test-%s"
@@ -467,41 +604,15 @@ resource "google_dataproc_cluster" "with_bucket" {
 	staging_bucket = "${google_storage_bucket.bucket.name}"
 
     # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
 	master_config {
-	    num_masters       = 1
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
-	worker_config {
-	    num_workers       = 2
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-}`, rnd, rnd)
-}
-
-func testAccDataprocCluster_withWorkerConfig(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_worker_config" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-
-    # Keep the costs down with smallest config we can get away with
-	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-		num_local_ssds    = 1
-
-		preemptible_num_workers = 1
-		preemptible_boot_disk_size_gb = 10
-	}
-}`, rnd)
+}`, testAccDataprocCluster_withBucket(rnd), rnd)
 }
 
 func testAccDataprocCluster_withImageVersion(rnd string) string {
@@ -520,13 +631,11 @@ resource "google_dataproc_cluster" "with_service_account" {
 	region = "us-central1"
 
     # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -586,13 +695,11 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
 	depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
     # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -606,13 +713,11 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     depends_on = ["google_compute_firewall.dataproc_network_firewall"]
 
     # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
 		machine_type      = "n1-standard-1"
 		boot_disk_size_gb = 10
 	}
@@ -627,5 +732,33 @@ func testAccPreCheckWithServiceAccount(t *testing.T) {
 	testAccPreCheck(t)
 	if v := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); v == "" {
 		t.Fatal("GOOGLE_SERVICE_ACCOUNT must be set for acceptance tests (dataproc)")
+	}
+}
+
+func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		found, err := config.clientDataproc.Projects.Regions.Clusters.Get(
+			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.ClusterName != rs.Primary.ID {
+			return fmt.Errorf("Cluster not found")
+		}
+
+		*cluster = *found
+
+		return nil
 	}
 }

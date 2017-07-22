@@ -20,15 +20,15 @@ whole cluster!
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-	name   = "dproc-cluster-unique-name"
-	region = "us-central1"
+    name   = "dproc-cluster-unique-name"
+    region = "us-central1"
 
-	master_config {
-		num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-		num_local_ssds    = 1
-	}
+    master_config {
+        num_masters       = 1
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+        num_local_ssds    = 1
+    }
 
     worker_config {
     	num_workers             = 2
@@ -63,27 +63,24 @@ resource "google_dataproc_cluster" "mycluster" {
 - - -
 
 * `region` - (Optional) The region that the cluster and associated nodes will be created in.
-    if not specified, defaults to `global`.
+   Defaults to `global`.
 
-* `zone` - (Optional) The zone where your data is stored and used (i.e. where
+* `zone` - (Optional) The GCP zone where your data is stored and used (i.e. where
     the master and the worker nodes will be created in). If region is set to 'global'
-    then zone IS mandatory, otherwise GCP is able to make use of [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/auto-zone)
+    then `zone` IS mandatory, otherwise GCP is able to make use of [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/auto-zone)
     to determine this automatically for you.
-    Note: This value has the additional effect of determining / restricting
-    which computing resources are available for use -
-    for example  `master_config.machine_type` or `worker_config.machine_type`.
+    Note: This setting additionally determines and restricts
+    which computing resources are available for use with other config such as
+    `master_config.machine_type` and `worker_config.machine_type`.
 
 * `staging_bucket` - (Optional) The Cloud Storage staging bucket used to stage files,
    such as Hadoop jars, between client machines and the cluster. Note: if not specified,
-   a bucket will be auto created for you. Whether specified explicitly here, or left to
-   be auto created, the ultimate bucket used will be made available through the `bucket`
-   attribute. Note: When it comes to destroying the cluster, if this attribute is set, the
-   bucket will not be auto deleted when the cluster is. All auto generated buckets however,
-   and ALL their content will be destroyed as part of the cluster destroy.
+   a bucket will be auto created for you. When it comes to destroying the cluster,
+   auto generated buckets (and ALL of their content) will also be destroyed.
 
 * `image_version` - (Optional) The Cloud Dataproc image version to use
    for the cluster - this essentially controls the sets of software versions
-   installed onto the images when you create clusters. If not specified, defaults to the
+   installed onto the nodes when you create clusters. If not specified, defaults to the
    latest version. For a list of valid versions see
    [Cloud Dataproc versions](https://cloud.google.com/dataproc/docs/concepts/dataproc-versions)
 
@@ -109,13 +106,9 @@ resource "google_dataproc_cluster" "mycluster" {
     either FQDNs, or scope aliases. The following scopes are necessary to ensure
     the correct functioning of the cluster:
 
-          https://www.googleapis.com/auth/cloud.useraccounts.readonly
-          https://www.googleapis.com/auth/devstorage.read_write
-          https://www.googleapis.com/auth/logging.write
-
-     ** `useraccounts-ro` (`https://www.googleapis.com/auth/cloud.useraccounts.readonly`)
-     ** `storage-rw`      (`https://www.googleapis.com/auth/devstorage.read_write`)
-     ** `logging-write`   (`https://www.googleapis.com/auth/logging.write`),
+  * `useraccounts-ro` (`https://www.googleapis.com/auth/cloud.useraccounts.readonly`)
+  * `storage-rw`      (`https://www.googleapis.com/auth/devstorage.read_write`)
+  * `logging-write`   (`https://www.googleapis.com/auth/logging.write`)
 
 * `metadata` - (Optional) The metadata key/value pairs assigned to instances in
     the cluster.

@@ -57,6 +57,12 @@ func resourceDataprocJob() *schema.Resource {
 				Computed: true,
 			},
 
+			"outputUri": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"pyspark_config": pySparkTFSchema(),
 			"spark_config":   sparkTFSchema(),
 
@@ -156,6 +162,7 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("labels", job.Labels)
 	d.Set("cluster", job.Placement.ClusterName)
 	d.Set("status", job.Status.State)
+	d.Set("outputUri", job.DriverOutputResourceUri)
 
 	if job.PysparkJob != nil {
 		pySparkConfig := getTfPySparkConfig(job.PysparkJob)
@@ -233,7 +240,7 @@ func pySparkTFSchema() *schema.Schema {
 					ForceNew: true,
 				},
 
-				"additional_python_files": {
+				"files": {
 					Type:     schema.TypeList,
 					Optional: true,
 					ForceNew: true,
@@ -242,7 +249,16 @@ func pySparkTFSchema() *schema.Schema {
 					},
 				},
 
-				"jar_files": {
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
 					Type:     schema.TypeList,
 					Optional: true,
 					ForceNew: true,
@@ -274,11 +290,12 @@ func pySparkTFSchema() *schema.Schema {
 func getTfPySparkConfig(job *dataproc.PySparkJob) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"args":                    job.Args,
-			"properties":              job.Properties,
-			"jar_files":               job.JarFileUris,
-			"main_python_file":        job.MainPythonFileUri,
-			"additional_python_files": job.PythonFileUris,
+			"main_python_file": job.MainPythonFileUri,
+			"args":             job.Args,
+			"properties":       job.Properties,
+			"jars":             job.JarFileUris,
+			"files":            job.PythonFileUris,
+			"archives":         job.ArchiveUris,
 		},
 	}
 }
@@ -304,7 +321,7 @@ func getPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 		}
 		job.Properties = m
 	}
-	if v, ok := config["jar_files"]; ok {
+	if v, ok := config["jars"]; ok {
 		arrList := v.([]interface{})
 		arr := []string{}
 		for _, v := range arrList {
@@ -312,7 +329,15 @@ func getPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 		}
 		job.JarFileUris = arr
 	}
-	if v, ok := config["additional_python_files"]; ok {
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
+	}
+	if v, ok := config["files"]; ok {
 		arrList := v.([]interface{})
 		arr := []string{}
 		for _, v := range arrList {

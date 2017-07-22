@@ -119,18 +119,19 @@ func testAccCheckDataprocJobAttrMatch(n, jobType string) resource.TestCheckFunc 
 
 		if jobType == "pyspark_config" {
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.main_python_file", job.PysparkJob.MainPythonFileUri})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.additional_python_files", job.PysparkJob.PythonFileUris})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.jars", job.PysparkJob.JarFileUris})
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.args", job.PysparkJob.Args})
+			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.jars", job.PysparkJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.files", job.PysparkJob.PythonFileUris})
+			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.archives", job.PysparkJob.ArchiveUris})
 			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.properties", job.PysparkJob.Properties})
 		}
 		if jobType == "spark_config" {
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_class", job.SparkJob.MainClass})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_jar", job.SparkJob.MainJarFileUri})
+			clusterTests = append(clusterTests, jobTestField{"spark_config.0.args", job.SparkJob.Args})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.jars", job.SparkJob.JarFileUris})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.files", job.SparkJob.FileUris})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.archives", job.SparkJob.ArchiveUris})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.args", job.SparkJob.Args})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.properties", job.SparkJob.Properties})
 		}
 
@@ -155,28 +156,34 @@ resource "google_dataproc_job" "missing_config" {
 func testAccDataprocJob_pySpark(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-	name = "dproc-job-test-%s-url"
-	zone = "us-central1-a"
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
 
     # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+	worker_config {}
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
+		machine_type      = "n1-standard-2"
 		boot_disk_size_gb = 10
 	}
-	worker_config {
-	    num_workers       = 2
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
+
+
 }
 
 resource "google_dataproc_job" "pyspark" {
     cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
     force_delete = true
 
     pyspark_config {
         main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+        properties = {
+            "spark.logConf" = "true"
+        }
     }
 }
 `, rnd)
@@ -185,30 +192,34 @@ resource "google_dataproc_job" "pyspark" {
 func testAccDataprocJob_spark(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-	name = "dproc-job-test-%s-url"
-	zone = "us-central1-a"
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
 
     # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    worker_config {}
 	master_config {
-	    num_masters       = 1
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-	worker_config {
-	    num_workers       = 2
-		machine_type      = "n1-standard-1"
+		machine_type      = "n1-standard-2"
 		boot_disk_size_gb = 10
 	}
 }
 
 resource "google_dataproc_job" "spark" {
     cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
     force_delete = true
 
     spark_config {
         main_class = "org.apache.spark.examples.SparkPi"
         jars       = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
         args       = ["1000"]
+        properties = {
+            "spark.logConf" = "true"
+        }
     }
 }
 

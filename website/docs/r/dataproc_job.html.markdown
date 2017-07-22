@@ -6,24 +6,24 @@ description: |-
   Manages a job resource within a Dataproc cluster.
 ---
 
-# google\_dataproc\_cluster
+# google\_dataproc\_job
 
 Manages a job resource within a Dataproc cluster within GCE. For more information see
 [the official dataproc documentation](https://cloud.google.com/dataproc/).
 
 !> **Note:** This resource does not really support 'update' functionality. Once created
    (aka submitted to the cluster) there is not much point in changing anything. As a result
-   changing any attributes will essentially cause the creation (submission) of a whole new job!
+   changing any attributes will essentially cause the creation (submission) of a whole new job.
 
 ## Example usage
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-	name = "dproc-cluster-unique-name"
-	zone = "us-central1-f"
+    name = "dproc-cluster-unique-name"
+    zone = "us-central1-f"
 }
 
-# Submit a spark job to the cluster
+# Submit an example spark job to a dataproc cluster
 resource "google_dataproc_job" "spark" {
     cluster      = "${google_dataproc_cluster.mycluster.name}"
     force_delete = true
@@ -35,7 +35,7 @@ resource "google_dataproc_job" "spark" {
     }
 }
 
-# Submit a pyspark job to the cluster
+# Submit an example pyspark job to dataproc cluster
 resource "google_dataproc_job" "pyspark" {
     cluster      = "${google_dataproc_cluster.mycluster.name}"
     force_delete = true
@@ -48,12 +48,15 @@ resource "google_dataproc_job" "pyspark" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The Dataproc cluster to submit the job to.
+* `cluster` - (Required) The Dataproc cluster to submit the job to. Note: the list
+   of available clusters to choose from is determined by the `region` value.
+
 
 * `xxx_config` - (Required) Exactly one of the specific job types to run on the
-   system should be specified. If you want to submit multiple jobs, this will
-   currently require the definition of multiple job blocks, or via the count
-   attribute. The following job configs are supported:
+   cluster should be specified. If you want to submit multiple jobs, this will
+   currently require the definition of multiple `google_dataproc_job` resources
+   as shown in the example above, or by setting the `count` attribute.
+   The following job configs are supported:
 
        * pyspark_config - Submits a PySpark job to the cluster
        * spark_config   - Submits a Spark job to the cluster
@@ -67,35 +70,54 @@ resource "google_dataproc_job" "pyspark" {
 
 - - -
 
-* `region` - (Optional) The region to look for the `cluster`.
-    If not specified, defaults to `global`.
+* `region` - (Optional) The Cloud Dataproc region. This essentially determines which clusters are available
+   for this job to be submitted to. If not specified, defaults to `global`.
 
 * `force_delete` - (Optional) By default, you can only delete inactive jobs within
-   dataproc. Setting this to true, and calling destroy, will first ensure that the
-   job is cancellded and then fully delete it from the cluster.
+   Dataproc. Setting this to true, and calling destroy, will ensure that the
+   job is first cancelled before issuing the delete.
 
-* `labels` - (Optional) The list of labels (key/value pairs) to add.
+* `labels` - (Optional) The list of labels (key/value pairs) to add to the job.
 
 The **pyspark_config** supports:
+
+Submitting a pyspark job to the cluster. Below is an example configuration:
 
 ```hcl
 
 # Submit a pyspark job to the cluster
 resource "google_dataproc_job" "pyspark" {
-    cluster      = "dproc-cluster-unique-name"
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
     force_delete = true
 
     pyspark_config {
         main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+        properties = {
+            "spark.logConf" = "true"
+        }
     }
 }
 ```
 
-* `main_python_file`- (Required) The main .py file to run as the driver.
+For configurations requiring Hadoop Compatible File System (HCFS) references, the options below
+are generally applicable:
 
-* `additional_python_files` - (Optional) A list of additional files to include.
+      - GCS files with the `gs://` prefix
+      - HDFS files on the cluster with the `hdfs://` prefix
+      - Local files on the cluster with the `file://` prefix
 
-* `jar_files` - (Optional) A list of jar files to be provided to the executor and driver classpaths.
+* `main_python_file`- (Required) The HCFS URI of the main Python file (.py) to use as the driver.
+
+* `files` - (Optional) A list of HCFS file URIs of Python files to pass to the
+   PySpark framework. These are copied to the working directory of Python drivers
+   and distributed tasks
+
+* `jars` - (Optional) A list of HCFS jar files URIs to add to the
+   CLASSPATHs of the Python driver and tasks.
+
+* `archives` - (Optional) A list of HCFS archive URIs to be extracted in the
+   working directory, typically of .jar, .tar, .tar.gz, .tgz, and .zip extentions.
 
 * `args` - (Optional) The arguments to pass to the driver.
 
@@ -109,13 +131,17 @@ The **spark_config** supports:
 
 # Submit a spark job to the cluster
 resource "google_dataproc_job" "pyspark" {
-    cluster      = "dproc-cluster-unique-name"
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
     force_delete = true
 
     spark_config {
         main_class = "org.apache.spark.examples.SparkPi"
-        jar_files  = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+        jars       = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
         args       = ["1000"]
+        properties = {
+            "spark.logConf" = "true"
+        }
     }
 }
 ```
@@ -123,17 +149,17 @@ resource "google_dataproc_job" "pyspark" {
 * `main_class`- (Optional) The class containing the main method of the driver. Must be in a
    provided jar or jar that is already on the classpath. Conflicts with `main_jar`
 
-* `main_jar` - (Optional) The Hadoop Compatible File System (HCFS) URI of jar file containing
+* `main_jar` - (Optional) The HCFS URI of jar file containing
    the driver jar. Conflicts with `main_class`
 
-* `args` - (Optional) The arguments to pass to the driver.
+* `args` - (Optional) The arguments to pass to the main class.
 
-* `jars` - (Optional) A list of jar files to be provided to the executor and driver classpaths.
+* `jars` - (Optional) A list of HCFS jar files URIs to be provided to the executor and driver classpaths.
 
-* `files` - (Optional) A list of files to be provided to the job.
+* `files` - (Optional) A list of HCFS files URIs to be provided to the job.
 
-* `archives` - (Optional) A list of archives to be provided to the job. must be one
-   of the following file formats: .zip, .tar, .tar.gz, or .tgz..
+* `archives` - (Optional) A list of HCFS archive files URIs to to be provided to the job. must be one
+   of the following file formats: .zip, .tar, .tar.gz, or .tgz.
 
 * `properties` - (Optional) A list of key value pairs to configure Spark.
 
@@ -144,6 +170,8 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `status` - The current status of the job.
+
+* `outputUri` - A URI pointing to the location of the stdout of the job's driver program.
 
 <a id="timeouts"></a>
 ## Timeouts
