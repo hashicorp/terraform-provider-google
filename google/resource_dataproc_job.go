@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/pkg/errors"
 	"google.golang.org/api/dataproc/v1"
 )
 
@@ -121,7 +120,7 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if jobConfCount != 1 {
-		return errors.New("You must define and configure exactly one xxx_config block")
+		return fmt.Errorf("You must define and configure exactly one xxx_config block")
 	}
 
 	// Submit the job
