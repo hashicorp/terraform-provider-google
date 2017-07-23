@@ -26,6 +26,7 @@ resource "google_dataproc_cluster" "mycluster" {
 # Submit an example spark job to a dataproc cluster
 resource "google_dataproc_job" "spark" {
     cluster      = "${google_dataproc_cluster.mycluster.name}"
+    region       = "${google_dataproc_cluster.mycluster.region}"
     force_delete = true
 
     spark_config {
@@ -35,14 +36,24 @@ resource "google_dataproc_job" "spark" {
     }
 }
 
-# Submit an example pyspark job to dataproc cluster
+# Submit an example pyspark job to a dataproc cluster
 resource "google_dataproc_job" "pyspark" {
     cluster      = "${google_dataproc_cluster.mycluster.name}"
+    region       = "${google_dataproc_cluster.mycluster.region}"
     force_delete = true
 
     pyspark_config {
         main_python_file = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
     }
+}
+
+# Check out current state of running jobs
+output "spark_status" {
+    value = "${google_dataproc_job.spark.status}"
+}
+
+output "pyspark_status" {
+    value = "${google_dataproc_job.pyspark.status}"
 }
 ```
 
