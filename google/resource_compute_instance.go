@@ -378,22 +378,39 @@ func resourceComputeInstance() *schema.Resource {
 
 			"scheduling": &schema.Schema{
 				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// The `scheduling` block is optional in the config but implicitly has a length
+					// of 1 with the default values for `automatic_restart` and `preemptible`.
+					// This suppress the diff `scheduling.#: "1" => "0"` when the `scheduling` block
+					// is not specified by the user.
+					if k == "scheduling.#" {
+						return true
+					}
+
+					// Don't suppress the diff for the scheduling fields.
+					return false
+				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Computed: true,
 						},
 
 						"preemptible": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
+							ForceNew: true,
 						},
 					},
 				},
@@ -1051,6 +1068,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("disk", disks)
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
+
+	scheduling, _ := flattenScheduling(instance.Scheduling)
+	d.Set("scheduling", scheduling)
 
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
