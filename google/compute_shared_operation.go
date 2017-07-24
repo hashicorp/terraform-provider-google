@@ -10,15 +10,13 @@ func computeSharedOperationWaitZone(config *Config, op interface{}, project stri
 }
 
 func computeSharedOperationWaitZoneTime(config *Config, op interface{}, project string, zone string, minutes int, activity string) error {
-	if op == nil {
-		panic("Attempted to wait on an Operation that was nil.")
-	}
-
 	switch op.(type) {
 	case *compute.Operation:
 		return computeOperationWaitZoneTime(config, op.(*compute.Operation), project, zone, minutes, activity)
 	case *computeBeta.Operation:
 		return computeBetaOperationWaitZoneTime(config, op.(*computeBeta.Operation), project, zone, minutes, activity)
+	case nil:
+		panic("Attempted to wait on an Operation that was nil.")
 	default:
 		panic("Attempted to wait on an Operation of unknown type.")
 	}
