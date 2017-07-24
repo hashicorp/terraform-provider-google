@@ -155,10 +155,9 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	// Get group size, default to 1 if not given
-	var target_size int64 = 1
+	targetSize := int64(0)
 	if v, ok := d.GetOk("target_size"); ok {
-		target_size = int64(v.(int))
+		targetSize = int64(v.(int))
 	}
 
 	// Build the parameter
@@ -166,7 +165,9 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		Name:             d.Get("name").(string),
 		BaseInstanceName: d.Get("base_instance_name").(string),
 		InstanceTemplate: d.Get("instance_template").(string),
-		TargetSize:       target_size,
+		TargetSize:       targetSize,
+		// Force send TargetSize to allow a value of 0.
+		ForceSendFields: []string{"TargetSize"},
 	}
 
 	// Set optional fields
@@ -345,7 +346,6 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", manager.InstanceGroup)
-	d.Set("target_size", manager.TargetSize)
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 	update_strategy, ok := d.GetOk("update_strategy")
 	if !ok {
@@ -577,31 +577,26 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.SetPartial("named_port")
 	}
 
-	// If size changes trigger a resize
 	if d.HasChange("target_size") {
-		if v, ok := d.GetOk("target_size"); ok {
-			// Only do anything if the new size is set
-			target_size := int64(v.(int))
+		targetSize := int64(d.Get("target_size").(int))
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			op, err = config.clientCompute.InstanceGroupManagers.Resize(
+				project, d.Get("zone").(string), d.Id(), targetSize).Do()
+		case v0beta:
+			op, err = config.clientComputeBeta.InstanceGroupManagers.Resize(
+				project, d.Get("zone").(string), d.Id(), targetSize).Do()
+		}
 
-			var op interface{}
-			switch computeApiVersion {
-			case v1:
-				op, err = config.clientCompute.InstanceGroupManagers.Resize(
-					project, d.Get("zone").(string), d.Id(), target_size).Do()
-			case v0beta:
-				op, err = config.clientComputeBeta.InstanceGroupManagers.Resize(
-					project, d.Get("zone").(string), d.Id(), target_size).Do()
-			}
+		if err != nil {
+			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
+		}
 
-			if err != nil {
-				return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
-			}
-
-			// Wait for the operation to complete
-			err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
-			if err != nil {
-				return err
-			}
+		// Wait for the operation to complete
+		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		if err != nil {
+			return err
 		}
 
 		d.SetPartial("target_size")

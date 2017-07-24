@@ -16,16 +16,15 @@ and [API](https://cloud.google.com/compute/docs/instance-groups/manager/v1beta2/
 ## Example Usage
 
 ```hcl
-resource "google_compute_instance_group_manager" "foobar" {
-  name        = "terraform-test"
-  description = "Terraform test instance group manager"
+resource "google_compute_instance_group_manager" "appserver" {
+  name        = "appserver-igm"
 
-  base_instance_name = "foobar"
-  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  base_instance_name = "app"
+  instance_template  = "${google_compute_instance_template.appserver.self_link}"
   update_strategy    = "NONE"
   zone               = "us-central1-a"
 
-  target_pools = ["${google_compute_target_pool.foobar.self_link}"]
+  target_pools = ["${google_compute_target_pool.appserver.self_link}"]
   target_size  = 2
 
   named_port {
@@ -74,9 +73,9 @@ The following arguments are supported:
     restart all of the instances at once. In the future, as the GCE API matures
     we will support `"ROLLING_UPDATE"` as well.
 
-* `target_size` - (Optional) If not given at creation time, this defaults to 1.
-    Do not specify this if you are managing the group with an autoscaler, as
-    this will cause fighting.
+* `target_size` - (Optional) The target number of running instances for this managed
+    instance group. This value should always be explicitly set unless this resource is attached to
+     an autoscaler, in which case it should never be set. Defaults to `0`.
 
 * `target_pools` - (Optional) The full URL of all target pools to which new
     instances in the group are added. Updating the target pools attribute does
@@ -98,3 +97,12 @@ exported:
 * `instance_group` - The full URL of the instance group created by the manager.
 
 * `self_link` - The URL of the created resource.
+
+
+## Import
+
+Instance group managers can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_instance_group_manager.appserver appserver-igm
+```

@@ -24,8 +24,10 @@ resource "google_sql_database_instance" "master" {
 }
 
 resource "google_sql_database" "users" {
-  name     = "image-store-bucket"
-  instance = "${google_sql_database_instance.master.name}"
+  name      = "users-db"
+  instance  = "${google_sql_database_instance.master.name}"
+  charset   = "latin1"
+  collation = "latin1_swedish_ci"
 }
 ```
 
@@ -42,9 +44,22 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+* `charset` - (Optional) The MySQL charset value (default "utf8").
+
+* `collation` - (Optional) The MySQL collation value (default
+    "utf8_general_ci").
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+SQL databases can be imported using the `instance` and `name`, e.g.
+
+```
+$ terraform import google_sql_database.database master-instance:users-db
+```

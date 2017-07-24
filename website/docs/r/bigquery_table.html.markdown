@@ -17,7 +17,7 @@ Creates a table resource in a dataset for Google BigQuery. For more information 
 
 ```hcl
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "test"
+  dataset_id                  = "foo"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -30,7 +30,7 @@ resource "google_bigquery_dataset" "default" {
 
 resource "google_bigquery_table" "default" {
   dataset_id = "${google_bigquery_dataset.default.id}"
-  table_id   = "test"
+  table_id   = "bar"
 
   time_partitioning {
     type = "DAY"
@@ -106,8 +106,8 @@ exported:
 
 ## Import
 
-Tables can be imported using ID of the table (`projectID`:`datasetID`.`tableID`), e.g.
+BigQuery tables can be imported using the `project`, `dataset_id`, and `table_id`, e.g.
 
 ```
-$ terraform import bigquery_table.default testproject:testdataset.testtable
+$ terraform import google_bigquery_table.default gcp-project:foo.bar
 ```

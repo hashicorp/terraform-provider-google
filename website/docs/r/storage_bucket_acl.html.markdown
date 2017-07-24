@@ -43,6 +43,8 @@ resource "google_storage_bucket_acl" "image-store-acl" {
 
 * `role_entity` - (Optional) List of role/entity pairs in the form `ROLE:entity`. See [GCS Bucket ACL documentation](https://cloud.google.com/storage/docs/json_api/v1/bucketAccessControls)  for more details. Must be set if `predefined_acl` is not.
 
+* `default_acl` - (Optional) Configure this ACL to be the default ACL.
+
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.

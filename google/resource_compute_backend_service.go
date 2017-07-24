@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -17,28 +16,25 @@ func resourceComputeBackendService() *schema.Resource {
 		Read:   resourceComputeBackendServiceRead,
 		Update: resourceComputeBackendServiceUpdate,
 		Delete: resourceComputeBackendServiceDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
-					if !regexp.MustCompile(re).MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q (%q) doesn't match regexp %q", k, value, re))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 
 			"health_checks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Required: true,
 				Set:      schema.HashString,
+				Required: true,
+				MinItems: 1,
+				MaxItems: 1,
 			},
 
 			"backend": &schema.Schema{
@@ -241,6 +237,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
 	}
 
+	d.Set("name", service.Name)
 	d.Set("description", service.Description)
 	d.Set("enable_cdn", service.EnableCDN)
 	d.Set("port_name", service.PortName)

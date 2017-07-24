@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 )
@@ -68,7 +69,7 @@ func dataSourceGoogleSignedUrl() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "GET",
-				ValidateFunc: validateHttpMethod,
+				ValidateFunc: validation.StringInSlice([]string{"GET", "HEAD", "PUT", "DELETE"}, true),
 			},
 			"path": &schema.Schema{
 				Type:     schema.TypeString,
@@ -89,15 +90,6 @@ func validateExtensionHeaders(v interface{}, k string) (ws []string, errors []er
 			errors = append(errors, fmt.Errorf(
 				"extension_header (%s) not valid, header name must begin with 'x-goog-'", k))
 		}
-	}
-	return
-}
-
-func validateHttpMethod(v interface{}, k string) (ws []string, errs []error) {
-	value := v.(string)
-	value = strings.ToUpper(value)
-	if value != "GET" && value != "HEAD" && value != "PUT" && value != "DELETE" {
-		errs = append(errs, errors.New("http_method must be one of [GET|HEAD|PUT|DELETE]"))
 	}
 	return
 }

@@ -83,3 +83,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+VM image can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_image.web-image my-custom-image
+```

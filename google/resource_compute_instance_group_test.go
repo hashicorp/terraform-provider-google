@@ -59,7 +59,7 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 					testAccComputeInstanceGroup_exists(
 						"google_compute_instance_group.update", &instanceGroup),
 					testAccComputeInstanceGroup_updated(
-						"google_compute_instance_group.update", 3, &instanceGroup),
+						"google_compute_instance_group.update", 1, &instanceGroup),
 					testAccComputeInstanceGroup_named_ports(
 						"google_compute_instance_group.update",
 						map[string]int64{"http": 8081, "test": 8444},
@@ -124,7 +124,7 @@ func testAccComputeInstanceGroup_destroy(s *terraform.State) error {
 			continue
 		}
 		_, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err == nil {
 			return fmt.Errorf("InstanceGroup still exists")
 		}
@@ -147,13 +147,9 @@ func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.Instanc
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("InstanceGroup not found")
 		}
 
 		*instanceGroup = *found
@@ -176,7 +172,7 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 		config := testAccProvider.Meta().(*Config)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -205,7 +201,7 @@ func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, inst
 		config := testAccProvider.Meta().(*Config)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -239,7 +235,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 			return fmt.Errorf("No ID is set")
 		}
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.ID).Do()
+			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -319,7 +315,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		zone = "us-central1-c"
-		count = 1
+		count = 2
 
 		disk {
 			image = "debian-8-jessie-v20160803"
@@ -334,7 +330,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		description = "Terraform test instance group"
 		name = "%s"
 		zone = "us-central1-c"
-		instances = [ "${google_compute_instance.ig_instance.self_link}" ]
+		instances = [ "${google_compute_instance.ig_instance.*.self_link}" ]
 		named_port {
 			name = "http"
 			port = "8080"
@@ -354,7 +350,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		zone = "us-central1-c"
-		count = 3
+		count = 1
 
 		disk {
 			image = "debian-8-jessie-v20160803"
