@@ -18,6 +18,7 @@ var OrderedComputeApiVersions = []ComputeApiVersion{
 
 // Convert between two types by converting to/from JSON. Intended to switch
 // between multiple API versions, as they are strict supersets of one another.
+// Convert loses information about ForceSendFields and NullFields.
 func Convert(item, out interface{}) error {
 	bytes, err := json.Marshal(item)
 	if err != nil {

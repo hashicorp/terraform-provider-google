@@ -202,6 +202,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 			return err
 		}
 
+		managerV1.ForceSendFields = manager.ForceSendFields
 		op, err = config.clientCompute.InstanceGroupManagers.Insert(
 			project, d.Get("zone").(string), managerV1).Do()
 	case v0beta:
@@ -211,6 +212,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 			return err
 		}
 
+		managerV0beta.ForceSendFields = manager.ForceSendFields
 		op, err = config.clientComputeBeta.InstanceGroupManagers.Insert(
 			project, d.Get("zone").(string), managerV0beta).Do()
 	}
