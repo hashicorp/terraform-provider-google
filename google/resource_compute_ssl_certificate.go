@@ -48,9 +48,10 @@ func resourceComputeSslCertificate() *schema.Resource {
 			},
 
 			"private_key": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 
 			"description": &schema.Schema{
