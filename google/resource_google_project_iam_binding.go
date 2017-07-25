@@ -172,12 +172,8 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 // Get a cloudresourcemanager.Binding from a schema.ResourceData
 func getResourceIamBinding(d *schema.ResourceData) *cloudresourcemanager.Binding {
 	members := d.Get("members").(*schema.Set).List()
-	m := make([]string, 0, len(members))
-	for _, member := range members {
-		m = append(m, member.(string))
-	}
 	return &cloudresourcemanager.Binding{
-		Members: m,
+		Members: convertStringArr(members),
 		Role:    d.Get("role").(string),
 	}
 }
