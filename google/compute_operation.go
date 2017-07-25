@@ -12,14 +12,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-type ScopeType uint8
-
-const (
-	Global ScopeType = iota
-	Region
-	Zone
-)
-
 type ComputeOperationWaiter struct {
 	Service *compute.Service
 	Op      *compute.Operation
@@ -31,32 +23,17 @@ func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 		var op *compute.Operation
 		var err error
 
-		// Find the scope type and scope name of an operation
-		var scopeType ScopeType
-		var scope string
 		if w.Op.Zone != "" {
-			scopeType = Zone
-			scopeParts := strings.Split(w.Op.Zone, "/")
-			scope = scopeParts[len(scopeParts)-1]
+			zoneURLParts := strings.Split(w.Op.Zone, "/")
+			zone := zoneURLParts[len(zoneURLParts)-1]
+			op, err = w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()
 		} else if w.Op.Region != "" {
-			scopeType = Region
-			scopeParts := strings.Split(w.Op.Region, "/")
-			scope = scopeParts[len(scopeParts)-1]
+			regionURLParts := strings.Split(w.Op.Region, "/")
+			region := regionURLParts[len(regionURLParts)-1]
+			op, err = w.Service.RegionOperations.Get(w.Project, region, w.Op.Name).Do()
 		} else {
-			scopeType = Global
-		}
-
-		switch scopeType {
-		case Global:
 			op, err = w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
-		case Region:
-			op, err = w.Service.RegionOperations.Get(w.Project, scope, w.Op.Name).Do()
-		case Zone:
-			op, err = w.Service.ZoneOperations.Get(w.Project, scope, w.Op.Name).Do()
-		default:
-			return nil, "bad-type", fmt.Errorf("Invalid wait type: %#v", scopeType)
 		}
-
 		if err != nil {
 			return nil, "", err
 		}
@@ -143,6 +120,7 @@ func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project
 	return waitComputeOperationWaiter(w, timeoutMin, activity)
 }
 
+// TODO: Inline this to computeOperationWaitTime when the old wait methods are eliminated.
 func waitComputeOperationWaiter(w *ComputeOperationWaiter, timeoutMin int, activity string) error {
 	state := w.Conf()
 	state.Delay = 10 * time.Second
