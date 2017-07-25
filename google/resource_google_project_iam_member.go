@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -52,16 +51,7 @@ func resourceGoogleProjectIamMemberCreate(d *schema.ResourceData, meta interface
 	mutexKV.Lock(projectIamMemberMutexKey(pid, p.Role, p.Members[0]))
 	defer mutexKV.Unlock(projectIamMemberMutexKey(pid, p.Role, p.Members[0]))
 
-	for {
-		backoff := time.Second
-		// Get the existing bindings
-		log.Println("[DEBUG]: Retrieving policy for project", pid)
-		ep, err := getProjectIamPolicy(pid, config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG]: Retrieved policy for project %q: %+v\n", pid, ep)
-
+	err = projectIamPolicyReadModifyWrite(d, config, pid, func(ep *cloudresourcemanager.Policy) error {
 		// find the binding
 		var binding *cloudresourcemanager.Binding
 		for _, b := range ep.Bindings {
@@ -80,22 +70,11 @@ func resourceGoogleProjectIamMemberCreate(d *schema.ResourceData, meta interface
 
 		// Merge the bindings together
 		ep.Bindings = mergeBindings(append(ep.Bindings, p))
-		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, ep)
-		err = setProjectIamPolicy(ep, config, pid)
-		if err != nil && isConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
-			}
-			continue
-		} else if err != nil {
-			return fmt.Errorf("Error applying IAM policy to project: %v", err)
-		}
-		break
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG]: Set policy for project %q", pid)
 	d.SetId(pid + ":" + p.Role + ":" + p.Members[0])
 	return resourceGoogleProjectIamMemberRead(d, meta)
 }
@@ -134,6 +113,10 @@ func resourceGoogleProjectIamMemberRead(d *schema.ResourceData, meta interface{}
 			member = m
 		}
 	}
+	if member == "" {
+		d.SetId("")
+		return nil
+	}
 	d.Set("etag", p.Etag)
 	d.Set("member", member)
 	d.Set("role", binding.Role)
@@ -151,15 +134,7 @@ func resourceGoogleProjectIamMemberDelete(d *schema.ResourceData, meta interface
 	mutexKV.Lock(projectIamMemberMutexKey(pid, member.Role, member.Members[0]))
 	defer mutexKV.Unlock(projectIamMemberMutexKey(pid, member.Role, member.Members[0]))
 
-	for {
-		backoff := time.Second
-		log.Println("[DEBUG]: Retrieving policy for project", pid)
-		p, err := getProjectIamPolicy(pid, config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG]: Retrieved policy for project %q: %+v\n", pid, p)
-
+	err = projectIamPolicyReadModifyWrite(d, config, pid, func(p *cloudresourcemanager.Policy) error {
 		bindingToRemove := -1
 		for pos, b := range p.Bindings {
 			if b.Role != member.Role {
@@ -169,7 +144,7 @@ func resourceGoogleProjectIamMemberDelete(d *schema.ResourceData, meta interface
 			break
 		}
 		if bindingToRemove < 0 {
-			return resourceGoogleProjectIamMemberRead(d, meta)
+			return nil
 		}
 		binding := p.Bindings[bindingToRemove]
 		memberToRemove := -1
@@ -181,27 +156,15 @@ func resourceGoogleProjectIamMemberDelete(d *schema.ResourceData, meta interface
 			break
 		}
 		if memberToRemove < 0 {
-			return resourceGoogleProjectIamMemberRead(d, meta)
+			return nil
 		}
 		binding.Members = append(binding.Members[:memberToRemove], binding.Members[memberToRemove+1:]...)
 		p.Bindings[bindingToRemove] = binding
-
-		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, p)
-		err = setProjectIamPolicy(p, config, pid)
-		if err != nil && isConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
-			}
-			continue
-		} else if err != nil {
-			return fmt.Errorf("Error applying IAM policy to project: %v", err)
-		}
-		break
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG]: Set policy for project %q\n", pid)
 
 	return resourceGoogleProjectIamMemberRead(d, meta)
 }
