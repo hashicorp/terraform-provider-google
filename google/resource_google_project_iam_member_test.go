@@ -113,14 +113,15 @@ func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 func testAccGoogleProjectAssociateMemberBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_member" "acceptance" {
-    project = "${google_project.acceptance.project_id}"
-    member = "user:admin@hashicorptest.com"
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.project_id}"
+  member  = "user:admin@hashicorptest.com"
+  role    = "roles/compute.instanceAdmin"
 }
 `, pid, name, org)
 }
@@ -128,19 +129,21 @@ resource "google_project_iam_member" "acceptance" {
 func testAccGoogleProjectAssociateMemberMultiple(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_member" "acceptance" {
-    project = "${google_project.acceptance.project_id}"
-    member = "user:admin@hashicorptest.com"
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.project_id}"
+  member  = "user:admin@hashicorptest.com"
+  role    = "roles/compute.instanceAdmin"
 }
+
 resource "google_project_iam_member" "multiple" {
-    project = "${google_project.acceptance.project_id}"
-    member = "user:paddy@hashicorp.com"
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.project_id}"
+  member  = "user:paddy@hashicorp.com"
+  role    = "roles/compute.instanceAdmin"
 }
 `, pid, name, org)
 }
