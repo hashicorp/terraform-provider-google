@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -55,35 +54,14 @@ func resourceGoogleProjectIamBindingCreate(d *schema.ResourceData, meta interfac
 	mutexKV.Lock(projectIamBindingMutexKey(pid, p.Role))
 	defer mutexKV.Unlock(projectIamBindingMutexKey(pid, p.Role))
 
-	for {
-		backoff := time.Second
-		// Get the existing bindings
-		log.Println("[DEBUG]: Retrieving policy for project", pid)
-		ep, err := getProjectIamPolicy(pid, config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG]: Retrieved policy for project %q: %+v\n", pid, ep)
-
+	err = projectIamPolicyReadModifyWrite(d, config, pid, func(ep *cloudresourcemanager.Policy) error {
 		// Merge the bindings together
 		ep.Bindings = mergeBindings(append(ep.Bindings, p))
-		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, ep)
-		err = setProjectIamPolicy(ep, config, pid)
-		if err == nil {
-			// update was successful, yay
-			break
-		} else if isConflitError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
-			}
-			continue
-		}
-		return fmt.Errorf("Error applying IAM policy to project: %v", err)
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG]: Set policy for project %q", pid)
 	d.SetId(pid + ":" + p.Role)
 	return resourceGoogleProjectIamBindingRead(d, meta)
 }
@@ -133,15 +111,7 @@ func resourceGoogleProjectIamBindingUpdate(d *schema.ResourceData, meta interfac
 	mutexKV.Lock(projectIamBindingMutexKey(pid, binding.Role))
 	defer mutexKV.Unlock(projectIamBindingMutexKey(pid, binding.Role))
 
-	for {
-		backoff := time.Second
-		log.Println("[DEBUG]: Retrieving policy for project", pid)
-		p, err := getProjectIamPolicy(pid, config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG]: Retrieved policy for project %q: %+v\n", pid, p)
-
+	err = projectIamPolicyReadModifyWrite(d, config, pid, func(p *cloudresourcemanager.Policy) error {
 		var found bool
 		for pos, b := range p.Bindings {
 			if b.Role != binding.Role {
@@ -154,23 +124,11 @@ func resourceGoogleProjectIamBindingUpdate(d *schema.ResourceData, meta interfac
 		if !found {
 			p.Bindings = append(p.Bindings, binding)
 		}
-
-		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, p)
-		err = setProjectIamPolicy(p, config, pid)
-		if err != nil && isConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
-			}
-			continue
-		} else if err != nil {
-			return fmt.Errorf("Error applying IAM policy to project: %v", err)
-		}
-		break
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG]: Set policy for project %q\n", pid)
 
 	return resourceGoogleProjectIamBindingRead(d, meta)
 }
@@ -186,15 +144,7 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 	mutexKV.Lock(projectIamBindingMutexKey(pid, binding.Role))
 	defer mutexKV.Unlock(projectIamBindingMutexKey(pid, binding.Role))
 
-	for {
-		backoff := time.Second
-		log.Println("[DEBUG]: Retrieving policy for project", pid)
-		p, err := getProjectIamPolicy(pid, config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG]: Retrieved policy for project %q: %+v\n", pid, p)
-
+	err = projectIamPolicyReadModifyWrite(d, config, pid, func(p *cloudresourcemanager.Policy) error {
 		toRemove := -1
 		for pos, b := range p.Bindings {
 			if b.Role != binding.Role {
@@ -210,23 +160,11 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 		}
 
 		p.Bindings = append(p.Bindings[:toRemove], p.Bindings[toRemove+1:]...)
-
-		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, p)
-		err = setProjectIamPolicy(p, config, pid)
-		if err != nil && isConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
-			}
-			continue
-		} else if err != nil {
-			return fmt.Errorf("Error applying IAM policy to project: %v", err)
-		}
-		break
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG]: Set policy for project %q\n", pid)
 
 	return resourceGoogleProjectIamBindingRead(d, meta)
 }
