@@ -118,7 +118,7 @@ resource "google_project" "acceptance" {
     org_id = "%s"
 }
 resource "google_project_iam_member" "acceptance" {
-    project = "${google_project.acceptance.id}"
+    project = "${google_project.acceptance.project_id}"
     member = "user:admin@hashicorptest.com"
     role = "roles/compute.instanceAdmin"
 }
@@ -133,12 +133,12 @@ resource "google_project" "acceptance" {
     org_id = "%s"
 }
 resource "google_project_iam_member" "acceptance" {
-    project = "${google_project.acceptance.id}"
+    project = "${google_project.acceptance.project_id}"
     member = "user:admin@hashicorptest.com"
     role = "roles/compute.instanceAdmin"
 }
 resource "google_project_iam_member" "multiple" {
-    project = "${google_project.acceptance.id}"
+    project = "${google_project.acceptance.project_id}"
     member = "user:paddy@hashicorp.com"
     role = "roles/compute.instanceAdmin"
 }
