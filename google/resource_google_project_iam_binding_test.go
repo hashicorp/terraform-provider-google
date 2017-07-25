@@ -195,7 +195,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.id}"
+  project = "${google_project.acceptance.project_id}"
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
@@ -211,13 +211,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.id}"
+  project = "${google_project.acceptance.project_id}"
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
 
 resource "google_project_iam_binding" "multiple" {
-  project = "${google_project.acceptance.id}"
+  project = "${google_project.acceptance.project_id}"
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/viewer"
 }
@@ -233,7 +233,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.id}"
+  project = "${google_project.acceptance.project_id}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }
