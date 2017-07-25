@@ -91,7 +91,7 @@ func main() {
 	}
 
 	// This is the information we would expect users to provide
-	// TODO: Support higher versions than v1, support Update, support more extra params
+	// TODO: investigate whether we need more params than scope+parent
 	normalisedData := &NormalisedData{
 		Type:          *clientTypeFlag,
 		LowestVersion: lowestVersion,
