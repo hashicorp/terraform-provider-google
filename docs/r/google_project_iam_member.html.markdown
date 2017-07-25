@@ -20,9 +20,9 @@ the IAM policy for an existing Google Cloud Platform project.
 
 ```hcl
 resource "google_project_iam_member" "project" {
-  project     = "your-project-id"
-  role = "roles/editor"
-  member = "user:jane@example.com"
+  project = "your-project-id"
+  role    = "roles/editor"
+  member  = "user:jane@example.com"
 }
 ```
 
