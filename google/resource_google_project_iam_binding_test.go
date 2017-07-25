@@ -189,14 +189,15 @@ func testAccCheckGoogleProjectIamBindingExists(key string, expected *cloudresour
 func testAccGoogleProjectAssociateBindingBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_binding" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    members = ["user:admin@hashicorptest.com"]
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.id}"
+  members = ["user:admin@hashicorptest.com"]
+  role    = "roles/compute.instanceAdmin"
 }
 `, pid, name, org)
 }
@@ -204,19 +205,21 @@ resource "google_project_iam_binding" "acceptance" {
 func testAccGoogleProjectAssociateBindingMultiple(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_binding" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    members = ["user:admin@hashicorptest.com"]
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.id}"
+  members = ["user:admin@hashicorptest.com"]
+  role    = "roles/compute.instanceAdmin"
 }
+
 resource "google_project_iam_binding" "multiple" {
-    project = "${google_project.acceptance.id}"
-    members = ["user:paddy@hashicorp.com"]
-    role = "roles/viewer"
+  project = "${google_project.acceptance.id}"
+  members = ["user:paddy@hashicorp.com"]
+  role    = "roles/viewer"
 }
 `, pid, name, org)
 }
@@ -224,14 +227,15 @@ resource "google_project_iam_binding" "multiple" {
 func testAccGoogleProjectAssociateBindingUpdated(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_binding" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
-    role = "roles/compute.instanceAdmin"
+  project = "${google_project.acceptance.id}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  role    = "roles/compute.instanceAdmin"
 }
 `, pid, name, org)
 }
