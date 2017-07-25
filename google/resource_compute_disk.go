@@ -265,7 +265,11 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		imageUrlParts := strings.Split(disk.SourceImage, "/")
 		d.Set("image", imageUrlParts[len(imageUrlParts)-1])
 	}
-	d.Set("snapshot", disk.SourceSnapshot)
+
+	if disk.SourceSnapshot != "" {
+		snapshotUrlParts := strings.Split(disk.SourceSnapshot, "/")
+		d.Set("snapshot", snapshotUrlParts[len(snapshotUrlParts)-1])
+	}
 
 	return nil
 }
