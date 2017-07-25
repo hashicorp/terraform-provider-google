@@ -69,7 +69,10 @@ func resourceGoogleProjectIamBindingCreate(d *schema.ResourceData, meta interfac
 		ep.Bindings = mergeBindings(append(ep.Bindings, p))
 		log.Printf("[DEBUG]: Setting policy for project %q to %+v\n", pid, ep)
 		err = setProjectIamPolicy(ep, config, pid)
-		if err != nil && isConflictError(err) {
+		if err == nil {
+			// update was successful, yay
+			break
+		} else if isConflitError(err) {
 			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
@@ -77,10 +80,8 @@ func resourceGoogleProjectIamBindingCreate(d *schema.ResourceData, meta interfac
 				return fmt.Errorf("Error applying IAM policy to project %q: too many concurrent policy changes.\n", pid)
 			}
 			continue
-		} else if err != nil {
-			return fmt.Errorf("Error applying IAM policy to project: %v", err)
 		}
-		break
+		return fmt.Errorf("Error applying IAM policy to project: %v", err)
 	}
 	log.Printf("[DEBUG]: Set policy for project %q", pid)
 	d.SetId(pid + ":" + p.Role)
