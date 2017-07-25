@@ -61,7 +61,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	// It probably maybe worked, so store the ID now
 	d.SetId(addr.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Global Address")
+	err = computeOperationWait(config, op, project, "Creating Global Address")
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting address: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Global Address")
+	err = computeOperationWait(config, op, project, "Deleting Global Address")
 	if err != nil {
 		return err
 	}

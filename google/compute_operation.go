@@ -78,20 +78,6 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 	return waitComputeOperationWaiter(w, timeoutMin, activity)
 }
 
-func computeOperationWaitGlobal(config *Config, op *compute.Operation, project, activity string) error {
-	return computeOperationWaitGlobalTime(config, op, project, activity, 4)
-}
-
-func computeOperationWaitGlobalTime(config *Config, op *compute.Operation, project, activity string, timeoutMin int) error {
-	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
-		Op:      op,
-		Project: project,
-	}
-
-	return waitComputeOperationWaiter(w, timeoutMin, activity)
-}
-
 func computeOperationWaitRegion(config *Config, op *compute.Operation, project string, region, activity string) error {
 	return computeOperationWaitRegionTime(config, op, project, region, 4, activity)
 }

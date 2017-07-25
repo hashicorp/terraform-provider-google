@@ -169,7 +169,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error deleting snapshot: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Snapshot")
+	err = computeOperationWait(config, op, project, "Deleting Snapshot")
 	if err != nil {
 		return err
 	}

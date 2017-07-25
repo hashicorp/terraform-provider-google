@@ -139,7 +139,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(firewall.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Firewall")
+	err = computeOperationWait(config, op, project, "Creating Firewall")
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error updating firewall: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Updating Firewall")
+	err = computeOperationWait(config, op, project, "Updating Firewall")
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error deleting firewall: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Firewall")
+	err = computeOperationWait(config, op, project, "Deleting Firewall")
 	if err != nil {
 		return err
 	}
