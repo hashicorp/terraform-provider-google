@@ -299,3 +299,13 @@ func convertStringArr(ifaceArr []interface{}) []string {
 	}
 	return arr
 }
+
+func convertSchemaArrayToMap(arr []interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(arr))
+
+	for _, schema := range arr {
+		result = append(result, schema.(map[string]interface{}))
+	}
+
+	return result
+}

@@ -71,6 +71,38 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_peering(t *testing.T) {
+	var network compute.Network
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeNetwork_peering1,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.foo", &network),
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.bar", &network),
+					testAccCheckComputeNetworkHasPeer("foo-bar-peering", &network),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeNetwork_peering2,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.foo", &network),
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.bar", &network),
+					testAccCheckComputeNetworkHasPeer("foo-bar-peering2", &network),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -140,6 +172,17 @@ func testAccCheckComputeNetworkIsAutoSubnet(n string, network *compute.Network) 
 	}
 }
 
+func testAccCheckComputeNetworkHasPeer(n string, network *compute.Network) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, peering := range network.Peerings {
+			if peering.Name == n {
+				return nil
+			}
+		}
+		return fmt.Errorf("Peering network not found with name %q", n)
+	}
+}
+
 func testAccCheckComputeNetworkIsCustomSubnet(n string, network *compute.Network) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -179,3 +222,33 @@ resource "google_compute_network" "baz" {
 	name = "network-test-%s"
 	auto_create_subnetworks = false
 }`, acctest.RandString(10))
+
+var testAccComputeNetwork_peering1 = fmt.Sprintf(`
+resource "google_compute_network" "foo" {
+	name = "network-test-%s"
+}
+
+resource "google_compute_network" "bar" {
+	name = "network-test-%s"
+
+	peering {
+		name = "foo-bar-peering"
+		network = "${google_compute_network.foo.self_link}"
+	}
+}
+`, acctest.RandString(10), acctest.RandString(10))
+
+var testAccComputeNetwork_peering2 = fmt.Sprintf(`
+resource "google_compute_network" "foo" {
+	name = "network-test-%s"
+}
+
+resource "google_compute_network" "bar" {
+	name = "network-test-%s"
+
+	peering {
+		name = "foo-bar-peering2"
+		network = "${google_compute_network.foo.self_link}"
+	}
+}
+`, acctest.RandString(10), acctest.RandString(10))

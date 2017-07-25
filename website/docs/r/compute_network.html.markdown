@@ -17,6 +17,16 @@ resource "google_compute_network" "default" {
   name                    = "foobar"
   auto_create_subnetworks = "true"
 }
+
+resource "google_compute_network" "other" {
+  name                    = "other"
+  auto_create_subnetworks = "true"
+
+  peering {
+    name = "other-default-peering"
+    network = "${google_compute_network.default.self_link}"
+  }
+}
 ```
 
 ## Argument Reference
@@ -43,8 +53,21 @@ The following arguments are supported:
     `auto_create_subnetworks` attribute. This attribute may not be used if
     `auto_create_subnetworks` is specified. This attribute is deprecated.
 
+* `peering` - (Optional) Adds a peering to the specified network. This can be specified
+    multiple times for multiple network peerings. Structure is documented below.
+
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
+- - -
+
+The `peering` block supports:
+
+* `name` - (Required) Name of the peering.
+* `network` - (Required) Resource link of the peer network.
+* `auto_create_routes` - (Optional) If set to true, the routes between the two networks will
+  be created and managed automatically.
+* `state` - (Computed) State for the peering.
+* `state_details` - (Computed) Details about the current state of the peering.
 
 ## Attributes Reference
 
