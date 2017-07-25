@@ -207,7 +207,7 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 	}
 
 	if v, ok := d.GetOk("expiration_time"); ok {
-		table.ExpirationTime = v.(int64)
+		table.ExpirationTime = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk("friendly_name"); ok {
