@@ -2,6 +2,7 @@
 
 BUG FIXES:
 * compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
+* storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
 
 ## 0.1.2 (July 20, 2017)
 
