@@ -508,8 +508,8 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		_scheduling := _schedulings[0].(map[string]interface{})
 
 		// "automatic_restart" has a default value and is always safe to dereference
-		automatic_restart := _scheduling["automatic_restart"].(bool)
-		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(automatic_restart)
+		automaticRestart := _scheduling["automatic_restart"].(bool)
+		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(automaticRestart)
 		forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
 
 		if vp, okp := _scheduling["on_host_maintenance"]; okp {
