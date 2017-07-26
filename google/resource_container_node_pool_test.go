@@ -11,13 +11,47 @@ import (
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccContainerNodePool_basic,
+				Config: testAccContainerNodePool_basic(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_autoscaling(t *testing.T) {
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_autoscaling(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_updateAutoscaling(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_basic(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
 				),
@@ -77,13 +111,32 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 			return fmt.Errorf("Mismatched initialNodeCount. TF State: %s. GCP State: %d",
 				attributes["initial_node_count"], found.InitialNodeCount)
 		}
+
+		tfAS := attributes["autoscaling.#"] == "1"
+		if gcpAS := found.Autoscaling != nil && found.Autoscaling.Enabled == true; tfAS != gcpAS {
+			return fmt.Errorf("Mismatched autoscaling status. TF State: %t. GCP State: %t", tfAS, gcpAS)
+		}
+		if tfAS {
+			if tf := attributes["autoscaling.0.min_node_count"]; strconv.FormatInt(found.Autoscaling.MinNodeCount, 10) != tf {
+				return fmt.Errorf("Mismatched Autoscaling.MinNodeCount. TF State: %s. GCP State: %d",
+					tf, found.Autoscaling.MinNodeCount)
+			}
+
+			if tf := attributes["autoscaling.0.max_node_count"]; strconv.FormatInt(found.Autoscaling.MaxNodeCount, 10) != tf {
+				return fmt.Errorf("Mismatched Autoscaling.MaxNodeCount. TF State: %s. GCP State: %d",
+					tf, found.Autoscaling.MaxNodeCount)
+			}
+
+		}
+
 		return nil
 	}
 }
 
-var testAccContainerNodePool_basic = fmt.Sprintf(`
+func testAccContainerNodePool_basic(cluster, np string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-	name = "tf-cluster-nodepool-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
 
@@ -94,8 +147,59 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "np" {
-	name = "tf-nodepool-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_autoscaling(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+	autoscaling {
+		min_node_count = 1
+		max_node_count = 3
+	}
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_updateAutoscaling(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+	autoscaling {
+		min_node_count = 1
+		max_node_count = 5
+	}
+}`, cluster, np)
+}
