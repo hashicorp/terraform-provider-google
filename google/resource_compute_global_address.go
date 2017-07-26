@@ -5,13 +5,14 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
 var GlobalAddressBaseApiVersion = v1
-var GlobalAddressVersionedFeatures = []Feature{}
+var GlobalAddressVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "ip_version"}}
 
 func resourceComputeGlobalAddress() *schema.Resource {
 	return &schema.Resource{
@@ -29,15 +30,22 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"address": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
+			"ip_version": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6"}, false),
 			},
 
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"address": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			"self_link": &schema.Schema{
@@ -58,7 +66,10 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Build the address parameter
-	addr := &computeBeta.Address{Name: d.Get("name").(string)}
+	addr := &computeBeta.Address{
+		Name:      d.Get("name").(string),
+		IpVersion: d.Get("ip_version").(string),
+	}
 
 	var op interface{}
 	switch computeApiVersion {
@@ -130,9 +141,10 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	d.Set("address", addr.Address)
-	d.Set("self_link", addr.SelfLink)
 	d.Set("name", addr.Name)
+	d.Set("ip_version", addr.IpVersion)
+	d.Set("address", addr.Address)
+	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 
 	return nil
 }
