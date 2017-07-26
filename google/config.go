@@ -25,6 +25,7 @@ import (
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
 	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 )
@@ -42,6 +43,7 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientSourceRepos     *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
 	clientIAM             *iam.Service
@@ -196,6 +198,13 @@ func (c *Config) loadAndValidate() error {
 		UserAgent:   userAgent,
 		TokenSource: tokenSource,
 	}
+
+	log.Printf("[INFO] Instantiating Google Cloud Source Repos Client...")
+	c.clientSourceRepos, err = sourcerepo.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSourceRepos.UserAgent = userAgent
 
 	return nil
 }
