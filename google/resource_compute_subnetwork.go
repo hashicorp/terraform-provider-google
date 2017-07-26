@@ -16,6 +16,9 @@ func resourceComputeSubnetwork() *schema.Resource {
 		Read:   resourceComputeSubnetworkRead,
 		Update: resourceComputeSubnetworkUpdate,
 		Delete: resourceComputeSubnetworkDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeSubnetworkImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": &schema.Schema{
@@ -31,9 +34,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 			},
 
 			"network": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"description": &schema.Schema{
@@ -155,6 +159,11 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
 	}
 
+	d.Set("name", subnetwork.Name)
+	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
+	d.Set("network", subnetwork.Network)
+	d.Set("description", subnetwork.Description)
+	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
 	d.Set("self_link", subnetwork.SelfLink)
 
@@ -228,4 +237,22 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeSubnetworkImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid compute subnetwork specifier. Expecting {region}/{name}")
+	}
+
+	region, name := parts[0], parts[1]
+	d.Set("region", region)
+	d.Set("name", name)
+
+	d.SetId(createSubnetID(&compute.Subnetwork{
+		Region: region,
+		Name:   name,
+	}))
+
+	return []*schema.ResourceData{d}, nil
 }
