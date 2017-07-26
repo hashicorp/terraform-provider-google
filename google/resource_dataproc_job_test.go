@@ -97,6 +97,24 @@ func TestAccDataprocJob_Hive(t *testing.T) {
 	})
 }
 
+func TestAccDataprocJob_Pig(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocJob_pig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocJobAttrMatch(
+						"google_dataproc_job.pig", "pig_config"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -189,6 +207,17 @@ func testAccCheckDataprocJobAttrMatch(n, jobType string) resource.TestCheckFunc 
 			clusterTests = append(clusterTests, jobTestField{"hive_config.0.params", job.HiveJob.ScriptVariables})
 			clusterTests = append(clusterTests, jobTestField{"hive_config.0.jars", job.HiveJob.JarFileUris})
 			clusterTests = append(clusterTests, jobTestField{"hive_config.0.properties", job.HiveJob.Properties})
+		}
+		if jobType == "pig_config" {
+			queries := []string{}
+			if job.PigJob.QueryList != nil {
+				queries = job.PigJob.QueryList.Queries
+			}
+			clusterTests = append(clusterTests, jobTestField{"pig_config.0.execution_queries", queries})
+			clusterTests = append(clusterTests, jobTestField{"pig_config.0.execution_file", job.PigJob.QueryFileUri})
+			clusterTests = append(clusterTests, jobTestField{"pig_config.0.params", job.PigJob.ScriptVariables})
+			clusterTests = append(clusterTests, jobTestField{"pig_config.0.jars", job.PigJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"pig_config.0.properties", job.PigJob.Properties})
 		}
 
 		for _, attrs := range clusterTests {
@@ -350,6 +379,43 @@ resource "google_dataproc_job" "hive" {
             "DROP TABLE IF EXISTS dprocjob_test",
             "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.bucket}/hive_dprocjob_test/'",
             "SELECT * FROM dprocjob_test WHERE bar > 2",
+        ]
+    }
+}
+`, rnd)
+}
+
+func testAccDataprocJob_pig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
+
+    # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    worker_config {}
+	master_config {
+		machine_type      = "n1-standard-2"
+		boot_disk_size_gb = 10
+	}
+}
+
+resource "google_dataproc_job" "pig" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    pig_config {
+        execution_queries       = [
+            "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
+            "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
+            "GROUPS = GROUP WORDS BY word",
+            "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
+            "DUMP WORD_COUNTS"
         ]
     }
 }

@@ -66,10 +66,10 @@ func resourceDataprocJob() *schema.Resource {
 			"spark_config":   sparkTFSchema(),
 			"hadoop_config":  hadoopTFSchema(),
 			"hive_config":    hiveTFSchema(),
+			"pig_config":     pigTFSchema(),
 
 			// ..... Still TODO .....
 			/*
-				"pig":
 				"spark-sql":
 			*/
 		},
@@ -133,6 +133,13 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		submitReq.Job.HiveJob = getHiveJob(config)
 	}
 
+	if v, ok := d.GetOk("pig_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.PigJob = getPigJob(config)
+	}
+
 	if jobConfCount != 1 {
 		return fmt.Errorf("You must define and configure exactly one xxx_config block")
 	}
@@ -192,6 +199,10 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if job.HiveJob != nil {
 		hiveConfig := getHiveConfig(job.HiveJob)
 		d.Set("hive_config", hiveConfig)
+	}
+	if job.PigJob != nil {
+		pigConfig := getPigConfig(job.PigJob)
+		d.Set("pig_config", pigConfig)
 	}
 	return nil
 }
@@ -379,7 +390,7 @@ func sparkTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"pyspark_config", "hadoop_config", "hive_config"},
+		ConflictsWith: []string{"pyspark_config", "hadoop_config", "hive_config", "pig_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -519,7 +530,7 @@ func hadoopTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"spark_config", "pyspark_config", "hive_config"},
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hive_config", "pig_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -659,7 +670,7 @@ func hiveTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config"},
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "pig_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -727,6 +738,122 @@ func getHiveConfig(job *dataproc.HiveJob) []map[string]interface{} {
 func getHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 
 	job := &dataproc.HiveJob{}
+	if v, ok := config["execution_file"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["execution_queries"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.QueryList = &dataproc.QueryList{
+			Queries: arr,
+		}
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["params"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.ScriptVariables = m
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Pig Job ----
+
+func pigTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"execution_queries": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ConflictsWith: []string{"pig_config.execution_file"},
+				},
+
+				"execution_file": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"pig_config.execution_queries"},
+				},
+
+				"params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getPigConfig(job *dataproc.PigJob) []map[string]interface{} {
+
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"execution_queries": queries,
+			"execution_file":    job.QueryFileUri,
+			"params":            job.ScriptVariables,
+			"jars":              job.JarFileUris,
+			"properties":        job.Properties,
+		},
+	}
+}
+
+func getPigJob(config map[string]interface{}) *dataproc.PigJob {
+
+	job := &dataproc.PigJob{}
 	if v, ok := config["execution_file"]; ok {
 		job.QueryFileUri = v.(string)
 	}

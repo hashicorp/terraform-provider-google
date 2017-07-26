@@ -72,11 +72,11 @@ output "pyspark_status" {
        * pyspark_config - Submits a PySpark job to the cluster
        * spark_config   - Submits a Spark job to the cluster
        * hadoop_config  - Submits a Hadoop job to the cluster
+       * hive_config    - Submits a Hive job to the cluster
+       * hpig_config    - Submits a Pig job to the cluster
 
    These job configs are not yet implemented:
 
-       * hive
-       * pig
        * spark-sql
 
 - - -
@@ -227,7 +227,7 @@ resource "google_dataproc_job" "hive" {
         execution_queries       = [
             "DROP TABLE IF EXISTS dprocjob_test",
             "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.bucket}/hive_dprocjob_test/'",
-            "SELECT * FROM dprocjob_test WHERE bar > 2",
+            "SELECT * FROM dprocjob_test WHERE bar > 2"
         ]
     }
 }
@@ -244,6 +244,41 @@ resource "google_dataproc_job" "hive" {
 * `jars` - (Optional) A list of HCFS jar files URIs to be provided to the MR and hive.
 
 * `properties` - (Optional) A list of key value pairs to configure Hive.
+
+The **pig_config** supports:
+
+```hcl
+
+# Submit a pig job to the cluster
+resource "google_dataproc_job" "pig" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    pig_config {
+        execution_queries       = [
+            "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
+            "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
+            "GROUPS = GROUP WORDS BY word",
+            "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
+            "DUMP WORD_COUNTS"
+        ]
+    }
+}
+```
+
+* `execution_queries`- (Optional) The list of Pig queries or statements to execute as part of the job.
+   Conflicts with `execution_file`
+
+* `execution_file` - (Optional) HCFS URI of file containing Pig script to execute as the job.
+   Conflicts with `execution_queries`
+
+* `params` - (Optional) A list of key value pairs to set variables in the Pig queries.
+
+* `jars` - (Optional) A list of HCFS jar files URIs to be provided to the MR and Pig.
+
+* `properties` - (Optional) A list of key value pairs to configure Pig.
+
 
 
 ## Attributes Reference
