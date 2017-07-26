@@ -61,6 +61,24 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 	})
 }
 
+func TestAccDataprocJob_Hadoop(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocJob_hadoop(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocJobAttrMatch(
+						"google_dataproc_job.hadoop", "hadoop_config"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -225,6 +243,42 @@ resource "google_dataproc_job" "spark" {
 
 output "spark_status" {
     value = "${google_dataproc_job.spark.status}"
+}
+`, rnd)
+}
+
+func testAccDataprocJob_hadoop(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
+
+    # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    worker_config {}
+	master_config {
+		machine_type      = "n1-standard-2"
+		boot_disk_size_gb = 10
+	}
+}
+
+resource "google_dataproc_job" "hadoop" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    hadoop_config {
+		main_jar   =  "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
+		args       = [
+		  "wordcount",
+		  "file:///usr/lib/spark/NOTICE",
+		  "gs://${google_dataproc_cluster.basic.bucket}/hadoopjob_output"
+		]
+    }
 }
 `, rnd)
 }

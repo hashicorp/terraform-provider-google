@@ -64,10 +64,10 @@ func resourceDataprocJob() *schema.Resource {
 
 			"pyspark_config": pySparkTFSchema(),
 			"spark_config":   sparkTFSchema(),
+			"hadoop_config":  hadoopTFSchema(),
 
 			// ..... Still TODO .....
 			/*
-				"hadoop":
 				"hive":
 				"pig":
 				"spark-sql":
@@ -117,6 +117,13 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		configs := v.([]interface{})
 		config := configs[0].(map[string]interface{})
 		submitReq.Job.SparkJob = getSparkJob(config)
+	}
+
+	if v, ok := d.GetOk("hadoop_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.HadoopJob = getHadoopJob(config)
 	}
 
 	if jobConfCount != 1 {
@@ -170,6 +177,10 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if job.SparkJob != nil {
 		sparkConfig := getTfSparkConfig(job.SparkJob)
 		d.Set("spark_config", sparkConfig)
+	}
+	if job.HadoopJob != nil {
+		hadoopConfig := getHadoopConfig(job.HadoopJob)
+		d.Set("handoop_config", hadoopConfig)
 	}
 	return nil
 }
@@ -229,7 +240,7 @@ func pySparkTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"spark_config"},
+		ConflictsWith: []string{"spark_config", "hadoop_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -357,7 +368,7 @@ func sparkTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"pyspark_config"},
+		ConflictsWith: []string{"pyspark_config", "hadoop_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -439,6 +450,146 @@ func getTfSparkConfig(job *dataproc.SparkJob) []map[string]interface{} {
 func getSparkJob(config map[string]interface{}) *dataproc.SparkJob {
 
 	job := &dataproc.SparkJob{}
+	if v, ok := config["main_class"]; ok {
+		job.MainClass = v.(string)
+	}
+	if v, ok := config["main_jar"]; ok {
+		job.MainJarFileUri = v.(string)
+	}
+	if v, ok := config["files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.FileUris = arr
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Hadoop Job ----
+
+func hadoopTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_class": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hadoop_config.main_jar"},
+				},
+
+				"main_jar": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hadoop_config.main_class"},
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getHadoopConfig(job *dataproc.HadoopJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"main_class": job.MainClass,
+			"main_jar":   job.MainJarFileUri,
+			"jars":       job.JarFileUris,
+			"files":      job.FileUris,
+			"archives":   job.ArchiveUris,
+			"args":       job.Args,
+			"properties": job.Properties,
+		},
+	}
+}
+
+func getHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
+
+	job := &dataproc.HadoopJob{}
 	if v, ok := config["main_class"]; ok {
 		job.MainClass = v.(string)
 	}

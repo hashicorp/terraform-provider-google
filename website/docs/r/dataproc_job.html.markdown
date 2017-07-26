@@ -71,10 +71,10 @@ output "pyspark_status" {
 
        * pyspark_config - Submits a PySpark job to the cluster
        * spark_config   - Submits a Spark job to the cluster
+       * hadoop_config  - Submits a Hadoop job to the cluster
 
    These job configs are not yet implemented:
 
-       * hadoop
        * hive
        * pig
        * spark-sql
@@ -141,7 +141,7 @@ The **spark_config** supports:
 ```hcl
 
 # Submit a spark job to the cluster
-resource "google_dataproc_job" "pyspark" {
+resource "google_dataproc_job" "spark" {
     cluster      = "${google_dataproc_cluster.basic.name}"
     region       = "${google_dataproc_cluster.basic.region}"
     force_delete = true
@@ -173,6 +173,45 @@ resource "google_dataproc_job" "pyspark" {
    of the following file formats: .zip, .tar, .tar.gz, or .tgz.
 
 * `properties` - (Optional) A list of key value pairs to configure Spark.
+
+The **hadoop_config** supports:
+
+
+```hcl
+
+# Submit a hadoop job to the cluster
+resource "google_dataproc_job" "hadoop" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    hadoop_config {
+        main_jar   =  "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
+        args       = [
+            "wordcount",
+            "file:///usr/lib/spark/NOTICE",
+            "gs://${google_dataproc_cluster.basic.bucket}/hadoopjob_output"
+        ]
+    }
+}
+```
+
+* `main_class`- (Optional) The class containing the main method of the driver. Must be in a
+   provided jar or jar that is already on the classpath. Conflicts with `main_jar`
+
+* `main_jar` - (Optional) The HCFS URI of jar file containing
+   the driver jar. Conflicts with `main_class`
+
+* `args` - (Optional) The arguments to pass to the main class.
+
+* `jars` - (Optional) A list of HCFS jar files URIs to be provided to the MR and driver.
+
+* `files` - (Optional) A list of HCFS files URIs to be provided to the job.
+
+* `archives` - (Optional) A list of HCFS archive files URIs to to be provided to the job. must be one
+   of the following file formats: .zip, .tar, .tar.gz, or .tgz.
+
+* `properties` - (Optional) A list of key value pairs to configure Hadoop.
 
 
 ## Attributes Reference
