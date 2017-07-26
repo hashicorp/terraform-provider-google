@@ -115,6 +115,24 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 	})
 }
 
+func TestAccDataprocJob_SparkSql(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocJob_sparksql(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocJobAttrMatch(
+						"google_dataproc_job.sparksql", "sparksql_config"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -165,62 +183,73 @@ func testAccCheckDataprocJobAttrMatch(n, jobType string) resource.TestCheckFunc 
 			gcp_attr interface{}
 		}
 
-		clusterTests := []jobTestField{
+		jobTests := []jobTestField{
 
 			{"cluster", job.Placement.ClusterName},
 			{"labels", job.Labels},
 		}
 
 		if jobType == "pyspark_config" {
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.main_python_file", job.PysparkJob.MainPythonFileUri})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.args", job.PysparkJob.Args})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.jars", job.PysparkJob.JarFileUris})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.files", job.PysparkJob.PythonFileUris})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.archives", job.PysparkJob.ArchiveUris})
-			clusterTests = append(clusterTests, jobTestField{"pyspark_config.0.properties", job.PysparkJob.Properties})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.main_python_file", job.PysparkJob.MainPythonFileUri})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.args", job.PysparkJob.Args})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.jars", job.PysparkJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.files", job.PysparkJob.PythonFileUris})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.archives", job.PysparkJob.ArchiveUris})
+			jobTests = append(jobTests, jobTestField{"pyspark_config.0.properties", job.PysparkJob.Properties})
 		}
 		if jobType == "spark_config" {
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_class", job.SparkJob.MainClass})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.main_jar", job.SparkJob.MainJarFileUri})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.args", job.SparkJob.Args})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.jars", job.SparkJob.JarFileUris})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.files", job.SparkJob.FileUris})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.archives", job.SparkJob.ArchiveUris})
-			clusterTests = append(clusterTests, jobTestField{"spark_config.0.properties", job.SparkJob.Properties})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.main_class", job.SparkJob.MainClass})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.main_jar", job.SparkJob.MainJarFileUri})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.args", job.SparkJob.Args})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.jars", job.SparkJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.files", job.SparkJob.FileUris})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.archives", job.SparkJob.ArchiveUris})
+			jobTests = append(jobTests, jobTestField{"spark_config.0.properties", job.SparkJob.Properties})
 		}
 		if jobType == "hadoop_config" {
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.main_class", job.HadoopJob.MainClass})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.main_jar", job.HadoopJob.MainJarFileUri})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.args", job.HadoopJob.Args})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.jars", job.HadoopJob.JarFileUris})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.files", job.HadoopJob.FileUris})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.archives", job.HadoopJob.ArchiveUris})
-			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.properties", job.HadoopJob.Properties})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.main_class", job.HadoopJob.MainClass})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.main_jar", job.HadoopJob.MainJarFileUri})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.args", job.HadoopJob.Args})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.jars", job.HadoopJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.files", job.HadoopJob.FileUris})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.archives", job.HadoopJob.ArchiveUris})
+			jobTests = append(jobTests, jobTestField{"hadoop_config.0.properties", job.HadoopJob.Properties})
 		}
 		if jobType == "hive_config" {
 			queries := []string{}
 			if job.HiveJob.QueryList != nil {
 				queries = job.HiveJob.QueryList.Queries
 			}
-			clusterTests = append(clusterTests, jobTestField{"hive_config.0.execution_queries", queries})
-			clusterTests = append(clusterTests, jobTestField{"hive_config.0.execution_file", job.HiveJob.QueryFileUri})
-			clusterTests = append(clusterTests, jobTestField{"hive_config.0.params", job.HiveJob.ScriptVariables})
-			clusterTests = append(clusterTests, jobTestField{"hive_config.0.jars", job.HiveJob.JarFileUris})
-			clusterTests = append(clusterTests, jobTestField{"hive_config.0.properties", job.HiveJob.Properties})
+			jobTests = append(jobTests, jobTestField{"hive_config.0.execution_queries", queries})
+			jobTests = append(jobTests, jobTestField{"hive_config.0.execution_file", job.HiveJob.QueryFileUri})
+			jobTests = append(jobTests, jobTestField{"hive_config.0.params", job.HiveJob.ScriptVariables})
+			jobTests = append(jobTests, jobTestField{"hive_config.0.jars", job.HiveJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"hive_config.0.properties", job.HiveJob.Properties})
 		}
 		if jobType == "pig_config" {
 			queries := []string{}
 			if job.PigJob.QueryList != nil {
 				queries = job.PigJob.QueryList.Queries
 			}
-			clusterTests = append(clusterTests, jobTestField{"pig_config.0.execution_queries", queries})
-			clusterTests = append(clusterTests, jobTestField{"pig_config.0.execution_file", job.PigJob.QueryFileUri})
-			clusterTests = append(clusterTests, jobTestField{"pig_config.0.params", job.PigJob.ScriptVariables})
-			clusterTests = append(clusterTests, jobTestField{"pig_config.0.jars", job.PigJob.JarFileUris})
-			clusterTests = append(clusterTests, jobTestField{"pig_config.0.properties", job.PigJob.Properties})
+			jobTests = append(jobTests, jobTestField{"pig_config.0.execution_queries", queries})
+			jobTests = append(jobTests, jobTestField{"pig_config.0.execution_file", job.PigJob.QueryFileUri})
+			jobTests = append(jobTests, jobTestField{"pig_config.0.params", job.PigJob.ScriptVariables})
+			jobTests = append(jobTests, jobTestField{"pig_config.0.jars", job.PigJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"pig_config.0.properties", job.PigJob.Properties})
+		}
+		if jobType == "sparksql_config" {
+			queries := []string{}
+			if job.SparkSqlJob.QueryList != nil {
+				queries = job.SparkSqlJob.QueryList.Queries
+			}
+			jobTests = append(jobTests, jobTestField{"sparksql_config.0.execution_queries", queries})
+			jobTests = append(jobTests, jobTestField{"sparksql_config.0.execution_file", job.SparkSqlJob.QueryFileUri})
+			jobTests = append(jobTests, jobTestField{"sparksql_config.0.params", job.SparkSqlJob.ScriptVariables})
+			jobTests = append(jobTests, jobTestField{"sparksql_config.0.jars", job.SparkSqlJob.JarFileUris})
+			jobTests = append(jobTests, jobTestField{"sparksql_config.0.properties", job.SparkSqlJob.Properties})
 		}
 
-		for _, attrs := range clusterTests {
+		for _, attrs := range jobTests {
 			if c := checkMatch(attributes, attrs.tf_attr, attrs.gcp_attr); c != "" {
 				return fmt.Errorf(c)
 			}
@@ -416,6 +445,41 @@ resource "google_dataproc_job" "pig" {
             "GROUPS = GROUP WORDS BY word",
             "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
             "DUMP WORD_COUNTS"
+        ]
+    }
+}
+`, rnd)
+}
+
+func testAccDataprocJob_sparksql(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
+
+    # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    worker_config {}
+	master_config {
+		machine_type      = "n1-standard-2"
+		boot_disk_size_gb = 10
+	}
+}
+
+resource "google_dataproc_job" "sparksql" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    sparksql_config {
+        execution_queries       = [
+            "DROP TABLE IF EXISTS dprocjob_test",
+            "CREATE TABLE dprocjob_test(bar int)",
+            "SELECT * FROM dprocjob_test WHERE bar > 2",
         ]
     }
 }

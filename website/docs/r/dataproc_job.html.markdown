@@ -69,15 +69,12 @@ output "pyspark_status" {
    as shown in the example above, or by setting the `count` attribute.
    The following job configs are supported:
 
-       * pyspark_config - Submits a PySpark job to the cluster
-       * spark_config   - Submits a Spark job to the cluster
-       * hadoop_config  - Submits a Hadoop job to the cluster
-       * hive_config    - Submits a Hive job to the cluster
-       * hpig_config    - Submits a Pig job to the cluster
-
-   These job configs are not yet implemented:
-
-       * spark-sql
+       * pyspark_config  - Submits a PySpark job to the cluster
+       * spark_config    - Submits a Spark job to the cluster
+       * hadoop_config   - Submits a Hadoop job to the cluster
+       * hive_config     - Submits a Hive job to the cluster
+       * hpig_config     - Submits a Pig job to the cluster
+       * sparksql_config - Submits a Spark SQL job to the cluster
 
 - - -
 
@@ -279,6 +276,37 @@ resource "google_dataproc_job" "pig" {
 
 * `properties` - (Optional) A list of key value pairs to configure Pig.
 
+The **sparksql_config** supports:
+
+```hcl
+
+# Submit a spark SQL job to the cluster
+resource "google_dataproc_job" "sparksql" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    sparksql_config {
+        execution_queries       = [
+            "DROP TABLE IF EXISTS dprocjob_test",
+            "CREATE TABLE dprocjob_test(bar int)",
+            "SELECT * FROM dprocjob_test WHERE bar > 2",
+        ]
+    }
+}
+```
+
+* `execution_queries`- (Optional) The list of Spark SQL queries or statements to execute as part of the job.
+   Conflicts with `execution_file`
+
+* `execution_file` - (Optional) HCFS URI of file containing the Spark SQL script to execute as the job.
+   Conflicts with `execution_queries`
+
+* `params` - (Optional) A list of key value pairs to set variables in the Spark SQL queries.
+
+* `jars` - (Optional) A list of HCFS jar files URIs to be provided to Spark SQL.
+
+* `properties` - (Optional) A list of key value pairs to configure Spark SQL.
 
 
 ## Attributes Reference
