@@ -12,6 +12,8 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+var InstanceGroupManagerBaseApiVersion = v1
+
 func resourceComputeInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceGroupManagerCreate,
@@ -144,10 +146,8 @@ func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
 	return namedPorts
 }
 
-var InstanceGroupManagerBaseVersion = v1
-
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseApiVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -246,7 +246,7 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 }
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseApiVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -359,7 +359,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersionUpdate(d, InstanceGroupManagerBaseVersion, []Feature{}, []Feature{})
+	computeApiVersion := getComputeApiVersionUpdate(d, InstanceGroupManagerBaseApiVersion, []Feature{}, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -610,7 +610,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseVersion, []Feature{})
+	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseApiVersion, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
