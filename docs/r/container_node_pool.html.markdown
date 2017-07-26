@@ -67,3 +67,13 @@ resource "google_container_cluster" "primary" {
 
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
+
+* `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
+    the size of the node pool to the current cluster usage. Structure is documented below.
+
+The `autoscaling` block supports:
+
+* `minNodeCount` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
+    <= `maxNodeCount`.
+
+* `maxNodeCount` - (Required) Maximum number of nodes in the NodePool. Must be >= minNodeCount.
