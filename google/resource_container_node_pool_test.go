@@ -2,24 +2,35 @@ package google
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"google.golang.org/api/container/v1"
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
+	name := "tf-nodepool-test-" + acctest.RandString(10)
+	zone := "us-central1-a"
+	clusterConfig := SomeGoogleContainerCluster()
+	nodepoolConfig := SomeGoogleContainerNodePool(clusterConfig).
+		WithAttribute("name", name).
+		WithAttribute("zone", zone).
+		WithAttribute("initial_node_count", 2)
+
+	var nodePool container.NodePool
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccContainerNodePool_basic,
+			{
+				Config: clusterConfig.String() + nodepoolConfig.String(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					testAccCheckContainerNodePoolExists(zone, clusterConfig.Name(), name, &nodePool),
+					testAccCheckContainerNodePoolHasInitialNodeCount(&nodePool, 2),
 				),
 			},
 		},
@@ -45,57 +56,47 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
+func SomeGoogleContainerCluster() *ConfigBuilder {
+	return NewResourceConfigBuilder("google_container_cluster", "cluster-"+acctest.RandString(10)).
+		WithAttribute("name", "tf-cluster-nodepool-test-"+acctest.RandString(10)).
+		WithAttribute("zone", "us-central1-a").
+		WithAttribute("initial_node_count", 3).
+		WithAttribute("master_auth", NewNestedConfig().
+			WithAttribute("username", "mr.yoda").
+			WithAttribute("password", "adoy.rm"))
+}
+
+func SomeGoogleContainerNodePool(cluster *ConfigBuilder) *ConfigBuilder {
+	return NewResourceConfigBuilder("google_container_node_pool", "nodepool-"+acctest.RandString(10)).
+		WithAttribute("name", "tf-nodepool-test-"+acctest.RandString(10)).
+		WithAttribute("zone", "us-central1-a").
+		WithAttribute("cluster", fmt.Sprintf("${google_container_cluster.%s.name}", cluster.ResourceName)).
+		WithAttribute("initial_node_count", 2)
+}
+
+func testAccCheckContainerNodePoolExists(zone, clusterName, nodePoolName string, nodePool *container.NodePool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		attributes := rs.Primary.Attributes
-		found, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-			config.Project, attributes["zone"], attributes["cluster"], attributes["name"]).Do()
+		found, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(config.Project, zone, clusterName, nodePoolName).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != attributes["name"] {
-			return fmt.Errorf("NodePool not found")
+		if found == nil {
+			return fmt.Errorf("Unable to find resource")
 		}
 
-		inc, err := strconv.Atoi(attributes["initial_node_count"])
-		if err != nil {
-			return err
-		}
-		if found.InitialNodeCount != int64(inc) {
-			return fmt.Errorf("Mismatched initialNodeCount. TF State: %s. GCP State: %d",
-				attributes["initial_node_count"], found.InitialNodeCount)
-		}
+		*nodePool = *found
 		return nil
 	}
 }
 
-var testAccContainerNodePool_basic = fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-	name = "tf-cluster-nodepool-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 3
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
+func testAccCheckContainerNodePoolHasInitialNodeCount(nodePool *container.NodePool, count int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if nodePool.InitialNodeCount != count {
+			return fmt.Errorf("Expected initial_node_count %d but found %d", count, nodePool.InitialNodeCount)
+		}
+		return nil
 	}
 }
-
-resource "google_container_node_pool" "np" {
-	name = "tf-nodepool-test-%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
-	initial_node_count = 2
-}`, acctest.RandString(10), acctest.RandString(10))
