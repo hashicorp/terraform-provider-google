@@ -65,10 +65,10 @@ func resourceDataprocJob() *schema.Resource {
 			"pyspark_config": pySparkTFSchema(),
 			"spark_config":   sparkTFSchema(),
 			"hadoop_config":  hadoopTFSchema(),
+			"hive_config":    hiveTFSchema(),
 
 			// ..... Still TODO .....
 			/*
-				"hive":
 				"pig":
 				"spark-sql":
 			*/
@@ -126,6 +126,13 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		submitReq.Job.HadoopJob = getHadoopJob(config)
 	}
 
+	if v, ok := d.GetOk("hive_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.HiveJob = getHiveJob(config)
+	}
+
 	if jobConfCount != 1 {
 		return fmt.Errorf("You must define and configure exactly one xxx_config block")
 	}
@@ -180,7 +187,11 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if job.HadoopJob != nil {
 		hadoopConfig := getHadoopConfig(job.HadoopJob)
-		d.Set("handoop_config", hadoopConfig)
+		d.Set("hadoop_config", hadoopConfig)
+	}
+	if job.HiveJob != nil {
+		hiveConfig := getHiveConfig(job.HiveJob)
+		d.Set("hive_config", hiveConfig)
 	}
 	return nil
 }
@@ -368,7 +379,7 @@ func sparkTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"pyspark_config", "hadoop_config"},
+		ConflictsWith: []string{"pyspark_config", "hadoop_config", "hive_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -508,7 +519,7 @@ func hadoopTFSchema() *schema.Schema {
 		Optional:      true,
 		ForceNew:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"spark_config", "pyspark_config"},
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hive_config"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 
@@ -627,6 +638,122 @@ func getHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
 			arr = append(arr, v.(string))
 		}
 		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Hive Job ----
+
+func hiveTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"execution_queries": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ConflictsWith: []string{"hive_config.execution_file"},
+				},
+
+				"execution_file": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hive_config.execution_queries"},
+				},
+
+				"params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getHiveConfig(job *dataproc.HiveJob) []map[string]interface{} {
+
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"execution_queries": queries,
+			"execution_file":    job.QueryFileUri,
+			"params":            job.ScriptVariables,
+			"jars":              job.JarFileUris,
+			"properties":        job.Properties,
+		},
+	}
+}
+
+func getHiveJob(config map[string]interface{}) *dataproc.HiveJob {
+
+	job := &dataproc.HiveJob{}
+	if v, ok := config["execution_file"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["execution_queries"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.QueryList = &dataproc.QueryList{
+			Queries: arr,
+		}
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["params"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.ScriptVariables = m
 	}
 	if v, ok := config["properties"]; ok {
 		m := make(map[string]string)

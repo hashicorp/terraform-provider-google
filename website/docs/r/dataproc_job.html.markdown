@@ -213,6 +213,38 @@ resource "google_dataproc_job" "hadoop" {
 
 * `properties` - (Optional) A list of key value pairs to configure Hadoop.
 
+The **hive_config** supports:
+
+```hcl
+
+# Submit a hive job to the cluster
+resource "google_dataproc_job" "hive" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    hive_config {
+        execution_queries       = [
+            "DROP TABLE IF EXISTS dprocjob_test",
+            "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.bucket}/hive_dprocjob_test/'",
+            "SELECT * FROM dprocjob_test WHERE bar > 2",
+        ]
+    }
+}
+```
+
+* `execution_queries`- (Optional) The list of Hive queries or statements to execute as part of the job.
+   Conflicts with `execution_file`
+
+* `execution_file` - (Optional) HCFS URI of file containing Hive script to execute as the job.
+   Conflicts with `execution_queries`
+
+* `params` - (Optional) A list of key value pairs to set variables in the Hive queries.
+
+* `jars` - (Optional) A list of HCFS jar files URIs to be provided to the MR and hive.
+
+* `properties` - (Optional) A list of key value pairs to configure Hive.
+
 
 ## Attributes Reference
 

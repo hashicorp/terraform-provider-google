@@ -79,6 +79,24 @@ func TestAccDataprocJob_Hadoop(t *testing.T) {
 	})
 }
 
+func TestAccDataprocJob_Hive(t *testing.T) {
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocJob_hive(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocJobAttrMatch(
+						"google_dataproc_job.hive", "hive_config"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -151,6 +169,26 @@ func testAccCheckDataprocJobAttrMatch(n, jobType string) resource.TestCheckFunc 
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.files", job.SparkJob.FileUris})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.archives", job.SparkJob.ArchiveUris})
 			clusterTests = append(clusterTests, jobTestField{"spark_config.0.properties", job.SparkJob.Properties})
+		}
+		if jobType == "hadoop_config" {
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.main_class", job.HadoopJob.MainClass})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.main_jar", job.HadoopJob.MainJarFileUri})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.args", job.HadoopJob.Args})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.jars", job.HadoopJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.files", job.HadoopJob.FileUris})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.archives", job.HadoopJob.ArchiveUris})
+			clusterTests = append(clusterTests, jobTestField{"hadoop_config.0.properties", job.HadoopJob.Properties})
+		}
+		if jobType == "hive_config" {
+			queries := []string{}
+			if job.HiveJob.QueryList != nil {
+				queries = job.HiveJob.QueryList.Queries
+			}
+			clusterTests = append(clusterTests, jobTestField{"hive_config.0.execution_queries", queries})
+			clusterTests = append(clusterTests, jobTestField{"hive_config.0.execution_file", job.HiveJob.QueryFileUri})
+			clusterTests = append(clusterTests, jobTestField{"hive_config.0.params", job.HiveJob.ScriptVariables})
+			clusterTests = append(clusterTests, jobTestField{"hive_config.0.jars", job.HiveJob.JarFileUris})
+			clusterTests = append(clusterTests, jobTestField{"hive_config.0.properties", job.HiveJob.Properties})
 		}
 
 		for _, attrs := range clusterTests {
@@ -278,6 +316,41 @@ resource "google_dataproc_job" "hadoop" {
 		  "file:///usr/lib/spark/NOTICE",
 		  "gs://${google_dataproc_cluster.basic.bucket}/hadoopjob_output"
 		]
+    }
+}
+`, rnd)
+}
+
+func testAccDataprocJob_hive(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-job-test-%s"
+	region = "us-central1"
+
+    # Keep the costs down with smallest config we can get away with
+    # Making use of the single node cluster feature (1 x master)
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    worker_config {}
+	master_config {
+		machine_type      = "n1-standard-2"
+		boot_disk_size_gb = 10
+	}
+}
+
+resource "google_dataproc_job" "hive" {
+    cluster      = "${google_dataproc_cluster.basic.name}"
+    region       = "${google_dataproc_cluster.basic.region}"
+    force_delete = true
+
+    hive_config {
+        execution_queries       = [
+            "DROP TABLE IF EXISTS dprocjob_test",
+            "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.bucket}/hive_dprocjob_test/'",
+            "SELECT * FROM dprocjob_test WHERE bar > 2",
+        ]
     }
 }
 `, rnd)
