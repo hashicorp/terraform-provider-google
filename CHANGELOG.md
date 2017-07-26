@@ -1,8 +1,15 @@
 ## 0.1.3 (Unreleased)
 
-BUG FIXES:
-* compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
+BACKWARDS INCOMPATIBILITIES / NOTES:
+
+FEATURES:
+
+IMPROVEMENTS:
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
+
+BUG FIXES:
+* bigquery: Fix type panic on expiration_time [GH-209]
+* compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
 
 ## 0.1.2 (July 20, 2017)
 
