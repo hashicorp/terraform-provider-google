@@ -1,0 +1,1018 @@
+package google
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/dataproc/v1"
+)
+
+func resourceDataprocJob() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceDataprocJobCreate,
+		Read:   resourceDataprocJobRead,
+		//Update: not supported,
+		Delete: resourceDataprocJobDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
+		Schema: map[string]*schema.Schema{
+
+			"cluster": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "global",
+				ForceNew: true,
+			},
+
+			"force_delete": {
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     schema.TypeString,
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"outputUri": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"pyspark_config":  pySparkTFSchema(),
+			"spark_config":    sparkTFSchema(),
+			"hadoop_config":   hadoopTFSchema(),
+			"hive_config":     hiveTFSchema(),
+			"pig_config":      pigTFSchema(),
+			"sparksql_config": sparkSqlTFSchema(),
+		},
+	}
+}
+
+func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	clusterName := d.Get("cluster").(string)
+	region := d.Get("region").(string)
+
+	submitReq := &dataproc.SubmitJobRequest{
+		Job: &dataproc.Job{
+			Placement: &dataproc.JobPlacement{
+				ClusterName: clusterName,
+			},
+		},
+	}
+
+	if v, ok := d.GetOk("labels"); ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		submitReq.Job.Labels = m
+	}
+
+	jobConfCount := 0
+
+	if v, ok := d.GetOk("pyspark_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.PysparkJob = getPySparkJob(config)
+	}
+
+	if v, ok := d.GetOk("spark_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.SparkJob = getSparkJob(config)
+	}
+
+	if v, ok := d.GetOk("hadoop_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.HadoopJob = getHadoopJob(config)
+	}
+
+	if v, ok := d.GetOk("hive_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.HiveJob = getHiveJob(config)
+	}
+
+	if v, ok := d.GetOk("pig_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.PigJob = getPigJob(config)
+	}
+
+	if v, ok := d.GetOk("sparksql_config"); ok {
+		jobConfCount++
+		configs := v.([]interface{})
+		config := configs[0].(map[string]interface{})
+		submitReq.Job.SparkSqlJob = getSparkSqlJob(config)
+	}
+
+	if jobConfCount != 1 {
+		return fmt.Errorf("You must define and configure exactly one xxx_config block")
+	}
+
+	// Submit the job
+	job, err := config.clientDataproc.Projects.Regions.Jobs.Submit(
+		project, region, submitReq).Do()
+	if err != nil {
+		return err
+	}
+	d.SetId(job.Reference.JobId)
+
+	// We don't bother to wait and check the status as the non error code
+	// from the above in this case is good enough ...
+
+	log.Printf("[INFO] Dataproc job %s has been created", job.Reference.JobId)
+
+	e := resourceDataprocJobRead(d, meta)
+	if e != nil {
+		log.Print("[INFO] Got an error reading back dataproc job after creating, \n", e)
+	}
+	return e
+}
+
+func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	region := d.Get("region").(string)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	job, err := config.clientDataproc.Projects.Regions.Jobs.Get(
+		project, region, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Job %q", d.Id()))
+	}
+
+	d.Set("labels", job.Labels)
+	d.Set("cluster", job.Placement.ClusterName)
+	d.Set("status", job.Status.State)
+	d.Set("outputUri", job.DriverOutputResourceUri)
+
+	if job.PysparkJob != nil {
+		pySparkConfig := getTfPySparkConfig(job.PysparkJob)
+		d.Set("pyspark_config", pySparkConfig)
+	}
+	if job.SparkJob != nil {
+		sparkConfig := getTfSparkConfig(job.SparkJob)
+		d.Set("spark_config", sparkConfig)
+	}
+	if job.HadoopJob != nil {
+		hadoopConfig := getHadoopConfig(job.HadoopJob)
+		d.Set("hadoop_config", hadoopConfig)
+	}
+	if job.HiveJob != nil {
+		hiveConfig := getHiveConfig(job.HiveJob)
+		d.Set("hive_config", hiveConfig)
+	}
+	if job.PigJob != nil {
+		pigConfig := getPigConfig(job.PigJob)
+		d.Set("pig_config", pigConfig)
+	}
+	if job.SparkSqlJob != nil {
+		sparkSqlConfig := getSparkSqlConfig(job.SparkSqlJob)
+		d.Set("sparksql_config", sparkSqlConfig)
+	}
+	return nil
+}
+
+func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	region := d.Get("region").(string)
+	forceDelete := d.Get("force_delete").(bool)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
+
+	if forceDelete {
+		log.Printf("[DEBUG] Attempting to first cancel Dataproc job %s if its still running ...", d.Id())
+
+		_, _ = config.clientDataproc.Projects.Regions.Jobs.Cancel(
+			project, region, d.Id(), &dataproc.CancelJobRequest{}).Do()
+		// ignore error if we get one - job may be finished already and not need to
+		// be cancelled. We do however wait for the state to be one that is
+		// at least not active
+		waitErr := dataprocJobOperationWait(config, region, project, d.Id(),
+			"Cancelling Dataproc job", timeoutInMinutes, 1)
+		if waitErr != nil {
+			return waitErr
+		}
+
+	}
+
+	log.Printf("[DEBUG] Deleting Dataproc job %s", d.Id())
+	_, err = config.clientDataproc.Projects.Regions.Jobs.Delete(
+		project, region, d.Id()).Do()
+	if err != nil {
+		return err
+	}
+
+	waitErr := dataprocDeleteOperationWait(config, region, project, d.Id(),
+		"Deleting Dataproc job", timeoutInMinutes, 1)
+	if waitErr != nil {
+		return waitErr
+	}
+
+	log.Printf("[INFO] Dataproc job %s has been deleted", d.Id())
+	d.SetId("")
+
+	return nil
+}
+
+// ---- PySpark Job ----
+
+func pySparkTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "hadoop_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_python_file": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+
+				"files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getTfPySparkConfig(job *dataproc.PySparkJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"main_python_file": job.MainPythonFileUri,
+			"args":             job.Args,
+			"properties":       job.Properties,
+			"jars":             job.JarFileUris,
+			"files":            job.PythonFileUris,
+			"archives":         job.ArchiveUris,
+		},
+	}
+}
+
+func getPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
+
+	job := &dataproc.PySparkJob{}
+	if v, ok := config["main_python_file"]; ok {
+		job.MainPythonFileUri = v.(string)
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
+	}
+	if v, ok := config["files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.PythonFileUris = arr
+	}
+
+	return job
+
+}
+
+// ---- Spark Job ----
+
+func sparkTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_class": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"spark_config.main_jar"},
+				},
+
+				"main_jar": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"spark_config.main_class"},
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getTfSparkConfig(job *dataproc.SparkJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"main_class": job.MainClass,
+			"main_jar":   job.MainJarFileUri,
+			"jars":       job.JarFileUris,
+			"files":      job.FileUris,
+			"archives":   job.ArchiveUris,
+			"args":       job.Args,
+			"properties": job.Properties,
+		},
+	}
+}
+
+func getSparkJob(config map[string]interface{}) *dataproc.SparkJob {
+
+	job := &dataproc.SparkJob{}
+	if v, ok := config["main_class"]; ok {
+		job.MainClass = v.(string)
+	}
+	if v, ok := config["main_jar"]; ok {
+		job.MainJarFileUri = v.(string)
+	}
+	if v, ok := config["files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.FileUris = arr
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Hadoop Job ----
+
+func hadoopTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hive_config", "pig_config", "sparksql_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"main_class": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hadoop_config.main_jar"},
+				},
+
+				"main_jar": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hadoop_config.main_class"},
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"files": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"archives": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"args": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getHadoopConfig(job *dataproc.HadoopJob) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"main_class": job.MainClass,
+			"main_jar":   job.MainJarFileUri,
+			"jars":       job.JarFileUris,
+			"files":      job.FileUris,
+			"archives":   job.ArchiveUris,
+			"args":       job.Args,
+			"properties": job.Properties,
+		},
+	}
+}
+
+func getHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
+
+	job := &dataproc.HadoopJob{}
+	if v, ok := config["main_class"]; ok {
+		job.MainClass = v.(string)
+	}
+	if v, ok := config["main_jar"]; ok {
+		job.MainJarFileUri = v.(string)
+	}
+	if v, ok := config["files"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.FileUris = arr
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["archives"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.ArchiveUris = arr
+	}
+	if v, ok := config["args"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.Args = arr
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Hive Job ----
+
+func hiveTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "pig_config", "sparksql_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"execution_queries": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ConflictsWith: []string{"hive_config.execution_file"},
+				},
+
+				"execution_file": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"hive_config.execution_queries"},
+				},
+
+				"params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getHiveConfig(job *dataproc.HiveJob) []map[string]interface{} {
+
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"execution_queries": queries,
+			"execution_file":    job.QueryFileUri,
+			"params":            job.ScriptVariables,
+			"jars":              job.JarFileUris,
+			"properties":        job.Properties,
+		},
+	}
+}
+
+func getHiveJob(config map[string]interface{}) *dataproc.HiveJob {
+
+	job := &dataproc.HiveJob{}
+	if v, ok := config["execution_file"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["execution_queries"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.QueryList = &dataproc.QueryList{
+			Queries: arr,
+		}
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["params"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.ScriptVariables = m
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Pig Job ----
+
+func pigTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "sparksql_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"execution_queries": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ConflictsWith: []string{"pig_config.execution_file"},
+				},
+
+				"execution_file": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"pig_config.execution_queries"},
+				},
+
+				"params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getPigConfig(job *dataproc.PigJob) []map[string]interface{} {
+
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"execution_queries": queries,
+			"execution_file":    job.QueryFileUri,
+			"params":            job.ScriptVariables,
+			"jars":              job.JarFileUris,
+			"properties":        job.Properties,
+		},
+	}
+}
+
+func getPigJob(config map[string]interface{}) *dataproc.PigJob {
+
+	job := &dataproc.PigJob{}
+	if v, ok := config["execution_file"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["execution_queries"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.QueryList = &dataproc.QueryList{
+			Queries: arr,
+		}
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["params"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.ScriptVariables = m
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
+
+// ---- Spark SQL Job ----
+
+func sparkSqlTFSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:          schema.TypeList,
+		Optional:      true,
+		ForceNew:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"execution_queries": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ConflictsWith: []string{"sparksql_config.execution_file"},
+				},
+
+				"execution_file": {
+					Type:          schema.TypeString,
+					Optional:      true,
+					ForceNew:      true,
+					ConflictsWith: []string{"sparksql_config.execution_queries"},
+				},
+
+				"params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+
+				"jars": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"properties": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func getSparkSqlConfig(job *dataproc.SparkSqlJob) []map[string]interface{} {
+
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"execution_queries": queries,
+			"execution_file":    job.QueryFileUri,
+			"params":            job.ScriptVariables,
+			"jars":              job.JarFileUris,
+			"properties":        job.Properties,
+		},
+	}
+}
+
+func getSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
+
+	job := &dataproc.SparkSqlJob{}
+	if v, ok := config["execution_file"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["execution_queries"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.QueryList = &dataproc.QueryList{
+			Queries: arr,
+		}
+	}
+	if v, ok := config["jars"]; ok {
+		arrList := v.([]interface{})
+		arr := []string{}
+		for _, v := range arrList {
+			arr = append(arr, v.(string))
+		}
+		job.JarFileUris = arr
+	}
+	if v, ok := config["params"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.ScriptVariables = m
+	}
+	if v, ok := config["properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		job.Properties = m
+	}
+
+	return job
+
+}
