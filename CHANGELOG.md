@@ -5,6 +5,7 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 FEATURES:
 
 IMPROVEMENTS:
+* compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
 
 BUG FIXES:
