@@ -46,6 +46,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					return
 				},
 			},
+
 			"disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
@@ -133,6 +134,14 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"automatic_restart": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				ForceNew: true,
+				Removed:  "Use 'scheduling.automatic_restart' instead.",
+			},
+
 			"can_ip_forward": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -217,6 +226,13 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"on_host_maintenance": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "Use 'scheduling.on_host_maintenance' instead.",
 			},
 
 			"project": &schema.Schema{
