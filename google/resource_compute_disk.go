@@ -337,7 +337,6 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting disk: %s", err)
 	}
 
-	zone := d.Get("zone").(string)
 	err = computeOperationWait(config, op, project, "Deleting Disk")
 	if err != nil {
 		return err
