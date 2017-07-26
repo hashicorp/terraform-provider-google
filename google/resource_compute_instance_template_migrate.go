@@ -41,6 +41,10 @@ func migrateComputeInstanceTemplateStateV0toV1(is *terraform.InstanceState) (*te
 		return nil, fmt.Errorf("Found differing values for automatic_restart in state, unsure how to proceed. automatic_restart = %#v, scheduling.0.automatic_restart = %#v", ar, sched_ar)
 	}
 
+	// We also nuke "on_host_maintenance" as it's been deprecated as well. Here we don't check the current value though
+	// as the authoritative value has always been maintained in the scheduling block.
+	delete(is.Attributes, "on_host_maintenance")
+
 	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
 	return is, nil
 }

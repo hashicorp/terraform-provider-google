@@ -33,6 +33,19 @@ func TestComputeInstanceTemplateMigrateState(t *testing.T) {
 				"scheduling.0.automatic_restart": "true",
 			},
 		},
+		"simple on_host_maintenance removal": {
+			StateVersion: 0,
+			BeforeAttributes: map[string]string{
+				"on_host_maintenance":            "MIGRATE",
+				"automatic_restart":              "true",
+				"scheduling.#":                   "1",
+				"scheduling.0.automatic_restart": "true",
+			},
+			AfterAttributes: map[string]string{
+				"scheduling.#":                   "1",
+				"scheduling.0.automatic_restart": "true",
+			},
+		},
 		"error upon missing scheduling block": {
 			StateVersion: 0,
 			BeforeAttributes: map[string]string{

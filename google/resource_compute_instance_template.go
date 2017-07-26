@@ -219,13 +219,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				},
 			},
 
-			"on_host_maintenance": &schema.Schema{
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Please use `scheduling.on_host_maintenance` instead",
-			},
-
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -503,11 +496,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	instanceProperties.Scheduling = &compute.Scheduling{}
 	instanceProperties.Scheduling.OnHostMaintenance = "MIGRATE"
-
-	// Depreciated fields
-	if v, ok := d.GetOk("on_host_maintenance"); ok {
-		instanceProperties.Scheduling.OnHostMaintenance = v.(string)
-	}
 
 	forceSendFieldsScheduling := make([]string, 0, 3)
 	var hasSendMaintenance bool
