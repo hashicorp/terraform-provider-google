@@ -130,7 +130,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	subnetwork.Region = region
 	d.SetId(createSubnetID(subnetwork))
 
-	err = computeOperationWaitRegion(config, op, project, region, "Creating Subnetwork")
+	err = computeOperationWait(config, op, project, "Creating Subnetwork")
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating subnetwork PrivateIpGoogleAccess: %s", err)
 		}
 
-		err = computeOperationWaitRegion(config, op, project, region, "Updating Subnetwork PrivateIpGoogleAccess")
+		err = computeOperationWait(config, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
 		if err != nil {
 			return err
 		}
@@ -230,7 +230,7 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting subnetwork: %s", err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Deleting Subnetwork")
+	err = computeOperationWait(config, op, project, "Deleting Subnetwork")
 	if err != nil {
 		return err
 	}
