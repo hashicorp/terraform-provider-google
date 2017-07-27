@@ -91,6 +91,7 @@ func resourceGoogleProjectIamBindingRead(d *schema.ResourceData, meta interface{
 		break
 	}
 	if binding == nil {
+		log.Printf("[DEBUG]: Binding for role %q not found in policy for %q, removing from state file.\n", eBinding.Role, pid)
 		d.SetId("")
 		return nil
 	}
