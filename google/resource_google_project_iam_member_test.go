@@ -17,14 +17,14 @@ func TestAccGoogleProjectIamMember_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
-			resource.TestStep{
+			{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
-			resource.TestStep{
+			{
 				Config: testAccGoogleProjectAssociateMemberBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
@@ -45,14 +45,14 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
-			resource.TestStep{
+			{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
-			resource.TestStep{
+			{
 				Config: testAccGoogleProjectAssociateMemberBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
@@ -62,7 +62,7 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 				),
 			},
 			// Apply another IAM binding
-			resource.TestStep{
+			{
 				Config: testAccGoogleProjectAssociateMemberMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.multiple", &cloudresourcemanager.Binding{
@@ -83,14 +83,14 @@ func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
-			resource.TestStep{
+			{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
 				),
 			},
 			// Apply multiple IAM bindings
-			resource.TestStep{
+			{
 				Config: testAccGoogleProjectAssociateMemberMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
@@ -100,7 +100,7 @@ func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 				),
 			},
 			// Remove the bindings
-			resource.TestStep{
+			{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),

@@ -16,24 +16,24 @@ func resourceGoogleProjectIamBinding() *schema.Resource {
 		Delete: resourceGoogleProjectIamBindingDelete,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"role": &schema.Schema{
+			"role": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"members": &schema.Schema{
+			"members": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem: &schema.Schema{
+				Elem: {
 					Type: schema.TypeString,
 				},
 			},
-			"etag": &schema.Schema{
+			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

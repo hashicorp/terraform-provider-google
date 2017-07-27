@@ -15,22 +15,22 @@ func resourceGoogleProjectIamMember() *schema.Resource {
 		Delete: resourceGoogleProjectIamMemberDelete,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"role": &schema.Schema{
+			"role": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"member": &schema.Schema{
+			"member": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"etag": &schema.Schema{
+			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
