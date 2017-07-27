@@ -12,7 +12,7 @@ func computeSharedOperationWaitZone(config *Config, op interface{}, project stri
 func computeSharedOperationWaitZoneTime(config *Config, op interface{}, project string, zone string, minutes int, activity string) error {
 	switch op.(type) {
 	case *compute.Operation:
-		return computeOperationWaitZoneTime(config, op.(*compute.Operation), project, zone, minutes, activity)
+		return computeOperationWaitTime(config, op.(*compute.Operation), project, activity, minutes)
 	case *computeBeta.Operation:
 		return computeBetaOperationWaitZoneTime(config, op.(*computeBeta.Operation), project, zone, minutes, activity)
 	case nil:

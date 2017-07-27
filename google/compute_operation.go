@@ -75,25 +75,6 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 		Project: project,
 	}
 
-	return waitComputeOperationWaiter(w, timeoutMin, activity)
-}
-
-func computeOperationWaitZone(config *Config, op *compute.Operation, project, zone, activity string) error {
-	return computeOperationWaitZoneTime(config, op, project, zone, 4, activity)
-}
-
-func computeOperationWaitZoneTime(config *Config, op *compute.Operation, project, zone string, timeoutMin int, activity string) error {
-	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
-		Op:      op,
-		Project: project,
-	}
-
-	return waitComputeOperationWaiter(w, timeoutMin, activity)
-}
-
-// TODO: Inline this to computeOperationWaitTime when the old wait methods are eliminated.
-func waitComputeOperationWaiter(w *ComputeOperationWaiter, timeoutMin int, activity string) error {
 	state := w.Conf()
 	state.Delay = 10 * time.Second
 	state.Timeout = time.Duration(timeoutMin) * time.Minute
@@ -103,9 +84,9 @@ func waitComputeOperationWaiter(w *ComputeOperationWaiter, timeoutMin int, activ
 		return fmt.Errorf("Error waiting for %s: %s", activity, err)
 	}
 
-	op := opRaw.(*compute.Operation)
-	if op.Error != nil {
-		return ComputeOperationError(*op.Error)
+	resultOp := opRaw.(*compute.Operation)
+	if resultOp.Error != nil {
+		return ComputeOperationError(*resultOp.Error)
 	}
 
 	return nil
