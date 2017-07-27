@@ -35,10 +35,11 @@ The following arguments are supported:
 * `role` - (Required) The role that should be applied.
 
 * `project` - (Optional) The project ID. If not specified, uses the
-    ID of the project configured with the provider.## Attributes Reference
+    ID of the project configured with the provider.
+    
+## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `etag` - (Computed) The etag of the project's IAM policy.
-
