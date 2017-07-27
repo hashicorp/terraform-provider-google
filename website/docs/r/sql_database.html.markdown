@@ -44,9 +44,19 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `charset` - (Optional) The MySQL charset value.
+* `charset` - (Optional) The charset value. See MySQL's [Supported Character
+    Sets and
+    Collations](https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html)
+    and PostgreSQL's [Character Set
+    Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
+    for more details and supported values.
 
-* `collation` - (Optional) The MySQL collation value.
+* `collation` - (Optional) The collation value. See MySQL's [Supported Character
+    Sets and
+    Collations](https://dev.mysql.com/doc/refman/5.6/en/charset-charsets.html)
+    and PostgreSQL's [Collation
+    Support](https://www.postgresql.org/docs/9.6/static/collation.html) for
+    more details and supported values.
 
 ## Attributes Reference
 
