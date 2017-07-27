@@ -146,6 +146,7 @@ func resourceGoogleProjectIamMemberDelete(d *schema.ResourceData, meta interface
 			break
 		}
 		if bindingToRemove < 0 {
+			log.Printf("[DEBUG]: Binding for role %q does not exist in policy of project %q, so member %q can't be on it.", eMember.Role, pid, eMember.Members[0])
 			return nil
 		}
 		binding := p.Bindings[bindingToRemove]
@@ -158,8 +159,7 @@ func resourceGoogleProjectIamMemberDelete(d *schema.ResourceData, meta interface
 			break
 		}
 		if memberToRemove < 0 {
-			log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of project %q, removing from state.", member.Members[0], member.Role, pid)
-			d.SetId("")
+			log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of project %q.", member.Members[0], member.Role, pid)
 			return nil
 		}
 		binding.Members = append(binding.Members[:memberToRemove], binding.Members[memberToRemove+1:]...)

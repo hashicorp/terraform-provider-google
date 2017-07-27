@@ -155,8 +155,7 @@ func resourceGoogleProjectIamBindingDelete(d *schema.ResourceData, meta interfac
 			break
 		}
 		if toRemove < 0 {
-			log.Printf("[DEBUG]: Policy bindings for project %q did not include a binding for role %q, no need to delete", pid, binding.Role)
-			d.SetId("")
+			log.Printf("[DEBUG]: Policy bindings for project %q did not include a binding for role %q", pid, binding.Role)
 			return nil
 		}
 
