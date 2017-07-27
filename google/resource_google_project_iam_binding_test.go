@@ -82,7 +82,7 @@ func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 }
 
 // Test that multiple IAM bindings can be applied to a project all at once
-func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
+func TestAccGoogleProjectIamBinding_multipleAtOnce(t *testing.T) {
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

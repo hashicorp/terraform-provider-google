@@ -29,7 +29,7 @@ func resourceGoogleProjectIamBinding() *schema.Resource {
 			"members": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem: {
+				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
