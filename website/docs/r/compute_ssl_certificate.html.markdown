@@ -25,6 +25,35 @@ resource "google_compute_ssl_certificate" "default" {
 }
 ```
 
+## Using with Target HTTPS Proxies
+
+SSL certificates cannot be updated after creation. In order to apply the
+specified configuration, Terraform will destroy the existing resource
+and create a replacement. To effectively use an SSL certificate resource
+with a [Target HTTPS Proxy resource][1], it's recommended to specify
+`create_before_destroy` in a [lifecycle][2] block. Either omit the
+Instance Template `name` attribute, or specify a partial name with
+`name_prefix`.  Example:
+
+```hcl
+resource "google_compute_ssl_certificate" "default" {
+  name_prefix = "my-certificate-"
+  description = "a description"
+  private_key = "${file("path/to/private.key")}"
+  certificate = "${file("path/to/certificate.crt")}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_target_https_proxy" "my_proxy" {
+  name             = "public-proxy"
+  url_map          = # ...
+  ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -58,3 +87,6 @@ exported:
 * `id` - A unique ID for the certificated, assigned by GCE.
 
 * `self_link` - The URI of the created resource.
+
+[1]: /docs/providers/google/r/compute_target_https_proxy.html
+[2]: /docs/configuration/resources.html#lifecycle
