@@ -38,7 +38,9 @@ The following arguments are supported:
     `google_project_iam_binding` can be used per role.
 
 * `project` - (Optional) The project ID. If not specified, uses the
-    ID of the project configured with the provider.## Attributes Reference
+    ID of the project configured with the provider.
+
+## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
