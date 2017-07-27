@@ -111,6 +111,16 @@ func TestAccGoogleProjectIamBinding_update(t *testing.T) {
 					}, pid),
 				),
 			},
+			// Drop the original member
+			{
+				Config: testAccGoogleProjectAssociateBindingDropMemberFromBasic(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.dropped", &cloudresourcemanager.Binding{
+						Role:    "roles/compute.instanceAdmin",
+						Members: []string{"user:paddy@hashicorp.com"},
+					}, pid),
+				),
+			},
 		},
 	})
 }
@@ -235,6 +245,22 @@ resource "google_project" "acceptance" {
 resource "google_project_iam_binding" "acceptance" {
   project = "${google_project.acceptance.project_id}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  role    = "roles/compute.instanceAdmin"
+}
+`, pid, name, org)
+}
+
+func testAccGoogleProjectAssociateBindingDropMemberFromBasic(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_iam_binding" "dropped" {
+  project = "${google_project.acceptance.project_id}"
+  members = ["user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }
 `, pid, name, org)
