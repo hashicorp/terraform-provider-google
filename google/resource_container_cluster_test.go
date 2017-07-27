@@ -91,6 +91,32 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withVersion(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -291,6 +317,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"description", cluster.Description},
 			{"endpoint", cluster.Endpoint},
 			{"instance_group_urls", igUrls},
+			{"legacy_abac.0.enabled", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"logging_service", cluster.LoggingService},
 			{"monitoring_service", cluster.MonitoringService},
 			{"subnetwork", cluster.Subnetwork},
@@ -516,6 +543,32 @@ resource "google_container_cluster" "with_additional_zones" {
 	master_auth {
 		username = "mr.yoda"
 		password = "adoy.rm"
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	legacy_abac {
+		enabled = true
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	legacy_abac {
+		enabled = false
 	}
 }`, clusterName)
 }

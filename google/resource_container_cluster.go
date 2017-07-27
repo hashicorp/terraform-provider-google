@@ -149,6 +149,21 @@ func resourceContainerCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"legacy_abac": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"logging_service": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -409,6 +424,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.Description = v.(string)
 	}
 
+	if _, ok := d.GetOk("legacy_abac"); ok {
+		cluster.LegacyAbac = &container.LegacyAbac{
+			Enabled: d.Get("legacy_abac.0.enabled").(bool),
+		}
+	}
+
 	if v, ok := d.GetOk("logging_service"); ok {
 		cluster.LoggingService = v.(string)
 	}
@@ -610,6 +631,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
+	d.Set("legacy_abac", flattenLegacyAbac(cluster))
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
 	d.Set("network", d.Get("network").(string))
@@ -692,6 +714,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(),
 			locations)
+
+		d.SetPartial("additional_zones")
+	}
+
+	if d.HasChange("legacy_abac.0.enabled") {
+		enabled := d.Get("legacy_abac.0.enabled").(bool)
+		req := &container.SetLegacyAbacRequest{
+			Enabled: enabled,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE legacy ABAC", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
+
+		d.SetPartial("legacy_abac")
 	}
 
 	d.Partial(false)
@@ -753,6 +798,14 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 	}
 	return instanceGroupURLs, nil
+}
+
+func flattenLegacyAbac(c *container.Cluster) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"enabled": c.LegacyAbac.Enabled,
+		},
+	}
 }
 
 func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} {
