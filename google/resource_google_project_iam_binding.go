@@ -62,7 +62,7 @@ func resourceGoogleProjectIamBindingCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	d.SetId(pid + ":" + p.Role)
+	d.SetId(pid + "/" + p.Role)
 	return resourceGoogleProjectIamBindingRead(d, meta)
 }
 
