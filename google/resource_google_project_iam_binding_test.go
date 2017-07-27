@@ -39,7 +39,7 @@ func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
 	})
 }
 
-// Test that multiple IAM bindings can be applied to a project
+// Test that multiple IAM bindings can be applied to a project, one at a time
 func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -70,6 +70,42 @@ func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.multiple", &cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
 						Members: []string{"user:paddy@hashicorp.com"},
+					}, pid),
+					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.multiple", &cloudresourcemanager.Binding{
+						Role:    "roles/compute.instanceAdmin",
+						Members: []string{"user:admin@hashicorptest.com"},
+					}, pid),
+				),
+			},
+		},
+	})
+}
+
+// Test that multiple IAM bindings can be applied to a project all at once
+func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create a new project
+			{
+				Config: testAccGoogleProject_create(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccGoogleProjectExistingPolicy(pid),
+				),
+			},
+			// Apply an IAM binding
+			{
+				Config: testAccGoogleProjectAssociateBindingMultiple(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.acceptance", &cloudresourcemanager.Binding{
+						Role:    "roles/compute.instanceAdmin",
+						Members: []string{"user:admin@hashicorptest.com"},
+					}, pid),
+					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.multiple", &cloudresourcemanager.Binding{
+						Role:    "roles/compute.instanceAdmin",
+						Members: []string{"user:admin@hashicorptest.com"},
 					}, pid),
 				),
 			},
