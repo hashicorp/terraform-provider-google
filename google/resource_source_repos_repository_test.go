@@ -79,4 +79,3 @@ func testAccSourceReposRepository_basic(repositoryName string) string {
 	}
 	`, repositoryName)
 }
-
