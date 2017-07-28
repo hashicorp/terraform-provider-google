@@ -74,9 +74,17 @@ resource "google_dataproc_cluster" "mycluster" {
     `master_config.machine_type` and `worker_config.machine_type`.
 
 * `staging_bucket` - (Optional) The Cloud Storage staging bucket used to stage files,
-   such as Hadoop jars, between client machines and the cluster. Note: if not specified,
-   a bucket will be auto created for you. When it comes to destroying the cluster,
-   auto generated buckets (and ALL of their content) will also be destroyed.
+   such as Hadoop jars, between client machines and the cluster.
+   Note: If you don't explicitly specify a `staging_bucket`
+   then GCP will auto create / assign one for you, however you are NOT guaranteed to get
+   an auto generated bucket which is solely dedicated to your cluster; it may be shared
+   with other clusters in the same region/zone also choosing to use the auto generation
+   option.
+
+* `delete_autogen_bucket` (Optional) If this is set to true, upon destroying the cluster,
+   if no explicit `staging_bucket` was specified (i.e. an auto generated bucket was relied
+   upon) then this auto generated bucket will also be deleted as part of the cluster destroy.
+   By default this is set to false.
 
 * `image_version` - (Optional) The Cloud Dataproc image version to use
    for the cluster - this essentially controls the sets of software versions

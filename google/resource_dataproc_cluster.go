@@ -60,6 +60,28 @@ func resourceDataprocCluster() *schema.Resource {
 					return
 				},
 			},
+
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "global",
+				ForceNew: true,
+			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"delete_autogen_bucket": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				ForceNew: false,
+			},
+
 			"staging_bucket": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -99,20 +121,6 @@ func resourceDataprocCluster() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return extractLastResourceFromUri(s.(string))
 				},
-			},
-
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "global",
-				ForceNew: true,
-			},
-
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 
 			"labels": {
@@ -741,11 +749,13 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
+	deleteAutoGenBucket := d.Get("delete_autogen_bucket").(bool)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
-	err = deleteAutogenBucketIfExists(d, meta)
-	if err != nil {
-		return err
+	if deleteAutoGenBucket {
+		if err := deleteAutogenBucketIfExists(d, meta); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
@@ -770,8 +780,8 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 
 	// Determine if the user specified a specific override staging bucket, if so
-	// let it be ...  however if the system created it for them, we auto delete it
-	// as this will be dangling around otherwise
+	// let it be ...  otherwise GCP will have created one for them somewhere along
+	// the way, we auto delete it as this will be dangling around otherwise
 
 	v, specified := d.GetOk("staging_bucket")
 	if specified {
@@ -781,40 +791,23 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 	bucket := d.Get("bucket").(string)
 
 	log.Printf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) ...", bucket)
+	return emptyAndDeleteStorageBucket(config, bucket)
+}
 
-	for {
-		res, err := config.clientStorage.Objects.List(bucket).Do()
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			// Bucket is now gone ...
-			break
-		}
-		if err != nil {
-			log.Fatalf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) if exists. Error Objects.List failed: %v", bucket, err)
-			return err
-		}
-
-		if len(res.Items) > 0 {
-			// purge the bucket...
-			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. \n\n")
-
-			for _, object := range res.Items {
-				log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. Found %s", object.Name)
-
-				err := config.clientStorage.Objects.Delete(bucket, object.Name).Do()
-				if err != nil {
-					if gerr, ok := err.(*googleapi.Error); ok && gerr.Code != 404 {
-						// Object is now gone ... ignore
-						log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
-						return err
-					}
-				}
-				log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
-			}
-		} else {
-			break // 0 items, bucket empty
-		}
+func emptyAndDeleteStorageBucket(config *Config, bucket string) error {
+	err := deleteStorageBucketContents(config, bucket)
+	if err != nil {
+		return err
 	}
 
+	err = deleteEmptyBucket(config, bucket)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteEmptyBucket(config *Config, bucket string) error {
 	// remove empty bucket
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 		err := config.clientStorage.Buckets.Delete(bucket).Do()
@@ -837,5 +830,41 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Deleted bucket %v\n\n", bucket)
 
+	return nil
+
+}
+
+func deleteStorageBucketContents(config *Config, bucket string) error {
+
+	res, err := config.clientStorage.Objects.List(bucket).Do()
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		// Bucket is already gone ...
+		return nil
+	}
+	if err != nil {
+		log.Fatalf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) if exists. Error Objects.List failed: %v", bucket, err)
+		return err
+	}
+
+	if len(res.Items) > 0 {
+		// purge the bucket...
+		log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. \n\n")
+
+		for _, object := range res.Items {
+			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. Found %s", object.Name)
+
+			err := config.clientStorage.Objects.Delete(bucket, object.Name).Do()
+			if err != nil {
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code != 404 {
+					// Object is now gone ... ignore
+					log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
+					return err
+				}
+			}
+			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
+		}
+	} else {
+		return nil // 0 items, bucket empty
+	}
 	return nil
 }
