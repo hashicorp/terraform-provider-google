@@ -5,13 +5,14 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
 var GlobalForwardingRuleBaseApiVersion = v1
-var GlobalForwardingRuleVersionedFeatures = []Feature{}
+var GlobalForwardingRuleVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "ip_version"}}
 
 func resourceComputeGlobalForwardingRule() *schema.Resource {
 	return &schema.Resource{
@@ -58,6 +59,13 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"ip_version": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6"}, false),
+			},
+
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -91,6 +99,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	frule := &computeBeta.ForwardingRule{
 		IPAddress:   d.Get("ip_address").(string),
 		IPProtocol:  d.Get("ip_protocol").(string),
+		IpVersion:   d.Get("ip_version").(string),
 		Description: d.Get("description").(string),
 		Name:        d.Get("name").(string),
 		PortRange:   d.Get("port_range").(string),
@@ -225,7 +234,8 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 
 	d.Set("ip_address", frule.IPAddress)
 	d.Set("ip_protocol", frule.IPProtocol)
-	d.Set("self_link", frule.SelfLink)
+	d.Set("ip_version", frule.IpVersion)
+	d.Set("self_link", ConvertSelfLinkToV1(frule.SelfLink))
 
 	return nil
 }
