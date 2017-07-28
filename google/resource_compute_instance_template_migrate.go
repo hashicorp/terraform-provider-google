@@ -34,11 +34,11 @@ func migrateComputeInstanceTemplateStateV0toV1(is *terraform.InstanceState) (*te
 	if is.Attributes["scheduling.#"] != "1" {
 		return nil, fmt.Errorf("Found non-singular scheduling block in state; unsure how to proceed")
 	}
-	sched_ar := is.Attributes["scheduling.0.automatic_restart"]
-	if ar != sched_ar {
+	schedAr := is.Attributes["scheduling.0.automatic_restart"]
+	if ar != schedAr {
 		// Here we could try to choose one value over the other, but in reality they should never be out of sync; error
 		// for now
-		return nil, fmt.Errorf("Found differing values for automatic_restart in state, unsure how to proceed. automatic_restart = %#v, scheduling.0.automatic_restart = %#v", ar, sched_ar)
+		return nil, fmt.Errorf("Found differing values for automatic_restart in state, unsure how to proceed. automatic_restart = %#v, scheduling.0.automatic_restart = %#v", ar, schedAr)
 	}
 
 	// We also nuke "on_host_maintenance" as it's been deprecated as well. Here we don't check the current value though
