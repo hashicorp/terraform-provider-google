@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
-	"sort"
 )
 
 const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
@@ -66,16 +66,13 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	name := d.Get("name").(string)
 	networkLink := d.Get("network").(string)
-	peerNetworkLink := d.Get("peer_network").(string)
-	autoCreateRoutes := d.Get("auto_create_routes").(bool)
 	networkName := getNameFromNetworkLink(networkLink)
 
 	request := &compute.NetworksAddPeeringRequest{
-		Name:             name,
-		PeerNetwork:      peerNetworkLink,
-		AutoCreateRoutes: autoCreateRoutes,
+		Name:             d.Get("name").(string),
+		PeerNetwork:      d.Get("peer_network").(string),
+		AutoCreateRoutes: d.Get("auto_create_routes").(bool),
 	}
 
 	addOp, err := config.clientCompute.Networks.AddPeering(project, networkName, request).Do()
@@ -88,7 +85,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", networkName, name))
+	d.SetId(fmt.Sprintf("%s/%s", networkName, d.Get("name").(string)))
 
 	return resourceComputeNetworkPeeringRead(d, meta)
 }
