@@ -5,6 +5,7 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 FEATURES:
 
 IMPROVEMENTS:
+* **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * container: Add support for node pool autoscaling [GH-157]
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
