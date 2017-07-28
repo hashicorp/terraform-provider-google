@@ -11,7 +11,7 @@ description: |-
 Creates a new snapshot of a disk within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/disks/create-snapshots)
 and
-[API](https://cloud.google.com/compute/docs/reference/latest/projects/snapshots).
+[API](https://cloud.google.com/compute/docs/reference/latest/snapshots).
 
 ## Example Usage
 

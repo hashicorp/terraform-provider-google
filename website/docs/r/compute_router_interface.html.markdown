@@ -11,7 +11,7 @@ description: |-
 Manages a Cloud Router interface. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/cloudrouter)
 and
-[API](https://cloud.google.com/compute/docs/reference/latest/projects/routers).
+[API](https://cloud.google.com/compute/docs/reference/latest/routers).
 
 ## Example Usage
 

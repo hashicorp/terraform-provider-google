@@ -11,7 +11,7 @@ description: |-
 Manages a network route within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/vpc/routes)
 and
-[API](https://cloud.google.com/compute/docs/reference/latest/projects/routes).
+[API](https://cloud.google.com/compute/docs/reference/latest/routes).
 
 ## Example Usage
 
