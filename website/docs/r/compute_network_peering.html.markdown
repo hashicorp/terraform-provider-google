@@ -8,23 +8,18 @@ description: |-
 
 # google\_compute\_network\_peering
 
-Manages a network peering within GCE.
+Manages a network peering within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc/vpc-peering)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/networks).
+
+~> **Note:** Both network must create a peering with each other for the peering to be functional.
+
+~> **Note:** Subnets IP ranges across peered VPC networks cannot overlap.
 
 ## Example Usage
 
 ```hcl
-resource "google_compute_network" "default" {
-  name                    = "foobar"
-  auto_create_subnetworks = "false"
-}
-
-resource "google_compute_network" "other" {
-  name                    = "other"
-  auto_create_subnetworks = "false"
-}
-
-// Both network must create a peering with each other for the peering
-// to be functional.
 resource "google_compute_network_peering" "peering1" {
   name = "peering1"
   network = "${google_compute_network.default.self_link}"
@@ -37,19 +32,14 @@ resource "google_compute_network_peering" "peering2" {
   peer_network = "${google_compute_network.default.self_link}"
 }
 
-// Subnets IP ranges across peered VPC networks cannot overlap.
-resource "google_compute_subnetwork" "network1-subnet1" {
-  name = "network1-sub1"
-  ip_cidr_range = "10.128.0.0/20"  
-  network = "${google_compute_network.network1.self_link}"
-  region = "us-east1"
+resource "google_compute_network" "default" {
+  name                    = "foobar"
+  auto_create_subnetworks = "false"
 }
 
-resource "google_compute_subnetwork" "network2-subnet1" {
-  name = "network1-sub2"
-  ip_cidr_range = "10.132.0.0/20"  
-  network = "${google_compute_network.network2.self_link}"
-  region = "us-central1"
+resource "google_compute_network" "other" {
+  name                    = "other"
+  auto_create_subnetworks = "false"
 }
 ```
 
@@ -63,14 +53,14 @@ The following arguments are supported:
 
 * `peer_network` - (Required) Resource link of the peer network.
 
-* `auto_create_routes` - (Optional) If set to true, the routes between the two networks will
-  be created and managed automatically. Defaults to true.
+* `auto_create_routes` - (Optional) If set to `true`, the routes between the two networks will
+  be created and managed automatically. Defaults to `true`.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `state` - (Computed) State for the peering.
+* `state` - State for the peering.
 
-* `state_details` - (Computed) Details about the current state of the peering.
+* `state_details` - Details about the current state of the peering.
