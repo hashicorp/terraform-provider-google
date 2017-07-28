@@ -6,7 +6,7 @@ description: |-
   Manages common instance metadata
 ---
 
-# google\_compute\_project\_metadata.
+# google\_compute\_project\_metadata
 
 Manages metadata common to all instances for a project in GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/storing-retrieving-metadata)
