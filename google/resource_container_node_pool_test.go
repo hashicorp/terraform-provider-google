@@ -2,7 +2,10 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -44,6 +47,7 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 		},
 	})
 }
+
 func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -252,13 +256,43 @@ resource "google_container_node_pool" "np" {
 
 func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
+		if _, ok := setFields[attr]; ok {
+			return nodepoolCheckSetMatch(attributes, attr, gcpList)
+		}
 		return nodepoolCheckListMatch(attributes, attr, gcpList)
+	}
+	if gcpMap, ok := gcp.(map[string]string); ok {
+		return nodepoolCheckMapMatch(attributes, attr, gcpMap)
 	}
 	tf := attributes[attr]
 	if tf != gcp {
 		return nodepoolMatchError(attr, tf, gcp)
 	}
 	return ""
+}
+
+func nodepoolCheckSetMatch(attributes map[string]string, attr string, gcpList []string) string {
+	num, err := strconv.Atoi(attributes[attr+".#"])
+	if err != nil {
+		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
+	}
+	if num != len(gcpList) {
+		return fmt.Sprintf("NodePool has mismatched %s size.\nTF Size: %d\nGCP Size: %d", attr, num, len(gcpList))
+	}
+
+	// We don't know the exact keys of the elements, so go through the whole list looking for matching ones
+	tfAttr := []string{}
+	for k, v := range attributes {
+		if strings.HasPrefix(k, attr) && !strings.HasSuffix(k, "#") {
+			tfAttr = append(tfAttr, v)
+		}
+	}
+	sort.Strings(tfAttr)
+	sort.Strings(gcpList)
+	if reflect.DeepEqual(tfAttr, gcpList) {
+		return ""
+	}
+	return nodepoolMatchError(attr, tfAttr, gcpList)
 }
 
 func nodepoolCheckListMatch(attributes map[string]string, attr string, gcpList []string) string {
@@ -279,7 +313,25 @@ func nodepoolCheckListMatch(attributes map[string]string, attr string, gcpList [
 	return ""
 }
 
-func nodepoolMatchError(attr, tf string, gcp interface{}) string {
+func nodepoolCheckMapMatch(attributes map[string]string, attr string, gcpMap map[string]string) string {
+	num, err := strconv.Atoi(attributes[attr+".%"])
+	if err != nil {
+		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
+	}
+	if num != len(gcpMap) {
+		return fmt.Sprintf("NodePool has mismatched %s size.\nTF Size: %d\nGCP Size: %d", attr, num, len(gcpMap))
+	}
+
+	for k, gcp := range gcpMap {
+		if tf := attributes[fmt.Sprintf("%s.%s", attr, k)]; tf != gcp {
+			return nodepoolMatchError(fmt.Sprintf("%s[%s]", attr, k), tf, gcp)
+		}
+	}
+
+	return ""
+}
+
+func nodepoolMatchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("NodePool has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
