@@ -11,6 +11,7 @@ var schemaNodeConfig = &schema.Schema{
 	Optional: true,
 	Computed: true,
 	ForceNew: true,
+	MaxItems: 1,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"machine_type": {

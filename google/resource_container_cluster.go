@@ -355,9 +355,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	if v, ok := d.GetOk("node_config"); ok {
 		nodeConfigs := v.([]interface{})
-		if len(nodeConfigs) > 1 {
-			return fmt.Errorf("Cannot specify more than one node_config.")
-		}
 		nodeConfig := nodeConfigs[0].(map[string]interface{})
 
 		cluster.NodeConfig = &container.NodeConfig{}
