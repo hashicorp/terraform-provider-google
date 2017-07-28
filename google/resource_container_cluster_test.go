@@ -104,6 +104,7 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "true"),
 				),
 			},
 			{
@@ -111,6 +112,7 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "false"),
 				),
 			},
 		},
@@ -315,9 +317,9 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
+			{"enable_legacy_abac", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"endpoint", cluster.Endpoint},
 			{"instance_group_urls", igUrls},
-			{"legacy_abac.0.enabled", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"logging_service", cluster.LoggingService},
 			{"monitoring_service", cluster.MonitoringService},
 			{"subnetwork", cluster.Subnetwork},
@@ -554,9 +556,7 @@ resource "google_container_cluster" "with_legacy_abac" {
 	zone = "us-central1-a"
 	initial_node_count = 1
 
-	legacy_abac {
-		enabled = true
-	}
+	enable_legacy_abac = true
 }`, clusterName)
 }
 
@@ -567,9 +567,7 @@ resource "google_container_cluster" "with_legacy_abac" {
 	zone = "us-central1-a"
 	initial_node_count = 1
 
-	legacy_abac {
-		enabled = false
-	}
+	enable_legacy_abac = false
 }`, clusterName)
 }
 

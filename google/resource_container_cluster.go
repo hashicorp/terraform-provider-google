@@ -138,6 +138,12 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"enable_legacy_abac": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+
 			"endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -147,21 +153,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"legacy_abac": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-					},
-				},
 			},
 
 			"logging_service": {
@@ -424,10 +415,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.Description = v.(string)
 	}
 
-	if _, ok := d.GetOk("legacy_abac"); ok {
-		cluster.LegacyAbac = &container.LegacyAbac{
-			Enabled: d.Get("legacy_abac.0.enabled").(bool),
-		}
+	cluster.LegacyAbac = &container.LegacyAbac{
+		Enabled:         d.Get("enable_legacy_abac").(bool),
+		ForceSendFields: []string{"Enabled"},
 	}
 
 	if v, ok := d.GetOk("logging_service"); ok {
@@ -631,7 +621,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
-	d.Set("legacy_abac", flattenLegacyAbac(cluster))
+	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
 	d.Set("network", d.Get("network").(string))
@@ -718,10 +708,11 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("additional_zones")
 	}
 
-	if d.HasChange("legacy_abac.0.enabled") {
-		enabled := d.Get("legacy_abac.0.enabled").(bool)
+	if d.HasChange("enable_legacy_abac") {
+		enabled := d.Get("enable_legacy_abac").(bool)
 		req := &container.SetLegacyAbacRequest{
-			Enabled: enabled,
+			Enabled:         enabled,
+			ForceSendFields: []string{"Enabled"},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -736,7 +727,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
 
-		d.SetPartial("legacy_abac")
+		d.SetPartial("enable_legacy_abac")
 	}
 
 	d.Partial(false)
@@ -798,14 +789,6 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 	}
 	return instanceGroupURLs, nil
-}
-
-func flattenLegacyAbac(c *container.Cluster) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"enabled": c.LegacyAbac.Enabled,
-		},
-	}
 }
 
 func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} {
