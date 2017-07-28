@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_firewall
 
-Manages a firewall resource within GCE.
+Manages a firewall resource within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc/firewalls)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/firewalls).
 
 ## Example Usage
 

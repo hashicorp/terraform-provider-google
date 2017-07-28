@@ -9,7 +9,10 @@ description: |-
 # google\_compute\_backend\_bucket
 
 A Backend Bucket defines a Google Cloud Storage bucket that will serve traffic through Google Cloud
-Load Balancer.
+Load Balancer. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-bucket)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/backendBuckets).
 
 ## Example Usage
 

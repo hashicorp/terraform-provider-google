@@ -6,7 +6,10 @@ description: |-
   Manages common instance metadata
 ---
 
-# google\_compute\_project\_metadata
+# google\_compute\_project\_metadata. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/storing-retrieving-metadata)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/projects/setCommonInstanceMetadata).
 
 Manages metadata common to all instances for a project in GCE. If you
 want to manage only single key/value pairs within the project metadata
