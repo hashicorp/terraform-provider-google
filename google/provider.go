@@ -55,12 +55,13 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"google_compute_network":           dataSourceGoogleComputeNetwork(),
-			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
-			"google_compute_zones":             dataSourceGoogleComputeZones(),
-			"google_container_engine_versions": dataSourceGoogleContainerEngineVersions(),
-			"google_iam_policy":                dataSourceGoogleIamPolicy(),
-			"google_storage_object_signed_url": dataSourceGoogleSignedUrl(),
+			"google_compute_network":                  dataSourceGoogleComputeNetwork(),
+			"google_compute_subnetwork":               dataSourceGoogleComputeSubnetwork(),
+			"google_compute_zones":                    dataSourceGoogleComputeZones(),
+			"google_compute_instance_group_instances": dataSourceGoogleComputeInstanceGroupInstances(),
+			"google_container_engine_versions":        dataSourceGoogleContainerEngineVersions(),
+			"google_iam_policy":                       dataSourceGoogleIamPolicy(),
+			"google_storage_object_signed_url":        dataSourceGoogleSignedUrl(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
