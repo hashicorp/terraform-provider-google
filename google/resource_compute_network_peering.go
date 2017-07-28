@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"sort"
 )
 
 const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
@@ -182,5 +183,10 @@ func getNameFromNetworkLink(network string) string {
 }
 
 func getNetworkPeeringLockName(networkName, peerNetworkName string) string {
-	return fmt.Sprintf("network_peering/%s/%s", networkName, peerNetworkName)
+	// Whether you delete the peering from network A to B or the one from B to A, they
+	// cannot happen at the same time.
+	networks := []string{networkName, peerNetworkName}
+	sort.Strings(networks)
+
+	return fmt.Sprintf("network_peering/%s/%s", networks[0], networks[1])
 }
