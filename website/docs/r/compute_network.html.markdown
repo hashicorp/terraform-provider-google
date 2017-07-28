@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_network
 
-Manages a network within GCE.
+Manages a network within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/networks).
 
 ## Example Usage
 
