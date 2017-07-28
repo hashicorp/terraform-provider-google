@@ -10,7 +10,7 @@ description: |-
 
 Manages a set of DNS records within Google Cloud DNS.
 
-## Examples Usage
+## Example Usage
 
 ### Binding a DNS name to the ephemeral IP of a new instance:
 
@@ -48,7 +48,7 @@ resource "google_dns_managed_zone" "prod" {
 
 ### Adding a SPF record
 
-`\"` must be added around your `rrdatas` for a SPF record. Otherwise `rrdatas` string gets splitted on spaces.
+`\"` must be added around your `rrdatas` for a SPF record. Otherwise `rrdatas` string gets split on spaces.
 
 ```hcl
 resource "google_dns_record_set" "spf" {
@@ -76,7 +76,7 @@ The following arguments are supported:
 * `name` - (Required) The DNS name this record set will apply to.
 
 * `rrdatas` - (Required) The string data for the records in this record set
-    whose meaning depends on the DNS type.
+    whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding `\"` if you don't want your string to get split on spaces.
 
 * `ttl` - (Required) The time-to-live of this record set (seconds).
 
