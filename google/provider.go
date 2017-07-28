@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
@@ -111,6 +112,8 @@ func Provider() terraform.ResourceProvider {
 			"google_sql_user":                       resourceSqlUser(),
 			"google_project":                        resourceGoogleProject(),
 			"google_project_iam_policy":             resourceGoogleProjectIamPolicy(),
+			"google_project_iam_binding":            resourceGoogleProjectIamBinding(),
+			"google_project_iam_member":             resourceGoogleProjectIamMember(),
 			"google_project_services":               resourceGoogleProjectServices(),
 			"google_pubsub_topic":                   resourcePubsubTopic(),
 			"google_pubsub_subscription":            resourcePubsubSubscription(),
@@ -306,6 +309,18 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 	}
 
 	return fmt.Errorf("Error reading %s: %s", resource, err)
+}
+
+func isConflictError(err error) bool {
+	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
+		return true
+	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
+		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+		if e.Code == 409 {
+			return true
+		}
+	}
+	return false
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
