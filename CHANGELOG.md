@@ -3,6 +3,7 @@
 BACKWARDS INCOMPATIBILITIES / NOTES:
 
 FEATURES:
+* **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 
 IMPROVEMENTS:
 * **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
