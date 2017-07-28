@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_disk
 
-Creates a new persistent disk within GCE, based on another disk.
+Creates a new persistent disk within GCE, based on another disk. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/disks).
 
 ~> **Note:** All arguments including the disk encryption key will be stored in the raw state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).

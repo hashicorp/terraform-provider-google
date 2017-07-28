@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_snapshot
 
-Creates a new snapshot of a disk within GCE.
+Creates a new snapshot of a disk within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/disks/create-snapshots)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/snapshots).
 
 ## Example Usage
 

@@ -8,7 +8,10 @@ description: |-
 
 # google\_compute\_route
 
-Manages a network route within GCE.
+Manages a network route within GCE. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/vpc/routes)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/routes).
 
 ## Example Usage
 
