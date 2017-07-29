@@ -48,6 +48,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"activation_policy": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							// Defaults differ between first and second gen instances
 							Computed: true,
 						},
 						"authorized_gae_applications": &schema.Schema{
@@ -59,6 +60,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"binary_log_enabled": &schema.Schema{
@@ -72,6 +74,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"start_time": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										// start_time is randomly assigned if not set
 										Computed: true,
 									},
 								},
@@ -108,6 +111,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"disk_size": &schema.Schema{
 							Type:     schema.TypeInt,
 							Optional: true,
+							// Defaults differ between first and second gen instances
 							Computed: true,
 						},
 						"disk_type": &schema.Schema{
@@ -120,6 +124,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authorized_networks": &schema.Schema{
@@ -145,7 +150,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"ipv4_enabled": &schema.Schema{
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default:  false,
+										// Defaults differ between first and second gen instances
+										Computed: true,
 									},
 									"require_ssl": &schema.Schema{
 										Type:     schema.TypeBool,
@@ -157,6 +163,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"location_preference": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -167,7 +174,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"zone": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
-										Computed: true,
 									},
 								},
 							},
@@ -258,6 +264,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
+				// Returned from API on all replicas
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -290,7 +297,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
-							Computed: true,
 						},
 						"master_heartbeat_period": &schema.Schema{
 							Type:     schema.TypeInt,
@@ -379,9 +385,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["backup_configuration"]; ok {
 		_backupConfigurationList := v.([]interface{})
-		if len(_backupConfigurationList) > 1 {
-			return fmt.Errorf("At most one backup_configuration block is allowed")
-		}
 
 		if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
 			settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
@@ -435,9 +438,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["ip_configuration"]; ok {
 		_ipConfigurationList := v.([]interface{})
-		if len(_ipConfigurationList) > 1 {
-			return fmt.Errorf("At most one ip_configuration block is allowed")
-		}
 
 		if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
 			settings.IpConfiguration = &sqladmin.IpConfiguration{}
@@ -479,9 +479,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["location_preference"]; ok {
 		_locationPreferenceList := v.([]interface{})
-		if len(_locationPreferenceList) > 1 {
-			return fmt.Errorf("At most one location_preference block is allowed")
-		}
 
 		if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
 			settings.LocationPreference = &sqladmin.LocationPreference{}
@@ -536,8 +533,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		instance.Name = resource.UniqueId()
 		d.Set("name", instance.Name)
 	}
-
-	d.SetId(instance.Name)
 
 	if v, ok := d.GetOk("replica_configuration"); ok {
 		_replicaConfigurationList := v.([]interface{})
@@ -609,8 +604,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	d.SetId(instance.Name)
+
 	err = sqladminOperationWait(config, op, "Create Instance")
 	if err != nil {
+		d.SetId("")
 		return err
 	}
 
@@ -659,9 +657,16 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("region", instance.Region)
 	d.Set("database_version", instance.DatabaseVersion)
 
-	d.Set("settings", flattenSettings(instance.Settings))
-	d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration))
-	d.Set("ip_address", flattenIpAddresses(instance.IpAddresses))
+	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
+	}
+	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
+	}
+	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
+	}
+
 	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
 
 	d.Set("self_link", instance.SelfLink)
@@ -696,9 +701,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		_settings := _settingsList[0].(map[string]interface{})
 		settings := &sqladmin.Settings{
-			Tier:            _settings["tier"].(string),
-			SettingsVersion: instance.Settings.SettingsVersion,
-			ForceSendFields: []string{"StorageAutoResize"},
+			Tier:              _settings["tier"].(string),
+			SettingsVersion:   instance.Settings.SettingsVersion,
+			StorageAutoResize: _settings["disk_autoresize"].(bool),
+			ForceSendFields:   []string{"StorageAutoResize"},
 		}
 
 		if v, ok := _settings["activation_policy"]; ok {
@@ -715,12 +721,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["backup_configuration"]; ok {
 			_backupConfigurationList := v.([]interface{})
-			if len(_backupConfigurationList) > 1 {
-				return fmt.Errorf("At most one backup_configuration block is allowed")
-			}
 
+			settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
 			if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
-				settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
 				_backupConfiguration := _backupConfigurationList[0].(map[string]interface{})
 
 				if vp, okp := _backupConfiguration["binary_log_enabled"]; okp {
@@ -740,8 +743,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		if v, ok := _settings["crash_safe_replication"]; ok {
 			settings.CrashSafeReplicationEnabled = v.(bool)
 		}
-
-		settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
 
 		if v, ok := _settings["disk_size"]; ok {
 			if v.(int) > 0 && int64(v.(int)) > instance.Settings.DataDiskSizeGb {
@@ -800,12 +801,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["ip_configuration"]; ok {
 			_ipConfigurationList := v.([]interface{})
-			if len(_ipConfigurationList) > 1 {
-				return fmt.Errorf("At most one ip_configuration block is allowed")
-			}
 
+			settings.IpConfiguration = &sqladmin.IpConfiguration{}
 			if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-				settings.IpConfiguration = &sqladmin.IpConfiguration{}
 				_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
 
 				if vp, okp := _ipConfiguration["ipv4_enabled"]; okp {
@@ -876,12 +874,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["location_preference"]; ok {
 			_locationPreferenceList := v.([]interface{})
-			if len(_locationPreferenceList) > 1 {
-				return fmt.Errorf("At most one location_preference block is allowed")
-			}
 
+			settings.LocationPreference = &sqladmin.LocationPreference{}
 			if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
-				settings.LocationPreference = &sqladmin.LocationPreference{}
 				_locationPreference := _locationPreferenceList[0].(map[string]interface{})
 
 				if vp, okp := _locationPreference["follow_gae_application"]; okp {
@@ -895,20 +890,24 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 {
+			_maintenanceWindowList := v.([]interface{})
+
 			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
-			_maintenanceWindow := v.([]interface{})[0].(map[string]interface{})
+			if len(_maintenanceWindowList) == 1 && _maintenanceWindowList[0] != nil {
+				_maintenanceWindow := _maintenanceWindowList[0].(map[string]interface{})
 
-			if vp, okp := _maintenanceWindow["day"]; okp {
-				settings.MaintenanceWindow.Day = int64(vp.(int))
-			}
+				if vp, okp := _maintenanceWindow["day"]; okp {
+					settings.MaintenanceWindow.Day = int64(vp.(int))
+				}
 
-			if vp, okp := _maintenanceWindow["hour"]; okp {
-				settings.MaintenanceWindow.Hour = int64(vp.(int))
-			}
+				if vp, okp := _maintenanceWindow["hour"]; okp {
+					settings.MaintenanceWindow.Hour = int64(vp.(int))
+				}
 
-			if vp, ok := _maintenanceWindow["update_track"]; ok {
-				if len(vp.(string)) > 0 {
-					settings.MaintenanceWindow.UpdateTrack = vp.(string)
+				if vp, ok := _maintenanceWindow["update_track"]; ok {
+					if len(vp.(string)) > 0 {
+						settings.MaintenanceWindow.UpdateTrack = vp.(string)
+					}
 				}
 			}
 		}
