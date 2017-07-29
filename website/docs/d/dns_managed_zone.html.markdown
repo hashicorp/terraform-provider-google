@@ -13,7 +13,8 @@ For more information see
 [the official documentation](https://cloud.google.com/dns/zones/)
 and
 [API](https://cloud.google.com/dns/api/v1/managedZones).
-```
+
+```hcl
 data "google_dns_managed_zone" "env_dns_zone" {
   name        = "qa-zone"
 }
@@ -31,11 +32,9 @@ resource "google_dns_record_set" "dns" {
 
 ## Argument Reference
 
-* `name` - (Required) A unique name for the resource, required by GCE.
-    Changing this forces a new resource to be created.
+* `name` - (Required) A unique name for the resource.
 
-* `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
-  Defaults to the project that the provider is authenticated with.
+* `project` - (Optional) ID of the project for the Google Cloud DNS zone.
 
 ## Attributes Reference
 
@@ -43,7 +42,7 @@ The following attributes are exported:
 
 * `dns_name` - The DNS name of this zone, e.g. "terraform.io".
 
-* `description` - A textual description field. Defaults to 'Managed by Terraform'.
+* `description` - A textual description field.
 
 * `name_servers` - The list of nameservers that will be authoritative for this
     domain. Use NS records to redirect from your DNS provider to these names,
