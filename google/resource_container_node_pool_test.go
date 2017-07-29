@@ -256,9 +256,6 @@ resource "google_container_node_pool" "np" {
 
 func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
-		if _, ok := setFields[attr]; ok {
-			return nodepoolCheckSetMatch(attributes, attr, gcpList)
-		}
 		return nodepoolCheckListMatch(attributes, attr, gcpList)
 	}
 	if gcpMap, ok := gcp.(map[string]string); ok {
