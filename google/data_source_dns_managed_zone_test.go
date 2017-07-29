@@ -28,12 +28,12 @@ func testAccDataSourceDnsManagedZoneCheck(dsName, rsName string) resource.TestCh
 		rsFullName := "google_dns_managed_zone." + rsName
 		ds, ok := s.RootModule().Resources[dsFullName]
 		if !ok {
-			return fmt.Errorf("root module has no resource called %s", dsFullName)
+			return fmt.Errorf("cant' find resource called %s in state", dsFullName)
 		}
 
 		rs, ok := s.RootModule().Resources[rsFullName]
 		if !ok {
-			return fmt.Errorf("can't find %s in state", rsFullName)
+			return fmt.Errorf("can't find data source called %s in state", rsFullName)
 		}
 
 		dsAttr := ds.Primary.Attributes
