@@ -3,10 +3,11 @@ package google
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"google.golang.org/api/googleapi"
@@ -19,6 +20,9 @@ func resourceSpannerInstance() *schema.Resource {
 		Read:   resourceSpannerInstanceRead,
 		Update: resourceSpannerInstanceUpdate,
 		Delete: resourceSpannerInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceSpannerInstanceImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 
@@ -33,17 +37,48 @@ func resourceSpannerInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+
+					if len(value) < 6 && len(value) > 30 {
+						errors = append(errors, fmt.Errorf(
+							"%q must be between 6 and 30 characters in length", k))
+					}
+					if !regexp.MustCompile("^[a-z0-9-]+$").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q can only contain lowercase letters, numbers and hyphens", k))
+					}
+					if !regexp.MustCompile("^[a-z]").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q must start with a letter", k))
+					}
+					if !regexp.MustCompile("[a-z0-9]$").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q must end with a number or a letter", k))
+					}
+					return
+				},
 			},
 
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+
+					if len(value) < 4 && len(value) > 30 {
+						errors = append(errors, fmt.Errorf(
+							"%q must be between 4 and 30 characters in length", k))
+					}
+					return
+				},
 			},
 
 			"num_nodes": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  1,
 				ForceNew: false,
 			},
 
@@ -54,9 +89,10 @@ func resourceSpannerInstance() *schema.Resource {
 				Elem:     schema.TypeString,
 			},
 
-			"status": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -79,6 +115,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	cir.Instance.DisplayName = d.Get("display_name").(string)
 	cir.Instance.NodeCount = int64(d.Get("num_nodes").(int))
 
+	if v, ok := d.GetOk("name"); ok {
+		cir.InstanceId = v.(string)
+	} else {
+		cir.InstanceId = genSpannerInstanceId()
+		d.Set("name", cir.InstanceId)
+	}
 	if v, ok := d.GetOk("labels"); ok {
 		m := make(map[string]string)
 		for k, val := range v.(map[string]interface{}) {
@@ -86,14 +128,9 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 		cir.Instance.Labels = m
 	}
-	if v, ok := d.GetOk("name"); ok {
-		cir.InstanceId = v.(string)
-	} else {
-		cir.InstanceId = resource.UniqueId()
-		d.Set("name", cir.InstanceId)
-	}
 
-	op, err := config.clientSpanner.Projects.Instances.Create(projectNameForApi(project), cir).Do()
+	op, err := config.clientSpanner.Projects.Instances.Create(
+		projectNameForApi(project), cir).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusConflict {
 			return fmt.Errorf("Error, the name %s is not unique and already used", cir.InstanceId)
@@ -133,12 +170,20 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	d.Set("config", extractInstanceConfigFromApi(instance.Config))
 	d.Set("labels", instance.Labels)
-	d.Set("name", extractInstanceNameFromApi(instance.Name))
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
-	d.Set("status", instance.State)
 
 	return nil
+}
+
+func addToCSVString(csv, item string) string {
+	if item == "" {
+		return csv
+	}
+	if csv != "" {
+		csv = csv + ","
+	}
+	return csv + item
 }
 
 func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -158,14 +203,11 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("num_nodes") {
-		uir.FieldMask = "nodeCount"
+		uir.FieldMask = addToCSVString(uir.FieldMask, "nodeCount")
 		uir.Instance.NodeCount = int64(d.Get("num_nodes").(int))
 	}
 	if d.HasChange("display_name") {
-		if uir.FieldMask != "" {
-			uir.FieldMask = uir.FieldMask + ","
-		}
-		uir.FieldMask = uir.FieldMask + "displayName"
+		uir.FieldMask = addToCSVString(uir.FieldMask, "displayName")
 		uir.Instance.DisplayName = d.Get("display_name").(string)
 	}
 
@@ -200,6 +242,21 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
+func resourceSpannerInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	sid, err := extractSpannerInstanceImportIds(d.Id())
+	if err != nil {
+		return nil, err
+	}
+
+	if sid.Project != "" {
+		d.Set("project", sid.Project)
+	}
+	d.Set("name", sid.Instance)
+	d.SetId(sid.Instance)
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func extractInstanceConfigFromApi(nameUri string) string {
 	rUris := strings.Split(nameUri, "/")
 	return rUris[len(rUris)-1]
@@ -220,4 +277,37 @@ func instanceConfigForApi(p, c string) string {
 
 func projectNameForApi(p string) string {
 	return "projects/" + p
+}
+
+func genSpannerInstanceId() string {
+	return fmt.Sprintf("tfgen-spanid-%010d", rand.Int63n(999999))
+}
+
+type spannerInstanceImportId struct {
+	Project  string
+	Instance string
+}
+
+func extractSpannerInstanceImportIds(id string) (*spannerInstanceImportId, error) {
+	parts := strings.Split(id, "/")
+	if id == "" || strings.HasPrefix(id, "/") || strings.HasSuffix(id, "/") ||
+		(len(parts) != 1 && len(parts) != 2) {
+		return nil, fmt.Errorf("Invalid spanner database specifier. " +
+			"Expecting either {projectId}/{instanceId} OR " +
+			"{instanceId} (where project is to be derived from that specified in provider)")
+	}
+
+	sid := &spannerInstanceImportId{}
+
+	if len(parts) == 1 {
+		log.Printf("[INFO] Spanner instance import format of {instanceId} specified: %s", id)
+		sid.Instance = parts[0]
+	}
+	if len(parts) == 2 {
+		log.Printf("[INFO] Spanner instance import format of {projectId}/{instanceId} specified: %s", id)
+		sid.Project = parts[0]
+		sid.Instance = parts[1]
+	}
+	return sid, nil
+
 }
