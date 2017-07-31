@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_sql_database"
-sidebar_current: "docs-google-sql-database"
+sidebar_current: "docs-google-sql-database-x"
 description: |-
   Creates a new SQL database in Google Cloud SQL.
 ---
