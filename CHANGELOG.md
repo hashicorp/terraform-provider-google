@@ -6,11 +6,12 @@ FEATURES:
 * **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
+* **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
 
 IMPROVEMENTS:
-* **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * container: Add support for node pool autoscaling [GH-157]
+* container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
 
 BUG FIXES:
