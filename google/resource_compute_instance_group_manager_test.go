@@ -418,7 +418,7 @@ func testAccCheckInstanceGroupManagerAutoHealingPolicies(n, hck string, initialD
 		}
 
 		if autoHealingPolicy.InitialDelaySec != initialDelaySec {
-			return fmt.Errorf("Expected auto healing policy inital delay to be %s, got %d", initialDelaySec, autoHealingPolicy.InitialDelaySec)
+			return fmt.Errorf("Expected auto healing policy inital delay to be %d, got %d", initialDelaySec, autoHealingPolicy.InitialDelaySec)
 		}
 		return nil
 	}
