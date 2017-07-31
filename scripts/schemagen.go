@@ -9,6 +9,10 @@
 // 	* No way to differentiate between fields that are/are not updateable.
 // 	* Required/Optional/Computed are set based on keywords in the description.
 //
+// Usage requires credentials. Obtain via gcloud:
+//
+//   gcloud auth application-default login
+//
 // Usage example (from root dir):
 //
 //   go run ./scripts/schemagen.go -api pubsub -resource Subscription -version v1
@@ -69,17 +73,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fields := generateFields(resp.Schemas, *resource)
+	required, optional, computed := generateFields(resp.Schemas, *resource)
 
 	buf := &bytes.Buffer{}
 	err = googleTemplate.Execute(buf, struct {
-		TypeName string
-		Fields   map[string]string
+		TypeName  string
+		ReqFields map[string]string
+		OptFields map[string]string
+		ComFields map[string]string
 	}{
 		// Capitalize the first letter of the api name, then concatenate the resource name onto it.
 		// e.g. compute, instance -> ComputeInstance
-		TypeName: strings.ToUpper((*api)[0:1]) + (*api)[1:] + *resource,
-		Fields:   fields,
+		TypeName:  strings.ToUpper((*api)[0:1]) + (*api)[1:] + *resource,
+		ReqFields: required,
+		OptFields: optional,
+		ComFields: computed,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -95,19 +103,29 @@ func main() {
 	}
 }
 
-func generateFields(jsonSchemas map[string]discovery.JsonSchema, property string) map[string]string {
-	fields := make(map[string]string, 0)
+func generateFields(jsonSchemas map[string]discovery.JsonSchema, property string) (required, optional, computed map[string]string) {
+	required = make(map[string]string, 0)
+	optional = make(map[string]string, 0)
+	computed = make(map[string]string, 0)
 
 	for k, v := range jsonSchemas[property].Properties {
 		content, err := generateField(jsonSchemas, k, v, false)
 		if err != nil {
 			log.Printf("ERROR: %s", err)
 		} else {
-			fields[underscore(k)] = content
+			if strings.Contains(content, "Required:") {
+				required[underscore(k)] = content
+			} else if strings.Contains(content, "Optional:") {
+				optional[underscore(k)] = content
+			} else if strings.Contains(content, "Computed:") {
+				computed[underscore(k)] = content
+			} else {
+				log.Println("ERROR: Found property that is neither required, optional, nor computed")
+			}
 		}
 	}
 
-	return fields
+	return
 }
 
 func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v discovery.JsonSchema, isNested bool) (string, error) {
@@ -142,15 +160,10 @@ func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v 
 		s.MaxItems = 1
 
 		elem := "&schema.Resource{\nSchema: map[string]*schema.Schema{\n"
-		m := generateFields(jsonSchemas, v.Ref)
-		fieldNames := []string{}
-		for k, _ := range m {
-			fieldNames = append(fieldNames, k)
-		}
-		sort.Strings(fieldNames)
-		for _, k := range fieldNames {
-			elem += fmt.Sprintf("%q: %s,\n", k, m[k])
-		}
+		required, optional, computed := generateFields(jsonSchemas, v.Ref)
+		elem += generateNestedElem(required)
+		elem += generateNestedElem(optional)
+		elem += generateNestedElem(computed)
 		elem += "},\n}"
 
 		if isNested {
@@ -165,7 +178,7 @@ func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v 
 }
 
 func setProperties(v discovery.JsonSchema, s *schema.Schema) {
-	if v.ReadOnly || strings.HasPrefix(v.Description, "Output-only") {
+	if v.ReadOnly || strings.HasPrefix(v.Description, "Output-only") || strings.HasPrefix(v.Description, "[Output Only]") {
 		s.Computed = true
 	} else {
 		if v.Required || strings.HasPrefix(v.Description, "Required") {
@@ -176,6 +189,19 @@ func setProperties(v discovery.JsonSchema, s *schema.Schema) {
 	}
 
 	s.ForceNew = true
+}
+
+func generateNestedElem(fields map[string]string) (elem string) {
+	fieldNames := []string{}
+	for k, _ := range fields {
+		fieldNames = append(fieldNames, k)
+	}
+	sort.Strings(fieldNames)
+	for _, k := range fieldNames {
+		elem += fmt.Sprintf("%q: %s,\n", k, fields[k])
+	}
+
+	return
 }
 
 func schemaCode(s *schema.Schema, isNested bool) (string, error) {
@@ -236,7 +262,11 @@ func resource{{.TypeName}}() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		Schema: map[string]*schema.Schema{ {{range $name, $schema := .Fields}}
+		Schema: map[string]*schema.Schema{ {{range $name, $schema := .ReqFields}}
+			"{{ $name }}": {{ $schema }},
+{{end}}{{range $name, $schema := .OptFields}}
+			"{{ $name }}": {{ $schema }},
+{{end}}{{range $name, $schema := .ComFields}}
 			"{{ $name }}": {{ $schema }},
 {{end}}
 		},
