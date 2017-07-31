@@ -204,28 +204,17 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerBetaExists(
 						"google_compute_instance_group_manager.igm-basic", &manager),
+					testAccCheckInstanceGroupManagerAutoHealingPolicies("google_compute_instance_group_manager.igm-basic", hck, 10),
 				),
 			},
 		},
 	})
-
-	if len(manager.AutoHealingPolicies) != 1 {
-		t.Errorf("Expected # of auto healing policies to be 1, got %d", len(manager.AutoHealingPolicies))
-	}
-	autoHealingPolicy := manager.AutoHealingPolicies[0]
-
-	if !strings.Contains(autoHealingPolicy.HealthCheck, hck) {
-		t.Errorf("Expected string \"%s\" to appear in \"%s\"", hck, autoHealingPolicy.HealthCheck)
-	}
-
-	if autoHealingPolicy.InitialDelaySec != 10 {
-		t.Errorf("Expected auto healing policy inital delay to be 10, got %d", autoHealingPolicy.InitialDelaySec)
-	}
 }
 
 // This test is to make sure that a single version resource can link to a versioned resource
 // without perpetual diffs because the self links mismatch.
-// Once auto_healing_policies is no longer beta, we will need to use a new field or resource.
+// Once auto_healing_policies is no longer beta, we will need to use a new field or resource
+// with Beta fields.
 func TestAccInstanceGroupManager_selfLinkStability(t *testing.T) {
 	var manager computeBeta.InstanceGroupManager
 
@@ -242,10 +231,8 @@ func TestAccInstanceGroupManager_selfLinkStability(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccInstanceGroupManager_selfLinkStability(template, target, igm, hck, autoscaler),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceGroupManagerBetaExists(
-						"google_compute_instance_group_manager.igm-basic", &manager),
-				),
+				Check: testAccCheckInstanceGroupManagerBetaExists(
+					"google_compute_instance_group_manager.igm-basic", &manager),
 			},
 		},
 	})
@@ -398,6 +385,41 @@ func testAccCheckInstanceGroupManagerNamedPorts(n string, np map[string]int64, i
 			}
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckInstanceGroupManagerAutoHealingPolicies(n, hck string, initialDelaySec int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		manager, err := config.clientComputeBeta.InstanceGroupManagers.Get(
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(manager.AutoHealingPolicies) != 1 {
+			return fmt.Errorf("Expected # of auto healing policies to be 1, got %d", len(manager.AutoHealingPolicies))
+		}
+		autoHealingPolicy := manager.AutoHealingPolicies[0]
+
+		if !strings.Contains(autoHealingPolicy.HealthCheck, hck) {
+			return fmt.Errorf("Expected string \"%s\" to appear in \"%s\"", hck, autoHealingPolicy.HealthCheck)
+		}
+
+		if autoHealingPolicy.InitialDelaySec != initialDelaySec {
+			return fmt.Errorf("Expected auto healing policy inital delay to be %s, got %d", initialDelaySec, autoHealingPolicy.InitialDelaySec)
+		}
 		return nil
 	}
 }
@@ -853,7 +875,8 @@ resource "google_compute_http_health_check" "zero" {
 
 // This test is to make sure that a single version resource can link to a versioned resource
 // without perpetual diffs because the self links mismatch.
-// Once auto_healing_policies is no longer beta, we will need to use a new field or resource.
+// Once auto_healing_policies is no longer beta, we will need to use a new field or resource
+// with Beta fields.
 func testAccInstanceGroupManager_selfLinkStability(template, target, igm, hck, autoscaler string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance_template" "igm-basic" {
