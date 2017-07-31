@@ -214,102 +214,8 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-			"node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"machine_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
 
-						"disk_size_gb": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-
-								if value < 10 {
-									errors = append(errors, fmt.Errorf(
-										"%q cannot be less than 10", k))
-								}
-								return
-							},
-						},
-
-						"local_ssd_count": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-
-								if value < 0 {
-									errors = append(errors, fmt.Errorf(
-										"%q cannot be negative", k))
-								}
-								return
-							},
-						},
-
-						"oauth_scopes": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-								StateFunc: func(v interface{}) string {
-									return canonicalizeServiceScope(v.(string))
-								},
-							},
-						},
-
-						"service_account": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
-
-						"metadata": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							ForceNew: true,
-							Elem:     schema.TypeString,
-						},
-
-						"image_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
-
-						"labels": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							ForceNew: true,
-							Elem:     schema.TypeString,
-						},
-
-						"tags": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
+			"node_config": schemaNodeConfig,
 
 			"node_version": {
 				Type:     schema.TypeString,
@@ -449,9 +355,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	if v, ok := d.GetOk("node_config"); ok {
 		nodeConfigs := v.([]interface{})
-		if len(nodeConfigs) > 1 {
-			return fmt.Errorf("Cannot specify more than one node_config.")
-		}
 		nodeConfig := nodeConfigs[0].(map[string]interface{})
 
 		cluster.NodeConfig = &container.NodeConfig{}
