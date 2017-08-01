@@ -25,7 +25,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
-					testAccCheckComputeBetaGlobalAddressIPV4("google_compute_global_address.foobar"),
+					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV4"),
 				),
 			},
 		},
@@ -45,7 +45,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
-					testAccCheckComputeBetaGlobalAddressIPV6("google_compute_global_address.foobar"),
+					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
 				),
 			},
 		},
@@ -127,7 +127,7 @@ func testAccCheckComputeBetaGlobalAddressExists(n string, addr *computeBeta.Addr
 	}
 }
 
-func testAccCheckComputeBetaGlobalAddressIPV4(n string) resource.TestCheckFunc {
+func testAccCheckComputeBetaGlobalAddressIpVersion(n, version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -145,34 +145,8 @@ func testAccCheckComputeBetaGlobalAddressIPV4(n string) resource.TestCheckFunc {
 			return err
 		}
 
-		if addr.IpVersion != "IPV4" {
-			fmt.Errorf("Expected IP version to be IPV4, got %s", addr.IpVersion)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeBetaGlobalAddressIPV6(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		addr, err := config.clientComputeBeta.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if addr.IpVersion != "IPV6" {
-			fmt.Errorf("Expected IP version to be IPV6, got %s", addr.IpVersion)
+		if addr.IpVersion != version {
+			fmt.Errorf("Expected IP version to be %s, got %s", version, addr.IpVersion)
 		}
 
 		return nil
