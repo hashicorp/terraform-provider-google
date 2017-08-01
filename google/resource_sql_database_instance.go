@@ -48,6 +48,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"activation_policy": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							// Defaults differ between first and second gen instances
+							Computed: true,
 						},
 						"authorized_gae_applications": &schema.Schema{
 							Type:     schema.TypeList,
@@ -57,6 +59,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"backup_configuration": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"binary_log_enabled": &schema.Schema{
@@ -70,6 +74,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"start_time": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										// start_time is randomly assigned if not set
+										Computed: true,
 									},
 								},
 							},
@@ -97,21 +103,28 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						},
 						"disk_autoresize": &schema.Schema{
 							Type:             schema.TypeBool,
-							Default:          true,
 							Optional:         true,
 							DiffSuppressFunc: suppressFirstGen,
+							// Set computed instead of default because this property is for second-gen only.
+							Computed: true,
 						},
 						"disk_size": &schema.Schema{
 							Type:     schema.TypeInt,
 							Optional: true,
+							// Defaults differ between first and second gen instances
+							Computed: true,
 						},
 						"disk_type": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							// Set computed instead of default because this property is for second-gen only.
+							Computed: true,
 						},
 						"ip_configuration": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authorized_networks": &schema.Schema{
@@ -137,6 +150,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"ipv4_enabled": &schema.Schema{
 										Type:     schema.TypeBool,
 										Optional: true,
+										// Defaults differ between first and second gen instances
+										Computed: true,
 									},
 									"require_ssl": &schema.Schema{
 										Type:     schema.TypeBool,
@@ -148,6 +163,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"location_preference": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"follow_gae_application": &schema.Schema{
@@ -187,10 +204,12 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"pricing_plan": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "PER_USE",
 						},
 						"replication_type": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "SYNCHRONOUS",
 						},
 					},
 				},
@@ -245,6 +264,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
+				// Returned from API on all replicas
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ca_certificate": &schema.Schema{
@@ -364,9 +385,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["backup_configuration"]; ok {
 		_backupConfigurationList := v.([]interface{})
-		if len(_backupConfigurationList) > 1 {
-			return fmt.Errorf("At most one backup_configuration block is allowed")
-		}
 
 		if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
 			settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
@@ -420,9 +438,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["ip_configuration"]; ok {
 		_ipConfigurationList := v.([]interface{})
-		if len(_ipConfigurationList) > 1 {
-			return fmt.Errorf("At most one ip_configuration block is allowed")
-		}
 
 		if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
 			settings.IpConfiguration = &sqladmin.IpConfiguration{}
@@ -464,9 +479,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["location_preference"]; ok {
 		_locationPreferenceList := v.([]interface{})
-		if len(_locationPreferenceList) > 1 {
-			return fmt.Errorf("At most one location_preference block is allowed")
-		}
 
 		if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
 			settings.LocationPreference = &sqladmin.LocationPreference{}
@@ -521,8 +533,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		instance.Name = resource.UniqueId()
 		d.Set("name", instance.Name)
 	}
-
-	d.SetId(instance.Name)
 
 	if v, ok := d.GetOk("replica_configuration"); ok {
 		_replicaConfigurationList := v.([]interface{})
@@ -594,8 +604,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	d.SetId(instance.Name)
+
 	err = sqladminOperationWait(config, op, "Create Instance")
 	if err != nil {
+		d.SetId("")
 		return err
 	}
 
@@ -640,243 +653,20 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
 	}
 
-	_settingsList := d.Get("settings").([]interface{})
-	var _settings map[string]interface{}
-
-	// If we're importing the settings will be nil
-	if len(_settingsList) > 0 {
-		_settings = _settingsList[0].(map[string]interface{})
-	} else {
-		_settings = make(map[string]interface{})
-	}
-
 	d.Set("name", instance.Name)
 	d.Set("region", instance.Region)
 	d.Set("database_version", instance.DatabaseVersion)
 
-	settings := instance.Settings
-	_settings["version"] = settings.SettingsVersion
-	_settings["tier"] = settings.Tier
-
-	// Take care to only update attributes that the user has defined explicitly
-	if v, ok := _settings["activation_policy"]; ok && len(v.(string)) > 0 {
-		_settings["activation_policy"] = settings.ActivationPolicy
+	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
+	}
+	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
+	}
+	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
 	}
 
-	if v, ok := _settings["authorized_gae_applications"]; ok && len(v.([]interface{})) > 0 {
-		_authorized_gae_applications := make([]interface{}, 0)
-		for _, app := range settings.AuthorizedGaeApplications {
-			_authorized_gae_applications = append(_authorized_gae_applications, app)
-		}
-		_settings["authorized_gae_applications"] = _authorized_gae_applications
-	}
-
-	if v, ok := _settings["backup_configuration"]; ok {
-		_backupConfigurationList := v.([]interface{})
-		if len(_backupConfigurationList) > 1 {
-			return fmt.Errorf("At most one backup_configuration block is allowed")
-		}
-
-		if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
-			_backupConfiguration := _backupConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _backupConfiguration["binary_log_enabled"]; okp && vp != nil {
-				_backupConfiguration["binary_log_enabled"] = settings.BackupConfiguration.BinaryLogEnabled
-			}
-
-			if vp, okp := _backupConfiguration["enabled"]; okp && vp != nil {
-				_backupConfiguration["enabled"] = settings.BackupConfiguration.Enabled
-			}
-
-			if vp, okp := _backupConfiguration["start_time"]; okp && len(vp.(string)) > 0 {
-				_backupConfiguration["start_time"] = settings.BackupConfiguration.StartTime
-			}
-
-			_backupConfigurationList[0] = _backupConfiguration
-			_settings["backup_configuration"] = _backupConfigurationList
-		}
-	}
-
-	if v, ok := _settings["crash_safe_replication"]; ok && v != nil {
-		_settings["crash_safe_replication"] = settings.CrashSafeReplicationEnabled
-	}
-
-	_settings["disk_autoresize"] = settings.StorageAutoResize
-
-	if v, ok := _settings["disk_size"]; ok && v != nil {
-		if v.(int) > 0 && settings.DataDiskSizeGb < int64(v.(int)) {
-			_settings["disk_size"] = settings.DataDiskSizeGb
-		}
-	}
-
-	if v, ok := _settings["disk_type"]; ok && v != nil {
-		if len(v.(string)) > 0 {
-			_settings["disk_type"] = settings.DataDiskType
-		}
-	}
-
-	if v, ok := _settings["database_flags"]; ok && len(v.([]interface{})) > 0 {
-		_flag_map := make(map[string]string)
-		// First keep track of localy defined flag pairs
-		for _, _flag := range _settings["database_flags"].([]interface{}) {
-			_entry := _flag.(map[string]interface{})
-			_flag_map[_entry["name"].(string)] = _entry["value"].(string)
-		}
-
-		_database_flags := make([]interface{}, 0)
-		// Next read the flag pairs from the server, and reinsert those that
-		// correspond to ones defined locally
-		for _, entry := range settings.DatabaseFlags {
-			if _, okp := _flag_map[entry.Name]; okp {
-				_entry := make(map[string]interface{})
-				_entry["name"] = entry.Name
-				_entry["value"] = entry.Value
-				_database_flags = append(_database_flags, _entry)
-			}
-		}
-		_settings["database_flags"] = _database_flags
-	}
-
-	if v, ok := _settings["ip_configuration"]; ok {
-		_ipConfigurationList := v.([]interface{})
-		if len(_ipConfigurationList) > 1 {
-			return fmt.Errorf("At most one ip_configuration block is allowed")
-		}
-
-		if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-			_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _ipConfiguration["ipv4_enabled"]; okp && vp != nil {
-				_ipConfiguration["ipv4_enabled"] = settings.IpConfiguration.Ipv4Enabled
-			}
-
-			if vp, okp := _ipConfiguration["require_ssl"]; okp && vp != nil {
-				_ipConfiguration["require_ssl"] = settings.IpConfiguration.RequireSsl
-			}
-
-			if vp, okp := _ipConfiguration["authorized_networks"]; okp && vp != nil {
-				_authorizedNetworksList := vp.([]interface{})
-				_ipc_map := make(map[string]interface{})
-				// First keep track of locally defined ip configurations
-				for _, _ipc := range _authorizedNetworksList {
-					if _ipc == nil {
-						continue
-					}
-					_entry := _ipc.(map[string]interface{})
-					if _entry["value"] == nil {
-						continue
-					}
-					_value := make(map[string]interface{})
-					_value["name"] = _entry["name"]
-					_value["expiration_time"] = _entry["expiration_time"]
-					// We key on value, since that is the only required part of
-					// this 3-tuple
-					_ipc_map[_entry["value"].(string)] = _value
-				}
-				_authorized_networks := make([]interface{}, 0)
-				// Next read the network tuples from the server, and reinsert those that
-				// correspond to ones defined locally
-				for _, entry := range settings.IpConfiguration.AuthorizedNetworks {
-					if _, okp := _ipc_map[entry.Value]; okp {
-						_entry := make(map[string]interface{})
-						_entry["value"] = entry.Value
-						_entry["name"] = entry.Name
-						_entry["expiration_time"] = entry.ExpirationTime
-						_authorized_networks = append(_authorized_networks, _entry)
-					}
-				}
-				_ipConfiguration["authorized_networks"] = _authorized_networks
-			}
-			_ipConfigurationList[0] = _ipConfiguration
-			_settings["ip_configuration"] = _ipConfigurationList
-		}
-	}
-
-	if v, ok := _settings["location_preference"]; ok && len(v.([]interface{})) > 0 {
-		_locationPreferenceList := v.([]interface{})
-		if len(_locationPreferenceList) > 1 {
-			return fmt.Errorf("At most one location_preference block is allowed")
-		}
-
-		if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil &&
-			settings.LocationPreference != nil {
-			_locationPreference := _locationPreferenceList[0].(map[string]interface{})
-
-			if vp, okp := _locationPreference["follow_gae_application"]; okp && vp != nil {
-				_locationPreference["follow_gae_application"] =
-					settings.LocationPreference.FollowGaeApplication
-			}
-
-			if vp, okp := _locationPreference["zone"]; okp && vp != nil {
-				_locationPreference["zone"] = settings.LocationPreference.Zone
-			}
-
-			_locationPreferenceList[0] = _locationPreference
-			_settings["location_preference"] = _locationPreferenceList[0]
-		}
-	}
-
-	if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 &&
-		settings.MaintenanceWindow != nil {
-		_maintenanceWindow := v.([]interface{})[0].(map[string]interface{})
-
-		if vp, okp := _maintenanceWindow["day"]; okp && vp != nil {
-			_maintenanceWindow["day"] = settings.MaintenanceWindow.Day
-		}
-
-		if vp, okp := _maintenanceWindow["hour"]; okp && vp != nil {
-			_maintenanceWindow["hour"] = settings.MaintenanceWindow.Hour
-		}
-
-		if vp, ok := _maintenanceWindow["update_track"]; ok && vp != nil {
-			if len(vp.(string)) > 0 {
-				_maintenanceWindow["update_track"] = settings.MaintenanceWindow.UpdateTrack
-			}
-		}
-	}
-
-	if v, ok := _settings["pricing_plan"]; ok && len(v.(string)) > 0 {
-		_settings["pricing_plan"] = settings.PricingPlan
-	}
-
-	if v, ok := _settings["replication_type"]; ok && len(v.(string)) > 0 {
-		_settings["replication_type"] = settings.ReplicationType
-	}
-
-	_settingsList = make([]interface{}, 1)
-	_settingsList[0] = _settings
-	d.Set("settings", _settingsList)
-
-	if v, ok := d.GetOk("replica_configuration"); ok && v != nil {
-		_replicaConfigurationList := v.([]interface{})
-		if len(_replicaConfigurationList) == 1 && _replicaConfigurationList[0] != nil {
-			_replicaConfiguration := _replicaConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _replicaConfiguration["failover_target"]; okp && vp != nil {
-				_replicaConfiguration["failover_target"] = instance.ReplicaConfiguration.FailoverTarget
-			}
-
-			// Don't attempt to assign anything from instance.ReplicaConfiguration.MysqlReplicaConfiguration,
-			// since those fields are set on create and then not stored. See description at
-			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances
-
-			_replicaConfigurationList[0] = _replicaConfiguration
-			d.Set("replica_configuration", _replicaConfigurationList)
-		}
-	}
-
-	_ipAddresses := make([]interface{}, len(instance.IpAddresses))
-
-	for i, ip := range instance.IpAddresses {
-		_ipAddress := make(map[string]interface{})
-
-		_ipAddress["ip_address"] = ip.IpAddress
-		_ipAddress["time_to_retire"] = ip.TimeToRetire
-
-		_ipAddresses[i] = _ipAddress
-	}
-
-	d.Set("ip_address", _ipAddresses)
 	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
 
 	d.Set("self_link", instance.SelfLink)
@@ -911,9 +701,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		_settings := _settingsList[0].(map[string]interface{})
 		settings := &sqladmin.Settings{
-			Tier:            _settings["tier"].(string),
-			SettingsVersion: instance.Settings.SettingsVersion,
-			ForceSendFields: []string{"StorageAutoResize"},
+			Tier:              _settings["tier"].(string),
+			SettingsVersion:   instance.Settings.SettingsVersion,
+			StorageAutoResize: _settings["disk_autoresize"].(bool),
+			ForceSendFields:   []string{"StorageAutoResize"},
 		}
 
 		if v, ok := _settings["activation_policy"]; ok {
@@ -930,12 +721,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["backup_configuration"]; ok {
 			_backupConfigurationList := v.([]interface{})
-			if len(_backupConfigurationList) > 1 {
-				return fmt.Errorf("At most one backup_configuration block is allowed")
-			}
 
+			settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
 			if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
-				settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
 				_backupConfiguration := _backupConfigurationList[0].(map[string]interface{})
 
 				if vp, okp := _backupConfiguration["binary_log_enabled"]; okp {
@@ -955,8 +743,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		if v, ok := _settings["crash_safe_replication"]; ok {
 			settings.CrashSafeReplicationEnabled = v.(bool)
 		}
-
-		settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
 
 		if v, ok := _settings["disk_size"]; ok {
 			if v.(int) > 0 && int64(v.(int)) > instance.Settings.DataDiskSizeGb {
@@ -1015,12 +801,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["ip_configuration"]; ok {
 			_ipConfigurationList := v.([]interface{})
-			if len(_ipConfigurationList) > 1 {
-				return fmt.Errorf("At most one ip_configuration block is allowed")
-			}
 
+			settings.IpConfiguration = &sqladmin.IpConfiguration{}
 			if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-				settings.IpConfiguration = &sqladmin.IpConfiguration{}
 				_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
 
 				if vp, okp := _ipConfiguration["ipv4_enabled"]; okp {
@@ -1091,12 +874,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		if v, ok := _settings["location_preference"]; ok {
 			_locationPreferenceList := v.([]interface{})
-			if len(_locationPreferenceList) > 1 {
-				return fmt.Errorf("At most one location_preference block is allowed")
-			}
 
+			settings.LocationPreference = &sqladmin.LocationPreference{}
 			if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
-				settings.LocationPreference = &sqladmin.LocationPreference{}
 				_locationPreference := _locationPreferenceList[0].(map[string]interface{})
 
 				if vp, okp := _locationPreference["follow_gae_application"]; okp {
@@ -1110,20 +890,24 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 {
+			_maintenanceWindowList := v.([]interface{})
+
 			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
-			_maintenanceWindow := v.([]interface{})[0].(map[string]interface{})
+			if len(_maintenanceWindowList) == 1 && _maintenanceWindowList[0] != nil {
+				_maintenanceWindow := _maintenanceWindowList[0].(map[string]interface{})
 
-			if vp, okp := _maintenanceWindow["day"]; okp {
-				settings.MaintenanceWindow.Day = int64(vp.(int))
-			}
+				if vp, okp := _maintenanceWindow["day"]; okp {
+					settings.MaintenanceWindow.Day = int64(vp.(int))
+				}
 
-			if vp, okp := _maintenanceWindow["hour"]; okp {
-				settings.MaintenanceWindow.Hour = int64(vp.(int))
-			}
+				if vp, okp := _maintenanceWindow["hour"]; okp {
+					settings.MaintenanceWindow.Hour = int64(vp.(int))
+				}
 
-			if vp, ok := _maintenanceWindow["update_track"]; ok {
-				if len(vp.(string)) > 0 {
-					settings.MaintenanceWindow.UpdateTrack = vp.(string)
+				if vp, ok := _maintenanceWindow["update_track"]; ok {
+					if len(vp.(string)) > 0 {
+						settings.MaintenanceWindow.UpdateTrack = vp.(string)
+					}
 				}
 			}
 		}
@@ -1174,6 +958,147 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
+	data := map[string]interface{}{
+		"version":                     settings.SettingsVersion,
+		"tier":                        settings.Tier,
+		"activation_policy":           settings.ActivationPolicy,
+		"authorized_gae_applications": settings.AuthorizedGaeApplications,
+		"crash_safe_replication":      settings.CrashSafeReplicationEnabled,
+		"disk_autoresize":             settings.StorageAutoResize,
+		"disk_type":                   settings.DataDiskType,
+		"disk_size":                   settings.DataDiskSizeGb,
+		"pricing_plan":                settings.PricingPlan,
+		"replication_type":            settings.ReplicationType,
+	}
+
+	if settings.BackupConfiguration != nil {
+		data["backup_configuration"] = flattenBackupConfiguration(settings.BackupConfiguration)
+	}
+
+	if settings.DatabaseFlags != nil {
+		data["database_flags"] = flattenDatabaseFlags(settings.DatabaseFlags)
+	}
+
+	if settings.IpConfiguration != nil {
+		data["ip_configuration"] = flattenIpConfiguration(settings.IpConfiguration)
+	}
+
+	if settings.LocationPreference != nil {
+		data["location_preference"] = flattenLocationPreference(settings.LocationPreference)
+	}
+	if settings.MaintenanceWindow != nil {
+		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguration) []map[string]interface{} {
+	data := map[string]interface{}{
+		"binary_log_enabled": backupConfiguration.BinaryLogEnabled,
+		"enabled":            backupConfiguration.Enabled,
+		"start_time":         backupConfiguration.StartTime,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]interface{} {
+	flags := make([]map[string]interface{}, 0, len(databaseFlags))
+
+	for _, flag := range databaseFlags {
+		data := map[string]interface{}{
+			"name":  flag.Name,
+			"value": flag.Value,
+		}
+
+		flags = append(flags, data)
+	}
+
+	return flags
+}
+
+func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface{} {
+	data := map[string]interface{}{
+		"ipv4_enabled": ipConfiguration.Ipv4Enabled,
+		"require_ssl":  ipConfiguration.RequireSsl,
+	}
+
+	if ipConfiguration.AuthorizedNetworks != nil {
+		data["authorized_networks"] = flattenAuthorizedNetworks(ipConfiguration.AuthorizedNetworks)
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) interface{} {
+	networks := make([]map[string]interface{}, 0, len(entries))
+
+	for _, entry := range entries {
+		data := map[string]interface{}{
+			"expiration_time": entry.ExpirationTime,
+			"name":            entry.Name,
+			"value":           entry.Value,
+		}
+
+		networks = append(networks, data)
+	}
+
+	return networks
+}
+
+func flattenLocationPreference(locationPreference *sqladmin.LocationPreference) interface{} {
+	data := map[string]interface{}{
+		"follow_gae_application": locationPreference.FollowGaeApplication,
+		"zone": locationPreference.Zone,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMaintenanceWindow(maintenanceWindow *sqladmin.MaintenanceWindow) interface{} {
+	data := map[string]interface{}{
+		"day":          maintenanceWindow.Day,
+		"hour":         maintenanceWindow.Hour,
+		"update_track": maintenanceWindow.UpdateTrack,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfiguration) []map[string]interface{} {
+	rc := []map[string]interface{}{}
+
+	if replicaConfiguration != nil {
+		data := map[string]interface{}{
+			"failover_target": replicaConfiguration.FailoverTarget,
+
+			// Don't attempt to assign anything from replicaConfiguration.MysqlReplicaConfiguration,
+			// since those fields are set on create and then not stored. See description at
+			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances
+		}
+		rc = append(rc, data)
+	}
+
+	return rc
+}
+
+func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interface{} {
+	ips := make([]map[string]interface{}, len(ipAddresses))
+
+	for _, ip := range ipAddresses {
+		data := map[string]interface{}{
+			"ip_address":     ip.IpAddress,
+			"time_to_retire": ip.TimeToRetire,
+		}
+
+		ips = append(ips, data)
+	}
+
+	return ips
 }
 
 func instanceMutexKey(project, instance_name string) string {
