@@ -61,8 +61,8 @@ The following keys can be used to configure the provider.
   the provider will use your identity.
 
 * `project` - (Required) The ID of the project to apply any resources to.  This
-  can be specified using any of the following environment variables (listed in
-  order of precedence):
+  can also be specified using any of the following environment variables (listed
+  in order of precedence):
 
     * `GOOGLE_PROJECT`
     * `GCLOUD_PROJECT`
