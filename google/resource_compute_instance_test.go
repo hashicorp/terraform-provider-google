@@ -292,6 +292,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskType = "pd-ssd"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -299,11 +300,11 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_bootDisk_type(instanceName),
+				Config: testAccComputeInstance_bootDisk_type(instanceName, diskType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceBootDiskType(&instance, "pd-ssd"),
+					testAccCheckComputeInstanceBootDiskType(instanceName, diskType),
 				),
 			},
 		},
@@ -842,18 +843,17 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 	}
 }
 
-func testAccCheckComputeInstanceBootDiskType(instance *compute.Instance, diskType string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Disks == nil {
-			return fmt.Errorf("no disks")
-		}
+		config := testAccProvider.Meta().(*Config)
 
-		for _, disk := range instance.Disks {
-			if disk.Boot == true {
-				if strings.HasSuffix(disk.Type, diskType) {
-					return nil
-				}
-			}
+		// boot disk is named the same as the Instance
+		disk, err := config.clientCompute.Disks.Get(config.Project, "us-central1-a", instanceName).Do()
+		if err != nil {
+			return err
+		}
+		if strings.Contains(disk.Type, diskType) {
+			return nil
 		}
 
 		return fmt.Errorf("Boot disk not found with type %q", diskType)
@@ -1409,7 +1409,7 @@ resource "google_compute_instance" "foobar" {
 `, disk, instance)
 }
 
-func testAccComputeInstance_bootDisk_type(instance string) string {
+func testAccComputeInstance_bootDisk_type(instance string, diskType string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
 	name         = "%s"
@@ -1417,17 +1417,17 @@ resource "google_compute_instance" "foobar" {
 	zone         = "us-central1-a"
 
 	boot_disk {
-    initialize_params {
-      image = "coreos-stable-1409-7-0-v20170719"
-      type = "pd-ssd"
-    }
+		initialize_params {
+			image	= "debian-8-jessie-v20160803"
+			type	= "%s"
+		}
 	}
 
 	network_interface {
 		network = "default"
 	}
 }
-`, instance)
+`, instance, diskType)
 }
 
 func testAccComputeInstance_noDisk(instance string) string {
