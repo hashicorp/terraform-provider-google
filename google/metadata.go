@@ -76,19 +76,6 @@ func MetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interfa
 	}
 }
 
-// Format metadata from the server data format -> schema data format
-func MetadataFormatSchema(curMDMap map[string]interface{}, md *compute.Metadata) map[string]interface{} {
-	newMD := make(map[string]interface{})
-
-	for _, kv := range md.Items {
-		if _, ok := curMDMap[kv.Key]; ok {
-			newMD[kv.Key] = *kv.Value
-		}
-	}
-
-	return newMD
-}
-
 // flattenComputeMetadata transforms a list of MetadataItems (as returned via the GCP client) into a simple map from key
 // to value.
 func flattenComputeMetadata(metadata []*compute.MetadataItems) map[string]string {
