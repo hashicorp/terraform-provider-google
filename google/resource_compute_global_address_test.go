@@ -25,6 +25,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
+					testAccCheckComputeBetaGlobalAddressIPV4("google_compute_global_address.foobar"),
 				),
 			},
 		},
@@ -44,14 +45,11 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
+					testAccCheckComputeBetaGlobalAddressIPV6("google_compute_global_address.foobar"),
 				),
 			},
 		},
 	})
-
-	if addr.IpVersion != "IPV6" {
-		t.Errorf("Expected IP version to be IPV6, got %s", addr.IpVersion)
-	}
 }
 
 func testAccCheckComputeGlobalAddressDestroy(s *terraform.State) error {
@@ -124,6 +122,58 @@ func testAccCheckComputeBetaGlobalAddressExists(n string, addr *computeBeta.Addr
 		}
 
 		*addr = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaGlobalAddressIPV4(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		addr, err := config.clientComputeBeta.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if addr.IpVersion != "IPV4" {
+			fmt.Errorf("Expected IP version to be IPV4, got %s", addr.IpVersion)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaGlobalAddressIPV6(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		addr, err := config.clientComputeBeta.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if addr.IpVersion != "IPV6" {
+			fmt.Errorf("Expected IP version to be IPV6, got %s", addr.IpVersion)
+		}
 
 		return nil
 	}
