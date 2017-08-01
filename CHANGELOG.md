@@ -20,6 +20,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: Fix type panic on expiration_time [GH-209]
 * compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
+* compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
 
 ## 0.1.2 (July 20, 2017)
 
