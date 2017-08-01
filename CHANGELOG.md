@@ -14,6 +14,7 @@ IMPROVEMENTS:
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
+* sql: Persist state from the API for `google_sql_database_instance` regardless of what attributes the user has set [GH-208]
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
 
 BUG FIXES:
