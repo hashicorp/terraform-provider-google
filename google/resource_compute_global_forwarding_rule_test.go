@@ -29,6 +29,9 @@ func TestAccComputeGlobalForwardingRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalForwardingRuleExists(
 						"google_compute_global_forwarding_rule.foobar"),
+
+					// Unlike GlobalAddress, IpVersion is "" instead of "IPV4" when this is made with a v1 API.
+					testAccCheckComputeBetaGlobalForwardingRuleIpVersion("google_compute_global_forwarding_rule.foobar", ""),
 				),
 			},
 		},
@@ -87,14 +90,11 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaGlobalForwardingRuleExists(
 						"google_compute_global_forwarding_rule.foobar", &frule),
+					testAccCheckComputeBetaGlobalForwardingRuleIpVersion("google_compute_global_forwarding_rule.foobar", "IPV6"),
 				),
 			},
 		},
 	})
-
-	if frule.IpVersion != "IPV6" {
-		t.Errorf("Expected IP version to be IPV6, got %s", frule.IpVersion)
-	}
 }
 
 func testAccCheckComputeGlobalForwardingRuleDestroy(s *terraform.State) error {
@@ -166,6 +166,32 @@ func testAccCheckComputeBetaGlobalForwardingRuleExists(n string, frule *computeB
 		}
 
 		*frule = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaGlobalForwardingRuleIpVersion(n, version string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		frule, err := config.clientComputeBeta.GlobalForwardingRules.Get(config.Project, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if frule.IpVersion != version {
+			return fmt.Errorf("Expected IP version to be %s, got %s", version, frule.IpVersion)
+		}
 
 		return nil
 	}
