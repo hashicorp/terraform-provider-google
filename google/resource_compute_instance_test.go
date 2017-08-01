@@ -1609,7 +1609,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	network_interface {
-		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 		access_config {	}
 	}
 
