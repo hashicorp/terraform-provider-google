@@ -289,6 +289,27 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDisk_type(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_bootDisk_type(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceBootDiskType(&instance, "pd-ssd"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_noDisk(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -818,6 +839,24 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 		}
 
 		return fmt.Errorf("Boot disk not found with source %q", source)
+	}
+}
+
+func testAccCheckComputeInstanceBootDiskType(instance *compute.Instance, diskType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Disks == nil {
+			return fmt.Errorf("no disks")
+		}
+
+		for _, disk := range instance.Disks {
+			if disk.Boot == true {
+				if strings.HasSuffix(disk.Type, diskType) {
+					return nil
+				}
+			}
+		}
+
+		return fmt.Errorf("Boot disk not found with type %q", diskType)
 	}
 }
 
@@ -1368,6 +1407,27 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, disk, instance)
+}
+
+func testAccComputeInstance_bootDisk_type(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+    initialize_params {
+      image = "coreos-stable-1409-7-0-v20170719"
+      type = "pd-ssd"
+    }
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_noDisk(instance string) string {
