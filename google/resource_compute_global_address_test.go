@@ -146,7 +146,7 @@ func testAccCheckComputeBetaGlobalAddressIpVersion(n, version string) resource.T
 		}
 
 		if addr.IpVersion != version {
-			fmt.Errorf("Expected IP version to be %s, got %s", version, addr.IpVersion)
+			return fmt.Errorf("Expected IP version to be %s, got %s", version, addr.IpVersion)
 		}
 
 		return nil
