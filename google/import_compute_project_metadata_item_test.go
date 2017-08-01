@@ -3,17 +3,20 @@ package google
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccComputeProjectMetadataItem_importBasic(t *testing.T) {
+	key := "myKey" + acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic("myKey", "myValue"),
+				Config: testAccProjectMetadataItem_basic(key, "myValue"),
 			},
 			{
 				ResourceName:      "google_compute_project_metadata_item.foobar",
