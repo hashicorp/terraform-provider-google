@@ -1375,7 +1375,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
-			disk.InitializeParams.DiskType = diskType.Name
+			disk.InitializeParams.DiskType = diskType.SelfLink
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
