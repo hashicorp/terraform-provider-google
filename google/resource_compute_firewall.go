@@ -80,7 +80,7 @@ func resourceComputeFirewall() *schema.Resource {
 						},
 					},
 				},
-				Set:      resourceComputeFirewallRuleHash,
+				Set: resourceComputeFirewallRuleHash,
 
 				// Unlike allow, deny can't be updated upstream
 				ForceNew: true,
