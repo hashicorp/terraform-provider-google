@@ -14,7 +14,7 @@ import (
 )
 
 var FirewallBaseApiVersion = v1
-var FirewallVersionedFeatures = []Feature{}
+var FirewallVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "deny"}}
 
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -42,8 +42,9 @@ func resourceComputeFirewall() *schema.Resource {
 			},
 
 			"allow": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"deny"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"protocol": {
@@ -58,7 +59,31 @@ func resourceComputeFirewall() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceComputeFirewallAllowHash,
+				Set: resourceComputeFirewallRuleHash,
+			},
+
+			"deny": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"allow"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"protocol": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"ports": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+				Set:      resourceComputeFirewallRuleHash,
+
+				// Unlike allow, deny can't be updated upstream
+				ForceNew: true,
 			},
 
 			"description": {
@@ -103,7 +128,7 @@ func resourceComputeFirewall() *schema.Resource {
 	}
 }
 
-func resourceComputeFirewallAllowHash(v interface{}) int {
+func resourceComputeFirewallRuleHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%s-", m["protocol"].(string)))
@@ -185,6 +210,18 @@ func flattenAllowed(allowed []*computeBeta.FirewallAllowed) []map[string]interfa
 	return result
 }
 
+func flattenDenied(denied []*computeBeta.FirewallDenied) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(denied))
+	for _, deny := range denied {
+		denyMap := make(map[string]interface{})
+		denyMap["protocol"] = deny.IPProtocol
+		denyMap["ports"] = deny.Ports
+
+		result = append(result, denyMap)
+	}
+	return result
+}
+
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
 	computeApiVersion := getComputeApiVersion(d, FirewallBaseApiVersion, FirewallVersionedFeatures)
 	config := meta.(*Config)
@@ -228,6 +265,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("source_tags", firewall.SourceTags)
 	d.Set("target_tags", firewall.TargetTags)
 	d.Set("allow", flattenAllowed(firewall.Allowed))
+	d.Set("deny", flattenDenied(firewall.Denied))
 	return nil
 }
 
@@ -370,6 +408,28 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		}
 	}
 
+	// Build up the list of denied entries
+	var denied []*computeBeta.FirewallDenied
+	if v := d.Get("deny").(*schema.Set); v.Len() > 0 {
+		denied = make([]*computeBeta.FirewallDenied, 0, v.Len())
+		for _, v := range v.List() {
+			m := v.(map[string]interface{})
+
+			var ports []string
+			if v := convertStringArr(m["ports"].([]interface{})); len(v) > 0 {
+				ports = make([]string, len(v))
+				for i, v := range v {
+					ports[i] = v
+				}
+			}
+
+			denied = append(denied, &computeBeta.FirewallDenied{
+				IPProtocol: m["protocol"].(string),
+				Ports:      ports,
+			})
+		}
+	}
+
 	// Build up the list of sources
 	var sourceRanges, sourceTags []string
 	if v := d.Get("source_ranges").(*schema.Set); v.Len() > 0 {
@@ -400,6 +460,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Description:  d.Get("description").(string),
 		Network:      network.SelfLink,
 		Allowed:      allowed,
+		Denied:       denied,
 		SourceRanges: sourceRanges,
 		SourceTags:   sourceTags,
 		TargetTags:   targetTags,
