@@ -61,7 +61,6 @@ The following arguments are supported:
 
 - - -
 
-
 * `deny` - (Optional, Beta) Can be specified multiple times for each deny
     rule. Each deny block supports fields documented below. Can be specified
     instead of allow.
