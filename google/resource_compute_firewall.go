@@ -71,12 +71,14 @@ func resourceComputeFirewall() *schema.Resource {
 						"protocol": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 
 						"ports": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+							ForceNew: true,
 						},
 					},
 				},
