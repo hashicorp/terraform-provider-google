@@ -227,7 +227,7 @@ resource "google_project" "project" {
 
 resource "google_project_services" "services" {
   project = "${google_project.project.project_id}"
-  services = ["compute-component.googleapis.com"]
+  services = ["compute.googleapis.com"]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -251,7 +251,7 @@ resource "google_project" "project" {
 
 resource "google_project_services" "services" {
   project = "${google_project.project.project_id}"
-  services = ["compute-component.googleapis.com"]
+  services = ["compute.googleapis.com"]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -275,7 +275,7 @@ resource "google_project" "project" {
 
 resource "google_project_services" "services" {
   project = "${google_project.project.project_id}"
-  services = ["compute-component.googleapis.com"]
+  services = ["compute.googleapis.com"]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -300,7 +300,7 @@ resource "google_project" "project" {
 
 resource "google_project_services" "services" {
   project = "${google_project.project.project_id}"
-  services = ["compute-component.googleapis.com"]
+  services = ["compute.googleapis.com"]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {

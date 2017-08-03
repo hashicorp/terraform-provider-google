@@ -112,7 +112,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(snapshot.Name)
 
-	err = computeOperationWaitZone(config, op, project, d.Get("zone").(string), "Creating Snapshot")
+	err = computeOperationWait(config, op, project, "Creating Snapshot")
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
@@ -54,6 +55,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":             dataSourceGoogleComputeZones(),
@@ -86,7 +88,9 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_instance_group_manager": resourceComputeInstanceGroupManager(),
 			"google_compute_instance_template":      resourceComputeInstanceTemplate(),
 			"google_compute_network":                resourceComputeNetwork(),
+			"google_compute_network_peering":        resourceComputeNetworkPeering(),
 			"google_compute_project_metadata":       resourceComputeProjectMetadata(),
+			"google_compute_project_metadata_item":  resourceComputeProjectMetadataItem(),
 			"google_compute_region_backend_service": resourceComputeRegionBackendService(),
 			"google_compute_route":                  resourceComputeRoute(),
 			"google_compute_router":                 resourceComputeRouter(),
@@ -105,11 +109,14 @@ func Provider() terraform.ResourceProvider {
 			"google_dataproc_cluster":               resourceDataprocCluster(),
 			"google_dns_managed_zone":               resourceDnsManagedZone(),
 			"google_dns_record_set":                 resourceDnsRecordSet(),
+			"google_sourcerepo_repository":          resourceSourceRepoRepository(),
 			"google_sql_database":                   resourceSqlDatabase(),
 			"google_sql_database_instance":          resourceSqlDatabaseInstance(),
 			"google_sql_user":                       resourceSqlUser(),
 			"google_project":                        resourceGoogleProject(),
 			"google_project_iam_policy":             resourceGoogleProjectIamPolicy(),
+			"google_project_iam_binding":            resourceGoogleProjectIamBinding(),
+			"google_project_iam_member":             resourceGoogleProjectIamMember(),
 			"google_project_services":               resourceGoogleProjectServices(),
 			"google_pubsub_topic":                   resourcePubsubTopic(),
 			"google_pubsub_subscription":            resourcePubsubSubscription(),
@@ -305,6 +312,18 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 	}
 
 	return fmt.Errorf("Error reading %s: %s", resource, err)
+}
+
+func isConflictError(err error) bool {
+	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
+		return true
+	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
+		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+		if e.Code == 409 {
+			return true
+		}
+	}
+	return false
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {

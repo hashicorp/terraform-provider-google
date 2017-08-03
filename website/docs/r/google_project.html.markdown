@@ -71,8 +71,7 @@ The following arguments are supported:
     the organization. See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/v1/how-tos/access-control)
     for more details.
 
-* `name` - (Optional) The display name of the project.
-    This is required if you are creating a new project.
+* `name` - (Required) The display name of the project.
 
 * `skip_delete` - (Optional) If true, the Terraform resource can be deleted
     without deleting the Project via the Google API.

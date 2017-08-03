@@ -27,6 +27,7 @@ import (
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
 	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 )
@@ -46,6 +47,7 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
 	clientIAM             *iam.Service
@@ -208,14 +210,20 @@ func (c *Config) loadAndValidate() error {
 		TokenSource: tokenSource,
 	}
 
+	log.Printf("[INFO] Instantiating Google Cloud Source Repo Client...")
+	c.clientSourceRepo, err = sourcerepo.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSourceRepo.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
 	c.clientDataproc, err = dataproc.New(client)
 	if err != nil {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
-
-	return nil
+  return nil
 }
 
 // accountFile represents the structure of the account file JSON file.

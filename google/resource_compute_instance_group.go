@@ -153,7 +153,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(fmt.Sprintf("%s/%s", zone, name))
 
 	// Wait for the operation to complete
-	err = computeOperationWaitZone(config, op, project, zone, "Creating InstanceGroup")
+	err = computeOperationWait(config, op, project, "Creating InstanceGroup")
 	if err != nil {
 		d.SetId("")
 		return err
@@ -177,7 +177,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWaitZone(config, op, project, zone, "Adding instances to InstanceGroup")
+		err = computeOperationWait(config, op, project, "Adding instances to InstanceGroup")
 		if err != nil {
 			return err
 		}
@@ -281,7 +281,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				}
 			} else {
 				// Wait for the operation to complete
-				err = computeOperationWaitZone(config, removeOp, project, zone, "Updating InstanceGroup")
+				err = computeOperationWait(config, removeOp, project, "Updating InstanceGroup")
 				if err != nil {
 					return err
 				}
@@ -302,7 +302,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWaitZone(config, addOp, project, zone, "Updating InstanceGroup")
+			err = computeOperationWait(config, addOp, project, "Updating InstanceGroup")
 			if err != nil {
 				return err
 			}
@@ -325,7 +325,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
 		}
 
-		err = computeOperationWaitZone(config, op, project, zone, "Updating InstanceGroup")
+		err = computeOperationWait(config, op, project, "Updating InstanceGroup")
 		if err != nil {
 			return err
 		}
@@ -352,7 +352,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}
 
-	err = computeOperationWaitZone(config, op, project, zone, "Deleting InstanceGroup")
+	err = computeOperationWait(config, op, project, "Deleting InstanceGroup")
 	if err != nil {
 		return err
 	}

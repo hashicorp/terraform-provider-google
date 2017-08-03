@@ -91,6 +91,34 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "true"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "false"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withVersion(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -289,6 +317,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
+			{"enable_legacy_abac", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"endpoint", cluster.Endpoint},
 			{"instance_group_urls", igUrls},
 			{"logging_service", cluster.LoggingService},
@@ -517,6 +546,28 @@ resource "google_container_cluster" "with_additional_zones" {
 		username = "mr.yoda"
 		password = "adoy.rm"
 	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_legacy_abac = true
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_legacy_abac = false
 }`, clusterName)
 }
 
