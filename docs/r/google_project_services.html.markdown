@@ -29,7 +29,8 @@ resource "google_project_services" "project" {
 The following arguments are supported:
 
 * `project` - (Required) The project ID.
-    Changing this forces a new project to be created.
+    Changing this forces Terraform to attempt to disable all previously managed
+    API services in the previous project.
 
 * `services` - (Required) The list of services that are enabled. Supports
     update.
