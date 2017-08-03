@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -17,6 +18,10 @@ func resourceContainerNodePool() *schema.Resource {
 		Update: resourceContainerNodePoolUpdate,
 		Delete: resourceContainerNodePoolDelete,
 		Exists: resourceContainerNodePoolExists,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceContainerNodePoolStateImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
@@ -359,4 +364,17 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 		return true, err
 	}
 	return true, nil
+}
+
+func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name}")
+	}
+
+	d.Set("zone", parts[0])
+	d.Set("cluster", parts[1])
+	d.Set("name", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }
