@@ -32,6 +32,9 @@ func multiEnvSearch(ks []string) string {
 
 // Test that a Project resource can be created without an organization
 func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
+	if org != "" {
+		t.Skipf("Environment variable GOOGLE_ORG is set")
+	}
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
