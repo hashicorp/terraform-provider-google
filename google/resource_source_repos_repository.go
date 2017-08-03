@@ -53,7 +53,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	op, err := config.clientSourceRepo.Projects.Repos.Create(parent, repo).Do()
 	if err != nil {
-		return err
+		return fmt.Errorf("Error creating the Source Repo: %s", err)
 	}
 	d.SetId(op.Name)
 
@@ -95,7 +95,7 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 
 	_, err = config.clientSourceRepo.Projects.Repos.Delete(name).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting Source Repos Repository: %s", err)
+		return fmt.Errorf("Error deleting the Source Repo: %s", err)
 	}
 
 	return nil

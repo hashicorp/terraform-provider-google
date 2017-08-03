@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccSourceRepoRepository_basic(t *testing.T) {
-	repositoryName := fmt.Sprintf("source-repos-repository-test-%s", acctest.RandString(10))
+	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -20,7 +20,7 @@ func TestAccSourceRepoRepository_basic(t *testing.T) {
 				Config: testAccSourceRepoRepository_basic(repositoryName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSourceRepoRepositoryExists(
-						"google_sourcerepos_repository.acceptance", repositoryName),
+						"google_sourcerepo_repository.acceptance", repositoryName),
 				),
 			},
 		},
@@ -31,12 +31,12 @@ func testAccCheckSourceRepoRepositoryDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "google_sourcerepos_repository" {
+		if rs.Type == "google_sourcerepo_repository" {
 			repositoryName := buildRepositoryName(config.Project, rs.Primary.Attributes["name"])
 
 			_, err := config.clientSourceRepo.Projects.Repos.Get(repositoryName).Do()
 			if err == nil {
-				return fmt.Errorf(repositoryName + "Source Repos Repository still exists")
+				return fmt.Errorf(repositoryName + "Source Repository still exists")
 			}
 		}
 	}
@@ -62,11 +62,11 @@ func testAccCheckSourceRepoRepositoryExists(resourceType, resourceName string) r
 		resp, err := config.clientSourceRepo.Projects.Repos.Get(repositoryName).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error confirming Source Repos Repository existence: %#v", err)
+			return fmt.Errorf("Error confirming Source Repository existence: %#v", err)
 		}
 
 		if resp.Name != repositoryName {
-			return fmt.Errorf("Failed to verify Source Repos Repository by Name")
+			return fmt.Errorf("Failed to verify Source Repository by name")
 		}
 		return nil
 	}
@@ -74,7 +74,7 @@ func testAccCheckSourceRepoRepositoryExists(resourceType, resourceName string) r
 
 func testAccSourceRepoRepository_basic(repositoryName string) string {
 	return fmt.Sprintf(`
-	resource "google_sourcerepos_repository" "acceptance" {
+	resource "google_sourcerepo_repository" "acceptance" {
 	  name = "%s"
 	}
 	`, repositoryName)
