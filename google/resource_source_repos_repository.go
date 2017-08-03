@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/sourcerepo/v1"
-	"log"
 )
 
-func resourceSourceReposRepository() *schema.Resource {
+func resourceSourceRepoRepository() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSourceReposRepositoryCreate,
-		Read:   resourceSourceReposRepositoryRead,
-		Delete: resourceSourceReposRepositoryDelete,
+		Create: resourceSourceRepoRepositoryCreate,
+		Read:   resourceSourceRepoRepositoryRead,
+		Delete: resourceSourceRepoRepositoryDelete,
 		//Update: not supported,
 
 		Schema: map[string]*schema.Schema{
@@ -26,16 +25,17 @@ func resourceSourceReposRepository() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"size": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
 
-func resourceSourceReposRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	if _, ok := d.GetOk("project"); ok {
-		log.Printf(d.Get("project").(string))
-	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -49,18 +49,18 @@ func resourceSourceReposRepositoryCreate(d *schema.ResourceData, meta interface{
 		Name: name,
 	}
 
-	project = "projects/" + project
+	parent := "projects/" + project
 
-	job, err := config.clientSourceRepos.Projects.Repos.Create(project, repo).Do()
+	op, err := config.clientSourceRepo.Projects.Repos.Create(parent, repo).Do()
 	if err != nil {
 		return err
 	}
-	d.SetId(job.Name)
+	d.SetId(op.Name)
 
 	return nil
 }
 
-func resourceSourceReposRepositoryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -68,22 +68,21 @@ func resourceSourceReposRepositoryRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	//project = "projects/" + project
-	//name := project + "/repos/" + d.Get("name").(string)
-
 	repoName := d.Get("name").(string)
 	name := buildRepositoryName(project, repoName)
 
-	_, err = config.clientSourceRepos.Projects.Repos.Get(name).Do()
+	repo, err := config.clientSourceRepo.Projects.Repos.Get(name).Do()
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Source Repo %q", d.Id()))
 	}
 
+	d.Set("size", repo.Size)
+
 	return nil
 }
 
-func resourceSourceReposRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -94,7 +93,7 @@ func resourceSourceReposRepositoryDelete(d *schema.ResourceData, meta interface{
 	repoName := d.Get("name").(string)
 	name := buildRepositoryName(project, repoName)
 
-	_, err = config.clientSourceRepos.Projects.Repos.Delete(name).Do()
+	_, err = config.clientSourceRepo.Projects.Repos.Delete(name).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting Source Repos Repository: %s", err)
 	}

@@ -1,21 +1,23 @@
 ---
 layout: "google"
-page_title: "Google: google_sourcerepos_repository"
-sidebar_current: "docs-google-sourcerepos_repository"
+page_title: "Google: google_sourcerepo_repository"
+sidebar_current: "docs-google-sourcerepo_repository"
 description: |-
   Manages repositories within Google Cloud Source Repositories.
 ---
 
-# google\_sourcerepos\_repository
+# google\_sourcerepo\_repository
 
-Manages repositories within Google Cloud Source Repositories.
+For more information, see [the official
+documentation](https://cloud.google.com/compute/docs/source-repositories) and
+[API](https://cloud.google.com/source-repositories/docs/reference/rest/v1/projects.repos)
 
 ## Example Usage
 
-This example is the common case of creating a repository within Google Cloud Source Repositores:
+This example is the common case of creating a repository within Google Cloud Source Repositories:
 
 ```hcl
-resource "google_sourcerepos_repository" "frontend" {
+resource "google_sourcerepo_repository" "frontend" {
   name = "frontend"
 }
 ```
@@ -33,4 +35,6 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-Only the arguments listed above are exposed as attributes.
+The following attribute is exported:
+
+* `size` - The size of the repository.

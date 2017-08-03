@@ -9,17 +9,17 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccSourceReposRepository_basic(t *testing.T) {
+func TestAccSourceRepoRepository_basic(t *testing.T) {
 	repositoryName := fmt.Sprintf("source-repos-repository-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceReposRepositoryDestroy,
+		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccSourceReposRepository_basic(repositoryName),
+				Config: testAccSourceRepoRepository_basic(repositoryName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSourceReposRepositoryExists(
+					testAccCheckSourceRepoRepositoryExists(
 						"google_sourcerepos_repository.acceptance", repositoryName),
 				),
 			},
@@ -27,14 +27,14 @@ func TestAccSourceReposRepository_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckSourceReposRepositoryDestroy(s *terraform.State) error {
+func testAccCheckSourceRepoRepositoryDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "google_sourcerepos_repository" {
 			repositoryName := buildRepositoryName(config.Project, rs.Primary.Attributes["name"])
 
-			_, err := config.clientSourceRepos.Projects.Repos.Get(repositoryName).Do()
+			_, err := config.clientSourceRepo.Projects.Repos.Get(repositoryName).Do()
 			if err == nil {
 				return fmt.Errorf(repositoryName + "Source Repos Repository still exists")
 			}
@@ -44,7 +44,7 @@ func testAccCheckSourceReposRepositoryDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckSourceReposRepositoryExists(resourceType, resourceName string) resource.TestCheckFunc {
+func testAccCheckSourceRepoRepositoryExists(resourceType, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceType]
 		if !ok {
@@ -59,7 +59,7 @@ func testAccCheckSourceReposRepositoryExists(resourceType, resourceName string) 
 
 		repositoryName := buildRepositoryName(config.Project, resourceName)
 
-		resp, err := config.clientSourceRepos.Projects.Repos.Get(repositoryName).Do()
+		resp, err := config.clientSourceRepo.Projects.Repos.Get(repositoryName).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error confirming Source Repos Repository existence: %#v", err)
@@ -72,7 +72,7 @@ func testAccCheckSourceReposRepositoryExists(resourceType, resourceName string) 
 	}
 }
 
-func testAccSourceReposRepository_basic(repositoryName string) string {
+func testAccSourceRepoRepository_basic(repositoryName string) string {
 	return fmt.Sprintf(`
 	resource "google_sourcerepos_repository" "acceptance" {
 	  name = "%s"

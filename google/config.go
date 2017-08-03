@@ -43,7 +43,7 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
-	clientSourceRepos     *sourcerepo.Service
+	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
 	clientIAM             *iam.Service
@@ -199,12 +199,12 @@ func (c *Config) loadAndValidate() error {
 		TokenSource: tokenSource,
 	}
 
-	log.Printf("[INFO] Instantiating Google Cloud Source Repos Client...")
-	c.clientSourceRepos, err = sourcerepo.New(client)
+	log.Printf("[INFO] Instantiating Google Cloud Source Repo Client...")
+	c.clientSourceRepo, err = sourcerepo.New(client)
 	if err != nil {
 		return err
 	}
-	c.clientSourceRepos.UserAgent = userAgent
+	c.clientSourceRepo.UserAgent = userAgent
 
 	return nil
 }
