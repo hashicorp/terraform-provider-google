@@ -1170,11 +1170,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
-		// The Preemptible field cannot be updated. The instance must be recreated.
+		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
+			scheduling.Preemptible = val.(bool)
+		}
 		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 			scheduling.OnHostMaintenance = val.(string)
 		}
-		scheduling.ForceSendFields = []string{"AutomaticRestart"}
+		scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
