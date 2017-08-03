@@ -1,21 +1,21 @@
 package google
 
 import (
-	"fmt"
-
-	"github.com/hashicorp/terraform/helper/schema"
-
-	"google.golang.org/api/dataproc/v1"
-
 	"errors"
-	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/googleapi"
+	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
+
+	"google.golang.org/api/dataproc/v1"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceDataprocCluster() *schema.Resource {
@@ -30,8 +30,6 @@ func resourceDataprocCluster() *schema.Resource {
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
-
-		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -79,7 +77,6 @@ func resourceDataprocCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: false,
 			},
 
 			"staging_bucket": {
@@ -87,11 +84,14 @@ func resourceDataprocCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-
+			// If the user does not specify a staging bucket, GCP will allocate one automatically.
+			// The staging_bucket field provides a way for the user to supply their own
+			// staging bucket. The bucket field is purely a computed field which details
+			// the definitive bucket allocated and in use (either the user supplied one via
+			// staging_bucket, or the GCP generated one)
 			"bucket": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 			},
 
 			"image_version": {
@@ -115,7 +115,6 @@ func resourceDataprocCluster() *schema.Resource {
 			"subnetwork": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"network"},
 				StateFunc: func(s interface{}) string {
@@ -126,14 +125,13 @@ func resourceDataprocCluster() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     schema.TypeString,
 			},
 
 			"properties": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 				Elem:     schema.TypeString,
 			},
 
@@ -155,7 +153,6 @@ func resourceDataprocCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-							ForceNew: false,
 						},
 
 						"machine_type": {
@@ -168,7 +165,6 @@ func resourceDataprocCluster() *schema.Resource {
 						"num_local_ssds": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Computed: true,
 							ForceNew: true,
 						},
 
@@ -187,6 +183,12 @@ func resourceDataprocCluster() *schema.Resource {
 								return
 							},
 						},
+
+						"instance_names": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -202,7 +204,6 @@ func resourceDataprocCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-							ForceNew: false,
 						},
 
 						"machine_type": {
@@ -239,7 +240,6 @@ func resourceDataprocCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-							ForceNew: false,
 						},
 
 						// "preemptible_machine_type" cannot be specified directly, it takes its
@@ -260,6 +260,18 @@ func resourceDataprocCluster() *schema.Resource {
 								return
 							},
 						},
+
+						"instance_names": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+
+						"preemptible_instance_names": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -267,7 +279,6 @@ func resourceDataprocCluster() *schema.Resource {
 			"service_account": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 
@@ -284,20 +295,24 @@ func resourceDataprocCluster() *schema.Resource {
 				},
 			},
 
-			"initialization_action_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-
-			"initialization_actions": {
+			"initialization_action": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: false,
 				ForceNew: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"script": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"timeout_sec": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  300,
+						},
+					},
 				},
 			},
 
@@ -306,24 +321,6 @@ func resourceDataprocCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Elem:     schema.TypeString,
-			},
-
-			"master_instance_names": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"worker_instance_names": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"preemptible_instance_names": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -337,8 +334,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-
 	// Mandatory
 	clusterName := d.Get("name").(string)
 	region := d.Get("region").(string)
@@ -348,7 +343,9 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return errors.New("zone is mandatory when region is set to 'global'")
 	}
 
-	gceConfig := &dataproc.GceClusterConfig{}
+	gceConfig := &dataproc.GceClusterConfig{
+		ZoneUri: zone.(string),
+	}
 
 	if v, ok := d.GetOk("network"); ok {
 		gceConfig.NetworkUri = extractLastResourceFromUri(v.(string))
@@ -359,12 +356,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
-		tagsList := v.([]interface{})
-		tags := []string{}
-		for _, v := range tagsList {
-			tags = append(tags, v.(string))
-		}
-		gceConfig.Tags = tags
+		gceConfig.Tags = convertStringArr(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("service_account"); ok {
@@ -372,37 +364,29 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if v, ok := d.GetOk("service_account_scopes"); ok {
-		scopesList := v.([]interface{})
-		scopes := []string{}
-		for _, v := range scopesList {
-			scopes = append(scopes, canonicalizeServiceScope(v.(string)))
-		}
-
-		sort.Strings(scopes)
-		gceConfig.ServiceAccountScopes = scopes
+		gceConfig.ServiceAccountScopes = convertAndMapStringArr(v.([]interface{}), canonicalizeServiceScope)
+		sort.Strings(gceConfig.ServiceAccountScopes)
 	}
-
-	gceConfig.ZoneUri = zone.(string)
 
 	clusterConfig := &dataproc.ClusterConfig{
 		GceClusterConfig: gceConfig,
 		SoftwareConfig:   &dataproc.SoftwareConfig{},
 	}
 
-	if v, ok := d.GetOk("initialization_actions"); ok {
-
-		timeoutInSecs := ""
-		if v, ok := d.GetOk("initialization_action_timeout_sec"); ok {
-			timeoutInSecs = strconv.Itoa(v.(int)) + "s"
-		}
-
+	if v, ok := d.GetOk("initialization_action"); ok {
 		actionList := v.([]interface{})
+
 		actions := []*dataproc.NodeInitializationAction{}
-		for _, v := range actionList {
-			actions = append(actions, &dataproc.NodeInitializationAction{
-				ExecutableFile:   v.(string),
-				ExecutionTimeout: timeoutInSecs,
-			})
+		for _, v1 := range actionList {
+			actionItem := v1.(map[string]interface{})
+			action := &dataproc.NodeInitializationAction{
+				ExecutableFile: actionItem["script"].(string),
+			}
+			if x, ok := actionItem["timeout_sec"]; ok {
+				action.ExecutionTimeout = strconv.Itoa(x.(int)) + "s"
+			}
+
+			actions = append(actions, action)
 		}
 		clusterConfig.InitializationActions = actions
 	}
@@ -413,9 +397,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	if v, ok := d.GetOk("master_config"); ok {
 		masterConfigs := v.([]interface{})
-		if len(masterConfigs) > 1 {
-			return fmt.Errorf("Cannot specify more than one master_config.")
-		}
 		masterConfig := masterConfigs[0].(map[string]interface{})
 
 		clusterConfig.MasterConfig = &dataproc.InstanceGroupConfig{
@@ -438,9 +419,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	if v, ok := d.GetOk("worker_config"); ok {
 		configs := v.([]interface{})
-		if len(configs) > 1 {
-			return fmt.Errorf("Cannot specify more than one worker_config.")
-		}
 		config := configs[0].(map[string]interface{})
 
 		clusterConfig.WorkerConfig = &dataproc.InstanceGroupConfig{
@@ -466,6 +444,9 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 		if v, ok = config["preemptible_num_workers"]; ok {
 			clusterConfig.SecondaryWorkerConfig.NumInstances = int64(v.(int))
+			if clusterConfig.SecondaryWorkerConfig.NumInstances > 0 {
+				clusterConfig.SecondaryWorkerConfig.IsPreemptible = true
+			}
 		}
 		if v, ok = config["preemptible_boot_disk_size_gb"]; ok {
 			clusterConfig.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
@@ -512,7 +493,10 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	d.SetId(clusterName)
+
 	// Wait until it's created
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -521,25 +505,12 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", clusterName)
-	d.SetId(clusterName)
+	return resourceDataprocClusterRead(d, meta)
 
-	e := resourceDataprocClusterRead(d, meta)
-	if e != nil {
-		log.Print("[INFO] Got an error reading back after creating, \n", e)
-	}
-	return e
 }
 
 func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	// The only items which are currently able to be updated, without a
-	// forceNew in place are the labels and/or the number of worker nodes in a cluster
-	if !(d.HasChange("labels") ||
-		d.HasChange("worker_config.0.num_workers") ||
-		d.HasChange("worker_config.0.preemptible_num_workers")) {
-		return errors.New("*** programmer issue - update resource called however item is not allowed to be changed - investigate ***")
-	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -555,24 +526,21 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		ProjectId:   project,
 		Config:      &dataproc.ClusterConfig{},
 	}
-	patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
-		project, region, clusterName, cluster)
 
-	updMask := ""
+	updMask := []string{}
 
 	if d.HasChange("labels") {
-
 		v := d.Get("labels")
 		m := make(map[string]string)
 		for k, val := range v.(map[string]interface{}) {
 			m[k] = val.(string)
 		}
 		cluster.Labels = m
-		updMask = "labels"
+
+		updMask = append(updMask, "labels")
 	}
 
 	if d.HasChange("worker_config.0.num_workers") {
-
 		wconfigs := d.Get("worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
@@ -581,14 +549,10 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 			NumInstances: int64(desiredNumWorks),
 		}
 
-		if len(updMask) > 0 {
-			updMask = updMask + ","
-		}
-		updMask = updMask + "config.worker_config.num_instances"
+		updMask = append(updMask, "config.worker_config.num_instances")
 	}
 
 	if d.HasChange("worker_config.0.preemptible_num_workers") {
-
 		wconfigs := d.Get("worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
@@ -597,15 +561,12 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 			NumInstances: int64(desiredNumWorks),
 		}
 
-		if len(updMask) > 0 {
-			updMask = updMask + ","
-		}
-		updMask = updMask + "config.secondary_worker_config.num_instances"
+		updMask = append(updMask, "config.secondary_worker_config.num_instances")
 	}
 
-	patch.UpdateMask(updMask)
-
-	op, err := patch.Do()
+	patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
+		project, region, clusterName, cluster)
+	op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
 	if err != nil {
 		return err
 	}
@@ -646,22 +607,26 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", cluster.ClusterName)
 	d.Set("bucket", cluster.Config.ConfigBucket)
 
-	extracted := false
 	if len(cluster.Config.InitializationActions) > 0 {
-		actions := []string{}
+		actions := []map[string]interface{}{}
 		for _, v := range cluster.Config.InitializationActions {
-			actions = append(actions, v.ExecutableFile)
 
-			if !extracted && len(v.ExecutionTimeout) > 0 {
+			action := []map[string]interface{}{
+				{
+					"script": v.ExecutableFile,
+				},
+			}
+			if len(v.ExecutionTimeout) > 0 {
 				tsec, err := extractInitTimeout(v.ExecutionTimeout)
 				if err != nil {
 					return err
 				}
-				d.Set("initialization_action_timeout_sec", tsec)
-				extracted = true
+				action[0]["timeout_sec"] = tsec
 			}
+
+			actions = append(actions, action[0])
 		}
-		d.Set("initialization_actions", actions)
+		d.Set("initialization_action", actions)
 	}
 
 	if cluster.Config.GceClusterConfig != nil {
@@ -684,10 +649,6 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		//d.Set("properties", cluster.Config.SoftwareConfig.Properties)
 	}
 
-	d.Set("master_instance_names", []string{})
-	d.Set("worker_instance_names", []string{})
-	d.Set("preemptible_instance_names", []string{})
-
 	if cluster.Config.MasterConfig != nil {
 		masterConfig := []map[string]interface{}{
 			{
@@ -695,9 +656,9 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 				"boot_disk_size_gb": cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb,
 				"machine_type":      extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri),
 				"num_local_ssds":    cluster.Config.MasterConfig.DiskConfig.NumLocalSsds,
+				"instance_names":    cluster.Config.MasterConfig.InstanceNames,
 			},
 		}
-		d.Set("master_instance_names", cluster.Config.MasterConfig.InstanceNames)
 		d.Set("master_config", masterConfig)
 	}
 
@@ -708,14 +669,14 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 				"boot_disk_size_gb": cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb,
 				"machine_type":      extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri),
 				"num_local_ssds":    cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds,
+				"instance_names":    cluster.Config.WorkerConfig.InstanceNames,
 			},
 		}
-		d.Set("worker_instance_names", cluster.Config.WorkerConfig.InstanceNames)
 
 		if cluster.Config.SecondaryWorkerConfig != nil {
 			workerConfig[0]["preemptible_num_workers"] = cluster.Config.SecondaryWorkerConfig.NumInstances
 			workerConfig[0]["preemptible_boot_disk_size_gb"] = cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb
-			d.Set("preemptible_instance_names", cluster.Config.SecondaryWorkerConfig.InstanceNames)
+			workerConfig[0]["preemptible_instance_names"] = cluster.Config.SecondaryWorkerConfig.InstanceNames
 		}
 
 		d.Set("worker_config", workerConfig)
@@ -725,18 +686,11 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func extractInitTimeout(t string) (int, error) {
-	if t == "" {
-		return 0, fmt.Errorf("Cannot extract init timeout from empty string")
-	}
-	if t[len(t)-1:] != "s" {
-		return 0, fmt.Errorf("Unexpected init timeout format expecting in seconds e.g. ZZZs, found : %s", t)
-	}
-
-	tsec, err := strconv.Atoi(t[:len(t)-1])
+	d, err := time.ParseDuration(t)
 	if err != nil {
-		return 0, fmt.Errorf("Cannot convert init timeout to int: %s", err)
+		return 0, err
 	}
-	return tsec, nil
+	return int(d.Seconds()), nil
 }
 
 func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) error {
@@ -779,18 +733,15 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Determine if the user specified a specific override staging bucket, if so
-	// let it be ...  otherwise GCP will have created one for them somewhere along
-	// the way, we auto delete it as this will be dangling around otherwise
-
-	v, specified := d.GetOk("staging_bucket")
-	if specified {
+	// If the user did not specify a specific override staging bucket, then GCP
+	// creates one automatically. Clean this up to avoid dangling resources.
+	if v, ok := d.GetOk("staging_bucket"); ok {
 		log.Printf("[DEBUG] staging bucket %s (for dataproc cluster) has explicitly been set, leaving it...", v)
 		return nil
 	}
 	bucket := d.Get("bucket").(string)
 
-	log.Printf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) ...", bucket)
+	log.Printf("[DEBUG] Attempting to delete autogenerated bucket %s (for dataproc cluster)", bucket)
 	return emptyAndDeleteStorageBucket(config, bucket)
 }
 
@@ -815,20 +766,20 @@ func deleteEmptyBucket(config *Config, bucket string) error {
 			return nil
 		}
 		gerr, ok := err.(*googleapi.Error)
-		if gerr.Code == 404 {
+		if gerr.Code == http.StatusNotFound {
 			// Bucket may be gone already ignore
 			return nil
 		}
-		if ok && gerr.Code == 429 {
+		if ok && gerr.Code == http.StatusTooManyRequests {
 			return resource.RetryableError(gerr)
 		}
 		return resource.NonRetryableError(err)
 	})
 	if err != nil {
-		fmt.Printf("[ERROR] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error deleting bucket %s: %v\n\n", bucket, err)
+		fmt.Printf("[ERROR] Attempting to delete autogenerated bucket (for dataproc cluster): Error deleting bucket %s: %v\n\n", bucket, err)
 		return err
 	}
-	log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Deleted bucket %v\n\n", bucket)
+	log.Printf("[DEBUG] Attempting to delete autogenerated bucket (for dataproc cluster): Deleted bucket %v\n\n", bucket)
 
 	return nil
 
@@ -837,34 +788,32 @@ func deleteEmptyBucket(config *Config, bucket string) error {
 func deleteStorageBucketContents(config *Config, bucket string) error {
 
 	res, err := config.clientStorage.Objects.List(bucket).Do()
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 		// Bucket is already gone ...
 		return nil
 	}
 	if err != nil {
-		log.Fatalf("[DEBUG] Attempting to delete autogen bucket %s (for dataproc cluster) if exists. Error Objects.List failed: %v", bucket, err)
+		log.Fatalf("[DEBUG] Attempting to delete autogenerated bucket %s (for dataproc cluster). Error Objects.List failed: %v", bucket, err)
 		return err
 	}
 
 	if len(res.Items) > 0 {
 		// purge the bucket...
-		log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. \n\n")
+		log.Printf("[DEBUG] Attempting to delete autogenerated bucket (for dataproc cluster). \n\n")
 
 		for _, object := range res.Items {
-			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists. Found %s", object.Name)
+			log.Printf("[DEBUG] Attempting to delete autogenerated bucket (for dataproc cluster). Found %s", object.Name)
 
 			err := config.clientStorage.Objects.Delete(bucket, object.Name).Do()
 			if err != nil {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code != 404 {
-					// Object is now gone ... ignore
-					log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Error trying to delete object: %s %s\n\n", object.Name, err)
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code != http.StatusNotFound {
+					log.Printf("[DEBUG] Attempting to delete autogenerated bucket (for dataproc cluster): Error trying to delete object: %s %s\n\n", object.Name, err)
 					return err
 				}
 			}
-			log.Printf("[DEBUG] Attempting to delete autogen bucket (for dataproc cluster) if exists: Object deleted: %s \n\n", object.Name)
+			log.Printf("[DEBUG] Attempting to delete autogenerated bucket (for dataproc cluster): Object deleted: %s \n\n", object.Name)
 		}
-	} else {
-		return nil // 0 items, bucket empty
 	}
+
 	return nil
 }

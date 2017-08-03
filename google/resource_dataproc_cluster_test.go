@@ -2,6 +2,11 @@ package google
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"reflect"
+	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -10,14 +15,8 @@ import (
 
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
-	"os"
-	"reflect"
-	"regexp"
-
-	"strconv"
 )
 
-const base10 = 10
 const emptyTFDefinition = `
 # empty def
 `
@@ -49,22 +48,24 @@ func TestExtractInitTimeout(t *testing.T) {
 	}
 }
 
-func TestExtractInitTimeout_badFormat(t *testing.T) {
-	_, err := extractInitTimeout("5m")
-	expected := "Unexpected init timeout format expecting in seconds e.g. ZZZs, found : 5m"
-	if err != nil && err.Error() == expected {
-		return
+func TestExtractInitTimeout_nonSeconds(t *testing.T) {
+	actual, err := extractInitTimeout("5m")
+	expected := 300
+	if err != nil {
+		t.Fatalf("Expected %d, but got error %v", expected, err)
 	}
-	t.Fatalf("Expected an error with message '%s', but got %v", expected, err)
+	if actual != expected {
+		t.Fatalf("Expected %d, but got %d", expected, actual)
+	}
 }
 
 func TestExtractInitTimeout_empty(t *testing.T) {
 	_, err := extractInitTimeout("")
-	expected := "Cannot extract init timeout from empty string"
-	if err != nil && err.Error() == expected {
+	expected := "time: invalid duration"
+	if err != nil && err.Error() != expected {
 		return
 	}
-	t.Fatalf("Expected an error with message '%s', but got %v", expected, err)
+	t.Fatalf("Expected an error with message '%s', but got %v", expected, err.Error())
 }
 
 func TestAccDataprocCluster_missingZoneGlobalRegion(t *testing.T) {
@@ -102,6 +103,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "master_config.0.num_masters", "1"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "master_config.0.boot_disk_size_gb"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "master_config.0.num_local_ssds"),
+					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "master_config.0.machine_type"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "master_config.0.machine_type"),
 
 					// Expect 2 workers with computed values
@@ -204,7 +206,7 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 				Config: testAccDataprocCluster_withInitAction(rnd, bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.with_init_action", &cluster),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_init_action", "initialization_action_timeout_sec", "500"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_init_action", "initialization_action.0.timeout_sec", "500"),
 					testAccCheckDataprocClusterInitActionSucceeded(bucketName, objectName),
 				),
 			},
@@ -357,12 +359,12 @@ func validateClusterDeleted(project, region, clusterName string, config *Config)
 		project, region, clusterName).Do()
 
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 			return nil
 		} else if ok {
-			return fmt.Errorf("Error make GCP platform call to verify dataproc cluster deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+			return fmt.Errorf("Error verifying dataproc cluster deletion. Code: %d. Message: %s", gerr.Code, gerr.Message)
 		}
-		return fmt.Errorf("Error make GCP platform call to verify dataproc cluster deleted: %s", err.Error())
+		return fmt.Errorf("Error verifying dataproc cluster deletion. %s", err.Error())
 	}
 	return fmt.Errorf("Dataproc cluster still exists")
 }
@@ -371,7 +373,7 @@ func validateBucketDoesNotExist(bucket string, config *Config) error {
 	_, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 			return nil
 		} else if ok {
 			return fmt.Errorf("Error make GCP platform call to verify if bucket deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
@@ -385,7 +387,7 @@ func validateBucketExists(bucket string, config *Config) (bool, error) {
 	_, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 			return false, nil
 		} else if ok {
 			return false, fmt.Errorf("Error make GCP platform call to verify if bucket deleted: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
@@ -434,268 +436,6 @@ func testAccCheckDataprocClusterInitActionSucceeded(bucket, object string) resou
 	}
 }
 
-func testAccCheckDataproc_missingZoneGlobalRegion(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "basic" {
-	name                  = "dproc-cluster-test-%s"
-	region                = "global"
-}
-`, rnd)
-}
-
-func testAccDataprocCluster_basic(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "basic" {
-	name                  = "dproc-cluster-test-%s"
-	region                = "us-central1"
-
-}
-`, rnd)
-}
-
-func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "basic" {
-	name                  = "dproc-cluster-test-%s"
-	region                = "us-central1"
-
-	delete_autogen_bucket = true
-}
-`, rnd)
-}
-
-func testAccDataprocCluster_singleNodeCluster(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "single_node_cluster" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-
-    # Because of current restrictions with computed AND default
-    # [list|Set] properties, we need to add this empty config
-    # here otherwise if you plan straight away afterwards you
-    # will get a diff. If you have actual config values that is
-    # fine, but if you were hoping to use the defaults, this is
-    # required
-    master_config { }
-    worker_config { }
-}
-`, rnd)
-}
-
-func testAccDataprocCluster_withConfigOverrides(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_config_overrides" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-
-	master_config {
-		num_masters       = 3
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-		num_local_ssds    = 0
-	}
-
-	worker_config {
-	    num_workers       = 3
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 11
-		num_local_ssds    = 0
-
-		preemptible_num_workers       = 1
-		preemptible_boot_disk_size_gb = 12
-	}
-}`, rnd)
-}
-
-func testAccDataprocCluster_withInitAction(rnd, bucket, objName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "init_bucket" {
-    name          = "%s"
-    force_destroy = "true"
-}
-
-resource "google_storage_bucket_object" "init_script" {
-  name           = "dproc-cluster-test-%s-init-script.sh"
-  bucket         = "${google_storage_bucket.init_bucket.name}"
-  content        = <<EOL
-#!/bin/bash
-ROLE=$$(/usr/share/google/get_metadata_value attributes/dataproc-role)
-if [[ "$${ROLE}" == 'Master' ]]; then
-  echo "on the master" >> /tmp/%s
-  gsutil cp /tmp/%s ${google_storage_bucket.init_bucket.url}
-else
-  echo "on the worker" >> /tmp/msg.txt
-fi
-EOL
-
-}
-
-resource "google_dataproc_cluster" "with_init_action" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-	initialization_action_timeout_sec = 500
-	initialization_actions = [
-	   "${google_storage_bucket.init_bucket.url}/${google_storage_bucket_object.init_script.name}"
-	]
-
-    # Keep the costs down with smallest config we can get away with
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-    worker_config { }
-	master_config {
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-}`, bucket, rnd, objName, objName, rnd)
-}
-
-func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-    name          = "%s"
-    force_destroy = "true"
-}`, bucketName)
-}
-
-func testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "google_dataproc_cluster" "with_bucket" {
-	name   = "%s"
-	region = "us-central1"
-	staging_bucket = "${google_storage_bucket.bucket.name}"
-
-    # Keep the costs down with smallest config we can get away with
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-    worker_config { }
-	master_config {
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-}`, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
-}
-
-func testAccDataprocCluster_withImageVersion(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_image_version" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-	image_version = "preview"
-}`, rnd)
-}
-
-func testAccDataprocCluster_withServiceAcc(saEmail string, rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "with_service_account" {
-	name   = "dproc-cluster-test-%s"
-	region = "us-central1"
-
-    # Keep the costs down with smallest config we can get away with
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-    worker_config { }
-	master_config {
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-
-	service_account = "%s"
-
-	service_account_scopes = [
-        #    The following scopes necessary for the cluster to function properly are
-		#	always added, even if not explicitly specified:
-		#		useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
-		#		storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
-		#		logging-write:   https://www.googleapis.com/auth/logging.write
-        #
-		#	So user is expected to add these explicitly (in this order) otherwise terraform
-		#   will think there is a change to resource
-		"useraccounts-ro","storage-rw","logging-write",
-
-	    # Additional ones specifically desired by user (Note for now must be in alpha order
-	    # of fully qualified scope name)
-	    "https://www.googleapis.com/auth/monitoring"
-
-	]
-
-}`, rnd, saEmail)
-}
-
-func testAccDataprocCluster_withNetworkRefs(rnd, netName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "dataproc_network" {
-	name = "%s"
-	auto_create_subnetworks = true
-}
-
-resource "google_compute_firewall" "dataproc_network_firewall" {
-	name = "dproc-cluster-test-%s-allow-internal"
-	description = "Firewall rules for dataproc Terraform acceptance testing"
-	network = "${google_compute_network.dataproc_network.name}"
-
-	allow {
-	    protocol = "icmp"
-	}
-
-	allow {
-		protocol = "tcp"
-		ports    = ["0-65535"]
-	}
-
-	allow {
-		protocol = "udp"
-		ports    = ["0-65535"]
-	}
-}
-
-resource "google_dataproc_cluster" "with_net_ref_by_name" {
-	name   = "dproc-cluster-test-%s-name"
-	region = "us-central1"
-	depends_on = ["google_compute_firewall.dataproc_network_firewall"]
-
-    # Keep the costs down with smallest config we can get away with
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-    worker_config { }
-	master_config {
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-
-	network = "${google_compute_network.dataproc_network.name}"
-}
-
-resource "google_dataproc_cluster" "with_net_ref_by_url" {
-	name   = "dproc-cluster-test-%s-url"
-	region = "us-central1"
-    depends_on = ["google_compute_firewall.dataproc_network_firewall"]
-
-    # Keep the costs down with smallest config we can get away with
-    properties = {
-        "dataproc:dataproc.allow.zero.workers" = "true"
-    }
-    worker_config { }
-	master_config {
-		machine_type      = "n1-standard-1"
-		boot_disk_size_gb = 10
-	}
-
-	network = "${google_compute_network.dataproc_network.self_link}"
-}
-
-`, netName, rnd, rnd, rnd)
-}
-
 func testAccPreCheckWithServiceAccount(t *testing.T) {
 	testAccPreCheck(t)
 	if v := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); v == "" {
@@ -723,18 +463,18 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 		}
 
 		clusterTests := []tfAndGCPTestField{
-			{"master_config.0.num_masters", "3", strconv.FormatInt(cluster.Config.MasterConfig.NumInstances, base10)},
-			{"master_config.0.boot_disk_size_gb", "10", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb, base10)},
-			{"master_config.0.num_local_ssds", "0", strconv.FormatInt(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds, base10)},
+			{"master_config.0.num_masters", "3", strconv.Itoa(int(cluster.Config.MasterConfig.NumInstances))},
+			{"master_config.0.boot_disk_size_gb", "10", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
+			{"master_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
 			{"master_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)},
 
-			{"worker_config.0.num_workers", "3", strconv.FormatInt(cluster.Config.WorkerConfig.NumInstances, base10)},
-			{"worker_config.0.boot_disk_size_gb", "11", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb, base10)},
-			{"worker_config.0.num_local_ssds", "0", strconv.FormatInt(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds, base10)},
+			{"worker_config.0.num_workers", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
+			{"worker_config.0.boot_disk_size_gb", "11", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
+			{"worker_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
 			{"worker_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
 
-			{"worker_config.0.preemptible_num_workers", "1", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.NumInstances, base10)},
-			{"worker_config.0.preemptible_boot_disk_size_gb", "12", strconv.FormatInt(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb, base10)},
+			{"worker_config.0.preemptible_num_workers", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
+			{"worker_config.0.preemptible_boot_disk_size_gb", "12", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
 		}
 
 		for _, attrs := range clusterTests {
@@ -777,4 +517,268 @@ func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) reso
 
 		return nil
 	}
+}
+
+func testAccCheckDataproc_missingZoneGlobalRegion(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+    name                  = "dproc-cluster-test-%s"
+    region                = "global"
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_basic(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+    name                  = "dproc-cluster-test-%s"
+    region                = "us-central1"
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+    name                  = "dproc-cluster-test-%s"
+    region                = "us-central1"
+
+    delete_autogen_bucket = true
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_singleNodeCluster(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "single_node_cluster" {
+    name   = "dproc-cluster-test-%s"
+    region = "us-central1"
+
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+
+    # Because of current restrictions with computed AND default
+    # [list|Set] properties, we need to add this empty config
+    # here otherwise if you plan straight away afterwards you
+    # will get a diff. If you have actual config values that is
+    # fine, but if you were hoping to use the defaults, this is
+    # required
+    master_config { }
+    worker_config { }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withConfigOverrides(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_config_overrides" {
+    name   = "dproc-cluster-test-%s"
+    region = "us-central1"
+
+    master_config {
+        num_masters       = 3
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+        num_local_ssds    = 0
+    }
+
+    worker_config {
+        num_workers       = 3
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 11
+        num_local_ssds    = 0
+
+        preemptible_num_workers       = 1
+        preemptible_boot_disk_size_gb = 12
+    }
+}`, rnd)
+}
+
+func testAccDataprocCluster_withInitAction(rnd, bucket, objName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "init_bucket" {
+    name          = "%s"
+    force_destroy = "true"
+}
+
+resource "google_storage_bucket_object" "init_script" {
+    name           = "dproc-cluster-test-%s-init-script.sh"
+    bucket         = "${google_storage_bucket.init_bucket.name}"
+    content        = <<EOL
+#!/bin/bash
+echo "init action success" >> /tmp/%s
+gsutil cp /tmp/%s ${google_storage_bucket.init_bucket.url}
+EOL
+
+}
+
+resource "google_dataproc_cluster" "with_init_action" {
+    name   = "dproc-cluster-test-%s"
+    region = "us-central1"
+
+    initialization_action {
+        script      = "${google_storage_bucket.init_bucket.url}/${google_storage_bucket_object.init_script.name}"
+        timeout_sec = 500
+    }
+    initialization_action {
+        script      = "${google_storage_bucket.init_bucket.url}/${google_storage_bucket_object.init_script.name}"
+    }
+
+
+    # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
+    master_config {
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+}`, bucket, rnd, objName, objName, rnd)
+}
+
+func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+    name          = "%s"
+    force_destroy = "true"
+}`, bucketName)
+}
+
+func testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_dataproc_cluster" "with_bucket" {
+    name   = "%s"
+    region = "us-central1"
+    staging_bucket = "${google_storage_bucket.bucket.name}"
+
+    # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
+    master_config {
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+}`, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
+}
+
+func testAccDataprocCluster_withImageVersion(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_image_version" {
+    name   = "dproc-cluster-test-%s"
+    region = "us-central1"
+    image_version = "preview"
+}`, rnd)
+}
+
+func testAccDataprocCluster_withServiceAcc(saEmail string, rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_service_account" {
+    name   = "dproc-cluster-test-%s"
+    region = "us-central1"
+
+    # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
+    master_config {
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+    service_account = "%s"
+
+    service_account_scopes = [
+        #	The following scopes necessary for the cluster to function properly are
+        #	always added, even if not explicitly specified:
+        #		useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
+        #		storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
+        #		logging-write:   https://www.googleapis.com/auth/logging.write
+        "useraccounts-ro","storage-rw","logging-write",
+
+        #	Note for now must be in alpha order of fully qualified scope name)
+        "https://www.googleapis.com/auth/monitoring"
+
+    ]
+
+}`, rnd, saEmail)
+}
+
+func testAccDataprocCluster_withNetworkRefs(rnd, netName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "dataproc_network" {
+    name = "%s"
+    auto_create_subnetworks = true
+}
+
+#
+# The default network within GCP already comes pre configured with
+# certain firewall rules open to allow internal communication. As we
+# are creating a new one here for this test, we need to additionally
+# open up similar rules to allow the nodes to talk to each other
+# internally as part of their configuration or this will just hang.
+#
+resource "google_compute_firewall" "dataproc_network_firewall" {
+    name = "dproc-cluster-test-%s-allow-internal"
+    description = "Firewall rules for dataproc Terraform acceptance testing"
+    network = "${google_compute_network.dataproc_network.name}"
+
+    allow {
+        protocol = "icmp"
+    }
+
+    allow {
+        protocol = "tcp"
+        ports    = ["0-65535"]
+    }
+
+    allow {
+        protocol = "udp"
+        ports    = ["0-65535"]
+    }
+}
+
+resource "google_dataproc_cluster" "with_net_ref_by_name" {
+    name   = "dproc-cluster-test-%s-name"
+    region = "us-central1"
+    depends_on = ["google_compute_firewall.dataproc_network_firewall"]
+
+    # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
+    master_config {
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+    network = "${google_compute_network.dataproc_network.name}"
+}
+
+resource "google_dataproc_cluster" "with_net_ref_by_url" {
+    name   = "dproc-cluster-test-%s-url"
+    region = "us-central1"
+    depends_on = ["google_compute_firewall.dataproc_network_firewall"]
+
+    # Keep the costs down with smallest config we can get away with
+    properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+    }
+    worker_config { }
+    master_config {
+        machine_type      = "n1-standard-1"
+        boot_disk_size_gb = 10
+    }
+
+    network = "${google_compute_network.dataproc_network.self_link}"
+}
+
+`, netName, rnd, rnd, rnd)
 }
