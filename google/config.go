@@ -223,7 +223,7 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
-  return nil
+	return nil
 }
 
 // accountFile represents the structure of the account file JSON file.
