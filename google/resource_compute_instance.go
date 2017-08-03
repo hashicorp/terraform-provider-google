@@ -380,18 +380,7 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					// The `scheduling` block is optional in the config but implicitly has a length
-					// of 1 with the default values for `automatic_restart` and `preemptible`.
-					// This suppress the diff `scheduling.#: "1" => "0"` when the `scheduling` block
-					// is not specified by the user.
-					if k == "scheduling.#" {
-						return true
-					}
-
-					// Don't suppress the diff for the scheduling fields.
-					return false
-				},
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": &schema.Schema{
@@ -403,7 +392,7 @@ func resourceComputeInstance() *schema.Resource {
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
-							Computed: true,
+							Default:  true,
 						},
 
 						"preemptible": &schema.Schema{
@@ -804,6 +793,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 		scheduling.OnHostMaintenance = val.(string)
 	}
+	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
 	var createTimeout int
@@ -1180,14 +1170,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
-
-		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
-			scheduling.Preemptible = val.(bool)
-		}
-
+		// The Preemptible field cannot be updated. The instance must be recreated.
 		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 			scheduling.OnHostMaintenance = val.(string)
 		}
+		scheduling.ForceSendFields = []string{"AutomaticRestart"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
