@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
 * **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
+* **New Resource:** `google_sourcerepo_repository` - allows creating and deleting Google Source Repositories [GH-256]
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
@@ -22,6 +23,8 @@ BUG FIXES:
 * bigquery: Fix type panic on expiration_time [GH-209]
 * compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
 * compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
+* compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
+* compute: `google_compute_instance` reads `scheduling` fields from GCP.
 
 ## 0.1.2 (July 20, 2017)
 
