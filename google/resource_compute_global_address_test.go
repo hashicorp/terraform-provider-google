@@ -25,7 +25,9 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
-					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV4"),
+
+					// implicitly IPV4
+					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
 		},
