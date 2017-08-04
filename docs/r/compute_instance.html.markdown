@@ -71,8 +71,7 @@ The following arguments are supported:
 * `zone` - (Required) The zone that the machine should be created in.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
-    be specified multiple times for multiple networks, but GCE is currently
-    limited to just 1. Structure is documented below.
+    be specified multiple times; multiple `network_interface` support is in Beta. Structure is documented below.
 
 - - -
 
