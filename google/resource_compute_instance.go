@@ -284,7 +284,6 @@ func resourceComputeInstance() *schema.Resource {
 							Computed:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: linkDiffSuppress,
-							ConflictsWith:    []string{"network_interface.0.subnetwork", "network_interface.0.subnetwork_project"},
 						},
 
 						"subnetwork": &schema.Schema{
@@ -711,10 +710,13 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			prefix := fmt.Sprintf("network_interface.%d", i)
 			// Load up the name of this network_interface
 			networkName := d.Get(prefix + ".network").(string)
+			subnetworkName := d.Get(prefix + ".subnetwork").(string)
 			address := d.Get(prefix + ".address").(string)
 			var networkLink, subnetworkLink string
 
-			if networkName != "" {
+			if networkName != "" && subnetworkName != "" {
+				return fmt.Errorf("Cannot specify both network and subnetwork values.")
+			} else if networkName != "" {
 				networkLink, err = getNetworkLink(d, config, prefix+".network")
 				if err != nil {
 					return fmt.Errorf(
