@@ -59,30 +59,6 @@ func TestProjectNameForApi(t *testing.T) {
 	expectEquals(t, expected, actual)
 }
 
-func TestAddToCSVString_emptyCSVEmptyItem(t *testing.T) {
-	actual := addToCSVString("", "")
-	expected := ""
-	expectEquals(t, expected, actual)
-}
-
-func TestAddToCSVString_emptyCSV(t *testing.T) {
-	actual := addToCSVString("", "one")
-	expected := "one"
-	expectEquals(t, expected, actual)
-}
-
-func TestAddToCSVString_nonEmptyCSV(t *testing.T) {
-	actual := addToCSVString("one", "two")
-	expected := "one,two"
-	expectEquals(t, expected, actual)
-}
-
-func TestAddToCSVString_nonEmptyCSVEmptyItem(t *testing.T) {
-	actual := addToCSVString("one", "")
-	expected := "one"
-	expectEquals(t, expected, actual)
-}
-
 func TestExtractSpannerInstanceImport(t *testing.T) {
 	sid, e := extractSpannerInstanceImportIds("instance456")
 	if e != nil {

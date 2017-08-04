@@ -63,7 +63,6 @@ func resourceSpannerInstance() *schema.Resource {
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 
@@ -79,14 +78,13 @@ func resourceSpannerInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1,
-				ForceNew: false,
 			},
 
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"project": {
@@ -100,7 +98,6 @@ func resourceSpannerInstance() *schema.Resource {
 
 func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	timeoutMins := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -138,7 +135,10 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error, failed to create instance %s: %s", cir.InstanceId, err)
 	}
 
+	d.SetId(cir.InstanceId)
+
 	// Wait until it's created
+	timeoutMins := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := spannerInstanceOperationWait(config, op, "Creating Spanner instance", timeoutMins)
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -147,7 +147,6 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Spanner instance %s has been created", cir.Instance.Name)
-	d.SetId(cir.InstanceId)
 
 	return resourceSpannerInstanceRead(d, meta)
 
@@ -160,10 +159,10 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+
 	instanceName := d.Get("name").(string)
-
-	instance, err := config.clientSpanner.Projects.Instances.Get(instanceNameForApi(project, instanceName)).Do()
-
+	instance, err := config.clientSpanner.Projects.Instances.Get(
+		instanceNameForApi(project, instanceName)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %q", instanceName))
 	}
@@ -176,16 +175,6 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func addToCSVString(csv, item string) string {
-	if item == "" {
-		return csv
-	}
-	if csv != "" {
-		csv = csv + ","
-	}
-	return csv + item
-}
-
 func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -194,27 +183,28 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	timeoutMins := int(d.Timeout(schema.TimeoutUpdate).Minutes())
-	instanceName := d.Get("name").(string)
 
 	uir := &spanner.UpdateInstanceRequest{
-		Instance:  &spanner.Instance{},
-		FieldMask: "",
+		Instance: &spanner.Instance{},
 	}
 
+	fieldMask := []string{}
 	if d.HasChange("num_nodes") {
-		uir.FieldMask = addToCSVString(uir.FieldMask, "nodeCount")
+		fieldMask = append(fieldMask, "nodeCount")
 		uir.Instance.NodeCount = int64(d.Get("num_nodes").(int))
 	}
 	if d.HasChange("display_name") {
-		uir.FieldMask = addToCSVString(uir.FieldMask, "displayName")
+		fieldMask = append(fieldMask, "displayName")
 		uir.Instance.DisplayName = d.Get("display_name").(string)
 	}
 
+	instanceName := d.Get("name").(string)
+	uir.FieldMask = strings.Join(fieldMask, ",")
 	op, err := config.clientSpanner.Projects.Instances.Patch(
 		instanceNameForApi(project, instanceName), uir).Do()
 
 	// Wait until it's updated
+	timeoutMins := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 	err = spannerInstanceOperationWait(config, op, "Update Spanner Instance", timeoutMins)
 	if err != nil {
 		return err
@@ -231,6 +221,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+
 	instanceName := d.Get("name").(string)
 	_, err = config.clientSpanner.Projects.Instances.Delete(
 		instanceNameForApi(project, instanceName)).Do()
