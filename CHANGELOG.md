@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * compute: Add support for `auto_healing_policies` to `google_compute_instance_group_manager` [GH-249]
 * compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
+* compute: Add support for `subnetwork` as a self_link to `google_compute_instance`. [GH-290]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
