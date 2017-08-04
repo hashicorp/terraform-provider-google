@@ -26,7 +26,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
 
-					// implicitly IPV4
+					// implicitly IPV4 - if we don't send an ip_version, we don't get one back even when using Beta apis
 					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
