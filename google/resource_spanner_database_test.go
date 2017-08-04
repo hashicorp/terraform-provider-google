@@ -18,54 +18,59 @@ import (
 // Unit Tests
 
 func TestDatabaseNameForApi(t *testing.T) {
-	actual := databaseNameForApi("project123", "instance456", "db789")
+	id := spannerDatabaseId{
+		Project:  "project123",
+		Instance: "instance456",
+		Database: "db789",
+	}
+	actual := id.databaseUri()
 	expected := "projects/project123/instances/instance456/databases/db789"
 	expectEquals(t, expected, actual)
 }
 
-func TestExtractSpannerDBImportIds(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("instance456/database789")
+func TestImportSpannerDatabaseId_InstanceDB(t *testing.T) {
+	id, e := importSpannerDatabaseId("instance456/database789")
 	if e != nil {
 		t.Errorf("Error should have been nil")
 	}
-	expectEquals(t, "", sid.Project)
-	expectEquals(t, "instance456", sid.Instance)
-	expectEquals(t, "database789", sid.Database)
+	expectEquals(t, "", id.Project)
+	expectEquals(t, "instance456", id.Instance)
+	expectEquals(t, "database789", id.Database)
 }
 
-func TestExtractSpannerDBImportIds_withProject(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("project123/instance456/database789")
+func TestImportSpannerDatabaseId_ProjectInstanceDB(t *testing.T) {
+	id, e := importSpannerDatabaseId("project123/instance456/database789")
 	if e != nil {
 		t.Errorf("Error should have been nil")
 	}
-	expectEquals(t, "project123", sid.Project)
-	expectEquals(t, "instance456", sid.Instance)
-	expectEquals(t, "database789", sid.Database)
+	expectEquals(t, "project123", id.Project)
+	expectEquals(t, "instance456", id.Instance)
+	expectEquals(t, "database789", id.Database)
 }
 
-func TestExtractSpannerDBImportIds_invalidLeadingSlash(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("/instance456/database789")
-	expectInvalidSpannerDbImportId(t, sid, e)
+func TestImportSpannerDatabaseId_invalidLeadingSlash(t *testing.T) {
+	id, e := importSpannerDatabaseId("/instance456/database789")
+	expectInvalidSpannerDbImportId(t, id, e)
 }
 
-func TestExtractSpannerDBImportIds_invalidTrailingSlash(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("instance456/database789/")
-	expectInvalidSpannerDbImportId(t, sid, e)
+func TestImportSpannerDatabaseId_invalidTrailingSlash(t *testing.T) {
+	id, e := importSpannerDatabaseId("instance456/database789/")
+	expectInvalidSpannerDbImportId(t, id, e)
 }
 
-func TestExtractSpannerDBImportIds_invalidSingleSlash(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("/")
-	expectInvalidSpannerDbImportId(t, sid, e)
+func TestImportSpannerDatabaseId_invalidSingleSlash(t *testing.T) {
+	id, e := importSpannerDatabaseId("/")
+	expectInvalidSpannerDbImportId(t, id, e)
 }
 
-func TestExtractSpannerDBImportIds_invalidMultiSlash(t *testing.T) {
-	sid, e := extractSpannerDatabaseImportIds("project123/instance456/db789/next")
-	expectInvalidSpannerDbImportId(t, sid, e)
+func TestImportSpannerDatabaseId_invalidMultiSlash(t *testing.T) {
+	id, e := importSpannerDatabaseId("project123/instance456/db789/next")
+	expectInvalidSpannerDbImportId(t, id, e)
 }
 
-func expectInvalidSpannerDbImportId(t *testing.T, sid *spannerDbImportId, e error) {
-	if sid != nil {
-		t.Errorf("Expected spannerDbImportId to be nil")
+func expectInvalidSpannerDbImportId(t *testing.T, id *spannerDatabaseId, e error) {
+	if id != nil {
+		t.Errorf("Expected spannerDatabaseId to be nil")
 		return
 	}
 	if e == nil {
@@ -159,15 +164,18 @@ func testAccCheckSpannerDatabaseDestroy(s *terraform.State) error {
 			return fmt.Errorf("Unable to verify delete of spanner database, ID is empty")
 		}
 
-		project, err := getProjectId(rs, config)
+		project, err := getTestProject(rs.Primary, config)
 		if err != nil {
 			return err
 		}
 
-		dbName := rs.Primary.Attributes["name"]
-		instanceName := rs.Primary.Attributes["instance"]
+		id := spannerDatabaseId{
+			Project:  project,
+			Instance: rs.Primary.Attributes["instance"],
+			Database: rs.Primary.Attributes["name"],
+		}
 		_, err = config.clientSpanner.Projects.Instances.Databases.Get(
-			databaseNameForApi(project, instanceName, dbName)).Do()
+			id.databaseUri()).Do()
 
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
@@ -193,22 +201,16 @@ func testAccCheckSpannerDatabaseExists(n string, instance *spanner.Database) res
 			return fmt.Errorf("No ID is set for Spanner instance")
 		}
 
-		project, err := getProjectId(rs, config)
-		if err != nil {
-			return err
-		}
-
-		dbName := rs.Primary.Attributes["name"]
-		instanceName := rs.Primary.Attributes["instance"]
+		id, err := extractSpannerDatabaseId(rs.Primary.ID)
 		found, err := config.clientSpanner.Projects.Instances.Databases.Get(
-			databaseNameForApi(project, instanceName, dbName)).Do()
+			id.databaseUri()).Do()
 		if err != nil {
 			return err
 		}
 
 		fName := extractInstanceNameFromApi(found.Name)
-		if fName != rs.Primary.ID {
-			return fmt.Errorf("Spanner database %s not found, found %s instead", rs.Primary.ID, fName)
+		if fName != id.Database {
+			return fmt.Errorf("Spanner database %s not found, found %s instead", id.Database, fName)
 		}
 
 		*instance = *found

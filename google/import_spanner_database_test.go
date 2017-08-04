@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleSpannerDatabase_importBasic(t *testing.T) {
+func TestAccGoogleSpannerDatabase_importInstanceDatabase(t *testing.T) {
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
@@ -23,16 +23,16 @@ func TestAccGoogleSpannerDatabase_importBasic(t *testing.T) {
 			},
 
 			resource.TestStep{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: instanceName + "/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:      resourceName,
+				ImportStateId:     instanceName + "/" + dbName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func TestAccGoogleSpannerDatabase_importWithProject(t *testing.T) {
+func TestAccGoogleSpannerDatabase_importProjectInstanceDatabase(t *testing.T) {
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
@@ -48,10 +48,9 @@ func TestAccGoogleSpannerDatabase_importWithProject(t *testing.T) {
 			},
 
 			resource.TestStep{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: projectId + "/" + instanceName + "/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

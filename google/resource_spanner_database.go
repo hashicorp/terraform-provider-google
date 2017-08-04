@@ -75,38 +75,31 @@ func resourceSpannerDatabase() *schema.Resource {
 
 func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	timeoutMins := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
-	project, err := getProject(d, config)
+	id, err := buildSpannerDatabaseId(d, config)
 	if err != nil {
 		return err
 	}
 
-	instanceName := d.Get("instance").(string)
-	dbName := d.Get("name").(string)
-
 	cdr := &spanner.CreateDatabaseRequest{}
-	cdr.CreateStatement = fmt.Sprintf("CREATE DATABASE `%s`", dbName)
-
+	cdr.CreateStatement = fmt.Sprintf("CREATE DATABASE `%s`", id.Database)
 	if v, ok := d.GetOk("ddl"); ok {
-		ddlList := v.([]interface{})
-		ddls := []string{}
-		for _, v := range ddlList {
-			ddls = append(ddls, v.(string))
-		}
-		cdr.ExtraStatements = ddls
+		cdr.ExtraStatements = convertStringArr(v.([]interface{}))
 	}
 
 	op, err := config.clientSpanner.Projects.Instances.Databases.Create(
-		instanceNameForApi(project, instanceName), cdr).Do()
+		id.parentInstanceUri(), cdr).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusConflict {
-			return fmt.Errorf("Error, A database with name %s already exists", dbName)
+			return fmt.Errorf("Error, A database with name %s already exists in this instance", id.Database)
 		}
-		return fmt.Errorf("Error, failed to create database %s: %s", dbName, err)
+		return fmt.Errorf("Error, failed to create database %s: %s", id.Database, err)
 	}
 
+	d.SetId(id.terraformId())
+
 	// Wait until it's created
+	timeoutMins := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := spannerDatabaseOperationWait(config, op, "Creating Spanner database", timeoutMins)
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -114,100 +107,133 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	log.Printf("[INFO] Spanner database %s has been created", dbName)
-	d.SetId(dbName)
-
+	log.Printf("[INFO] Spanner database %s has been created", id.terraformId())
 	return resourceSpannerDatabaseRead(d, meta)
-
 }
 
 func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	id, err := buildSpannerDatabaseId(d, config)
 	if err != nil {
 		return err
 	}
-	dbName := d.Get("name").(string)
-	instanceName := d.Get("instance").(string)
-	_, err = config.clientSpanner.Projects.Instances.Databases.Get(
-		databaseNameForApi(project, instanceName, dbName)).Do()
 
+	_, err = config.clientSpanner.Projects.Instances.Databases.Get(
+		id.databaseUri()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Spanner database %q", dbName))
+		return handleNotFoundError(err, d, fmt.Sprintf("Spanner database %q", id.databaseUri()))
 	}
 
+	d.SetId(id.terraformId())
 	return nil
 }
 
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	id, err := buildSpannerDatabaseId(d, config)
 	if err != nil {
 		return err
 	}
 
-	dbName := d.Get("name").(string)
-	instanceName := d.Get("instance").(string)
 	_, err = config.clientSpanner.Projects.Instances.Databases.DropDatabase(
-		databaseNameForApi(project, instanceName, dbName)).Do()
+		id.databaseUri()).Do()
 	if err != nil {
-		return fmt.Errorf("Error, failed to delete Spanner Database %s: %s", dbName, err)
+		return fmt.Errorf("Error, failed to delete Spanner Database %s: %s", id.databaseUri(), err)
 	}
 
 	d.SetId("")
 	return nil
 }
 
-func databaseNameForApi(p, i, d string) string {
-	return instanceNameForApi(p, i) + "/databases/" + d
-}
-
 func resourceSpannerDatabaseImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	importId, err := extractSpannerDatabaseImportIds(d.Id())
+	config := meta.(*Config)
+	id, err := importSpannerDatabaseId(d.Id())
 	if err != nil {
 		return nil, err
 	}
 
-	if importId.Project != "" {
-		d.Set("project", importId.Project)
+	if id.Project != "" {
+		d.Set("project", id.Project)
+	} else {
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		id.Project = project
 	}
-	d.Set("instance", importId.Instance)
-	d.Set("name", importId.Database)
-	d.SetId(importId.Database)
+
+	d.Set("instance", id.Instance)
+	d.Set("name", id.Database)
+	d.SetId(id.terraformId())
 
 	return []*schema.ResourceData{d}, nil
 }
 
-type spannerDbImportId struct {
+func buildSpannerDatabaseId(d *schema.ResourceData, config *Config) (*spannerDatabaseId, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+	dbName := d.Get("name").(string)
+	instanceName := d.Get("instance").(string)
+
+	return &spannerDatabaseId{
+		Project:  project,
+		Instance: instanceName,
+		Database: dbName,
+	}, nil
+}
+
+type spannerDatabaseId struct {
 	Project  string
 	Instance string
 	Database string
 }
 
-func extractSpannerDatabaseImportIds(id string) (*spannerDbImportId, error) {
-	parts := strings.Split(id, "/")
-	if id == "" || strings.HasPrefix(id, "/") || strings.HasSuffix(id, "/") ||
-		(len(parts) != 2 && len(parts) != 3) {
+func (s spannerDatabaseId) terraformId() string {
+	return fmt.Sprintf("%s/%s/%s", s.Project, s.Instance, s.Database)
+}
+
+func (s spannerDatabaseId) parentProjectUri() string {
+	return fmt.Sprintf("projects/%s", s.Project)
+}
+
+func (s spannerDatabaseId) parentInstanceUri() string {
+	return fmt.Sprintf("%s/instances/%s", s.parentProjectUri(), s.Instance)
+}
+
+func (s spannerDatabaseId) databaseUri() string {
+	return fmt.Sprintf("%s/databases/%s", s.parentInstanceUri(), s.Database)
+}
+
+func importSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
+	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) &&
+		!regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner database specifier. " +
 			"Expecting either {projectId}/{instanceId}/{dbId} OR " +
 			"{instanceId}/{dbId} (where project will be derived from the provider)")
 	}
 
-	sid := &spannerDbImportId{}
-
+	parts := strings.Split(id, "/")
 	if len(parts) == 2 {
-		log.Printf("[INFO] Spanner instance import format of {instanceId}/{dbId} specified: %s", id)
-		sid.Instance = parts[0]
-		sid.Database = parts[1]
-	}
-	if len(parts) == 3 {
-		log.Printf("[INFO] Spanner instance import format of {projectId}/{instanceId}/{dbId} specified: %s", id)
-		sid.Project = parts[0]
-		sid.Instance = parts[1]
-		sid.Database = parts[2]
+		log.Printf("[INFO] Spanner database import format of {instanceId}/{dbId} specified: %s", id)
+		return &spannerDatabaseId{Instance: parts[0], Database: parts[1]}, nil
 	}
 
-	return sid, nil
+	log.Printf("[INFO] Spanner database import format of {projectId}/{instanceId}/{dbId} specified: %s", id)
+	return extractSpannerDatabaseId(id)
+}
+
+func extractSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
+	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}/{databaseId}")
+	}
+	parts := strings.Split(id, "/")
+	return &spannerDatabaseId{
+		Project:  parts[0],
+		Instance: parts[1],
+		Database: parts[2],
+	}, nil
 }
