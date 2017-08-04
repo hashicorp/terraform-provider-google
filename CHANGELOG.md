@@ -8,9 +8,12 @@ FEATURES:
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
 * **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
+* **New Resource:** `google_sourcerepo_repository` - allows creating and deleting Google Source Repositories [GH-256]
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
+* compute: Add support for `auto_healing_policies` to `google_compute_instance_group_manager` [GH-249]
+* compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
@@ -21,6 +24,9 @@ BUG FIXES:
 * bigquery: Fix type panic on expiration_time [GH-209]
 * compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
 * compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
+* compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
+* compute: `google_compute_instance` reads `scheduling` fields from GCP [GH-237]
+* container: Fix error if `google_container_node_pool` deleted out of band [GH-293]
 
 ## 0.1.2 (July 20, 2017)
 

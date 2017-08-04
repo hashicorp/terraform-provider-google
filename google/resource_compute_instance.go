@@ -378,22 +378,28 @@ func resourceComputeInstance() *schema.Resource {
 
 			"scheduling": &schema.Schema{
 				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  true,
 						},
 
 						"preemptible": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
+							ForceNew: true,
 						},
 					},
 				},
@@ -787,6 +793,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 		scheduling.OnHostMaintenance = val.(string)
 	}
+	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
 	var createTimeout int
@@ -1060,6 +1067,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 
+	scheduling, _ := flattenScheduling(instance.Scheduling)
+	d.Set("scheduling", scheduling)
+
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
 
@@ -1168,14 +1178,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
-
 		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
 			scheduling.Preemptible = val.(bool)
 		}
-
 		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 			scheduling.OnHostMaintenance = val.(string)
 		}
+		scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
