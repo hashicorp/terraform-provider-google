@@ -30,6 +30,7 @@ BUG FIXES:
 * compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
 * compute: `google_compute_instance` reads `scheduling` fields from GCP [GH-237]
 * container: Fix error if `google_container_node_pool` deleted out of band [GH-293]
+* container: Fail when both name and name_prefix are set for node_pool in `google_container_cluster` [GH-296]
 
 ## 0.1.2 (July 20, 2017)
 
