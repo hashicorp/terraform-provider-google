@@ -673,6 +673,28 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_multiNic(t *testing.T) {
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	networkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_multiNic(instanceName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMultiNic(&instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -992,6 +1014,16 @@ func testAccCheckComputeInstanceHasAddress(instance *compute.Instance, address s
 			if i.NetworkIP != address {
 				return fmt.Errorf("Wrong address found: expected %v, got %v", address, i.NetworkIP)
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.NetworkInterfaces) < 2 {
+			return fmt.Errorf("only saw %d nics", len(instance.NetworkInterfaces))
 		}
 
 		return nil
@@ -1784,4 +1816,39 @@ resource "google_compute_disk" "foobar" {
   size = "1"
 }
 `, instance, disk)
+}
+
+func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		access_config {	}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_network" "inst-test-network" {
+	name = "%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+}
+`, instance, network, subnetwork)
 }
