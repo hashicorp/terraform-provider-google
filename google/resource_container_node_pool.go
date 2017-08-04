@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/container/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceContainerNodePool() *schema.Resource {
@@ -350,10 +349,8 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 	_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
 		project, zone, cluster, name).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Removing Container NodePool %q because it's gone", name)
-			// The resource doesn't exist anymore
-			return false, err
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", d.Get("name").(string))); err == nil {
+			return false, nil
 		}
 		// There was some other error in reading the resource
 		return true, err
