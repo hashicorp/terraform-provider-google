@@ -210,12 +210,14 @@ The `network_interface` block supports:
 * `network` - (Optional) The name or self_link of the network to attach this interface to.
     Either `network` or `subnetwork` must be provided.
 
-*  `subnetwork` - (Optional) The name of the subnetwork to attach this interface
-    to. The subnetwork must exist in the same region this instance will be
+*  `subnetwork` - (Optional) The name or self_link of the subnetwork to attach this
+    interface to. The subnetwork must exist in the same region this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
 *  `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
-   If it is not provided, the provider project is used.
+   If the `subnetwork` is a self_link, this field is ignored in favor of the project
+   defined in the subnetwork self_link. If the `subnetwork` is a name and this
+   field is not provided, the provider project is used.
 
 * `address` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
