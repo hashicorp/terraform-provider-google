@@ -55,9 +55,9 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"image": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
 				DiffSuppressFunc: linkDiffSuppress,
 			},
 
@@ -79,9 +79,9 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"snapshot": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
 				DiffSuppressFunc: linkDiffSuppress,
 			},
 
