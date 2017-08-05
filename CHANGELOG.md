@@ -13,6 +13,10 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * compute: Add support for `auto_healing_policies` to `google_compute_instance_group_manager` [GH-249]
+* compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
+* compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
+* compute: Add support for `subnetwork` as a self_link to `google_compute_instance`. [GH-290]
+* compute: Add support for multiple `network_interface`'s to `google_compute_instance`. [GH-289]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
@@ -24,7 +28,9 @@ BUG FIXES:
 * compute: Marked 'private_key' as sensitive ([#220](https://github.com/terraform-providers/terraform-provider-google/pull/220))
 * compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
 * compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
-* compute: `google_compute_instance` reads `scheduling` fields from GCP.
+* compute: `google_compute_instance` reads `scheduling` fields from GCP [GH-237]
+* container: Fix error if `google_container_node_pool` deleted out of band [GH-293]
+* container: Fail when both name and name_prefix are set for node_pool in `google_container_cluster` [GH-296]
 
 ## 0.1.2 (July 20, 2017)
 

@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"regexp"
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
@@ -252,6 +253,20 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_pool_multiple"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withNodePoolConflictingNameFields,
+				ExpectError: regexp.MustCompile("Cannot specify both name and name_prefix for a node_pool"),
 			},
 		},
 	})
@@ -769,3 +784,21 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		initial_node_count = 3
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+
+var testAccContainerCluster_withNodePoolConflictingNameFields = fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_multiple" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+
+	node_pool {
+		# ERROR: name and name_prefix cannot be both specified
+		name               = "tf-cluster-nodepool-test-%s"
+		name_prefix        = "tf-cluster-nodepool-test-"
+		initial_node_count = 1
+	}
+}`, acctest.RandString(10), acctest.RandString(10))

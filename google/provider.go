@@ -13,6 +13,7 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"regexp"
 )
 
 // Global MutexKV
@@ -271,6 +272,46 @@ func getNetworkLink(d *schema.ResourceData, config *Config, field string) (strin
 	} else {
 		return "", nil
 	}
+}
+
+// Reads the "subnetwork" fields from the given resource data and if the value is:
+// - a resource URL, returns the string unchanged
+// - a subnetwork name, looks up the resource URL using the google client.
+//
+// If `subnetworkField` is a resource url, `subnetworkProjectField` cannot be set.
+// If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
+// 	as the project if set. If not, we fallback on the default project.
+func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, subnetworkProjectField, zoneField string) (string, error) {
+	if v, ok := d.GetOk(subnetworkField); ok {
+		subnetwork := v.(string)
+		r := regexp.MustCompile(SubnetworkLinkRegex)
+		if r.MatchString(subnetwork) {
+			return subnetwork, nil
+		}
+
+		var project string
+		if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
+			project = subnetworkProject.(string)
+		} else {
+			var err error
+			project, err = getProject(d, config)
+			if err != nil {
+				return "", err
+			}
+		}
+
+		region := getRegionFromZone(d.Get(zoneField).(string))
+
+		subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
+		if err != nil {
+			return "", fmt.Errorf(
+				"Error referencing subnetwork '%s' in region '%s': %s",
+				subnetwork, region, err)
+		}
+
+		return subnet.SelfLink, nil
+	}
+	return "", nil
 }
 
 // getNetworkName reads the "network" field from the given resource data and if the value:
