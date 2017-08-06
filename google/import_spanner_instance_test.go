@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleSpannerInstance_import(t *testing.T) {
+func TestAccGoogleSpannerInstance_importInstance(t *testing.T) {
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 
@@ -23,6 +23,7 @@ func TestAccGoogleSpannerInstance_import(t *testing.T) {
 
 			resource.TestStep{
 				ResourceName:      resourceName,
+				ImportStateId:     instanceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -30,10 +31,14 @@ func TestAccGoogleSpannerInstance_import(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSpannerInstance_importWithProject(t *testing.T) {
+func TestAccGoogleSpannerInstance_importProjectInstance(t *testing.T) {
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 	var projectId = multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
+	if projectId == "" {
+		t.Skip("Unable to locate projectId via environment variables ... skipping ")
+		return
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -45,10 +50,9 @@ func TestAccGoogleSpannerInstance_importWithProject(t *testing.T) {
 			},
 
 			resource.TestStep{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: projectId + "/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

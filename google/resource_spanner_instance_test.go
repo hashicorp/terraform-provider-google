@@ -18,49 +18,68 @@ import (
 // Unit Tests
 
 func TestExtractInstanceConfigFromApi_withFullPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("projects/project123/instanceConfigs/conf123")
-	expected := "conf123"
+	actual := extractInstanceConfigFromApi("projects/project123/instanceConfigs/conf987")
+	expected := "conf987"
 	expectEquals(t, expected, actual)
 }
 
 func TestExtractInstanceConfigFromApi_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("conf123")
-	expected := "conf123"
+	actual := extractInstanceConfigFromApi("conf987")
+	expected := "conf987"
 	expectEquals(t, expected, actual)
 }
 
 func TestExtractInstanceNameFromApi_withFullPath(t *testing.T) {
-	actual := extractInstanceNameFromApi("projects/project123/instances/instance123")
-	expected := "instance123"
+	actual := extractInstanceNameFromApi("projects/project123/instances/instance456")
+	expected := "instance456"
 	expectEquals(t, expected, actual)
 }
 
 func TestExtractInstanceNameFromApi_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("instance123")
-	expected := "instance123"
+	actual := extractInstanceConfigFromApi("instance456")
+	expected := "instance456"
 	expectEquals(t, expected, actual)
 }
 
-func TestInstanceNameForApi(t *testing.T) {
-	actual := instanceNameForApi("project123", "instance123")
-	expected := "projects/project123/instances/instance123"
+func TestSpannerInstanceId_instanceUri(t *testing.T) {
+	id := spannerInstanceId{
+		Project:  "project123",
+		Instance: "instance456",
+	}
+	actual := id.instanceUri()
+	expected := "projects/project123/instances/instance456"
 	expectEquals(t, expected, actual)
 }
 
-func TestInstanceConfigForApi(t *testing.T) {
-	actual := instanceConfigForApi("project123", "conf123")
-	expected := "projects/project123/instanceConfigs/conf123"
+func TestSpannerInstanceId_instanceConfigUri(t *testing.T) {
+	id := spannerInstanceId{
+		Project:  "project123",
+		Instance: "instance456",
+	}
+	actual := id.instanceConfigUri("conf987")
+	expected := "projects/project123/instanceConfigs/conf987"
 	expectEquals(t, expected, actual)
 }
 
-func TestProjectNameForApi(t *testing.T) {
-	actual := projectNameForApi("project123")
+func TestSpannerInstanceId_parentProjectUri(t *testing.T) {
+	id := spannerInstanceId{
+		Project:  "project123",
+		Instance: "instance456",
+	}
+	actual := id.parentProjectUri()
 	expected := "projects/project123"
 	expectEquals(t, expected, actual)
 }
 
-func TestExtractSpannerInstanceImport(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("instance456")
+func TestGenSpannerInstanceName(t *testing.T) {
+	s := genSpannerInstanceName()
+	if len(s) != 30 {
+		t.Fatalf("Expected a 30 char ID to be generated, instead found %d chars", len(s))
+	}
+}
+
+func TestImportSpannerInstanceId(t *testing.T) {
+	sid, e := importSpannerInstanceId("instance456")
 	if e != nil {
 		t.Errorf("Error should have been nil")
 	}
@@ -68,8 +87,8 @@ func TestExtractSpannerInstanceImport(t *testing.T) {
 	expectEquals(t, "instance456", sid.Instance)
 }
 
-func TestExtractSpannerInstanceImport_projectAndInstance(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("project123/instance456")
+func TestImportSpannerInstanceId_projectAndInstance(t *testing.T) {
+	sid, e := importSpannerInstanceId("project123/instance456")
 	if e != nil {
 		t.Errorf("Error should have been nil")
 	}
@@ -77,37 +96,37 @@ func TestExtractSpannerInstanceImport_projectAndInstance(t *testing.T) {
 	expectEquals(t, "instance456", sid.Instance)
 }
 
-func TestExtractSpannerInstanceImport_invalidLeadingSlash(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("/instance456")
+func TestImportSpannerInstanceId_invalidLeadingSlash(t *testing.T) {
+	sid, e := importSpannerInstanceId("/instance456")
 	expectInvalidSpannerInstanceImport(t, sid, e)
 }
 
-func TestExtractSpannerInstanceImport_invalidTrailingSlash(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("project123/")
+func TestImportSpannerInstanceId_invalidTrailingSlash(t *testing.T) {
+	sid, e := importSpannerInstanceId("project123/")
 	expectInvalidSpannerInstanceImport(t, sid, e)
 }
 
-func TestExtractSpannerInstanceImport_invalidSingleSlash(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("/")
+func TestImportSpannerInstanceId_invalidSingleSlash(t *testing.T) {
+	sid, e := importSpannerInstanceId("/")
 	expectInvalidSpannerInstanceImport(t, sid, e)
 }
 
-func TestExtractSpannerInstanceImport_invalidMultiSlash(t *testing.T) {
-	sid, e := extractSpannerInstanceImportIds("project123/instance456/db789")
+func TestImportSpannerInstanceId_invalidMultiSlash(t *testing.T) {
+	sid, e := importSpannerInstanceId("project123/instance456/db789")
 	expectInvalidSpannerInstanceImport(t, sid, e)
 }
 
-func expectInvalidSpannerInstanceImport(t *testing.T, sid *spannerInstanceImportId, e error) {
+func expectInvalidSpannerInstanceImport(t *testing.T, sid *spannerInstanceId, e error) {
 	if sid != nil {
-		t.Errorf("Expected spannerInstanceImportId to be nil")
+		t.Errorf("Expected spannerInstanceId to be nil")
 		return
 	}
 	if e == nil {
 		t.Errorf("Expected an Error but did not get one")
 		return
 	}
-	if !strings.HasPrefix(e.Error(), "Invalid spanner database specifier") {
-		t.Errorf("Expecting Error starting with 'Invalid spanner database specifier'")
+	if !strings.HasPrefix(e.Error(), "Invalid spanner instance specifier") {
+		t.Errorf("Expecting Error starting with 'Invalid spanner instance specifier'")
 	}
 }
 
@@ -182,7 +201,7 @@ func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
 			{
 				Config: testAccSpannerInstance_duplicateNameError_part2(idName),
 				ExpectError: regexp.MustCompile(
-					fmt.Sprintf("Error, the name %s is not unique and already used", idName)),
+					fmt.Sprintf("Error, the name %s is not unique within project", idName)),
 			},
 		},
 	})
@@ -231,13 +250,17 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 		}
 
 		instanceName := rs.Primary.Attributes["name"]
-		project, err := getProjectId(rs, config)
+		project, err := getTestProject(rs.Primary, config)
 		if err != nil {
 			return err
 		}
 
+		id := spannerInstanceId{
+			Project:  project,
+			Instance: instanceName,
+		}
 		_, err = config.clientSpanner.Projects.Instances.Get(
-			instanceNameForApi(project, instanceName)).Do()
+			id.instanceUri()).Do()
 
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
@@ -249,17 +272,6 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func getProjectId(rs *terraform.ResourceState, config *Config) (string, error) {
-	res := rs.Primary.Attributes["project"]
-	if res == "" {
-		if config.Project != "" {
-			return config.Project, nil
-		}
-		return "", fmt.Errorf("%q: required field is not set (or cannot be determined from provider)", "project")
-	}
-	return res, nil
 }
 
 func testAccCheckSpannerInstanceExists(n string, instance *spanner.Instance) resource.TestCheckFunc {
@@ -274,18 +286,19 @@ func testAccCheckSpannerInstanceExists(n string, instance *spanner.Instance) res
 			return fmt.Errorf("No ID is set for Spanner instance")
 		}
 
-		project, err := getProjectId(rs, config)
+		id, err := extractSpannerInstanceId(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
+
 		found, err := config.clientSpanner.Projects.Instances.Get(
-			instanceNameForApi(project, rs.Primary.ID)).Do()
+			id.instanceUri()).Do()
 		if err != nil {
 			return err
 		}
 
 		fName := extractInstanceNameFromApi(found.Name)
-		if fName != rs.Primary.ID {
+		if fName != extractInstanceNameFromApi(rs.Primary.ID) {
 			return fmt.Errorf("Spanner instance %s not found, found %s instead", rs.Primary.ID, fName)
 		}
 

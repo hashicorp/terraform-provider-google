@@ -3,11 +3,11 @@ package google
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"google.golang.org/api/googleapi"
@@ -98,26 +98,17 @@ func resourceSpannerInstance() *schema.Resource {
 
 func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	cir := &spanner.CreateInstanceRequest{
 		Instance: &spanner.Instance{},
 	}
 
-	cir.Instance.Config = instanceConfigForApi(project, d.Get("config").(string))
-	cir.Instance.DisplayName = d.Get("display_name").(string)
-	cir.Instance.NodeCount = int64(d.Get("num_nodes").(int))
-
 	if v, ok := d.GetOk("name"); ok {
 		cir.InstanceId = v.(string)
 	} else {
-		cir.InstanceId = genSpannerInstanceId()
+		cir.InstanceId = genSpannerInstanceName()
 		d.Set("name", cir.InstanceId)
 	}
+
 	if v, ok := d.GetOk("labels"); ok {
 		m := make(map[string]string)
 		for k, val := range v.(map[string]interface{}) {
@@ -126,16 +117,25 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		cir.Instance.Labels = m
 	}
 
-	op, err := config.clientSpanner.Projects.Instances.Create(
-		projectNameForApi(project), cir).Do()
+	id, err := buildSpannerInstanceId(d, config)
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusConflict {
-			return fmt.Errorf("Error, the name %s is not unique and already used", cir.InstanceId)
-		}
-		return fmt.Errorf("Error, failed to create instance %s: %s", cir.InstanceId, err)
+		return err
 	}
 
-	d.SetId(cir.InstanceId)
+	cir.Instance.Config = id.instanceConfigUri(d.Get("config").(string))
+	cir.Instance.DisplayName = d.Get("display_name").(string)
+	cir.Instance.NodeCount = int64(d.Get("num_nodes").(int))
+
+	op, err := config.clientSpanner.Projects.Instances.Create(
+		id.parentProjectUri(), cir).Do()
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusConflict {
+			return fmt.Errorf("Error, the name %s is not unique within project %s", id.Instance, id.Project)
+		}
+		return fmt.Errorf("Error, failed to create instance %s: %s", id.terraformId(), err)
+	}
+
+	d.SetId(id.terraformId())
 
 	// Wait until it's created
 	timeoutMins := int(d.Timeout(schema.TimeoutCreate).Minutes())
@@ -146,46 +146,43 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	log.Printf("[INFO] Spanner instance %s has been created", cir.Instance.Name)
-
+	log.Printf("[INFO] Spanner instance %s has been created", id.terraformId())
 	return resourceSpannerInstanceRead(d, meta)
-
 }
 
 func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	id, err := buildSpannerInstanceId(d, config)
 	if err != nil {
 		return err
 	}
 
-	instanceName := d.Get("name").(string)
 	instance, err := config.clientSpanner.Projects.Instances.Get(
-		instanceNameForApi(project, instanceName)).Do()
+		id.instanceUri()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %q", instanceName))
+		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %s", id.terraformId()))
 	}
 
 	d.Set("config", extractInstanceConfigFromApi(instance.Config))
 	d.Set("labels", instance.Labels)
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
+	d.SetId(id.terraformId())
 
 	return nil
 }
 
 func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
 	log.Printf("[INFO] About to update Spanner Instance %s ", d.Id())
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	uir := &spanner.UpdateInstanceRequest{
 		Instance: &spanner.Instance{},
+	}
+
+	id, err := buildSpannerInstanceId(d, config)
+	if err != nil {
+		return err
 	}
 
 	fieldMask := []string{}
@@ -198,10 +195,9 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		uir.Instance.DisplayName = d.Get("display_name").(string)
 	}
 
-	instanceName := d.Get("name").(string)
 	uir.FieldMask = strings.Join(fieldMask, ",")
 	op, err := config.clientSpanner.Projects.Instances.Patch(
-		instanceNameForApi(project, instanceName), uir).Do()
+		id.instanceUri(), uir).Do()
 
 	// Wait until it's updated
 	timeoutMins := int(d.Timeout(schema.TimeoutUpdate).Minutes())
@@ -210,23 +206,22 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	log.Printf("[INFO] Spanner Instance %s has been updated ", d.Id())
+	log.Printf("[INFO] Spanner Instance %s has been updated ", id.terraformId())
 	return resourceSpannerInstanceRead(d, meta)
 }
 
 func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	id, err := buildSpannerInstanceId(d, config)
 	if err != nil {
 		return err
 	}
 
-	instanceName := d.Get("name").(string)
 	_, err = config.clientSpanner.Projects.Instances.Delete(
-		instanceNameForApi(project, instanceName)).Do()
+		id.instanceUri()).Do()
 	if err != nil {
-		return fmt.Errorf("Error, failed to delete Spanner Instance %s: %s", d.Get("name").(string), err)
+		return fmt.Errorf("Error, failed to delete Spanner Instance %s in project %s: %s", id.Instance, id.Project, err)
 	}
 
 	d.SetId("")
@@ -234,71 +229,102 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	sid, err := extractSpannerInstanceImportIds(d.Id())
+	config := meta.(*Config)
+	id, err := importSpannerInstanceId(d.Id())
 	if err != nil {
 		return nil, err
 	}
 
-	if sid.Project != "" {
-		d.Set("project", sid.Project)
+	if id.Project != "" {
+		d.Set("project", id.Project)
+	} else {
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		id.Project = project
 	}
-	d.Set("name", sid.Instance)
-	d.SetId(sid.Instance)
+
+	d.Set("name", id.Instance)
+	d.SetId(id.terraformId())
 
 	return []*schema.ResourceData{d}, nil
 }
 
+func buildSpannerInstanceId(d *schema.ResourceData, config *Config) (*spannerInstanceId, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+	return &spannerInstanceId{
+		Project:  project,
+		Instance: d.Get("name").(string),
+	}, nil
+}
+
 func extractInstanceConfigFromApi(nameUri string) string {
-	rUris := strings.Split(nameUri, "/")
-	return rUris[len(rUris)-1]
+	return extractLastResourceFromUri(nameUri)
 }
 
 func extractInstanceNameFromApi(nameUri string) string {
-	rUris := strings.Split(nameUri, "/")
+	return extractLastResourceFromUri(nameUri)
+}
+
+func extractLastResourceFromUri(uri string) string {
+	rUris := strings.Split(uri, "/")
 	return rUris[len(rUris)-1]
 }
 
-func instanceNameForApi(p, i string) string {
-	return projectNameForApi(p) + "/instances/" + i
+func genSpannerInstanceName() string {
+	return resource.PrefixedUniqueId("tfgen-spanid-")[:30]
 }
 
-func instanceConfigForApi(p, c string) string {
-	return projectNameForApi(p) + "/instanceConfigs/" + c
-}
-
-func projectNameForApi(p string) string {
-	return "projects/" + p
-}
-
-func genSpannerInstanceId() string {
-	return fmt.Sprintf("tfgen-spanid-%010d", rand.Int63n(999999))
-}
-
-type spannerInstanceImportId struct {
+type spannerInstanceId struct {
 	Project  string
 	Instance string
 }
 
-func extractSpannerInstanceImportIds(id string) (*spannerInstanceImportId, error) {
-	parts := strings.Split(id, "/")
-	if id == "" || strings.HasPrefix(id, "/") || strings.HasSuffix(id, "/") ||
-		(len(parts) != 1 && len(parts) != 2) {
-		return nil, fmt.Errorf("Invalid spanner database specifier. " +
+func (s spannerInstanceId) terraformId() string {
+	return fmt.Sprintf("%s/%s", s.Project, s.Instance)
+}
+
+func (s spannerInstanceId) parentProjectUri() string {
+	return fmt.Sprintf("projects/%s", s.Project)
+}
+
+func (s spannerInstanceId) instanceUri() string {
+	return fmt.Sprintf("%s/instances/%s", s.parentProjectUri(), s.Instance)
+}
+
+func (s spannerInstanceId) instanceConfigUri(c string) string {
+	return fmt.Sprintf("%s/instanceConfigs/%s", s.parentProjectUri(), c)
+}
+
+func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
+	if !regexp.MustCompile("^[a-z0-9-]+$").Match([]byte(id)) &&
+		!regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		return nil, fmt.Errorf("Invalid spanner instance specifier. " +
 			"Expecting either {projectId}/{instanceId} OR " +
 			"{instanceId} (where project is to be derived from that specified in provider)")
 	}
 
-	sid := &spannerInstanceImportId{}
-
+	parts := strings.Split(id, "/")
 	if len(parts) == 1 {
 		log.Printf("[INFO] Spanner instance import format of {instanceId} specified: %s", id)
-		sid.Instance = parts[0]
+		return &spannerInstanceId{Instance: parts[0]}, nil
 	}
-	if len(parts) == 2 {
-		log.Printf("[INFO] Spanner instance import format of {projectId}/{instanceId} specified: %s", id)
-		sid.Project = parts[0]
-		sid.Instance = parts[1]
-	}
-	return sid, nil
 
+	log.Printf("[INFO] Spanner instance import format of {projectId}/{instanceId} specified: %s", id)
+	return extractSpannerInstanceId(id)
+}
+
+func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
+	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
+	}
+	parts := strings.Split(id, "/")
+	return &spannerInstanceId{
+		Project:  parts[0],
+		Instance: parts[1],
+	}, nil
 }
