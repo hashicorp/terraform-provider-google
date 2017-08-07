@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -83,7 +85,7 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 }
 
 func TestAccComputeFirewall_denied(t *testing.T) {
-	var firewall compute.Firewall
+	var firewall computeBeta.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -95,7 +97,8 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeFirewall_denied(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeBetaFirewallDenyPorts(&firewall, "22"),
 				),
 			},
 		},
@@ -149,6 +152,35 @@ func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) res
 	}
 }
 
+func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firewall) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.Firewalls.Get(
+			config.Project, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Firewall not found")
+		}
+
+		*firewall = *found
+
+		return nil
+	}
+}
+
 func testAccCheckComputeFirewallPorts(
 	firewall *compute.Firewall, ports string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -158,6 +190,20 @@ func testAccCheckComputeFirewallPorts(
 
 		if firewall.Allowed[0].Ports[0] != ports {
 			return fmt.Errorf("bad: %#v", firewall.Allowed[0].Ports)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaFirewallDenyPorts(firewall *computeBeta.Firewall, ports string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(firewall.Denied) == 0 {
+			return fmt.Errorf("no denied rules")
+		}
+
+		if firewall.Denied[0].Ports[0] != ports {
+			return fmt.Errorf("bad: %#v", firewall.Denied[0].Ports)
 		}
 
 		return nil

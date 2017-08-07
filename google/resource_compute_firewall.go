@@ -360,32 +360,9 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 	config := meta.(*Config)
 	project, _ := getProject(d, config)
 
-	network := &computeBeta.Network{}
-	switch computeApiVersion {
-	case v1:
-		// Look up the network to attach the firewall to
-		networkV1, err := config.clientCompute.Networks.Get(
-			project, d.Get("network").(string)).Do()
-		if err != nil {
-			return nil, fmt.Errorf("Error reading network: %s", err)
-		}
-
-		err = Convert(networkV1, network)
-		if err != nil {
-			return nil, err
-		}
-	case v0beta:
-		// Look up the network to attach the firewall to
-		networkV0Beta, err := config.clientComputeBeta.Networks.Get(
-			project, d.Get("network").(string)).Do()
-		if err != nil {
-			return nil, fmt.Errorf("Error reading network: %s", err)
-		}
-
-		err = Convert(networkV0Beta, network)
-		if err != nil {
-			return nil, err
-		}
+	network, err := config.clientCompute.Networks.Get(project, d.Get("network").(string)).Do()
+	if err != nil {
+		return nil, fmt.Errorf("Error reading network: %s", err)
 	}
 
 	// Build up the list of allowed entries
