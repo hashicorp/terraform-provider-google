@@ -4,6 +4,7 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 
 FEATURES:
 * **New Data Source:** `google_dns_managed_zone` [GH-268]
+* **New Data Source:** `google_container_node_pool` [GH-284]
 * **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
