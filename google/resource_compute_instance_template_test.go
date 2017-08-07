@@ -367,7 +367,7 @@ func testAccCheckComputeInstanceTemplateAutomaticRestart(instanceTemplate *compu
 	return func(s *terraform.State) error {
 		ar := instanceTemplate.Properties.Scheduling.AutomaticRestart
 		if ar == nil {
-			return fmt.Errorf("Expected to see a value for AutomaticRestart, but got nil? This shouldn't happen")
+			return fmt.Errorf("Expected to see a value for AutomaticRestart, but got nil")
 		}
 		if *ar != automaticRestart {
 			return fmt.Errorf("Expected automatic restart value %v, got %v", automaticRestart, ar)
