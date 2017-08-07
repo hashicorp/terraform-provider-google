@@ -46,12 +46,26 @@ func TestComputeInstanceTemplateMigrateState(t *testing.T) {
 				"scheduling.0.automatic_restart": "true",
 			},
 		},
-		"error upon missing scheduling block": {
+		"missing scheduling block": {
 			StateVersion: 0,
 			BeforeAttributes: map[string]string{
 				"automatic_restart": "true",
 			},
-			ErrorStringExpected: "Found non-singular scheduling block in state; unsure how to proceed",
+			AfterAttributes: map[string]string{
+				"scheduling.#":                   "1",
+				"scheduling.0.automatic_restart": "true",
+			},
+		},
+		"empty scheduling block": {
+			StateVersion: 0,
+			BeforeAttributes: map[string]string{
+				"automatic_restart": "true",
+				"scheduling.#":      "0",
+			},
+			AfterAttributes: map[string]string{
+				"scheduling.#":                   "1",
+				"scheduling.0.automatic_restart": "true",
+			},
 		},
 		"error upon multiple scheduling block": {
 			StateVersion: 0,
@@ -61,7 +75,7 @@ func TestComputeInstanceTemplateMigrateState(t *testing.T) {
 				"scheduling.0.automatic_restart": "true",
 				"scheduling.1.automatic_restart": "true",
 			},
-			ErrorStringExpected: "Found non-singular scheduling block in state; unsure how to proceed",
+			ErrorStringExpected: "Found multiple scheduling blocks when there should only be one",
 		},
 		"error upon differing automatic_restart values": {
 			StateVersion: 0,

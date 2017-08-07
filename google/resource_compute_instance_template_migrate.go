@@ -31,9 +31,17 @@ func migrateComputeInstanceTemplateStateV0toV1(is *terraform.InstanceState) (*te
 	ar := is.Attributes["automatic_restart"]
 	delete(is.Attributes, "automatic_restart")
 
-	if is.Attributes["scheduling.#"] != "1" {
-		return nil, fmt.Errorf("Found non-singular scheduling block in state; unsure how to proceed")
+	schedulingCount, ok := is.Attributes["scheduling.#"]
+	if ok && schedulingCount != "0" && schedulingCount != "1" {
+		return nil, fmt.Errorf("Found multiple scheduling blocks when there should only be one")
 	}
+
+	if !ok || schedulingCount == "0" {
+		// Either scheduling is missing or empty; go ahead and add
+		is.Attributes["scheduling.#"] = "1"
+		is.Attributes["scheduling.0.automatic_restart"] = ar
+	}
+
 	schedAr := is.Attributes["scheduling.0.automatic_restart"]
 	if ar != schedAr {
 		// Here we could try to choose one value over the other, but in reality they should never be out of sync; error
