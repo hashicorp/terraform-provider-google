@@ -6,11 +6,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"regexp"
 )
 
 // Global MutexKV
@@ -53,6 +56,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":             dataSourceGoogleComputeZones(),
@@ -85,7 +89,9 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_instance_group_manager": resourceComputeInstanceGroupManager(),
 			"google_compute_instance_template":      resourceComputeInstanceTemplate(),
 			"google_compute_network":                resourceComputeNetwork(),
+			"google_compute_network_peering":        resourceComputeNetworkPeering(),
 			"google_compute_project_metadata":       resourceComputeProjectMetadata(),
+			"google_compute_project_metadata_item":  resourceComputeProjectMetadataItem(),
 			"google_compute_region_backend_service": resourceComputeRegionBackendService(),
 			"google_compute_route":                  resourceComputeRoute(),
 			"google_compute_router":                 resourceComputeRouter(),
@@ -103,11 +109,14 @@ func Provider() terraform.ResourceProvider {
 			"google_container_node_pool":            resourceContainerNodePool(),
 			"google_dns_managed_zone":               resourceDnsManagedZone(),
 			"google_dns_record_set":                 resourceDnsRecordSet(),
+			"google_sourcerepo_repository":          resourceSourceRepoRepository(),
 			"google_sql_database":                   resourceSqlDatabase(),
 			"google_sql_database_instance":          resourceSqlDatabaseInstance(),
 			"google_sql_user":                       resourceSqlUser(),
 			"google_project":                        resourceGoogleProject(),
 			"google_project_iam_policy":             resourceGoogleProjectIamPolicy(),
+			"google_project_iam_binding":            resourceGoogleProjectIamBinding(),
+			"google_project_iam_member":             resourceGoogleProjectIamMember(),
 			"google_project_services":               resourceGoogleProjectServices(),
 			"google_pubsub_topic":                   resourcePubsubTopic(),
 			"google_pubsub_subscription":            resourcePubsubSubscription(),
@@ -212,6 +221,30 @@ func getZonalResourceFromRegion(getResource func(string) (interface{}, error), r
 	return nil, nil
 }
 
+func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *computeBeta.Service, project string) (interface{}, error) {
+	zoneList, err := compute.Zones.List(project).Do()
+	if err != nil {
+		return nil, err
+	}
+	var resource interface{}
+	for _, zone := range zoneList.Items {
+		if strings.Contains(zone.Name, region) {
+			resource, err = getResource(zone.Name)
+			if err != nil {
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+					// Resource was not found in this zone
+					continue
+				}
+				return nil, fmt.Errorf("Error reading Resource: %s", err)
+			}
+			// Resource was found
+			return resource, nil
+		}
+	}
+	// Resource does not exist in this region
+	return nil, nil
+}
+
 // getNetworkLink reads the "network" field from the given resource data and if the value:
 // - is a resource URL, returns the string unchanged
 // - is the network name only, then looks up the resource URL using the google client
@@ -239,6 +272,46 @@ func getNetworkLink(d *schema.ResourceData, config *Config, field string) (strin
 	} else {
 		return "", nil
 	}
+}
+
+// Reads the "subnetwork" fields from the given resource data and if the value is:
+// - a resource URL, returns the string unchanged
+// - a subnetwork name, looks up the resource URL using the google client.
+//
+// If `subnetworkField` is a resource url, `subnetworkProjectField` cannot be set.
+// If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
+// 	as the project if set. If not, we fallback on the default project.
+func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, subnetworkProjectField, zoneField string) (string, error) {
+	if v, ok := d.GetOk(subnetworkField); ok {
+		subnetwork := v.(string)
+		r := regexp.MustCompile(SubnetworkLinkRegex)
+		if r.MatchString(subnetwork) {
+			return subnetwork, nil
+		}
+
+		var project string
+		if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
+			project = subnetworkProject.(string)
+		} else {
+			var err error
+			project, err = getProject(d, config)
+			if err != nil {
+				return "", err
+			}
+		}
+
+		region := getRegionFromZone(d.Get(zoneField).(string))
+
+		subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
+		if err != nil {
+			return "", fmt.Errorf(
+				"Error referencing subnetwork '%s' in region '%s': %s",
+				subnetwork, region, err)
+		}
+
+		return subnet.SelfLink, nil
+	}
+	return "", nil
 }
 
 // getNetworkName reads the "network" field from the given resource data and if the value:
@@ -279,6 +352,18 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 	}
 
 	return fmt.Errorf("Error reading %s: %s", resource, err)
+}
+
+func isConflictError(err error) bool {
+	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
+		return true
+	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
+		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+		if e.Code == 409 {
+			return true
+		}
+	}
+	return false
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {

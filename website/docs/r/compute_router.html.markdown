@@ -1,15 +1,17 @@
 ---
 layout: "google"
 page_title: "Google: google_compute_router"
-sidebar_current: "docs-google-compute-router"
+sidebar_current: "docs-google-compute-router-x"
 description: |-
   Manages a Cloud Router resource.
 ---
 
 # google\_compute\_router
 
-Manages a Cloud Router resource. For more info, read the
-[documentation](https://cloud.google.com/compute/docs/cloudrouter).
+Manages a Cloud Router resource. For more information see
+[the official documentation](https://cloud.google.com/compute/docs/cloudrouter)
+and
+[API](https://cloud.google.com/compute/docs/reference/latest/routers).
 
 ## Example Usage
 

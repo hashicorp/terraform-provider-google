@@ -289,6 +289,28 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDisk_type(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskType = "pd-ssd"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_bootDisk_type(instanceName, diskType),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceBootDiskType(instanceName, diskType),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_noDisk(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -651,6 +673,28 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_multiNic(t *testing.T) {
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	networkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_multiNic(instanceName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMultiNic(&instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -668,7 +712,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
-		err = computeOperationWaitZone(config, op, config.Project, rs.Primary.Attributes["zone"], "Waiting on stop")
+		err = computeOperationWait(config, op, config.Project, "Waiting on stop")
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -682,7 +726,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
-		err = computeOperationWaitZone(config, op, config.Project, rs.Primary.Attributes["zone"], "Waiting machine type change")
+		err = computeOperationWait(config, op, config.Project, "Waiting machine type change")
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
@@ -821,6 +865,23 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 	}
 }
 
+func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		// boot disk is named the same as the Instance
+		disk, err := config.clientCompute.Disks.Get(config.Project, "us-central1-a", instanceName).Do()
+		if err != nil {
+			return err
+		}
+		if strings.Contains(disk.Type, diskType) {
+			return nil
+		}
+
+		return fmt.Errorf("Boot disk not found with type %q", diskType)
+	}
+}
+
 func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfaces []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Disks == nil {
@@ -953,6 +1014,16 @@ func testAccCheckComputeInstanceHasAddress(instance *compute.Instance, address s
 			if i.NetworkIP != address {
 				return fmt.Errorf("Wrong address found: expected %v, got %v", address, i.NetworkIP)
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.NetworkInterfaces) < 2 {
+			return fmt.Errorf("only saw %d nics", len(instance.NetworkInterfaces))
 		}
 
 		return nil
@@ -1370,6 +1441,27 @@ resource "google_compute_instance" "foobar" {
 `, disk, instance)
 }
 
+func testAccComputeInstance_bootDisk_type(instance string, diskType string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image	= "debian-8-jessie-v20160803"
+			type	= "%s"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, instance, diskType)
+}
+
 func testAccComputeInstance_noDisk(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
@@ -1549,7 +1641,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	network_interface {
-		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 		access_config {	}
 	}
 
@@ -1724,4 +1816,39 @@ resource "google_compute_disk" "foobar" {
   size = "1"
 }
 `, instance, disk)
+}
+
+func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
+		access_config {	}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_network" "inst-test-network" {
+	name = "%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+}
+`, instance, network, subnetwork)
 }

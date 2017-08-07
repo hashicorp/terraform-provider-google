@@ -8,6 +8,11 @@ description: |-
 
 # google\_container\_cluster
 
+Creates a GKE cluster. For more information see
+[the official documentation](https://cloud.google.com/container-engine/docs/clusters)
+and
+[API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
+
 !> **Warning:** Due to limitations of the API, all arguments except
 `node_version` are non-updateable. Changing any will cause recreation of the
 whole cluster!

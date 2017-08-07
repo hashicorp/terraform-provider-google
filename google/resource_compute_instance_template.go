@@ -596,7 +596,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(instanceTemplate.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Instance Template")
+	err = computeOperationWait(config, op, project, "Creating Instance Template")
 	if err != nil {
 		return err
 	}
@@ -811,7 +811,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Instance Template")
+	err = computeOperationWait(config, op, project, "Deleting Instance Template")
 	if err != nil {
 		return err
 	}

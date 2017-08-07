@@ -16,6 +16,9 @@ func resourceComputeSubnetwork() *schema.Resource {
 		Read:   resourceComputeSubnetworkRead,
 		Update: resourceComputeSubnetworkUpdate,
 		Delete: resourceComputeSubnetworkDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeSubnetworkImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": &schema.Schema{
@@ -31,9 +34,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 			},
 
 			"network": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"description": &schema.Schema{
@@ -126,7 +130,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	subnetwork.Region = region
 	d.SetId(createSubnetID(subnetwork))
 
-	err = computeOperationWaitRegion(config, op, project, region, "Creating Subnetwork")
+	err = computeOperationWait(config, op, project, "Creating Subnetwork")
 	if err != nil {
 		return err
 	}
@@ -155,6 +159,11 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
 	}
 
+	d.Set("name", subnetwork.Name)
+	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
+	d.Set("network", subnetwork.Network)
+	d.Set("description", subnetwork.Description)
+	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
 	d.Set("self_link", subnetwork.SelfLink)
 
@@ -188,7 +197,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating subnetwork PrivateIpGoogleAccess: %s", err)
 		}
 
-		err = computeOperationWaitRegion(config, op, project, region, "Updating Subnetwork PrivateIpGoogleAccess")
+		err = computeOperationWait(config, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
 		if err != nil {
 			return err
 		}
@@ -221,11 +230,29 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting subnetwork: %s", err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Deleting Subnetwork")
+	err = computeOperationWait(config, op, project, "Deleting Subnetwork")
 	if err != nil {
 		return err
 	}
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeSubnetworkImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid compute subnetwork specifier. Expecting {region}/{name}")
+	}
+
+	region, name := parts[0], parts[1]
+	d.Set("region", region)
+	d.Set("name", name)
+
+	d.SetId(createSubnetID(&compute.Subnetwork{
+		Region: region,
+		Name:   name,
+	}))
+
+	return []*schema.ResourceData{d}, nil
 }

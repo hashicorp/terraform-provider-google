@@ -236,7 +236,7 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 	// It probably maybe worked, so store the ID now
 	d.SetId(scaler.Name)
 
-	err = computeOperationWaitZone(config, op, project, zone.Name, "Creating Autoscaler")
+	err = computeOperationWait(config, op, project, "Creating Autoscaler")
 	if err != nil {
 		return err
 	}
@@ -289,20 +289,37 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+
 	var getAutoscaler = func(zone string) (interface{}, error) {
 		return config.clientCompute.Autoscalers.Get(project, zone, d.Id()).Do()
 	}
 
-	resource, err := getZonalResourceFromRegion(getAutoscaler, region, config.clientCompute, project)
-	if err != nil {
-		return err
+	var scaler *compute.Autoscaler
+	var e error
+	if zone, ok := d.GetOk("zone"); ok {
+		scaler, e = config.clientCompute.Autoscalers.Get(project, zone.(string), d.Id()).Do()
+		if e != nil {
+			return handleNotFoundError(e, d, fmt.Sprintf("Autoscaler %q", d.Id()))
+		}
+	} else {
+		// If the resource was imported, the only info we have is the ID. Try to find the resource
+		// by searching in the region of the project.
+		var resource interface{}
+		resource, e = getZonalResourceFromRegion(getAutoscaler, region, config.clientCompute, project)
+
+		if e != nil {
+			return e
+		}
+
+		scaler = resource.(*compute.Autoscaler)
 	}
-	if resource == nil {
+
+	if scaler == nil {
 		log.Printf("[WARN] Removing Autoscaler %q because it's gone", d.Get("name").(string))
 		d.SetId("")
 		return nil
 	}
-	scaler := resource.(*compute.Autoscaler)
+
 	zoneUrl := strings.Split(scaler.Zone, "/")
 	d.Set("self_link", scaler.SelfLink)
 	d.Set("name", scaler.Name)
@@ -340,7 +357,7 @@ func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) e
 	// It probably maybe worked, so store the ID now
 	d.SetId(scaler.Name)
 
-	err = computeOperationWaitZone(config, op, project, zone, "Updating Autoscaler")
+	err = computeOperationWait(config, op, project, "Updating Autoscaler")
 	if err != nil {
 		return err
 	}
@@ -363,7 +380,7 @@ func resourceComputeAutoscalerDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting autoscaler: %s", err)
 	}
 
-	err = computeOperationWaitZone(config, op, project, zone, "Deleting Autoscaler")
+	err = computeOperationWait(config, op, project, "Deleting Autoscaler")
 	if err != nil {
 		return err
 	}

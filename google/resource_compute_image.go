@@ -150,7 +150,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	// Store the ID
 	d.SetId(image.Name)
 
-	err = computeOperationWaitGlobalTime(config, op, project, "Creating Image", createTimeout)
+	err = computeOperationWaitTime(config, op, project, "Creating Image", createTimeout)
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error deleting image: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting image")
+	err = computeOperationWait(config, op, project, "Deleting image")
 	if err != nil {
 		return err
 	}

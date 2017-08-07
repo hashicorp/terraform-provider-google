@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"regexp"
 )
 
 func stringScopeHashcode(v interface{}) int {
@@ -278,20 +279,25 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork_project": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
@@ -378,22 +384,28 @@ func resourceComputeInstance() *schema.Resource {
 
 			"scheduling": &schema.Schema{
 				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  true,
 						},
 
 						"preemptible": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
+							ForceNew: true,
 						},
 					},
 				},
@@ -699,7 +711,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			// Load up the name of this network_interface
 			networkName := d.Get(prefix + ".network").(string)
 			subnetworkName := d.Get(prefix + ".subnetwork").(string)
-			subnetworkProject := d.Get(prefix + ".subnetwork_project").(string)
 			address := d.Get(prefix + ".address").(string)
 			var networkLink, subnetworkLink string
 
@@ -712,20 +723,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 						"Error referencing network '%s': %s",
 						networkName, err)
 				}
-
 			} else {
-				region := getRegionFromZone(d.Get("zone").(string))
-				if subnetworkProject == "" {
-					subnetworkProject = project
-				}
-				subnetwork, err := config.clientCompute.Subnetworks.Get(
-					subnetworkProject, region, subnetworkName).Do()
+				subnetworkLink, err = getSubnetworkLink(d, config, prefix+".subnetwork", prefix+".subnetwork_project", "zone")
 				if err != nil {
-					return fmt.Errorf(
-						"Error referencing subnetwork '%s' in region '%s': %s",
-						subnetworkName, region, err)
+					return err
 				}
-				subnetworkLink = subnetwork.SelfLink
 			}
 
 			// Build the networkInterface
@@ -787,6 +789,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 		scheduling.OnHostMaintenance = val.(string)
 	}
+	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
 	var createTimeout int
@@ -825,7 +828,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(instance.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWaitZoneTime(config, op, project, zone.Name, createTimeout, "instance to create")
+	waitErr := computeOperationWaitTime(config, op, project, "instance to create", createTimeout)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -843,17 +846,25 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	// Synch metadata
-	md := instance.Metadata
+	md := flattenMetadata(instance.Metadata)
 
-	_md := MetadataFormatSchema(d.Get("metadata").(map[string]interface{}), md)
-
-	if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
-		d.Set("metadata_startup_script", script)
-		delete(_md, "startup-script")
+	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
 	}
 
-	if err = d.Set("metadata", _md); err != nil {
+	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	// Delete any keys not explicitly set in our config file
+	for k := range md {
+		if _, ok := existingMetadata[k]; !ok {
+			delete(md, k)
+		}
+	}
+
+	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
@@ -946,9 +957,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			networkInterfaces = append(networkInterfaces, map[string]interface{}{
 				"name":               iface.Name,
 				"address":            iface.NetworkIP,
-				"network":            d.Get(fmt.Sprintf("network_interface.%d.network", i)),
-				"subnetwork":         d.Get(fmt.Sprintf("network_interface.%d.subnetwork", i)),
-				"subnetwork_project": d.Get(fmt.Sprintf("network_interface.%d.subnetwork_project", i)),
+				"network":            iface.Network,
+				"subnetwork":         iface.Subnetwork,
+				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
 			})
 		}
@@ -1052,6 +1063,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 
+	scheduling, _ := flattenScheduling(instance.Scheduling)
+	d.Set("scheduling", scheduling)
+
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
 
@@ -1107,7 +1121,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
 
-			opErr := computeOperationWaitZone(config, op, project, zone, "metadata to update")
+			opErr := computeOperationWait(config, op, project, "metadata to update")
 			if opErr != nil {
 				return opErr
 			}
@@ -1127,7 +1141,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone, "tags to update")
+		opErr := computeOperationWait(config, op, project, "tags to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1145,7 +1159,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone, "labels to update")
+		opErr := computeOperationWait(config, op, project, "labels to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1160,14 +1174,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
-
 		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
 			scheduling.Preemptible = val.(bool)
 		}
-
 		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 			scheduling.OnHostMaintenance = val.(string)
 		}
+		scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
@@ -1176,8 +1189,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone,
-			"scheduling policy update")
+		opErr := computeOperationWait(config, op, project, "scheduling policy update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1218,8 +1230,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					if err != nil {
 						return fmt.Errorf("Error deleting old access_config: %s", err)
 					}
-					opErr := computeOperationWaitZone(config, op, project, zone,
-						"old access_config to delete")
+					opErr := computeOperationWait(config, op, project, "old access_config to delete")
 					if opErr != nil {
 						return opErr
 					}
@@ -1238,8 +1249,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					if err != nil {
 						return fmt.Errorf("Error adding new access_config: %s", err)
 					}
-					opErr := computeOperationWaitZone(config, op, project, zone,
-						"new access_config to add")
+					opErr := computeOperationWait(config, op, project, "new access_config to add")
 					if opErr != nil {
 						return opErr
 					}
@@ -1270,7 +1280,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWaitZone(config, op, project, zone, "instance to delete")
+	opErr := computeOperationWait(config, op, project, "instance to delete")
 	if opErr != nil {
 		return opErr
 	}
@@ -1370,7 +1380,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
-			disk.InitializeParams.DiskType = diskType.Name
+			disk.InitializeParams.DiskType = diskType.SelfLink
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
@@ -1437,4 +1447,13 @@ func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 		"interface": disk.Interface,
 	}
 	return result
+}
+
+func getProjectFromSubnetworkLink(subnetwork string) string {
+	r := regexp.MustCompile(SubnetworkLinkRegex)
+	if !r.MatchString(subnetwork) {
+		return ""
+	}
+
+	return r.FindStringSubmatch(subnetwork)[1]
 }

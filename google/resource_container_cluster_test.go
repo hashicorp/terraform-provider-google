@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"regexp"
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
@@ -85,6 +86,34 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_additional_zones"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "true"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLegacyAbac(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_legacy_abac"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "false"),
 				),
 			},
 		},
@@ -229,6 +258,20 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withNodePoolConflictingNameFields,
+				ExpectError: regexp.MustCompile("Cannot specify both name and name_prefix for a node_pool"),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -289,6 +332,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
+			{"enable_legacy_abac", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"endpoint", cluster.Endpoint},
 			{"instance_group_urls", igUrls},
 			{"logging_service", cluster.LoggingService},
@@ -520,6 +564,28 @@ resource "google_container_cluster" "with_additional_zones" {
 }`, clusterName)
 }
 
+func testAccContainerCluster_withLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_legacy_abac = true
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_legacy_abac = false
+}`, clusterName)
+}
+
 var testAccContainerCluster_withVersion = fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
 	zone = "us-central1-a"
@@ -718,3 +784,21 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		initial_node_count = 3
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+
+var testAccContainerCluster_withNodePoolConflictingNameFields = fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_multiple" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+
+	node_pool {
+		# ERROR: name and name_prefix cannot be both specified
+		name               = "tf-cluster-nodepool-test-%s"
+		name_prefix        = "tf-cluster-nodepool-test-"
+		initial_node_count = 1
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
