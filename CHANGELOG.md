@@ -13,6 +13,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * compute: Add import support for `google_container_node_pool` [GH-284]
+* compute: Change google_container_node_pool ID format to zone/cluster/name to remove artificial restriction on node pool name across clusters [GH-304]
 * compute: Add support for `auto_healing_policies` to `google_compute_instance_group_manager` [GH-249]
 * compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
