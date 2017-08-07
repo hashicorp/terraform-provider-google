@@ -105,6 +105,27 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewall_egress(t *testing.T) {
+	var firewall computeBeta.Firewall
+	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeFirewall_egress(networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeBetaFirewallEgress(&firewall),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -210,6 +231,16 @@ func testAccCheckComputeBetaFirewallDenyPorts(firewall *computeBeta.Firewall, po
 	}
 }
 
+func testAccCheckComputeBetaFirewallEgress(firewall *computeBeta.Firewall) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if firewall.Direction != "EGRESS" {
+			return fmt.Errorf("firewall not EGRESS")
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeFirewall_basic(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
@@ -282,6 +313,26 @@ func testAccComputeFirewall_denied(network, firewall string) string {
 		source_tags = ["foo"]
 
 		deny {
+			protocol = "tcp"
+			ports    = [22]
+		}
+	}`, network, firewall)
+}
+
+func testAccComputeFirewall_egress(network, firewall string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_network" "foobar" {
+		name = "%s"
+		ipv4_range = "10.0.0.0/16"
+	}
+
+	resource "google_compute_firewall" "foobar" {
+		name = "firewall-test-%s"
+		direction = "EGRESS"
+		description = "Resource created for Terraform acceptance testing"
+		network = "${google_compute_network.foobar.name}"
+
+		allow {
 			protocol = "tcp"
 			ports    = [22]
 		}
