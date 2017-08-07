@@ -18,6 +18,9 @@ func resourceContainerNodePool() *schema.Resource {
 		Delete: resourceContainerNodePoolDelete,
 		Exists: resourceContainerNodePoolExists,
 
+		SchemaVersion: 1,
+		MigrateState:  resourceContainerNodePoolMigrateState,
+
 		Importer: &schema.ResourceImporter{
 			State: resourceContainerNodePoolStateImporter,
 		},
@@ -217,7 +220,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", name)
 
-	d.SetId(name)
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, name))
 
 	return resourceContainerNodePoolRead(d, meta)
 }
