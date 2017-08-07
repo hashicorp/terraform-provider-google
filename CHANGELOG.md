@@ -4,7 +4,6 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 
 FEATURES:
 * **New Data Source:** `google_dns_managed_zone` [GH-268]
-* **New Data Source:** `google_container_node_pool` [GH-284]
 * **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
@@ -13,6 +12,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
+* compute: Add import support for `google_container_node_pool` [GH-284]
 * compute: Add support for `auto_healing_policies` to `google_compute_instance_group_manager` [GH-249]
 * compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
