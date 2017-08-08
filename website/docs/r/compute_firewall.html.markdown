@@ -59,7 +59,20 @@ The following arguments are supported:
 
 * `target_tags` - (Optional) A list of target tags for this firewall.
 
+- - -
+
+* `deny` - (Optional, Beta) Can be specified multiple times for each deny
+    rule. Each deny block supports fields documented below. Can be specified
+    instead of allow.
+
 The `allow` block supports:
+
+* `protocol` - (Required) The name of the protocol to allow.
+
+* `ports` - (Optional) List of ports and/or port ranges to allow. This can
+    only be specified if the protocol is TCP or UDP.
+
+The `deny` block supports:
 
 * `protocol` - (Required) The name of the protocol to allow.
 
