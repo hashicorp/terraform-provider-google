@@ -151,7 +151,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		op, err = config.clientComputeBeta.Subnetworks.Insert(
 			project, region, subnetwork).Do()
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("Error creating subnetwork: %s", err)
 	}
