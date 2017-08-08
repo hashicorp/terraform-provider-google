@@ -20,6 +20,7 @@ IMPROVEMENTS:
 * compute: Add support for `subnetwork` as a self_link to `google_compute_instance`. [GH-290]
 * compute: Add support for multiple `network_interface`'s to `google_compute_instance`. [GH-289]
 * compute: Add support for `denied` to `google_compute_firewall` [GH-282]
+* compute: Add support for egress traffic using `direction` to `google_compute_firewall` [GH-306]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
