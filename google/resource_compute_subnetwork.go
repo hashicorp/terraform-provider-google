@@ -7,8 +7,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
+
+var SubnetworkBaseApiVersion = v1
+var SubnetworkVersionedFeatures = []Feature{}
 
 func resourceComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
@@ -76,18 +80,8 @@ func resourceComputeSubnetwork() *schema.Resource {
 	}
 }
 
-func createSubnetID(s *compute.Subnetwork) string {
-	return fmt.Sprintf("%s/%s", s.Region, s.Name)
-}
-
-func splitSubnetID(id string) (region string, name string) {
-	parts := strings.Split(id, "/")
-	region = parts[0]
-	name = parts[1]
-	return
-}
-
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -106,7 +100,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Build the subnetwork parameters
-	subnetwork := &compute.Subnetwork{
+	subnetwork := &computeBeta.Subnetwork{
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
@@ -115,11 +109,27 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)
-	op, err := config.clientCompute.Subnetworks.Insert(
-		project, region, subnetwork).Do()
 
-	if err != nil {
-		return fmt.Errorf("Error creating subnetwork: %s", err)
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		subnetworkV1 := &compute.Subnetwork{}
+		err := Convert(subnetwork, subnetworkV1)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientCompute.Subnetworks.Insert(
+			project, region, subnetworkV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating subnetwork: %s", err)
+		}
+	case v0beta:
+		op, err = config.clientComputeBeta.Subnetworks.Insert(
+			project, region, subnetwork).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating subnetwork: %s", err)
+		}
 	}
 
 	// It probably maybe worked, so store the ID now. ID is a combination of region + subnetwork
@@ -128,9 +138,9 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	// The same name can appear twice in a project, as long as each one is in a different region."
 	// https://cloud.google.com/compute/docs/subnetworks
 	subnetwork.Region = region
-	d.SetId(createSubnetID(subnetwork))
+	d.SetId(createBetaSubnetID(subnetwork))
 
-	err = computeOperationWait(config, op, project, "Creating Subnetwork")
+	err = computeSharedOperationWait(config, op, project, "Creating Subnetwork")
 	if err != nil {
 		return err
 	}
@@ -139,6 +149,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -153,10 +164,25 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 
 	name := d.Get("name").(string)
 
-	subnetwork, err := config.clientCompute.Subnetworks.Get(
-		project, region, name).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
+	subnetwork := &computeBeta.Subnetwork{}
+	switch computeApiVersion {
+	case v1:
+		subnetworkV1, err := config.clientCompute.Subnetworks.Get(
+			project, region, name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
+		}
+
+		err = Convert(subnetworkV1, subnetwork)
+		if err != nil {
+			return err
+		}
+	case v0beta:
+		var err error
+		subnetwork, err = config.clientComputeBeta.Subnetworks.Get(project, region, name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
+		}
 	}
 
 	d.Set("name", subnetwork.Name)
@@ -165,12 +191,13 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("description", subnetwork.Description)
 	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
-	d.Set("self_link", subnetwork.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
 
 	return nil
 }
 
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersionUpdate(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -186,18 +213,34 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 	d.Partial(true)
 
 	if d.HasChange("private_ip_google_access") {
-		subnetworksSetPrivateIpGoogleAccessRequest := &compute.SubnetworksSetPrivateIpGoogleAccessRequest{
+		subnetworksSetPrivateIpGoogleAccessRequest := &computeBeta.SubnetworksSetPrivateIpGoogleAccessRequest{
 			PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
 		}
 
 		log.Printf("[DEBUG] Updating Subnetwork PrivateIpGoogleAccess %q: %#v", d.Id(), subnetworksSetPrivateIpGoogleAccessRequest)
-		op, err := config.clientCompute.Subnetworks.SetPrivateIpGoogleAccess(
-			project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequest).Do()
+
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			subnetworksSetPrivateIpGoogleAccessRequestV1 := &compute.SubnetworksSetPrivateIpGoogleAccessRequest{}
+			err := Convert(subnetworksSetPrivateIpGoogleAccessRequest, subnetworksSetPrivateIpGoogleAccessRequestV1)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.Subnetworks.SetPrivateIpGoogleAccess(
+				project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequestV1).Do()
+		case v0beta:
+			op, err = config.clientComputeBeta.Subnetworks.SetPrivateIpGoogleAccess(
+				project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequest).Do()
+
+		}
+
 		if err != nil {
 			return fmt.Errorf("Error updating subnetwork PrivateIpGoogleAccess: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
+		err = computeSharedOperationWait(config, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
 		if err != nil {
 			return err
 		}
@@ -211,6 +254,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -224,13 +268,20 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Delete the subnetwork
-	op, err := config.clientCompute.Subnetworks.Delete(
-		project, region, d.Get("name").(string)).Do()
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		op, err = config.clientCompute.Subnetworks.Delete(
+			project, region, d.Get("name").(string)).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.Subnetworks.Delete(
+			project, region, d.Get("name").(string)).Do()
+	}
 	if err != nil {
 		return fmt.Errorf("Error deleting subnetwork: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Subnetwork")
+	err = computeSharedOperationWait(config, op, project, "Deleting Subnetwork")
 	if err != nil {
 		return err
 	}
@@ -255,4 +306,15 @@ func resourceComputeSubnetworkImportState(d *schema.ResourceData, meta interface
 	}))
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func createBetaSubnetID(s *computeBeta.Subnetwork) string {
+	return fmt.Sprintf("%s/%s", s.Region, s.Name)
+}
+
+func splitSubnetID(id string) (region string, name string) {
+	parts := strings.Split(id, "/")
+	region = parts[0]
+	name = parts[1]
+	return
 }
