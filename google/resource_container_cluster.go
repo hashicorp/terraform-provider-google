@@ -576,7 +576,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return waitErr
 		}
 
-		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
 			desiredNodeVersion)
 
 		// Update the nodes
@@ -597,7 +597,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return waitErr
 		}
 
-		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
