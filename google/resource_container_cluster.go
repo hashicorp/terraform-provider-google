@@ -552,9 +552,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("node_version") {
 		desiredNodeVersion := d.Get("node_version").(string)
 
+		// The master must be updated before the nodes
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
+				DesiredMasterVersion: desiredNodeVersion,
 			},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
@@ -564,12 +565,33 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster version", timeoutInMinutes, 2)
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
 		if waitErr != nil {
 			return waitErr
 		}
 
-		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
+			desiredNodeVersion)
+
+		// Update the nodes
+		req = &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+		op, err = config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr = containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
