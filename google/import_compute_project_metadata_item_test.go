@@ -16,7 +16,7 @@ func TestAccComputeProjectMetadataItem_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic(key, "myValue"),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, "myValue"),
 			},
 			{
 				ResourceName:      "google_compute_project_metadata_item.foobar",
