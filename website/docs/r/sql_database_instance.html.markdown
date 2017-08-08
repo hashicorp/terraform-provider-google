@@ -115,20 +115,20 @@ The optional `settings.database_flags` sublist supports:
 
 The optional `settings.backup_configuration` subblock supports:
 
-* `binary_log_enabled` - (Optional) True iff binary logging is enabled. If
+* `binary_log_enabled` - (Optional) True if binary logging is enabled. If
     `logging` is false, this must be as well.
 
-* `enabled` - (Optional) True iff backup configuration is enabled.
+* `enabled` - (Optional) True if backup configuration is enabled.
 
 * `start_time` - (Optional) `HH:MM` format time indicating when backup
     configuration starts.
 
 The optional `settings.ip_configuration` subblock supports:
 
-* `ipv4_enabled` - (Optional) True iff the instance should be assigned an IP
+* `ipv4_enabled` - (Optional) True if the instance should be assigned an IP
     address.
 
-* `require_ssl` - (Optional) True iff mysqld should default to `REQUIRE X509`
+* `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
@@ -193,7 +193,7 @@ to work, cannot be updated, and supports:
 
 * `username` - (Optional) Username for replication connection.
 
-* `verify_server_certificate` - (Optional) True iff the master's common name
+* `verify_server_certificate` - (Optional) True if the master's common name
     value is checked during the SSL handshake.
 
 ## Attributes Reference
