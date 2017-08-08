@@ -147,15 +147,13 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 
 		op, err = config.clientCompute.Subnetworks.Insert(
 			project, region, subnetworkV1).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating subnetwork: %s", err)
-		}
 	case v0beta:
 		op, err = config.clientComputeBeta.Subnetworks.Insert(
 			project, region, subnetwork).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating subnetwork: %s", err)
-		}
+	}
+	
+	if err != nil {
+		return fmt.Errorf("Error creating subnetwork: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now. ID is a combination of region + subnetwork
