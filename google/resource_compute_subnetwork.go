@@ -41,7 +41,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				DiffSuppressFunc: compareSelfLinkResourceNames,
 			},
 
 			"description": &schema.Schema{
