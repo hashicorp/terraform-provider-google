@@ -49,14 +49,18 @@ The following arguments are supported:
     Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
     and PostgreSQL's [Character Set
     Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
-    for more details and supported values.
+    for more details and supported values. Note that Cloud SQL's beta
+    offering for PostgreSQL databases currently only supports the charset value
+    `UTF8`.
 
 * `collation` - (Optional) The collation value. See MySQL's [Supported Character
     Sets and
     Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
     and PostgreSQL's [Collation
     Support](https://www.postgresql.org/docs/9.6/static/collation.html) for
-    more details and supported values.
+    more details and supported values. Note that Cloud SQL's beta
+    offering for PostgreSQL databases currently only supports the collation
+    value `en_US.UTF8`.
 
 ## Attributes Reference
 
