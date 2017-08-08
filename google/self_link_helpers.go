@@ -28,6 +28,17 @@ func compareSelfLinkRelativePaths(k, old, new string, d *schema.ResourceData) bo
 	return false
 }
 
+// This method should only be used if the self link references a global resource.
+func compareSelfLinkResourceNames(k, old, new string, d *schema.ResourceData) bool {
+	oldParts := strings.Split(old, "/")
+	newParts := strings.Split(new, "/")
+
+	if oldParts[len(oldParts)-1] == newParts[len(newParts)-1] {
+		return true
+	}
+	return false
+}
+
 // Hash the relative path of a self link.
 func selfLinkRelativePathHash(selfLink interface{}) int {
 	path, _ := getRelativePath(selfLink.(string))
