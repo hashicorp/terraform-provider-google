@@ -25,6 +25,7 @@ import (
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
+	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/spanner/v1"
@@ -46,6 +47,7 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientRuntimeconfig   *runtimeconfig.Service
 	clientSpanner         *spanner.Service
 	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
@@ -176,6 +178,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientResourceManager.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig Client...")
+	c.clientRuntimeconfig, err = runtimeconfig.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientRuntimeconfig.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IAM Client...")
 	c.clientIAM, err = iam.New(client)
