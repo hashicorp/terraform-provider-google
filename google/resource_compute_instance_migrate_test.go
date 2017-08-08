@@ -55,6 +55,46 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 				"create_timeout": "4",
 			},
 		},
+		"replace disk with boot disk": {
+			StateVersion: 3,
+			Attributes: map[string]string{
+				"disk.#":                            "1",
+				"disk.0.disk":                       "disk-1",
+				"disk.0.type":                       "pd-ssd",
+				"disk.0.auto_delete":                "false",
+				"disk.0.size":                       "12",
+				"disk.0.device_name":                "device-name",
+				"disk.0.disk_encryption_key_raw":    "encrypt-key",
+				"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+			},
+			Expected: map[string]string{
+				"boot_disk.#":                            "1",
+				"boot_disk.0.auto_delete":                "false",
+				"boot_disk.0.device_name":                "device-name",
+				"boot_disk.0.disk_encryption_key_raw":    "encrypt-key",
+				"boot_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+				"boot_disk.0.source":                     "disk-1",
+			},
+		},
+		"replace disk with attached disk": {
+			StateVersion: 3,
+			Attributes: map[string]string{
+				"boot_disk.#":                       "1",
+				"disk.#":                            "1",
+				"disk.0.disk":                       "path/to/disk",
+				"disk.0.device_name":                "device-name",
+				"disk.0.disk_encryption_key_raw":    "encrypt-key",
+				"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+			},
+			Expected: map[string]string{
+				"boot_disk.#":                                "1",
+				"attached_disk.#":                            "1",
+				"attached_disk.0.source":                     "path/to/disk",
+				"attached_disk.0.device_name":                "device-name",
+				"attached_disk.0.disk_encryption_key_raw":    "encrypt-key",
+				"attached_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+			},
+		},
 	}
 
 	for tn, tc := range cases {
@@ -73,7 +113,15 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 			if is.Attributes[k] != v {
 				t.Fatalf(
 					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
-					tn, k, v, k, is.Attributes[k], is.Attributes)
+					tn, k, tc.Expected[k], k, is.Attributes[k], is.Attributes)
+			}
+		}
+
+		for k, v := range is.Attributes {
+			if tc.Expected[k] != v {
+				t.Fatalf(
+					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+					tn, k, tc.Expected[k], k, is.Attributes[k], is.Attributes)
 			}
 		}
 	}
