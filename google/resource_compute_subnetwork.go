@@ -12,7 +12,12 @@ import (
 )
 
 var SubnetworkBaseApiVersion = v1
-var SubnetworkVersionedFeatures = []Feature{}
+var SubnetworkVersionedFeatures = []Feature{
+	{
+		Version: v0beta,
+		Item:    "secondary_ip_range",
+	},
+}
 
 func resourceComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
@@ -72,6 +77,26 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Optional: true,
 			},
 
+			"secondary_ip_range": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"range_name": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validateGCPName,
+						},
+						"ip_cidr_range": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -105,6 +130,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		Description:           d.Get("description").(string),
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
 		PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
+		SecondaryIpRanges:     expandSecondaryRanges(d.Get("secondary_ip_range").([]interface{})),
 		Network:               network,
 	}
 
@@ -191,6 +217,7 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("description", subnetwork.Description)
 	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
+	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
 	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
 
 	return nil
@@ -317,4 +344,31 @@ func splitSubnetID(id string) (region string, name string) {
 	region = parts[0]
 	name = parts[1]
 	return
+}
+
+func expandSecondaryRanges(configured []interface{}) []*computeBeta.SubnetworkSecondaryRange {
+	secondaryRanges := make([]*computeBeta.SubnetworkSecondaryRange, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		secondaryRange := computeBeta.SubnetworkSecondaryRange{
+			RangeName:   data["range_name"].(string),
+			IpCidrRange: data["ip_cidr_range"].(string),
+		}
+
+		secondaryRanges = append(secondaryRanges, &secondaryRange)
+	}
+	return secondaryRanges
+}
+
+func flattenSecondaryRanges(secondaryRanges []*computeBeta.SubnetworkSecondaryRange) []map[string]interface{} {
+	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
+	for _, secondaryRange := range secondaryRanges {
+		data := map[string]interface{}{
+			"range_name":    secondaryRange.RangeName,
+			"ip_cidr_range": secondaryRange.IpCidrRange,
+		}
+
+		secondaryRangesSchema = append(secondaryRangesSchema, data)
+	}
+	return secondaryRangesSchema
 }
