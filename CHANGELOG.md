@@ -19,6 +19,7 @@ IMPROVEMENTS:
 * compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
 * compute: Add support for `subnetwork` as a self_link to `google_compute_instance`. [GH-290]
+* compute: Add support for `secondary_ip_range` to `google_compute_subnetwork`. [GH-310]
 * compute: Add support for multiple `network_interface`'s to `google_compute_instance`. [GH-289]
 * compute: Add support for `denied` to `google_compute_firewall` [GH-282]
 * compute: Add support for egress traffic using `direction` to `google_compute_firewall` [GH-306]
