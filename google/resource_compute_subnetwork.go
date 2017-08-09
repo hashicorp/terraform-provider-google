@@ -338,6 +338,10 @@ func createBetaSubnetID(s *computeBeta.Subnetwork) string {
 	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }
 
+func createSubnetID(s *compute.Subnetwork) string {
+	return fmt.Sprintf("%s/%s", s.Region, s.Name)
+}
+
 func splitSubnetID(id string) (region string, name string) {
 	parts := strings.Split(id, "/")
 	region = parts[0]

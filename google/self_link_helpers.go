@@ -28,7 +28,7 @@ func compareSelfLinkRelativePaths(k, old, new string, d *schema.ResourceData) bo
 	return false
 }
 
-// This method should only be used if the self link references a global resource.
+// Use this method when the field accepts either a name or a self_link referencing a global resource.
 func compareSelfLinkResourceNames(k, old, new string, d *schema.ResourceData) bool {
 	oldParts := strings.Split(old, "/")
 	newParts := strings.Split(new, "/")
