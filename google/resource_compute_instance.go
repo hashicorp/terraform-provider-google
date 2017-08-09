@@ -69,9 +69,9 @@ func resourceComputeInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 

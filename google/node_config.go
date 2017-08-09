@@ -23,18 +23,18 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"disk_size_gb": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(10),
 			},
 
 			"local_ssd_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 

@@ -7,8 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/container/v1"
 	"github.com/hashicorp/terraform/helper/validation"
+	"google.golang.org/api/container/v1"
 )
 
 func resourceContainerNodePool() *schema.Resource {
@@ -74,14 +74,14 @@ func resourceContainerNodePool() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"min_node_count": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Required:     true,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"max_node_count": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Required:     true,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 					},
