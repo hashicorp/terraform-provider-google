@@ -9,10 +9,6 @@
 			"revisionTime": "2017-08-09T01:33:40Z"
 		},
 		{
-			"path": "cloud.google.com/go/bigtable/admin",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "B1HkIrBavSgy6ntVyGr/eNUy44I=",
 			"path": "cloud.google.com/go/bigtable/internal/gax",
 			"revision": "69931d826ffbbcb4f8451b42d5cf7fc2ac6c7443",
