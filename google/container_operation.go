@@ -33,6 +33,10 @@ func (w *ContainerOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 			return nil, "", err
 		}
 
+		if resp.StatusMessage != "" {
+			return resp, resp.Status, fmt.Errorf(resp.StatusMessage)
+		}
+
 		log.Printf("[DEBUG] Progress of operation %q: %q", w.Op.Name, resp.Status)
 
 		return resp, resp.Status, err
