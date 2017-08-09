@@ -48,7 +48,7 @@ func resourceBigtableInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      3,
-				ValidateFunc: IntAtLeast(3),
+				ValidateFunc: validation.IntAtLeast(3),
 			},
 
 			"storage_type": {
@@ -171,23 +171,4 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	d.SetId("")
 
 	return nil
-}
-
-// IntAtLeast returns a SchemaValidateFunc which tests if the provided value
-// is of type int and is above min (inclusive)
-func IntAtLeast(min int) schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (s []string, es []error) {
-		v, ok := i.(int)
-		if !ok {
-			es = append(es, fmt.Errorf("expected type of %s to be int", k))
-			return
-		}
-
-		if v < min {
-			es = append(es, fmt.Errorf("expected %s to be at least %d, got %d", k, min, v))
-			return
-		}
-
-		return
-	}
 }
