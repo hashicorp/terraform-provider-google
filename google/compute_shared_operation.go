@@ -18,7 +18,7 @@ func computeSharedOperationWaitTime(config *Config, op interface{}, project stri
 	case *compute.Operation:
 		return computeOperationWaitTime(config, op.(*compute.Operation), project, activity, minutes)
 	case *computeBeta.Operation:
-		return computeBetaOperationWaitGlobalTime(config, op.(*computeBeta.Operation), project, activity, minutes)
+		return computeBetaOperationWaitTime(config, op.(*computeBeta.Operation), project, activity, minutes)
 	default:
 		panic("Attempted to wait on an Operation of unknown type.")
 	}
