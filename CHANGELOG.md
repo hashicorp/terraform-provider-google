@@ -1,6 +1,7 @@
 ## 0.1.3 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
+* compute: `automatic_restart` and `on_host_maintenance` have been removed from `google_compute_instance_template`. Use `scheduling.automatic_restart` or `scheduling.on_host_maintenance` instead. [GH-224]
 
 FEATURES:
 * **New Data Source:** `google_dns_managed_zone` [GH-268]
@@ -33,6 +34,7 @@ BUG FIXES:
 * compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
 * compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
 * compute: `google_compute_instance` reads `scheduling` fields from GCP [GH-237]
+* compute: Fix bug where `scheduling.automatic_restart` set to false on `google_compute_instance_template` would force recreate [GH-224]
 * container: Fix error if `google_container_node_pool` deleted out of band [GH-293]
 * container: Fail when both name and name_prefix are set for node_pool in `google_container_cluster` [GH-296]
 * container: Allow upgrading GKE versions and provide better error message handling [GH-291]
