@@ -137,7 +137,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			"automatic_restart": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
 				ForceNew: true,
 				Removed:  "Use 'scheduling.automatic_restart' instead.",
 			},
