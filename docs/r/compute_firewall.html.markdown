@@ -61,14 +61,14 @@ The following arguments are supported:
 
 - - -
 
-* `deny` - (Optional, Beta) Can be specified multiple times for each deny
+* `deny` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Can be specified multiple times for each deny
     rule. Each deny block supports fields documented below. Can be specified
     instead of allow.
 
-* `direction` - (Optional, Beta) Direction of traffic to which this firewall applies;
+* `direction` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Direction of traffic to which this firewall applies;
     One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
 
-* `destination_ranges` - (Optional, Beta) A list of destination CIDR ranges that this
+* `destination_ranges` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of destination CIDR ranges that this
    firewall applies to. Can't be used for `INGRESS`.
 
 The `allow` block supports:
