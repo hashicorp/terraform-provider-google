@@ -224,7 +224,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	switch computeApiVersion {
 	case v1:
 		managerV1 := &compute.InstanceGroupManager{}
-		err := Convert(manager, managerV1)
+		err = Convert(manager, managerV1)
 		if err != nil {
 			return err
 		}
@@ -234,7 +234,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 			project, d.Get("zone").(string), managerV1).Do()
 	case v0beta:
 		managerV0beta := &computeBeta.InstanceGroupManager{}
-		err := Convert(manager, managerV0beta)
+		err = Convert(manager, managerV0beta)
 		if err != nil {
 			return err
 		}
@@ -416,7 +416,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setTargetPoolsV1 := &compute.InstanceGroupManagersSetTargetPoolsRequest{}
-			err := Convert(setTargetPools, setTargetPoolsV1)
+			err = Convert(setTargetPools, setTargetPoolsV1)
 			if err != nil {
 				return err
 			}
@@ -425,7 +425,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setTargetPoolsV1).Do()
 		case v0beta:
 			setTargetPoolsV0beta := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{}
-			err := Convert(setTargetPools, setTargetPoolsV0beta)
+			err = Convert(setTargetPools, setTargetPoolsV0beta)
 			if err != nil {
 				return err
 			}
@@ -458,7 +458,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setInstanceTemplateV1 := &compute.InstanceGroupManagersSetInstanceTemplateRequest{}
-			err := Convert(setInstanceTemplate, setInstanceTemplateV1)
+			err = Convert(setInstanceTemplate, setInstanceTemplateV1)
 			if err != nil {
 				return err
 			}
@@ -467,7 +467,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV1).Do()
 		case v0beta:
 			setInstanceTemplateV0beta := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{}
-			err := Convert(setInstanceTemplate, setInstanceTemplateV0beta)
+			err = Convert(setInstanceTemplate, setInstanceTemplateV0beta)
 			if err != nil {
 				return err
 			}
@@ -527,7 +527,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			switch computeApiVersion {
 			case v1:
 				recreateInstancesV1 := &compute.InstanceGroupManagersRecreateInstancesRequest{}
-				err := Convert(recreateInstances, recreateInstancesV1)
+				err = Convert(recreateInstances, recreateInstancesV1)
 				if err != nil {
 					return err
 				}
@@ -539,7 +539,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 			case v0beta:
 				recreateInstancesV0beta := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{}
-				err := Convert(recreateInstances, recreateInstancesV0beta)
+				err = Convert(recreateInstances, recreateInstancesV0beta)
 				if err != nil {
 					return err
 				}
@@ -576,7 +576,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setNamedPortsV1 := &compute.InstanceGroupsSetNamedPortsRequest{}
-			err := Convert(setNamedPorts, setNamedPortsV1)
+			err = Convert(setNamedPorts, setNamedPortsV1)
 			if err != nil {
 				return err
 			}
@@ -585,7 +585,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setNamedPortsV1).Do()
 		case v0beta:
 			setNamedPortsV0beta := &computeBeta.InstanceGroupsSetNamedPortsRequest{}
-			err := Convert(setNamedPorts, setNamedPortsV0beta)
+			err = Convert(setNamedPorts, setNamedPortsV0beta)
 			if err != nil {
 				return err
 			}

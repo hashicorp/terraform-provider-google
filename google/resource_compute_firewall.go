@@ -189,7 +189,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	switch computeApiVersion {
 	case v1:
 		firewallV1 := &compute.Firewall{}
-		err := Convert(firewall, firewallV1)
+		err = Convert(firewall, firewallV1)
 		if err != nil {
 			return err
 		}
@@ -200,7 +200,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	case v0beta:
 		firewallV0Beta := &computeBeta.Firewall{}
-		err := Convert(firewall, firewallV0Beta)
+		err = Convert(firewall, firewallV0Beta)
 		if err != nil {
 			return err
 		}
@@ -322,7 +322,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	switch computeApiVersion {
 	case v1:
 		firewallV1 := &compute.Firewall{}
-		err := Convert(firewall, firewallV1)
+		err = Convert(firewall, firewallV1)
 		if err != nil {
 			return err
 		}
@@ -333,7 +333,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	case v0beta:
 		firewallV0Beta := &computeBeta.Firewall{}
-		err := Convert(firewall, firewallV0Beta)
+		err = Convert(firewall, firewallV0Beta)
 		if err != nil {
 			return err
 		}
