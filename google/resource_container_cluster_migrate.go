@@ -21,6 +21,9 @@ func resourceContainerClusterMigrateState(
 	case 0:
 		log.Println("[INFO] Found Container Cluster State v0; migrating to v1")
 		return migrateClusterStateV0toV1(is)
+	case 1:
+		log.Println("[INFO] Found Container Cluster State v1; migrating to v2")
+		return migrateClusterStateV1toV2(is)
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
 	}
@@ -63,6 +66,26 @@ func migrateClusterStateV0toV1(is *terraform.InstanceState) (*terraform.Instance
 		hash := schema.HashString(v)
 		newKey := fmt.Sprintf("additional_zones.%d", hash)
 		is.Attributes[newKey] = v
+	}
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
+	return is, nil
+}
+
+func migrateClusterStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
+
+	for k, v := range is.Attributes {
+		if !strings.HasPrefix(k, "node_pool.") {
+			continue
+		}
+		if !strings.HasSuffix(k, ".initial_node_count") {
+			continue
+		}
+
+		is.Attributes[strings.Replace(k, "initial_node_count", "node_count", 1)] = v
+
+		delete(is.Attributes, k)
 	}
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
