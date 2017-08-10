@@ -14,14 +14,14 @@ import (
 type ComputeApiGenVersion int
 
 const (
-	none ComputeApiGenVersion = iota
-	v1
-	v0beta
+	apivNone ComputeApiGenVersion = iota
+	apiv1
+	apiV0beta
 )
 
 var OrderedComputeApiVersions = []ComputeApiGenVersion{
-	v0beta,
-	v1,
+	apiV0beta,
+	apiv1,
 }
 
 type VersionInfo struct {
@@ -74,20 +74,20 @@ func main() {
 		log.Fatal("scope must be `region` or `zone`.")
 	}
 
-	lowestVersion := v1
+	lowestVersion := apiv1
 	if !(*lowestVersionFlag == "v1" || *lowestVersionFlag == "v0beta") {
-		log.Fatal("lowestversion must be `v1` or `v0beta`.")
+		log.Fatal("lowestversion must be `apiv1` or `v0beta`.")
 	} else if *lowestVersionFlag == "v0beta" {
-		lowestVersion = v0beta
+		lowestVersion = apiV0beta
 	}
 
-	updateVersion := none
+	updateVersion := apivNone
 	if *updateVersionFlag != "" && !(*updateVersionFlag == "v1" || *updateVersionFlag == "v0beta") {
 		log.Fatal("updateversion must be `v1` or `v0beta`.")
 	} else if *updateVersionFlag == "v0beta" {
-		updateVersion = v0beta
+		updateVersion = apiV0beta
 	} else if *updateVersionFlag == "v1" {
-		updateVersion = v1
+		updateVersion = apiv1
 	}
 
 	// This is the information we would expect users to provide
@@ -134,7 +134,7 @@ func main() {
 		clientNameSuffix := ""
 		serviceName := "v1"
 
-		if version == v0beta {
+		if version == apiV0beta {
 			clientNameSuffix = "Beta"
 			serviceName = "v0beta"
 		}
@@ -146,12 +146,12 @@ func main() {
 	}
 
 	// If a resource can be updated, add information about how to update it
-	if normalisedData.UpdateVersion != none {
+	if normalisedData.UpdateVersion != apivNone {
 		for _, version := range OrderedComputeApiVersions {
 			clientNameSuffix := ""
 			serviceName := "v1"
 
-			if version == v0beta {
+			if version == apiV0beta {
 				clientNameSuffix = "Beta"
 				serviceName = "v0beta"
 			}
@@ -184,7 +184,10 @@ func main() {
 
 	buf := &bytes.Buffer{}
 	t := template.Must(template.New("temp").Parse(multiversionServiceTemplate))
-	t.Execute(buf, templateData)
+	err = t.Execute(buf, templateData)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmtd, err := format.Source(buf.Bytes())
 	if err != nil {
