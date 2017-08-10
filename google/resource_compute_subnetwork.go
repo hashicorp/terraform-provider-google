@@ -141,7 +141,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	switch computeApiVersion {
 	case v1:
 		subnetworkV1 := &compute.Subnetwork{}
-		err := Convert(subnetwork, subnetworkV1)
+		err = Convert(subnetwork, subnetworkV1)
 		if err != nil {
 			return err
 		}
@@ -249,7 +249,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		switch computeApiVersion {
 		case v1:
 			subnetworksSetPrivateIpGoogleAccessRequestV1 := &compute.SubnetworksSetPrivateIpGoogleAccessRequest{}
-			err := Convert(subnetworksSetPrivateIpGoogleAccessRequest, subnetworksSetPrivateIpGoogleAccessRequestV1)
+			err = Convert(subnetworksSetPrivateIpGoogleAccessRequest, subnetworksSetPrivateIpGoogleAccessRequestV1)
 			if err != nil {
 				return err
 			}
