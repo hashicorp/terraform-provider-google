@@ -301,9 +301,10 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 			}
 			for _, disk := range i.Disks {
 				if disk.Source == self {
+					zoneParts := strings.Split(i.Zone, "/")
 					detachCalls = append(detachCalls, detachArgs{
 						project:    project,
-						zone:       i.Zone,
+						zone:       zoneParts[len(zoneParts)-1],
 						instance:   i.Name,
 						deviceName: disk.DeviceName,
 					})
