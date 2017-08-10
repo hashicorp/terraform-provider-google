@@ -10,7 +10,7 @@ description: |-
 
 Manages a health check within GCE. This is used to monitor instances
 behind load balancers. Timeouts or HTTP errors cause the instance to be
-removed from the pool. This cannot be used with GCE `TargetPools` as they only support `HttpHealthChecks`. For more information, see [the official
+removed from the pool. Be aware that if you're managing a [Network Load Balancer](https://cloud.google.com/compute/docs/load-balancing/network/), you must use one of `google_compute_http_health_check` or `google_compute_https_health_check` instead of this resource. For more about this, see [Legacy Health Checks](https://cloud.google.com/compute/docs/load-balancing/health-checks#legacy_health_checks). For more information, see [the official
 documentation](https://cloud.google.com/compute/docs/load-balancing/health-checks)
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/healthChecks).
