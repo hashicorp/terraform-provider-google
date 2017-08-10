@@ -1,9 +1,8 @@
 package google
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 var schemaNodeConfig = &schema.Schema{
@@ -22,35 +21,19 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"disk_size_gb": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-
-					if value < 10 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be less than 10", k))
-					}
-					return
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(10),
 			},
 
 			"local_ssd_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-
-					if value < 0 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be negative", k))
-					}
-					return
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
 			},
 
 			"oauth_scopes": {
