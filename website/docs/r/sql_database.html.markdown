@@ -8,7 +8,10 @@ description: |-
 
 # google\_sql\_database
 
-Creates a new Google SQL Database on a Google SQL Database Instance. For more information, see the [official documentation](https://cloud.google.com/sql/), or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/databases).
+Creates a new Google SQL Database on a Google SQL Database Instance. For more information, see
+the [official documentation](https://cloud.google.com/sql/),
+or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/databases).
+Postgres support for `google_sql_database` is in [Beta](/docs/providers/google/index.html#beta-features).
 
 ## Example Usage
 
@@ -44,23 +47,17 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `charset` - (Optional) The charset value. See MySQL's [Supported Character
-    Sets and
-    Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
-    and PostgreSQL's [Character Set
-    Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
-    for more details and supported values. Note that Cloud SQL's beta
-    offering for PostgreSQL databases currently only supports the charset value
-    `UTF8`.
+* `charset` - (Optional) The charset value. See MySQL's
+    [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+    and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
+    for more details and supported values. Postgres databases are in [Beta](/docs/providers/google/index.html#beta-features),
+    and have limited `charset` support; they only support a value of `UTF8` at creation time.
 
-* `collation` - (Optional) The collation value. See MySQL's [Supported Character
-    Sets and
-    Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
-    and PostgreSQL's [Collation
-    Support](https://www.postgresql.org/docs/9.6/static/collation.html) for
-    more details and supported values. Note that Cloud SQL's beta
-    offering for PostgreSQL databases currently only supports the collation
-    value `en_US.UTF8`.
+* `collation` - (Optional) The collation value. See MySQL's
+    [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+    and Postgres' [Collation Support](https://www.postgresql.org/docs/9.6/static/collation.html)
+    for more details and supported values. Postgres databases are in [Beta](/docs/providers/google/index.html#beta-features),
+    and have limited `collation` support; they only support a value of `en_US.UTF8` at creation time.
 
 ## Attributes Reference
 

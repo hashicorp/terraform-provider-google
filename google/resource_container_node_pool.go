@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
 )
 
@@ -73,29 +74,15 @@ func resourceContainerNodePool() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"min_node_count": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-
-								if value < 1 {
-									errors = append(errors, fmt.Errorf("%q must be >=1", k))
-								}
-								return
-							},
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"max_node_count": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-
-								if value < 1 {
-									errors = append(errors, fmt.Errorf("%q must be >=1", k))
-								}
-								return
-							},
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 					},
 				},
@@ -131,65 +118,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if v, ok := d.GetOk("node_config"); ok {
-		nodeConfigs := v.([]interface{})
-		nodeConfig := nodeConfigs[0].(map[string]interface{})
-
-		nodePool.Config = &container.NodeConfig{}
-
-		if v, ok = nodeConfig["machine_type"]; ok {
-			nodePool.Config.MachineType = v.(string)
-		}
-
-		if v, ok = nodeConfig["disk_size_gb"]; ok {
-			nodePool.Config.DiskSizeGb = int64(v.(int))
-		}
-
-		if v, ok = nodeConfig["local_ssd_count"]; ok {
-			nodePool.Config.LocalSsdCount = int64(v.(int))
-		}
-
-		if v, ok := nodeConfig["oauth_scopes"]; ok {
-			scopesList := v.([]interface{})
-			scopes := []string{}
-			for _, v := range scopesList {
-				scopes = append(scopes, canonicalizeServiceScope(v.(string)))
-			}
-
-			nodePool.Config.OauthScopes = scopes
-		}
-
-		if v, ok = nodeConfig["service_account"]; ok {
-			nodePool.Config.ServiceAccount = v.(string)
-		}
-
-		if v, ok = nodeConfig["metadata"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			nodePool.Config.Metadata = m
-		}
-
-		if v, ok = nodeConfig["image_type"]; ok {
-			nodePool.Config.ImageType = v.(string)
-		}
-
-		if v, ok = nodeConfig["labels"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			nodePool.Config.Labels = m
-		}
-
-		if v, ok := nodeConfig["tags"]; ok {
-			tagsList := v.([]interface{})
-			tags := []string{}
-			for _, v := range tagsList {
-				tags = append(tags, v.(string))
-			}
-			nodePool.Config.Tags = tags
-		}
+		nodePool.Config = expandNodeConfig(v)
 	}
 
 	if v, ok := d.GetOk("autoscaling"); ok {

@@ -35,8 +35,8 @@ is not provided, the provider project is used.
 
 - - -
 
-* `ip_version` - (Optional, Beta) The IP Version that will be used by this address.
-One of `"IPV4"` or `"IPV6"`.
+* `ip_version` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+The IP Version that will be used by this address. One of `"IPV4"` or `"IPV6"`.
 
 ## Attributes Reference
 

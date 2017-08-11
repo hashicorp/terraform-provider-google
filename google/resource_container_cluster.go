@@ -254,6 +254,8 @@ func resourceContainerCluster() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"node_config": schemaNodeConfig,
 					},
 				},
 			},
@@ -364,65 +366,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if v, ok := d.GetOk("node_config"); ok {
-		nodeConfigs := v.([]interface{})
-		nodeConfig := nodeConfigs[0].(map[string]interface{})
-
-		cluster.NodeConfig = &container.NodeConfig{}
-
-		if v, ok = nodeConfig["machine_type"]; ok {
-			cluster.NodeConfig.MachineType = v.(string)
-		}
-
-		if v, ok = nodeConfig["disk_size_gb"]; ok {
-			cluster.NodeConfig.DiskSizeGb = int64(v.(int))
-		}
-
-		if v, ok = nodeConfig["local_ssd_count"]; ok {
-			cluster.NodeConfig.LocalSsdCount = int64(v.(int))
-		}
-
-		if v, ok := nodeConfig["oauth_scopes"]; ok {
-			scopesList := v.([]interface{})
-			scopes := []string{}
-			for _, v := range scopesList {
-				scopes = append(scopes, canonicalizeServiceScope(v.(string)))
-			}
-
-			cluster.NodeConfig.OauthScopes = scopes
-		}
-
-		if v, ok = nodeConfig["service_account"]; ok {
-			cluster.NodeConfig.ServiceAccount = v.(string)
-		}
-
-		if v, ok = nodeConfig["metadata"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Metadata = m
-		}
-
-		if v, ok = nodeConfig["image_type"]; ok {
-			cluster.NodeConfig.ImageType = v.(string)
-		}
-
-		if v, ok = nodeConfig["labels"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Labels = m
-		}
-
-		if v, ok := nodeConfig["tags"]; ok {
-			tagsList := v.([]interface{})
-			tags := []string{}
-			for _, v := range tagsList {
-				tags = append(tags, v.(string))
-			}
-			cluster.NodeConfig.Tags = tags
-		}
+		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
 	nodePoolsCount := d.Get("node_pool.#").(int)
@@ -440,6 +384,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			nodePool := &container.NodePool{
 				Name:             name,
 				InitialNodeCount: int64(nodeCount),
+			}
+
+			if v, ok := d.GetOk(prefix + ".node_config"); ok {
+				nodePool.Config = expandNodeConfig(v)
 			}
 
 			nodePools = append(nodePools, nodePool)
@@ -741,6 +689,7 @@ func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []
 			"name":               np.Name,
 			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
 			"initial_node_count": np.InitialNodeCount,
+			"node_config":        flattenClusterNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}

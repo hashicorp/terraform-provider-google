@@ -60,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":             dataSourceGoogleComputeZones(),
+			"google_compute_instance_group":    dataSourceGoogleComputeInstanceGroup(),
 			"google_container_engine_versions": dataSourceGoogleContainerEngineVersions(),
 			"google_iam_policy":                dataSourceGoogleIamPolicy(),
 			"google_storage_object_signed_url": dataSourceGoogleSignedUrl(),

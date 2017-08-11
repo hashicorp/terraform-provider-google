@@ -1,8 +1,10 @@
 ## 0.1.3 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
+* compute: `automatic_restart` and `on_host_maintenance` have been removed from `google_compute_instance_template`. Use `scheduling.automatic_restart` or `scheduling.on_host_maintenance` instead. [GH-224]
 
 FEATURES:
+* **New Data Source:** `google_compute_instance_group` [GH-267]
 * **New Data Source:** `google_dns_managed_zone` [GH-268]
 * **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
@@ -18,12 +20,14 @@ IMPROVEMENTS:
 * compute: Add support for `ip_version` to `google_compute_global_forwarding_rule` [GH-265]
 * compute: Add support for `ip_version` to `google_compute_global_address` [GH-250]
 * compute: Add support for `subnetwork` as a self_link to `google_compute_instance`. [GH-290]
+* compute: Add support for `secondary_ip_range` to `google_compute_subnetwork`. [GH-310]
 * compute: Add support for multiple `network_interface`'s to `google_compute_instance`. [GH-289]
 * compute: Add support for `denied` to `google_compute_firewall` [GH-282]
 * compute: Add support for egress traffic using `direction` to `google_compute_firewall` [GH-306]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
+* container: Allow configuring node_config of node_pools specified in `google_container_cluster` [GH-299]
 * sql: Persist state from the API for `google_sql_database_instance` regardless of what attributes the user has set [GH-208]
 * storage: Buckets now can have lifecycle properties ([#6](https://github.com/terraform-providers/terraform-provider-google/pull/6))
 
@@ -33,6 +37,7 @@ BUG FIXES:
 * compute: Fix disk type "Malformed URL" error on `google_compute_instance` boot disks [GH-275]
 * compute: Refresh `google_compute_autoscaler` using the `zone` set in state instead of scanning for the first one with a matching name in the provider region. [GH-193]
 * compute: `google_compute_instance` reads `scheduling` fields from GCP [GH-237]
+* compute: Fix bug where `scheduling.automatic_restart` set to false on `google_compute_instance_template` would force recreate [GH-224]
 * container: Fix error if `google_container_node_pool` deleted out of band [GH-293]
 * container: Fail when both name and name_prefix are set for node_pool in `google_container_cluster` [GH-296]
 * container: Allow upgrading GKE versions and provide better error message handling [GH-291]
