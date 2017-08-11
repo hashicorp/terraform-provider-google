@@ -300,6 +300,23 @@ func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolNodeConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_node_pool_node_config"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -402,6 +419,19 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			clusterTests = append(clusterTests,
 				clusterTestField{prefix + "name", np.Name},
 				clusterTestField{prefix + "initial_node_count", strconv.FormatInt(np.InitialNodeCount, 10)})
+			if np.Config != nil {
+				clusterTests = append(clusterTests,
+					clusterTestField{prefix + "node_config.0.machine_type", np.Config.MachineType},
+					clusterTestField{prefix + "node_config.0.disk_size_gb", strconv.FormatInt(np.Config.DiskSizeGb, 10)},
+					clusterTestField{prefix + "node_config.0.local_ssd_count", strconv.FormatInt(np.Config.LocalSsdCount, 10)},
+					clusterTestField{prefix + "node_config.0.oauth_scopes", np.Config.OauthScopes},
+					clusterTestField{prefix + "node_config.0.service_account", np.Config.ServiceAccount},
+					clusterTestField{prefix + "node_config.0.metadata", np.Config.Metadata},
+					clusterTestField{prefix + "node_config.0.image_type", np.Config.ImageType},
+					clusterTestField{prefix + "node_config.0.labels", np.Config.Labels},
+					clusterTestField{prefix + "node_config.0.tags", np.Config.Tags})
+
+			}
 		}
 
 		for _, attrs := range clusterTests {
@@ -851,3 +881,38 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		initial_node_count = 1
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+
+func testAccContainerCluster_withNodePoolNodeConfig() string {
+	testId := acctest.RandString(10)
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_node_config" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+	node_pool {
+		name = "tf-cluster-nodepool-test-%s"
+		initial_node_count = 2
+		node_config {
+			machine_type = "n1-standard-1"
+			disk_size_gb = 15
+			local_ssd_count = 1
+			oauth_scopes = [
+				"https://www.googleapis.com/auth/compute",
+				"https://www.googleapis.com/auth/devstorage.read_only",
+				"https://www.googleapis.com/auth/logging.write",
+				"https://www.googleapis.com/auth/monitoring"
+			]
+			service_account = "default"
+			metadata {
+				foo = "bar"
+			}
+			image_type = "CONTAINER_VM"
+			labels {
+				foo = "bar"
+			}
+			tags = ["foo", "bar"]
+		}
+	}
+
+}
+`, testId, testId)
+}
