@@ -69,16 +69,10 @@ func resourceComputeInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											if v.(int) < 1 {
-												errors = append(errors, fmt.Errorf(
-													"%q must be greater than 0", k))
-											}
-											return
-										},
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 
 									"type": &schema.Schema{
