@@ -1,6 +1,7 @@
 ## 0.1.3 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
+* bigtable: `num_nodes` in `google_bigtable_instance` no longer defaults to `3`; if you used that default, it will need to be explicitly set. [GH-313]
 * compute: `automatic_restart` and `on_host_maintenance` have been removed from `google_compute_instance_template`. Use `scheduling.automatic_restart` or `scheduling.on_host_maintenance` instead. [GH-224]
 
 FEATURES:
