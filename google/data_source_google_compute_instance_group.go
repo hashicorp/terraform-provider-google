@@ -44,12 +44,12 @@ func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 
 						"port": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Computed: true,
 						},
 					},
 				},
