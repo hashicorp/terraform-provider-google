@@ -106,11 +106,10 @@ func testAccBigtableTableExists(n string) resource.TestCheckFunc {
 func testAccBigtableTable(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name         = "%s"
-  cluster_id   = "%s"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name          = "%s"
+  cluster_id    = "%s"
+  zone          = "us-central1-b"
+  instance_type = "DEVELOPMENT"
 }
 
 resource "google_bigtable_table" "table" {
@@ -123,11 +122,10 @@ resource "google_bigtable_table" "table" {
 func testAccBigtableTable_splitKeys(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name         = "%s"
-  cluster_id   = "%s"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name          = "%s"
+  cluster_id    = "%s"
+  zone          = "us-central1-b"
+  instance_type = "DEVELOPMENT"
 }
 
 resource "google_bigtable_table" "table" {
