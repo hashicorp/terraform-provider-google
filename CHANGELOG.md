@@ -4,6 +4,7 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 * compute: `automatic_restart` and `on_host_maintenance` have been removed from `google_compute_instance_template`. Use `scheduling.automatic_restart` or `scheduling.on_host_maintenance` instead. [GH-224]
 
 FEATURES:
+* **New Data Source:** `google_compute_instance_group` [GH-267]
 * **New Data Source:** `google_dns_managed_zone` [GH-268]
 * **New Resource:** `google_compute_project_metadata_item` - allows management of single key/value pairs within the project metadata map [GH-176]
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
