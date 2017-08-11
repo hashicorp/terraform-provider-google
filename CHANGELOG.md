@@ -13,6 +13,7 @@ FEATURES:
 * **New Resource:** `google_sourcerepo_repository` - allows creating and deleting Google Source Repositories [GH-256]
 
 IMPROVEMENTS:
+* bigtable: Add support for `instance_type` to `google_bigtable_instance`. [GH-313]
 * compute: Add import support for `google_compute_subnetwork` ([#227](https://github.com/terraform-providers/terraform-provider-google/issues/227))
 * compute: Add import support for `google_container_node_pool` [GH-284]
 * compute: Change google_container_node_pool ID format to zone/cluster/name to remove artificial restriction on node pool name across clusters [GH-304]
