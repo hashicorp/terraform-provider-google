@@ -53,7 +53,10 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-No additional attributes are computed other than those defined above.
+In addition to the arguments listed above, the following computed attributes are
+exported:
+
+* `state` - The current state of the instance.
 
 ## Import
 

@@ -91,6 +91,11 @@ func resourceSpannerInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -163,6 +168,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("labels", instance.Labels)
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
+	d.Set("state", instance.State)
 
 	return nil
 }

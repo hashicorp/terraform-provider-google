@@ -155,6 +155,7 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("google_spanner_instance.basic", "name", idName),
 					resource.TestCheckResourceAttr("google_spanner_instance.basic", "display_name", idName+"-dname"),
 					resource.TestCheckResourceAttr("google_spanner_instance.basic", "num_nodes", "1"),
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
 				),
 			},
 		},
