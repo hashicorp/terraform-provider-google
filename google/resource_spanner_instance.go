@@ -202,6 +202,9 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	uir.FieldMask = strings.Join(fieldMask, ",")
 	op, err := config.clientSpanner.Projects.Instances.Patch(
 		id.instanceUri(), uir).Do()
+	if err != nil {
+		return err
+	}
 
 	// Wait until it's updated
 	timeoutMins := int(d.Timeout(schema.TimeoutUpdate).Minutes())
