@@ -100,6 +100,7 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 					testAccCheckSpannerDatabaseExists("google_spanner_database.basic", &db),
 
 					resource.TestCheckResourceAttr("google_spanner_database.basic", "name", "my-db-"+rnd),
+					resource.TestCheckResourceAttrSet("google_spanner_database.basic", "state"),
 				),
 			},
 		},
@@ -208,7 +209,7 @@ func testAccCheckSpannerDatabaseExists(n string, instance *spanner.Database) res
 			return err
 		}
 
-		fName := extractInstanceNameFromApi(found.Name)
+		fName := extractInstanceNameFromUri(found.Name)
 		if fName != id.Database {
 			return fmt.Errorf("Spanner database %s not found, found %s instead", id.Database, fName)
 		}

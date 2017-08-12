@@ -69,6 +69,11 @@ func resourceSpannerDatabase() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -119,13 +124,13 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	_, err = config.clientSpanner.Projects.Instances.Databases.Get(
+	db, err := config.clientSpanner.Projects.Instances.Databases.Get(
 		id.databaseUri()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Spanner database %q", id.databaseUri()))
 	}
 
-	d.SetId(id.terraformId())
+	d.Set("state", db.State)
 	return nil
 }
 
