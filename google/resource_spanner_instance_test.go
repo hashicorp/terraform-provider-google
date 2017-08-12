@@ -17,26 +17,26 @@ import (
 
 // Unit Tests
 
-func TestExtractInstanceConfigFromApi_withFullPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("projects/project123/instanceConfigs/conf987")
+func TestExtractInstanceConfigFromUri_withFullPath(t *testing.T) {
+	actual := extractInstanceConfigFromUri("projects/project123/instanceConfigs/conf987")
 	expected := "conf987"
 	expectEquals(t, expected, actual)
 }
 
-func TestExtractInstanceConfigFromApi_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("conf987")
+func TestExtractInstanceConfigFromUri_withNoPath(t *testing.T) {
+	actual := extractInstanceConfigFromUri("conf987")
 	expected := "conf987"
 	expectEquals(t, expected, actual)
 }
 
-func TestExtractInstanceNameFromApi_withFullPath(t *testing.T) {
-	actual := extractInstanceNameFromApi("projects/project123/instances/instance456")
+func TestExtractInstanceNameFromUri_withFullPath(t *testing.T) {
+	actual := extractInstanceNameFromUri("projects/project123/instances/instance456")
 	expected := "instance456"
 	expectEquals(t, expected, actual)
 }
 
-func TestExtractInstanceNameFromApi_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromApi("instance456")
+func TestExtractInstanceNameFromUri_withNoPath(t *testing.T) {
+	actual := extractInstanceConfigFromUri("instance456")
 	expected := "instance456"
 	expectEquals(t, expected, actual)
 }
@@ -207,7 +207,7 @@ func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
 	})
 }
 
-func TestAccSpannerInstance_updateDisplayNameAndNodes(t *testing.T) {
+func TestAccSpannerInstance_update(t *testing.T) {
 	var instance spanner.Instance
 	rnd := acctest.RandString(10)
 	dName1 := fmt.Sprintf("spanner-dname1-%s", rnd)
@@ -218,19 +218,21 @@ func TestAccSpannerInstance_updateDisplayNameAndNodes(t *testing.T) {
 		CheckDestroy: testAccCheckSpannerInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSpannerInstance_updateDisplayNameAndNodes(dName1, 1),
+				Config: testAccSpannerInstance_update(dName1, 1, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSpannerInstanceExists("google_spanner_instance.updater", &instance),
 					resource.TestCheckResourceAttr("google_spanner_instance.updater", "display_name", dName1),
 					resource.TestCheckResourceAttr("google_spanner_instance.updater", "num_nodes", "1"),
+					resource.TestCheckResourceAttr("google_spanner_instance.updater", "labels.%", "1"),
 				),
 			},
 			{
-				Config: testAccSpannerInstance_updateDisplayNameAndNodes(dName2, 2),
+				Config: testAccSpannerInstance_update(dName2, 2, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSpannerInstanceExists("google_spanner_instance.updater", &instance),
 					resource.TestCheckResourceAttr("google_spanner_instance.updater", "display_name", dName2),
 					resource.TestCheckResourceAttr("google_spanner_instance.updater", "num_nodes", "2"),
+					resource.TestCheckResourceAttr("google_spanner_instance.updater", "labels.%", "2"),
 				),
 			},
 		},
@@ -297,8 +299,8 @@ func testAccCheckSpannerInstanceExists(n string, instance *spanner.Instance) res
 			return err
 		}
 
-		fName := extractInstanceNameFromApi(found.Name)
-		if fName != extractInstanceNameFromApi(rs.Primary.ID) {
+		fName := extractInstanceNameFromUri(found.Name)
+		if fName != extractInstanceNameFromUri(rs.Primary.ID) {
 			return fmt.Errorf("Spanner instance %s not found, found %s instead", rs.Primary.ID, fName)
 		}
 
@@ -366,12 +368,22 @@ resource "google_spanner_instance" "basic2" {
 `, testAccSpannerInstance_duplicateNameError_part1(name), name, name)
 }
 
-func testAccSpannerInstance_updateDisplayNameAndNodes(name string, nodes int) string {
+func testAccSpannerInstance_update(name string, nodes int, addLabel bool) string {
+
+	extraLabel := ""
+	if addLabel {
+		extraLabel = "\"key2\" = \"value2\""
+	}
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "updater" {
   config        = "regional-us-central1"
   display_name  = "%s"
   num_nodes     = %d
+
+  labels {
+     "key1" = "value1"
+     %s
+  }
 }
-`, name, nodes)
+`, name, nodes, extraLabel)
 }

@@ -49,6 +49,8 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+* `labels` - (Optional) A mapping (key/value pairs) of labels to assign to the instance.
+
 ## Attributes Reference
 
 No additional attributes are computed other than those defined above.

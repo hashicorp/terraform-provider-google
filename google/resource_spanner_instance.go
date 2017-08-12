@@ -83,7 +83,6 @@ func resourceSpannerInstance() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -110,11 +109,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if v, ok := d.GetOk("labels"); ok {
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
-		}
-		cir.Instance.Labels = m
+		cir.Instance.Labels = convertStringMap(v.(map[string]interface{}))
 	}
 
 	id, err := buildSpannerInstanceId(d, config)
@@ -164,11 +159,10 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %s", id.terraformId()))
 	}
 
-	d.Set("config", extractInstanceConfigFromApi(instance.Config))
+	d.Set("config", extractInstanceConfigFromUri(instance.Config))
 	d.Set("labels", instance.Labels)
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
-	d.SetId(id.terraformId())
 
 	return nil
 }
@@ -193,6 +187,10 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("display_name") {
 		fieldMask = append(fieldMask, "displayName")
 		uir.Instance.DisplayName = d.Get("display_name").(string)
+	}
+	if d.HasChange("labels") {
+		fieldMask = append(fieldMask, "labels")
+		uir.Instance.Labels = convertStringMap(d.Get("labels").(map[string]interface{}))
 	}
 
 	uir.FieldMask = strings.Join(fieldMask, ",")
@@ -262,11 +260,11 @@ func buildSpannerInstanceId(d *schema.ResourceData, config *Config) (*spannerIns
 	}, nil
 }
 
-func extractInstanceConfigFromApi(nameUri string) string {
-	return extractLastResourceFromUri(nameUri)
+func extractInstanceConfigFromUri(configUri string) string {
+	return extractLastResourceFromUri(configUri)
 }
 
-func extractInstanceNameFromApi(nameUri string) string {
+func extractInstanceNameFromUri(nameUri string) string {
 	return extractLastResourceFromUri(nameUri)
 }
 
@@ -327,4 +325,12 @@ func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
 		Project:  parts[0],
 		Instance: parts[1],
 	}, nil
+}
+
+func convertStringMap(v map[string]interface{}) map[string]string {
+	m := make(map[string]string)
+	for k, val := range v {
+		m[k] = val.(string)
+	}
+	return m
 }
