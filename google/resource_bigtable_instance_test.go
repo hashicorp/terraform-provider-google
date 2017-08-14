@@ -29,6 +29,25 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccBigtableInstance_development(t *testing.T) {
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableInstance_development(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableInstanceExists(
+						"google_bigtable_instance.instance"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	var ctx = context.Background()
 	for _, rs := range s.RootModule().Resources {
@@ -89,6 +108,17 @@ resource "google_bigtable_instance" "instance" {
 	zone         = "us-central1-b"
 	num_nodes    = 3
 	storage_type = "HDD"
+}
+`, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_development(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name          = "%s"
+	cluster_id    = "%s"
+	zone          = "us-central1-b"
+	instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
 }

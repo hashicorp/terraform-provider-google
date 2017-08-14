@@ -96,6 +96,11 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+- - -
+
+* `ip_version` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+The IP Version that will be used by this resource's address. One of `"IPV4"` or `"IPV6"`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

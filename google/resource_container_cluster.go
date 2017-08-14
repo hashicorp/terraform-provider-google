@@ -243,11 +243,10 @@ func resourceContainerCluster() *schema.Resource {
 						},
 
 						"name": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ConflictsWith: []string{"node_pool.name_prefix"},
-							ForceNew:      true,
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
 						},
 
 						"name_prefix": {
@@ -255,6 +254,8 @@ func resourceContainerCluster() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"node_config": schemaNodeConfig,
 					},
 				},
 			},
@@ -365,65 +366,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if v, ok := d.GetOk("node_config"); ok {
-		nodeConfigs := v.([]interface{})
-		nodeConfig := nodeConfigs[0].(map[string]interface{})
-
-		cluster.NodeConfig = &container.NodeConfig{}
-
-		if v, ok = nodeConfig["machine_type"]; ok {
-			cluster.NodeConfig.MachineType = v.(string)
-		}
-
-		if v, ok = nodeConfig["disk_size_gb"]; ok {
-			cluster.NodeConfig.DiskSizeGb = int64(v.(int))
-		}
-
-		if v, ok = nodeConfig["local_ssd_count"]; ok {
-			cluster.NodeConfig.LocalSsdCount = int64(v.(int))
-		}
-
-		if v, ok := nodeConfig["oauth_scopes"]; ok {
-			scopesList := v.([]interface{})
-			scopes := []string{}
-			for _, v := range scopesList {
-				scopes = append(scopes, canonicalizeServiceScope(v.(string)))
-			}
-
-			cluster.NodeConfig.OauthScopes = scopes
-		}
-
-		if v, ok = nodeConfig["service_account"]; ok {
-			cluster.NodeConfig.ServiceAccount = v.(string)
-		}
-
-		if v, ok = nodeConfig["metadata"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Metadata = m
-		}
-
-		if v, ok = nodeConfig["image_type"]; ok {
-			cluster.NodeConfig.ImageType = v.(string)
-		}
-
-		if v, ok = nodeConfig["labels"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Labels = m
-		}
-
-		if v, ok := nodeConfig["tags"]; ok {
-			tagsList := v.([]interface{})
-			tags := []string{}
-			for _, v := range tagsList {
-				tags = append(tags, v.(string))
-			}
-			cluster.NodeConfig.Tags = tags
-		}
+		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
 	nodePoolsCount := d.Get("node_pool.#").(int)
@@ -431,21 +374,20 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		nodePools := make([]*container.NodePool, 0, nodePoolsCount)
 		for i := 0; i < nodePoolsCount; i++ {
 			prefix := fmt.Sprintf("node_pool.%d", i)
-
 			nodeCount := d.Get(prefix + ".initial_node_count").(int)
 
-			var name string
-			if v, ok := d.GetOk(prefix + ".name"); ok {
-				name = v.(string)
-			} else if v, ok := d.GetOk(prefix + ".name_prefix"); ok {
-				name = resource.PrefixedUniqueId(v.(string))
-			} else {
-				name = resource.UniqueId()
+			name, err := generateNodePoolName(prefix, d)
+			if err != nil {
+				return err
 			}
 
 			nodePool := &container.NodePool{
 				Name:             name,
 				InitialNodeCount: int64(nodeCount),
+			}
+
+			if v, ok := d.GetOk(prefix + ".node_config"); ok {
+				nodePool.Config = expandNodeConfig(v)
 			}
 
 			nodePools = append(nodePools, nodePool)
@@ -558,9 +500,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("node_version") {
 		desiredNodeVersion := d.Get("node_version").(string)
 
+		// The master must be updated before the nodes
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
+				DesiredMasterVersion: desiredNodeVersion,
 			},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
@@ -570,12 +513,33 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster version", timeoutInMinutes, 2)
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
 		if waitErr != nil {
 			return waitErr
 		}
 
-		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
+			desiredNodeVersion)
+
+		// Update the nodes
+		req = &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+		op, err = config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr = containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
@@ -725,9 +689,27 @@ func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []
 			"name":               np.Name,
 			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
 			"initial_node_count": np.InitialNodeCount,
+			"node_config":        flattenClusterNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
 
 	return nodePools
+}
+
+func generateNodePoolName(prefix string, d *schema.ResourceData) (string, error) {
+	name, okName := d.GetOk(prefix + ".name")
+	namePrefix, okPrefix := d.GetOk(prefix + ".name_prefix")
+
+	if okName && okPrefix {
+		return "", fmt.Errorf("Cannot specify both name and name_prefix for a node_pool")
+	}
+
+	if okName {
+		return name.(string), nil
+	} else if okPrefix {
+		return resource.PrefixedUniqueId(namePrefix.(string)), nil
+	} else {
+		return resource.UniqueId(), nil
+	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -90,4 +91,14 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 	}
 
 	return nil
+}
+
+func computeBetaOperationWaitTime(config *Config, op *computeBeta.Operation, project, activity string, timeoutMin int) error {
+	opV1 := &compute.Operation{}
+	err := Convert(op, opV1)
+	if err != nil {
+		return err
+	}
+
+	return computeOperationWaitTime(config, opV1, project, activity, 4)
 }
