@@ -27,6 +27,7 @@ import (
 	"google.golang.org/api/pubsub/v1"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/sourcerepo/v1"
+	"google.golang.org/api/spanner/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 )
@@ -45,6 +46,7 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientSpanner         *spanner.Service
 	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
@@ -214,6 +216,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientSourceRepo.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Spanner Client...")
+	c.clientSpanner, err = spanner.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSpanner.UserAgent = userAgent
 
 	return nil
 }

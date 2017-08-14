@@ -111,6 +111,7 @@ func Provider() terraform.ResourceProvider {
 			"google_dns_managed_zone":               resourceDnsManagedZone(),
 			"google_dns_record_set":                 resourceDnsRecordSet(),
 			"google_sourcerepo_repository":          resourceSourceRepoRepository(),
+			"google_spanner_instance":               resourceSpannerInstance(),
 			"google_sql_database":                   resourceSqlDatabase(),
 			"google_sql_database_instance":          resourceSqlDatabaseInstance(),
 			"google_sql_user":                       resourceSqlUser(),
