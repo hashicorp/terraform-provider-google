@@ -13,6 +13,7 @@ FEATURES:
 * **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
 * **New Resource:** `google_sourcerepo_repository` - allows creating and deleting Google Source Repositories [GH-256]
 * **New Resource:** `google_spanner_instance` - allows creating, updating and deleting Google Spanner Instance [GH-270]
+* **New Resource:** `google_spanner_database` - allows creating, updating and deleting Google Spanner Database [GH-271]
 
 IMPROVEMENTS:
 * bigtable: Add support for `instance_type` to `google_bigtable_instance`. [GH-313]
