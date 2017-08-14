@@ -11,6 +11,8 @@ FEATURES:
 * **New Resource:** `google_project_iam_binding` - allows fine-grained control of a project's IAM policy, controlling only a single binding. [GH-171]
 * **New Resource:** `google_project_iam_member` - allows fine-grained control of a project's IAM policy, controlling only a single member in a binding. [GH-171]
 * **New Resource:** `google_compute_network_peering` ([#259](https://github.com/terraform-providers/terraform-provider-google/issues/259))
+* **New Resource:** `google_runtimeconfig_config` - allows creating, updating and deleting Google RuntimeConfig resources [GH-315]
+* **New Resource:** `google_runtimeconfig_variable` - allows creating, updating, and deleting Google RuntimeConfig variables [GH-315]
 * **New Resource:** `google_sourcerepo_repository` - allows creating and deleting Google Source Repositories [GH-256]
 * **New Resource:** `google_spanner_instance` - allows creating, updating and deleting Google Spanner Instance [GH-270]
 * **New Resource:** `google_spanner_database` - allows creating, updating and deleting Google Spanner Database [GH-271]
