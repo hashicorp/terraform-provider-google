@@ -34,13 +34,15 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 			},
 
 			"value": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"text"},
 			},
 
 			"text": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"value"},
 			},
 
 			"update_time": {
@@ -95,6 +97,10 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	// Update works more like an 'overwrite' method - we build a new runtimeconfig.Variable struct and it becomes the
+	// new config. This means our Update logic looks an awful lot like Create (and hence, doesn't use
+	// schema.ResourceData.hasChange()).
+
 	variable, _, err := newRuntimeconfigVariableFromResourceData(d, project)
 	if err != nil {
 		return err
@@ -146,7 +152,7 @@ func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project st
 	text, textSet := d.GetOk("text")
 	value, valueSet := d.GetOk("value")
 
-	if (textSet && valueSet) || (!textSet && !valueSet) {
+	if !textSet && !valueSet {
 		return nil, "", fmt.Errorf("You must specify one of value or text.")
 	}
 

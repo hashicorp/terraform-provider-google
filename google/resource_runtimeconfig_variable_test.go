@@ -99,7 +99,7 @@ func TestAccRuntimeconfigVariable_errorsOnBothValueAndText(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccRuntimeconfigVariable_invalidBothTextValue(),
-				ExpectError: regexp.MustCompile("You must specify one of value or text"),
+				ExpectError: regexp.MustCompile("conflicts with"),
 			},
 		},
 	})
@@ -265,6 +265,6 @@ resource "google_runtimeconfig_config" "foobar" {
 
 resource "google_runtimeconfig_variable" "foobar" {
 	parent = "${google_runtimeconfig_config.foobar.name}"
-	name = "%s"
+	name = "my-variable-namespace/%s"
 }`, acctest.RandString(10), acctest.RandString(10))
 }

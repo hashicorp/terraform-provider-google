@@ -98,11 +98,13 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 func resourceRuntimeconfigConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	// Update works more like an 'overwrite' method - we build a new runtimeconfig.RuntimeConfig struct and it becomes
+	// the new config. This means our Update logic looks an awful lot like Create (and hence, doesn't use
+	// schema.ResourceData.hasChange()).
 	fullName := d.Id()
 	runtimeConfig := runtimeconfig.RuntimeConfig{
 		Name: fullName,
 	}
-	// Update the description (currently its the only thing that could have changed)
 	if v, ok := d.GetOk("description"); ok {
 		runtimeConfig.Description = v.(string)
 	}
