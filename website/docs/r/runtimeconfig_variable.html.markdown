@@ -11,7 +11,7 @@ description: |-
 Manages a RuntimeConfig variable in Google Cloud. For more information, see the
 [official documentation](https://cloud.google.com/deployment-manager/runtime-configurator/),
 or the
-[JSON API](hhttps://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
+[JSON API](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
 
 ## Example Usage
 
@@ -25,8 +25,8 @@ resource "google_runtimeconfig_config" "my-runtime-config" {
 
 resource "google_runtimeconfig_variable" "environment" {
 	parent = "${google_runtimeconfig_config.my-runtime-config.name}"
-	name = "environment"
-	text = "production"
+	name = "prod-variables/hostname"
+	text = "example.com"
 }
 ```
 

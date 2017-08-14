@@ -11,7 +11,7 @@ description: |-
 Manages a RuntimeConfig resource in Google Cloud. For more information, see the
 [official documentation](https://cloud.google.com/deployment-manager/runtime-configurator/),
 or the
-[JSON API](hhttps://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
+[JSON API](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
 
 ## Example Usage
 
