@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleSpannerInstance_importInstance(t *testing.T) {
+func TestAccSpannerInstance_importInstance(t *testing.T) {
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 
@@ -31,7 +31,7 @@ func TestAccGoogleSpannerInstance_importInstance(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSpannerInstance_importProjectInstance(t *testing.T) {
+func TestAccSpannerInstance_importProjectInstance(t *testing.T) {
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 	var projectId = multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
