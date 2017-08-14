@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleSpannerDatabase_importInstanceDatabase(t *testing.T) {
+func TestAccSpannerDatabase_importInstanceDatabase(t *testing.T) {
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
@@ -32,7 +32,7 @@ func TestAccGoogleSpannerDatabase_importInstanceDatabase(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSpannerDatabase_importProjectInstanceDatabase(t *testing.T) {
+func TestAccSpannerDatabase_importProjectInstanceDatabase(t *testing.T) {
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
