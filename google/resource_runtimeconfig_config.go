@@ -8,11 +8,7 @@ import (
 	"google.golang.org/api/runtimeconfig/v1beta1"
 )
 
-var runtimeConfigFullName *regexp.Regexp
-
-func init() {
-	runtimeConfigFullName = regexp.MustCompile("^projects/([^/]+)/configs/(.+)$")
-}
+var runtimeConfigFullName *regexp.Regexp = regexp.MustCompile("^projects/([^/]+)/configs/(.+)$")
 
 func resourceRuntimeconfigConfig() *schema.Resource {
 	return &schema.Resource{
