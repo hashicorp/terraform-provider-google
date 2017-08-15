@@ -55,9 +55,10 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"image": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"project": &schema.Schema{
@@ -78,9 +79,10 @@ func resourceComputeDisk() *schema.Resource {
 			},
 
 			"snapshot": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"type": &schema.Schema{
@@ -261,10 +263,8 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if disk.DiskEncryptionKey != nil && disk.DiskEncryptionKey.Sha256 != "" {
 		d.Set("disk_encryption_key_sha256", disk.DiskEncryptionKey.Sha256)
 	}
-	if disk.SourceImage != "" {
-		imageUrlParts := strings.Split(disk.SourceImage, "/")
-		d.Set("image", imageUrlParts[len(imageUrlParts)-1])
-	}
+
+	d.Set("image", disk.SourceImage)
 	d.Set("snapshot", disk.SourceSnapshot)
 
 	return nil

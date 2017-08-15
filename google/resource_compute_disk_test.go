@@ -60,7 +60,7 @@ func TestAccComputeDisk_updateSize(t *testing.T) {
 	})
 }
 
-func TestAccComputeDisk_fromSnapshotURI(t *testing.T) {
+func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -74,7 +74,14 @@ func TestAccComputeDisk_fromSnapshotURI(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshotURI(firstDiskName, snapshotName, diskName, xpn_host),
+				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "self_link"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.seconddisk", &disk),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", &disk),
@@ -251,7 +258,7 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_fromSnapshotURI(firstDiskName, snapshotName, diskName, xpn_host string) string {
+func testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host string, ref_selector string) string {
 	return fmt.Sprintf(`
 		resource "google_compute_disk" "foobar" {
 			name = "%s"
@@ -270,10 +277,10 @@ resource "google_compute_snapshot" "snapdisk" {
 }
 resource "google_compute_disk" "seconddisk" {
 	name = "%s"
-	snapshot = "${google_compute_snapshot.snapdisk.self_link}"
+	snapshot = "${google_compute_snapshot.snapdisk.%s}"
 	type = "pd-ssd"
 	zone = "us-central1-a"
-}`, firstDiskName, xpn_host, snapshotName, xpn_host, diskName)
+}`, firstDiskName, xpn_host, snapshotName, xpn_host, diskName, ref_selector)
 }
 
 func testAccComputeDisk_encryption(diskName string) string {
