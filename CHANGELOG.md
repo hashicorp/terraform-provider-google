@@ -30,6 +30,7 @@ IMPROVEMENTS:
 * compute: Add support for multiple `network_interface`'s to `google_compute_instance`. [GH-289]
 * compute: Add support for `denied` to `google_compute_firewall` [GH-282]
 * compute: Add support for egress traffic using `direction` to `google_compute_firewall` [GH-306]
+* compute: When disks are created from snapshots, both snapshot names and URLs may be used [GH-238]
 * container: Add support for node pool autoscaling [GH-157]
 * container: Add NodeConfig support on `google_container_node_pool` [GH-184]
 * container: Add support for legacyAbac to `google_container_cluster` [GH-261]
