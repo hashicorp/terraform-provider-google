@@ -1,15 +1,18 @@
 package google
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"strings"
+
+	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
-	"regexp"
 )
 
 func stringScopeHashcode(v interface{}) int {
@@ -1009,7 +1012,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	dIndex := 0
-	adIndex := 0
 	sIndex := 0
 	disks := make([]map[string]interface{}, 0, disksCount)
 	attachedDisks := make([]map[string]interface{}, 0, attachedDisksCount)
@@ -1035,24 +1037,55 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"device_name":             d.Get(fmt.Sprintf("disk.%d.device_name", dIndex)),
 				"disk_encryption_key_raw": d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)),
 			}
-			if disk.DiskEncryptionKey != nil && disk.DiskEncryptionKey.Sha256 != "" {
-				di["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
+			if d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)) != "" {
+				sha, err := hash256(d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)).(string))
+				if err != nil {
+					return err
+				}
+				di["disk_encryption_key_sha256"] = sha
 			}
 			disks = append(disks, di)
 			dIndex++
 		} else {
-			di := map[string]interface{}{
-				"source":                  disk.Source,
-				"device_name":             disk.DeviceName,
-				"disk_encryption_key_raw": d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex)),
+			if disk.DiskEncryptionKey != nil {
+				// we'll handle these specifically later
+				continue
 			}
-			if disk.DiskEncryptionKey != nil && disk.DiskEncryptionKey.Sha256 != "" {
-				di["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
+			di := map[string]interface{}{
+				"source":      disk.Source,
+				"device_name": disk.DeviceName,
 			}
 			attachedDisks = append(attachedDisks, di)
-			adIndex++
 		}
 	}
+
+	allEncryptedDisks := make(map[string]*compute.AttachedDisk)
+	for _, disk := range instance.Disks {
+		if disk.DiskEncryptionKey != nil {
+			allEncryptedDisks[disk.DiskEncryptionKey.Sha256] = disk
+		}
+	}
+
+	for i := 0; i < attachedDisksCount; i++ {
+		if v := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", i)); v != "" {
+			hash, err := hash256(v.(string))
+			if err != nil {
+				return err
+			}
+			disk := allEncryptedDisks[hash]
+			if disk == nil {
+				return fmt.Errorf("Could not find disk with encryption key hash %q", hash)
+			}
+			di := map[string]interface{}{
+				"source":                     disk.Source,
+				"device_name":                disk.DeviceName,
+				"disk_encryption_key_raw":    v.(string),
+				"disk_encryption_key_sha256": hash,
+			}
+			attachedDisks = append(attachedDisks, di)
+		}
+	}
+
 	d.Set("disk", disks)
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
@@ -1450,4 +1483,13 @@ func getProjectFromSubnetworkLink(subnetwork string) string {
 	}
 
 	return r.FindStringSubmatch(subnetwork)[1]
+}
+
+func hash256(raw string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(raw)
+	if err != nil {
+		return "", err
+	}
+	h := sha256.Sum256(decoded)
+	return base64.StdEncoding.EncodeToString(h[:]), nil
 }
