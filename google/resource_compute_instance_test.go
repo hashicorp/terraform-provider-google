@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -695,6 +696,27 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_guestAccelerator(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_guestAccelerator(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -766,6 +788,35 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance not found")
+		}
+
+		*instance = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaInstanceExists(n string, instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.Instances.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -1024,6 +1075,24 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 	return func(s *terraform.State) error {
 		if len(instance.NetworkInterfaces) < 2 {
 			return fmt.Errorf("only saw %d nics", len(instance.NetworkInterfaces))
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.GuestAccelerators) != 1 {
+			return fmt.Errorf("Expected only one guest accelerator")
+		}
+
+		if !strings.HasSuffix(instance.GuestAccelerators[0].AcceleratorType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instance.GuestAccelerators[0].AcceleratorType)
+		}
+
+		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
 		}
 
 		return nil
@@ -1851,4 +1920,33 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	network       = "${google_compute_network.inst-test-network.self_link}"
 }
 `, instance, network, subnetwork)
+}
+
+func testAccComputeInstance_guestAccelerator(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    # Instances with guest accelerators do not support live migration.
+    on_host_maintenance = "TERMINATE"
+  }
+
+  guest_accelerator {
+    count = 1
+    type = "nvidia-tesla-k80"
+  }
+}`, instance)
 }

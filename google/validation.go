@@ -12,7 +12,8 @@ const (
 	RegionRegex     = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
 	SubnetworkRegex = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
 
-	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
+	SubnetworkLinkRegex  = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
+	AcceleratorTypeRegex = "zones/(" + RegionRegex + ")/acceleratorTypes/()$"
 )
 
 func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
