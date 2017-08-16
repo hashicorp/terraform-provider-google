@@ -979,9 +979,11 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			diskSourceUrl := strings.Split(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)], "/")
 			diskName := diskSourceUrl[len(diskSourceUrl)-1]
 			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.disk_encryption_key_sha256", i)]
-			expectedEncryptionKey := diskNameToEncryptionKey[diskName].Sha256
-			if encryptionKey != expectedEncryptionKey {
-				return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
+			if key, ok := diskNameToEncryptionKey[diskName]; ok {
+				expectedEncryptionKey := key.Sha256
+				if encryptionKey != expectedEncryptionKey {
+					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
+				}
 			}
 		}
 		return nil
@@ -1439,6 +1441,13 @@ resource "google_compute_disk" "foobar3" {
 	disk_encryption_key_raw = "%s"
 }
 
+resource "google_compute_disk" "foobar4" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
 resource "google_compute_instance" "foobar" {
 	name         = "%s"
 	machine_type = "n1-standard-1"
@@ -1462,6 +1471,10 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	attached_disk {
+		source = "${google_compute_disk.foobar4.self_link}"
+	}
+
+	attached_disk {
 		source = "${google_compute_disk.foobar3.self_link}"
 		disk_encryption_key_raw = "%s"
 	}
@@ -1477,6 +1490,7 @@ resource "google_compute_instance" "foobar" {
 `, diskNames[0], diskNameToEncryptionKey[diskNames[0]].RawKey,
 		diskNames[1], diskNameToEncryptionKey[diskNames[1]].RawKey,
 		diskNames[2], diskNameToEncryptionKey[diskNames[2]].RawKey,
+		"instance-testd-"+acctest.RandString(10),
 		instance, bootEncryptionKey,
 		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
 }

@@ -1006,15 +1006,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Expected %d disks, API returned %d", expectedDisks, len(instance.Disks))
 	}
 
-	attachedDiskSources := make(map[string]struct{}, attachedDisksCount)
+	attachedDiskSources := make(map[string]int, attachedDisksCount)
 	for i := 0; i < attachedDisksCount; i++ {
-		attachedDiskSources[d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string)] = struct{}{}
+		attachedDiskSources[d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string)] = i
 	}
 
 	dIndex := 0
 	sIndex := 0
 	disks := make([]map[string]interface{}, 0, disksCount)
-	attachedDisks := make([]map[string]interface{}, 0, attachedDisksCount)
+	attachedDisks := make([]map[string]interface{}, attachedDisksCount)
 	scratchDisks := make([]map[string]interface{}, 0, scratchDisksCount)
 	for _, disk := range instance.Disks {
 		if _, ok := d.GetOk("boot_disk"); ok && disk.Boot {
@@ -1055,7 +1055,8 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
 			}
-			attachedDisks = append(attachedDisks, di)
+			adIndex := attachedDiskSources[disk.Source]
+			attachedDisks[adIndex] = di
 		}
 	}
 
@@ -1082,7 +1083,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"disk_encryption_key_raw":    v.(string),
 				"disk_encryption_key_sha256": hash,
 			}
-			attachedDisks = append(attachedDisks, di)
+			attachedDisks[i] = di
 		}
 	}
 
