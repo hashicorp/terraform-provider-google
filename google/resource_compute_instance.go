@@ -1047,43 +1047,16 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			disks = append(disks, di)
 			dIndex++
 		} else {
-			if disk.DiskEncryptionKey != nil {
-				// we'll handle these specifically later
-				continue
-			}
+			adIndex := attachedDiskSources[disk.Source]
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
 			}
-			adIndex := attachedDiskSources[disk.Source]
+			if key := disk.DiskEncryptionKey; key != nil {
+				di["disk_encryption_key_raw"] = d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
+				di["disk_encryption_key_sha256"] = key.Sha256
+			}
 			attachedDisks[adIndex] = di
-		}
-	}
-
-	allEncryptedDisks := make(map[string]*compute.AttachedDisk)
-	for _, disk := range instance.Disks {
-		if disk.DiskEncryptionKey != nil {
-			allEncryptedDisks[disk.DiskEncryptionKey.Sha256] = disk
-		}
-	}
-
-	for i := 0; i < attachedDisksCount; i++ {
-		if v := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", i)); v != "" {
-			hash, err := hash256(v.(string))
-			if err != nil {
-				return err
-			}
-			disk := allEncryptedDisks[hash]
-			if disk == nil {
-				return fmt.Errorf("Could not find disk with encryption key hash %q", hash)
-			}
-			di := map[string]interface{}{
-				"source":                     disk.Source,
-				"device_name":                disk.DeviceName,
-				"disk_encryption_key_raw":    v.(string),
-				"disk_encryption_key_sha256": hash,
-			}
-			attachedDisks[i] = di
 		}
 	}
 
