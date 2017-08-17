@@ -1122,7 +1122,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenBetaScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.Zone, instance.GuestAccelerators))
-	d.Set("self_link", instance.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.SetId(instance.Name)
 
 	return nil
