@@ -16,6 +16,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	adminDirectory "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -41,6 +42,7 @@ type Config struct {
 	Region      string
 	Impersonate string
 
+	clientAdminDirectory  *adminDirectory.Service
 	clientBilling         *cloudbilling.Service
 	clientCompute         *compute.Service
 	clientComputeBeta     *computeBeta.Service
@@ -67,6 +69,7 @@ func (c *Config) loadAndValidate() error {
 		"https://www.googleapis.com/auth/cloud-platform",
 		"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
 		"https://www.googleapis.com/auth/devstorage.full_control",
+		"https://www.googleapis.com/auth/admin.directory.group",
 	}
 
 	var client *http.Client
@@ -237,6 +240,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientSpanner.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Admin Directory Client...")
+	c.clientAdminDirectory, err = adminDirectory.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientAdminDirectory.UserAgent = userAgent
 
 	return nil
 }

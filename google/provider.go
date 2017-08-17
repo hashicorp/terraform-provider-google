@@ -65,6 +65,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"google_admin_group":                    resourceAdminGroup(),
 			"google_bigquery_dataset":               resourceBigQueryDataset(),
 			"google_bigquery_table":                 resourceBigQueryTable(),
 			"google_bigtable_instance":              resourceBigtableInstance(),
