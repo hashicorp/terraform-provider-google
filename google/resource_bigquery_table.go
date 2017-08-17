@@ -92,19 +92,29 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
-			// View: [Experimental] If specified, configures this table as a view.
+			// View: [Optional] If specified, configures this table as a view.
 			"view": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						// Type: [Required] The only type supported is DAY, which will generate
-						// one partition per day based on data loading time.
+						// Query: [Required] A query that BigQuery executes when the view is
+						// referenced.
 						"query": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+
+						// UseLegacySQL: [Optional] Specifies whether to use BigQuery's
+						// legacy SQL for this view. The default value is true. If set to
+						// false, the view will use BigQuery's standard SQL:
+						"use_legacy_sql": {
+							Type:     schema.TypeBool,
+							Required: false,
+						},
+
+
 					},
 				},
 			},
@@ -219,7 +229,6 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		},
 	}
 
-	// TODO(jmcgill): How do I do nested objects in a terraform configuration.
 	if v, ok := d.GetOk("view"); ok {
 		table.View = expandView(v)
 	}
@@ -426,10 +435,19 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 	raw := configured.([]interface{})[0].(map[string]interface{})
 	vd := &bigquery.ViewDefinition{Query: raw["query"].(string)}
 
+	if v, ok := raw["use_legacy_sql"]; ok {
+		vd.UseLegacySql = v.(bool)
+	}
+
 	return vd
 }
 
-func flattenView(v *bigquery.ViewDefinition) []map[string]interface{} {
+func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
 	result := map[string]interface{}{"query": v.Query}
+
+	if vd.UseLegacySql {
+		result["use_legacy_sql"] = vd.UseLegacySql
+	}
+
 	return []map[string]interface{}{result}
 }
