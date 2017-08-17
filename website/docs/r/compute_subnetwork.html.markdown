@@ -58,7 +58,7 @@ The following arguments are supported:
 
 - - -
 
-* `secondary_ip_range` - (Optional, Beta) An array of configurations for secondary IP ranges for VM instances contained in this subnetwork. Structure is documented below.
+* `secondary_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An array of configurations for secondary IP ranges for VM instances contained in this subnetwork. Structure is documented below.
 
 The `secondary_ip_range` block supports:
 
