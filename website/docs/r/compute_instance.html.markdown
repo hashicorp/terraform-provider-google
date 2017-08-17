@@ -262,7 +262,7 @@ The `scheduling` block supports:
 
 ---
 
-* `guest_accelerator` - (Optional, Beta) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+* `guest_accelerator` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of the type and count of accelerator cards attached to the instance. Structure documented below.
 
 The `guest_accelerator` block supports:
 
