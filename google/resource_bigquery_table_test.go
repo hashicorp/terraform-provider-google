@@ -180,6 +180,7 @@ resource "google_bigquery_table" "test" {
 
   view {
   	query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+  	use_legacy_sql = true
   }
 }`, datasetID, tableID)
 }

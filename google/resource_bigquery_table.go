@@ -111,10 +111,8 @@ func resourceBigQueryTable() *schema.Resource {
 						// false, the view will use BigQuery's standard SQL:
 						"use_legacy_sql": {
 							Type:     schema.TypeBool,
-							Required: false,
+							Optional: true,
 						},
-
-
 					},
 				},
 			},
@@ -443,7 +441,7 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 }
 
 func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
-	result := map[string]interface{}{"query": v.Query}
+	result := map[string]interface{}{"query": vd.Query}
 
 	if vd.UseLegacySql {
 		result["use_legacy_sql"] = vd.UseLegacySql
