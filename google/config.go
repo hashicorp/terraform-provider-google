@@ -39,6 +39,7 @@ type Config struct {
 	Credentials string
 	Project     string
 	Region      string
+	Impersonate string
 
 	clientBilling         *cloudbilling.Service
 	clientCompute         *compute.Service
@@ -93,6 +94,10 @@ func (c *Config) loadAndValidate() error {
 			PrivateKey: []byte(account.PrivateKey),
 			Scopes:     clientScopes,
 			TokenURL:   "https://accounts.google.com/o/oauth2/token",
+		}
+
+		if c.Impersonate != "" {
+			conf.Subject = c.Impersonate
 		}
 
 		// Initiate an http.Client. The following GET request will be

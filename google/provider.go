@@ -46,6 +46,11 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_REGION",
 				}, nil),
 			},
+
+			"impersonate": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -135,6 +140,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Credentials: credentials,
 		Project:     d.Get("project").(string),
 		Region:      d.Get("region").(string),
+		Impersonate: d.Get("impersonate").(string),
 	}
 
 	if err := config.loadAndValidate(); err != nil {
