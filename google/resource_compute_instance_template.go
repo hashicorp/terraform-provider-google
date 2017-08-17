@@ -667,12 +667,13 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 
 func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
-	schedulingMap := make(map[string]interface{})
+	schedulingMap := map[string]interface{}{
+		"on_host_maintenance": scheduling.OnHostMaintenance,
+		"preemptible":         scheduling.Preemptible,
+	}
 	if scheduling.AutomaticRestart != nil {
 		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
 	}
-	schedulingMap["on_host_maintenance"] = scheduling.OnHostMaintenance
-	schedulingMap["preemptible"] = scheduling.Preemptible
 	result = append(result, schedulingMap)
 	return result
 }
