@@ -29,6 +29,12 @@ $ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-google
 $ make build
 ```
 
+Upgrading the provider
+----------------------
+
+To upgrade to the latest stable version of the Google provider run `terraform init -upgrade`.
+
+
 Using the provider
 ----------------------
 
