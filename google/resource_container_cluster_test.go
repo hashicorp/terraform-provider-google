@@ -849,8 +849,8 @@ resource "google_container_cluster" "with_node_pool" {
 	}
 
 	node_pool {
-		name       = "tf-cluster-nodepool-test-%s"
-		node_count = 2
+		name               = "tf-cluster-nodepool-test-%s"
+		initial_node_count = 2
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 

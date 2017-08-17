@@ -27,20 +27,6 @@ func TestContainerClusterMigrateState(t *testing.T) {
 			},
 			Meta: &Config{},
 		},
-		"rename node_pool.initial_node_count to node_pool.node_count": {
-			StateVersion: 1,
-			Attributes: map[string]string{
-				"node_pool.#":                    "2",
-				"node_pool.0.initial_node_count": "3",
-				"node_pool.1.initial_node_count": "2",
-			},
-			Expected: map[string]string{
-				"node_pool.#":            "2",
-				"node_pool.0.node_count": "3",
-				"node_pool.1.node_count": "2",
-			},
-			Meta: &Config{},
-		},
 	}
 
 	for tn, tc := range cases {

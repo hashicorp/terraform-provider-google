@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
 )
 
@@ -29,7 +30,7 @@ func resourceContainerCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		SchemaVersion: 2,
+		SchemaVersion: 1,
 		MigrateState:  resourceContainerClusterMigrateState,
 
 		Schema: map[string]*schema.Schema{
@@ -236,9 +237,19 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"initial_node_count": {
+							Type:       schema.TypeInt,
+							Optional:   true,
+							ForceNew:   true,
+							Computed:   true,
+							Deprecated: "Use node_count instead",
+						},
+
 						"node_count": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"name": {
@@ -374,7 +385,19 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		for i := 0; i < nodePoolsCount; i++ {
 			prefix := fmt.Sprintf("node_pool.%d", i)
 
-			nodeCount := d.Get(prefix + ".node_count").(int)
+			nodeCount := 0
+			if initialNodeCount, ok := d.GetOk(prefix + ".initial_node_count"); ok {
+				nodeCount = initialNodeCount.(int)
+			}
+			if nc, ok := d.GetOk(prefix + ".node_count"); ok {
+				if nodeCount != 0 {
+					return fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %d", i)
+				}
+				nodeCount = nc.(int)
+			}
+			if nodeCount == 0 {
+				return fmt.Errorf("Node pool %d cannot be set with 0 node count", i)
+			}
 
 			name, err := generateNodePoolName(prefix, d)
 			if err != nil {
@@ -621,7 +644,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				}
 
 				log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
-
 			}
 		}
 		d.SetPartial("node_pool")
@@ -727,10 +749,11 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 			size += int(igm.TargetSize)
 		}
 		nodePool := map[string]interface{}{
-			"name":        np.Name,
-			"name_prefix": d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
-			"node_config": flattenClusterNodeConfig(np.Config),
-			"node_count":  size / len(np.InstanceGroupUrls),
+			"name":               np.Name,
+			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
+			"initial_node_count": np.InitialNodeCount,
+			"node_count":         size / len(np.InstanceGroupUrls),
+			"node_config":        flattenClusterNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
