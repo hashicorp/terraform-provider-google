@@ -13,9 +13,20 @@ Creates a GKE cluster. For more information see
 and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
 
-!> **Warning:** Due to limitations of the API, all arguments except
-`node_version` are non-updateable. Changing any will cause recreation of the
-whole cluster!
+!> **Warning:** Due to limitations of the API, the following arguments are non-updateable:
+- `node_version`
+- `name`
+- `zone`
+- `initial_node_count`
+- `cluster_ipv4_cidr`
+- `description`
+- `logging_service`
+- `network`
+- `subnetwork`
+- `addons_config`
+- `project`
+
+Changing any of these will cause recreation of the whole cluster!
 
 ~> **Note:** All arguments including the username and password will be stored in the raw state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
