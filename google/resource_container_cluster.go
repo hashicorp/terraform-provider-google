@@ -669,6 +669,7 @@ func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} 
 			"image_type":      c.ImageType,
 			"labels":          c.Labels,
 			"tags":            c.Tags,
+			"preemptible":     c.Preemptible,
 		},
 	}
 

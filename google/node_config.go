@@ -84,6 +84,13 @@ var schemaNodeConfig = &schema.Schema{
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			"preemptible": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
 		},
 	},
 }
@@ -148,7 +155,8 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 		nc.Tags = tags
 	}
+	// Preemptible Is Optional+Default, so it always has a value
+	nc.Preemptible = nodeConfig["preemptible"].(bool)
 
 	return nc
-
 }

@@ -356,6 +356,7 @@ resource "google_container_node_pool" "np_with_node_config" {
 			"https://www.googleapis.com/auth/logging.write",
 			"https://www.googleapis.com/auth/monitoring"
 		]
+		preemptible = true
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 

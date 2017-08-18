@@ -712,6 +712,7 @@ resource "google_container_cluster" "with_node_config" {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
+		preemptible = true
 	}
 }`, acctest.RandString(10))
 
