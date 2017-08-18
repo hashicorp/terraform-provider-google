@@ -157,10 +157,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"logging_service": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
 			},
 
 			"monitoring_service": {
@@ -647,6 +647,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 		d.SetPartial("node_pool")
+	}
+
+	if d.HasChange("logging_service") {
+		logging := d.Get("logging_service").(string)
+
+		req := &container.SetLoggingServiceRequest{
+			LoggingService: logging,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE logging service", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s: logging service has been updated to %s", d.Id(),
+			logging)
+		d.SetPartial("logging_service")
 	}
 
 	d.Partial(false)
