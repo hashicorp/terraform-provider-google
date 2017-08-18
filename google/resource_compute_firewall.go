@@ -19,6 +19,7 @@ var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
+	Feature{Version: v0beta, Item: "priority"},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -44,6 +45,14 @@ func resourceComputeFirewall() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"priority": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      1000,
+				ValidateFunc: validation.IntBetween(0, 65535),
 			},
 
 			"allow": {
@@ -299,6 +308,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("target_tags", firewall.TargetTags)
 	d.Set("allow", flattenAllowed(firewall.Allowed))
 	d.Set("deny", flattenDenied(firewall.Denied))
+	d.Set("priority", int(firewall.Priority))
 	return nil
 }
 
@@ -485,5 +495,6 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		SourceTags:        sourceTags,
 		DestinationRanges: destinationRanges,
 		TargetTags:        targetTags,
+		Priority:          int64(d.Get("priority").(int)),
 	}, nil
 }
