@@ -1,4 +1,15 @@
 ## 0.1.4 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES / NOTES:
+* container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
+
+FEATURES:
+
+IMPROVEMENTS:
+* Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
+
+BUG FIXES:
+
 ## 0.1.3 (August 17, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
