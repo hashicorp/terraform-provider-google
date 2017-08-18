@@ -229,6 +229,23 @@ func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+// expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
+func expandLabels(d *schema.ResourceData) map[string]string {
+	return expandStringMap(d, "labels")
+}
+
+// expandStringMap pulls the value of key out of a schema.ResourceData as a map[string]string.
+func expandStringMap(d *schema.ResourceData, key string) map[string]string {
+	mp := map[string]string{}
+	if v, ok := d.GetOk(key); ok {
+		labelMap := v.(map[string]interface{})
+		for k, v := range labelMap {
+			mp[k] = v.(string)
+		}
+	}
+	return mp
+}
+
 func convertStringArr(ifaceArr []interface{}) []string {
 	var arr []string
 	for _, v := range ifaceArr {
