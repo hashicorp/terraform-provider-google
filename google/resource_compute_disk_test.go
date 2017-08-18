@@ -297,7 +297,7 @@ resource "google_compute_disk" "foobar" {
 	type = "pd-ssd"
 	zone = "us-central1-a"
 	labels {
-	    my-label = "my-updated-label-value"
+		my-label = "my-updated-label-value"
 		a-new-label = "a-new-label-value"
 	}
 }`, diskName)
