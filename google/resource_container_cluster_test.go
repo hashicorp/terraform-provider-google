@@ -236,6 +236,34 @@ func TestAccContainerCluster_backend(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLogging(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "logging.googleapis.com"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -837,6 +865,28 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+
+func testAccContainerCluster_withLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "logging.googleapis.com"
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "none"
+}`, clusterName)
+}
 
 var testAccContainerCluster_withNodePoolBasic = fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool" {
