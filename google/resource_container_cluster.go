@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
 )
 
@@ -237,9 +238,18 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"initial_node_count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:       schema.TypeInt,
+							Optional:   true,
+							ForceNew:   true,
+							Computed:   true,
+							Deprecated: "Use node_count instead",
+						},
+
+						"node_count": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"name": {
@@ -374,7 +384,20 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		nodePools := make([]*container.NodePool, 0, nodePoolsCount)
 		for i := 0; i < nodePoolsCount; i++ {
 			prefix := fmt.Sprintf("node_pool.%d", i)
-			nodeCount := d.Get(prefix + ".initial_node_count").(int)
+
+			nodeCount := 0
+			if initialNodeCount, ok := d.GetOk(prefix + ".initial_node_count"); ok {
+				nodeCount = initialNodeCount.(int)
+			}
+			if nc, ok := d.GetOk(prefix + ".node_count"); ok {
+				if nodeCount != 0 {
+					return fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %d", i)
+				}
+				nodeCount = nc.(int)
+			}
+			if nodeCount == 0 {
+				return fmt.Errorf("Node pool %d cannot be set with 0 node count", i)
+			}
 
 			name, err := generateNodePoolName(prefix, d)
 			if err != nil {
@@ -472,7 +495,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", d.Get("network").(string))
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenClusterNodeConfig(cluster.NodeConfig))
-	d.Set("node_pool", flattenClusterNodePools(d, cluster.NodePools))
+	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
+	if err != nil {
+		return err
+	}
+	d.Set("node_pool", nps)
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
 		return err
@@ -597,6 +624,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("enable_legacy_abac")
 	}
 
+	if n, ok := d.GetOk("node_pool.#"); ok {
+		for i := 0; i < n.(int); i++ {
+			if d.HasChange(fmt.Sprintf("node_pool.%d.node_count", i)) {
+				newSize := int64(d.Get(fmt.Sprintf("node_pool.%d.node_count", i)).(int))
+				req := &container.SetNodePoolSizeRequest{
+					NodeCount: newSize,
+				}
+				npName := d.Get(fmt.Sprintf("node_pool.%d.name", i)).(string)
+				op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zoneName, clusterName, npName, req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node pool size", timeoutInMinutes, 2)
+				if waitErr != nil {
+					return waitErr
+				}
+
+				log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
+			}
+		}
+		d.SetPartial("node_pool")
+	}
+
 	d.Partial(false)
 
 	return resourceContainerClusterRead(d, meta)
@@ -679,22 +731,34 @@ func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} 
 	return config
 }
 
-func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []map[string]interface{} {
-	count := len(c)
-
-	nodePools := make([]map[string]interface{}, 0, count)
+func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*container.NodePool) ([]map[string]interface{}, error) {
+	nodePools := make([]map[string]interface{}, 0, len(c))
 
 	for i, np := range c {
+		// Node pools don't expose the current node count in their API, so read the
+		// instance groups instead. They should all have the same size, but in case a resize
+		// failed or something else strange happened, we'll just use the average size.
+		size := 0
+		for _, url := range np.InstanceGroupUrls {
+			// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
+			matches := instanceGroupManagerURL.FindStringSubmatch(url)
+			igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+			if err != nil {
+				return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			}
+			size += int(igm.TargetSize)
+		}
 		nodePool := map[string]interface{}{
 			"name":               np.Name,
 			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
 			"initial_node_count": np.InitialNodeCount,
+			"node_count":         size / len(np.InstanceGroupUrls),
 			"node_config":        flattenClusterNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
 
-	return nodePools
+	return nodePools, nil
 }
 
 func generateNodePoolName(prefix string, d *schema.ResourceData) (string, error) {
