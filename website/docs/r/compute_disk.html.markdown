@@ -69,7 +69,7 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
-* `users` - (Computed) The Users of the created resource.
+* `users` - The Users of the created resource.
 
 ## Import
 
