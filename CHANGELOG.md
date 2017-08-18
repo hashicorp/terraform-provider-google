@@ -6,7 +6,8 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 FEATURES:
 
 IMPROVEMENTS:
-* Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
+* container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
+* compute: Add support for 'labels' field on `google_compute_image` [GH-339]
 
 BUG FIXES:
 
