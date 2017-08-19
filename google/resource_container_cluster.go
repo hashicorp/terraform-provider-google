@@ -471,7 +471,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("monitoring_service", cluster.MonitoringService)
 	d.Set("network", d.Get("network").(string))
 	d.Set("subnetwork", cluster.Subnetwork)
-	d.Set("node_config", flattenClusterNodeConfig(cluster.NodeConfig))
+	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
 	d.Set("node_pool", flattenClusterNodePools(d, cluster.NodePools))
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
@@ -658,28 +658,6 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 	return instanceGroupURLs, nil
 }
 
-func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} {
-	config := []map[string]interface{}{
-		{
-			"machine_type":    c.MachineType,
-			"disk_size_gb":    c.DiskSizeGb,
-			"local_ssd_count": c.LocalSsdCount,
-			"service_account": c.ServiceAccount,
-			"metadata":        c.Metadata,
-			"image_type":      c.ImageType,
-			"labels":          c.Labels,
-			"tags":            c.Tags,
-			"preemptible":     c.Preemptible,
-		},
-	}
-
-	if len(c.OauthScopes) > 0 {
-		config[0]["oauth_scopes"] = c.OauthScopes
-	}
-
-	return config
-}
-
 func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []map[string]interface{} {
 	count := len(c)
 
@@ -690,7 +668,7 @@ func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []
 			"name":               np.Name,
 			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
 			"initial_node_count": np.InitialNodeCount,
-			"node_config":        flattenClusterNodeConfig(np.Config),
+			"node_config":        flattenNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
