@@ -9,10 +9,11 @@ import (
 
 	"strconv"
 
+	"regexp"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"regexp"
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
@@ -235,6 +236,34 @@ func TestAccContainerCluster_backend(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLogging(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "logging.googleapis.com"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -246,6 +275,34 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_pool"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
+	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolAdditionalZones(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_node_pool"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.node_count", "2"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_withNodePoolResize(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_node_pool"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.node_count", "3"),
 				),
 			},
 		},
@@ -417,9 +474,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
-			clusterTests = append(clusterTests,
-				clusterTestField{prefix + "name", np.Name},
-				clusterTestField{prefix + "initial_node_count", strconv.FormatInt(np.InitialNodeCount, 10)})
+			clusterTests = append(clusterTests, clusterTestField{prefix + "name", np.Name})
 			if np.Config != nil {
 				clusterTests = append(clusterTests,
 					clusterTestField{prefix + "node_config.0.machine_type", np.Config.MachineType},
@@ -813,6 +868,28 @@ resource "google_container_cluster" "primary" {
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 
+func testAccContainerCluster_withLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "logging.googleapis.com"
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "none"
+}`, clusterName)
+}
+
 var testAccContainerCluster_withNodePoolBasic = fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool" {
 	name = "tf-cluster-nodepool-test-%s"
@@ -829,6 +906,42 @@ resource "google_container_cluster" "with_node_pool" {
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 
+func testAccContainerCluster_withNodePoolAdditionalZones(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c"
+	]
+
+	node_pool {
+		name       = "%s"
+		node_count = 2
+	}
+}`, cluster, nodePool)
+}
+
+func testAccContainerCluster_withNodePoolResize(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c"
+	]
+
+	node_pool {
+		name       = "%s"
+		node_count = 3
+	}
+}`, cluster, nodePool)
+}
+
 var testAccContainerCluster_withNodePoolNamePrefix = fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_name_prefix" {
 	name = "tf-cluster-nodepool-test-%s"
@@ -840,8 +953,8 @@ resource "google_container_cluster" "with_node_pool_name_prefix" {
 	}
 
 	node_pool {
-		name_prefix        = "tf-np-test"
-		initial_node_count = 2
+		name_prefix = "tf-np-test"
+		node_count  = 2
 	}
 }`, acctest.RandString(10))
 
@@ -856,13 +969,13 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 	}
 
 	node_pool {
-		name               = "tf-cluster-nodepool-test-%s"
-		initial_node_count = 2
+		name       = "tf-cluster-nodepool-test-%s"
+		node_count = 2
 	}
 
 	node_pool {
-		name               = "tf-cluster-nodepool-test-%s"
-		initial_node_count = 3
+		name       = "tf-cluster-nodepool-test-%s"
+		node_count = 3
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 
@@ -878,9 +991,9 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 
 	node_pool {
 		# ERROR: name and name_prefix cannot be both specified
-		name               = "tf-cluster-nodepool-test-%s"
-		name_prefix        = "tf-cluster-nodepool-test-"
-		initial_node_count = 1
+		name        = "tf-cluster-nodepool-test-%s"
+		name_prefix = "tf-cluster-nodepool-test-"
+		node_count  = 1
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 
@@ -892,7 +1005,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 	zone = "us-central1-a"
 	node_pool {
 		name = "tf-cluster-nodepool-test-%s"
-		initial_node_count = 2
+		node_count = 2
 		node_config {
 			machine_type = "n1-standard-1"
 			disk_size_gb = 15
