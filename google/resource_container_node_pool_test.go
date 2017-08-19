@@ -262,6 +262,9 @@ func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface
 	if gcpMap, ok := gcp.(map[string]string); ok {
 		return nodepoolCheckMapMatch(attributes, attr, gcpMap)
 	}
+	if gcpBool, ok := gcp.(bool); ok {
+		return checkBoolMatch(attributes, attr, gcpBool)
+	}
 	tf := attributes[attr]
 	if tf != gcp {
 		return nodepoolMatchError(attr, tf, gcp)

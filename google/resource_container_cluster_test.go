@@ -536,6 +536,10 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 	if gcpMap, ok := gcp.(map[string]string); ok {
 		return checkMapMatch(attributes, attr, gcpMap)
 	}
+	if gcpBool, ok := gcp.(bool); ok {
+		return checkBoolMatch(attributes, attr, gcpBool)
+	}
+
 	tf := attributes[attr]
 	if tf != gcp {
 		return matchError(attr, tf, gcp)
@@ -598,6 +602,18 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 		if tf := attributes[fmt.Sprintf("%s.%s", attr, k)]; tf != gcp {
 			return matchError(fmt.Sprintf("%s[%s]", attr, k), tf, gcp)
 		}
+	}
+
+	return ""
+}
+
+func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
+	tf, err := strconv.ParseBool(attributes[attr])
+	if err != nil {
+		return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+	}
+	if tf != gcpBool {
+		return matchError(attr, tf, gcpBool)
 	}
 
 	return ""
