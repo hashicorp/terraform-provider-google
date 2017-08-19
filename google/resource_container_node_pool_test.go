@@ -154,6 +154,7 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 			{"node_config.0.image_type", nodepool.Config.ImageType},
 			{"node_config.0.labels", nodepool.Config.Labels},
 			{"node_config.0.tags", nodepool.Config.Tags},
+			{"node_config.0.preemptible", nodepool.Config.Preemptible},
 		}
 
 		for _, attrs := range nodepoolTests {

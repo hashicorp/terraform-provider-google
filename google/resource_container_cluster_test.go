@@ -392,6 +392,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.image_type", cluster.NodeConfig.ImageType},
 			{"node_config.0.labels", cluster.NodeConfig.Labels},
 			{"node_config.0.tags", cluster.NodeConfig.Tags},
+			{"node_config.0.preemptible", cluster.NodeConfig.Preemptible},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
