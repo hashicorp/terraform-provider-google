@@ -779,7 +779,7 @@ resource "google_container_cluster" "with_node_config" {
 		metadata {
 			foo = "bar"
 		}
-		image_type = "CONTAINER_VM"
+		image_type = "COS"
 		labels {
 			foo = "bar"
 		}
@@ -1036,7 +1036,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 			metadata {
 				foo = "bar"
 			}
-			image_type = "CONTAINER_VM"
+			image_type = "COS"
 			labels {
 				foo = "bar"
 			}
