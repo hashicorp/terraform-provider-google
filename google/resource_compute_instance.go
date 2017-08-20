@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"regexp"
 )
 
 func stringScopeHashcode(v interface{}) int {
@@ -68,16 +69,10 @@ func resourceComputeInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											if v.(int) < 1 {
-												errors = append(errors, fmt.Errorf(
-													"%q must be greater than 0", k))
-											}
-											return
-										},
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 
 									"type": &schema.Schema{
@@ -278,20 +273,25 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork_project": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
@@ -705,7 +705,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			// Load up the name of this network_interface
 			networkName := d.Get(prefix + ".network").(string)
 			subnetworkName := d.Get(prefix + ".subnetwork").(string)
-			subnetworkProject := d.Get(prefix + ".subnetwork_project").(string)
 			address := d.Get(prefix + ".address").(string)
 			var networkLink, subnetworkLink string
 
@@ -718,20 +717,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 						"Error referencing network '%s': %s",
 						networkName, err)
 				}
-
 			} else {
-				region := getRegionFromZone(d.Get("zone").(string))
-				if subnetworkProject == "" {
-					subnetworkProject = project
-				}
-				subnetwork, err := config.clientCompute.Subnetworks.Get(
-					subnetworkProject, region, subnetworkName).Do()
+				subnetworkLink, err = getSubnetworkLink(d, config, prefix+".subnetwork", prefix+".subnetwork_project", "zone")
 				if err != nil {
-					return fmt.Errorf(
-						"Error referencing subnetwork '%s' in region '%s': %s",
-						subnetworkName, region, err)
+					return err
 				}
-				subnetworkLink = subnetwork.SelfLink
 			}
 
 			// Build the networkInterface
@@ -816,7 +806,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Name:              d.Get("name").(string),
 		NetworkInterfaces: networkInterfaces,
 		Tags:              resourceInstanceTags(d),
-		Labels:            resourceInstanceLabels(d),
+		Labels:            expandLabels(d),
 		ServiceAccounts:   serviceAccounts,
 		Scheduling:        scheduling,
 	}
@@ -961,9 +951,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			networkInterfaces = append(networkInterfaces, map[string]interface{}{
 				"name":               iface.Name,
 				"address":            iface.NetworkIP,
-				"network":            d.Get(fmt.Sprintf("network_interface.%d.network", i)),
-				"subnetwork":         d.Get(fmt.Sprintf("network_interface.%d.subnetwork", i)),
-				"subnetwork_project": d.Get(fmt.Sprintf("network_interface.%d.subnetwork_project", i)),
+				"network":            iface.Network,
+				"subnetwork":         iface.Subnetwork,
+				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
 			})
 		}
@@ -1067,7 +1057,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 
-	scheduling, _ := flattenScheduling(instance.Scheduling)
+	scheduling := flattenScheduling(instance.Scheduling)
 	d.Set("scheduling", scheduling)
 
 	d.Set("self_link", instance.SelfLink)
@@ -1154,7 +1144,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("labels") {
-		labels := resourceInstanceLabels(d)
+		labels := expandLabels(d)
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := compute.InstancesSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
 
@@ -1317,17 +1307,6 @@ func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error)
 	return m, nil
 }
 
-func resourceInstanceLabels(d *schema.ResourceData) map[string]string {
-	labels := map[string]string{}
-	if v, ok := d.GetOk("labels"); ok {
-		labelMap := v.(map[string]interface{})
-		for k, v := range labelMap {
-			labels[k] = v.(string)
-		}
-	}
-	return labels
-}
-
 func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
 	// Calculate the tags
 	var tags *compute.Tags
@@ -1451,4 +1430,13 @@ func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 		"interface": disk.Interface,
 	}
 	return result
+}
+
+func getProjectFromSubnetworkLink(subnetwork string) string {
+	r := regexp.MustCompile(SubnetworkLinkRegex)
+	if !r.MatchString(subnetwork) {
+		return ""
+	}
+
+	return r.FindStringSubmatch(subnetwork)[1]
 }

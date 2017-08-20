@@ -623,11 +623,6 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	return resourceDataprocClusterRead(d, meta)
 }
 
-func extractLastResourceFromUri(rUri string) string {
-	rUris := strings.Split(rUri, "/")
-	return rUris[len(rUris)-1]
-}
-
 func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 

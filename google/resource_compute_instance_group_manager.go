@@ -224,7 +224,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	switch computeApiVersion {
 	case v1:
 		managerV1 := &compute.InstanceGroupManager{}
-		err := Convert(manager, managerV1)
+		err = Convert(manager, managerV1)
 		if err != nil {
 			return err
 		}
@@ -234,7 +234,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 			project, d.Get("zone").(string), managerV1).Do()
 	case v0beta:
 		managerV0beta := &computeBeta.InstanceGroupManager{}
-		err := Convert(manager, managerV0beta)
+		err = Convert(manager, managerV0beta)
 		if err != nil {
 			return err
 		}
@@ -252,7 +252,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	d.SetId(manager.Name)
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Creating InstanceGroupManager")
+	err = computeSharedOperationWait(config, op, project, "Creating InstanceGroupManager")
 	if err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setTargetPoolsV1 := &compute.InstanceGroupManagersSetTargetPoolsRequest{}
-			err := Convert(setTargetPools, setTargetPoolsV1)
+			err = Convert(setTargetPools, setTargetPoolsV1)
 			if err != nil {
 				return err
 			}
@@ -425,7 +425,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setTargetPoolsV1).Do()
 		case v0beta:
 			setTargetPoolsV0beta := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{}
-			err := Convert(setTargetPools, setTargetPoolsV0beta)
+			err = Convert(setTargetPools, setTargetPoolsV0beta)
 			if err != nil {
 				return err
 			}
@@ -439,7 +439,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWait(config, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -458,7 +458,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setInstanceTemplateV1 := &compute.InstanceGroupManagersSetInstanceTemplateRequest{}
-			err := Convert(setInstanceTemplate, setInstanceTemplateV1)
+			err = Convert(setInstanceTemplate, setInstanceTemplateV1)
 			if err != nil {
 				return err
 			}
@@ -467,7 +467,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV1).Do()
 		case v0beta:
 			setInstanceTemplateV0beta := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{}
-			err := Convert(setInstanceTemplate, setInstanceTemplateV0beta)
+			err = Convert(setInstanceTemplate, setInstanceTemplateV0beta)
 			if err != nil {
 				return err
 			}
@@ -481,7 +481,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWait(config, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -527,7 +527,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			switch computeApiVersion {
 			case v1:
 				recreateInstancesV1 := &compute.InstanceGroupManagersRecreateInstancesRequest{}
-				err := Convert(recreateInstances, recreateInstancesV1)
+				err = Convert(recreateInstances, recreateInstancesV1)
 				if err != nil {
 					return err
 				}
@@ -539,7 +539,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 			case v0beta:
 				recreateInstancesV0beta := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{}
-				err := Convert(recreateInstances, recreateInstancesV0beta)
+				err = Convert(recreateInstances, recreateInstancesV0beta)
 				if err != nil {
 					return err
 				}
@@ -552,8 +552,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			// Wait for the operation to complete
-			err = computeSharedOperationWaitZoneTime(config, op, project, d.Get("zone").(string),
-				managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
+			err = computeSharedOperationWaitTime(config, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
 			if err != nil {
 				return err
 			}
@@ -576,7 +575,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			setNamedPortsV1 := &compute.InstanceGroupsSetNamedPortsRequest{}
-			err := Convert(setNamedPorts, setNamedPortsV1)
+			err = Convert(setNamedPorts, setNamedPortsV1)
 			if err != nil {
 				return err
 			}
@@ -585,7 +584,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				project, d.Get("zone").(string), d.Id(), setNamedPortsV1).Do()
 		case v0beta:
 			setNamedPortsV0beta := &computeBeta.InstanceGroupsSetNamedPortsRequest{}
-			err := Convert(setNamedPorts, setNamedPortsV0beta)
+			err = Convert(setNamedPorts, setNamedPortsV0beta)
 			if err != nil {
 				return err
 			}
@@ -599,7 +598,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete:
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWait(config, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -624,7 +623,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating InstanceGroupManager")
+		err = computeSharedOperationWait(config, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -647,7 +646,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Updating AutoHealingPolicies")
+		err = computeSharedOperationWait(config, op, project, "Updating AutoHealingPolicies")
 		if err != nil {
 			return err
 		}
@@ -698,7 +697,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	currentSize := int64(d.Get("target_size").(int))
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
+	err = computeSharedOperationWait(config, op, project, "Deleting InstanceGroupManager")
 
 	for err != nil && currentSize > 0 {
 		if !strings.Contains(err.Error(), "timeout") {
@@ -731,7 +730,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 
 		log.Printf("[INFO] timeout occured, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
 		currentSize = instanceGroupSize
-		err = computeSharedOperationWaitZone(config, op, project, d.Get("zone").(string), "Deleting InstanceGroupManager")
+		err = computeSharedOperationWait(config, op, project, "Deleting InstanceGroupManager")
 	}
 
 	d.SetId("")

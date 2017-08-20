@@ -53,13 +53,32 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 * `source_ranges` - (Optional) A list of source CIDR ranges that this
-   firewall applies to.
+   firewall applies to. Can't be used for `EGRESS`.
 
-* `source_tags` - (Optional) A list of source tags for this firewall.
+* `source_tags` - (Optional) A list of source tags for this firewall. Can't be used for `EGRESS`.
 
 * `target_tags` - (Optional) A list of target tags for this firewall.
 
+- - -
+
+* `deny` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Can be specified multiple times for each deny
+    rule. Each deny block supports fields documented below. Can be specified
+    instead of allow.
+
+* `direction` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Direction of traffic to which this firewall applies;
+    One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
+
+* `destination_ranges` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of destination CIDR ranges that this
+   firewall applies to. Can't be used for `INGRESS`.
+
 The `allow` block supports:
+
+* `protocol` - (Required) The name of the protocol to allow.
+
+* `ports` - (Optional) List of ports and/or port ranges to allow. This can
+    only be specified if the protocol is TCP or UDP.
+
+The `deny` block supports:
 
 * `protocol` - (Required) The name of the protocol to allow.
 

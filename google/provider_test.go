@@ -112,33 +112,3 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 	}
 	return "", fmt.Errorf("%q: required field is not set", "project")
 }
-
-func TestConvertStringArr(t *testing.T) {
-
-	input := make([]interface{}, 3)
-	input[0] = "aaa"
-	input[1] = "bbb"
-	input[2] = "aaa"
-
-	expected := []string{"aaa", "bbb", "ccc"}
-	actual := convertStringArr(input)
-
-	if reflect.DeepEqual(expected, actual) {
-		t.Fatalf("(%s) did not match expected value: %s", actual, expected)
-	}
-}
-
-func TestConvertAndMapStringArr(t *testing.T) {
-
-	input := make([]interface{}, 3)
-	input[0] = "aaa"
-	input[1] = "bbb"
-	input[2] = "aaa"
-
-	expected := []string{"AAA", "BBB", "CCC"}
-	actual := convertAndMapStringArr(input, strings.ToUpper)
-
-	if reflect.DeepEqual(expected, actual) {
-		t.Fatalf("(%s) did not match expected value: %s", actual, expected)
-	}
-}

@@ -26,8 +26,10 @@ import (
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/pubsub/v1"
+	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/sourcerepo/v1"
+	"google.golang.org/api/spanner/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 )
@@ -47,6 +49,8 @@ type Config struct {
 	clientDns             *dns.Service
 	clientPubsub          *pubsub.Service
 	clientResourceManager *cloudresourcemanager.Service
+	clientRuntimeconfig   *runtimeconfig.Service
+	clientSpanner         *spanner.Service
 	clientSourceRepo      *sourcerepo.Service
 	clientStorage         *storage.Service
 	clientSqlAdmin        *sqladmin.Service
@@ -177,6 +181,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientResourceManager.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig Client...")
+	c.clientRuntimeconfig, err = runtimeconfig.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientRuntimeconfig.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud IAM Client...")
 	c.clientIAM, err = iam.New(client)
 	if err != nil {
@@ -217,12 +228,20 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientSourceRepo.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating Google Cloud Spanner Client...")
+	c.clientSpanner, err = spanner.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientSpanner.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
 	c.clientDataproc, err = dataproc.New(client)
 	if err != nil {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
+
 	return nil
 }
 

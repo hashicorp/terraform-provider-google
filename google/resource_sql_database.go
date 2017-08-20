@@ -46,13 +46,13 @@ func resourceSqlDatabase() *schema.Resource {
 			"charset": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "utf8",
+				Computed: true,
 			},
 
 			"collation": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "utf8_general_ci",
+				Computed: true,
 			},
 		},
 	}

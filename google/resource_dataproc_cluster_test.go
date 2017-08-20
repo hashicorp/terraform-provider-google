@@ -21,22 +21,6 @@ const emptyTFDefinition = `
 # empty def
 `
 
-func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
-	actual := extractLastResourceFromUri("http://something.com/one/two/three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
-func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
-	actual := extractLastResourceFromUri("three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
 func TestExtractInitTimeout(t *testing.T) {
 	actual, err := extractInitTimeout("500s")
 	expected := 500

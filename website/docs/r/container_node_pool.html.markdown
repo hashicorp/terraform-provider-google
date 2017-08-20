@@ -111,3 +111,11 @@ The `autoscaling` block supports:
     <= `maxNodeCount`.
 
 * `maxNodeCount` - (Required) Maximum number of nodes in the NodePool. Must be >= minNodeCount.
+
+## Import
+
+Node pools can be imported using the `zone`, `cluster` and `name`, e.g.
+
+```
+$ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
+```

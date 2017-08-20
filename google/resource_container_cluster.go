@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
 )
 
@@ -156,10 +157,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"logging_service": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
 			},
 
 			"monitoring_service": {
@@ -237,17 +238,25 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"initial_node_count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:       schema.TypeInt,
+							Optional:   true,
+							ForceNew:   true,
+							Computed:   true,
+							Deprecated: "Use node_count instead",
+						},
+
+						"node_count": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"name": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ConflictsWith: []string{"node_pool.name_prefix"},
-							ForceNew:      true,
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
 						},
 
 						"name_prefix": {
@@ -255,6 +264,8 @@ func resourceContainerCluster() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"node_config": schemaNodeConfig,
 					},
 				},
 			},
@@ -365,65 +376,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if v, ok := d.GetOk("node_config"); ok {
-		nodeConfigs := v.([]interface{})
-		nodeConfig := nodeConfigs[0].(map[string]interface{})
-
-		cluster.NodeConfig = &container.NodeConfig{}
-
-		if v, ok = nodeConfig["machine_type"]; ok {
-			cluster.NodeConfig.MachineType = v.(string)
-		}
-
-		if v, ok = nodeConfig["disk_size_gb"]; ok {
-			cluster.NodeConfig.DiskSizeGb = int64(v.(int))
-		}
-
-		if v, ok = nodeConfig["local_ssd_count"]; ok {
-			cluster.NodeConfig.LocalSsdCount = int64(v.(int))
-		}
-
-		if v, ok := nodeConfig["oauth_scopes"]; ok {
-			scopesList := v.([]interface{})
-			scopes := []string{}
-			for _, v := range scopesList {
-				scopes = append(scopes, canonicalizeServiceScope(v.(string)))
-			}
-
-			cluster.NodeConfig.OauthScopes = scopes
-		}
-
-		if v, ok = nodeConfig["service_account"]; ok {
-			cluster.NodeConfig.ServiceAccount = v.(string)
-		}
-
-		if v, ok = nodeConfig["metadata"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Metadata = m
-		}
-
-		if v, ok = nodeConfig["image_type"]; ok {
-			cluster.NodeConfig.ImageType = v.(string)
-		}
-
-		if v, ok = nodeConfig["labels"]; ok {
-			m := make(map[string]string)
-			for k, val := range v.(map[string]interface{}) {
-				m[k] = val.(string)
-			}
-			cluster.NodeConfig.Labels = m
-		}
-
-		if v, ok := nodeConfig["tags"]; ok {
-			tagsList := v.([]interface{})
-			tags := []string{}
-			for _, v := range tagsList {
-				tags = append(tags, v.(string))
-			}
-			cluster.NodeConfig.Tags = tags
-		}
+		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
 	nodePoolsCount := d.Get("node_pool.#").(int)
@@ -432,20 +385,32 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		for i := 0; i < nodePoolsCount; i++ {
 			prefix := fmt.Sprintf("node_pool.%d", i)
 
-			nodeCount := d.Get(prefix + ".initial_node_count").(int)
+			nodeCount := 0
+			if initialNodeCount, ok := d.GetOk(prefix + ".initial_node_count"); ok {
+				nodeCount = initialNodeCount.(int)
+			}
+			if nc, ok := d.GetOk(prefix + ".node_count"); ok {
+				if nodeCount != 0 {
+					return fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %d", i)
+				}
+				nodeCount = nc.(int)
+			}
+			if nodeCount == 0 {
+				return fmt.Errorf("Node pool %d cannot be set with 0 node count", i)
+			}
 
-			var name string
-			if v, ok := d.GetOk(prefix + ".name"); ok {
-				name = v.(string)
-			} else if v, ok := d.GetOk(prefix + ".name_prefix"); ok {
-				name = resource.PrefixedUniqueId(v.(string))
-			} else {
-				name = resource.UniqueId()
+			name, err := generateNodePoolName(prefix, d)
+			if err != nil {
+				return err
 			}
 
 			nodePool := &container.NodePool{
 				Name:             name,
 				InitialNodeCount: int64(nodeCount),
+			}
+
+			if v, ok := d.GetOk(prefix + ".node_config"); ok {
+				nodePool.Config = expandNodeConfig(v)
 			}
 
 			nodePools = append(nodePools, nodePool)
@@ -530,7 +495,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", d.Get("network").(string))
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenClusterNodeConfig(cluster.NodeConfig))
-	d.Set("node_pool", flattenClusterNodePools(d, cluster.NodePools))
+	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
+	if err != nil {
+		return err
+	}
+	d.Set("node_pool", nps)
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
 		return err
@@ -558,9 +527,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("node_version") {
 		desiredNodeVersion := d.Get("node_version").(string)
 
+		// The master must be updated before the nodes
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
+				DesiredMasterVersion: desiredNodeVersion,
 			},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
@@ -570,12 +540,33 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster version", timeoutInMinutes, 2)
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
 		if waitErr != nil {
 			return waitErr
 		}
 
-		log.Printf("[INFO] GKE cluster %s has been updated to %s", d.Id(),
+		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
+			desiredNodeVersion)
+
+		// Update the nodes
+		req = &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+		op, err = config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr = containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
@@ -631,6 +622,54 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
 
 		d.SetPartial("enable_legacy_abac")
+	}
+
+	if n, ok := d.GetOk("node_pool.#"); ok {
+		for i := 0; i < n.(int); i++ {
+			if d.HasChange(fmt.Sprintf("node_pool.%d.node_count", i)) {
+				newSize := int64(d.Get(fmt.Sprintf("node_pool.%d.node_count", i)).(int))
+				req := &container.SetNodePoolSizeRequest{
+					NodeCount: newSize,
+				}
+				npName := d.Get(fmt.Sprintf("node_pool.%d.name", i)).(string)
+				op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zoneName, clusterName, npName, req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node pool size", timeoutInMinutes, 2)
+				if waitErr != nil {
+					return waitErr
+				}
+
+				log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
+			}
+		}
+		d.SetPartial("node_pool")
+	}
+
+	if d.HasChange("logging_service") {
+		logging := d.Get("logging_service").(string)
+
+		req := &container.SetLoggingServiceRequest{
+			LoggingService: logging,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE logging service", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s: logging service has been updated to %s", d.Id(),
+			logging)
+		d.SetPartial("logging_service")
 	}
 
 	d.Partial(false)
@@ -715,19 +754,49 @@ func flattenClusterNodeConfig(c *container.NodeConfig) []map[string]interface{} 
 	return config
 }
 
-func flattenClusterNodePools(d *schema.ResourceData, c []*container.NodePool) []map[string]interface{} {
-	count := len(c)
-
-	nodePools := make([]map[string]interface{}, 0, count)
+func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*container.NodePool) ([]map[string]interface{}, error) {
+	nodePools := make([]map[string]interface{}, 0, len(c))
 
 	for i, np := range c {
+		// Node pools don't expose the current node count in their API, so read the
+		// instance groups instead. They should all have the same size, but in case a resize
+		// failed or something else strange happened, we'll just use the average size.
+		size := 0
+		for _, url := range np.InstanceGroupUrls {
+			// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
+			matches := instanceGroupManagerURL.FindStringSubmatch(url)
+			igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+			if err != nil {
+				return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			}
+			size += int(igm.TargetSize)
+		}
 		nodePool := map[string]interface{}{
 			"name":               np.Name,
 			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
 			"initial_node_count": np.InitialNodeCount,
+			"node_count":         size / len(np.InstanceGroupUrls),
+			"node_config":        flattenClusterNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
 
-	return nodePools
+	return nodePools, nil
+}
+
+func generateNodePoolName(prefix string, d *schema.ResourceData) (string, error) {
+	name, okName := d.GetOk(prefix + ".name")
+	namePrefix, okPrefix := d.GetOk(prefix + ".name_prefix")
+
+	if okName && okPrefix {
+		return "", fmt.Errorf("Cannot specify both name and name_prefix for a node_pool")
+	}
+
+	if okName {
+		return name.(string), nil
+	} else if okPrefix {
+		return resource.PrefixedUniqueId(namePrefix.(string)), nil
+	} else {
+		return resource.UniqueId(), nil
+	}
 }
