@@ -31,6 +31,8 @@ func resourceDataprocCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		// https://github.com/hashicorp/terraform/issues/10532
+		// https://github.com/terraform-providers/terraform-provider-google/issues/19
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -66,261 +68,364 @@ func resourceDataprocCluster() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-
-			"delete_autogen_bucket": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"staging_bucket": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			// If the user does not specify a staging bucket, GCP will allocate one automatically.
-			// The staging_bucket field provides a way for the user to supply their own
-			// staging bucket. The bucket field is purely a computed field which details
-			// the definitive bucket allocated and in use (either the user supplied one via
-			// staging_bucket, or the GCP generated one)
-			"bucket": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"image_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-
-			"network": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"subnetwork"},
-				StateFunc: func(s interface{}) string {
-					return extractLastResourceFromUri(s.(string))
-				},
-			},
-
-			"subnetwork": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"network"},
-				StateFunc: func(s interface{}) string {
-					return extractLastResourceFromUri(s.(string))
-				},
-			},
-
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     schema.TypeString,
+				// GCP automatically seems to adds a
+				// 'goog-dataproc-cluster-name' label
+				Computed: true,
 			},
 
-			"properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     schema.TypeString,
-			},
-
-			"tags": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"master_config": {
+			"cluster_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"num_masters": {
-							Type:     schema.TypeInt,
+
+						"delete_autogen_bucket": {
+							Type:     schema.TypeBool,
 							Optional: true,
-							Computed: true,
+							Default:  false,
 						},
 
-						"machine_type": {
+						"staging_bucket": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 							ForceNew: true,
 						},
-
-						"num_local_ssds": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
+						// If the user does not specify a staging bucket, GCP will allocate one automatically.
+						// The staging_bucket field provides a way for the user to supply their own
+						// staging bucket. The bucket field is purely a computed field which details
+						// the definitive bucket allocated and in use (either the user supplied one via
+						// staging_bucket, or the GCP generated one)
+						"bucket": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 
-						"boot_disk_size_gb": {
-							Type:     schema.TypeInt,
+						"gce_cluster_config": {
+							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
 
-								if value < 10 {
-									errors = append(errors, fmt.Errorf(
-										"%q cannot be less than 10", k))
-								}
-								return
+									"zone": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+
+									"network": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										Computed:      true,
+										ForceNew:      true,
+										ConflictsWith: []string{"cluster_config.gce_cluster_config.subnetwork"},
+										StateFunc: func(s interface{}) string {
+											return extractLastResourceFromUri(s.(string))
+										},
+									},
+
+									"subnetwork": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ForceNew:      true,
+										ConflictsWith: []string{"cluster_config.gce_cluster_config.network"},
+										StateFunc: func(s interface{}) string {
+											return extractLastResourceFromUri(s.(string))
+										},
+									},
+
+									"tags": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+
+									"service_account": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+
+									"service_account_scopes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+											StateFunc: func(v interface{}) string {
+												return canonicalizeServiceScope(v.(string))
+											},
+										},
+									},
+								},
 							},
 						},
 
-						"instance_names": {
+						"master_config": {
 							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
-			"worker_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"num_workers": {
-							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-						},
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//"hacktype": {
+									//	Type:     schema.TypeString,
+									//	Computed: true,
+									//},
 
-						"machine_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
+									"num_instances": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 
-						"num_local_ssds": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
+									"machine_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 
-						"boot_disk_size_gb": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
+									"disk_config": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										MaxItems: 1,
 
-								if value < 10 {
-									errors = append(errors, fmt.Errorf(
-										"%q cannot be less than 10", k))
-								}
-								return
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"num_local_ssds": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+												},
+
+												"boot_disk_size_gb": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+														value := v.(int)
+
+														if value < 10 {
+															errors = append(errors, fmt.Errorf(
+																"%q cannot be less than 10", k))
+														}
+														return
+													},
+												},
+											},
+										},
+									},
+
+									"instance_names": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
 							},
 						},
 
-						"preemptible_num_workers": {
-							Type:     schema.TypeInt,
+						"worker_config": {
+							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
-						},
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//"hacktype": {
+									//	Type:     schema.TypeString,
+									//	Computed: true,
+									//},
 
-						// "preemptible_machine_type" cannot be specified directly, it takes its
-						// value from the standard worker "machine_type" field
+									"num_instances": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 
-						"preemptible_boot_disk_size_gb": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
+									"machine_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 
-								if value < 10 {
-									errors = append(errors, fmt.Errorf(
-										"%q cannot be less than 10", k))
-								}
-								return
+									"disk_config": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										MaxItems: 1,
+
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"num_local_ssds": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ForceNew: true,
+												},
+
+												"boot_disk_size_gb": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+														value := v.(int)
+
+														if value < 10 {
+															errors = append(errors, fmt.Errorf(
+																"%q cannot be less than 10", k))
+														}
+														return
+													},
+												},
+											},
+										},
+									},
+
+									"instance_names": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
 							},
 						},
 
-						"instance_names": {
+						"preemptible_worker_config": {
 							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-
-						"preemptible_instance_names": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
-			"service_account": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"service_account_scopes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					StateFunc: func(v interface{}) string {
-						return canonicalizeServiceScope(v.(string))
-					},
-				},
-			},
-
-			"initialization_action": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"script": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-
-						"timeout_sec": {
-							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  300,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//"hacktype": {
+									//	Type:     schema.TypeString,
+									//	Computed: true,
+									//},
+
+									"num_instances": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+
+									"machine_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+
+									"disk_config": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										MaxItems: 1,
+
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"num_local_ssds": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+												},
+
+												"boot_disk_size_gb": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+														value := v.(int)
+
+														if value < 10 {
+															errors = append(errors, fmt.Errorf(
+																"%q cannot be less than 10", k))
+														}
+														return
+													},
+												},
+											},
+										},
+									},
+
+									"instance_names": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+
+						"software_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"image_version": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+
+									"override_properties": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										ForceNew: true,
+										Elem:     schema.TypeString,
+									},
+
+									"properties": {
+										Type:     schema.TypeMap,
+										Computed: true,
+									},
+								},
+							},
+						},
+
+						"initialization_action": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"script": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+
+									"timeout_sec": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  300,
+									},
+								},
+							},
 						},
 					},
 				},
-			},
-
-			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     schema.TypeString,
 			},
 		},
 	}
@@ -334,141 +439,14 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	// Mandatory
 	clusterName := d.Get("name").(string)
 	region := d.Get("region").(string)
-	zone, zok := d.GetOk("zone")
-
-	if region == "global" && !zok {
-		return errors.New("zone is mandatory when region is set to 'global'")
-	}
-
-	gceConfig := &dataproc.GceClusterConfig{
-		ZoneUri: zone.(string),
-	}
-
-	if v, ok := d.GetOk("network"); ok {
-		gceConfig.NetworkUri = extractLastResourceFromUri(v.(string))
-	}
-
-	if v, ok := d.GetOk("subnetwork"); ok {
-		gceConfig.SubnetworkUri = extractLastResourceFromUri(v.(string))
-	}
-
-	if v, ok := d.GetOk("tags"); ok {
-		gceConfig.Tags = convertStringArr(v.([]interface{}))
-	}
-
-	if v, ok := d.GetOk("service_account"); ok {
-		gceConfig.ServiceAccount = v.(string)
-	}
-
-	if v, ok := d.GetOk("service_account_scopes"); ok {
-		gceConfig.ServiceAccountScopes = convertAndMapStringArr(v.([]interface{}), canonicalizeServiceScope)
-		sort.Strings(gceConfig.ServiceAccountScopes)
-	}
-
-	clusterConfig := &dataproc.ClusterConfig{
-		GceClusterConfig: gceConfig,
-		SoftwareConfig:   &dataproc.SoftwareConfig{},
-	}
-
-	if v, ok := d.GetOk("initialization_action"); ok {
-		actionList := v.([]interface{})
-
-		actions := []*dataproc.NodeInitializationAction{}
-		for _, v1 := range actionList {
-			actionItem := v1.(map[string]interface{})
-			action := &dataproc.NodeInitializationAction{
-				ExecutableFile: actionItem["script"].(string),
-			}
-			if x, ok := actionItem["timeout_sec"]; ok {
-				action.ExecutionTimeout = strconv.Itoa(x.(int)) + "s"
-			}
-
-			actions = append(actions, action)
-		}
-		clusterConfig.InitializationActions = actions
-	}
-
-	if v, ok := d.GetOk("staging_bucket"); ok {
-		clusterConfig.ConfigBucket = v.(string)
-	}
-
-	if v, ok := d.GetOk("master_config"); ok {
-		masterConfigs := v.([]interface{})
-		masterConfig := masterConfigs[0].(map[string]interface{})
-
-		clusterConfig.MasterConfig = &dataproc.InstanceGroupConfig{
-			DiskConfig: &dataproc.DiskConfig{},
-		}
-
-		if v, ok = masterConfig["num_masters"]; ok {
-			clusterConfig.MasterConfig.NumInstances = int64(v.(int))
-		}
-		if v, ok = masterConfig["machine_type"]; ok {
-			clusterConfig.MasterConfig.MachineTypeUri = extractLastResourceFromUri(v.(string))
-		}
-		if v, ok = masterConfig["boot_disk_size_gb"]; ok {
-			clusterConfig.MasterConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
-		}
-		if v, ok = masterConfig["num_local_ssds"]; ok {
-			clusterConfig.MasterConfig.DiskConfig.NumLocalSsds = int64(v.(int))
-		}
-	}
-
-	if v, ok := d.GetOk("worker_config"); ok {
-		configs := v.([]interface{})
-		config := configs[0].(map[string]interface{})
-
-		clusterConfig.WorkerConfig = &dataproc.InstanceGroupConfig{
-			DiskConfig: &dataproc.DiskConfig{},
-		}
-
-		if v, ok = config["num_workers"]; ok {
-			clusterConfig.WorkerConfig.NumInstances = int64(v.(int))
-		}
-		if v, ok = config["machine_type"]; ok {
-			clusterConfig.WorkerConfig.MachineTypeUri = extractLastResourceFromUri(v.(string))
-		}
-		if v, ok = config["boot_disk_size_gb"]; ok {
-			clusterConfig.WorkerConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
-		}
-		if v, ok = config["num_local_ssds"]; ok {
-			clusterConfig.WorkerConfig.DiskConfig.NumLocalSsds = int64(v.(int))
-		}
-
-		clusterConfig.SecondaryWorkerConfig = &dataproc.InstanceGroupConfig{
-			DiskConfig: &dataproc.DiskConfig{},
-		}
-
-		if v, ok = config["preemptible_num_workers"]; ok {
-			clusterConfig.SecondaryWorkerConfig.NumInstances = int64(v.(int))
-			if clusterConfig.SecondaryWorkerConfig.NumInstances > 0 {
-				clusterConfig.SecondaryWorkerConfig.IsPreemptible = true
-			}
-		}
-		if v, ok = config["preemptible_boot_disk_size_gb"]; ok {
-			clusterConfig.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb = int64(v.(int))
-		}
-	}
-
 	cluster := &dataproc.Cluster{
 		ClusterName: clusterName,
 		ProjectId:   project,
-		Config:      clusterConfig,
-	}
-
-	if v, ok := d.GetOk("properties"); ok {
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
-		}
-		cluster.Config.SoftwareConfig.Properties = m
-	}
-
-	if v, ok := d.GetOk("image_version"); ok {
-		cluster.Config.SoftwareConfig.ImageVersion = v.(string)
+		Config: &dataproc.ClusterConfig{
+			GceClusterConfig: &dataproc.GceClusterConfig{},
+		},
 	}
 
 	if v, ok := d.GetOk("labels"); ok {
@@ -478,12 +456,96 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		}
 		cluster.Labels = m
 	}
-	if v, ok := d.GetOk("metadata"); ok {
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
+
+	if v, ok := d.GetOk("cluster_config"); ok {
+
+		confs := v.([]interface{})
+		if (len(confs)) > 0 {
+			//conf := confs[0].(map[string]interface{})
+			if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
+				cluster.Config.ConfigBucket = v.(string)
+			}
+
+			if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
+
+				log.Println("[INFO] got gce config")
+				zone, zok := cfg["zone"]
+				if region == "global" && !zok {
+					return errors.New("zone is mandatory when region is set to 'global'")
+				}
+
+				if zok {
+					cluster.Config.GceClusterConfig.ZoneUri = zone.(string)
+				}
+				if v, ok := cfg["network"]; ok {
+					cluster.Config.GceClusterConfig.NetworkUri = extractLastResourceFromUri(v.(string))
+				}
+				if v, ok := cfg["subnetwork"]; ok {
+					cluster.Config.GceClusterConfig.SubnetworkUri = extractLastResourceFromUri(v.(string))
+				}
+				if v, ok := cfg["tags"]; ok {
+					cluster.Config.GceClusterConfig.Tags = convertStringArr(v.([]interface{}))
+				}
+				if v, ok := cfg["service_account"]; ok {
+					cluster.Config.GceClusterConfig.ServiceAccount = v.(string)
+				}
+				if v, ok := cfg["service_account_scopes"]; ok {
+					cluster.Config.GceClusterConfig.ServiceAccountScopes = convertAndMapStringArr(v.([]interface{}), canonicalizeServiceScope)
+					sort.Strings(cluster.Config.GceClusterConfig.ServiceAccountScopes)
+				}
+			}
+
+			if cfg, ok := configOptions(d, "cluster_config.0.software_config"); ok {
+				cluster.Config.SoftwareConfig = &dataproc.SoftwareConfig{}
+
+				if v, ok := cfg["override_properties"]; ok {
+					m := make(map[string]string)
+					for k, val := range v.(map[string]interface{}) {
+						m[k] = val.(string)
+					}
+					cluster.Config.SoftwareConfig.Properties = m
+				}
+				if v, ok := cfg["image_version"]; ok {
+					cluster.Config.SoftwareConfig.ImageVersion = v.(string)
+				}
+			}
+
+			if v, ok := d.GetOk("cluster_config.0.initialization_action"); ok {
+				actionList := v.([]interface{})
+
+				actions := []*dataproc.NodeInitializationAction{}
+				for _, v1 := range actionList {
+					actionItem := v1.(map[string]interface{})
+					action := &dataproc.NodeInitializationAction{
+						ExecutableFile: actionItem["script"].(string),
+					}
+					if x, ok := actionItem["timeout_sec"]; ok {
+						action.ExecutionTimeout = strconv.Itoa(x.(int)) + "s"
+					}
+
+					actions = append(actions, action)
+				}
+				cluster.Config.InitializationActions = actions
+			}
+
+			if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
+				log.Println("[INFO] got master_config")
+				cluster.Config.MasterConfig = instanceGroupConfigCreate(cfg)
+			}
+
+			if cfg, ok := configOptions(d, "cluster_config.0.worker_config"); ok {
+				log.Println("[INFO] got worker config")
+				cluster.Config.WorkerConfig = instanceGroupConfigCreate(cfg)
+			}
+
+			if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
+				log.Println("[INFO] got preemtible worker config")
+				cluster.Config.SecondaryWorkerConfig = instanceGroupConfigCreate(cfg)
+				if cluster.Config.SecondaryWorkerConfig.NumInstances > 0 {
+					cluster.Config.SecondaryWorkerConfig.IsPreemptible = true
+				}
+			}
 		}
-		cluster.Config.GceClusterConfig.Metadata = m
 	}
 
 	// Create the cluster
@@ -506,6 +568,36 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", clusterName)
 	return resourceDataprocClusterRead(d, meta)
+
+}
+
+func instanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
+	icg := &dataproc.InstanceGroupConfig{}
+
+	if v, ok := cfg["num_instances"]; ok {
+		icg.NumInstances = int64(v.(int))
+	}
+	if v, ok := cfg["machine_type"]; ok {
+		icg.MachineTypeUri = extractLastResourceFromUri(v.(string))
+	}
+
+	if dc, ok := cfg["disk_config"]; ok {
+		d := dc.([]interface{})
+		if len(d) > 0 {
+			dcfg := d[0].(map[string]interface{})
+			icg.DiskConfig = &dataproc.DiskConfig{}
+
+			if v, ok := dcfg["boot_disk_size_gb"]; ok {
+				log.Printf("[INFO] got boot size %v \n", v)
+				icg.DiskConfig.BootDiskSizeGb = int64(v.(int))
+			}
+			if v, ok := dcfg["num_local_ssds"]; ok {
+				icg.DiskConfig.NumLocalSsds = int64(v.(int))
+			}
+		}
+	}
+
+	return icg
 
 }
 
@@ -540,11 +632,11 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		updMask = append(updMask, "labels")
 	}
 
-	if d.HasChange("worker_config.0.num_workers") {
+	if d.HasChange("cluster_config.0.worker_config.0.num_instances") {
 		wconfigs := d.Get("worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
-		desiredNumWorks := conf["num_workers"].(int)
+		desiredNumWorks := conf["num_instances"].(int)
 		cluster.Config.WorkerConfig = &dataproc.InstanceGroupConfig{
 			NumInstances: int64(desiredNumWorks),
 		}
@@ -552,11 +644,11 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		updMask = append(updMask, "config.worker_config.num_instances")
 	}
 
-	if d.HasChange("worker_config.0.preemptible_num_workers") {
-		wconfigs := d.Get("worker_config").([]interface{})
+	if d.HasChange("cluster_config.0.preemptible_worker_config.0.num_instances") {
+		wconfigs := d.Get("preemptible_worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
-		desiredNumWorks := conf["preemptible_num_workers"].(int)
+		desiredNumWorks := conf["num_instances"].(int)
 		cluster.Config.SecondaryWorkerConfig = &dataproc.InstanceGroupConfig{
 			NumInstances: int64(desiredNumWorks),
 		}
@@ -564,20 +656,23 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		updMask = append(updMask, "config.secondary_worker_config.num_instances")
 	}
 
-	patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
-		project, region, clusterName, cluster)
-	op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
-	if err != nil {
-		return err
+	if len(updMask) > 0 {
+		patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
+			project, region, clusterName, cluster)
+		op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] Dataproc cluster %s has been updated ", d.Id())
 	}
 
-	// Wait until it's updated
-	waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes, 2)
-	if waitErr != nil {
-		return waitErr
-	}
-
-	log.Printf("[INFO] Dataproc cluster %s has been updated ", d.Id())
 	return resourceDataprocClusterRead(d, meta)
 }
 
@@ -603,86 +698,108 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
 	}
 
-	d.Set("labels", cluster.Labels)
 	d.Set("name", cluster.ClusterName)
-	d.Set("bucket", cluster.Config.ConfigBucket)
+	d.Set("region", region)
+	d.Set("labels", cluster.Labels)
 
-	if len(cluster.Config.InitializationActions) > 0 {
-		actions := []map[string]interface{}{}
-		for _, v := range cluster.Config.InitializationActions {
-
-			action := []map[string]interface{}{
-				{
-					"script": v.ExecutableFile,
-				},
-			}
-			if len(v.ExecutionTimeout) > 0 {
-				tsec, err := extractInitTimeout(v.ExecutionTimeout)
-				if err != nil {
-					return err
-				}
-				action[0]["timeout_sec"] = tsec
-			}
-
-			actions = append(actions, action[0])
-		}
-		d.Set("initialization_action", actions)
+	cfg, err := flattenClusterConfig(d, cluster.Config)
+	if err != nil {
+		return err
 	}
 
-	if cluster.Config.GceClusterConfig != nil {
-		d.Set("zone", extractLastResourceFromUri(cluster.Config.GceClusterConfig.ZoneUri))
-		d.Set("network", extractLastResourceFromUri(cluster.Config.GceClusterConfig.NetworkUri))
-		d.Set("subnet", extractLastResourceFromUri(cluster.Config.GceClusterConfig.SubnetworkUri))
-		d.Set("tags", cluster.Config.GceClusterConfig.Tags)
-		d.Set("metadata", cluster.Config.GceClusterConfig.Metadata)
-		d.Set("service_account", cluster.Config.GceClusterConfig.ServiceAccount)
-		if len(cluster.Config.GceClusterConfig.ServiceAccountScopes) > 0 {
-			sort.Strings(cluster.Config.GceClusterConfig.ServiceAccountScopes)
-			d.Set("service_account_scopes", cluster.Config.GceClusterConfig.ServiceAccountScopes)
-		}
-
-	}
-
-	if cluster.Config.SoftwareConfig != nil {
-		d.Set("image_version", cluster.Config.SoftwareConfig.ImageVersion)
-		//We only want our overriden values here for now
-		//d.Set("properties", cluster.Config.SoftwareConfig.Properties)
-	}
-
-	if cluster.Config.MasterConfig != nil {
-		masterConfig := []map[string]interface{}{
-			{
-				"num_masters":       cluster.Config.MasterConfig.NumInstances,
-				"boot_disk_size_gb": cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb,
-				"machine_type":      extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri),
-				"num_local_ssds":    cluster.Config.MasterConfig.DiskConfig.NumLocalSsds,
-				"instance_names":    cluster.Config.MasterConfig.InstanceNames,
-			},
-		}
-		d.Set("master_config", masterConfig)
-	}
-
-	if cluster.Config.WorkerConfig != nil {
-		workerConfig := []map[string]interface{}{
-			{
-				"num_workers":       cluster.Config.WorkerConfig.NumInstances,
-				"boot_disk_size_gb": cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb,
-				"machine_type":      extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri),
-				"num_local_ssds":    cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds,
-				"instance_names":    cluster.Config.WorkerConfig.InstanceNames,
-			},
-		}
-
-		if cluster.Config.SecondaryWorkerConfig != nil {
-			workerConfig[0]["preemptible_num_workers"] = cluster.Config.SecondaryWorkerConfig.NumInstances
-			workerConfig[0]["preemptible_boot_disk_size_gb"] = cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb
-			workerConfig[0]["preemptible_instance_names"] = cluster.Config.SecondaryWorkerConfig.InstanceNames
-		}
-
-		d.Set("worker_config", workerConfig)
-	}
-
+	d.Set("cluster_config", cfg)
 	return nil
+}
+
+func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) ([]map[string]interface{}, error) {
+
+	data := getOrCreateNewMapSchema(d, "cluster_config")
+
+	data["bucket"] = cfg.ConfigBucket
+	data["gce_cluster_config"] = flattenGceClusterConfig(data, cfg.GceClusterConfig)
+	data["software_config"] = flattenSoftwareConfig(data, cfg.SoftwareConfig)
+
+	data["master_config"] = flattenInstanceGroupConfig(data, "master_config", cfg.MasterConfig)
+	data["worker_config"] = flattenInstanceGroupConfig(data, "worker_config", cfg.WorkerConfig)
+	data["preemptible_worker_config"] = flattenInstanceGroupConfig(data, "preemptible_worker_config", cfg.SecondaryWorkerConfig)
+
+	if len(cfg.InitializationActions) > 0 {
+		val, err := flattenInitializationActions(cfg.InitializationActions)
+		if err != nil {
+			return nil, err
+		}
+		data["intialization_action"] = val
+	}
+	return []map[string]interface{}{data}, nil
+}
+
+func flattenSoftwareConfig(parent map[string]interface{}, sc *dataproc.SoftwareConfig) []map[string]interface{} {
+	data := getOrCreateNewMap(parent, "software_config")
+	data["image_version"] = sc.ImageVersion
+	data["properties"] = sc.Properties
+
+	return []map[string]interface{}{data}
+}
+
+func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]map[string]interface{}, error) {
+
+	actions := []map[string]interface{}{}
+	for _, v := range nia {
+		action := map[string]interface{}{
+			"script": v.ExecutableFile,
+		}
+		if len(v.ExecutionTimeout) > 0 {
+			tsec, err := extractInitTimeout(v.ExecutionTimeout)
+			if err != nil {
+				return nil, err
+			}
+			action["timeout_sec"] = tsec
+		}
+
+		actions = append(actions, action)
+	}
+	return actions, nil
+
+}
+
+func flattenGceClusterConfig(parent map[string]interface{}, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
+
+	gceConfig := getOrCreateNewMap(parent, "gce_cluster_config")
+	gceConfig["zone"] = extractLastResourceFromUri(gcc.ZoneUri)
+	gceConfig["tags"] = gcc.Tags
+	gceConfig["service_account"] = gcc.ServiceAccount
+
+	if gcc.NetworkUri != "" {
+		gceConfig["network"] = extractLastResourceFromUri(gcc.NetworkUri)
+	}
+	if gcc.SubnetworkUri != "" {
+		gceConfig["subnetwork"] = extractLastResourceFromUri(gcc.SubnetworkUri)
+	}
+
+	if len(gcc.ServiceAccountScopes) > 0 {
+		sort.Strings(gcc.ServiceAccountScopes)
+		gceConfig["service_account_scopes"] = gcc.ServiceAccountScopes
+	}
+	return []map[string]interface{}{gceConfig}
+}
+
+func flattenInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+
+	data := getOrCreateNewMap(parent, name)
+	disk := getOrCreateNewMap(data, "disk_config")
+
+	if icg != nil {
+		data["num_instances"] = icg.NumInstances
+		data["machine_type"] = extractLastResourceFromUri(icg.MachineTypeUri)
+		data["instance_names"] = icg.InstanceNames
+		if icg.DiskConfig != nil {
+			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
+			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
+		}
+	}
+
+	data["disk_config"] = []map[string]interface{}{disk}
+	return []map[string]interface{}{data}
 }
 
 func extractInitTimeout(t string) (int, error) {
@@ -703,7 +820,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
-	deleteAutoGenBucket := d.Get("delete_autogen_bucket").(bool)
+	deleteAutoGenBucket := d.Get("cluster_config.0.delete_autogen_bucket").(bool)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	if deleteAutoGenBucket {
@@ -735,11 +852,11 @@ func deleteAutogenBucketIfExists(d *schema.ResourceData, meta interface{}) error
 
 	// If the user did not specify a specific override staging bucket, then GCP
 	// creates one automatically. Clean this up to avoid dangling resources.
-	if v, ok := d.GetOk("staging_bucket"); ok {
+	if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
 		log.Printf("[DEBUG] staging bucket %s (for dataproc cluster) has explicitly been set, leaving it...", v)
 		return nil
 	}
-	bucket := d.Get("bucket").(string)
+	bucket := d.Get("cluster_config.0.bucket").(string)
 
 	log.Printf("[DEBUG] Attempting to delete autogenerated bucket %s (for dataproc cluster)", bucket)
 	return emptyAndDeleteStorageBucket(config, bucket)
@@ -816,4 +933,46 @@ func deleteStorageBucketContents(config *Config, bucket string) error {
 	}
 
 	return nil
+}
+
+func configOptions(d *schema.ResourceData, option string) (map[string]interface{}, bool) {
+	if v, ok := d.GetOk(option); ok {
+		clist := v.([]interface{})
+		if len(clist) == 0 {
+			return nil, false
+		}
+
+		if clist[0] != nil {
+			return clist[0].(map[string]interface{}), true
+		}
+	}
+	return nil, false
+}
+
+func getOrCreateNewMapSchema(d *schema.ResourceData, key string) map[string]interface{} {
+	if v, ok := d.GetOk(key); ok {
+		clist := v.([]interface{})
+		if len(clist) == 0 {
+			return map[string]interface{}{}
+		}
+
+		if clist[0] != nil {
+			return clist[0].(map[string]interface{})
+		}
+	}
+	return map[string]interface{}{}
+}
+
+func getOrCreateNewMap(d map[string]interface{}, key string) map[string]interface{} {
+	if v, ok := d[key]; ok {
+		clist := v.([]interface{})
+		if len(clist) == 0 {
+			return map[string]interface{}{}
+		}
+
+		if clist[0] != nil {
+			return clist[0].(map[string]interface{})
+		}
+	}
+	return map[string]interface{}{}
 }
