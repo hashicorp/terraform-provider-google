@@ -31,8 +31,6 @@ func resourceDataprocCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		// https://github.com/hashicorp/terraform/issues/10532
-		// https://github.com/terraform-providers/terraform-provider-google/issues/19
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -61,6 +59,12 @@ func resourceDataprocCluster() *schema.Resource {
 				},
 			},
 
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -72,8 +76,7 @@ func resourceDataprocCluster() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     schema.TypeString,
-				// GCP automatically seems to adds a
-				// 'goog-dataproc-cluster-name' label
+				// GCP automatically adds a 'goog-dataproc-cluster-name' label
 				Computed: true,
 			},
 
@@ -171,141 +174,9 @@ func resourceDataprocCluster() *schema.Resource {
 							},
 						},
 
-						"master_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									//"hacktype": {
-									//	Type:     schema.TypeString,
-									//	Computed: true,
-									//},
-
-									"num_instances": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-
-									"machine_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
-									},
-
-									"disk_config": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										MaxItems: 1,
-
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"num_local_ssds": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
-												},
-
-												"boot_disk_size_gb": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
-													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-														value := v.(int)
-
-														if value < 10 {
-															errors = append(errors, fmt.Errorf(
-																"%q cannot be less than 10", k))
-														}
-														return
-													},
-												},
-											},
-										},
-									},
-
-									"instance_names": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-
-						"worker_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									//"hacktype": {
-									//	Type:     schema.TypeString,
-									//	Computed: true,
-									//},
-
-									"num_instances": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-
-									"machine_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
-									},
-
-									"disk_config": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										MaxItems: 1,
-
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"num_local_ssds": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													ForceNew: true,
-												},
-
-												"boot_disk_size_gb": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
-													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-														value := v.(int)
-
-														if value < 10 {
-															errors = append(errors, fmt.Errorf(
-																"%q cannot be less than 10", k))
-														}
-														return
-													},
-												},
-											},
-										},
-									},
-
-									"instance_names": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-
+						"master_config": instanceConfigSchema(),
+						"worker_config": instanceConfigSchema(),
+						// preemptible_worker_config has a slightly different config
 						"preemptible_worker_config": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -313,23 +184,15 @@ func resourceDataprocCluster() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									//"hacktype": {
-									//	Type:     schema.TypeString,
-									//	Computed: true,
-									//},
-
 									"num_instances": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Computed: true,
 									},
 
-									"machine_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
-									},
+									// API does not honour this if set ...
+									// It always uses whatever is specified for the worker_config
+									// "machine_type": { ... }
 
 									"disk_config": {
 										Type:     schema.TypeList,
@@ -339,12 +202,10 @@ func resourceDataprocCluster() *schema.Resource {
 
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"num_local_ssds": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
-												},
+
+												// API does not honour this if set ...
+												// It simply ignores it completely
+												// "num_local_ssds": { ... }
 
 												"boot_disk_size_gb": {
 													Type:     schema.TypeInt,
@@ -431,6 +292,71 @@ func resourceDataprocCluster() *schema.Resource {
 	}
 }
 
+func instanceConfigSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"num_instances": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Computed: true,
+				},
+
+				"machine_type": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+
+				"disk_config": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Computed: true,
+					MaxItems: 1,
+
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"num_local_ssds": {
+								Type:     schema.TypeInt,
+								Optional: true,
+								Computed: true,
+								ForceNew: true,
+							},
+
+							"boot_disk_size_gb": {
+								Type:     schema.TypeInt,
+								Optional: true,
+								Computed: true,
+								ForceNew: true,
+								ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+									value := v.(int)
+
+									if value < 10 {
+										errors = append(errors, fmt.Errorf(
+											"%q cannot be less than 10", k))
+									}
+									return
+								},
+							},
+						},
+					},
+				},
+
+				"instance_names": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+			},
+		},
+	}
+}
+
 func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -441,6 +367,8 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	clusterName := d.Get("name").(string)
 	region := d.Get("region").(string)
+	zok := false
+
 	cluster := &dataproc.Cluster{
 		ClusterName: clusterName,
 		ProjectId:   project,
@@ -470,10 +398,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 				log.Println("[INFO] got gce config")
 				zone, zok := cfg["zone"]
-				if region == "global" && !zok {
-					return errors.New("zone is mandatory when region is set to 'global'")
-				}
-
 				if zok {
 					cluster.Config.GceClusterConfig.ZoneUri = zone.(string)
 				}
@@ -540,12 +464,18 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 			if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
 				log.Println("[INFO] got preemtible worker config")
-				cluster.Config.SecondaryWorkerConfig = instanceGroupConfigCreate(cfg)
+				cluster.Config.SecondaryWorkerConfig = preemptibleInstanceGroupConfigCreate(cfg)
 				if cluster.Config.SecondaryWorkerConfig.NumInstances > 0 {
 					cluster.Config.SecondaryWorkerConfig.IsPreemptible = true
 				}
 			}
 		}
+	}
+
+	// Checking here caters for the case where the user does not specify cluster_config
+	// at all, as well where it is simply missing from the gce_cluster_config
+	if region == "global" && !zok {
+		return errors.New("zone is mandatory when region is set to 'global'")
 	}
 
 	// Create the cluster
@@ -571,6 +501,26 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 }
 
+func preemptibleInstanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
+	icg := &dataproc.InstanceGroupConfig{}
+
+	if v, ok := cfg["num_instances"]; ok {
+		icg.NumInstances = int64(v.(int))
+	}
+	if dc, ok := cfg["disk_config"]; ok {
+		d := dc.([]interface{})
+		if len(d) > 0 {
+			dcfg := d[0].(map[string]interface{})
+			icg.DiskConfig = &dataproc.DiskConfig{}
+
+			if v, ok := dcfg["boot_disk_size_gb"]; ok {
+				icg.DiskConfig.BootDiskSizeGb = int64(v.(int))
+			}
+		}
+	}
+	return icg
+}
+
 func instanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
 	icg := &dataproc.InstanceGroupConfig{}
 
@@ -588,7 +538,6 @@ func instanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGro
 			icg.DiskConfig = &dataproc.DiskConfig{}
 
 			if v, ok := dcfg["boot_disk_size_gb"]; ok {
-				log.Printf("[INFO] got boot size %v \n", v)
 				icg.DiskConfig.BootDiskSizeGb = int64(v.(int))
 			}
 			if v, ok := dcfg["num_local_ssds"]; ok {
@@ -596,9 +545,7 @@ func instanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGro
 			}
 		}
 	}
-
 	return icg
-
 }
 
 func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -633,7 +580,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("cluster_config.0.worker_config.0.num_instances") {
-		wconfigs := d.Get("worker_config").([]interface{})
+		wconfigs := d.Get("cluster_config.0.worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
 		desiredNumWorks := conf["num_instances"].(int)
@@ -645,7 +592,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("cluster_config.0.preemptible_worker_config.0.num_instances") {
-		wconfigs := d.Get("preemptible_worker_config").([]interface{})
+		wconfigs := d.Get("cluster_config.0.preemptible_worker_config").([]interface{})
 		conf := wconfigs[0].(map[string]interface{})
 
 		desiredNumWorks := conf["num_instances"].(int)
@@ -721,7 +668,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 
 	data["master_config"] = flattenInstanceGroupConfig(data, "master_config", cfg.MasterConfig)
 	data["worker_config"] = flattenInstanceGroupConfig(data, "worker_config", cfg.WorkerConfig)
-	data["preemptible_worker_config"] = flattenInstanceGroupConfig(data, "preemptible_worker_config", cfg.SecondaryWorkerConfig)
+	data["preemptible_worker_config"] = flattenPreemptibleInstanceGroupConfig(data, "preemptible_worker_config", cfg.SecondaryWorkerConfig)
 
 	if len(cfg.InitializationActions) > 0 {
 		val, err := flattenInitializationActions(cfg.InitializationActions)
@@ -783,10 +730,27 @@ func flattenGceClusterConfig(parent map[string]interface{}, gcc *dataproc.GceClu
 	return []map[string]interface{}{gceConfig}
 }
 
-func flattenInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
-
+func flattenPreemptibleInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
 	data := getOrCreateNewMap(parent, name)
 	disk := getOrCreateNewMap(data, "disk_config")
+	data["instance_names"] = []string{}
+
+	if icg != nil {
+		data["num_instances"] = icg.NumInstances
+		data["instance_names"] = icg.InstanceNames
+		if icg.DiskConfig != nil {
+			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
+		}
+	}
+
+	data["disk_config"] = []map[string]interface{}{disk}
+	return []map[string]interface{}{data}
+}
+
+func flattenInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+	data := getOrCreateNewMap(parent, name)
+	disk := getOrCreateNewMap(data, "disk_config")
+	data["instance_names"] = []string{}
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
