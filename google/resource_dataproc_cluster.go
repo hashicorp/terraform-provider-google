@@ -389,13 +389,12 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 		confs := v.([]interface{})
 		if (len(confs)) > 0 {
-			//conf := confs[0].(map[string]interface{})
+
 			if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
 				cluster.Config.ConfigBucket = v.(string)
 			}
 
 			if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
-
 				log.Println("[INFO] got gce config")
 				zone, zok := cfg["zone"]
 				if zok {

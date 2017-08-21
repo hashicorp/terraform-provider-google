@@ -20,61 +20,59 @@ whole cluster!
 
 ```hcl
 resource "google_dataproc_cluster" "simplecluster" {
-  name       = "simplecluster"
-  region     = "us-central1"
+    name       = "simplecluster"
+    region     = "us-central1"
 }
 
 resource "google_dataproc_cluster" "mycluster" {
-  name       = "mycluster"
-  region     = "us-central1"
-  labels {
-	foo = "bar"
-  }
+    name       = "mycluster"
+    region     = "us-central1"
+    labels {
+        foo = "bar"
+    }
 
-  cluster_config {
-	delete_autogen_bucket = true
+    cluster_config {
+        delete_autogen_bucket = true
 
-	master_config {
-	  num_instances     = 1
-	  machine_type      = "n1-standard-1"
-	  disk_config {
-		boot_disk_size_gb = 10
-	  }
-	}
+    	master_config {
+	        num_instances     = 1
+	        machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+            }
+        }
 
-	worker_config {
-	  num_instances     = 2
-	  machine_type      = "n1-standard-1"
-	  disk_config {
-		boot_disk_size_gb = 10
-		num_local_ssds    = 1
-	  }
-	}
+    worker_config {
+        num_instances     = 2
+        machine_type      = "n1-standard-1"
+        disk_config {
+            boot_disk_size_gb = 10
+            num_local_ssds    = 1
+        }
+    }
 
-	preemptible_worker_config {
-	  num_instances     = 0
-	}
+    preemptible_worker_config {
+        num_instances     = 0
+    }
 
-	# Override or set some custom properties
-	software_config {
-	  image_version       = "preview"
-	  override_properties = {
-		"dataproc:dataproc.allow.zero.workers" = "true"
-	  }
-	}
+    # Override or set some custom properties
+    software_config {
+        image_version       = "preview"
+        override_properties = {
+            "dataproc:dataproc.allow.zero.workers" = "true"
+        }
+    }
 
-	gce_cluster_config {
-	  #network = "${google_compute_network.dataproc_network.name}"
-	  tags    = ["foo", "bar"]
-	}
+    gce_cluster_config {
+        #network = "${google_compute_network.dataproc_network.name}"
+        tags    = ["foo", "bar"]
+    }
 
-	# You can define multiple initialization_action blocks
-	initialization_action {
-	  script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
-	  timeout_sec = 500
-	}
-
-  }
+    # You can define multiple initialization_action blocks
+    initialization_action {
+        script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+        timeout_sec = 500
+    }
 
 }
 ```
@@ -99,25 +97,23 @@ resource "google_dataproc_cluster" "mycluster" {
 * `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
    Structure defined below.
 
+- - -
+
 The **cluster_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
-	delete_autogen_bucket = true
+    cluster_config {
+        delete_autogen_bucket = true
 
-	gce_cluster_config        { ... }
-	master_config             { ... }
-	worker_config             { ... }
-	preemptible_worker_config { ... }
-	software_config           { ... }
+        gce_cluster_config        { ... }
+        master_config             { ... }
+        worker_config             { ... }
+        preemptible_worker_config { ... }
+        software_config           { ... }
 
-	# You can define multiple initialization_action blocks
-	initialization_action     { ... }
-  }
-
-}
+        # You can define multiple initialization_action blocks
+        initialization_action     { ... }
+    }
 ```
 
 * `staging_bucket` - (Optional) The Cloud Storage staging bucket used to stage files,
@@ -151,26 +147,23 @@ resource "google_dataproc_cluster" "mycluster" {
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
    You can specify multiple versions of these. Structure defined below.
 
+- - -
+
 The **cluster_config.gce_cluster_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
+    cluster_config {
+        gce_cluster_config {
 
-	gce_cluster_config {
+            zone = "us-central1-a"
 
-	  zone = "us-central1-a"
+            # One of the below to hook into a custom network / subnetwork
+            network    = "${google_compute_network.dataproc_network.name}"
+            subnetwork = "${google_compute_network.dataproc_subnetwork.name}"
 
-	  # One of the below to hook into a custom network / subnetwork
-	  network    = "${google_compute_network.dataproc_network.name}"
-	  subnetwork = "${google_compute_network.dataproc_subnetwork.name}"
-
-	  tags    = ["foo", "bar"]
-	}
-
-  }
-}
+            tags    = ["foo", "bar"]
+        }
+    }
 ```
 
 * `zone` - (Optional, Computed) The GCP zone where your data is stored and used (i.e. where
@@ -203,24 +196,21 @@ resource "google_dataproc_cluster" "mycluster" {
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.
 
+- - -
+
 The **cluster_config.master_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
-
-	master_config {
-	  num_instances     = 1
-	  machine_type      = "n1-standard-1"
-	  disk_config {
-		boot_disk_size_gb = 10
-		num_local_ssds    = 1
-	  }
-	}
-
-  }
-}
+    cluster_config {
+        master_config {
+            num_instances     = 1
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+                num_local_ssds    = 1
+            }
+        }
+    }
 ```
 
 * `num_instances`- (Optional, Computed) Specifies the number of master nodes to create.
@@ -239,24 +229,21 @@ resource "google_dataproc_cluster" "mycluster" {
 * `disk_config.num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each master cluster node. Defaults to 0.
 
+- - -
+
 The **cluster_config.worker_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
-
-	worker_config {
-	  num_instances     = 3
-	  machine_type      = "n1-standard-1"
-	  disk_config {
-		boot_disk_size_gb = 10
-		num_local_ssds    = 1
-	  }
-	}
-
-  }
-}
+    cluster_config {
+        worker_config {
+            num_instances     = 3
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+                num_local_ssds    = 1
+            }
+        }
+    }
 ```
 
 * `num_instances`- (Optional, Computed) Specifies the number of worker nodes to create.
@@ -271,30 +258,29 @@ resource "google_dataproc_cluster" "mycluster" {
    to create for the worker nodes. If not specified, GCP will default to a predetermined
    computed value (currently `n1-standard-4`).
 
-* `disk_config.boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each worker node, specified
-   in GB. The smallest allowed disk size is 10GB. GCP will default to a predetermined
-   computed value if not set (currently 500GB). Note: If SSDs are not
+* `disk_config` (Optional) Disk Config
+
+    * `boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each worker node, specified
+    in GB. The smallest allowed disk size is 10GB. GCP will default to a predetermined
+    computed value if not set (currently 500GB). Note: If SSDs are not
 	attached, it also contains the HDFS data blocks and Hadoop working directories.
 
-* `disk_config.num_local_ssds` - (Optional) The amount of local SSD disks that will be
+    * `num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each worker cluster node. Defaults to 0.
+
+- - -
 
 The **cluster_config.preemptible_worker_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
-
-	preemptible_worker_config {
-	  num_instances     = 1
-	  disk_config {
-		boot_disk_size_gb = 10
-	  }
-	}
-
-  }
-}
+    cluster_config {
+        preemptible_worker_config {
+            num_instances     = 1
+            disk_config {
+                boot_disk_size_gb = 10
+            }
+        }
+    }
 ```
 
 Note: Unlike `worker_config`, you cannot set the `machine_type` value directly. This
@@ -303,29 +289,27 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 * `num_instances`- (Optional) Specifies the number of preemptible nodes to create.
    Defaults to 0.
 
-* `disk_config.boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each
-   additional preemptible worker node, specified
-   in GB. The smallest allowed disk size is 10GB. GCP will default to a predetermined
-   computed value if not set (currently 500GB).
+* `disk_config` (Optional) Disk Config
 
+    * `boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each preemptible worker node, specified
+    in GB. The smallest allowed disk size is 10GB. GCP will default to a predetermined
+    computed value if not set (currently 500GB). Note: If SSDs are not
+	attached, it also contains the HDFS data blocks and Hadoop working directories.
+
+- - -
 
 The **cluster_config.software_config** block supports:
 
 ```hcl
-resource "google_dataproc_cluster" "mycluster" {
-  ...
-  cluster_config {
-
-	# Override or set some custom properties
-	software_config {
-	  image_version       = "preview"
-	  override_properties = {
-		"dataproc:dataproc.allow.zero.workers" = "true"
-	  }
-	}
-
-  }
-}
+    cluster_config {
+        # Override or set some custom properties
+        software_config {
+            image_version       = "preview"
+            override_properties = {
+                "dataproc:dataproc.allow.zero.workers" = "true"
+            }
+        }
+    }
 ```
 
 * `image_version` - (Optional, Computed) The Cloud Dataproc image version to use
@@ -334,14 +318,24 @@ resource "google_dataproc_cluster" "mycluster" {
    latest version. For a list of valid versions see
    [Cloud Dataproc versions](https://cloud.google.com/dataproc/docs/concepts/dataproc-versions)
 
-
 * `override_properties` - (Optional) A list of override and additional properties (key/value pairs)
    used to modify various aspects of the common configuration files used when creating
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
 
+- - -
 
 The **initialization_action** block (Optional) can be specified multiple times and supports:
+
+```hcl
+    cluster_config {
+        # You can define multiple initialization_action blocks
+        initialization_action {
+            script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+            timeout_sec = 500
+        }
+    }
+```
 
 * `script`- (Required) The script to be executed during initialization of the cluster.
    The script must be a GCS file with a gs:// prefix.
