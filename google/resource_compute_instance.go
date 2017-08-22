@@ -19,6 +19,10 @@ var InstanceVersionedFeatures = []Feature{
 		Version: v0beta,
 		Item:    "guest_accelerator",
 	},
+	{
+		Version: v0beta,
+		Item:    "min_cpu_platform",
+	},
 }
 
 func stringScopeHashcode(v interface{}) int {
@@ -465,6 +469,12 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"min_cpu_platform": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -858,6 +868,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Labels:            expandLabels(d),
 		ServiceAccounts:   serviceAccounts,
 		GuestAccelerators: expandGuestAccelerators(zone.Name, d.Get("guest_accelerator").([]interface{})),
+		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
 		Scheduling:        scheduling,
 	}
 
@@ -1122,6 +1133,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenBetaScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.Zone, instance.GuestAccelerators))
+	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.SetId(instance.Name)
 
