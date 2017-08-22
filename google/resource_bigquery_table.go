@@ -435,6 +435,7 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 
 	if v, ok := raw["use_legacy_sql"]; ok {
 		vd.UseLegacySql = v.(bool)
+		vd.ForceSendFields = append(vd.ForceSendFields, "UseLegacySql")
 	}
 
 	return vd
@@ -442,10 +443,7 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 
 func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
 	result := map[string]interface{}{"query": vd.Query}
-
-	if vd.UseLegacySql {
-		result["use_legacy_sql"] = vd.UseLegacySql
-	}
+	result["use_legacy_sql"] = vd.UseLegacySql
 
 	return []map[string]interface{}{result}
 }
