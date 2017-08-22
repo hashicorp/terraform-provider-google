@@ -260,6 +260,16 @@ The `scheduling` block supports:
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
 
+---
+
+* `guest_accelerator` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
+The `guest_accelerator` block supports:
+
+* `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
+
+* `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
