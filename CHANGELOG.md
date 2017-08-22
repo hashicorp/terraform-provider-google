@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * container: Allow updating `google_container_cluster.logging_service` [GH-343]
 * compute: Add support for 'labels' field on `google_compute_image` [GH-339]
 * compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
+* compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
 
 BUG FIXES:
 
