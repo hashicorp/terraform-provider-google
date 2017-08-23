@@ -19,6 +19,7 @@ var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
+	Feature{Version: v0beta, Item: "priority"},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -95,6 +96,11 @@ func resourceComputeFirewall() *schema.Resource {
 
 			"description": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"priority": {
+				Type:     schema.TypeInt,
 				Optional: true,
 			},
 
@@ -478,6 +484,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
+		Priority:          int64(d.Get("priority").(int)),
 		Network:           network.SelfLink,
 		Allowed:           allowed,
 		Denied:            denied,
