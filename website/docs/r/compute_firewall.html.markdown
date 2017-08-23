@@ -65,6 +65,8 @@ The following arguments are supported:
     rule. Each deny block supports fields documented below. Can be specified
     instead of allow.
 
+* `priority` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Sets the priority of the firewall rule.
+
 * `direction` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Direction of traffic to which this firewall applies;
     One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
 
