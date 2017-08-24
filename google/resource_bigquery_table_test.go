@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -48,10 +49,37 @@ func TestAccBigQueryTable_View(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryTableWithView(datasetID, tableID),
+				Config: testAccBigQueryTableWithView(datasetID, tableID, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigQueryTableExistsWithView(
 						"google_bigquery_table.test"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithView(datasetID, tableID, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigQueryTableExistsWithLegacySql(
+						"google_bigquery_table.test", true),
+				),
+			},
+			{
+				Config: testAccBigQueryTableWithView(datasetID, tableID, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigQueryTableExistsWithLegacySql(
+						"google_bigquery_table.test", false),
 				),
 			},
 		},
@@ -123,6 +151,35 @@ func testAccBigQueryTableExistsWithView(n string) resource.TestCheckFunc {
 	}
 }
 
+func testAccBigQueryTableExistsWithLegacySql(n string, useLegacySql bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := testAccProvider.Meta().(*Config)
+
+		table, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
+		if err != nil {
+			return fmt.Errorf("BigQuery Table not present")
+		}
+
+		if table.View == nil {
+			return fmt.Errorf("View object missing on table")
+		}
+
+		if table.View.UseLegacySql != useLegacySql {
+			return fmt.Errorf("Value of UseLegacySQL does not match expected value")
+		}
+
+		return nil
+	}
+}
+
 func testAccBigQueryTable(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
@@ -164,7 +221,7 @@ EOH
 }`, datasetID, tableID)
 }
 
-func testAccBigQueryTableWithView(datasetID, tableID string) string {
+func testAccBigQueryTableWithView(datasetID, tableID string, useLegacySql bool) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "%s"
@@ -180,9 +237,8 @@ resource "google_bigquery_table" "test" {
 
   view {
   	query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
-  	use_legacy_sql = true
   }
-}`, datasetID, tableID)
+}`, datasetID, tableID, strconv.FormatBool(useLegacySql))
 }
 
 func testAccBigQueryTableUpdated(datasetID, tableID string) string {
