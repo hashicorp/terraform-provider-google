@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -49,7 +48,7 @@ func TestAccBigQueryTable_View(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryTableWithView(datasetID, tableID, false),
+				Config: testAccBigQueryTableWithView(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigQueryTableExistsWithView(
 						"google_bigquery_table.test"),
@@ -69,14 +68,14 @@ func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryTableWithView(datasetID, tableID, true),
+				Config: testAccBigQueryTableWithView(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigQueryTableExistsWithLegacySql(
 						"google_bigquery_table.test", true),
 				),
 			},
 			{
-				Config: testAccBigQueryTableWithView(datasetID, tableID, false),
+				Config: testAccBigQueryTableWithNewSqlView(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigQueryTableExistsWithLegacySql(
 						"google_bigquery_table.test", false),
@@ -221,7 +220,7 @@ EOH
 }`, datasetID, tableID)
 }
 
-func testAccBigQueryTableWithView(datasetID, tableID string, useLegacySql bool) string {
+func testAccBigQueryTableWithView(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "%s"
@@ -237,8 +236,30 @@ resource "google_bigquery_table" "test" {
 
   view {
   	query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+  	use_legacy_sql = true
   }
-}`, datasetID, tableID, strconv.FormatBool(useLegacySql))
+}`, datasetID, tableID)
+}
+
+func testAccBigQueryTableWithNewSqlView(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+
+  time_partitioning {
+    type = "DAY"
+  }
+
+  view {
+  	query = "%s"
+  	use_legacy_sql = false
+  }
+}`, datasetID, tableID, "SELECT state FROM `lookerdata:cdc.project_tycho_reports`")
 }
 
 func testAccBigQueryTableUpdated(datasetID, tableID string) string {
