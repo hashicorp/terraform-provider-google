@@ -13,6 +13,7 @@ IMPROVEMENTS:
 * compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
 
 BUG FIXES:
+* sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
 
 ## 0.1.3 (August 17, 2017)
 
