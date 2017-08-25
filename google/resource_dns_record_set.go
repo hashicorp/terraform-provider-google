@@ -77,6 +77,25 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		},
 	}
 
+	if d.Get("type").(string) == "NS" {
+		log.Printf("{DEBUG] DNS record list request for %q", zone)
+		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
+		if err != nil {
+			return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
+		}
+		var deletions []*dns.ResourceRecordSet
+
+		for _, record := range res.Rrsets {
+			if record.Type != "NS" {
+				continue
+			}
+			deletions = append(deletions, record)
+		}
+		if len(deletions) > 0 {
+			chg.Deletions = deletions
+		}
+	}
+
 	log.Printf("[DEBUG] DNS Record create request: %#v", chg)
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
@@ -135,6 +154,13 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error {
+
+	// NS records must always have a value, so we short-circuit delete
+	// this allows terraform delete to work, but may have unexpected
+	// side-effects when deleting just that record set.
+	if d.Get("type").(string) == "NS" {
+		return nil
+	}
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
