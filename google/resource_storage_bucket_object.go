@@ -2,8 +2,11 @@ package google
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/base64"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -92,6 +95,9 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"content"},
+				StateFunc: func(src interface{}) string {
+					return fileNameWithMd5(src.(string))
+				},
 			},
 
 			"storage_class": &schema.Schema{
@@ -106,6 +112,20 @@ func resourceStorageBucketObject() *schema.Resource {
 
 func objectGetId(object *storage.Object) string {
 	return object.Bucket + "-" + object.Name
+}
+
+func fileNameWithMd5(filename string) string {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("[WARN] Failed to read source file %s. Will not compute md5 to store in state", filename)
+		return filename
+	}
+
+	h := md5.New()
+	h.Write(data)
+	md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+	return filename + ":" + md5
 }
 
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
