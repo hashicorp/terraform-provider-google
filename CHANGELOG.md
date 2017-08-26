@@ -6,6 +6,7 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 FEATURES:
 
 IMPROVEMENTS:
+* bigquery: Support Bigquery Views [GH-230]
 * container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
 * container: Allow updating `google_container_cluster.logging_service` [GH-343]
 * compute: Add support for 'labels' field on `google_compute_image` [GH-339]
