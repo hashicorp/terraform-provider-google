@@ -76,6 +76,8 @@ The following keys can be used to configure the provider.
     * `GCLOUD_REGION`
     * `CLOUDSDK_COMPUTE_REGION`
 
+* `impersonate` - (Optional) The email address of the subject user for which the application will impersonate on requesting delegated access.
+
 ## Authentication JSON File
 
 Authenticating with Google Cloud services requires a JSON
