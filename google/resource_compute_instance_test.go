@@ -1123,7 +1123,7 @@ func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instan
 func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.MinCpuPlatform != minCpuPlatform {
-			return fmt.Errorf("Wrong minimum CPU platform: expected %d, got %d", minCpuPlatform, instance.MinCpuPlatform)
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
 		}
 
 		return nil
