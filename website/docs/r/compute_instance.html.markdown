@@ -286,6 +286,8 @@ exported:
 
 * `label_fingerprint` - The unique fingerprint of the labels.
 
+* `cpu_platform` - The CPU platform used by this instance.
+
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
