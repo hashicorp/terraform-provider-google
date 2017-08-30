@@ -12,6 +12,7 @@ IMPROVEMENTS:
 * compute: Add support for 'labels' field on `google_compute_image` [GH-339]
 * compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
 * compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
+* compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
 
 BUG FIXES:
 * sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
