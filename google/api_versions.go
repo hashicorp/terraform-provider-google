@@ -2,6 +2,8 @@ package google
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 type ComputeApiVersion uint8
@@ -84,8 +86,34 @@ func (s Feature) HasChangeBy(d TerraformResourceData) bool {
 
 // Return true when a feature appears in schema or has been modified.
 func (s Feature) InUseBy(d TerraformResourceData) bool {
-	_, ok := d.GetOk(s.Item)
-	return ok || s.HasChangeBy(d)
+	return inUseBy(d, s.Item)
+}
+
+func inUseBy(d TerraformResourceData, path string) bool {
+	pos := strings.Index(path, "*")
+	if pos == -1 {
+		_, ok := d.GetOk(path)
+		return ok || d.HasChange(path)
+	}
+
+	prefix := path[0:pos]
+	suffix := path[pos+1:]
+
+	v, ok := d.GetOk(prefix + "#")
+
+	if !ok {
+		return false
+	}
+
+	count := v.(int)
+	for i := 0; i < count; i++ {
+		nestedPath := fmt.Sprintf("%s%d%s", prefix, i, suffix)
+		if inUseBy(d, nestedPath) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func maxVersion(versionsInUse map[ComputeApiVersion]struct{}) ComputeApiVersion {

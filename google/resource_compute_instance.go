@@ -23,6 +23,10 @@ var InstanceVersionedFeatures = []Feature{
 		Version: v0beta,
 		Item:    "min_cpu_platform",
 	},
+	{
+		Version: v0beta,
+		Item:    "network_interface.*.alias_ip_range",
+	},
 }
 
 func stringScopeHashcode(v interface{}) int {
@@ -333,6 +337,27 @@ func resourceComputeInstance() *schema.Resource {
 									"assigned_nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Computed: true,
+									},
+								},
+							},
+						},
+
+						"alias_ip_range": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_cidr_range": &schema.Schema{
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+									},
+									"subnetwork_range_name": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -793,6 +818,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			iface.Network = networkLink
 			iface.Subnetwork = subnetworkLink
 			iface.NetworkIP = address
+			iface.AliasIpRanges = expandAliasIpRanges(d.Get(prefix + ".alias_ip_range").([]interface{}))
 
 			// Handle access_config structs
 			accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
@@ -1032,9 +1058,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"name":               iface.Name,
 				"address":            iface.NetworkIP,
 				"network":            iface.Network,
-				"subnetwork":         iface.Subnetwork,
+				"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
 				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
+				"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
 			})
 		}
 	}
@@ -1573,6 +1600,18 @@ func expandGuestAccelerators(zone string, configs []interface{}) []*computeBeta.
 	return guestAccelerators
 }
 
+func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
+	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
+	for _, raw := range ranges {
+		data := raw.(map[string]interface{})
+		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
+			IpCidrRange:         data["ip_cidr_range"].(string),
+			SubnetworkRangeName: data["subnetwork_range_name"].(string),
+		})
+	}
+	return ipRanges
+}
+
 func flattenGuestAccelerators(zone string, accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
 	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
 	for _, accelerator := range accelerators {
@@ -1603,6 +1642,17 @@ func flattenBetaScheduling(scheduling *computeBeta.Scheduling) []map[string]inte
 	}
 	result = append(result, schedulingMap)
 	return result
+}
+
+func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
+	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
+	for _, ipRange := range ranges {
+		rangesSchema = append(rangesSchema, map[string]interface{}{
+			"ip_cidr_range":         ipRange.IpCidrRange,
+			"subnetwork_range_name": ipRange.SubnetworkRangeName,
+		})
+	}
+	return rangesSchema
 }
 
 func getProjectFromSubnetworkLink(subnetwork string) string {
