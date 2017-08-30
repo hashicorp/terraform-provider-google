@@ -717,6 +717,27 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 
 }
 
+func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_minCpuPlatform(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1093,6 +1114,16 @@ func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instan
 
 		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
 			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance, minCpuPlatform string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.MinCpuPlatform != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
 		}
 
 		return nil
@@ -1948,5 +1979,26 @@ resource "google_compute_instance" "foobar" {
     count = 1
     type = "nvidia-tesla-k80"
   }
+}`, instance)
+}
+
+func testAccComputeInstance_minCpuPlatform(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  min_cpu_platform = "Intel Haswell"
 }`, instance)
 }
