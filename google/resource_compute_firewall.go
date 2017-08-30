@@ -109,6 +109,11 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional: true,
 			},
 
+			"priority": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
 			"direction": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -494,6 +499,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
+		Priority:          int64(d.Get("priority").(int)),
 		Network:           network.SelfLink,
 		Allowed:           allowed,
 		Denied:            denied,
