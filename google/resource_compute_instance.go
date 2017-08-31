@@ -7,9 +7,23 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"regexp"
 )
+
+var InstanceBaseApiVersion = v1
+var InstanceVersionedFeatures = []Feature{
+	{
+		Version: v0beta,
+		Item:    "guest_accelerator",
+	},
+	{
+		Version: v0beta,
+		Item:    "min_cpu_platform",
+	},
+}
 
 func stringScopeHashcode(v interface{}) int {
 	v = canonicalizeServiceScope(v.(string))
@@ -68,16 +82,10 @@ func resourceComputeInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											if v.(int) < 1 {
-												errors = append(errors, fmt.Errorf(
-													"%q must be greater than 0", k))
-											}
-											return
-										},
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 
 									"type": &schema.Schema{
@@ -278,20 +286,25 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"subnetwork_project": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
@@ -378,22 +391,28 @@ func resourceComputeInstance() *schema.Resource {
 
 			"scheduling": &schema.Schema{
 				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  true,
 						},
 
 						"preemptible": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
+							ForceNew: true,
 						},
 					},
 				},
@@ -429,6 +448,38 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"guest_accelerator": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"count": &schema.Schema{
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"type": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
+						},
+					},
+				},
+			},
+
+			"cpu_platform": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"min_cpu_platform": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -462,22 +513,41 @@ func resourceComputeInstance() *schema.Resource {
 	}
 }
 
-func getInstance(config *Config, d *schema.ResourceData) (*compute.Instance, error) {
+func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance, error) {
+	computeApiVersion := getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures)
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	instance, err := config.clientCompute.Instances.Get(
-		project, d.Get("zone").(string), d.Id()).Do()
-	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+	zone := d.Get("zone").(string)
+	instance := &computeBeta.Instance{}
+	switch computeApiVersion {
+	case v1:
+		instanceV1, err := config.clientCompute.Instances.Get(
+			project, zone, d.Id()).Do()
+		if err != nil {
+			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+		}
+
+		err = Convert(instanceV1, instance)
+		if err != nil {
+			return nil, err
+		}
+	case v0beta:
+		var err error
+		instance, err = config.clientComputeBeta.Instances.Get(
+			project, zone, d.Id()).Do()
+		if err != nil {
+			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+		}
 	}
 
 	return instance, nil
 }
 
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -506,7 +576,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Build up the list of disks
 
-	disks := []*compute.AttachedDisk{}
+	disks := []*computeBeta.AttachedDisk{}
 	var hasBootDisk bool
 	if _, hasBootDisk = d.GetOk("boot_disk"); hasBootDisk {
 		bootDisk, err := expandBootDisk(d, config, zone, project)
@@ -537,7 +607,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		// var sourceLink string
 
 		// Build the disk
-		var disk compute.AttachedDisk
+		var disk computeBeta.AttachedDisk
 		disk.Type = "PERSISTENT"
 		disk.Mode = "READ_WRITE"
 		disk.Boot = i == 0 && !hasBootDisk
@@ -566,7 +636,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			hasSource = true
 		} else {
 			// Create a new disk
-			disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 		}
 
 		if v, ok := d.GetOk(prefix + ".scratch"); ok {
@@ -620,7 +690,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if v, ok := d.GetOk(prefix + ".disk_encryption_key_raw"); ok {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{}
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{}
 			disk.DiskEncryptionKey.RawKey = v.(string)
 		}
 
@@ -629,7 +699,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	for i := 0; i < attachedDisksCount; i++ {
 		prefix := fmt.Sprintf("attached_disk.%d", i)
-		disk := compute.AttachedDisk{
+		disk := computeBeta.AttachedDisk{
 			Source:     d.Get(prefix + ".source").(string),
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
@@ -641,7 +711,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if v, ok := d.GetOk(prefix + ".disk_encryption_key_raw"); ok {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
 				RawKey: v.(string),
 			}
 		}
@@ -659,12 +729,12 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error: Must define at least one network_interface.")
 	}
 
-	var networkInterfaces []*compute.NetworkInterface
+	var networkInterfaces []*computeBeta.NetworkInterface
 
 	if networksCount > 0 {
 		// TODO: Delete this block when removing network { }
 		// Build up the list of networkInterfaces
-		networkInterfaces = make([]*compute.NetworkInterface, 0, networksCount)
+		networkInterfaces = make([]*computeBeta.NetworkInterface, 0, networksCount)
 		for i := 0; i < networksCount; i++ {
 			prefix := fmt.Sprintf("network.%d", i)
 			// Load up the name of this network
@@ -678,9 +748,9 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			// Build the networkInterface
-			var iface compute.NetworkInterface
-			iface.AccessConfigs = []*compute.AccessConfig{
-				&compute.AccessConfig{
+			var iface computeBeta.NetworkInterface
+			iface.AccessConfigs = []*computeBeta.AccessConfig{
+				&computeBeta.AccessConfig{
 					Type:  "ONE_TO_ONE_NAT",
 					NatIP: d.Get(prefix + ".address").(string),
 				},
@@ -693,13 +763,12 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	if networkInterfacesCount > 0 {
 		// Build up the list of networkInterfaces
-		networkInterfaces = make([]*compute.NetworkInterface, 0, networkInterfacesCount)
+		networkInterfaces = make([]*computeBeta.NetworkInterface, 0, networkInterfacesCount)
 		for i := 0; i < networkInterfacesCount; i++ {
 			prefix := fmt.Sprintf("network_interface.%d", i)
 			// Load up the name of this network_interface
 			networkName := d.Get(prefix + ".network").(string)
 			subnetworkName := d.Get(prefix + ".subnetwork").(string)
-			subnetworkProject := d.Get(prefix + ".subnetwork_project").(string)
 			address := d.Get(prefix + ".address").(string)
 			var networkLink, subnetworkLink string
 
@@ -712,34 +781,25 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 						"Error referencing network '%s': %s",
 						networkName, err)
 				}
-
 			} else {
-				region := getRegionFromZone(d.Get("zone").(string))
-				if subnetworkProject == "" {
-					subnetworkProject = project
-				}
-				subnetwork, err := config.clientCompute.Subnetworks.Get(
-					subnetworkProject, region, subnetworkName).Do()
+				subnetworkLink, err = getSubnetworkLink(d, config, prefix+".subnetwork", prefix+".subnetwork_project", "zone")
 				if err != nil {
-					return fmt.Errorf(
-						"Error referencing subnetwork '%s' in region '%s': %s",
-						subnetworkName, region, err)
+					return err
 				}
-				subnetworkLink = subnetwork.SelfLink
 			}
 
 			// Build the networkInterface
-			var iface compute.NetworkInterface
+			var iface computeBeta.NetworkInterface
 			iface.Network = networkLink
 			iface.Subnetwork = subnetworkLink
 			iface.NetworkIP = address
 
 			// Handle access_config structs
 			accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
-			iface.AccessConfigs = make([]*compute.AccessConfig, accessConfigsCount)
+			iface.AccessConfigs = make([]*computeBeta.AccessConfig, accessConfigsCount)
 			for j := 0; j < accessConfigsCount; j++ {
 				acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-				iface.AccessConfigs[j] = &compute.AccessConfig{
+				iface.AccessConfigs[j] = &computeBeta.AccessConfig{
 					Type:  "ONE_TO_ONE_NAT",
 					NatIP: d.Get(acPrefix + ".nat_ip").(string),
 				}
@@ -750,7 +810,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	serviceAccountsCount := d.Get("service_account.#").(int)
-	serviceAccounts := make([]*compute.ServiceAccount, 0, serviceAccountsCount)
+	serviceAccounts := make([]*computeBeta.ServiceAccount, 0, serviceAccountsCount)
 	for i := 0; i < serviceAccountsCount; i++ {
 		prefix := fmt.Sprintf("service_account.%d", i)
 
@@ -765,7 +825,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			email = v.(string)
 		}
 
-		serviceAccount := &compute.ServiceAccount{
+		serviceAccount := &computeBeta.ServiceAccount{
 			Email:  email,
 			Scopes: scopes,
 		}
@@ -774,7 +834,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	prefix := "scheduling.0"
-	scheduling := &compute.Scheduling{}
+	scheduling := &computeBeta.Scheduling{}
 
 	if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 		scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
@@ -787,6 +847,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 		scheduling.OnHostMaintenance = val.(string)
 	}
+	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
 	var createTimeout int
@@ -794,13 +855,13 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createTimeout = v.(int)
 	}
 
-	metadata, err := resourceInstanceMetadata(d)
+	metadata, err := resourceBetaInstanceMetadata(d)
 	if err != nil {
 		return fmt.Errorf("Error creating metadata: %s", err)
 	}
 
 	// Create the instance information
-	instance := compute.Instance{
+	instance := computeBeta.Instance{
 		CanIpForward:      d.Get("can_ip_forward").(bool),
 		Description:       d.Get("description").(string),
 		Disks:             disks,
@@ -808,15 +869,31 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Metadata:          metadata,
 		Name:              d.Get("name").(string),
 		NetworkInterfaces: networkInterfaces,
-		Tags:              resourceInstanceTags(d),
-		Labels:            resourceInstanceLabels(d),
+		Tags:              resourceBetaInstanceTags(d),
+		Labels:            expandLabels(d),
 		ServiceAccounts:   serviceAccounts,
+		GuestAccelerators: expandGuestAccelerators(zone.Name, d.Get("guest_accelerator").([]interface{})),
+		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
 		Scheduling:        scheduling,
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.clientCompute.Instances.Insert(
-		project, zone.Name, &instance).Do()
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		instanceV1 := &compute.Instance{}
+		err := Convert(instance, instanceV1)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientCompute.Instances.Insert(
+			project, zone.Name, instanceV1).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.Instances.Insert(
+			project, zone.Name, &instance).Do()
+	}
+
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -825,7 +902,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(instance.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWaitZoneTime(config, op, project, zone.Name, createTimeout, "instance to create")
+	waitErr := computeSharedOperationWaitTime(config, op, project, createTimeout, "instance to create")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -843,17 +920,25 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	// Synch metadata
-	md := instance.Metadata
+	md := flattenBetaMetadata(instance.Metadata)
 
-	_md := MetadataFormatSchema(d.Get("metadata").(map[string]interface{}), md)
-
-	if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
-		d.Set("metadata_startup_script", script)
-		delete(_md, "startup-script")
+	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
 	}
 
-	if err = d.Set("metadata", _md); err != nil {
+	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	// Delete any keys not explicitly set in our config file
+	for k := range md {
+		if _, ok := existingMetadata[k]; !ok {
+			delete(md, k)
+		}
+	}
+
+	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
@@ -946,9 +1031,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			networkInterfaces = append(networkInterfaces, map[string]interface{}{
 				"name":               iface.Name,
 				"address":            iface.NetworkIP,
-				"network":            d.Get(fmt.Sprintf("network_interface.%d.network", i)),
-				"subnetwork":         d.Get(fmt.Sprintf("network_interface.%d.subnetwork", i)),
-				"subnetwork_project": d.Get(fmt.Sprintf("network_interface.%d.subnetwork_project", i)),
+				"network":            iface.Network,
+				"subnetwork":         iface.Subnetwork,
+				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
 			})
 		}
@@ -1051,8 +1136,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("disk", disks)
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
-
-	d.Set("self_link", instance.SelfLink)
+	d.Set("scheduling", flattenBetaScheduling(instance.Scheduling))
+	d.Set("guest_accelerator", flattenGuestAccelerators(instance.Zone, instance.GuestAccelerators))
+	d.Set("cpu_platform", instance.CpuPlatform)
+	d.Set("min_cpu_platform", instance.MinCpuPlatform)
+	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.SetId(instance.Name)
 
 	return nil
@@ -1096,18 +1184,25 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			md := instance.Metadata
 
-			MetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
+			BetaMetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
 
 			if err != nil {
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
+
+			mdV1 := &compute.Metadata{}
+			err = Convert(md, mdV1)
+			if err != nil {
+				return err
+			}
+
 			op, err := config.clientCompute.Instances.SetMetadata(
-				project, zone, d.Id(), md).Do()
+				project, zone, d.Id(), mdV1).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
 
-			opErr := computeOperationWaitZone(config, op, project, zone, "metadata to update")
+			opErr := computeOperationWait(config, op, project, "metadata to update")
 			if opErr != nil {
 				return opErr
 			}
@@ -1127,7 +1222,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone, "tags to update")
+		opErr := computeOperationWait(config, op, project, "tags to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1136,7 +1231,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("labels") {
-		labels := resourceInstanceLabels(d)
+		labels := expandLabels(d)
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := compute.InstancesSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
 
@@ -1145,7 +1240,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone, "labels to update")
+		opErr := computeOperationWait(config, op, project, "labels to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1160,14 +1255,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
 		}
-
 		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
 			scheduling.Preemptible = val.(bool)
 		}
-
 		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
 			scheduling.OnHostMaintenance = val.(string)
 		}
+		scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
@@ -1176,8 +1270,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWaitZone(config, op, project, zone,
-			"scheduling policy update")
+		opErr := computeOperationWait(config, op, project, "scheduling policy update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1218,8 +1311,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					if err != nil {
 						return fmt.Errorf("Error deleting old access_config: %s", err)
 					}
-					opErr := computeOperationWaitZone(config, op, project, zone,
-						"old access_config to delete")
+					opErr := computeOperationWait(config, op, project, "old access_config to delete")
 					if opErr != nil {
 						return opErr
 					}
@@ -1238,8 +1330,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					if err != nil {
 						return fmt.Errorf("Error adding new access_config: %s", err)
 					}
-					opErr := computeOperationWaitZone(config, op, project, zone,
-						"new access_config to add")
+					opErr := computeOperationWait(config, op, project, "new access_config to add")
 					if opErr != nil {
 						return opErr
 					}
@@ -1270,7 +1361,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWaitZone(config, op, project, zone, "instance to delete")
+	opErr := computeOperationWait(config, op, project, "instance to delete")
 	if opErr != nil {
 		return opErr
 	}
@@ -1303,15 +1394,28 @@ func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error)
 	return m, nil
 }
 
-func resourceInstanceLabels(d *schema.ResourceData) map[string]string {
-	labels := map[string]string{}
-	if v, ok := d.GetOk("labels"); ok {
-		labelMap := v.(map[string]interface{})
-		for k, v := range labelMap {
-			labels[k] = v.(string)
-		}
+func resourceBetaInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
+	m := &computeBeta.Metadata{}
+	mdMap := d.Get("metadata").(map[string]interface{})
+	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
+		mdMap["startup-script"] = v
 	}
-	return labels
+	if len(mdMap) > 0 {
+		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
+		for key, val := range mdMap {
+			v := val.(string)
+			m.Items = append(m.Items, &computeBeta.MetadataItems{
+				Key:   key,
+				Value: &v,
+			})
+		}
+
+		// Set the fingerprint. If the metadata has never been set before
+		// then this will just be blank.
+		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+	}
+
+	return m, nil
 }
 
 func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
@@ -1331,8 +1435,25 @@ func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
 	return tags
 }
 
-func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*compute.AttachedDisk, error) {
-	disk := &compute.AttachedDisk{
+func resourceBetaInstanceTags(d *schema.ResourceData) *computeBeta.Tags {
+	// Calculate the tags
+	var tags *computeBeta.Tags
+	if v := d.Get("tags"); v != nil {
+		vs := v.(*schema.Set)
+		tags = new(computeBeta.Tags)
+		tags.Items = make([]string, vs.Len())
+		for i, v := range vs.List() {
+			tags.Items[i] = v.(string)
+		}
+
+		tags.Fingerprint = d.Get("tags_fingerprint").(string)
+	}
+
+	return tags
+}
+
+func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*computeBeta.AttachedDisk, error) {
+	disk := &computeBeta.AttachedDisk{
 		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
 		Boot:       true,
 	}
@@ -1342,7 +1463,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
-		disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
 			RawKey: v.(string),
 		}
 	}
@@ -1358,7 +1479,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+		disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
 			disk.InitializeParams.DiskSizeGb = int64(v.(int))
@@ -1370,7 +1491,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
-			disk.InitializeParams.DiskType = diskType.Name
+			disk.InitializeParams.DiskType = diskType.SelfLink
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
@@ -1387,7 +1508,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
 	sourceUrl := strings.Split(disk.Source, "/")
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
@@ -1410,20 +1531,20 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[s
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone) ([]*compute.AttachedDisk, error) {
+func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone) ([]*computeBeta.AttachedDisk, error) {
 	diskType, err := readDiskType(config, zone, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
 
 	n := d.Get("scratch_disk.#").(int)
-	scratchDisks := make([]*compute.AttachedDisk, 0, n)
+	scratchDisks := make([]*computeBeta.AttachedDisk, 0, n)
 	for i := 0; i < n; i++ {
-		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
+		scratchDisks = append(scratchDisks, &computeBeta.AttachedDisk{
 			AutoDelete: true,
 			Type:       "SCRATCH",
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
-			InitializeParams: &compute.AttachedDiskInitializeParams{
+			InitializeParams: &computeBeta.AttachedDiskInitializeParams{
 				DiskType: diskType.SelfLink,
 			},
 		})
@@ -1432,9 +1553,67 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zo
 	return scratchDisks, nil
 }
 
-func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
+func flattenScratchDisk(disk *computeBeta.AttachedDisk) map[string]interface{} {
 	result := map[string]interface{}{
 		"interface": disk.Interface,
 	}
 	return result
+}
+
+func expandGuestAccelerators(zone string, configs []interface{}) []*computeBeta.AcceleratorConfig {
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(configs))
+	for _, raw := range configs {
+		data := raw.(map[string]interface{})
+		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			AcceleratorType:  createAcceleratorPartialUrl(zone, data["type"].(string)),
+		})
+	}
+
+	return guestAccelerators
+}
+
+func flattenGuestAccelerators(zone string, accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
+	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
+	for _, accelerator := range accelerators {
+		acceleratorsSchema = append(acceleratorsSchema, map[string]interface{}{
+			"count": accelerator.AcceleratorCount,
+			"type":  accelerator.AcceleratorType,
+		})
+	}
+	return acceleratorsSchema
+}
+
+func flattenBetaMetadata(metadata *computeBeta.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+func flattenBetaScheduling(scheduling *computeBeta.Scheduling) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	schedulingMap := map[string]interface{}{
+		"on_host_maintenance": scheduling.OnHostMaintenance,
+		"preemptible":         scheduling.Preemptible,
+	}
+	if scheduling.AutomaticRestart != nil {
+		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
+	}
+	result = append(result, schedulingMap)
+	return result
+}
+
+func getProjectFromSubnetworkLink(subnetwork string) string {
+	r := regexp.MustCompile(SubnetworkLinkRegex)
+	if !r.MatchString(subnetwork) {
+		return ""
+	}
+
+	return r.FindStringSubmatch(subnetwork)[1]
+}
+
+func createAcceleratorPartialUrl(zone, accelerator string) string {
+	return fmt.Sprintf("zones/%s/acceleratorTypes/%s", zone, accelerator)
 }

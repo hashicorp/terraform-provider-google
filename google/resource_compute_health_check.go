@@ -302,7 +302,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	// It probably maybe worked, so store the ID now
 	d.SetId(hchk.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Health Check")
+	err = computeOperationWait(config, op, project, "Creating Health Check")
 	if err != nil {
 		return err
 	}
@@ -422,7 +422,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	// It probably maybe worked, so store the ID now
 	d.SetId(hchk.Name)
 
-	err = computeOperationWaitGlobal(config, op, project, "Updating Health Check")
+	err = computeOperationWait(config, op, project, "Updating Health Check")
 	if err != nil {
 		return err
 	}
@@ -475,7 +475,7 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error deleting HealthCheck: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Health Check")
+	err = computeOperationWait(config, op, project, "Deleting Health Check")
 	if err != nil {
 		return err
 	}

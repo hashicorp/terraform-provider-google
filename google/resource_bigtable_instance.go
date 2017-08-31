@@ -44,11 +44,17 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 
 			"num_nodes": {
-				Type:         schema.TypeInt,
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"instance_type": {
+				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      3,
-				ValidateFunc: IntAtLeast(3),
+				Default:      "PRODUCTION",
+				ValidateFunc: validation.StringInSlice([]string{"DEVELOPMENT", "PRODUCTION"}, false),
 			},
 
 			"storage_type": {
@@ -91,13 +97,27 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		storageType = bigtable.SSD
 	}
 
+	numNodes := int32(d.Get("num_nodes").(int))
+	var instanceType bigtable.InstanceType
+	switch value := d.Get("instance_type"); value {
+	case "DEVELOPMENT":
+		instanceType = bigtable.DEVELOPMENT
+
+		if numNodes > 0 {
+			return fmt.Errorf("Can't specify a non-zero number of nodes: %d for DEVELOPMENT Bigtable instance: %s", numNodes, name)
+		}
+	case "PRODUCTION":
+		instanceType = bigtable.PRODUCTION
+	}
+
 	instanceConf := &bigtable.InstanceConf{
-		InstanceId:  name,
-		DisplayName: displayName.(string),
-		ClusterId:   d.Get("cluster_id").(string),
-		NumNodes:    int32(d.Get("num_nodes").(int)),
-		StorageType: storageType,
-		Zone:        d.Get("zone").(string),
+		InstanceId:   name,
+		DisplayName:  displayName.(string),
+		ClusterId:    d.Get("cluster_id").(string),
+		NumNodes:     numNodes,
+		InstanceType: instanceType,
+		StorageType:  storageType,
+		Zone:         d.Get("zone").(string),
 	}
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
@@ -171,23 +191,4 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	d.SetId("")
 
 	return nil
-}
-
-// IntAtLeast returns a SchemaValidateFunc which tests if the provided value
-// is of type int and is above min (inclusive)
-func IntAtLeast(min int) schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (s []string, es []error) {
-		v, ok := i.(int)
-		if !ok {
-			es = append(es, fmt.Errorf("expected type of %s to be int", k))
-			return
-		}
-
-		if v < min {
-			es = append(es, fmt.Errorf("expected %s to be at least %d, got %d", k, min, v))
-			return
-		}
-
-		return
-	}
 }

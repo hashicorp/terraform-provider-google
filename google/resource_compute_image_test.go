@@ -19,12 +19,50 @@ func TestAccComputeImage_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeImage_basic,
+				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"google_compute_image.foobar", &image),
 					testAccCheckComputeImageDescription(&image, "description-test"),
 					testAccCheckComputeImageFamily(&image, "family-test"),
+					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
+					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_update(t *testing.T) {
+	var image compute.Image
+
+	name := "image-test-" + acctest.RandString(10)
+	// Only labels supports an update
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeImage_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
+					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeImage_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageDoesNotContainLabel(&image, "my-label"),
+					testAccCheckComputeImageContainsLabel(&image, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckComputeImageContainsLabel(&image, "new-field", "only-shows-up-when-updated"),
+					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
 		},
@@ -116,6 +154,51 @@ func testAccCheckComputeImageFamily(image *compute.Image, family string) resourc
 	}
 }
 
+func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := image.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if v, ok := image.Labels[key]; ok {
+			return fmt.Errorf("Expected no label for key '%s' but found one with value '%s'", key, v)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeImageHasComputedFingerprint(image *compute.Image, resource string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// First ensure we actually have a fingerprint
+		if image.LabelFingerprint == "" {
+			return fmt.Errorf("No fingerprint set in API read result")
+		}
+
+		state := s.RootModule().Resources[resource]
+		if state == nil {
+			return fmt.Errorf("Unable to find resource named %s in resources", resource)
+		}
+
+		storedFingerprint := state.Primary.Attributes["label_fingerprint"]
+		if storedFingerprint != image.LabelFingerprint {
+			return fmt.Errorf("Stored fingerprint doesn't match fingerprint found on server; stored '%s', server '%s'",
+				storedFingerprint, image.LabelFingerprint)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if image.SourceType == "" {
@@ -125,16 +208,39 @@ func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCh
 	}
 }
 
-var testAccComputeImage_basic = fmt.Sprintf(`
+func testAccComputeImage_basic(name string) string {
+	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
-	name = "image-test-%s"
+	name = "%s"
 	description = "description-test"
 	family = "family-test"
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
 	create_timeout = 5
-}`, acctest.RandString(10))
+	labels = {
+		my-label = "my-label-value"
+		empty-label = ""
+	}
+}`, name)
+}
+
+func testAccComputeImage_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+	name = "%s"
+	description = "description-test"
+	family = "family-test"
+	raw_disk {
+	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+	}
+	create_timeout = 5
+	labels = {
+		empty-label = "oh-look-theres-a-label-now"
+		new-field = "only-shows-up-when-updated"
+	}
+}`, name)
+}
 
 var testAccComputeImage_basedondisk = fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {

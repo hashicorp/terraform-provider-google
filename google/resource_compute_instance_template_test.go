@@ -34,6 +34,27 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_preemptible,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						"google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 	var instanceTemplate compute.InstanceTemplate
 
@@ -333,6 +354,28 @@ func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTe
 	}
 }
 
+func testAccCheckComputeInstanceTemplatePreemptible(instanceTemplate *compute.InstanceTemplate, preemptible bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.Scheduling.Preemptible != preemptible {
+			return fmt.Errorf("Expected preemptible value %v, got %v", preemptible, instanceTemplate.Properties.Scheduling.Preemptible)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateAutomaticRestart(instanceTemplate *compute.InstanceTemplate, automaticRestart bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ar := instanceTemplate.Properties.Scheduling.AutomaticRestart
+		if ar == nil {
+			return fmt.Errorf("Expected to see a value for AutomaticRestart, but got nil")
+		}
+		if *ar != automaticRestart {
+			return fmt.Errorf("Expected automatic restart value %v, got %v", automaticRestart, ar)
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTemplateStartupScript(instanceTemplate *compute.InstanceTemplate, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Metadata == nil && n == "" {
@@ -389,6 +432,37 @@ resource "google_compute_instance_template" "foobar" {
 	scheduling {
 		preemptible = false
 		automatic_restart = true
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+}`, acctest.RandString(10))
+
+var testAccComputeInstanceTemplate_preemptible = fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		preemptible = true
+		automatic_restart = false
 	}
 
 	metadata {

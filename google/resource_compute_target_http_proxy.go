@@ -77,7 +77,7 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error creating TargetHttpProxy: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Creating Target Http Proxy")
+	err = computeOperationWait(config, op, project, "Creating Target Http Proxy")
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 			return fmt.Errorf("Error updating target: %s", err)
 		}
 
-		err = computeOperationWaitGlobal(config, op, project, "Updating Target Http Proxy")
+		err = computeOperationWait(config, op, project, "Updating Target Http Proxy")
 		if err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error deleting TargetHttpProxy: %s", err)
 	}
 
-	err = computeOperationWaitGlobal(config, op, project, "Deleting Target Http Proxy")
+	err = computeOperationWait(config, op, project, "Deleting Target Http Proxy")
 	if err != nil {
 		return err
 	}

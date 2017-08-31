@@ -126,7 +126,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWaitRegion(config, op, project, region, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -246,7 +246,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWaitRegion(config, op, project, region, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}

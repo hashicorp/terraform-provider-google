@@ -422,6 +422,28 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			return fmt.Errorf("Error master_instance_name mismatch, (%s, %s)", server, local)
 		}
 
+		ip_len, err := strconv.Atoi(attributes["ip_address.#"])
+		if err != nil {
+			return fmt.Errorf("Error parsing ip_addresses.# : %s", err.Error())
+		}
+		if ip_len != len(instance.IpAddresses) {
+			return fmt.Errorf("Error ip_addresses.# mismatch, server has %d but local has %d", len(instance.IpAddresses), ip_len)
+		}
+		// For now, assume the order matches
+		for idx, ip := range instance.IpAddresses {
+			server = attributes["ip_address."+strconv.Itoa(idx)+".ip_address"]
+			local = ip.IpAddress
+			if server != local {
+				return fmt.Errorf("Error ip_addresses.%d.ip_address mismatch, server has %s but local has %s", idx, server, local)
+			}
+
+			server = attributes["ip_address."+strconv.Itoa(idx)+".time_to_retire"]
+			local = ip.TimeToRetire
+			if server != local {
+				return fmt.Errorf("Error ip_addresses.%d.time_to_retire mismatch, server has %s but local has %s", idx, server, local)
+			}
+		}
+
 		server = instance.Settings.ActivationPolicy
 		local = attributes["settings.0.activation_policy"]
 		if server != local && len(server) > 0 && len(local) > 0 {

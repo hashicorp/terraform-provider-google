@@ -3,19 +3,28 @@ package google
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceContainerNodePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerNodePoolCreate,
 		Read:   resourceContainerNodePoolRead,
+		Update: resourceContainerNodePoolUpdate,
 		Delete: resourceContainerNodePoolDelete,
 		Exists: resourceContainerNodePoolExists,
+
+		SchemaVersion: 1,
+		MigrateState:  resourceContainerNodePoolMigrateState,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceContainerNodePoolStateImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
@@ -55,6 +64,29 @@ func resourceContainerNodePool() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+
+			"node_config": schemaNodeConfig,
+
+			"autoscaling": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"min_node_count": &schema.Schema{
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+
+						"max_node_count": &schema.Schema{
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -85,6 +117,19 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		InitialNodeCount: int64(nodeCount),
 	}
 
+	if v, ok := d.GetOk("node_config"); ok {
+		nodePool.Config = expandNodeConfig(v)
+	}
+
+	if v, ok := d.GetOk("autoscaling"); ok {
+		autoscaling := v.([]interface{})[0].(map[string]interface{})
+		nodePool.Autoscaling = &container.NodePoolAutoscaling{
+			Enabled:      true,
+			MinNodeCount: int64(autoscaling["min_node_count"].(int)),
+			MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
+		}
+	}
+
 	req := &container.CreateNodePoolRequest{
 		NodePool: nodePool,
 	}
@@ -104,7 +149,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", name)
 
-	d.SetId(name)
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, name))
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -129,8 +174,70 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", nodePool.Name)
 	d.Set("initial_node_count", nodePool.InitialNodeCount)
+	d.Set("node_config", flattenClusterNodeConfig(nodePool.Config))
+
+	autoscaling := []map[string]interface{}{}
+	if nodePool.Autoscaling != nil && nodePool.Autoscaling.Enabled {
+		autoscaling = []map[string]interface{}{
+			map[string]interface{}{
+				"min_node_count": nodePool.Autoscaling.MinNodeCount,
+				"max_node_count": nodePool.Autoscaling.MaxNodeCount,
+			},
+		}
+	}
+	d.Set("autoscaling", autoscaling)
 
 	return nil
+}
+
+func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	zone := d.Get("zone").(string)
+	name := d.Get("name").(string)
+	cluster := d.Get("cluster").(string)
+
+	if d.HasChange("autoscaling") {
+		update := &container.ClusterUpdate{
+			DesiredNodePoolId: name,
+		}
+		if v, ok := d.GetOk("autoscaling"); ok {
+			autoscaling := v.([]interface{})[0].(map[string]interface{})
+			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+				Enabled:      true,
+				MinNodeCount: int64(autoscaling["min_node_count"].(int)),
+				MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
+			}
+		} else {
+			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+				Enabled: false,
+			}
+		}
+
+		req := &container.UpdateClusterRequest{
+			Update: update,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zone, cluster, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool", 10, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
+	}
+
+	return resourceContainerNodePoolRead(d, meta)
 }
 
 func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
@@ -179,13 +286,24 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 	_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
 		project, zone, cluster, name).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Removing Container NodePool %q because it's gone", name)
-			// The resource doesn't exist anymore
-			return false, err
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", d.Get("name").(string))); err == nil {
+			return false, nil
 		}
 		// There was some other error in reading the resource
 		return true, err
 	}
 	return true, nil
+}
+
+func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name}")
+	}
+
+	d.Set("zone", parts[0])
+	d.Set("cluster", parts[1])
+	d.Set("name", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }

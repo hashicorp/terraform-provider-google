@@ -8,7 +8,8 @@ description: |-
 
 # google\_dns\_managed_zone
 
-Manages a zone within Google Cloud DNS.
+Manages a zone within Google Cloud DNS. For more information see [the official documentation](https://cloud.google.com/dns/zones/) and
+[API](https://cloud.google.com/dns/api/v1/managedZones).
 
 ## Example Usage
 
