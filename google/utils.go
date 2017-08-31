@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -36,6 +37,20 @@ func getRegion(d *schema.ResourceData, config *Config) (string, error) {
 		return "", fmt.Errorf("%q: required field is not set", "region")
 	}
 	return res.(string), nil
+}
+
+func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
+	res, ok := is.Attributes["region"]
+
+	if ok && res != "" {
+		return res, nil
+	}
+
+	if config.Region != "" {
+		return config.Region, nil
+	}
+
+	return "", fmt.Errorf("region: required field is not set")
 }
 
 // getProject reads the "project" field from the given resource data and falls

@@ -46,8 +46,8 @@ exported:
 
 ## Import
 
-Addresses can be imported using the `name`, e.g.
+Addresses can be imported using the `region` and `name`, e.g.
 
 ```
-$ terraform import google_compute_address.default test-address
+$ terraform import google_compute_address.default us-central1/test-address
 ```

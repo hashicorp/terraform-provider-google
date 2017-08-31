@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"strings"
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -16,6 +17,10 @@ func resourceComputeAddress() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+
+		SchemaVersion: 1,
+		MigrateState:  resourceComputeAddressMigrateState,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -37,6 +42,7 @@ func resourceComputeAddress() *schema.Resource {
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -70,7 +76,10 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// It probably maybe worked, so store the ID now
-	d.SetId(addr.Name)
+	d.SetId(computeAddressId{
+		Region: region,
+		Name:   addr.Name,
+	}.terraformId())
 
 	err = computeOperationWait(config, op, project, "Creating Address")
 	if err != nil {
@@ -83,7 +92,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	region, err := getRegion(d, config)
+	addressId, err := parseComputeAddressId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -94,7 +103,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	addr, err := config.clientCompute.Addresses.Get(
-		project, region, d.Id()).Do()
+		project, addressId.Region, addressId.Name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
 	}
@@ -102,6 +111,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("address", addr.Address)
 	d.Set("self_link", addr.SelfLink)
 	d.Set("name", addr.Name)
+	d.Set("region", addr.Region)
 
 	return nil
 }
@@ -109,7 +119,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	region, err := getRegion(d, config)
+	addressId, err := parseComputeAddressId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -122,7 +132,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	// Delete the address
 	log.Printf("[DEBUG] address delete request")
 	op, err := config.clientCompute.Addresses.Delete(
-		project, region, d.Id()).Do()
+		project, addressId.Region, addressId.Name).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting address: %s", err)
 	}
@@ -134,4 +144,26 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId("")
 	return nil
+}
+
+type computeAddressId struct {
+	Region string
+	Name   string
+}
+
+func (s computeAddressId) terraformId() string {
+	return fmt.Sprintf("%s/%s", s.Region, s.Name)
+}
+
+func parseComputeAddressId(id string) (*computeAddressId, error) {
+	parts := strings.Split(id, "/")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid compute address id. Expecting {region}/{name} format.")
+	}
+
+	return &computeAddressId{
+		Region: parts[0],
+		Name:   parts[1],
+	}, nil
 }

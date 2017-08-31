@@ -37,8 +37,10 @@ func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientCompute.Addresses.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
+		addressId, err := parseComputeAddressId(rs.Primary.ID)
+
+		_, err = config.clientCompute.Addresses.Get(
+			config.Project, addressId.Region, addressId.Name).Do()
 		if err == nil {
 			return fmt.Errorf("Address still exists")
 		}
@@ -60,13 +62,15 @@ func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.
 
 		config := testAccProvider.Meta().(*Config)
 
+		addressId, err := parseComputeAddressId(rs.Primary.ID)
+
 		found, err := config.clientCompute.Addresses.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
+			config.Project, addressId.Region, addressId.Name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != addressId.Name {
 			return fmt.Errorf("Addr not found")
 		}
 
