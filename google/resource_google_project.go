@@ -74,6 +74,12 @@ func resourceGoogleProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 		},
 	}
 }
@@ -93,6 +99,10 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			Id:   d.Get("org_id").(string),
 			Type: "organization",
 		},
+	}
+
+	if _, ok := d.GetOk("labels"); ok {
+		project.Labels = expandLabels(d)
 	}
 
 	op, err := config.clientResourceManager.Projects.Create(project).Do()
@@ -142,6 +152,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("project_id", pid)
 	d.Set("number", strconv.FormatInt(int64(p.ProjectNumber), 10))
 	d.Set("name", p.Name)
+	d.Set("labels", p.Labels)
 
 	if p.Parent != nil {
 		d.Set("org_id", p.Parent.Id)
@@ -211,6 +222,17 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 				return fmt.Errorf("Error updating billing account %q for project %q: %v", name, prefixedProject(pid), _err)
 			}
 			return fmt.Errorf("Error updating billing account %q for project %q: %v", name, prefixedProject(pid), err)
+		}
+	}
+
+	// Project Labels have changed
+	if ok := d.HasChange("labels"); ok {
+		p.Labels = expandLabels(d)
+
+		// Do Update on project
+		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating project %q: %s", p.Name, err)
 		}
 	}
 	return nil

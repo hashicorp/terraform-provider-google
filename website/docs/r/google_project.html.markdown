@@ -80,6 +80,8 @@ The following arguments are supported:
     This argument is no longer supported, and will be removed in a future version
     of Terraform. It should be replaced with a `google_project_iam_policy` resource.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the project.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
