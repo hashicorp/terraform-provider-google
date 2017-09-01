@@ -141,6 +141,21 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
+			"versioning": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
+
 			"website": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -218,6 +233,13 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if v, ok := d.GetOk("versioning"); ok {
+		versioning := v.([]interface{})[0].(map[string]interface{})
+		sb.Versioning = &storage.BucketVersioning{}
+		sb.Versioning.Enabled = versioning["enabled"].(bool)
+		sb.Versioning.ForceSendFields = append(sb.Versioning.ForceSendFields, "Enabled")
+	}
+
 	if v, ok := d.GetOk("website"); ok {
 		websites := v.([]interface{})
 
@@ -279,6 +301,15 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("lifecycle_rule") {
 		if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb); err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("versioning") {
+		if v, ok := d.GetOk("versioning"); ok {
+			versioning := v.([]interface{})[0].(map[string]interface{})
+			sb.Versioning = &storage.BucketVersioning{}
+			sb.Versioning.Enabled = versioning["enabled"].(bool)
+			sb.Versioning.ForceSendFields = append(sb.Versioning.ForceSendFields, "Enabled")
 		}
 	}
 
@@ -351,6 +382,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("storage_class", res.StorageClass)
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
+	versioning := make([]map[string]interface{}, 0, 1)
+	versioning = append(versioning, map[string]interface{}{
+		"enabled": res.Versioning.Enabled,
+	})
+	d.Set("versioning", versioning)
 	d.SetId(res.Id)
 	return nil
 }
