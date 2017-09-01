@@ -449,6 +449,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.image_type", cluster.NodeConfig.ImageType},
 			{"node_config.0.labels", cluster.NodeConfig.Labels},
 			{"node_config.0.tags", cluster.NodeConfig.Tags},
+			{"node_config.0.preemptible", cluster.NodeConfig.Preemptible},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -535,6 +536,10 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 	if gcpMap, ok := gcp.(map[string]string); ok {
 		return checkMapMatch(attributes, attr, gcpMap)
 	}
+	if gcpBool, ok := gcp.(bool); ok {
+		return checkBoolMatch(attributes, attr, gcpBool)
+	}
+
 	tf := attributes[attr]
 	if tf != gcp {
 		return matchError(attr, tf, gcp)
@@ -597,6 +602,18 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 		if tf := attributes[fmt.Sprintf("%s.%s", attr, k)]; tf != gcp {
 			return matchError(fmt.Sprintf("%s[%s]", attr, k), tf, gcp)
 		}
+	}
+
+	return ""
+}
+
+func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
+	tf, err := strconv.ParseBool(attributes[attr])
+	if err != nil {
+		return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+	}
+	if tf != gcpBool {
+		return matchError(attr, tf, gcpBool)
 	}
 
 	return ""
@@ -762,11 +779,12 @@ resource "google_container_cluster" "with_node_config" {
 		metadata {
 			foo = "bar"
 		}
-		image_type = "CONTAINER_VM"
+		image_type = "COS"
 		labels {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
+		preemptible = true
 	}
 }`, acctest.RandString(10))
 
@@ -1018,7 +1036,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 			metadata {
 				foo = "bar"
 			}
-			image_type = "CONTAINER_VM"
+			image_type = "COS"
 			labels {
 				foo = "bar"
 			}

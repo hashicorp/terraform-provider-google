@@ -154,6 +154,7 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 			{"node_config.0.image_type", nodepool.Config.ImageType},
 			{"node_config.0.labels", nodepool.Config.Labels},
 			{"node_config.0.tags", nodepool.Config.Tags},
+			{"node_config.0.preemptible", nodepool.Config.Preemptible},
 		}
 
 		for _, attrs := range nodepoolTests {
@@ -261,6 +262,9 @@ func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface
 	if gcpMap, ok := gcp.(map[string]string); ok {
 		return nodepoolCheckMapMatch(attributes, attr, gcpMap)
 	}
+	if gcpBool, ok := gcp.(bool); ok {
+		return checkBoolMatch(attributes, attr, gcpBool)
+	}
 	tf := attributes[attr]
 	if tf != gcp {
 		return nodepoolMatchError(attr, tf, gcp)
@@ -356,6 +360,7 @@ resource "google_container_node_pool" "np_with_node_config" {
 			"https://www.googleapis.com/auth/logging.write",
 			"https://www.googleapis.com/auth/monitoring"
 		]
+		preemptible = true
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 

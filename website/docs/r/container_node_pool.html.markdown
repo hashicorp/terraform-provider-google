@@ -105,6 +105,10 @@ resource "google_container_cluster" "primary" {
 
 * `image_type` - (Optional) The image type to use for this node.
 
+* `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
+    are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
+    for more information. Defaults to false.
+
 The `autoscaling` block supports:
 
 * `minNodeCount` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and

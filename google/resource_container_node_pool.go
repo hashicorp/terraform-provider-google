@@ -174,7 +174,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", nodePool.Name)
 	d.Set("initial_node_count", nodePool.InitialNodeCount)
-	d.Set("node_config", flattenClusterNodeConfig(nodePool.Config))
+	d.Set("node_config", flattenNodeConfig(nodePool.Config))
 
 	autoscaling := []map[string]interface{}{}
 	if nodePool.Autoscaling != nil && nodePool.Autoscaling.Enabled {
