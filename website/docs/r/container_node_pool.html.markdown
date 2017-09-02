@@ -107,10 +107,10 @@ resource "google_container_cluster" "primary" {
 
 The `autoscaling` block supports:
 
-* `minNodeCount` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
+* `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
     <= `maxNodeCount`.
 
-* `maxNodeCount` - (Required) Maximum number of nodes in the NodePool. Must be >= minNodeCount.
+* `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
 
 ## Import
 
