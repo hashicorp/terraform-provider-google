@@ -8,13 +8,21 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
+const COMPUTE_FIREWALL_PRIORITY_DEFAULT = 1000
+
 var FirewallBaseApiVersion = v1
-var FirewallVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "deny"}}
+var FirewallVersionedFeatures = []Feature{
+	Feature{Version: v0beta, Item: "deny"},
+	Feature{Version: v0beta, Item: "direction"},
+	Feature{Version: v0beta, Item: "destination_ranges"},
+	Feature{Version: v0beta, Item: "priority"},
+}
 
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -39,6 +47,14 @@ func resourceComputeFirewall() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"priority": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      COMPUTE_FIREWALL_PRIORITY_DEFAULT,
+				ValidateFunc: validation.IntBetween(0, 65535),
 			},
 
 			"allow": {
@@ -93,6 +109,13 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional: true,
 			},
 
+			"direction": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS"}, false),
+				ForceNew:     true,
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -118,6 +141,16 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"destination_ranges": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"source_ranges", "source_tags"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
+				ForceNew:      true,
 			},
 
 			"target_tags": {
@@ -167,7 +200,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	switch computeApiVersion {
 	case v1:
 		firewallV1 := &compute.Firewall{}
-		err := Convert(firewall, firewallV1)
+		err = Convert(firewall, firewallV1)
 		if err != nil {
 			return err
 		}
@@ -178,7 +211,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	case v0beta:
 		firewallV0Beta := &computeBeta.Firewall{}
-		err := Convert(firewall, firewallV0Beta)
+		err = Convert(firewall, firewallV0Beta)
 		if err != nil {
 			return err
 		}
@@ -245,6 +278,10 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
+		// During firewall conversion from v1 to v0beta, the value for Priority is read as 0 (as it doesn't exist in
+		// v1). Unfortunately this is a valid value, but not the same as the default. To avoid this, we explicitly set
+		// the default value here.
+		firewall.Priority = COMPUTE_FIREWALL_PRIORITY_DEFAULT
 	case v0beta:
 		firewallV0Beta, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
 		if err != nil {
@@ -261,13 +298,23 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
 	d.Set("name", firewall.Name)
 	d.Set("network", networkUrl[len(networkUrl)-1])
+
+	// Unlike most other Beta properties, direction will always have a value even when
+	// a zero is sent by the client. We'll never revert back to v1 without conditionally reading it.
+	// This if statement blocks Beta import for this resource.
+	if _, ok := d.GetOk("direction"); ok {
+		d.Set("direction", firewall.Direction)
+	}
+
 	d.Set("description", firewall.Description)
 	d.Set("project", project)
 	d.Set("source_ranges", firewall.SourceRanges)
 	d.Set("source_tags", firewall.SourceTags)
+	d.Set("destination_ranges", firewall.DestinationRanges)
 	d.Set("target_tags", firewall.TargetTags)
 	d.Set("allow", flattenAllowed(firewall.Allowed))
 	d.Set("deny", flattenDenied(firewall.Denied))
+	d.Set("priority", int(firewall.Priority))
 	return nil
 }
 
@@ -291,7 +338,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	switch computeApiVersion {
 	case v1:
 		firewallV1 := &compute.Firewall{}
-		err := Convert(firewall, firewallV1)
+		err = Convert(firewall, firewallV1)
 		if err != nil {
 			return err
 		}
@@ -302,7 +349,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	case v0beta:
 		firewallV0Beta := &computeBeta.Firewall{}
-		err := Convert(firewall, firewallV0Beta)
+		err = Convert(firewall, firewallV0Beta)
 		if err != nil {
 			return err
 		}
@@ -424,6 +471,15 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		}
 	}
 
+	// Build up the list of destinations
+	var destinationRanges []string
+	if v := d.Get("destination_ranges").(*schema.Set); v.Len() > 0 {
+		destinationRanges = make([]string, v.Len())
+		for i, v := range v.List() {
+			destinationRanges[i] = v.(string)
+		}
+	}
+
 	// Build up the list of targets
 	var targetTags []string
 	if v := d.Get("target_tags").(*schema.Set); v.Len() > 0 {
@@ -435,13 +491,16 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 
 	// Build the firewall parameter
 	return &computeBeta.Firewall{
-		Name:         d.Get("name").(string),
-		Description:  d.Get("description").(string),
-		Network:      network.SelfLink,
-		Allowed:      allowed,
-		Denied:       denied,
-		SourceRanges: sourceRanges,
-		SourceTags:   sourceTags,
-		TargetTags:   targetTags,
+		Name:              d.Get("name").(string),
+		Description:       d.Get("description").(string),
+		Direction:         d.Get("direction").(string),
+		Network:           network.SelfLink,
+		Allowed:           allowed,
+		Denied:            denied,
+		SourceRanges:      sourceRanges,
+		SourceTags:        sourceTags,
+		DestinationRanges: destinationRanges,
+		TargetTags:        targetTags,
+		Priority:          int64(d.Get("priority").(int)),
 	}, nil
 }

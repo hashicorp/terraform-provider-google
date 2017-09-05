@@ -83,7 +83,7 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, Beta) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below.
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).
