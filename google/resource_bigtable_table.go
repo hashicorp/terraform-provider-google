@@ -63,7 +63,7 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	name := d.Get("name").(string)
 	if v, ok := d.GetOk("split_keys"); ok {
-		splitKeys := convertSchemaArrayToStringArray(v.([]interface{}))
+		splitKeys := convertStringArr(v.([]interface{}))
 		// This method may return before the table's creation is complete - we may need to wait until
 		// it exists in the future.
 		err = c.CreatePresplitTable(ctx, name, splitKeys)
