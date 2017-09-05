@@ -422,24 +422,15 @@ func expandCors(configured []interface{}) []*storage.BucketCors {
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 		corsRule := storage.BucketCors{
-			Origin:         convertSchemaArrayToStringArray(data["origin"].([]interface{})),
-			Method:         convertSchemaArrayToStringArray(data["method"].([]interface{})),
-			ResponseHeader: convertSchemaArrayToStringArray(data["response_header"].([]interface{})),
+			Origin:         convertStringArr(data["origin"].([]interface{})),
+			Method:         convertStringArr(data["method"].([]interface{})),
+			ResponseHeader: convertStringArr(data["response_header"].([]interface{})),
 			MaxAgeSeconds:  int64(data["max_age_seconds"].(int)),
 		}
 
 		corsRules = append(corsRules, &corsRule)
 	}
 	return corsRules
-}
-
-func convertSchemaArrayToStringArray(input []interface{}) []string {
-	output := make([]string, 0, len(input))
-	for _, val := range input {
-		output = append(output, val.(string))
-	}
-
-	return output
 }
 
 func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
