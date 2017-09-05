@@ -13,6 +13,10 @@ func resourcePubsubTopic() *schema.Resource {
 		Read:   resourcePubsubTopicRead,
 		Delete: resourcePubsubTopicDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
