@@ -30,12 +30,6 @@ func resourceGoogleProject() *schema.Resource {
 		MigrateState: resourceGoogleProjectMigrateState,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "The id field has been removed. Use project_id instead.",
-			},
 			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,

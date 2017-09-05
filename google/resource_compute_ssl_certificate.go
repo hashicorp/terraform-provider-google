@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -59,11 +58,6 @@ func resourceComputeSslCertificate() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-
-			"id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 
 			"project": &schema.Schema{
@@ -140,7 +134,6 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("self_link", cert.SelfLink)
-	d.Set("id", strconv.FormatUint(cert.Id, 10))
 
 	return nil
 }

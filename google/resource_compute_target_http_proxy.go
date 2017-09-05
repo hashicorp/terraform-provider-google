@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -32,11 +31,6 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-
-			"id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 
 			"project": &schema.Schema{
@@ -134,7 +128,6 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 	}
 
 	d.Set("self_link", proxy.SelfLink)
-	d.Set("id", strconv.FormatUint(proxy.Id, 10))
 
 	return nil
 }

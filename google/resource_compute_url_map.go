@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -61,11 +60,6 @@ func resourceComputeUrlMap() *schema.Resource {
 						},
 					},
 				},
-			},
-
-			"id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 
 			"path_matcher": &schema.Schema{
@@ -315,7 +309,6 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(name)
 	d.Set("self_link", urlMap.SelfLink)
-	d.Set("id", strconv.FormatUint(urlMap.Id, 10))
 	d.Set("fingerprint", urlMap.Fingerprint)
 
 	hostRuleMap := make(map[string]*compute.HostRule)
