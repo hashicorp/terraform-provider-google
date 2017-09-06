@@ -36,3 +36,11 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+Pubsub topics can be imported using the `name`, e.g.
+
+```
+$ terraform import google_pubsub_topic.mytopic mytopic
+```

@@ -14,7 +14,7 @@ func resourcePubsubTopic() *schema.Resource {
 		Delete: resourcePubsubTopicDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourcePubsubTopicStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,4 +79,21 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourcePubsubTopicStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	name := d.Id()
+	id := fmt.Sprintf("projects/%s/topics/%s", project, name)
+
+	d.Set("name", name)
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
