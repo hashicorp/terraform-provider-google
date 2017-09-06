@@ -26,8 +26,8 @@ There are no arguments available for this data source.
 
 ## Attributes Reference
 
+In addition to the arguments listed above, the following attributes are exported:
+
 * `project` - The ID of the project to apply any resources to.
 
 * `region` - The region to operate under.
-
-* `credentials` - Contents of the JSON file used to describe your account credentials.
