@@ -17,8 +17,8 @@ func TestComputeAddressMigrateState(t *testing.T) {
 			Attributes: map[string]string{
 				"name": "address-1",
 			},
-			ExpectedId: "us-central1/address-1",
-			Meta:       &Config{Region: "us-central1"},
+			ExpectedId: "gcp-project/us-central1/address-1",
+			Meta:       &Config{Region: "us-central1", Project: "gcp-project"},
 		},
 	}
 
