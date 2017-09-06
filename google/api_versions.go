@@ -73,6 +73,9 @@ func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion Compute
 // A field of a resource and the version of the Compute API required to use it.
 type Feature struct {
 	Version ComputeApiVersion
+	// Path to the beta field. Supports:
+	// - beta field: "min_cpu_platform"
+	// - nested beta field: "network_interface.*.alias_ip_range"
 	Item    string
 }
 
