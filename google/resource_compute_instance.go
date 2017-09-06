@@ -294,7 +294,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"subnetwork": &schema.Schema{
@@ -302,7 +302,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"subnetwork_project": &schema.Schema{
@@ -1058,7 +1058,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"name":               iface.Name,
 				"address":            iface.NetworkIP,
 				"network":            iface.Network,
-				"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
+				"subnetwork":         iface.Subnetwork,
 				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
 				"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
