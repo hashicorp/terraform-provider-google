@@ -76,7 +76,7 @@ type Feature struct {
 	// Path to the beta field. Supports:
 	// - beta field: "min_cpu_platform"
 	// - nested beta field: "network_interface.*.alias_ip_range"
-	Item    string
+	Item string
 }
 
 // Returns true when a feature has been modified.
