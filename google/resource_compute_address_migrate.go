@@ -27,14 +27,20 @@ func migrateComputeAddressV0toV1(is *terraform.InstanceState, meta interface{}) 
 
 	config := meta.(*Config)
 
+	project, err := getProjectFromInstanceState(is, config)
+	if err != nil {
+		return is, err
+	}
+
 	region, err := getRegionFromInstanceState(is, config)
 	if err != nil {
 		return is, err
 	}
 
 	is.ID = computeAddressId{
-		Region: region,
-		Name:   is.Attributes["name"],
+		Project: project,
+		Region:  region,
+		Name:    is.Attributes["name"],
 	}.terraformId()
 
 	log.Printf("[DEBUG] ID after migration: %s", is.ID)

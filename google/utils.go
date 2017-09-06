@@ -34,7 +34,7 @@ func getRegion(d *schema.ResourceData, config *Config) (string, error) {
 		if config.Region != "" {
 			return config.Region, nil
 		}
-		return "", fmt.Errorf("%q: required field is not set", "region")
+		return "", fmt.Errorf("region: required field is not set")
 	}
 	return res.(string), nil
 }
@@ -62,9 +62,23 @@ func getProject(d *schema.ResourceData, config *Config) (string, error) {
 		if config.Project != "" {
 			return config.Project, nil
 		}
-		return "", fmt.Errorf("%q: required field is not set", "project")
+		return "", fmt.Errorf("project: required field is not set")
 	}
 	return res.(string), nil
+}
+
+func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
+	res, ok := is.Attributes["project"]
+
+	if ok && res != "" {
+		return res, nil
+	}
+
+	if config.Project != "" {
+		return config.Project, nil
+	}
+
+	return "", fmt.Errorf("project: required field is not set")
 }
 
 func getZonalResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *compute.Service, project string) (interface{}, error) {
