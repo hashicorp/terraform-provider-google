@@ -12,7 +12,7 @@ import (
 
 var (
 	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
-	computeAddressLinkRegex  = regexp.MustCompile("projects/(.*)/regions/(.*)/addresses/(.*)$")
+	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -104,8 +104,6 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	log.Println("[rosbo] resourceComputeAddressRead", addressId)
-
 	addr, err := config.clientCompute.Addresses.Get(
 		addressId.Project, addressId.Region, addressId.Name).Do()
 	if err != nil {
@@ -191,7 +189,7 @@ func parseComputeAddressId(id string, config *Config) (*computeAddressId, error)
 	} else if len(parts) == 2 {
 		// Project is optional.
 		if config.Project == "" {
-			return nil, fmt.Errorf("Invalid compute address id. The default project for the provider must be set.")
+			return nil, fmt.Errorf("The default project for the provider must be set when using the `{region}/{name}` id format.")
 		}
 
 		return &computeAddressId{
@@ -199,7 +197,21 @@ func parseComputeAddressId(id string, config *Config) (*computeAddressId, error)
 			Region:  parts[0],
 			Name:    parts[1],
 		}, nil
+	} else if len(parts) == 1 {
+		// Project and region is optional
+		if config.Project == "" {
+			return nil, fmt.Errorf("The default project for the provider must be set when using the `{name}` id format.")
+		}
+		if config.Region == "" {
+			return nil, fmt.Errorf("The default region for the provider must be set when using the `{name}` id format.")
+		}
+
+		return &computeAddressId{
+			Project: config.Project,
+			Region:  config.Region,
+			Name:    parts[0],
+		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid compute address id. Expecting resource link or {project}/{region}/{name} format.")
+	return nil, fmt.Errorf("Invalid compute address id. Expecting resource link, `{project}/{region}/{name}`, `{region}/{name}` or `{name}` format.")
 }

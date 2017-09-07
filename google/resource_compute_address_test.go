@@ -40,8 +40,14 @@ func TestComputeAddressIdParsing(t *testing.T) {
 			ExpectedCanonicalId: "projects/default-project/regions/us-central1/addresses/test-address",
 			Config:              &Config{Project: "default-project"},
 		},
+		"id is address": {
+			ImportId:            "test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/default-project/regions/us-east1/addresses/test-address",
+			Config:              &Config{Project: "default-project", Region: "us-east1"},
+		},
 		"id has invalid format": {
-			ImportId:      "invalid",
+			ImportId:      "i/n/v/a/l/i/d",
 			ExpectedError: true,
 		},
 	}
