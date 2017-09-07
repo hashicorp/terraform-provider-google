@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigquery: Support Bigquery Views [GH-230]
+* container: Add import support for `google_container_cluster` ([#391](https://github.com/terraform-providers/terraform-provider-google/issues/391))
 * container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
 * container: Allow updating `google_container_cluster.logging_service` [GH-343]
 * container: Add support for 'node_config.preemptible' field on `google_container_cluster` [GH-341]
