@@ -749,7 +749,46 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 			},
 		},
 	})
+}
 
+func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_primaryAliasIpRange(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "/24"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_secondaryAliasIpRange(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
@@ -1183,6 +1222,20 @@ func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance
 		}
 
 		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasAliasIpRange(instance *computeBeta.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, networkInterface := range instance.NetworkInterfaces {
+			for _, aliasIpRange := range networkInterface.AliasIpRanges {
+				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || ipCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+					return nil
+				}
+			}
+		}
+
+		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
 	}
 }
 
@@ -2108,4 +2161,64 @@ resource "google_compute_instance" "foobar" {
 
   min_cpu_platform = "Intel Haswell"
 }`, instance)
+}
+
+func testAccComputeInstance_primaryAliasIpRange(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    alias_ip_range {
+      ip_cidr_range = "/24"
+    }
+  }
+}`, instance)
+}
+
+func testAccComputeInstance_secondaryAliasIpRange(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-east1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+	secondary_ip_range {
+		range_name = "inst-test-secondary"
+		ip_cidr_range = "172.16.0.0/20"
+	}
+}
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+
+    alias_ip_range {
+      subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+      ip_cidr_range = "172.16.0.0/24"
+    }
+  }
+}`, acctest.RandString(10), acctest.RandString(10), instance)
 }

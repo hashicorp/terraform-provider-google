@@ -229,10 +229,25 @@ The `network_interface` block supports:
     on that network). This block can be repeated multiple times. Structure
     documented below.
 
+* `alias_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An
+    array of alias IP ranges for this network interface. Can only be specified for network
+    interfaces on subnet-mode networks. Structure documented below.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
+
+The `alias_ip_range` block supports:
+
+* `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
+    must belong to the specified subnetwork and cannot contain IP addresses reserved by
+    system or used by other network interfaces. This range may be a single IP address
+    (e.g. 10.2.3.4), a netmask (e.g. /24) or a CIDR format string (e.g. 10.1.2.0/24).
+
+* `subnetwork_range_name` - (Optional) The subnetwork secondary range name specifying
+    the secondary range from which to allocate the IP CIDR range for this alias IP
+    range. If left unspecified, the primary range of the subnetwork will be used.
 
 The `service_account` block supports:
 
