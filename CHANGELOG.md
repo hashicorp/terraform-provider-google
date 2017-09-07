@@ -22,6 +22,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
 * sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
+* sql: Fixed bug where default user on replica would cause an incorrect delete api call [GH-347]
 
 ## 0.1.3 (August 17, 2017)
 
