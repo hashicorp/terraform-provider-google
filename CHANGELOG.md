@@ -18,6 +18,7 @@ IMPROVEMENTS:
 * compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
 
 BUG FIXES:
+* compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
 * sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
 
 ## 0.1.3 (August 17, 2017)
