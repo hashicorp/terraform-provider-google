@@ -1087,7 +1087,7 @@ func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfigura
 }
 
 func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interface{} {
-	ips := make([]map[string]interface{}, len(ipAddresses))
+	var ips []map[string]interface{}
 
 	for _, ip := range ipAddresses {
 		data := map[string]interface{}{

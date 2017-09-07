@@ -24,6 +24,9 @@ resource "google_compute_disk" "default" {
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"
+  labels {
+    environment = "dev"
+  }
 }
 ```
 
@@ -57,6 +60,8 @@ The following arguments are supported:
 
 * `type` - (Optional) The GCE disk type.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the image.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -69,7 +74,9 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
-* `users` - (Computed) The Users of the created resource.
+* `users` - The Users of the created resource.
+
+* `label_fingerprint` - The fingerprint of the assigned labels.
 
 ## Import
 

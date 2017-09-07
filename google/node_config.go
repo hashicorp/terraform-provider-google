@@ -84,6 +84,13 @@ var schemaNodeConfig = &schema.Schema{
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			"preemptible": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
 		},
 	},
 }
@@ -148,7 +155,30 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 		nc.Tags = tags
 	}
+	// Preemptible Is Optional+Default, so it always has a value
+	nc.Preemptible = nodeConfig["preemptible"].(bool)
 
 	return nc
+}
 
+func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
+	config := []map[string]interface{}{
+		{
+			"machine_type":    c.MachineType,
+			"disk_size_gb":    c.DiskSizeGb,
+			"local_ssd_count": c.LocalSsdCount,
+			"service_account": c.ServiceAccount,
+			"metadata":        c.Metadata,
+			"image_type":      c.ImageType,
+			"labels":          c.Labels,
+			"tags":            c.Tags,
+			"preemptible":     c.Preemptible,
+		},
+	}
+
+	if len(c.OauthScopes) > 0 {
+		config[0]["oauth_scopes"] = c.OauthScopes
+	}
+
+	return config
 }

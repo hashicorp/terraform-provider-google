@@ -14,11 +14,14 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const COMPUTE_FIREWALL_PRIORITY_DEFAULT = 1000
+
 var FirewallBaseApiVersion = v1
 var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
+	Feature{Version: v0beta, Item: "priority"},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -44,6 +47,14 @@ func resourceComputeFirewall() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"priority": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      COMPUTE_FIREWALL_PRIORITY_DEFAULT,
+				ValidateFunc: validation.IntBetween(0, 65535),
 			},
 
 			"allow": {
@@ -267,6 +278,10 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
+		// During firewall conversion from v1 to v0beta, the value for Priority is read as 0 (as it doesn't exist in
+		// v1). Unfortunately this is a valid value, but not the same as the default. To avoid this, we explicitly set
+		// the default value here.
+		firewall.Priority = COMPUTE_FIREWALL_PRIORITY_DEFAULT
 	case v0beta:
 		firewallV0Beta, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
 		if err != nil {
@@ -299,6 +314,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("target_tags", firewall.TargetTags)
 	d.Set("allow", flattenAllowed(firewall.Allowed))
 	d.Set("deny", flattenDenied(firewall.Denied))
+	d.Set("priority", int(firewall.Priority))
 	return nil
 }
 
@@ -485,5 +501,6 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		SourceTags:        sourceTags,
 		DestinationRanges: destinationRanges,
 		TargetTags:        targetTags,
+		Priority:          int64(d.Get("priority").(int)),
 	}, nil
 }
