@@ -617,20 +617,23 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	// If a root user exists with a wildcard ('%') hostname, delete it.
-	users, err := config.clientSqlAdmin.Users.List(project, instance.Name).Do()
-	if err != nil {
-		return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
-	}
-	for _, u := range users.Items {
-		if u.Name == "root" && u.Host == "%" {
-			op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
-			if err != nil {
-				return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
-			}
-			err = sqladminOperationWait(config, op, "Delete default root User")
-			if err != nil {
-				return err
+	// If a default root user was created with a wildcard ('%') hostname, delete it. Note that if the resource is a
+	// replica, then any users are inherited from the master instance and should be left alone.
+	if !sqlResourceIsReplica(d) {
+		users, err := config.clientSqlAdmin.Users.List(project, instance.Name).Do()
+		if err != nil {
+			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
+		}
+		for _, u := range users.Items {
+			if u.Name == "root" && u.Host == "%" {
+				op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
+				if err != nil {
+					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
+				}
+				err = sqladminOperationWait(config, op, "Delete default root User")
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -1103,4 +1106,11 @@ func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interfac
 
 func instanceMutexKey(project, instance_name string) string {
 	return fmt.Sprintf("google-sql-database-instance-%s-%s", project, instance_name)
+}
+
+// sqlResourceIsReplica returns true if the provided schema.ResourceData represents a replica SQL instance, and false
+// otherwise.
+func sqlResourceIsReplica(d *schema.ResourceData) bool {
+	_, ok := d.GetOk("master_instance_name")
+	return ok
 }
