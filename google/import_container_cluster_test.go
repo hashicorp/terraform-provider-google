@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccGoogleContainerCluster_import(t *testing.T) {
-	resourceName := "google_container_cluster.np"
+	resourceName := "google_container_cluster.primary"
 	name := fmt.Sprintf("tf-cluster-test-%s", acctest.RandString(10))
 	conf := testAccContainerCluster_basic(name)
 	resource.Test(t, resource.TestCase{
@@ -22,9 +22,10 @@ func TestAccGoogleContainerCluster_import(t *testing.T) {
 			},
 
 			resource.TestStep{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 		},
 	})
