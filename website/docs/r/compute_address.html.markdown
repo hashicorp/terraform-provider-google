@@ -52,7 +52,7 @@ Addresses can be imported using the `project`, `region` and `name`, e.g.
 $ terraform import google_compute_address.default gcp-project/us-central1/test-address
 ```
 
-If `project` is omitted, the default project set for the provider are used:
+If `project` is omitted, the default project set for the provider is used:
 
 ```
 $ terraform import google_compute_address.default us-central1/test-address
