@@ -97,6 +97,45 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 	})
 }
 
+func TestAccComputeGlobalForwardingRule_labels(t *testing.T) {
+	var frule computeBeta.ForwardingRule
+
+	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+	proxy1 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+	proxy2 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+	backend := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+	hc := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+	urlmap := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeGlobalForwardingRuleDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeGlobalForwardingRule_labels(fr, proxy1, proxy2, backend, hc, urlmap),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaGlobalForwardingRuleExists(
+						"google_compute_global_forwarding_rule.foobar", &frule),
+					testAccCheckComputeBetaGlobalForwardingRuleHasLabel(&frule, "my-label", "my-label-value"),
+					testAccCheckComputeBetaGlobalForwardingRuleHasLabel(&frule, "my-second-label", "my-second-label-value"),
+					testAccCheckComputeBetaGlobalForwardingRuleHasCorrectLabelFingerprint(&frule, "google_compute_global_forwarding_rule.foobar"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeGlobalForwardingRule_labelsUpdated(fr, proxy1, proxy2, backend, hc, urlmap),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaGlobalForwardingRuleExists(
+						"google_compute_global_forwarding_rule.foobar", &frule),
+					testAccCheckComputeBetaGlobalForwardingRuleHasLabel(&frule, "my-label", "my-label-value"),
+					testAccCheckComputeBetaGlobalForwardingRuleHasLabel(&frule, "my-third-label", "my-third-label-value"),
+					testAccCheckComputeBetaGlobalForwardingRuleHasCorrectLabelFingerprint(&frule, "google_compute_global_forwarding_rule.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeGlobalForwardingRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -197,6 +236,34 @@ func testAccCheckComputeBetaGlobalForwardingRuleIpVersion(n, version string) res
 	}
 }
 
+func testAccCheckComputeBetaGlobalForwardingRuleHasLabel(frule *computeBeta.ForwardingRule, key, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		val, ok := frule.Labels[key]
+		if !ok {
+			return fmt.Errorf("label with key %s not found", key)
+		}
+
+		if val != value {
+			return fmt.Errorf("label value did not match for key %s: expected %s but found %s", key, value, val)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaGlobalForwardingRuleHasCorrectLabelFingerprint(
+	frule *computeBeta.ForwardingRule, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		tfLabelFingerprint := s.RootModule().Resources[resourceName].Primary.Attributes["label_fingerprint"]
+		remoteLabelFingerprint := frule.LabelFingerprint
+
+		if tfLabelFingerprint != remoteLabelFingerprint {
+			return fmt.Errorf("Label fingerprint mismatch: remote has %#v but terraform has %#v",
+				remoteLabelFingerprint, tfLabelFingerprint)
+		}
+		return nil
+	}
+}
+
 func testAccComputeGlobalForwardingRule_basic1(fr, proxy1, proxy2, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_global_forwarding_rule" "foobar" {
@@ -205,6 +272,130 @@ func testAccComputeGlobalForwardingRule_basic1(fr, proxy1, proxy2, backend, hc, 
 		name = "%s"
 		port_range = "80"
 		target = "${google_compute_target_http_proxy.foobar1.self_link}"
+	}
+
+	resource "google_compute_target_http_proxy" "foobar1" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		url_map = "${google_compute_url_map.foobar.self_link}"
+	}
+
+	resource "google_compute_target_http_proxy" "foobar2" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		url_map = "${google_compute_url_map.foobar.self_link}"
+	}
+
+	resource "google_compute_backend_service" "foobar" {
+		name = "%s"
+		health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+	}
+
+	resource "google_compute_http_health_check" "zero" {
+		name = "%s"
+		request_path = "/"
+		check_interval_sec = 1
+		timeout_sec = 1
+	}
+
+	resource "google_compute_url_map" "foobar" {
+		name = "%s"
+		default_service = "${google_compute_backend_service.foobar.self_link}"
+		host_rule {
+			hosts = ["mysite.com", "myothersite.com"]
+			path_matcher = "boop"
+		}
+		path_matcher {
+			default_service = "${google_compute_backend_service.foobar.self_link}"
+			name = "boop"
+			path_rule {
+				paths = ["/*"]
+				service = "${google_compute_backend_service.foobar.self_link}"
+			}
+		}
+		test {
+			host = "mysite.com"
+			path = "/*"
+			service = "${google_compute_backend_service.foobar.self_link}"
+		}
+	}`, fr, proxy1, proxy2, backend, hc, urlmap)
+}
+
+func testAccComputeGlobalForwardingRule_labels(fr, proxy1, proxy2, backend, hc, urlmap string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_global_forwarding_rule" "foobar" {
+		description = "Resource created for Terraform acceptance testing"
+		ip_protocol = "TCP"
+		name = "%s"
+		port_range = "80"
+		target = "${google_compute_target_http_proxy.foobar1.self_link}"
+
+	    labels {
+	        my-label = "my-label-value"
+	        my-second-label = "my-second-label-value"
+	    }
+	}
+
+	resource "google_compute_target_http_proxy" "foobar1" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		url_map = "${google_compute_url_map.foobar.self_link}"
+	}
+
+	resource "google_compute_target_http_proxy" "foobar2" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		url_map = "${google_compute_url_map.foobar.self_link}"
+	}
+
+	resource "google_compute_backend_service" "foobar" {
+		name = "%s"
+		health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+	}
+
+	resource "google_compute_http_health_check" "zero" {
+		name = "%s"
+		request_path = "/"
+		check_interval_sec = 1
+		timeout_sec = 1
+	}
+
+	resource "google_compute_url_map" "foobar" {
+		name = "%s"
+		default_service = "${google_compute_backend_service.foobar.self_link}"
+		host_rule {
+			hosts = ["mysite.com", "myothersite.com"]
+			path_matcher = "boop"
+		}
+		path_matcher {
+			default_service = "${google_compute_backend_service.foobar.self_link}"
+			name = "boop"
+			path_rule {
+				paths = ["/*"]
+				service = "${google_compute_backend_service.foobar.self_link}"
+			}
+		}
+		test {
+			host = "mysite.com"
+			path = "/*"
+			service = "${google_compute_backend_service.foobar.self_link}"
+		}
+	}`, fr, proxy1, proxy2, backend, hc, urlmap)
+}
+
+func testAccComputeGlobalForwardingRule_labelsUpdated(fr, proxy1, proxy2, backend, hc, urlmap string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_global_forwarding_rule" "foobar" {
+		description = "Resource created for Terraform acceptance testing"
+		ip_protocol = "TCP"
+		name = "%s"
+		port_range = "80"
+		target = "${google_compute_target_http_proxy.foobar1.self_link}"
+
+	    labels {
+	        my-label = "my-label-value"
+	        my-third-label = "my-third-label-value"
+	    }
 	}
 
 	resource "google_compute_target_http_proxy" "foobar1" {

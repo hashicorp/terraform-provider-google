@@ -12,7 +12,10 @@ import (
 )
 
 var GlobalForwardingRuleBaseApiVersion = v1
-var GlobalForwardingRuleVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "ip_version"}}
+var GlobalForwardingRuleVersionedFeatures = []Feature{
+	{Version: v0beta, Item: "ip_version"},
+	{Version: v0beta, Item: "labels"},
+}
 
 func resourceComputeGlobalForwardingRule() *schema.Resource {
 	return &schema.Resource{
@@ -51,6 +54,18 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -141,6 +156,31 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	// If we have labels to update, try to set those too
+	if _, ok := d.GetOk("labels"); ok {
+		if computeApiVersion != v0beta {
+			return fmt.Errorf(
+				"Unable to set labels due to an internal error: can only handle v0beta but compute api logic indicates %d",
+				computeApiVersion)
+		}
+
+		// Do a read to get the fingerprint value so we can update
+		createdFrule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, frule.Name).Do()
+		if err != nil {
+			return fmt.Errorf("Unable to read global forwarding rule to update labels: %s", err)
+		}
+
+		setLabels := computeBeta.GlobalSetLabelsRequest{
+			Labels:           expandLabels(d),
+			LabelFingerprint: createdFrule.LabelFingerprint,
+		}
+		op, err := config.clientComputeBeta.GlobalForwardingRules.SetLabels(project, frule.Name, &setLabels).Do()
+		err = computeSharedOperationWait(config, op, project, "Setting labels on Global Fowarding Rule")
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceComputeGlobalForwardingRuleRead(d, meta)
 }
 
@@ -194,6 +234,31 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 
 		d.SetPartial("target")
 	}
+	if d.HasChange("labels") {
+		// Only able to set labels via the beta API right now. Fail loudly if we're told to use a different api.
+		if computeApiVersion != v0beta {
+			return fmt.Errorf(
+				"Unable to update labels due to an internal error: can only handle v0beta but compute api logic indicates %d",
+				computeApiVersion)
+		}
+
+		gslr := computeBeta.GlobalSetLabelsRequest{
+			Labels:           expandLabels(d),
+			LabelFingerprint: d.Get("label_fingerprint").(string),
+		}
+
+		op, err := config.clientComputeBeta.GlobalForwardingRules.SetLabels(project, d.Id(), &gslr).Do()
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("labels")
+
+		err = computeSharedOperationWait(config, op, project, "Updating labels on Global Forwarding Rule")
+		if err != nil {
+			return err
+		}
+	}
 
 	d.Partial(false)
 
@@ -237,6 +302,8 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	d.Set("ip_protocol", frule.IPProtocol)
 	d.Set("ip_version", frule.IpVersion)
 	d.Set("self_link", ConvertSelfLinkToV1(frule.SelfLink))
+	d.Set("labels", frule.Labels)
+	d.Set("label_fingerprint", frule.LabelFingerprint)
 
 	return nil
 }

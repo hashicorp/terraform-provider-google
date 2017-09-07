@@ -101,9 +101,15 @@ The following arguments are supported:
 * `ip_version` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
 The IP Version that will be used by this resource's address. One of `"IPV4"` or `"IPV6"`.
 
+* `labels` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+A set of key/value label pairs to assign to the resource.
+
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+* `label_fingerprint` - ([Beta](/docs/providers/google/index.html#beta-features)) The current label fingerprint.
