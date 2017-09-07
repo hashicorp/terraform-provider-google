@@ -60,10 +60,12 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Id()
 	call := config.clientPubsub.Projects.Topics.Get(name)
-	_, err := call.Do()
+	res, err := call.Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Pubsub Topic %q", name))
 	}
+
+	d.Set("name", res.Name)
 
 	return nil
 }
@@ -89,10 +91,8 @@ func resourcePubsubTopicStateImporter(d *schema.ResourceData, meta interface{}) 
 		return nil, err
 	}
 
-	name := d.Id()
-	id := fmt.Sprintf("projects/%s/topics/%s", project, name)
+	id := fmt.Sprintf("projects/%s/topics/%s", project, d.Id())
 
-	d.Set("name", name)
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
