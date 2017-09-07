@@ -17,6 +17,7 @@ IMPROVEMENTS:
 * compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
 * compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
 * compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
+* compute: Improve import for 'compute_address' to support multiple id formats. [GH-378]
 
 BUG FIXES:
 * compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
