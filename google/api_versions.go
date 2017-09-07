@@ -78,8 +78,10 @@ type Feature struct {
 	// The feature is considered to be in-use if the field referenced by "Item" is set in the state.
 	// The path can reference:
 	// - a beta field at the top-level (e.g. "min_cpu_platform").
-	// - a beta field nested under a field of "TypeList" (e.g. "network_interface.*.alias_ip_range" is considered to be
+	// - a beta field nested inside a list (e.g. "network_interface.*.alias_ip_range" is considered to be
 	// 		in-use if the "alias_ip_range" field is set in the state for any of the network interfaces).
+	//
+	// Note: beta field nested inside a SET are NOT supported at the moment.
 	Item string
 }
 
