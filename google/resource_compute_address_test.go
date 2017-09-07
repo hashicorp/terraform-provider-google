@@ -10,6 +10,64 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+// Unit tests
+
+func TestComputeAddressIdParsing(t *testing.T) {
+	cases := map[string]struct {
+		ImportId            string
+		ExpectedError       bool
+		ExpectedCanonicalId string
+		Config              *Config
+	}{
+		"id is a full self link": {
+			ImportId:            "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-central1/addresses/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is a partial self link": {
+			ImportId:            "projects/test-project/regions/us-central1/addresses/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is project/region/address": {
+			ImportId:            "test-project/us-central1/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is region/address": {
+			ImportId:            "us-central1/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/default-project/regions/us-central1/addresses/test-address",
+			Config:              &Config{Project: "default-project"},
+		},
+		"id has invalid format": {
+			ImportId:      "invalid",
+			ExpectedError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		addressId, err := parseComputeAddressId(tc.ImportId, tc.Config)
+
+		if tc.ExpectedError && err == nil {
+			t.Fatalf("bad: %s, expected an error", tn)
+		}
+
+		if err != nil {
+			if tc.ExpectedError {
+				continue
+			}
+			t.Fatalf("bad: %s, err: %#v", tn, err)
+		}
+
+		if addressId.canonicalId() != tc.ExpectedCanonicalId {
+			t.Fatalf("bad: %s, expected canonical id to be `%s` but is `%s`", tn, tc.ExpectedCanonicalId, addressId.canonicalId())
+		}
+	}
+}
+
+// Acceptance tests
+
 func TestAccComputeAddress_basic(t *testing.T) {
 	var addr compute.Address
 
@@ -37,7 +95,7 @@ func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 			continue
 		}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
 
 		_, err = config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()
@@ -62,7 +120,7 @@ func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.
 
 		config := testAccProvider.Meta().(*Config)
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
 
 		found, err := config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()

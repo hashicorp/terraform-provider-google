@@ -6,7 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"regexp"
 	"strings"
+)
+
+var (
+	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
+	computeAddressLinkRegex  = regexp.MustCompile("projects/(.*)/regions/(.*)/addresses/(.*)$")
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -15,7 +21,7 @@ func resourceComputeAddress() *schema.Resource {
 		Read:   resourceComputeAddressRead,
 		Delete: resourceComputeAddressDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceComputeAddressImportState,
 		},
 
 		SchemaVersion: 1,
@@ -80,7 +86,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		Project: project,
 		Region:  region,
 		Name:    addr.Name,
-	}.terraformId())
+	}.canonicalId())
 
 	err = computeOperationWait(config, op, project, "Creating Address")
 	if err != nil {
@@ -93,10 +99,12 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	addressId, err := parseComputeAddressId(d.Id())
+	addressId, err := parseComputeAddressId(d.Id(), config)
 	if err != nil {
 		return err
 	}
+
+	log.Println("[rosbo] resourceComputeAddressRead", addressId)
 
 	addr, err := config.clientCompute.Addresses.Get(
 		addressId.Project, addressId.Region, addressId.Name).Do()
@@ -115,7 +123,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	addressId, err := parseComputeAddressId(d.Id())
+	addressId, err := parseComputeAddressId(d.Id(), config)
 	if err != nil {
 		return err
 	}
@@ -137,26 +145,61 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
+func resourceComputeAddressImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	addressId, err := parseComputeAddressId(d.Id(), config)
+	if err != nil {
+		return nil, err
+	}
+
+	d.SetId(addressId.canonicalId())
+
+	return []*schema.ResourceData{d}, nil
+}
+
 type computeAddressId struct {
 	Project string
 	Region  string
 	Name    string
 }
 
-func (s computeAddressId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s", s.Project, s.Region, s.Name)
+func (s computeAddressId) canonicalId() string {
+	return fmt.Sprintf(computeAddressIdTemplate, s.Project, s.Region, s.Name)
 }
 
-func parseComputeAddressId(id string) (*computeAddressId, error) {
-	parts := strings.Split(id, "/")
+func parseComputeAddressId(id string, config *Config) (*computeAddressId, error) {
+	var parts []string
+	if computeAddressLinkRegex.MatchString(id) {
+		parts = computeAddressLinkRegex.FindStringSubmatch(id)
 
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid compute address id. Expecting {project}/{region}/{name} format.")
+		return &computeAddressId{
+			Project: parts[1],
+			Region:  parts[2],
+			Name:    parts[3],
+		}, nil
+	} else {
+		parts = strings.Split(id, "/")
 	}
 
-	return &computeAddressId{
-		Project: parts[0],
-		Region:  parts[1],
-		Name:    parts[2],
-	}, nil
+	if len(parts) == 3 {
+		return &computeAddressId{
+			Project: parts[0],
+			Region:  parts[1],
+			Name:    parts[2],
+		}, nil
+	} else if len(parts) == 2 {
+		// Project is optional.
+		if config.Project == "" {
+			return nil, fmt.Errorf("Invalid compute address id. The default project for the provider must be set.")
+		}
+
+		return &computeAddressId{
+			Project: config.Project,
+			Region:  parts[0],
+			Name:    parts[1],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid compute address id. Expecting resource link or {project}/{region}/{name} format.")
 }
