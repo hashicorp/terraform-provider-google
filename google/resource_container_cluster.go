@@ -756,6 +756,7 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 
 	d.Set("zone", parts[0])
 	d.Set("name", parts[1])
+	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
 }
