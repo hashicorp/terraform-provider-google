@@ -93,6 +93,25 @@ func TestAccComputeAddress_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeAddress_region(t *testing.T) {
+	var addr compute.Address
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeAddress_region(acctest.RandomWithPrefix("test")),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeAddressExists(
+						"google_compute_address.foobar", &addr),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -148,3 +167,11 @@ var testAccComputeAddress_basic = fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
 	name = "address-test-%s"
 }`, acctest.RandString(10))
+
+func testAccComputeAddress_region(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_address" "foobar" {
+	name = "%s"
+	region = "us-central1"
+}`, name)
+}
