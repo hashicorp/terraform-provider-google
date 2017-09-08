@@ -476,7 +476,7 @@ func resourceComputeRegionInstanceGroupManagerExists(d *schema.ResourceData, met
 			return false, nil
 		}
 		// There was some other error in reading the resource but we can't say for sure if it doesn't exist.
-		return true, nil
+		return true, err
 	}
 	return true, nil
 
