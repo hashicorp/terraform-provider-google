@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"sort"
 )
 
 func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
@@ -70,7 +71,8 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 	var manager compute.InstanceGroupManager
 
 	template1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	target1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	target2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 	template2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 
@@ -80,7 +82,7 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccRegionInstanceGroupManager_update(template1, target, igm),
+				Config: testAccRegionInstanceGroupManager_update(template1, target1, igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRegionInstanceGroupManagerExists(
 						"google_compute_region_instance_group_manager.igm-update", &manager),
@@ -91,13 +93,13 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccRegionInstanceGroupManager_update2(template1, target, template2, igm),
+				Config: testAccRegionInstanceGroupManager_update2(template1, target1, target2, template2, igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRegionInstanceGroupManagerExists(
 						"google_compute_region_instance_group_manager.igm-update", &manager),
 					testAccCheckRegionInstanceGroupManagerUpdated(
 						"google_compute_region_instance_group_manager.igm-update", 3,
-						"google_compute_target_pool.igm-update", template2),
+						[]string{target1, target2}, template2),
 					testAccCheckRegionInstanceGroupManagerNamedPorts(
 						"google_compute_region_instance_group_manager.igm-update",
 						map[string]int64{"customhttp": 8080, "customhttps": 8443},
@@ -264,7 +266,7 @@ func testAccCheckRegionInstanceGroupManagerBetaExists(n string, manager *compute
 	}
 }
 
-func testAccCheckRegionInstanceGroupManagerUpdated(n string, size int64, targetPool string, template string) resource.TestCheckFunc {
+func testAccCheckRegionInstanceGroupManagerUpdated(n string, size int64, targetPools []string, template string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -287,6 +289,18 @@ func testAccCheckRegionInstanceGroupManagerUpdated(n string, size int64, targetP
 		// check the target_size.
 		if manager.TargetSize != size {
 			return fmt.Errorf("instance count incorrect")
+		}
+
+		tpNames := make([]string, 0, len(manager.TargetPools))
+		for _, targetPool := range manager.TargetPools {
+			targetPoolParts := strings.Split(targetPool, "/")
+			tpNames = append(tpNames, targetPoolParts[len(targetPoolParts)-1])
+		}
+
+		sort.Strings(tpNames)
+		sort.Strings(targetPools)
+		if !reflect.DeepEqual(tpNames, targetPools) {
+			return fmt.Errorf("target pools incorrect. Expected %s, got %s", targetPools, tpNames)
 		}
 
 		// check that the instance template updated
@@ -549,7 +563,7 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 }
 
 // Change IGM's instance template and target size
-func testAccRegionInstanceGroupManager_update2(template1, target, template2, igm string) string {
+func testAccRegionInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_instance_template" "igm-update" {
 		name = "%s"
@@ -577,6 +591,12 @@ func testAccRegionInstanceGroupManager_update2(template1, target, template2, igm
 	}
 
 	resource "google_compute_target_pool" "igm-update" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		session_affinity = "CLIENT_IP_PROTO"
+	}
+
+	resource "google_compute_target_pool" "igm-update2" {
 		description = "Resource created for Terraform acceptance testing"
 		name = "%s"
 		session_affinity = "CLIENT_IP_PROTO"
@@ -611,7 +631,10 @@ func testAccRegionInstanceGroupManager_update2(template1, target, template2, igm
 		description = "Terraform test instance group manager"
 		name = "%s"
 		instance_template = "${google_compute_instance_template.igm-update2.self_link}"
-		target_pools = ["${google_compute_target_pool.igm-update.self_link}"]
+		target_pools = [
+			"${google_compute_target_pool.igm-update.self_link}",
+			"${google_compute_target_pool.igm-update2.self_link}",
+		]
 		base_instance_name = "igm-update"
 		region = "us-central1"
 		target_size = 3
@@ -623,7 +646,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target, template2, igm
 			name = "customhttps"
 			port = 8443
 		}
-	}`, template1, target, template2, igm)
+	}`, template1, target1, target2, template2, igm)
 }
 
 func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {

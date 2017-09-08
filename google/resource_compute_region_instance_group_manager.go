@@ -96,9 +96,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"target_pools": &schema.Schema{
-				Type:             schema.TypeSet,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -476,6 +475,8 @@ func resourceComputeRegionInstanceGroupManagerExists(d *schema.ResourceData, met
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			return false, nil
 		}
+		// There was some other error in reading the resource but we can't say for sure if it doesn't exist.
+		return true, nil
 	}
 	return true, nil
 
