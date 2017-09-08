@@ -40,6 +40,7 @@ func resourceComputeSharedVpcHostCreate(d *schema.ResourceData, meta interface{}
 
 	err = computeOperationWait(config, op, projectID, "Enabling XPN Host")
 	if err != nil {
+		d.SetId("")
 		return err
 	}
 
