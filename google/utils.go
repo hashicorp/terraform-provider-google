@@ -309,3 +309,11 @@ func convertStringArr(ifaceArr []interface{}) []string {
 	}
 	return arr
 }
+
+func convertStringSet(set *schema.Set) []string {
+	s := make([]string, 0, set.Len())
+	for _, v := range set.List() {
+		s = append(s, v.(string))
+	}
+	return s
+}
