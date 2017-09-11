@@ -7,7 +7,6 @@ FEATURES:
 * **New Data Source:** `google_client_config` ([#385](https://github.com/terraform-providers/terraform-provider-google/issues/385))
 * **New Resource:** `google_compute_region_instance_group_manager` ([#394](https://github.com/terraform-providers/terraform-provider-google/issues/394))
 
-
 IMPROVEMENTS:
 * bigquery: Support Bigquery Views [GH-230]
 * container: Add import support for `google_container_cluster` ([#391](https://github.com/terraform-providers/terraform-provider-google/issues/391))
