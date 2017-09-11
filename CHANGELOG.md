@@ -2,6 +2,7 @@
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
+* storage: `google_storage_bucket_acl` now sets the bucket ACL to whatever is in the config, correcting any drift. Previously, it would attempt to work around drift without changing it. [GH-358]
 
 FEATURES:
 * **New Data Source:** `google_client_config` ([#385](https://github.com/terraform-providers/terraform-provider-google/issues/385))
