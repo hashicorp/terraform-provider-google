@@ -604,6 +604,12 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			}
 		}
 
+		server = instance.ConnectionName
+		local = attributes["connection_name"]
+		if server != local {
+			return fmt.Errorf("Error connection_name mismatch. (%s, %s)", server, local)
+		}
+
 		return nil
 	}
 }
