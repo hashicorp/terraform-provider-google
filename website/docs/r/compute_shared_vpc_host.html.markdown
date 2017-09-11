@@ -25,5 +25,4 @@ resource "google_shared_vpc_host" "host" {
 
 The following arguments are supported:
 
-* `project` - (Optional) The project ID. If not specified, uses the
-    ID of the project configured with the provider.
+* `project` - (Required) The project ID.

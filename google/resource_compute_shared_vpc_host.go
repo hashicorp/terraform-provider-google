@@ -16,7 +16,7 @@ func resourceComputeSharedVpcHost() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 			},
 		},
