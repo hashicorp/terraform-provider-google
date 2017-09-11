@@ -84,7 +84,7 @@ The following arguments are supported:
 
 * `ip_address` - (Optional) The static IP. (if not set, an ephemeral IP is
     used). This should be the literal IP address to be used, not the `self_link`
-    to a `google_compute_address` resource. (If using a `google_compute_address`
+    to a `google_compute_global_address` resource. (If using a `google_compute_global_address`
     resource, use the `address` property instead of the `self_link` property.)
 
 * `ip_protocol` - (Optional) The IP protocol to route, one of "TCP" "UDP" "AH"
