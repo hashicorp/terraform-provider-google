@@ -23,7 +23,7 @@ func TestAccContainerCluster_basic(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_basic,
+				Config: testAccContainerCluster_basic(fmt.Sprintf("cluster-test-%s", acctest.RandString(10))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -236,6 +236,34 @@ func TestAccContainerCluster_backend(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLogging(t *testing.T) {
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "logging.googleapis.com"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_logging"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -421,6 +449,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.image_type", cluster.NodeConfig.ImageType},
 			{"node_config.0.labels", cluster.NodeConfig.Labels},
 			{"node_config.0.tags", cluster.NodeConfig.Tags},
+			{"node_config.0.preemptible", cluster.NodeConfig.Preemptible},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -507,6 +536,10 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 	if gcpMap, ok := gcp.(map[string]string); ok {
 		return checkMapMatch(attributes, attr, gcpMap)
 	}
+	if gcpBool, ok := gcp.(bool); ok {
+		return checkBoolMatch(attributes, attr, gcpBool)
+	}
+
 	tf := attributes[attr]
 	if tf != gcp {
 		return matchError(attr, tf, gcp)
@@ -574,16 +607,30 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 	return ""
 }
 
+func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
+	tf, err := strconv.ParseBool(attributes[attr])
+	if err != nil {
+		return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+	}
+	if tf != gcpBool {
+		return matchError(attr, tf, gcpBool)
+	}
+
+	return ""
+}
+
 func matchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("Cluster has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
-var testAccContainerCluster_basic = fmt.Sprintf(`
+func testAccContainerCluster_basic(name string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
-}`, acctest.RandString(10))
+}`, name)
+}
 
 var testAccContainerCluster_withTimeout = fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
@@ -734,11 +781,12 @@ resource "google_container_cluster" "with_node_config" {
 		metadata {
 			foo = "bar"
 		}
-		image_type = "CONTAINER_VM"
+		image_type = "COS"
 		labels {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
+		preemptible = true
 	}
 }`, acctest.RandString(10))
 
@@ -837,6 +885,28 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+
+func testAccContainerCluster_withLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "logging.googleapis.com"
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateLogging(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	logging_service = "none"
+}`, clusterName)
+}
 
 var testAccContainerCluster_withNodePoolBasic = fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool" {
@@ -968,7 +1038,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 			metadata {
 				foo = "bar"
 			}
-			image_type = "CONTAINER_VM"
+			image_type = "COS"
 			labels {
 				foo = "bar"
 			}

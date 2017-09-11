@@ -92,6 +92,31 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// View: [Optional] If specified, configures this table as a view.
+			"view": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Query: [Required] A query that BigQuery executes when the view is
+						// referenced.
+						"query": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						// UseLegacySQL: [Optional] Specifies whether to use BigQuery's
+						// legacy SQL for this view. The default value is true. If set to
+						// false, the view will use BigQuery's standard SQL:
+						"use_legacy_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			// TimePartitioning: [Experimental] If specified, configures time-based
 			// partitioning for this table.
 			"time_partitioning": &schema.Schema{
@@ -200,6 +225,10 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 			TableId:   d.Get("table_id").(string),
 			ProjectId: project,
 		},
+	}
+
+	if v, ok := d.GetOk("view"); ok {
+		table.View = expandView(v)
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -317,6 +346,11 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("schema", schema)
 	}
 
+	if res.View != nil {
+		view := flattenView(res.View)
+		d.Set("view", view)
+	}
+
 	return nil
 }
 
@@ -391,6 +425,25 @@ func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interfa
 	if tp.ExpirationMs != 0 {
 		result["expiration_ms"] = tp.ExpirationMs
 	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandView(configured interface{}) *bigquery.ViewDefinition {
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	vd := &bigquery.ViewDefinition{Query: raw["query"].(string)}
+
+	if v, ok := raw["use_legacy_sql"]; ok {
+		vd.UseLegacySql = v.(bool)
+		vd.ForceSendFields = append(vd.ForceSendFields, "UseLegacySql")
+	}
+
+	return vd
+}
+
+func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
+	result := map[string]interface{}{"query": vd.Query}
+	result["use_legacy_sql"] = vd.UseLegacySql
 
 	return []map[string]interface{}{result}
 }

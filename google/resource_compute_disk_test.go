@@ -26,13 +26,15 @@ func TestAccComputeDisk_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.foobar", &disk),
+					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
+					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccComputeDisk_updateSize(t *testing.T) {
+func TestAccComputeDisk_update(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var disk compute.Disk
 
@@ -46,14 +48,19 @@ func TestAccComputeDisk_updateSize(t *testing.T) {
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.foobar", &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "50"),
+					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
+					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
 			},
 			{
-				Config: testAccComputeDisk_resized(diskName),
+				Config: testAccComputeDisk_updated(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.foobar", &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "100"),
+					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
+					testAccCheckComputeDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
+					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
 			},
 		},
@@ -194,6 +201,37 @@ func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCh
 	}
 }
 
+func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		val, ok := disk.Labels[key]
+		if !ok {
+			return fmt.Errorf("Label with key %s not found", key)
+		}
+
+		if val != value {
+			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeDiskHasLabelFingerprint(disk *compute.Disk, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		state := s.RootModule().Resources[resourceName]
+		if state == nil {
+			return fmt.Errorf("Unable to find resource named %s", resourceName)
+		}
+
+		labelFingerprint := state.Primary.Attributes["label_fingerprint"]
+		if labelFingerprint != disk.LabelFingerprint {
+			return fmt.Errorf("Label fingerprints do not match: api returned %s but state has %s",
+				disk.LabelFingerprint, labelFingerprint)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -244,10 +282,13 @@ resource "google_compute_disk" "foobar" {
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
+	labels {
+		my-label = "my-label-value"
+	}
 }`, diskName)
 }
 
-func testAccComputeDisk_resized(diskName string) string {
+func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
@@ -255,6 +296,10 @@ resource "google_compute_disk" "foobar" {
 	size = 100
 	type = "pd-ssd"
 	zone = "us-central1-a"
+	labels {
+		my-label = "my-updated-label-value"
+		a-new-label = "a-new-label-value"
+	}
 }`, diskName)
 }
 

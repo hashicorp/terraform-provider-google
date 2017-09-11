@@ -153,6 +153,10 @@ which the cluster's instances are launched
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
     valid sources or targets for network firewalls.
 
+* `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
+    are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
+    for more information. Defaults to false.
+
 **Addons Config** supports the following addons:
 
 * `http_load_balancing` - (Optional) The status of the HTTP Load Balancing
@@ -212,3 +216,11 @@ exported:
 - `create` - (Default `30 minutes`) Used for clusters
 - `update` - (Default `10 minutes`) Used for updates to clusters
 - `delete` - (Default `10 minutes`) Used for destroying clusters.
+
+## Import
+
+Container clusters can be imported using the `zone`, and `name`, e.g.
+
+```
+$ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
+```
