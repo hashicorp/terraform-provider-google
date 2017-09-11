@@ -25,6 +25,7 @@ func TestAccPubsubTopic_import(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:            "google_pubsub_topic.tf-test",
+				ImportStateId:           topicName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
