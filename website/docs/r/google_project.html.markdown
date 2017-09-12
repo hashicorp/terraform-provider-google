@@ -53,7 +53,7 @@ The following arguments are supported:
     Changing this forces a new project to be created. If this attribute is not
     set, `id` must be set. As `id` is deprecated, consider this attribute
     required. If you are using `project_id` and creating a new project, the
-    `org_id` and `name` attributes are also required.
+    `name` attribute is also required.
 
 * `id` - (Deprecated) The project ID.
     This attribute has unexpected behaviour and probably does not work
@@ -62,7 +62,6 @@ The following arguments are supported:
     [below](#id-field) for more information about its behaviour.
 
 * `org_id` - (Optional) The numeric ID of the organization this project belongs to.
-    This is required if you are creating a new project.
     Changing this forces a new project to be created.
 
 * `billing_account` - (Optional) The alphanumeric ID of the billing account this project
