@@ -16,6 +16,7 @@ IMPROVEMENTS:
 * container: Add support for 'node_config.preemptible' field on `google_container_cluster` [GH-341]
 * compute: Add support for 'labels' field on `google_compute_image` [GH-339]
 * compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
+* compute: Add support for `labels` field on `google_compute_global_forwarding_rule` [GH-354]
 * compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
 * compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
 * compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
