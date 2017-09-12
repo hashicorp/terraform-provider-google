@@ -105,9 +105,8 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"target_pools": &schema.Schema{
-				Type:             schema.TypeSet,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

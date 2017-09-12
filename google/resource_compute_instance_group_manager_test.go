@@ -86,6 +86,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerExists(
 						"google_compute_instance_group_manager.igm-update", &manager),
+					testAccCheckInstanceGroupManagerUpdated("google_compute_instance_group_manager.igm-update", 2, []string{target1}, template1),
 					testAccCheckInstanceGroupManagerNamedPorts(
 						"google_compute_instance_group_manager.igm-update",
 						map[string]int64{"customhttp": 8080},
