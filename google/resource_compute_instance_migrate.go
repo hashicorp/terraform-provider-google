@@ -191,7 +191,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 	if v := is.Attributes["scratch_disk.#"]; v != "" {
 		scratchDisks, err = strconv.Atoi(v)
 		if err != nil {
-			return is, fmt.Error("migration error: found scratch_disk.# value in unexpected format", err)
+			return is, fmt.Errorf("migration error: found scratch_disk.# value in unexpected format: %s", err)
 		}
 	}
 
@@ -199,13 +199,13 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 	if v := is.Attributes["attached_disk.#"]; v != "" {
 		attachedDisks, err = strconv.Atoi(v)
 		if err != nil {
-			return is, fmt.Error("migration error: found attached_disk.# value in unexpected format", err)
+			return is, fmt.Errorf("migration error: found attached_disk.# value in unexpected format: %s", err)
 		}
 	}
 
 	disks, err := strconv.Atoi(is.Attributes["disk.#"])
 	if err != nil {
-		return is, fmt.Error("migration error: found disk.# value in unexpected format", err)
+		return is, fmt.Errorf("migration error: found disk.# value in unexpected format: %s", err)
 	}
 
 	for i := 0; i < disks; i++ {
