@@ -22,6 +22,7 @@ IMPROVEMENTS:
 * compute: Add support for 'alias_ip_range' in `google_compute_instance` [GH-375]
 * compute: Improve import for `google_compute_address` to support multiple id formats. [GH-378]
 * pubsub: Add import support for `google_pubsub_topic`. [GH-392]
+* sql: Add support for `connection_name` in `google_sql_database_instance` [GH-387]
 
 BUG FIXES:
 * compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
