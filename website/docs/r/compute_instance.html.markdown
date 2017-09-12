@@ -71,7 +71,7 @@ The following arguments are supported:
 * `zone` - (Required) The zone that the machine should be created in.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
-    be specified multiple times; multiple `network_interface` support is in Beta. Structure is documented below.
+    be specified multiple times. Structure is documented below.
 
 - - -
 
@@ -229,10 +229,25 @@ The `network_interface` block supports:
     on that network). This block can be repeated multiple times. Structure
     documented below.
 
+* `alias_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An
+    array of alias IP ranges for this network interface. Can only be specified for network
+    interfaces on subnet-mode networks. Structure documented below.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
+
+The `alias_ip_range` block supports:
+
+* `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
+    must belong to the specified subnetwork and cannot contain IP addresses reserved by
+    system or used by other network interfaces. This range may be a single IP address
+    (e.g. 10.2.3.4), a netmask (e.g. /24) or a CIDR format string (e.g. 10.1.2.0/24).
+
+* `subnetwork_range_name` - (Optional) The subnetwork secondary range name specifying
+    the secondary range from which to allocate the IP CIDR range for this alias IP
+    range. If left unspecified, the primary range of the subnetwork will be used.
 
 The `service_account` block supports:
 
@@ -260,6 +275,19 @@ The `scheduling` block supports:
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
 
+---
+
+* `guest_accelerator` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
+* `min_cpu_platform` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
+`Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
+
+The `guest_accelerator` block supports:
+
+* `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
+
+* `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -272,6 +300,8 @@ exported:
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 * `label_fingerprint` - The unique fingerprint of the labels.
+
+* `cpu_platform` - The CPU platform used by this instance.
 
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 

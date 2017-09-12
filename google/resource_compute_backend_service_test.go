@@ -114,6 +114,40 @@ func TestAccComputeBackendService_withBackendAndUpdate(t *testing.T) {
 	}
 }
 
+func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T) {
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var svc compute.BackendService
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeBackendService_withSessionAffinity(
+					serviceName, checkName, "initial-description", "GENERATED_COOKIE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.foobar", &svc),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeBackendService_withSessionAffinity(
+					serviceName, checkName, "updated-description", "GENERATED_COOKIE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.foobar", &svc),
+				),
+			},
+		},
+	})
+
+	if svc.SessionAffinity != "GENERATED_COOKIE" {
+		t.Errorf("Expected SessionAffinity == \"GENERATED_COOKIE\", got %s", svc.SessionAffinity)
+	}
+}
+
 func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -166,8 +200,8 @@ func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) 
 		},
 	})
 
-	if svc.ConnectionDraining.DrainingTimeoutSec != 0 {
-		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 0, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
+	if svc.ConnectionDraining.DrainingTimeoutSec != 300 {
+		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 300, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
 	}
 }
 
@@ -277,7 +311,7 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
-					serviceName, checkName, "CLIENT_IP"),
+					serviceName, checkName, "description", "CLIENT_IP"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
@@ -285,7 +319,7 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 			},
 			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
-					serviceName, checkName, "GENERATED_COOKIE"),
+					serviceName, checkName, "description", "GENERATED_COOKIE"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
@@ -404,10 +438,11 @@ resource "google_compute_http_health_check" "default" {
 `, serviceName, timeout, igName, itName, checkName)
 }
 
-func testAccComputeBackendService_withSessionAffinity(serviceName, checkName, affinityName string) string {
+func testAccComputeBackendService_withSessionAffinity(serviceName, checkName, description, affinityName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name             = "%s"
+  description      = "%s"
   health_checks    = ["${google_compute_http_health_check.zero.self_link}"]
   session_affinity = "%s"
 }
@@ -418,7 +453,7 @@ resource "google_compute_http_health_check" "zero" {
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, serviceName, affinityName, checkName)
+`, serviceName, description, affinityName, checkName)
 }
 
 func testAccComputeBackendService_withConnectionDraining(serviceName, checkName string, drainingTimeout int64) string {

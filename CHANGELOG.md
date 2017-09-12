@@ -4,11 +4,29 @@ BACKWARDS INCOMPATIBILITIES / NOTES:
 * container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
 
 FEATURES:
+* **New Data Source:** `google_client_config` ([#385](https://github.com/terraform-providers/terraform-provider-google/issues/385))
+* **New Resource:** `google_compute_region_instance_group_manager` ([#394](https://github.com/terraform-providers/terraform-provider-google/issues/394))
+
 
 IMPROVEMENTS:
-* Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
+* bigquery: Support Bigquery Views [GH-230]
+* container: Add import support for `google_container_cluster` ([#391](https://github.com/terraform-providers/terraform-provider-google/issues/391))
+* container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
+* container: Allow updating `google_container_cluster.logging_service` [GH-343]
+* container: Add support for 'node_config.preemptible' field on `google_container_cluster` [GH-341]
+* compute: Add support for 'labels' field on `google_compute_image` [GH-339]
+* compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
+* compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
+* compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
+* compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
+* compute: Add support for 'alias_ip_range' in `google_compute_instance` [GH-375]
+* compute: Improve import for `google_compute_address` to support multiple id formats. [GH-378]
 
 BUG FIXES:
+* compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
+* compute: Fix bug where 'session_affinity' would get reset on `google_compute_backend_service` resource [GH-348]
+* sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
+* sql: Fixed bug where default user on replica would cause an incorrect delete api call [GH-347]
 
 ## 0.1.3 (August 17, 2017)
 

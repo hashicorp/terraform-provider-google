@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -224,7 +226,22 @@ func TestAccComputeInstance_deprecated_disksWithAutodelete(t *testing.T) {
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
+	bootEncryptionKey := "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	bootEncryptionKeyHash := "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E="
+	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			RawKey: "Ym9vdDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			Sha256: "awJ7p57H+uVZ9axhJjl1D3lfC2MgA/wnt/z88Ltfvss=",
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			RawKey: "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			Sha256: "7TpIwUdtCOJpq2m+3nt8GFgppu6a2Xsj1t0Gexk13Yc=",
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			RawKey: "dGhpcmQ2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			Sha256: "b3pvaS7BjDbCKeLPPTx7yXBuQtxyMobCHN1QJR43xeM=",
+		},
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -232,13 +249,11 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_disks_encryption(diskName, instanceName),
+				Config: testAccComputeInstance_disks_encryption(bootEncryptionKey, diskNameToEncryptionKey, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
-					testAccCheckComputeInstanceDisk(&instance, diskName, true, false),
-					testAccCheckComputeInstanceDiskEncryptionKey("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDiskEncryptionKey("google_compute_instance.foobar", &instance, bootEncryptionKeyHash, diskNameToEncryptionKey),
 				),
 			},
 		},
@@ -695,6 +710,87 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_guestAccelerator(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_guestAccelerator(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
+				),
+			},
+		},
+	})
+
+}
+
+func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_minCpuPlatform(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_primaryAliasIpRange(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "/24"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_secondaryAliasIpRange(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -766,6 +862,35 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance not found")
+		}
+
+		*instance = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaInstanceExists(n string, instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.Instances.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -910,7 +1035,7 @@ func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfac
 	}
 }
 
-func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -918,16 +1043,58 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 		}
 
 		for i, disk := range instance.Disks {
-			attr := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
-			if attr == "" && disk.Boot {
-				attr = rs.Primary.Attributes["boot_disk.0.disk_encryption_key_sha256"]
+			if disk.Boot {
+				attr := rs.Primary.Attributes["boot_disk.0.disk_encryption_key_sha256"]
+				if attr == "" {
+					attr = rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
+				}
+				if attr != bootDiskEncryptionKey {
+					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
+				}
+				if disk.DiskEncryptionKey == nil && attr != "" {
+					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+				}
+				if disk.DiskEncryptionKey != nil && attr != disk.DiskEncryptionKey.Sha256 {
+					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
+						i, attr, disk.DiskEncryptionKey.Sha256)
+				}
+			} else {
+				if disk.DiskEncryptionKey != nil {
+					sourceUrl := strings.Split(disk.Source, "/")
+					expectedKey := diskNameToEncryptionKey[sourceUrl[len(sourceUrl)-1]].Sha256
+					if disk.DiskEncryptionKey.Sha256 != expectedKey {
+						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
+					}
+				}
 			}
-			if disk.DiskEncryptionKey == nil && attr != "" {
-				return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+		}
+
+		numDisks, err := strconv.Atoi(rs.Primary.Attributes["disk.#"])
+		if err != nil {
+			return fmt.Errorf("Error converting value of disk.#")
+		}
+		for i := 0; i < numDisks; i++ {
+			diskName := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk", i)]
+			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
+			expectedEncryptionKey := diskNameToEncryptionKey[diskName].Sha256
+			if encryptionKey != expectedEncryptionKey {
+				return fmt.Errorf("Disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
 			}
-			if disk.DiskEncryptionKey != nil && attr != disk.DiskEncryptionKey.Sha256 {
-				return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
-					i, attr, disk.DiskEncryptionKey.Sha256)
+		}
+
+		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
+		if err != nil {
+			return fmt.Errorf("Error converting value of attached_disk.#")
+		}
+		for i := 0; i < numAttachedDisks; i++ {
+			diskSourceUrl := strings.Split(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)], "/")
+			diskName := diskSourceUrl[len(diskSourceUrl)-1]
+			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.disk_encryption_key_sha256", i)]
+			if key, ok := diskNameToEncryptionKey[diskName]; ok {
+				expectedEncryptionKey := key.Sha256
+				if encryptionKey != expectedEncryptionKey {
+					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
+				}
 			}
 		}
 		return nil
@@ -1027,6 +1194,48 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 		}
 
 		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.GuestAccelerators) != 1 {
+			return fmt.Errorf("Expected only one guest accelerator")
+		}
+
+		if !strings.HasSuffix(instance.GuestAccelerators[0].AcceleratorType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instance.GuestAccelerators[0].AcceleratorType)
+		}
+
+		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance, minCpuPlatform string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.MinCpuPlatform != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasAliasIpRange(instance *computeBeta.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, networkInterface := range instance.NetworkInterfaces {
+			for _, aliasIpRange := range networkInterface.AliasIpRanges {
+				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || ipCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+					return nil
+				}
+			}
+		}
+
+		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
 	}
 }
 
@@ -1352,9 +1561,40 @@ resource "google_compute_instance" "foobar" {
 `, disk, instance, autodelete)
 }
 
-func testAccComputeInstance_disks_encryption(disk, instance string) string {
+func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+	diskNames := []string{}
+	for k, _ := range diskNameToEncryptionKey {
+		diskNames = append(diskNames, k)
+	}
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key_raw = "%s"
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key_raw = "%s"
+}
+
+resource "google_compute_disk" "foobar3" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key_raw = "%s"
+}
+
+resource "google_compute_disk" "foobar4" {
 	name = "%s"
 	size = 10
 	type = "pd-ssd"
@@ -1370,11 +1610,26 @@ resource "google_compute_instance" "foobar" {
 		initialize_params{
 			image = "debian-8-jessie-v20160803"
 		}
-		disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+		disk_encryption_key_raw = "%s"
 	}
 
 	disk {
 		disk = "${google_compute_disk.foobar.name}"
+		disk_encryption_key_raw = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar2.self_link}"
+		disk_encryption_key_raw = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar4.self_link}"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar3.self_link}"
+		disk_encryption_key_raw = "%s"
 	}
 
 	network_interface {
@@ -1385,7 +1640,12 @@ resource "google_compute_instance" "foobar" {
 		foo = "bar"
 	}
 }
-`, disk, instance)
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].RawKey,
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]].RawKey,
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]].RawKey,
+		"instance-testd-"+acctest.RandString(10),
+		instance, bootEncryptionKey,
+		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
@@ -1851,4 +2111,114 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	network       = "${google_compute_network.inst-test-network.self_link}"
 }
 `, instance, network, subnetwork)
+}
+
+func testAccComputeInstance_guestAccelerator(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    # Instances with guest accelerators do not support live migration.
+    on_host_maintenance = "TERMINATE"
+  }
+
+  guest_accelerator {
+    count = 1
+    type = "nvidia-tesla-k80"
+  }
+}`, instance)
+}
+
+func testAccComputeInstance_minCpuPlatform(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  min_cpu_platform = "Intel Haswell"
+}`, instance)
+}
+
+func testAccComputeInstance_primaryAliasIpRange(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    alias_ip_range {
+      ip_cidr_range = "/24"
+    }
+  }
+}`, instance)
+}
+
+func testAccComputeInstance_secondaryAliasIpRange(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-east1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+	secondary_ip_range {
+		range_name = "inst-test-secondary"
+		ip_cidr_range = "172.16.0.0/20"
+	}
+}
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+  zone = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+
+    alias_ip_range {
+      subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+      ip_cidr_range = "172.16.0.0/24"
+    }
+  }
+}`, acctest.RandString(10), acctest.RandString(10), instance)
 }

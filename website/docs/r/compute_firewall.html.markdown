@@ -52,6 +52,10 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+* `priority` - (Optional) The priority for this firewall. Ranges from 0-65535, inclusive. Defaults to 1000. Firewall
+    resources with lower priority values have higher precedence (e.g. a firewall resource with a priority value of 0
+    takes effect over all other firewall rules with a non-zero priority).
+
 * `source_ranges` - (Optional) A list of source CIDR ranges that this
    firewall applies to. Can't be used for `EGRESS`.
 

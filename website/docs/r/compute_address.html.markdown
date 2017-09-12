@@ -46,8 +46,28 @@ exported:
 
 ## Import
 
-Addresses can be imported using the `name`, e.g.
+Addresses can be imported using the `project`, `region` and `name`, e.g.
+
+```
+$ terraform import google_compute_address.default gcp-project/us-central1/test-address
+```
+
+If `project` is omitted, the default project set for the provider is used:
+
+```
+$ terraform import google_compute_address.default us-central1/test-address
+```
+
+If `project` and `region` are omitted, the default project and region set for the provider are used.
 
 ```
 $ terraform import google_compute_address.default test-address
+```
+
+Alternatively, addresses can be imported using a full or partial `self_link`.
+
+```
+$ terraform import google_compute_address.default https://www.googleapis.com/compute/v1/projects/gcp-project/regions/us-central1/addresses/test-address
+
+$ terraform import google_compute_address.default projects/gcp-project/regions/us-central1/addresses/test-address
 ```
