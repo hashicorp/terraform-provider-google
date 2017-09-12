@@ -21,15 +21,6 @@ var (
 	originalPolicy *cloudresourcemanager.Policy
 )
 
-func multiEnvSearch(ks []string) string {
-	for _, k := range ks {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
 // Test that a Project resource can be created and an IAM policy
 // associated
 func TestAccGoogleProject_create(t *testing.T) {
