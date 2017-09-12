@@ -16,7 +16,7 @@ and
 ## Example Usage
 
 ```hcl
-resource "google_shared_vpc" "vpd" {
+resource "google_compute_shared_vpc" "vpc" {
   host_project     = "your-project-id"
   service_projects = ["service-project-1", "service-project-2"]
 }
