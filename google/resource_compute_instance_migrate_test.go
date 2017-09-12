@@ -3,11 +3,13 @@ package google
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	compute "google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -90,7 +92,10 @@ func TestComputeInstanceMigrateState_empty(t *testing.T) {
 	}
 }
 
-func TestComputeInstanceMigrateState_bootDisk(t *testing.T) {
+func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
@@ -148,7 +153,10 @@ func TestComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	runInstanceMigrateTest(t, instanceName, "migrate disk to boot disk", 3 /* state version */, attributes, expected, config)
 }
 
-func TestComputeInstanceMigrateState_attachedDisk(t *testing.T) {
+func TestAccComputeInstanceMigrateState_attachedDisk(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
@@ -222,7 +230,10 @@ func TestComputeInstanceMigrateState_attachedDisk(t *testing.T) {
 	runInstanceMigrateTest(t, instanceName, "migrate disk to attached disk", 3 /* state version */, attributes, expected, config)
 }
 
-func TestComputeInstanceMigrateState_scratchDisk(t *testing.T) {
+func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
