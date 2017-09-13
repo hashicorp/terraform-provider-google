@@ -100,5 +100,5 @@ func computeBetaOperationWaitTime(config *Config, op *computeBeta.Operation, pro
 		return err
 	}
 
-	return computeOperationWaitTime(config, opV1, project, activity, 4)
+	return computeOperationWaitTime(config, opV1, project, activity, timeoutMin)
 }
