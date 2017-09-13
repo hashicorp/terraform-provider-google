@@ -251,8 +251,9 @@ func isConflictError(err error) bool {
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
-	if parts[len(parts)-1] == new {
+	oldParts := strings.Split(old, "/")
+	newParts := strings.Split(new, "/")
+	if oldParts[len(oldParts)-1] == newParts[len(newParts)-1] {
 		return true
 	}
 	return false
