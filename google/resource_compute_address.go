@@ -113,7 +113,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("address", addr.Address)
 	d.Set("self_link", addr.SelfLink)
 	d.Set("name", addr.Name)
-	d.Set("region", addr.Region)
+	d.Set("region", GetResourceNameFromSelfLink(addr.Region))
 
 	return nil
 }
