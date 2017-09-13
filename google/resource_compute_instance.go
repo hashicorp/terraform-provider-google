@@ -250,6 +250,11 @@ func resourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"instance_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -1175,6 +1180,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
+	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.SetId(instance.Name)
 
 	return nil

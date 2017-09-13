@@ -52,6 +52,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasInstanceId(&instance, "google_compute_instance.foobar"),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
@@ -969,6 +970,25 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 		}
 
 		return fmt.Errorf("Disk not found: %s", source)
+	}
+}
+
+func testAccCheckComputeInstanceHasInstanceId(instance *compute.Instance, n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		remote := fmt.Sprintf("%d", instance.Id)
+		local := rs.Primary.Attributes["instance_id"]
+
+		if remote != local {
+			return fmt.Errorf("Instance id stored does not match: remote has %#v but local has %#v", remote,
+				local)
+		}
+
+		return nil
 	}
 }
 
