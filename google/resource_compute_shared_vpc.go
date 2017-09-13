@@ -100,17 +100,8 @@ func resourceComputeSharedVpcUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("service_projects") {
 		old, new := d.GetChange("service_projects")
-		// Helper to convert slice to map
-		m := func(vals []interface{}) map[string]struct{} {
-			sm := make(map[string]struct{})
-			for _, s := range vals {
-				sm[s.(string)] = struct{}{}
-			}
-			return sm
-		}
-
-		oldMap := m(old.(*schema.Set).List())
-		newMap := m(new.(*schema.Set).List())
+		oldMap := convertArrToMap(old.(*schema.Set).List())
+		newMap := convertArrToMap(new.(*schema.Set).List())
 
 		for project, _ := range oldMap {
 			if _, ok := newMap[project]; !ok {
