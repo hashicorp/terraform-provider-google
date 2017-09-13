@@ -293,6 +293,8 @@ The `guest_accelerator` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `instance_id` - The server-assigned unique identifier of this instance.
+
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.
