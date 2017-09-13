@@ -25,12 +25,12 @@ func resourceGoogleFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			// Format is either folders/{folder_id} or organizations/{org_id}
+			// Format is either folders/{folder_id} or organizations/{org_id}.
 			"parent": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			// Must be unique amongst its siblings
+			// Must be unique amongst its siblings.
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
