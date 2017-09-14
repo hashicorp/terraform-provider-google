@@ -14,6 +14,8 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 
+	var sink logging.LogSink
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -22,8 +24,8 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 			{
 				Config: testAccLoggingProjectSink_basic(sinkName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingProjectSink(
-						"google_logging_project_sink.basic"),
+					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.basic", &sink),
+					testAccCheckLoggingProjectSink(&sink, "google_logging_project_sink.basic"),
 				),
 			},
 		},
@@ -34,6 +36,8 @@ func TestAccLoggingProjectSink_uniqueWriter(t *testing.T) {
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 
+	var sink logging.LogSink
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -42,8 +46,8 @@ func TestAccLoggingProjectSink_uniqueWriter(t *testing.T) {
 			{
 				Config: testAccLoggingProjectSink_uniqueWriter(sinkName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingProjectSink(
-						"google_logging_project_sink.unique_writer"),
+					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.unique_writer", &sink),
+					testAccCheckLoggingProjectSink(&sink, "google_logging_project_sink.unique_writer"),
 				),
 			},
 		},
@@ -66,15 +70,13 @@ func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 				Config: testAccLoggingProjectSink_uniqueWriter(sinkName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.unique_writer", &sinkBefore),
-					testAccCheckLoggingProjectSink(
-						"google_logging_project_sink.unique_writer"),
+					testAccCheckLoggingProjectSink(&sinkBefore, "google_logging_project_sink.unique_writer"),
 				),
 			}, {
 				Config: testAccLoggingProjectSink_uniqueWriterUpdated(sinkName, updatedBucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.unique_writer", &sinkAfter),
-					testAccCheckLoggingProjectSink(
-						"google_logging_project_sink.unique_writer"),
+					testAccCheckLoggingProjectSink(&sinkAfter, "google_logging_project_sink.unique_writer"),
 				),
 			},
 		},
@@ -129,15 +131,9 @@ func testAccCheckLoggingProjectSinkExists(n string, sink *logging.LogSink) resou
 	}
 }
 
-func testAccCheckLoggingProjectSink(n string) resource.TestCheckFunc {
+func testAccCheckLoggingProjectSink(sink *logging.LogSink, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
-		if err != nil {
-			return err
-		}
-		config := testAccProvider.Meta().(*Config)
-
-		sink, err := config.clientLogging.Projects.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
 			return err
 		}
