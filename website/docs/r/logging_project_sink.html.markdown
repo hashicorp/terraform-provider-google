@@ -8,7 +8,7 @@ description: |-
 
 # google\_logging\_project\_sink
 
-Manages a project-level logging sink.. For more information see
+Manages a project-level logging sink. For more information see
 [the official documentation](https://cloud.google.com/logging/docs/),
 [Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs)
 and
