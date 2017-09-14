@@ -8,6 +8,7 @@ FEATURES:
 * **New Data Source:** `google_client_config` ([#385](https://github.com/terraform-providers/terraform-provider-google/issues/385))
 * **New Resource:** `google_compute_region_instance_group_manager` ([#394](https://github.com/terraform-providers/terraform-provider-google/issues/394))
 * **New Resource:** `google_compute_shared_vpc` [GH-396]
+* **New Resource:** `google_folder` [GH-416]
 
 IMPROVEMENTS:
 * bigquery: Support Bigquery Views [GH-230]
