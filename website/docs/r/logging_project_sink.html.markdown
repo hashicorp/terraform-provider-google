@@ -23,13 +23,13 @@ granted to the credentials used with terraform.
 resource "google_logging_project_sink" "my-sink" {
     name = "my-pubsub-instance-sink"
 
-    // Can export to pubsub, cloud storage, or bigtable
+    # Can export to pubsub, cloud storage, or bigtable
     destination = "pubsub.googleapis.com/projects/my-project/topics/instance-activity"
 
-    // Log all WARN or higher severity messages relating to instances
+    # Log all WARN or higher severity messages relating to instances
     filter = "resource.type = gce_instance AND severity >= WARN"
 
-    // Use a unique writer (creates a unique service account used for writing)
+    # Use a unique writer (creates a unique service account used for writing)
     unique_writer_identity = true
 }
 ```
@@ -40,7 +40,7 @@ this grant requires the "Project IAM Admin" IAM role (`roles/resourcemanager.pro
 used with terraform.
 
 ```hcl
-// Our logged compute instance
+# Our logged compute instance
 resource "google_compute_instance" "my-logged-instance" {
   name         = "my-instance"
   machine_type = "n1-standard-1"
@@ -59,12 +59,12 @@ resource "google_compute_instance" "my-logged-instance" {
   }
 }
 
-// A bucket to storage logs in.
+# A bucket to storage logs in.
 resource "google_storage_bucket" "log-bucket" {
     name     = "my-unique-logging-bucket"
 }
 
-// Our sink; this logs all activity related to our "my-logged-instance" instance
+# Our sink; this logs all activity related to our "my-logged-instance" instance
 resource "google_logging_project_sink" "instance-sink" {
     name = "my-instance-sink"
     destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
@@ -73,7 +73,7 @@ resource "google_logging_project_sink" "instance-sink" {
     unique_writer_identity = true
 }
 
-// Because our sink uses a unique_writer, we must grant that writer access to the bucket.
+# Because our sink uses a unique_writer, we must grant that writer access to the bucket.
 resource "google_project_iam_binding" "log-writer" {
     role = "roles/storage.objectCreator"
 
