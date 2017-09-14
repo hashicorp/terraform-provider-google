@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
@@ -90,7 +92,7 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 
 	sink, err := config.clientLogging.Projects.Sinks.Get(d.Id()).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
 
 	d.Set("name", sink.Name)
