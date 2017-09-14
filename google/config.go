@@ -19,6 +19,7 @@ import (
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
@@ -40,21 +41,22 @@ type Config struct {
 	Project     string
 	Region      string
 
-	clientBilling         *cloudbilling.Service
-	clientCompute         *compute.Service
-	clientComputeBeta     *computeBeta.Service
-	clientContainer       *container.Service
-	clientDns             *dns.Service
-	clientPubsub          *pubsub.Service
-	clientResourceManager *cloudresourcemanager.Service
-	clientRuntimeconfig   *runtimeconfig.Service
-	clientSpanner         *spanner.Service
-	clientSourceRepo      *sourcerepo.Service
-	clientStorage         *storage.Service
-	clientSqlAdmin        *sqladmin.Service
-	clientIAM             *iam.Service
-	clientServiceMan      *servicemanagement.APIService
-	clientBigQuery        *bigquery.Service
+	clientBilling                *cloudbilling.Service
+	clientCompute                *compute.Service
+	clientComputeBeta            *computeBeta.Service
+	clientContainer              *container.Service
+	clientDns                    *dns.Service
+	clientPubsub                 *pubsub.Service
+	clientResourceManager        *cloudresourcemanager.Service
+	clientResourceManagerV2Beta1 *resourceManagerV2Beta1.Service
+	clientRuntimeconfig          *runtimeconfig.Service
+	clientSpanner                *spanner.Service
+	clientSourceRepo             *sourcerepo.Service
+	clientStorage                *storage.Service
+	clientSqlAdmin               *sqladmin.Service
+	clientIAM                    *iam.Service
+	clientServiceMan             *servicemanagement.APIService
+	clientBigQuery               *bigquery.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -178,6 +180,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientResourceManager.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V Client...")
+	c.clientResourceManagerV2Beta1, err = resourceManagerV2Beta1.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientResourceManagerV2Beta1.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig Client...")
 	c.clientRuntimeconfig, err = runtimeconfig.New(client)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
 type ResourceManagerOperationWaiter struct {
@@ -61,4 +62,18 @@ func resourceManagerOperationWaitTime(config *Config, op *cloudresourcemanager.O
 	}
 
 	return nil
+}
+
+func resourceManagerV2Beta1OperationWait(config *Config, op *resourceManagerV2Beta1.Operation, activity string) error {
+	return resourceManagerV2Beta1OperationWaitTime(config, op, activity, 4)
+}
+
+func resourceManagerV2Beta1OperationWaitTime(config *Config, op *resourceManagerV2Beta1.Operation, activity string, timeoutMin int) error {
+	opV1 := &cloudresourcemanager.Operation{}
+	err := Convert(op, opV1)
+	if err != nil {
+		return err
+	}
+
+	return resourceManagerOperationWaitTime(config, opV1, activity, timeoutMin)
 }
