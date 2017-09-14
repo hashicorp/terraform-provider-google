@@ -176,10 +176,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Default:   "default",
+				ForceNew:  true,
+				StateFunc: StoreResourceName,
 			},
 			"subnetwork": {
 				Type:     schema.TypeString,
