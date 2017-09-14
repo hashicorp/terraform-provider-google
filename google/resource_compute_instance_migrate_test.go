@@ -153,7 +153,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	runInstanceMigrateTest(t, instanceName, "migrate disk to boot disk", 3 /* state version */, attributes, expected, config)
 }
 
-func TestAccComputeInstanceMigrateState_attachedDisk(t *testing.T) {
+func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -224,6 +224,140 @@ func TestAccComputeInstanceMigrateState_attachedDisk(t *testing.T) {
 		"attached_disk.0.device_name":                "persistent-disk-1",
 		"attached_disk.0.disk_encryption_key_raw":    "encrypt-key",
 		"attached_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"zone": zone,
+	}
+
+	runInstanceMigrateTest(t, instanceName, "migrate disk to attached disk", 3 /* state version */, attributes, expected, config)
+}
+
+func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
+	config := getInitializedConfig(t)
+	zone := "us-central1-f"
+
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instance := &compute.Instance{
+		Name: instanceName,
+		Disks: []*compute.AttachedDisk{
+			{
+				Boot: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/family/debian-8",
+				},
+			},
+			{
+				AutoDelete: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/family/debian-8",
+				},
+				DiskEncryptionKey: &compute.CustomerEncryptionKey{
+					RawKey: "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+				},
+			},
+		},
+		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		NetworkInterfaces: []*compute.NetworkInterface{
+			{
+				Network: "global/networks/default",
+			},
+		},
+	}
+	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	if err != nil {
+		t.Fatalf("Error creating instance: %s", err)
+	}
+	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	if waitErr != nil {
+		t.Fatal(waitErr)
+	}
+	defer cleanUpInstance(config, instanceName, zone)
+
+	attributes := map[string]string{
+		"boot_disk.#":                       "1",
+		"disk.#":                            "1",
+		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-8",
+		"disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"zone": zone,
+	}
+	expected := map[string]string{
+		"boot_disk.#":                                "1",
+		"attached_disk.#":                            "1",
+		"attached_disk.0.source":                     "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
+		"attached_disk.0.device_name":                "persistent-disk-1",
+		"attached_disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"attached_disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"zone": zone,
+	}
+
+	runInstanceMigrateTest(t, instanceName, "migrate disk to attached disk", 3 /* state version */, attributes, expected, config)
+}
+
+func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
+	config := getInitializedConfig(t)
+	zone := "us-central1-f"
+
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instance := &compute.Instance{
+		Name: instanceName,
+		Disks: []*compute.AttachedDisk{
+			{
+				Boot: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/family/debian-8",
+				},
+			},
+			{
+				AutoDelete: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/family/debian-8",
+				},
+			},
+			{
+				AutoDelete: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
+				},
+			},
+		},
+		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		NetworkInterfaces: []*compute.NetworkInterface{
+			{
+				Network: "global/networks/default",
+			},
+		},
+	}
+	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	if err != nil {
+		t.Fatalf("Error creating instance: %s", err)
+	}
+	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	if waitErr != nil {
+		t.Fatal(waitErr)
+	}
+	defer cleanUpInstance(config, instanceName, zone)
+
+	attributes := map[string]string{
+		"boot_disk.#":        "1",
+		"disk.#":             "2",
+		"disk.0.image":       "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
+		"disk.0.auto_delete": "true",
+		"disk.1.image":       "projects/debian-cloud/global/images/family/debian-8",
+		"disk.1.auto_delete": "true",
+		"zone":               zone,
+	}
+	expected := map[string]string{
+		"boot_disk.#":                 "1",
+		"attached_disk.#":             "2",
+		"attached_disk.0.source":      "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-2",
+		"attached_disk.0.device_name": "persistent-disk-2",
+		"attached_disk.1.source":      "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
+		"attached_disk.1.device_name": "persistent-disk-1",
 		"zone": zone,
 	}
 

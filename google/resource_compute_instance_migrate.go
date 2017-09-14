@@ -1,8 +1,6 @@
 package google
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"strconv"
@@ -386,8 +384,10 @@ func getDiskFromDeviceName(instance *compute.Instance, deviceName string) (*comp
 }
 
 func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) (*compute.AttachedDisk, error) {
-	sha := sha256.Sum256([]byte(encryptionKey))
-	encryptionSha := base64.StdEncoding.EncodeToString(sha[:])
+	encryptionSha, err := hash256(encryptionKey)
+	if err != nil {
+		return nil, err
+	}
 	for _, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
@@ -401,6 +401,8 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
+	imageUrl := strings.Split(image, "/")
+	imageName := imageUrl[len(imageUrl)-1]
 	for i, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
@@ -412,8 +414,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
 			fullDiskImageUrl := strings.Split(fullDisk.SourceImage, "/")
 			fullDiskImage := fullDiskImageUrl[len(fullDiskImageUrl)-1]
-
-			if fullDiskImage == image {
+			if fullDiskImage == imageName {
 				// Delete this disk because there might be multiple that match
 				instance.Disks = append(instance.Disks[:i], instance.Disks[i+1:]...)
 				return disk, nil
@@ -437,7 +438,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 			fullDiskImageUrl := strings.Split(fullDisk.SourceImage, "/")
 			fullDiskImage := fullDiskImageUrl[len(fullDiskImageUrl)-1]
 
-			if strings.HasPrefix(fullDiskImage, image+"-") {
+			if strings.HasPrefix(fullDiskImage, imageName+"-") {
 				// Delete this disk because there might be multiple that match
 				instance.Disks = append(instance.Disks[:i], instance.Disks[i+1:]...)
 				return disk, nil
