@@ -70,9 +70,7 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 	sink := logging.LogSink{
 		Name:        d.Get("name").(string),
 		Destination: d.Get("destination").(string),
-	}
-	if v, ok := d.GetOk("filter"); ok {
-		sink.Filter = v.(string)
+		Filter:      d.Get("filter").(string),
 	}
 
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
