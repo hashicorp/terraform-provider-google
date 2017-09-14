@@ -62,9 +62,9 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 	name := d.Get("name").(string)
 
 	id := LoggingSinkId{
-		typ:     "projects",
-		typName: project,
-		name:    name,
+		resourceType: "projects",
+		resourceId:   project,
+		name:         name,
 	}
 
 	sink := logging.LogSink{
