@@ -50,7 +50,7 @@ func TestAccLoggingProjectSink_uniqueWriter(t *testing.T) {
 	})
 }
 
-func TestAccLoggingProjectSink_updateUniqueWriter(t *testing.T) {
+func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
@@ -164,7 +164,8 @@ func testAccCheckLoggingProjectSink(n string) resource.TestCheckFunc {
 }
 
 func testAccLoggingProjectSink_basic(name, bucketName string) string {
-	return fmt.Sprintf(`resource "google_logging_project_sink" "basic" {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "basic" {
 	name = "%s"
 	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
@@ -177,7 +178,8 @@ resource "google_storage_bucket" "log-bucket" {
 }
 
 func testAccLoggingProjectSink_uniqueWriter(name, bucketName string) string {
-	return fmt.Sprintf(`resource "google_logging_project_sink" "unique_writer" {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "unique_writer" {
 	name = "%s"
 	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
@@ -190,7 +192,8 @@ resource "google_storage_bucket" "log-bucket" {
 }
 
 func testAccLoggingProjectSink_uniqueWriterUpdated(name, bucketName string) string {
-	return fmt.Sprintf(`resource "google_logging_project_sink" "unique_writer" {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "unique_writer" {
 	name = "%s"
 	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
