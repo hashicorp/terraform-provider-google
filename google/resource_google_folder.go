@@ -19,21 +19,22 @@ func resourceGoogleFolder() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			// Format is 'folders/{folder_id}.
-			// The terraform id holds the same value.
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			// Format is either folders/{folder_id} or organizations/{org_id}.
 			"parent": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			// Must be unique amongst its siblings.
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+			},
+
+			// Format is 'folders/{folder_id}.
+			// The terraform id holds the same value.
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"lifecycle_state": &schema.Schema{
 				Type:     schema.TypeString,
@@ -72,8 +73,9 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import': %s", displayName, err)
 	}
-	response, ok := waitOp.Response.(map[string]interface{})
-	if ok {
+
+	// Requires 3 successive checks for safety. Nested IFs are used to avoid 3 error statement with the same message.
+	if response, ok := waitOp.Response.(map[string]interface{}); ok {
 		if val, ok := response["name"]; ok {
 			if name, ok := val.(string); ok {
 				d.SetId(name)
