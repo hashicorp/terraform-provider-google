@@ -55,7 +55,7 @@ exported:
 
 * `name` - The resource name of the Folder. Its format is folders/{folder_id}.
 * `lifecycle_state` - The lifecycle state of the folder such as `ACTIVE` or `DELETE_REQUESTED`.
-* `name` - Timestamp when the Folder was created. Assigned by the server.
+* `create_time` - Timestamp when the Folder was created. Assigned by the server.
     A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 
 ## Import

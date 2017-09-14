@@ -20,7 +20,7 @@ func resourceGoogleFolder() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Format is 'folders/{folder_id}.
-			// The folder id holds the same value.
+			// The terraform id holds the same value.
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -70,12 +70,18 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	// Since we waited above, the operation is guaranteed to have been successful by this point.
 	waitOp, err := config.clientResourceManager.Operations.Get(op.Name).Do()
 	if err != nil {
-		return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import'.", displayName)
+		return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import': %s", displayName, err)
 	}
-	response := waitOp.Response.(map[string]interface{})
-	d.SetId(response["name"].(string))
-
-	return resourceGoogleFolderRead(d, meta)
+	response, ok := waitOp.Response.(map[string]interface{})
+	if ok {
+		if val, ok := response["name"]; ok {
+			if name, ok := val.(string); ok {
+				d.SetId(name)
+				return resourceGoogleFolderRead(d, meta)
+			}
+		}
+	}
+	return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import'", displayName)
 }
 
 func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {

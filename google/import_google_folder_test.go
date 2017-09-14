@@ -20,7 +20,7 @@ func TestAccGoogleFolder_import(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleFolder_basis(folderDisplayName, parent),
+				Config: testAccGoogleFolder_basic(folderDisplayName, parent),
 			},
 			resource.TestStep{
 				ResourceName:      "google_folder.folder1",
