@@ -278,10 +278,13 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 
 func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (*compute.Instance, error) {
 	project, ok := is.Attributes["project"]
-	if !ok && config.Project == "" {
-		return nil, fmt.Errorf("could not determine 'project'")
+	if !ok {
+		if config.Project == "" {
+			return nil, fmt.Errorf("could not determine 'project'")
+		} else {
+			project = config.Project
+		}
 	}
-	project = config.Project
 
 	zone, ok := is.Attributes["zone"]
 	if !ok {
@@ -299,10 +302,13 @@ func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (
 
 func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) ([]*compute.Disk, error) {
 	project, ok := is.Attributes["project"]
-	if !ok && config.Project == "" {
-		return nil, fmt.Errorf("could not determine 'project'")
+	if !ok {
+		if config.Project == "" {
+			return nil, fmt.Errorf("could not determine 'project'")
+		} else {
+			project = config.Project
+		}
 	}
-	project = config.Project
 
 	zone, ok := is.Attributes["zone"]
 	if !ok {
@@ -395,15 +401,12 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
-
-	log.Printf("[DEBUG] AllDisks is %+v", allDisks)
 	for i, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}
 		if disk.AutoDelete == autoDelete {
-			log.Printf("[DEBUG] Checking disk %+v", disk)
 			// Read the disk to check if its image matches
 			sourceUrl := strings.Split(disk.Source, "/")
 			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
