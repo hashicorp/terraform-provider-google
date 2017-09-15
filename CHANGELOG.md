@@ -29,6 +29,7 @@ IMPROVEMENTS:
 * project: Add support for 'labels' field on `google_project` [GH-383]
 * pubsub: Add import support for `google_pubsub_topic`. [GH-392]
 * sql: Add support for `connection_name` in `google_sql_database_instance` [GH-387]
+* storage: Add support for versioning in `google_storage_bucket` [GH-381]
 
 BUG FIXES:
 * compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
