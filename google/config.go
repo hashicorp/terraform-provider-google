@@ -47,7 +47,7 @@ type Config struct {
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
 	clientDns                    *dns.Service
-	clientLogging         *cloudlogging.Service
+	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
 	clientResourceManager        *cloudresourcemanager.Service
 	clientResourceManagerV2Beta1 *resourceManagerV2Beta1.Service
