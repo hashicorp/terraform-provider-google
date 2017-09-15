@@ -488,6 +488,11 @@ func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 
 func flattenBucketVersioning(bucketVersioning *storage.BucketVersioning) []map[string]interface{} {
 	versionings := make([]map[string]interface{}, 0, 1)
+
+	if bucketVersioning == nil {
+		return versionings
+	}
+
 	versioning := map[string]interface{}{
 		"enabled": bucketVersioning.Enabled,
 	}
