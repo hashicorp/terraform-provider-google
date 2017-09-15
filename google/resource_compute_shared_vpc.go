@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -26,6 +27,7 @@ func resourceComputeSharedVpc() *schema.Resource {
 			"service_projects": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -52,7 +54,7 @@ func resourceComputeSharedVpcCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("service_projects"); ok {
 		serviceProjects := convertStringArr(v.(*schema.Set).List())
 		for _, project := range serviceProjects {
-			if err = enableResource(config, hostProject, project); err != nil {
+			if err = enableXpnResource(config, hostProject, project); err != nil {
 				return fmt.Errorf("Error enabling Shared VPC service project %q: %s", project, err)
 			}
 		}
@@ -74,19 +76,12 @@ func resourceComputeSharedVpcRead(d *schema.ResourceData, meta interface{}) erro
 	if project.XpnProjectStatus != "HOST" {
 		log.Printf("[WARN] Removing Shared VPC host resource %q because it's not enabled server-side", hostProject)
 		d.SetId("")
+		return nil
 	}
 
-	serviceProjects := []string{}
-	req := config.clientCompute.Projects.GetXpnResources(hostProject)
-	if err := req.Pages(context.Background(), func(page *compute.ProjectsGetXpnResources) error {
-		for _, xpnResourceId := range page.Resources {
-			if xpnResourceId.Type == "PROJECT" {
-				serviceProjects = append(serviceProjects, xpnResourceId.Id)
-			}
-		}
-		return nil
-	}); err != nil {
-		return fmt.Errorf("Error reading Shared VPC service projects for host %q: %s", hostProject, err)
+	serviceProjects, err := findXpnResources(config, hostProject)
+	if err != nil {
+		return err
 	}
 
 	d.Set("service_projects", serviceProjects)
@@ -106,7 +101,7 @@ func resourceComputeSharedVpcUpdate(d *schema.ResourceData, meta interface{}) er
 		for project, _ := range oldMap {
 			if _, ok := newMap[project]; !ok {
 				// The project is in the old config but not the new one, disable it
-				if err := disableResource(config, hostProject, project); err != nil {
+				if err := disableXpnResource(config, hostProject, project); err != nil {
 					return fmt.Errorf("Error disabling Shared VPC service project %q: %s", project, err)
 				}
 			}
@@ -115,7 +110,7 @@ func resourceComputeSharedVpcUpdate(d *schema.ResourceData, meta interface{}) er
 		for project, _ := range newMap {
 			if _, ok := oldMap[project]; !ok {
 				// The project is in the new config but not the old one, enable it
-				if err := enableResource(config, hostProject, project); err != nil {
+				if err := enableXpnResource(config, hostProject, project); err != nil {
 					return fmt.Errorf("Error enabling Shared VPC service project %q: %s", project, err)
 				}
 			}
@@ -131,8 +126,10 @@ func resourceComputeSharedVpcDelete(d *schema.ResourceData, meta interface{}) er
 
 	serviceProjects := convertStringArr(d.Get("service_projects").(*schema.Set).List())
 	for _, project := range serviceProjects {
-		if err := disableResource(config, hostProject, project); err != nil {
-			return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", project, err)
+		if err := disableXpnResource(config, hostProject, project); err != nil {
+			if !isDisabledXpnResourceError(err) {
+				return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", project, err)
+			}
 		}
 	}
 
@@ -150,7 +147,16 @@ func resourceComputeSharedVpcDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func enableResource(config *Config, hostProject, project string) error {
+func isDisabledXpnResourceError(err error) bool {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && len(gerr.Errors) > 0 && gerr.Errors[0].Reason == "invalidResourceUsage" {
+			return true
+		}
+	}
+	return false
+}
+
+func enableXpnResource(config *Config, hostProject, project string) error {
 	req := &compute.ProjectsEnableXpnResourceRequest{
 		XpnResource: &compute.XpnResourceId{
 			Id:   project,
@@ -167,7 +173,7 @@ func enableResource(config *Config, hostProject, project string) error {
 	return nil
 }
 
-func disableResource(config *Config, hostProject, project string) error {
+func disableXpnResource(config *Config, hostProject, project string) error {
 	req := &compute.ProjectsDisableXpnResourceRequest{
 		XpnResource: &compute.XpnResourceId{
 			Id:   project,
@@ -182,4 +188,20 @@ func disableResource(config *Config, hostProject, project string) error {
 		return err
 	}
 	return nil
+}
+
+func findXpnResources(config *Config, hostProject string) ([]string, error) {
+	serviceProjects := []string{}
+	req := config.clientCompute.Projects.GetXpnResources(hostProject)
+	if err := req.Pages(context.Background(), func(page *compute.ProjectsGetXpnResources) error {
+		for _, xpnResourceId := range page.Resources {
+			if xpnResourceId.Type == "PROJECT" {
+				serviceProjects = append(serviceProjects, xpnResourceId.Id)
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("Error reading Shared VPC service projects for host %q: %s", hostProject, err)
+	}
+	return serviceProjects, nil
 }
