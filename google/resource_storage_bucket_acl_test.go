@@ -2,21 +2,44 @@ package google
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	//"google.golang.org/api/storage/v1"
 )
 
-var roleEntityBasic1 = "OWNER:user-omeemail@gmail.com"
+var (
+	roleEntityBasic1        = "OWNER:user-paddy@hashicorp.com"
+	roleEntityBasic2        = "READER:user-paddy@carvers.co"
+	roleEntityBasic3_owner  = "OWNER:user-paddy@paddy.io"
+	roleEntityBasic3_reader = "READER:user-foran.paddy@gmail.com"
+)
 
-var roleEntityBasic2 = "READER:user-anotheremail@gmail.com"
-
-var roleEntityBasic3_owner = "OWNER:user-yetanotheremail@gmail.com"
-
-var roleEntityBasic3_reader = "READER:user-yetanotheremail@gmail.com"
+func defaultRoleEntities() ([]string, error) {
+	creds := multiEnvSearch(credsEnvVars)
+	project := multiEnvSearch(projectEnvVars)
+	region := multiEnvSearch(regionEnvVars)
+	config := Config{
+		Credentials: creds,
+		Project:     project,
+		Region:      region,
+	}
+	if err := config.loadAndValidate(); err != nil {
+		return nil, fmt.Errorf("Error setting up client: %s", err)
+	}
+	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving test project %q: %s", project, err)
+	}
+	projectNumber := p.ProjectNumber
+	return []string{
+		"OWNER:project-owners-" + strconv.FormatInt(projectNumber, 10),
+		"OWNER:project-editors-" + strconv.FormatInt(projectNumber, 10),
+		"READER:project-viewers-" + strconv.FormatInt(projectNumber, 10),
+	}, nil
+}
 
 func testBucketName() string {
 	return fmt.Sprintf("%s-%d", "tf-test-acl-bucket", acctest.RandInt())
@@ -24,13 +47,17 @@ func testBucketName() string {
 
 func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
 	bucketName := testBucketName()
+	entities, err := defaultRoleEntities()
+	if err != nil {
+		t.Fatal(err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccGoogleStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageBucketsAclBasic1(bucketName),
+				Config: testGoogleStorageBucketsAclBasic1(bucketName, entities),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
@@ -42,13 +69,17 @@ func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
 
 func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 	bucketName := testBucketName()
+	entities, err := defaultRoleEntities()
+	if err != nil {
+		t.Fatal(err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccGoogleStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageBucketsAclBasic1(bucketName),
+				Config: testGoogleStorageBucketsAclBasic1(bucketName, entities),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
@@ -56,7 +87,7 @@ func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageBucketsAclBasic2(bucketName),
+				Config: testGoogleStorageBucketsAclBasic2(bucketName, entities),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic3_owner),
@@ -77,13 +108,17 @@ func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 
 func TestAccGoogleStorageBucketAcl_downgrade(t *testing.T) {
 	bucketName := testBucketName()
+	entities, err := defaultRoleEntities()
+	if err != nil {
+		t.Fatal(err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccGoogleStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageBucketsAclBasic2(bucketName),
+				Config: testGoogleStorageBucketsAclBasic2(bucketName, entities),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic3_owner),
@@ -91,7 +126,7 @@ func TestAccGoogleStorageBucketAcl_downgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageBucketsAclBasic3(bucketName),
+				Config: testGoogleStorageBucketsAclBasic3(bucketName, entities),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic3_reader),
@@ -178,7 +213,7 @@ func testAccGoogleStorageBucketAclDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testGoogleStorageBucketsAclBasic1(bucketName string) string {
+func testGoogleStorageBucketsAclBasic1(bucketName string, entities []string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -186,12 +221,12 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic1, roleEntityBasic2)
+`, bucketName, entities[0], entities[1], entities[2], roleEntityBasic1, roleEntityBasic2)
 }
 
-func testGoogleStorageBucketsAclBasic2(bucketName string) string {
+func testGoogleStorageBucketsAclBasic2(bucketName string, entities []string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -199,9 +234,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic2, roleEntityBasic3_owner)
+`, bucketName, entities[0], entities[1], entities[2], roleEntityBasic2, roleEntityBasic3_owner)
 }
 
 func testGoogleStorageBucketsAclBasicDelete(bucketName string) string {
@@ -217,7 +252,7 @@ resource "google_storage_bucket_acl" "acl" {
 `, bucketName)
 }
 
-func testGoogleStorageBucketsAclBasic3(bucketName string) string {
+func testGoogleStorageBucketsAclBasic3(bucketName string, entities []string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -225,9 +260,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic2, roleEntityBasic3_reader)
+`, bucketName, entities[0], entities[1], entities[2], roleEntityBasic2, roleEntityBasic3_reader)
 }
 
 func testGoogleStorageBucketsAclPredefined(bucketName string) string {
