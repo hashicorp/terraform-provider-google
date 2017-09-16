@@ -187,7 +187,7 @@ addons_config {
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
-* `auto_scaling` - (Optional) Configures the auto scaling parameters for the cluster
+* `autoscaling` - (Optional) Configures the auto scaling parameters for the cluster
 
 * `management` - (Optional) Defines the set of node management services turned on for the node pool
 

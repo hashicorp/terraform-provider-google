@@ -67,6 +67,23 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMasterAuthNoClientCert(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthNoClientCert,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_master_auth_no_client_cert"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
@@ -401,7 +418,7 @@ func TestAccContainerCluster_withNodePoolAutoScaling(t *testing.T) {
 				Config: testAccContainerCluster_withNodePoolAutoScaling(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
-						"google_container_cluster.with_node_pool_auto_scaling"),
+						"google_container_cluster.with_node_pool_autoscaling"),
 				),
 			},
 		},
@@ -465,7 +482,9 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"master_auth.0.cluster_ca_certificate", cluster.MasterAuth.ClusterCaCertificate},
 			{"master_auth.0.password", cluster.MasterAuth.Password},
 			{"master_auth.0.username", cluster.MasterAuth.Username},
-			{"master_auth.0.issue_client_certificate", cluster.MasterAuth.ClientCertificateConfig.IssueClientCertificate},
+			// issue_client_certificate is a flag and therefore is optional and not computed. The state is assumed by
+			// the existance of a client certificate on the cluster itself.
+			{"master_auth.0.issue_client_certificate", strconv.FormatBool(cluster.MasterAuth.ClientCertificate != "")},
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
@@ -511,19 +530,24 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			clusterTests = append(clusterTests, clusterTestField{prefix + "name", np.Name})
 
 			if np.Autoscaling != nil {
-				clusterTests = append(clusterTests, clusterTestField{prefix + "auto_scaling.enabled", np.Autoscaling.Enabled})
-
 				if np.Autoscaling.Enabled {
 					clusterTests = append(clusterTests,
-						clusterTestField{prefix + "auto_scaling.min_node_count", np.Autoscaling.MinNodeCount},
-						clusterTestField{prefix + "auto_scaling.max_node_count", np.Autoscaling.MaxNodeCount})
+						clusterTestField{prefix + "autoscaling.0.min_node_count", strconv.FormatInt(np.Autoscaling.MinNodeCount, 10)},
+						clusterTestField{prefix + "autoscaling.0.max_node_count", strconv.FormatInt(np.Autoscaling.MaxNodeCount, 10)})
 				}
 			}
 
+			// Management blocks are returned by GCP regardless of whether or not they are submitted. Since the terraform
+			// attributes won't contain the mapped values unless they were provided in the template the tests will
+			// fail. We limit checking these fields unless they are part of the template itself
 			if np.Management != nil {
-				clusterTests = append(clusterTests,
-					clusterTestField{prefix + "management.auto_upgrade", np.Management.AutoUpgrade},
-					clusterTestField{prefix + "management.auto_repair", np.Management.AutoRepair})
+				if _, ok := attributes[prefix + "management.0.auto_upgrade"]; ok {
+					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_upgrade", strconv.FormatBool(np.Management.AutoUpgrade)})
+				}
+
+				if _, ok := attributes[prefix + "management.0.auto_repair"]; ok {
+					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_repair", strconv.FormatBool(np.Management.AutoRepair)})
+				}
 			}
 
 			if np.Config != nil {
@@ -680,6 +704,19 @@ resource "google_container_cluster" "primary" {
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+		issue_client_certificate = true
+	}
+}`, acctest.RandString(10))
+
+var testAccContainerCluster_withMasterAuthNoClientCert = fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth_no_client_cert" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
@@ -1086,7 +1123,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 func testAccContainerCluster_withNodePoolManagement() string {
 	testId := acctest.RandString(10)
 	return fmt.Sprintf(`
-resource "google_container_cluster" "with_node_pool_node_management" {
+resource "google_container_cluster" "with_node_pool_management" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
 	node_pool {
@@ -1094,7 +1131,7 @@ resource "google_container_cluster" "with_node_pool_node_management" {
 		node_count = 2
 		management {
 			auto_repair = true
-			auto_upgrade = false
+			auto_upgrade = true
 		}
 		node_config {
 			machine_type = "n1-standard-1"
@@ -1110,7 +1147,7 @@ resource "google_container_cluster" "with_node_pool_node_management" {
 			metadata {
 				foo = "bar"
 			}
-			image_type = "CONTAINER_VM"
+			image_type = "COS"
 			labels {
 				foo = "bar"
 			}
@@ -1125,12 +1162,16 @@ resource "google_container_cluster" "with_node_pool_node_management" {
 func testAccContainerCluster_withNodePoolAutoScaling() string {
 	testId := acctest.RandString(10)
 	return fmt.Sprintf(`
-resource "google_container_cluster" "with_node_pool_node_auto_scaling" {
+resource "google_container_cluster" "with_node_pool_autoscaling" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
 	node_pool {
 		name = "tf-cluster-nodepool-test-%s"
 		node_count = 2
+		autoscaling {
+			min_node_count = 1
+			max_node_count = 5
+		}
 		node_config {
 			machine_type = "n1-standard-1"
 			disk_size_gb = 15
@@ -1145,14 +1186,9 @@ resource "google_container_cluster" "with_node_pool_node_auto_scaling" {
 			metadata {
 				foo = "bar"
 			}
-			image_type = "CONTAINER_VM"
+			image_type = "COS"
 			labels {
 				foo = "bar"
-			}
-			auto_scaling {
-				enabled = true
-				min_node_count = 1
-				max_node_count = 5
 			}
 			tags = ["foo", "bar"]
 		}
