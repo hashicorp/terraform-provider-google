@@ -541,11 +541,11 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			// attributes won't contain the mapped values unless they were provided in the template the tests will
 			// fail. We limit checking these fields unless they are part of the template itself
 			if np.Management != nil {
-				if _, ok := attributes[prefix + "management.0.auto_upgrade"]; ok {
+				if _, ok := attributes[prefix+"management.0.auto_upgrade"]; ok {
 					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_upgrade", strconv.FormatBool(np.Management.AutoUpgrade)})
 				}
 
-				if _, ok := attributes[prefix + "management.0.auto_repair"]; ok {
+				if _, ok := attributes[prefix+"management.0.auto_repair"]; ok {
 					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_repair", strconv.FormatBool(np.Management.AutoRepair)})
 				}
 			}

@@ -59,7 +59,7 @@ func resourceContainerCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
-							Default: true,
+							Default:  true,
 						},
 						"password": {
 							Type:      schema.TypeString,
