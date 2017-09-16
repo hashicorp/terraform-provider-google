@@ -18,6 +18,7 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -47,6 +48,7 @@ type Config struct {
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
 	clientDns                    *dns.Service
+	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
 	clientResourceManager        *cloudresourcemanager.Service
@@ -154,6 +156,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDns.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud KMS Client...")
+	c.clientKms, err = cloudkms.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientKms.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Stackdriver Logging client...")
 	c.clientLogging, err = cloudlogging.New(client)
