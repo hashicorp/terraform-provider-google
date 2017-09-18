@@ -21,8 +21,8 @@ resource "google_service_account" "object_viewer" {
   display_name = "Object viewer"
 }
 
-resource "google_project" "my_project" {
-  id          = "your-project-id"
+resource "google_project_iam_policy" "my_project_policy" {
+  project     = "your-project-id"
   policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 
@@ -50,9 +50,11 @@ The following arguments are supported:
 * `project` - (Optional) The project that the service account will be created in.
     Defaults to the provider project configuration.
 
-* `policy_data` - (Optional) The `google_iam_policy` data source that represents
+* `policy_data` - (DEPRECATED, Optional) The `google_iam_policy` data source that represents
     the IAM policy that will be applied to the service account. The policy will be
     merged with any existing policy.
+
+    This attribute has been deprecated. Use the `google_project_iam_policy` resource instead. See example above.
 
     Changing this updates the policy.
 
