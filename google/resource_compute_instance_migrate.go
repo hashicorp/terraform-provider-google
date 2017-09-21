@@ -401,8 +401,13 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
-	imageUrl := strings.Split(image, "/")
-	imageName := imageUrl[len(imageUrl)-1]
+	img, err := resolveImage(config, image)
+	if err != nil {
+		return nil, err
+	}
+	imgParts := strings.Split(img, "/projects/")
+	canonicalImage := imgParts[len(imgParts)-1]
+
 	for i, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
@@ -412,9 +417,11 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 			// Read the disk to check if its image matches
 			sourceUrl := strings.Split(disk.Source, "/")
 			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
-			fullDiskImageUrl := strings.Split(fullDisk.SourceImage, "/")
-			fullDiskImage := fullDiskImageUrl[len(fullDiskImageUrl)-1]
-			if fullDiskImage == imageName {
+			sourceImage, err := getRelativePath(fullDisk.SourceImage)
+			if err != nil {
+				return nil, err
+			}
+			if canonicalImage == sourceImage {
 				// Delete this disk because there might be multiple that match
 				instance.Disks = append(instance.Disks[:i], instance.Disks[i+1:]...)
 				return disk, nil
@@ -424,8 +431,9 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 
 	// We're not done! It's possible the disk was created with an image family rather than the image itself.
 	// Now, do the exact same iteration but do some prefix matching to check if the families match.
-	// This assumes that all disks with a given family are of the format family-name-{diskname}, because
-	// there's not much else we can do at this point.
+	// This assumes that all disks with a given family have a sourceImage whose name starts with the name of
+	// the image family.
+	canonicalImage = strings.Replace(canonicalImage, "/family/", "/", -1)
 	for i, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
@@ -435,10 +443,12 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 			// Read the disk to check if its image matches
 			sourceUrl := strings.Split(disk.Source, "/")
 			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
-			fullDiskImageUrl := strings.Split(fullDisk.SourceImage, "/")
-			fullDiskImage := fullDiskImageUrl[len(fullDiskImageUrl)-1]
+			sourceImage, err := getRelativePath(fullDisk.SourceImage)
+			if err != nil {
+				return nil, err
+			}
 
-			if strings.HasPrefix(fullDiskImage, imageName+"-") {
+			if strings.Contains(sourceImage, "/"+canonicalImage+"-") {
 				// Delete this disk because there might be multiple that match
 				instance.Disks = append(instance.Disks[:i], instance.Disks[i+1:]...)
 				return disk, nil

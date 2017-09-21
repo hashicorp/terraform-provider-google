@@ -347,7 +347,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 		"disk.#":             "2",
 		"disk.0.image":       "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
 		"disk.0.auto_delete": "true",
-		"disk.1.image":       "projects/debian-cloud/global/images/family/debian-8",
+		"disk.1.image":       "global/images/family/debian-8",
 		"disk.1.auto_delete": "true",
 		"zone":               zone,
 	}
