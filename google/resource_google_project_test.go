@@ -24,15 +24,44 @@ var (
 	originalPolicy *cloudresourcemanager.Policy
 )
 
-// Test that a Project resource can be created and an IAM policy
-// associated
-func TestAccGoogleProject_create(t *testing.T) {
+// Test that a Project resource can be created without an organization
+func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
+	creds := multiEnvSearch(credsEnvVars)
+	if strings.Contains(creds, "iam.gserviceaccount.com") {
+		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
+	}
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			// This step imports an existing project
+			// This step creates a new project
+			resource.TestStep{
+				Config: testAccGoogleProject_createWithoutOrg(pid, pname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+				),
+			},
+		},
+	})
+}
+
+// Test that a Project resource can be created and an IAM policy
+// associated
+func TestAccGoogleProject_create(t *testing.T) {
+	skipIfEnvNotSet(t,
+		[]string{
+			"GOOGLE_ORG",
+		}...,
+	)
+
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// This step creates a new project
 			resource.TestStep{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
