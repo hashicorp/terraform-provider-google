@@ -134,6 +134,10 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 			return fmt.Errorf("Incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, p.Bindings)
 		}
 
+		if _, ok = rs.Primary.Attributes["etag"]; !ok {
+			return fmt.Errorf("Etag should be set.")
+		}
+
 		return nil
 	}
 }
