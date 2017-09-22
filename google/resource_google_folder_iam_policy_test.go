@@ -63,13 +63,13 @@ func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
 	policy2 := &resourceManagerV2Beta1.Policy{
 		Bindings: []*resourceManagerV2Beta1.Binding{
 			{
-				Role: "roles/viewer",
+				Role: "roles/editor",
 				Members: []string{
 					"user:admin@hashicorptest.com",
 				},
 			},
 			{
-				Role: "roles/editor",
+				Role: "roles/viewer",
 				Members: []string{
 					"user:admin@hashicorptest.com",
 				},
