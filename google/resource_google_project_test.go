@@ -26,9 +26,11 @@ var (
 
 // Test that a Project resource can be created without an organization
 func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
-	if org != "" {
-		t.Skipf("Environment variable GOOGLE_ORG is set")
+	creds := multiEnvSearch(credsEnvVars)
+	if strings.Contains(creds, "iam.gserviceaccount.com") {
+		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
