@@ -61,6 +61,7 @@ func resourceGoogleProject() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"org_id"},
+				StateFunc:     parseFolderId,
 			},
 			"policy_data": &schema.Schema{
 				Type:     schema.TypeString,
@@ -205,13 +206,20 @@ func getParentResourceId(d *schema.ResourceData, p *cloudresourcemanager.Project
 	}
 
 	if v, ok := d.GetOk("folder_id"); ok {
-		folder_id := v.(string)
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   folder_id,
+			Id:   parseFolderId(v),
 			Type: "folder",
 		}
 	}
 	return nil
+}
+
+func parseFolderId(v interface{}) string {
+	folderId := v.(string)
+	if strings.HasPrefix(folderId, "folders/") {
+		return folderId[8:]
+	}
+	return folderId
 }
 
 func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error {
