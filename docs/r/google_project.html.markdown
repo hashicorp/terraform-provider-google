@@ -45,6 +45,20 @@ resource "google_project" "my_project" {
 }
 ```
 
+To create a project under a specific folder
+
+```hcl
+resource "google_project" "my_project-in-a-folder" {
+  project_id = "your-project-id"
+  folder_id  = "${google_folder.department1.name}"
+}
+
+resource "google_folder" "department1" {
+  display_name = "Department 1"
+  parent     = "organizations/1234567"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -53,7 +67,7 @@ The following arguments are supported:
     Changing this forces a new project to be created. If this attribute is not
     set, `id` must be set. As `id` is deprecated, consider this attribute
     required. If you are using `project_id` and creating a new project, the
-    `org_id` and `name` attributes are also required.
+    `name` attribute is also required.
 
 * `id` - (Deprecated) The project ID.
     This attribute has unexpected behaviour and probably does not work
@@ -62,8 +76,17 @@ The following arguments are supported:
     [below](#id-field) for more information about its behaviour.
 
 * `org_id` - (Optional) The numeric ID of the organization this project belongs to.
-    This is required if you are creating a new project.
-    Changing this forces a new project to be created.
+    Changing this forces a new project to be created.  Only one of
+    `org_id` or `folder_id` may be specified. If the `org_id` is
+    specified then the project is created at the top level. Changing
+    this forces the project to be migrated to the newly specified
+    organization.
+
+* `folder_id` - (Optional) The numeric ID of the folder this project should be
+   created under. Only one of `org_id` or `folder_id` may be
+   specified. If the `folder_id` is specified, then the project is
+   created under the specified folder. Changing this forces the
+   project to be migrated to the newly specified folder.
 
 * `billing_account` - (Optional) The alphanumeric ID of the billing account this project
     belongs to. The user or service account performing this operation with Terraform
