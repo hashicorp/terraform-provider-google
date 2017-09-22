@@ -116,7 +116,7 @@ The optional `settings.backup_configuration` subblock supports:
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) True if the instance should be assigned an IP
-    address.
+    address. The IPv4 address cannot be disabled for Second Generation instances.
 
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
