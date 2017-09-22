@@ -57,7 +57,7 @@ func resourceGoogleFolderIamPolicyRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("etag", policy.Etag)
-	d.Set("policy_data", encodeV2IamPolicy(policy))
+	d.Set("policy_data", marshalV2IamPolicy(policy))
 
 	return nil
 }
@@ -92,7 +92,7 @@ func resourceGoogleFolderIamPolicyDelete(d *schema.ResourceData, meta interface{
 
 func setFolderIamPolicy(d *schema.ResourceData, config *Config) error {
 	folder := d.Get("folder").(string)
-	policy, err := decodeV2IamPolicy(d.Get("policy_data").(string))
+	policy, err := unmarshalV2IamPolicy(d.Get("policy_data").(string))
 	if err != nil {
 		return fmt.Errorf("'policy_data' is not valid for %s: %s", folder, err)
 	}
@@ -105,14 +105,14 @@ func setFolderIamPolicy(d *schema.ResourceData, config *Config) error {
 	return err
 }
 
-func encodeV2IamPolicy(policy *resourceManagerV2Beta1.Policy) string {
+func marshalV2IamPolicy(policy *resourceManagerV2Beta1.Policy) string {
 	pdBytes, _ := json.Marshal(&resourceManagerV2Beta1.Policy{
 		Bindings: policy.Bindings,
 	})
 	return string(pdBytes)
 }
 
-func decodeV2IamPolicy(policyData string) (*resourceManagerV2Beta1.Policy, error) {
+func unmarshalV2IamPolicy(policyData string) (*resourceManagerV2Beta1.Policy, error) {
 	policy := &resourceManagerV2Beta1.Policy{}
 	if err := json.Unmarshal([]byte(policyData), policy); err != nil {
 		return nil, fmt.Errorf("Could not unmarshal policy data %s:\n%s", policyData, err)
@@ -121,7 +121,7 @@ func decodeV2IamPolicy(policyData string) (*resourceManagerV2Beta1.Policy, error
 }
 
 func validateV2IamPolicy(i interface{}, k string) (s []string, es []error) {
-	_, err := decodeV2IamPolicy(i.(string))
+	_, err := unmarshalV2IamPolicy(i.(string))
 	if err != nil {
 		es = append(es, err)
 	}
