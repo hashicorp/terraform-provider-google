@@ -40,6 +40,7 @@ Terraform. Only newly added projects are affected.
 
 ```hcl
 resource "google_project" "my_project" {
+  name = "My Project"
   project_id = "your-project-id"
   org_id     = "1234567"
 }
@@ -49,6 +50,7 @@ To create a project under a specific folder
 
 ```hcl
 resource "google_project" "my_project-in-a-folder" {
+  name = "My Project"
   project_id = "your-project-id"
   folder_id  = "${google_folder.department1.name}"
 }
@@ -62,6 +64,8 @@ resource "google_folder" "department1" {
 ## Argument Reference
 
 The following arguments are supported:
+
+* `name` - (Required) The display name of the project.
 
 * `project_id` - (Optional) The project ID.
     Changing this forces a new project to be created. If this attribute is not
@@ -93,8 +97,6 @@ The following arguments are supported:
     must have Billing Account Administrator privileges (`roles/billing.admin`) in
     the organization. See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/v1/how-tos/access-control)
     for more details.
-
-* `name` - (Required) The display name of the project.
 
 * `skip_delete` - (Optional) If true, the Terraform resource can be deleted
     without deleting the Project via the Google API.
