@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_folder"
-sidebar_current: "docs-google-folder"
+sidebar_current: "docs-google-folder-x"
 description: |-
  Allows management of a Google Cloud Platform folder.
 ---
