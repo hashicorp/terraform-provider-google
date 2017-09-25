@@ -3,10 +3,12 @@ package google
 import (
 	"fmt"
 	"log"
+	"strconv"
+
+	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
-	"regexp"
 )
 
 const (
@@ -50,6 +52,11 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 			},
 
 			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"proxy_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -171,6 +178,7 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("ssl_certificates", proxy.SslCertificates)
+	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 	d.Set("self_link", proxy.SelfLink)
 
 	return nil
