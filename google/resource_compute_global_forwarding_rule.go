@@ -13,7 +13,6 @@ import (
 
 var GlobalForwardingRuleBaseApiVersion = v1
 var GlobalForwardingRuleVersionedFeatures = []Feature{
-	{Version: v0beta, Item: "ip_version"},
 	{Version: v0beta, Item: "labels"},
 }
 

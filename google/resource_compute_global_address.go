@@ -12,7 +12,7 @@ import (
 )
 
 var GlobalAddressBaseApiVersion = v1
-var GlobalAddressVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "ip_version"}}
+var GlobalAddressVersionedFeatures = []Feature{}
 
 func resourceComputeGlobalAddress() *schema.Resource {
 	return &schema.Resource{
