@@ -84,7 +84,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `id` - A unique ID for the certificated, assigned by GCE.
+* `certificate_id` - A unique ID for the certificate, assigned by GCE.
 
 * `self_link` - The URI of the created resource.
 
