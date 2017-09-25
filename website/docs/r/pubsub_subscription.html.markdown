@@ -56,7 +56,7 @@ The following arguments are supported:
 
 The optional `push_config` block supports:
 
-* `push_endpoint` - (Optional) The URL of the endpoint to which messages should
+* `push_endpoint` - (Required) The URL of the endpoint to which messages should
     be pushed. Changing this forces a new resource to be created.
 
 * `attributes` - (Optional) Key-value pairs of API supported attributes used
