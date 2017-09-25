@@ -138,6 +138,10 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 			return fmt.Errorf("Etag should be set.")
 		}
 
+		if rs.Primary.Attributes["etag"] != p.Etag {
+			return fmt.Errorf("Incorrect etag value. Expected '%s', got '%s'", p.Etag, rs.Primary.Attributes["etag"])
+		}
+
 		return nil
 	}
 }
