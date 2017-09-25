@@ -1,4 +1,4 @@
-## 0.1.4 (Unreleased)
+## 1.0.0 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
