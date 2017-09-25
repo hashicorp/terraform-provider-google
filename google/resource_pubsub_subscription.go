@@ -139,7 +139,7 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("topic", subscription.Topic)
 	d.Set("ack_deadline_seconds", subscription.AckDeadlineSeconds)
 	d.Set("path", subscription.Name)
-	d.Set("push_config", flattenPushConfigs(subscription.PushConfig))
+	d.Set("push_config", flattenPushConfig(subscription.PushConfig))
 
 	return nil
 }
@@ -172,7 +172,7 @@ func resourcePubsubSubscriptionStateImporter(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPushConfigs(pushConfig *pubsub.PushConfig) []map[string]interface{} {
+func flattenPushConfig(pushConfig *pubsub.PushConfig) []map[string]interface{} {
 	configs := make([]map[string]interface{}, 0, 1)
 
 	if pushConfig == nil || len(pushConfig.PushEndpoint) == 0 {
