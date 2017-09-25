@@ -190,16 +190,14 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 
 	bucket := d.Get("bucket").(string)
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	if d.HasChange("role_entity") {
-		p, err := config.clientResourceManager.Projects.Get(project).Do()
+		bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving project %q: %s", project, err)
+			return fmt.Errorf("Error reading bucket %q: %v", bucket, err)
 		}
+
+		project := strconv.FormatUint(bkt.ProjectNumber, 10)
 		o, n := d.GetChange("role_entity")
 		old_re, new_re := o.([]interface{}), n.([]interface{})
 
@@ -238,7 +236,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		for entity, role := range old_re_map {
-			if entity == "project-owners-"+strconv.FormatInt(p.ProjectNumber, 10) && role == "OWNER" {
+			if entity == fmt.Sprintf("project-owners-%s", project) && role == "OWNER" {
 				log.Printf("Skipping %s-%s; not deleting owner ACL.", role, entity)
 				continue
 			}
@@ -278,17 +276,13 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	bucket := d.Get("bucket").(string)
 
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
-		return fmt.Errorf("Error retrieving project %q: %s", project, err)
+		return fmt.Errorf("Error retrieving bucket %q: %v", bucket, err)
 	}
+	project := strconv.FormatUint(bkt.ProjectNumber, 10)
 
 	re_local := d.Get("role_entity").([]interface{})
 	for _, v := range re_local {
@@ -297,7 +291,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		if res.Entity == "project-owners-"+strconv.FormatInt(p.ProjectNumber, 10) && res.Role == "OWNER" {
+		if res.Entity == fmt.Sprintf("project-owners-%s", project) && res.Role == "OWNER" {
 			log.Printf("Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
 			continue
 		}
