@@ -76,7 +76,7 @@ func resourceContainerNodePool() *schema.Resource {
 						"min_node_count": &schema.Schema{
 							Type:         schema.TypeInt,
 							Required:     true,
-							ValidateFunc: validation.IntAtLeast(1),
+							ValidateFunc: validation.IntAtLeast(0),
 						},
 
 						"max_node_count": &schema.Schema{
@@ -124,9 +124,10 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	if v, ok := d.GetOk("autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
 		nodePool.Autoscaling = &container.NodePoolAutoscaling{
-			Enabled:      true,
-			MinNodeCount: int64(autoscaling["min_node_count"].(int)),
-			MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
+			Enabled:         true,
+			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
+			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
+			ForceSendFields: []string{"MinNodeCount"},
 		}
 	}
 
