@@ -155,6 +155,13 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", pid))
 	}
 
+	// If the project has been deleted from outside Terraform, remove it from state file.
+	if p.LifecycleState != "ACTIVE" {
+		log.Printf("[WARN] Removing project '%s' because its state is '%s' (requires 'ACTIVE').", pid, p.LifecycleState)
+		d.SetId("")
+		return nil
+	}
+
 	d.Set("project_id", pid)
 	d.Set("number", strconv.FormatInt(int64(p.ProjectNumber), 10))
 	d.Set("name", p.Name)
