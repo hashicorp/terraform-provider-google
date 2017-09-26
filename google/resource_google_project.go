@@ -157,7 +157,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	// If the project has been deleted from outside Terraform, remove it from state file.
 	if p.LifecycleState != "ACTIVE" {
-		log.Printf("[WARN] Removing project '%s' because the project is not active.", pid)
+		log.Printf("[WARN] Removing project '%s' because its state is '%s' (requires 'ACTIVE').", pid, p.LifecycleState)
 		d.SetId("")
 		return nil
 	}
