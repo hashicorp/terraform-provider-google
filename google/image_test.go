@@ -79,7 +79,7 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		}
 
 		for input, expectation := range images {
-			result, err := resolveImage(config, input)
+			result, err := resolveImage(config, project, input)
 			if err != nil {
 				return fmt.Errorf("Error resolving input %s to image: %+v\n", input, err)
 			}
