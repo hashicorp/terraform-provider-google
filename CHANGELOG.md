@@ -30,6 +30,7 @@ IMPROVEMENTS:
 * project: Add support for 'labels' field on `google_project` [GH-383]
 * project: Move a `google_project` in and out of a folder [GH-438]
 * pubsub: Add import support for `google_pubsub_topic`. [GH-392]
+* pubsub: Add import support for `google_pubsub_subscription`. [GH-456]
 * sql: Add support for `connection_name` in `google_sql_database_instance` [GH-387]
 * storage: Add support for versioning in `google_storage_bucket` [GH-381]
 
