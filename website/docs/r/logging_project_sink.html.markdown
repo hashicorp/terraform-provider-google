@@ -59,7 +59,7 @@ resource "google_compute_instance" "my-logged-instance" {
   }
 }
 
-# A bucket to storage logs in.
+# A bucket to store logs in
 resource "google_storage_bucket" "log-bucket" {
     name     = "my-unique-logging-bucket"
 }

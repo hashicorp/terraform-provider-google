@@ -4,53 +4,30 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/logging/v2"
 )
 
 const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount.com"
 
 func resourceLoggingProjectSink() *schema.Resource {
-	return &schema.Resource{
+	schm := &schema.Resource{
 		Create: resourceLoggingProjectSinkCreate,
 		Read:   resourceLoggingProjectSinkRead,
 		Delete: resourceLoggingProjectSinkDelete,
 		Update: resourceLoggingProjectSinkUpdate,
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
-			"destination": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-
-			"filter": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"unique_writer_identity": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-				ForceNew: true,
-			},
-
-			"writer_identity": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+		Schema: resourceLoggingSinkSchema(),
 	}
+	schm.Schema["project"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+	}
+	schm.Schema["unique_writer_identity"] = &schema.Schema{
+		Type:     schema.TypeBool,
+		Optional: true,
+		Default:  false,
+		ForceNew: true,
+	}
+	return schm
 }
 
 func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) error {
@@ -61,23 +38,10 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	name := d.Get("name").(string)
-
-	id := LoggingSinkId{
-		resourceType: "projects",
-		resourceId:   project,
-		name:         name,
-	}
-
-	sink := logging.LogSink{
-		Name:        d.Get("name").(string),
-		Destination: d.Get("destination").(string),
-		Filter:      d.Get("filter").(string),
-	}
-
+	id, sink := expandResourceLoggingSink(d, "projects", project)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
-	_, err = config.clientLogging.Projects.Sinks.Create(id.parent(), &sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+	_, err = config.clientLogging.Projects.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
 	if err != nil {
 		return err
 	}
@@ -95,10 +59,7 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
 
-	d.Set("name", sink.Name)
-	d.Set("destination", sink.Destination)
-	d.Set("filter", sink.Filter)
-	d.Set("writer_identity", sink.WriterIdentity)
+	flattenResourceLoggingSink(d, sink)
 	if sink.WriterIdentity != nonUniqueWriterAccount {
 		d.Set("unique_writer_identity", true)
 	} else {
@@ -110,23 +71,10 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Can only update destination/filter right now. Despite the method below using 'Patch', the API requires both
-	// destination and filter (even if unchanged).
-	sink := logging.LogSink{
-		Destination: d.Get("destination").(string),
-		Filter:      d.Get("filter").(string),
-	}
-
-	if d.HasChange("destination") {
-		sink.ForceSendFields = append(sink.ForceSendFields, "Destination")
-	}
-	if d.HasChange("filter") {
-		sink.ForceSendFields = append(sink.ForceSendFields, "Filter")
-	}
-
+	sink := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
-	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), &sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
 	if err != nil {
 		return err
 	}
