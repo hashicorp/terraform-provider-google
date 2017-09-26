@@ -39,6 +39,7 @@ BUG FIXES:
 * compute: Fix bug where 'session_affinity' would get reset on `google_compute_backend_service` resource [GH-348]
 * sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
 * sql: Fixed bug where default user on replica would cause an incorrect delete api call [GH-347]
+* pubsub: Fixed bug where `google_pubsub_subscription` did not read its state from the API. [GH-456]
 
 ## 0.1.3 (August 17, 2017)
 
