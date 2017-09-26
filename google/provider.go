@@ -125,7 +125,7 @@ func Provider() terraform.ResourceProvider {
 			"google_runtimeconfig_config":                  resourceRuntimeconfigConfig(),
 			"google_runtimeconfig_variable":                resourceRuntimeconfigVariable(),
 			"google_service_account":                       resourceGoogleServiceAccount(),
-            "google_service_account_key":                   resourceGoogleServiceAccountKey(),
+			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
 			"google_storage_bucket_object":                 resourceStorageBucketObject(),
