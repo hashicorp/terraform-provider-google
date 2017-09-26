@@ -224,6 +224,21 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"kubernetes_dashboard": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -377,6 +392,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		if v, ok := addonsConfig["horizontal_pod_autoscaling"]; ok && len(v.([]interface{})) > 0 {
 			addon := v.([]interface{})[0].(map[string]interface{})
 			cluster.AddonsConfig.HorizontalPodAutoscaling = &container.HorizontalPodAutoscaling{
+				Disabled: addon["disabled"].(bool),
+			}
+		}
+
+		if v, ok := addonsConfig["kubernetes_dashboard"]; ok && len(v.([]interface{})) > 0 {
+			addon := v.([]interface{})[0].(map[string]interface{})
+			cluster.AddonsConfig.KubernetesDashboard = &container.KubernetesDashboard{
 				Disabled: addon["disabled"].(bool),
 			}
 		}
