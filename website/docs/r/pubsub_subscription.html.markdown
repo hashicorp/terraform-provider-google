@@ -10,7 +10,7 @@ description: |-
 
 Creates a subscription in Google's pubsub queueing system. For more information see
 [the official documentation](https://cloud.google.com/pubsub/docs) and
-[API](https://cloud.google.com/pubsub/reference/rest/v1/projects.subscriptions).
+[API](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions).
 
 
 ## Example Usage
@@ -56,7 +56,7 @@ The following arguments are supported:
 
 The optional `push_config` block supports:
 
-* `push_endpoint` - (Optional) The URL of the endpoint to which messages should
+* `push_endpoint` - (Required) The URL of the endpoint to which messages should
     be pushed. Changing this forces a new resource to be created.
 
 * `attributes` - (Optional) Key-value pairs of API supported attributes used
@@ -69,3 +69,12 @@ The optional `push_config` block supports:
 ## Attributes Reference
 
 * `path` - Path of the subscription in the format `projects/{project}/subscriptions/{sub}`
+
+## Import
+
+Pubsub subscription can be imported using the `name`, e.g.
+
+```
+$ terraform import google_pubsub_subscription.default default-subscription
+```
+

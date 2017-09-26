@@ -13,6 +13,10 @@ func resourcePubsubSubscription() *schema.Resource {
 		Read:   resourcePubsubSubscriptionRead,
 		Delete: resourcePubsubSubscriptionDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourcePubsubSubscriptionStateImporter,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -21,14 +25,16 @@ func resourcePubsubSubscription() *schema.Resource {
 			},
 
 			"topic": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"ack_deadline_seconds": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -47,6 +53,7 @@ func resourcePubsubSubscription() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"attributes": &schema.Schema{
@@ -58,7 +65,7 @@ func resourcePubsubSubscription() *schema.Resource {
 
 						"push_endpoint": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
 						},
 					},
@@ -98,10 +105,6 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	if v, ok := d.GetOk("push_config"); ok {
 		push_configs := v.([]interface{})
 
-		if len(push_configs) > 1 {
-			return fmt.Errorf("At most one PushConfig is allowed per subscription!")
-		}
-
 		push_config := push_configs[0].(map[string]interface{})
 		attributes := push_config["attributes"].(map[string]interface{})
 		attributesClean := cleanAdditionalArgs(attributes)
@@ -127,11 +130,16 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 
 	name := d.Id()
-	call := config.clientPubsub.Projects.Subscriptions.Get(name)
-	_, err := call.Do()
+	subscription, err := config.clientPubsub.Projects.Subscriptions.Get(name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Pubsub Subscription %q", name))
 	}
+
+	d.Set("name", GetResourceNameFromSelfLink(subscription.Name))
+	d.Set("topic", subscription.Topic)
+	d.Set("ack_deadline_seconds", subscription.AckDeadlineSeconds)
+	d.Set("path", subscription.Name)
+	d.Set("push_config", flattenPushConfig(subscription.PushConfig))
 
 	return nil
 }
@@ -147,4 +155,34 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	return nil
+}
+
+func resourcePubsubSubscriptionStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	id := fmt.Sprintf("projects/%s/subscriptions/%s", project, d.Id())
+
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
+}
+
+func flattenPushConfig(pushConfig *pubsub.PushConfig) []map[string]interface{} {
+	configs := make([]map[string]interface{}, 0, 1)
+
+	if pushConfig == nil || len(pushConfig.PushEndpoint) == 0 {
+		return configs
+	}
+
+	configs = append(configs, map[string]interface{}{
+		"push_endpoint": pushConfig.PushEndpoint,
+		"attributes":    pushConfig.Attributes,
+	})
+
+	return configs
 }
