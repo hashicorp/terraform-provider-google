@@ -162,19 +162,23 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 }
 
 func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
-	config := []map[string]interface{}{
-		{
-			"machine_type":    c.MachineType,
-			"disk_size_gb":    c.DiskSizeGb,
-			"local_ssd_count": c.LocalSsdCount,
-			"service_account": c.ServiceAccount,
-			"metadata":        c.Metadata,
-			"image_type":      c.ImageType,
-			"labels":          c.Labels,
-			"tags":            c.Tags,
-			"preemptible":     c.Preemptible,
-		},
+	config := make([]map[string]interface{}, 0, 1)
+
+	if c == nil {
+		return config
 	}
+
+	config = append(config, map[string]interface{}{
+		"machine_type":    c.MachineType,
+		"disk_size_gb":    c.DiskSizeGb,
+		"local_ssd_count": c.LocalSsdCount,
+		"service_account": c.ServiceAccount,
+		"metadata":        c.Metadata,
+		"image_type":      c.ImageType,
+		"labels":          c.Labels,
+		"tags":            c.Tags,
+		"preemptible":     c.Preemptible,
+	})
 
 	if len(c.OauthScopes) > 0 {
 		config[0]["oauth_scopes"] = c.OauthScopes
