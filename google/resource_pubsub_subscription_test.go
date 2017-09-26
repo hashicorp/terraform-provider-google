@@ -41,6 +41,7 @@ func TestAccPubsubSubscription_basic(t *testing.T) {
 //
 // An easy way to test this would be to create an App Engine Hello World app. With AppEngine, SSL certificate, DNS and domain registry is handled for us.
 // App Engine is not yet supported by Terraform but once it is, it will provide an easy path to testing push configs.
+// Another option would be to use Cloud Functions once Terraform support is added.
 func testAccCheckPubsubSubscriptionDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_pubsub_subscription" {
