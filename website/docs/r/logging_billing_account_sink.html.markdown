@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the logging sink.
 
-* 'billing_account' - (Required) The billing account exported to the sink.
+* `billing_account` - (Required) The billing account exported to the sink.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
     Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:

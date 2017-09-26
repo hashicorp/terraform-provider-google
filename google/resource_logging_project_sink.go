@@ -71,7 +71,7 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceloggingSinkForUpdate(d)
+	sink := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
 	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()

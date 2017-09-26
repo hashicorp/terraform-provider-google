@@ -52,7 +52,7 @@ func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interfac
 func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceloggingSinkForUpdate(d)
+	sink := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
 	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(true).Do()

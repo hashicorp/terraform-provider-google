@@ -52,7 +52,7 @@ func flattenResourceLoggingSink(d *schema.ResourceData, sink *logging.LogSink) {
 	d.Set("writer_identity", sink.WriterIdentity)
 }
 
-func expandResourceloggingSinkForUpdate(d *schema.ResourceData) *logging.LogSink {
+func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) *logging.LogSink {
 	// Can only update destination/filter right now. Despite the method below using 'Patch', the API requires both
 	// destination and filter (even if unchanged).
 	sink := logging.LogSink{
