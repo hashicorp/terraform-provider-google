@@ -11,6 +11,7 @@ FEATURES:
 * **New Resource:** `google_folder` [GH-416]
 * **New Resource:** `google_folder_iam_policy` [GH-447]
 * **New Resource:** `google_logging_project_sink` [GH-432]
+* **New Resource:** `google_logging_billing_account_sink` [GH-457]
 
 IMPROVEMENTS:
 * bigquery: Support Bigquery Views [GH-230]
