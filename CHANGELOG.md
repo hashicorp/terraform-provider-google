@@ -19,6 +19,7 @@ IMPROVEMENTS:
 * container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
 * container: Allow updating `google_container_cluster.logging_service` [GH-343]
 * container: Add support for 'node_config.preemptible' field on `google_container_cluster` [GH-341]
+* container: Allow min node counts of 0 for node pool autoscaling [GH-468]
 * compute: Add support for 'labels' field on `google_compute_image` [GH-339]
 * compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
 * compute: Add support for `labels` field on `google_compute_global_forwarding_rule` [GH-354]
