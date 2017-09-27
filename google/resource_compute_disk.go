@@ -139,7 +139,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	// If we were given a source image, load that.
 	if v, ok := d.GetOk("image"); ok {
 		log.Printf("[DEBUG] Resolving image name: %s", v.(string))
-		imageUrl, err := resolveImage(config, v.(string))
+		imageUrl, err := resolveImage(config, project, v.(string))
 		if err != nil {
 			return fmt.Errorf(
 				"Error resolving image name '%s': %s",
@@ -152,7 +152,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 	if v, ok := d.GetOk("type"); ok {
 		log.Printf("[DEBUG] Loading disk type: %s", v.(string))
-		diskType, err := readDiskType(config, zone, v.(string))
+		diskType, err := readDiskType(config, zone, project, v.(string))
 		if err != nil {
 			return fmt.Errorf(
 				"Error loading disk type '%s': %s",

@@ -621,7 +621,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	var hasScratchDisk bool
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
-		scratchDisks, err := expandScratchDisks(d, config, zone)
+		scratchDisks, err := expandScratchDisks(d, config, zone, project)
 		if err != nil {
 			return err
 		}
@@ -685,7 +685,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		if v, ok := d.GetOk(prefix + ".image"); ok && !hasSource {
 			imageName := v.(string)
 
-			imageUrl, err := resolveImage(config, imageName)
+			imageUrl, err := resolveImage(config, project, imageName)
 			if err != nil {
 				return fmt.Errorf(
 					"Error resolving image name '%s': %s",
@@ -699,7 +699,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		if v, ok := d.GetOk(prefix + ".type"); ok && !hasSource {
 			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, diskTypeName)
+			diskType, err := readDiskType(config, zone, project, diskTypeName)
 			if err != nil {
 				return fmt.Errorf(
 					"Error loading disk type '%s': %s",
@@ -1527,7 +1527,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, diskTypeName)
+			diskType, err := readDiskType(config, zone, project, diskTypeName)
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
@@ -1536,7 +1536,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
 			imageName := v.(string)
-			imageUrl, err := resolveImage(config, imageName)
+			imageUrl, err := resolveImage(config, project, imageName)
 			if err != nil {
 				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
 			}
@@ -1571,8 +1571,8 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone) ([]*computeBeta.AttachedDisk, error) {
-	diskType, err := readDiskType(config, zone, "local-ssd")
+func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
+	diskType, err := readDiskType(config, zone, project, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
