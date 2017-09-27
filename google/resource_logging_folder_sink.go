@@ -2,8 +2,8 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 func resourceLoggingFolderSink() *schema.Resource {
