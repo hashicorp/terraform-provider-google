@@ -164,7 +164,8 @@ func testAccComputeRouterNoRegion(providerRegion string) string {
 		}
 		resource "google_compute_subnetwork" "foobar" {
 			name = "router-test-subnetwork-%s"
-			network = "${google_compute_network.foobar.self_link}"
+			network = "${google_compute_network.foobar.name}"
+			ip_cidr_range = "10.0.0.0/16"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "%s"
 		}
