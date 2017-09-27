@@ -227,6 +227,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("self_link", service.SelfLink)
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
+	d.Set("iap", service.Iap)
 
 	d.Set("health_checks", service.HealthChecks)
 
