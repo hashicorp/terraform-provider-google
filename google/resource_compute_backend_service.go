@@ -37,6 +37,30 @@ func resourceComputeBackendService() *schema.Resource {
 				MaxItems: 1,
 			},
 
+			"iap": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": &schema.Schema{
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"oauth2_client_id": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "",
+						},
+						"oauth2_client_secret": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "",
+						},
+					},
+				},
+				Optional: true,
+			},
+
 			"backend": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Resource{
@@ -309,7 +333,6 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 		data["max_rate"] = b.MaxRate
 		data["max_rate_per_instance"] = b.MaxRatePerInstance
 		data["max_utilization"] = b.MaxUtilization
-
 		result = append(result, data)
 	}
 
@@ -326,6 +349,15 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 	service := compute.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,
+	}
+
+	if v, ok := d.GetOk("iap"); ok {
+		iap := v.(*schema.Set).List()[0].(map[string]interface{})
+		service.Iap = &compute.BackendServiceIAP{
+			Enabled:            iap["enabled"].(bool),
+			Oauth2ClientId:     iap["oauth2_client_id"].(string),
+			Oauth2ClientSecret: iap["oauth2_client_secret"].(string),
+		}
 	}
 
 	if v, ok := d.GetOk("backend"); ok {
