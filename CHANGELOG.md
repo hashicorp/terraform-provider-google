@@ -37,6 +37,7 @@ IMPROVEMENTS:
 * storage: Add support for versioning in `google_storage_bucket` [GH-381]
 
 BUG FIXES:
+* compute/sql: Fix a few instances where we read the project from the provider config and not using the helper function [GH-469]
 * compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
 * compute: Fix bug where 'session_affinity' would get reset on `google_compute_backend_service` resource [GH-348]
 * sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
