@@ -59,6 +59,8 @@ func resourceComputeBackendService() *schema.Resource {
 					},
 				},
 				Optional: true,
+				MaxItems: 1,
+				Set:      func(i interface{}) int { return 0 },
 			},
 
 			"backend": &schema.Schema{
@@ -227,7 +229,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("self_link", service.SelfLink)
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
-	d.Set("iap", service.Iap)
+	d.Set("iap", flattenIap(service.Iap))
 
 	d.Set("health_checks", service.HealthChecks)
 
@@ -319,6 +321,17 @@ func expandBackends(configured []interface{}) []*compute.Backend {
 	}
 
 	return backends
+}
+
+func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	iapMap := map[string]interface{}{
+		"enabled":              iap.Enabled,
+		"oauth2_client_id":     iap.Oauth2ClientId,
+		"oauth2_client_secret": iap.Oauth2ClientSecret,
+	}
+	result = append(result, iapMap)
+	return result
 }
 
 func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
