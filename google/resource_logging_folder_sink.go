@@ -33,11 +33,7 @@ func resourceLoggingFolderSink() *schema.Resource {
 func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	folder := d.Get("folder").(string)
-	if strings.HasPrefix(folder, "folders/") {
-		folder = folder[len("folders/"):]
-	}
-
+	folder := parseFolderId(d.Get("folder"))
 	id, sink := expandResourceLoggingSink(d, "folders", folder)
 	sink.IncludeChildren = d.Get("include_children").(bool)
 

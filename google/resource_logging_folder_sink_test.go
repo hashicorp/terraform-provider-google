@@ -170,7 +170,7 @@ func testAccCheckLoggingFolderSink(sink *logging.LogSink, n string) resource.Tes
 			}
 		}
 		if sink.IncludeChildren != includeChildren {
-			return fmt.Errorf("mismatch on include_children: api has %s but client has %s", sink.IncludeChildren, attributes["include_children"])
+			return fmt.Errorf("mismatch on include_children: api has %v but client has %v", sink.IncludeChildren, includeChildren)
 		}
 
 		return nil
