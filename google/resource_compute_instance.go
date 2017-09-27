@@ -26,10 +26,6 @@ var InstanceVersionedFeatures = []Feature{
 		Version: v0beta,
 		Item:    "min_cpu_platform",
 	},
-	{
-		Version: v0beta,
-		Item:    "network_interface.*.alias_ip_range",
-	},
 }
 
 func stringScopeHashcode(v interface{}) int {

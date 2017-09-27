@@ -753,7 +753,7 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 }
 
 func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
-	var instance computeBeta.Instance
+	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -764,7 +764,7 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_primaryAliasIpRange(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "/24"),
 				),
 			},
@@ -773,7 +773,7 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 }
 
 func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
-	var instance computeBeta.Instance
+	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -784,7 +784,7 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_secondaryAliasIpRange(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
 				),
 			},
@@ -1245,7 +1245,7 @@ func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance
 	}
 }
 
-func testAccCheckComputeInstanceHasAliasIpRange(instance *computeBeta.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, networkInterface := range instance.NetworkInterfaces {
 			for _, aliasIpRange := range networkInterface.AliasIpRanges {
