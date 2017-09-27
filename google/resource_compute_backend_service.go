@@ -288,6 +288,27 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
+func expandIap(configured []interface{}) *compute.BackendServiceIAP {
+	data := configured[0].(map[string]interface{})
+	iap := &compute.BackendServiceIAP{
+		Enabled:            data["enabled"].(bool),
+		Oauth2ClientId:     data["oauth2_client_id"].(string),
+		Oauth2ClientSecret: data["oauth2_client_secret"].(string),
+	}
+	return iap
+}
+
+func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	iapMap := map[string]interface{}{
+		"enabled":              iap.Enabled,
+		"oauth2_client_id":     iap.Oauth2ClientId,
+		"oauth2_client_secret": iap.Oauth2ClientSecret,
+	}
+	result = append(result, iapMap)
+	return result
+}
+
 func expandBackends(configured []interface{}) []*compute.Backend {
 	backends := make([]*compute.Backend, 0, len(configured))
 
@@ -323,17 +344,6 @@ func expandBackends(configured []interface{}) []*compute.Backend {
 	return backends
 }
 
-func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, 1)
-	iapMap := map[string]interface{}{
-		"enabled":              iap.Enabled,
-		"oauth2_client_id":     iap.Oauth2ClientId,
-		"oauth2_client_secret": iap.Oauth2ClientSecret,
-	}
-	result = append(result, iapMap)
-	return result
-}
-
 func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(backends))
 
@@ -366,12 +376,7 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 	}
 
 	if v, ok := d.GetOk("iap"); ok {
-		iap := v.(*schema.Set).List()[0].(map[string]interface{})
-		service.Iap = &compute.BackendServiceIAP{
-			Enabled:            iap["enabled"].(bool),
-			Oauth2ClientId:     iap["oauth2_client_id"].(string),
-			Oauth2ClientSecret: iap["oauth2_client_secret"].(string),
-		}
+		service.Iap = expandIap(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("backend"); ok {
