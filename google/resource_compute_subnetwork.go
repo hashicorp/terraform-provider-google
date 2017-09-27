@@ -7,17 +7,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
-
-var SubnetworkBaseApiVersion = v1
-var SubnetworkVersionedFeatures = []Feature{
-	{
-		Version: v0beta,
-		Item:    "secondary_ip_range",
-	},
-}
 
 func resourceComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
@@ -107,7 +98,6 @@ func resourceComputeSubnetwork() *schema.Resource {
 }
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -126,7 +116,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Build the subnetwork parameters
-	subnetwork := &computeBeta.Subnetwork{
+	subnetwork := &compute.Subnetwork{
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
@@ -137,21 +127,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)
 
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		subnetworkV1 := &compute.Subnetwork{}
-		err = Convert(subnetwork, subnetworkV1)
-		if err != nil {
-			return err
-		}
-
-		op, err = config.clientCompute.Subnetworks.Insert(
-			project, region, subnetworkV1).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.Subnetworks.Insert(
-			project, region, subnetwork).Do()
-	}
+	op, err := config.clientCompute.Subnetworks.Insert(project, region, subnetwork).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error creating subnetwork: %s", err)
@@ -163,7 +139,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	// The same name can appear twice in a project, as long as each one is in a different region."
 	// https://cloud.google.com/compute/docs/subnetworks
 	subnetwork.Region = region
-	d.SetId(createBetaSubnetID(subnetwork))
+	d.SetId(createSubnetID(subnetwork))
 
 	err = computeSharedOperationWait(config, op, project, "Creating Subnetwork")
 	if err != nil {
@@ -174,7 +150,6 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -189,25 +164,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 
 	name := d.Get("name").(string)
 
-	subnetwork := &computeBeta.Subnetwork{}
-	switch computeApiVersion {
-	case v1:
-		subnetworkV1, err := config.clientCompute.Subnetworks.Get(
-			project, region, name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
-		}
-
-		err = Convert(subnetworkV1, subnetwork)
-		if err != nil {
-			return err
-		}
-	case v0beta:
-		var err error
-		subnetwork, err = config.clientComputeBeta.Subnetworks.Get(project, region, name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
-		}
+	subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, name).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
 	}
 
 	d.Set("name", subnetwork.Name)
@@ -223,7 +182,6 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersionUpdate(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -239,28 +197,14 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 	d.Partial(true)
 
 	if d.HasChange("private_ip_google_access") {
-		subnetworksSetPrivateIpGoogleAccessRequest := &computeBeta.SubnetworksSetPrivateIpGoogleAccessRequest{
+		subnetworksSetPrivateIpGoogleAccessRequest := &compute.SubnetworksSetPrivateIpGoogleAccessRequest{
 			PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
 		}
 
 		log.Printf("[DEBUG] Updating Subnetwork PrivateIpGoogleAccess %q: %#v", d.Id(), subnetworksSetPrivateIpGoogleAccessRequest)
 
-		var op interface{}
-		switch computeApiVersion {
-		case v1:
-			subnetworksSetPrivateIpGoogleAccessRequestV1 := &compute.SubnetworksSetPrivateIpGoogleAccessRequest{}
-			err = Convert(subnetworksSetPrivateIpGoogleAccessRequest, subnetworksSetPrivateIpGoogleAccessRequestV1)
-			if err != nil {
-				return err
-			}
-
-			op, err = config.clientCompute.Subnetworks.SetPrivateIpGoogleAccess(
-				project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequestV1).Do()
-		case v0beta:
-			op, err = config.clientComputeBeta.Subnetworks.SetPrivateIpGoogleAccess(
-				project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequest).Do()
-
-		}
+		op, err := config.clientCompute.Subnetworks.SetPrivateIpGoogleAccess(
+			project, region, d.Get("name").(string), subnetworksSetPrivateIpGoogleAccessRequest).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error updating subnetwork PrivateIpGoogleAccess: %s", err)
@@ -280,7 +224,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -294,15 +237,8 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Delete the subnetwork
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		op, err = config.clientCompute.Subnetworks.Delete(
-			project, region, d.Get("name").(string)).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.Subnetworks.Delete(
-			project, region, d.Get("name").(string)).Do()
-	}
+	op, err := config.clientCompute.Subnetworks.Delete(
+		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting subnetwork: %s", err)
 	}
@@ -334,10 +270,6 @@ func resourceComputeSubnetworkImportState(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func createBetaSubnetID(s *computeBeta.Subnetwork) string {
-	return fmt.Sprintf("%s/%s", s.Region, s.Name)
-}
-
 func createSubnetID(s *compute.Subnetwork) string {
 	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }
@@ -349,11 +281,11 @@ func splitSubnetID(id string) (region string, name string) {
 	return
 }
 
-func expandSecondaryRanges(configured []interface{}) []*computeBeta.SubnetworkSecondaryRange {
-	secondaryRanges := make([]*computeBeta.SubnetworkSecondaryRange, 0, len(configured))
+func expandSecondaryRanges(configured []interface{}) []*compute.SubnetworkSecondaryRange {
+	secondaryRanges := make([]*compute.SubnetworkSecondaryRange, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		secondaryRange := computeBeta.SubnetworkSecondaryRange{
+		secondaryRange := compute.SubnetworkSecondaryRange{
 			RangeName:   data["range_name"].(string),
 			IpCidrRange: data["ip_cidr_range"].(string),
 		}
@@ -363,7 +295,7 @@ func expandSecondaryRanges(configured []interface{}) []*computeBeta.SubnetworkSe
 	return secondaryRanges
 }
 
-func flattenSecondaryRanges(secondaryRanges []*computeBeta.SubnetworkSecondaryRange) []map[string]interface{} {
+func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange) []map[string]interface{} {
 	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
 	for _, secondaryRange := range secondaryRanges {
 		data := map[string]interface{}{
