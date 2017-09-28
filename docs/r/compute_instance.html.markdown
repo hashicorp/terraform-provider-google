@@ -116,10 +116,6 @@ The following arguments are supported:
 * `disk` - (DEPRECATED) Disks to attach to the instance. This can be specified
     multiple times for multiple disks. Structure is documented below.
 
-* `network` - (DEPRECATED) Networks to attach to the instance. This
-    can be specified multiple times for multiple networks. Structure is
-    documented below.
-
 ---
 
 The `boot_disk` block supports:
