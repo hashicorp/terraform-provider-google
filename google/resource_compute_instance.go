@@ -749,6 +749,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Build up the list of networkInterfaces
+	networkInterfacesCount := d.Get("network_interface.#").(int)
 	networkInterfaces := make([]*computeBeta.NetworkInterface, 0, networkInterfacesCount)
 	for i := 0; i < networkInterfacesCount; i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
