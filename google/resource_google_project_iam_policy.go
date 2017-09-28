@@ -31,8 +31,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
 			"authoritative": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "Use google_project_iam_policy_binding nad google_project_iam_policy_member instead.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
