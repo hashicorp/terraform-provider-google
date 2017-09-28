@@ -7,7 +7,7 @@ import (
 
 const networkLinkTemplate = "projects/%s/global/networks/%s"
 
-var networkLinkRegex = regexp.MustCompile(fmt.Sprintf(networkLinkTemplate, "(.+)", "(.+)"))
+var networkLinkRegex = regexp.MustCompile("projects/(.+)/global/networks/(.+)")
 
 type NetworkFieldValue struct {
 	Project string
@@ -35,6 +35,6 @@ func ParseNetworkFieldValue(network string, config *Config) *NetworkFieldValue {
 	}
 }
 
-func (f *NetworkFieldValue) RelativeLink() string {
+func (f NetworkFieldValue) RelativeLink() string {
 	return fmt.Sprintf(networkLinkTemplate, f.Project, f.Name)
 }
