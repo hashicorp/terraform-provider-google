@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"log"
 
@@ -38,33 +39,34 @@ func resourceComputeBackendService() *schema.Resource {
 			},
 
 			"iap": &schema.Schema{
-				Type: schema.TypeSet,
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enabled": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
 						"oauth2_client_id": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Required: true,
 						},
 						"oauth2_client_secret": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old == fmt.Sprintf("%x", sha256.Sum256([]byte(new))) {
+									return true
+								}
+								return false
+							},
 						},
 					},
 				},
-				Optional: true,
-				MaxItems: 1,
-				Set:      func(i interface{}) int { return 0 },
 			},
 
 			"backend": &schema.Schema{
-				Type: schema.TypeSet,
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      resourceGoogleComputeBackendServiceBackendHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
@@ -100,8 +102,6 @@ func resourceComputeBackendService() *schema.Resource {
 						},
 					},
 				},
-				Optional: true,
-				Set:      resourceGoogleComputeBackendServiceBackendHash,
 			},
 
 			"description": &schema.Schema{
@@ -291,19 +291,25 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 func expandIap(configured []interface{}) *compute.BackendServiceIAP {
 	data := configured[0].(map[string]interface{})
 	iap := &compute.BackendServiceIAP{
-		Enabled:            data["enabled"].(bool),
+		Enabled:            true,
 		Oauth2ClientId:     data["oauth2_client_id"].(string),
 		Oauth2ClientSecret: data["oauth2_client_secret"].(string),
+		ForceSendFields:    []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
 	}
+
 	return iap
 }
 
 func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
+	if iap == nil {
+		return make([]map[string]interface{}, 1, 1)
+	}
+
 	result := make([]map[string]interface{}, 0, 1)
 	iapMap := map[string]interface{}{
 		"enabled":              iap.Enabled,
 		"oauth2_client_id":     iap.Oauth2ClientId,
-		"oauth2_client_secret": iap.Oauth2ClientSecret,
+		"oauth2_client_secret": iap.Oauth2ClientSecretSha256,
 	}
 	result = append(result, iapMap)
 	return result
@@ -373,10 +379,13 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 	service := compute.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,
+		Iap: &compute.BackendServiceIAP{
+			ForceSendFields: []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+		},
 	}
 
 	if v, ok := d.GetOk("iap"); ok {
-		service.Iap = expandIap(v.(*schema.Set).List())
+		service.Iap = expandIap(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("backend"); ok {
