@@ -9,14 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-var (
-	projectId = multiEnvSearch([]string{
-		"GOOGLE_PROJECT",
-		"GCLOUD_PROJECT",
-		"CLOUDSDK_CORE_PROJECT",
-	})
-)
-
 // Test that a service account resource can be created, updated, and destroyed
 func TestAccGoogleServiceAccount_basic(t *testing.T) {
 	accountId := "a" + acctest.RandString(10)
@@ -55,7 +47,7 @@ func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account with an IAM policy
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountPolicy(accountId, projectId),
+				Config: testAccGoogleServiceAccountPolicy(accountId, getTestProjectFromEnv()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountPolicyCount("google_service_account.acceptance", 1),
 				),
@@ -69,7 +61,7 @@ func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
 			},
 			// The final step re-applies the IAM policy
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountPolicy(accountId, projectId),
+				Config: testAccGoogleServiceAccountPolicy(accountId, getTestProjectFromEnv()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountPolicyCount("google_service_account.acceptance", 1),
 				),
@@ -147,5 +139,5 @@ data "google_iam_policy" "service_account" {
   }
 }`
 
-	return fmt.Sprintf(t, account, name, account, projectId)
+	return fmt.Sprintf(t, account, name, account, getTestProjectFromEnv())
 }

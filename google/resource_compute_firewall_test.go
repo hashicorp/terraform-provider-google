@@ -10,6 +10,7 @@ import (
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
+	"strings"
 )
 
 func TestAccComputeFirewall_basic(t *testing.T) {
@@ -27,6 +28,7 @@ func TestAccComputeFirewall_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
 						"google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
 		},
@@ -48,6 +50,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
 						"google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
 			resource.TestStep{
@@ -57,6 +60,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 						"google_compute_firewall.foobar", &firewall),
 					testAccCheckComputeFirewallPorts(
 						&firewall, "80-255"),
+					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
 		},
@@ -78,6 +82,7 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 				testAccCheckComputeBetaFirewallExists(
 					"google_compute_firewall.foobar", &firewall),
 				testAccCheckComputeFirewallHasPriority(&firewall, 1001),
+				testAccCheckComputeFirewallBetaApiVersion(&firewall),
 			),
 		}},
 	})
@@ -98,6 +103,7 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
 						"google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
 		},
@@ -119,6 +125,7 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
 					testAccCheckComputeBetaFirewallDenyPorts(&firewall, "22"),
+					testAccCheckComputeFirewallBetaApiVersion(&firewall),
 				),
 			},
 		},
@@ -140,6 +147,7 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
 					testAccCheckComputeBetaFirewallEgress(&firewall),
+					testAccCheckComputeFirewallBetaApiVersion(&firewall),
 				),
 			},
 		},
@@ -270,6 +278,30 @@ func testAccCheckComputeBetaFirewallEgress(firewall *computeBeta.Firewall) resou
 	}
 }
 
+func testAccCheckComputeFirewallBetaApiVersion(firewall *computeBeta.Firewall) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// The self-link of the network field is used to determine which API was used when fetching
+		// the state from the API.
+		if !strings.Contains(firewall.Network, "compute/beta") {
+			return fmt.Errorf("firewall beta API was not used")
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeFirewallApiVersion(firewall *compute.Firewall) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// The self-link of the network field is used to determine which API was used when fetching
+		// the state from the API.
+		if !strings.Contains(firewall.Network, "compute/v1") {
+			return fmt.Errorf("firewall beta API was not used")
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeFirewall_basic(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
@@ -299,7 +331,7 @@ func testAccComputeFirewall_update(network, firewall string) string {
 	resource "google_compute_firewall" "foobar" {
 		name = "firewall-test-%s"
 		description = "Resource created for Terraform acceptance testing"
-		network = "${google_compute_network.foobar.name}"
+		network = "${google_compute_network.foobar.self_link}"
 		source_tags = ["foo"]
 
 		allow {

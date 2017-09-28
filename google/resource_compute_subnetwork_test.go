@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
-
-	computeBeta "google.golang.org/api/compute/v0.beta"
 )
 
 func TestAccComputeSubnetwork_basic(t *testing.T) {
@@ -73,7 +71,7 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 }
 
 func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
-	var subnetwork computeBeta.Subnetwork
+	var subnetwork compute.Subnetwork
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -86,7 +84,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeSubnetwork_secondaryIpRanges(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-range", &subnetwork),
+					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-range", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range", "192.168.1.0/24"),
 				),
 			},
@@ -143,37 +141,7 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 	}
 }
 
-func testAccCheckComputeBetaSubnetworkExists(n string, subnetwork *computeBeta.Subnetwork) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		region, subnet_name := splitSubnetID(rs.Primary.ID)
-		found, err := config.clientComputeBeta.Subnetworks.Get(
-			config.Project, region, subnet_name).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != subnet_name {
-			return fmt.Errorf("Subnetwork not found")
-		}
-
-		*subnetwork = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *computeBeta.Subnetwork, rangeName, ipCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *compute.Subnetwork, rangeName, ipCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
 			if secondaryRange.RangeName == rangeName {

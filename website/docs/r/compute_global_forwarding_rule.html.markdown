@@ -84,7 +84,7 @@ The following arguments are supported:
 
 * `ip_address` - (Optional) The static IP. (if not set, an ephemeral IP is
     used). This should be the literal IP address to be used, not the `self_link`
-    to a `google_compute_address` resource. (If using a `google_compute_address`
+    to a `google_compute_global_address` resource. (If using a `google_compute_global_address`
     resource, use the `address` property instead of the `self_link` property.)
 
 * `ip_protocol` - (Optional) The IP protocol to route, one of "TCP" "UDP" "AH"
@@ -96,10 +96,14 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+* `ip_version` - (Optional)
+The IP Version that will be used by this resource's address. One of `"IPV4"` or `"IPV6"`.
+
 - - -
 
-* `ip_version` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
-The IP Version that will be used by this resource's address. One of `"IPV4"` or `"IPV6"`.
+* `labels` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+A set of key/value label pairs to assign to the resource.
+
 
 ## Attributes Reference
 
@@ -107,3 +111,5 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+* `label_fingerprint` - ([Beta](/docs/providers/google/index.html#beta-features)) The current label fingerprint.

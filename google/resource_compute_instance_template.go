@@ -331,6 +331,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDisk, error) {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
 	disksCount := d.Get("disk.#").(int)
 
 	disks := make([]*compute.AttachedDisk, 0, disksCount)
@@ -371,7 +376,7 @@ func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDi
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
-				imageUrl, err := resolveImage(config, imageName)
+				imageUrl, err := resolveImage(config, project, imageName)
 				if err != nil {
 					return nil, fmt.Errorf(
 						"Error resolving image name '%s': %s",

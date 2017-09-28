@@ -11,7 +11,9 @@ description: |-
 The Google Compute Engine Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance
 template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/manager)
-and [API](https://cloud.google.com/compute/docs/instance-groups/manager/v1beta2/instanceGroupManagers)
+and [API](https://cloud.google.com/compute/docs/reference/latest/instanceGroupManagers)
+
+~> **Note:** Use [google_compute_region_instance_group_manager](/docs/providers/google/r/google_compute_region_instance_group_manager.html) to create a regional (multi-zone) instance group manager.
 
 ## Example Usage
 

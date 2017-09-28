@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -32,6 +33,10 @@ func resourceContainerCluster() *schema.Resource {
 
 		SchemaVersion: 1,
 		MigrateState:  resourceContainerClusterMigrateState,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceContainerClusterStateImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"master_auth": {
@@ -171,10 +176,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Default:   "default",
+				ForceNew:  true,
+				StateFunc: StoreResourceName,
 			},
 			"subnetwork": {
 				Type:     schema.TypeString,
@@ -492,7 +498,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
-	d.Set("network", d.Get("network").(string))
+	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
 	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
@@ -778,4 +784,17 @@ func generateNodePoolName(prefix string, d *schema.ResourceData) (string, error)
 	} else {
 		return resource.UniqueId(), nil
 	}
+}
+
+func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{name}")
+	}
+
+	d.Set("zone", parts[0])
+	d.Set("name", parts[1])
+	d.SetId(parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }

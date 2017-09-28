@@ -44,6 +44,8 @@ The following arguments are supported:
 
 - - -
 
+* `connection_name` - (Optional) The connection name of the instance to be used in connection strings.
+
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
@@ -114,7 +116,7 @@ The optional `settings.backup_configuration` subblock supports:
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) True if the instance should be assigned an IP
-    address.
+    address. The IPv4 address cannot be disabled for Second Generation instances.
 
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.

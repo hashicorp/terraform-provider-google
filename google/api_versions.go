@@ -2,6 +2,8 @@ package google
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 type ComputeApiVersion uint8
@@ -71,7 +73,16 @@ func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion Compute
 // A field of a resource and the version of the Compute API required to use it.
 type Feature struct {
 	Version ComputeApiVersion
-	Item    string
+	// Path to the beta field.
+	//
+	// The feature is considered to be in-use if the field referenced by "Item" is set in the state.
+	// The path can reference:
+	// - a beta field at the top-level (e.g. "min_cpu_platform").
+	// - a beta field nested inside a list (e.g. "network_interface.*.alias_ip_range" is considered to be
+	// 		in-use if the "alias_ip_range" field is set in the state for any of the network interfaces).
+	//
+	// Note: beta field nested inside a SET are NOT supported at the moment.
+	Item string
 }
 
 // Returns true when a feature has been modified.
@@ -84,8 +95,34 @@ func (s Feature) HasChangeBy(d TerraformResourceData) bool {
 
 // Return true when a feature appears in schema or has been modified.
 func (s Feature) InUseBy(d TerraformResourceData) bool {
-	_, ok := d.GetOk(s.Item)
-	return ok || s.HasChangeBy(d)
+	return inUseBy(d, s.Item)
+}
+
+func inUseBy(d TerraformResourceData, path string) bool {
+	pos := strings.Index(path, "*")
+	if pos == -1 {
+		_, ok := d.GetOk(path)
+		return ok || d.HasChange(path)
+	}
+
+	prefix := path[0:pos]
+	suffix := path[pos+1:]
+
+	v, ok := d.GetOk(prefix + "#")
+
+	if !ok {
+		return false
+	}
+
+	count := v.(int)
+	for i := 0; i < count; i++ {
+		nestedPath := fmt.Sprintf("%s%d%s", prefix, i, suffix)
+		if inUseBy(d, nestedPath) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func maxVersion(versionsInUse map[ComputeApiVersion]struct{}) ComputeApiVersion {

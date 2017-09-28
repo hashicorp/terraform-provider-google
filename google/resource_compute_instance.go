@@ -246,6 +246,11 @@ func resourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"instance_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -293,7 +298,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"subnetwork": &schema.Schema{
@@ -301,7 +306,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"subnetwork_project": &schema.Schema{
@@ -336,6 +341,27 @@ func resourceComputeInstance() *schema.Resource {
 									"assigned_nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Computed: true,
+									},
+								},
+							},
+						},
+
+						"alias_ip_range": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_cidr_range": &schema.Schema{
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+									},
+									"subnetwork_range_name": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -591,7 +617,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	var hasScratchDisk bool
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
-		scratchDisks, err := expandScratchDisks(d, config, zone)
+		scratchDisks, err := expandScratchDisks(d, config, zone, project)
 		if err != nil {
 			return err
 		}
@@ -655,7 +681,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		if v, ok := d.GetOk(prefix + ".image"); ok && !hasSource {
 			imageName := v.(string)
 
-			imageUrl, err := resolveImage(config, imageName)
+			imageUrl, err := resolveImage(config, project, imageName)
 			if err != nil {
 				return fmt.Errorf(
 					"Error resolving image name '%s': %s",
@@ -669,7 +695,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		if v, ok := d.GetOk(prefix + ".type"); ok && !hasSource {
 			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, diskTypeName)
+			diskType, err := readDiskType(config, zone, project, diskTypeName)
 			if err != nil {
 				return fmt.Errorf(
 					"Error loading disk type '%s': %s",
@@ -796,6 +822,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			iface.Network = networkLink
 			iface.Subnetwork = subnetworkLink
 			iface.NetworkIP = address
+			iface.AliasIpRanges = expandAliasIpRanges(d.Get(prefix + ".alias_ip_range").([]interface{}))
 
 			// Handle access_config structs
 			accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
@@ -1038,6 +1065,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				"subnetwork":         iface.Subnetwork,
 				"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
 				"access_config":      accessConfigs,
+				"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
 			})
 		}
 	}
@@ -1148,6 +1176,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
+	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.SetId(instance.Name)
 
 	return nil
@@ -1494,7 +1523,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, diskTypeName)
+			diskType, err := readDiskType(config, zone, project, diskTypeName)
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
@@ -1503,7 +1532,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
 			imageName := v.(string)
-			imageUrl, err := resolveImage(config, imageName)
+			imageUrl, err := resolveImage(config, project, imageName)
 			if err != nil {
 				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
 			}
@@ -1538,8 +1567,8 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone) ([]*computeBeta.AttachedDisk, error) {
-	diskType, err := readDiskType(config, zone, "local-ssd")
+func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
+	diskType, err := readDiskType(config, zone, project, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
@@ -1580,6 +1609,18 @@ func expandGuestAccelerators(zone string, configs []interface{}) []*computeBeta.
 	return guestAccelerators
 }
 
+func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
+	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
+	for _, raw := range ranges {
+		data := raw.(map[string]interface{})
+		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
+			IpCidrRange:         data["ip_cidr_range"].(string),
+			SubnetworkRangeName: data["subnetwork_range_name"].(string),
+		})
+	}
+	return ipRanges
+}
+
 func flattenGuestAccelerators(zone string, accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
 	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
 	for _, accelerator := range accelerators {
@@ -1610,6 +1651,17 @@ func flattenBetaScheduling(scheduling *computeBeta.Scheduling) []map[string]inte
 	}
 	result = append(result, schedulingMap)
 	return result
+}
+
+func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
+	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
+	for _, ipRange := range ranges {
+		rangesSchema = append(rangesSchema, map[string]interface{}{
+			"ip_cidr_range":         ipRange.IpCidrRange,
+			"subnetwork_range_name": ipRange.SubnetworkRangeName,
+		})
+	}
+	return rangesSchema
 }
 
 func getProjectFromSubnetworkLink(subnetwork string) string {

@@ -23,7 +23,7 @@ func TestAccContainerCluster_basic(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_basic,
+				Config: testAccContainerCluster_basic(fmt.Sprintf("cluster-test-%s", acctest.RandString(10))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -623,12 +623,14 @@ func matchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("Cluster has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
-var testAccContainerCluster_basic = fmt.Sprintf(`
+func testAccContainerCluster_basic(name string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
-}`, acctest.RandString(10))
+}`, name)
+}
 
 var testAccContainerCluster_withTimeout = fmt.Sprintf(`
 resource "google_container_cluster" "primary" {

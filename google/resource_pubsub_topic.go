@@ -13,11 +13,16 @@ func resourcePubsubTopic() *schema.Resource {
 		Read:   resourcePubsubTopicRead,
 		Delete: resourcePubsubTopicDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourcePubsubTopicStateImporter,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"project": &schema.Schema{
@@ -56,10 +61,12 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Id()
 	call := config.clientPubsub.Projects.Topics.Get(name)
-	_, err := call.Do()
+	res, err := call.Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Pubsub Topic %q", name))
 	}
+
+	d.Set("name", GetResourceNameFromSelfLink(res.Name))
 
 	return nil
 }
@@ -75,4 +82,19 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourcePubsubTopicStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	id := fmt.Sprintf("projects/%s/topics/%s", project, d.Id())
+
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

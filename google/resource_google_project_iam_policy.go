@@ -259,7 +259,7 @@ func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pi
 		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
 	}
 	return nil
 }

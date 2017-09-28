@@ -34,7 +34,7 @@ func TestAccSpannerInstance_importInstance(t *testing.T) {
 func TestAccSpannerInstance_importProjectInstance(t *testing.T) {
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
-	var projectId = multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
+	projectId := getTestProjectFromEnv()
 	if projectId == "" {
 		t.Skip("Unable to locate projectId via environment variables ... skipping ")
 		return

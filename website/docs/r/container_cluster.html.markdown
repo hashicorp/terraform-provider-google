@@ -216,3 +216,11 @@ exported:
 - `create` - (Default `30 minutes`) Used for clusters
 - `update` - (Default `10 minutes`) Used for updates to clusters
 - `delete` - (Default `10 minutes`) Used for destroying clusters.
+
+## Import
+
+Container clusters can be imported using the `zone`, and `name`, e.g.
+
+```
+$ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
+```

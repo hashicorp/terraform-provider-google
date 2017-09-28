@@ -139,7 +139,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"connection_draining_timeout_sec": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+				Default:  300,
 			},
 		},
 	}
@@ -148,52 +148,7 @@ func resourceComputeBackendService() *schema.Resource {
 func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hc := d.Get("health_checks").(*schema.Set).List()
-	healthChecks := make([]string, 0, len(hc))
-	for _, v := range hc {
-		healthChecks = append(healthChecks, v.(string))
-	}
-
-	service := compute.BackendService{
-		Name:         d.Get("name").(string),
-		HealthChecks: healthChecks,
-	}
-
-	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
-	}
-
-	if v, ok := d.GetOk("description"); ok {
-		service.Description = v.(string)
-	}
-
-	if v, ok := d.GetOk("port_name"); ok {
-		service.PortName = v.(string)
-	}
-
-	if v, ok := d.GetOk("protocol"); ok {
-		service.Protocol = v.(string)
-	}
-
-	if v, ok := d.GetOk("session_affinity"); ok {
-		service.SessionAffinity = v.(string)
-	}
-
-	if v, ok := d.GetOk("timeout_sec"); ok {
-		service.TimeoutSec = int64(v.(int))
-	}
-
-	if v, ok := d.GetOk("enable_cdn"); ok {
-		service.EnableCDN = v.(bool)
-	}
-
-	if v, ok := d.GetOk("connection_draining_timeout_sec"); ok {
-		connectionDraining := &compute.ConnectionDraining{
-			DrainingTimeoutSec: int64(v.(int)),
-		}
-
-		service.ConnectionDraining = connectionDraining
-	}
+	service := expandBackendService(d)
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -257,54 +212,12 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	service := expandBackendService(d)
+	service.Fingerprint = d.Get("fingerprint").(string)
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
-	}
-
-	hc := d.Get("health_checks").(*schema.Set).List()
-	healthChecks := make([]string, 0, len(hc))
-	for _, v := range hc {
-		healthChecks = append(healthChecks, v.(string))
-	}
-
-	service := compute.BackendService{
-		Name:         d.Get("name").(string),
-		Fingerprint:  d.Get("fingerprint").(string),
-		HealthChecks: healthChecks,
-	}
-
-	// Optional things
-	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
-	}
-	if v, ok := d.GetOk("description"); ok {
-		service.Description = v.(string)
-	}
-	if v, ok := d.GetOk("port_name"); ok {
-		service.PortName = v.(string)
-	}
-	if v, ok := d.GetOk("protocol"); ok {
-		service.Protocol = v.(string)
-	}
-	if v, ok := d.GetOk("timeout_sec"); ok {
-		service.TimeoutSec = int64(v.(int))
-	}
-
-	if d.HasChange("connection_draining_timeout_sec") {
-		connectionDraining := &compute.ConnectionDraining{
-			DrainingTimeoutSec: int64(d.Get("connection_draining_timeout_sec").(int)),
-		}
-
-		service.ConnectionDraining = connectionDraining
-	}
-
-	if d.HasChange("session_affinity") {
-		service.SessionAffinity = d.Get("session_affinity").(string)
-	}
-
-	if d.HasChange("enable_cdn") {
-		service.EnableCDN = d.Get("enable_cdn").(bool)
 	}
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
@@ -401,6 +314,56 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 	}
 
 	return result
+}
+
+func expandBackendService(d *schema.ResourceData) compute.BackendService {
+	hc := d.Get("health_checks").(*schema.Set).List()
+	healthChecks := make([]string, 0, len(hc))
+	for _, v := range hc {
+		healthChecks = append(healthChecks, v.(string))
+	}
+
+	service := compute.BackendService{
+		Name:         d.Get("name").(string),
+		HealthChecks: healthChecks,
+	}
+
+	if v, ok := d.GetOk("backend"); ok {
+		service.Backends = expandBackends(v.(*schema.Set).List())
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		service.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("port_name"); ok {
+		service.PortName = v.(string)
+	}
+
+	if v, ok := d.GetOk("protocol"); ok {
+		service.Protocol = v.(string)
+	}
+
+	if v, ok := d.GetOk("session_affinity"); ok {
+		service.SessionAffinity = v.(string)
+	}
+
+	if v, ok := d.GetOk("timeout_sec"); ok {
+		service.TimeoutSec = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("enable_cdn"); ok {
+		service.EnableCDN = v.(bool)
+	}
+
+	connectionDrainingTimeoutSec := d.Get("connection_draining_timeout_sec")
+	connectionDraining := &compute.ConnectionDraining{
+		DrainingTimeoutSec: int64(connectionDrainingTimeoutSec.(int)),
+	}
+
+	service.ConnectionDraining = connectionDraining
+
+	return service
 }
 
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
