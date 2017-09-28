@@ -244,11 +244,11 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"initial_node_count": {
-							Type:       schema.TypeInt,
-							Optional:   true,
-							ForceNew:   true,
-							Computed:   true,
-							Deprecated: "Use node_count instead",
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							Removed:  "Use node_count instead",
 						},
 
 						"node_count": {
@@ -391,16 +391,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		for i := 0; i < nodePoolsCount; i++ {
 			prefix := fmt.Sprintf("node_pool.%d", i)
 
-			nodeCount := 0
-			if initialNodeCount, ok := d.GetOk(prefix + ".initial_node_count"); ok {
-				nodeCount = initialNodeCount.(int)
-			}
-			if nc, ok := d.GetOk(prefix + ".node_count"); ok {
-				if nodeCount != 0 {
-					return fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %d", i)
-				}
-				nodeCount = nc.(int)
-			}
+			nodeCount := d.GetOk(prefix + ".node_count")
 			if nodeCount == 0 {
 				return fmt.Errorf("Node pool %d cannot be set with 0 node count", i)
 			}
@@ -757,11 +748,10 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 			size += int(igm.TargetSize)
 		}
 		nodePool := map[string]interface{}{
-			"name":               np.Name,
-			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
-			"initial_node_count": np.InitialNodeCount,
-			"node_count":         size / len(np.InstanceGroupUrls),
-			"node_config":        flattenNodeConfig(np.Config),
+			"name":        np.Name,
+			"name_prefix": d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
+			"node_count":  size / len(np.InstanceGroupUrls),
+			"node_config": flattenNodeConfig(np.Config),
 		}
 		nodePools = append(nodePools, nodePool)
 	}
