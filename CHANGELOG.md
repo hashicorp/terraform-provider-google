@@ -25,6 +25,7 @@ IMPROVEMENTS:
 * compute: Add support for `labels` field on `google_compute_global_forwarding_rule` [GH-354]
 * compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
 * compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
+* compute: `google_compute_firewall` network field now supports self_link in addition of name [GH-477]
 * compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
 * compute: Add support for 'alias_ip_range' in `google_compute_instance` [GH-375]
 * compute: Add support for computed field 'instance_id' in `google_compute_instance` [GH-427]
