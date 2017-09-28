@@ -1,6 +1,7 @@
 ## 1.0.0 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
+* compute: A state migration was added to convert `google_compute_instance.disk` fields into the correct one of `attached_disk`, `boot_disk`, or `scratch_disk`. This will lead to plan-time diffs for anyone still using the `disk` field. Please verify its results carefully and update configs appropriately.
 * container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
 * storage: `google_storage_bucket_acl` now sets the bucket ACL to whatever is in the config, correcting any drift. This means any permissions set automatically by GCP (e.g., project-viewers-\* policies, etc.) will be removed unless they're added to your config. Also, the `OWNER:project-owners-{project-id}` will never be deleted, as the API won't allow it. This is now correctly handled, and it is removed from state without being deleted in the API. [GH-358] [GH-439]
 
@@ -30,6 +31,7 @@ IMPROVEMENTS:
 * compute: Add support for 'alias_ip_range' in `google_compute_instance` [GH-375]
 * compute: Add support for computed field 'instance_id' in `google_compute_instance` [GH-427]
 * compute: Improve import for `google_compute_address` to support multiple id formats. [GH-378]
+* compute: Add state migration from `disk` to boot_disk/scratch_disk/attached_disk [GH-329]
 * project: Add support for 'labels' field on `google_project` [GH-383]
 * project: Move a `google_project` in and out of a folder [GH-438]
 * pubsub: Add import support for `google_pubsub_topic`. [GH-392]
