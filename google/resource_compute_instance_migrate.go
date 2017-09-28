@@ -350,7 +350,10 @@ func getDiskFromAttributes(config *Config, instance *compute.Instance, allDisks 
 	image := attributes[fmt.Sprintf("disk.%d.image", i)]
 
 	// We know project and zone are set because we used them to read the instance
-	project := attributes["project"]
+	project, ok := attributes["project"]
+	if !ok {
+		project = config.Project
+	}
 	zone := attributes["zone"]
 	return getDiskFromAutoDeleteAndImage(config, instance, allDisks, autoDelete, image, project, zone)
 }
