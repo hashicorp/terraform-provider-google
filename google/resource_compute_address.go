@@ -4,15 +4,23 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
+	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 var (
 	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
+	AddressBaseApiVersion    = v1
+	AddressVersionedFeatures = []Feature{
+		{Version: v0beta, Item: "address_type"},
+		{Version: v0beta, Item: "subnetwork"},
+	}
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -32,6 +40,21 @@ func resourceComputeAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"address_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{"INTERNAL", "EXTERNAL"}, false),
+			},
+
+			"subnetwork": &schema.Schema{
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"address": &schema.Schema{
@@ -61,6 +84,7 @@ func resourceComputeAddress() *schema.Resource {
 }
 
 func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -74,11 +98,36 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Build the address parameter
-	addr := &compute.Address{Name: d.Get("name").(string)}
-	op, err := config.clientCompute.Addresses.Insert(
-		project, region, addr).Do()
-	if err != nil {
-		return fmt.Errorf("Error creating address: %s", err)
+	addr := &computeBeta.Address{
+		Name:        d.Get("name").(string),
+		AddressType: d.Get("address_type").(string),
+		Subnetwork:  d.Get("subnetwork").(string),
+	}
+
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		v1Address := &compute.Address{}
+		err = Convert(addr, v1Address)
+		if err != nil {
+			return err
+		}
+		op, err = config.clientCompute.Addresses.Insert(
+			project, region, v1Address).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating address: %s", err)
+		}
+	case v0beta:
+		v0BetaAddress := &computeBeta.Address{}
+		err = Convert(addr, v0BetaAddress)
+		if err != nil {
+			return err
+		}
+		op, err = config.clientComputeBeta.Addresses.Insert(
+			project, region, v0BetaAddress).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating address: %s", err)
+		}
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -88,7 +137,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		Name:    addr.Name,
 	}.canonicalId())
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Address")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Address")
 	if err != nil {
 		return err
 	}
@@ -97,6 +146,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	addressId, err := parseComputeAddressId(d.Id(), config)
@@ -104,10 +154,30 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	addr, err := config.clientCompute.Addresses.Get(
-		addressId.Project, addressId.Region, addressId.Name).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
+	addr := &computeBeta.Address{}
+	switch computeApiVersion {
+	case v1:
+		v1Address, err := config.clientCompute.Addresses.Get(
+			addressId.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
+		}
+
+		err = Convert(v1Address, addr)
+		if err != nil {
+			return err
+		}
+	case v0beta:
+		v0BetaAddr, err := config.clientComputeBeta.Addresses.Get(
+			addressId.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
+		}
+
+		err = Convert(v0BetaAddr, addr)
+		if err != nil {
+			return err
+		}
 	}
 
 	d.Set("address", addr.Address)
@@ -119,6 +189,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	addressId, err := parseComputeAddressId(d.Id(), config)
@@ -126,15 +197,25 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	// Delete the address
-	log.Printf("[DEBUG] address delete request")
-	op, err := config.clientCompute.Addresses.Delete(
-		addressId.Project, addressId.Region, addressId.Name).Do()
-	if err != nil {
-		return fmt.Errorf("Error deleting address: %s", err)
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		// Delete the address
+		log.Printf("[DEBUG] address delete request")
+		op, err = config.clientCompute.Addresses.Delete(
+			addressId.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting address: %s", err)
+		}
+	case v0beta:
+		op, err = config.clientComputeBeta.Addresses.Delete(
+			addressId.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting address: %s", err)
+		}
 	}
 
-	err = computeOperationWait(config.clientCompute, op, addressId.Project, "Deleting Address")
+	err = computeSharedOperationWait(config.clientCompute, op, addressId.Project, "Deleting Address")
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -95,6 +96,27 @@ func TestAccComputeAddress_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeAddress_internal(t *testing.T) {
+	var addr computeBeta.Address
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeAddress_internal,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaAddressExists(
+						"google_compute_address.foobar", &addr),
+					resource.TestCheckResourceAttr(
+						"google_compute_address.foobar", "address_type", "INTERNAL"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -146,7 +168,57 @@ func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.
 	}
 }
 
+func testAccCheckComputeBetaAddressExists(n string, addr *computeBeta.Address) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+
+		found, err := config.clientComputeBeta.Addresses.Get(
+			config.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != addressId.Name {
+			return fmt.Errorf("Addr not found")
+		}
+
+		*addr = *found
+
+		return nil
+	}
+}
+
 var testAccComputeAddress_basic = fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
 	name = "address-test-%s"
 }`, acctest.RandString(10))
+
+var testAccComputeAddress_internal = fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "network-test-%s"
+}
+
+resource "google_compute_subnetwork" "foo" {
+  name          = "subnetwork-test-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-east1"
+  network       = "${google_compute_network.default.self_link}"
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "address-test-%s"
+  subnetwork   = "${google_compute_subnetwork.foo.self_link}"
+  address_type = "INTERNAL"
+  region       = "us-east1"
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
