@@ -40,7 +40,7 @@ The following arguments are supported:
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
 
-* `network` - (Required) The name of the network to attach this firewall to.
+* `network` - (Required) The name or self_link of the network to attach this firewall to.
 
 * `allow` - (Required) Can be specified multiple times for each allow
     rule. Each allow block supports fields documented below.
