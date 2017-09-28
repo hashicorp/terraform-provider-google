@@ -404,7 +404,7 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
-	img, err := resolveImage(config, image)
+	img, err := resolveImage(config, project, image)
 	if err != nil {
 		return nil, err
 	}
