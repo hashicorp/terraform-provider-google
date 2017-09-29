@@ -422,7 +422,7 @@ resource "google_compute_instance_template" "foobar" {
     network = "default"
   }
 
-  disk {
+  boot_disk {
     source_image = "debian-8-jessie-v20160803"
     auto_delete  = true
     boot         = true

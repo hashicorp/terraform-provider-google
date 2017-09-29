@@ -9,10 +9,11 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 
+	"sort"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"sort"
 )
 
 func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
@@ -431,7 +432,7 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -485,7 +486,7 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -522,7 +523,7 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -571,7 +572,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -608,7 +609,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -656,7 +657,7 @@ func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 		can_ip_forward = false
 		tags = ["%s"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -696,7 +697,7 @@ func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		disk {
+		boot_disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -742,7 +743,7 @@ resource "google_compute_instance_template" "igm-basic" {
 	machine_type = "n1-standard-1"
 	can_ip_forward = false
 	tags = ["foo", "bar"]
-	disk {
+	boot_disk {
 		source_image = "debian-cloud/debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true

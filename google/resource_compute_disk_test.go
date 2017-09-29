@@ -355,11 +355,11 @@ resource "google_compute_instance" "bar" {
 	machine_type = "n1-standard-1"
 	zone = "us-central1-a"
 
-	disk {
+	boot_disk {
 		image = "debian-8-jessie-v20170523"
 	}
 
-	disk {
+	attached_disk {
 		disk = "${google_compute_disk.foo.name}"
 		auto_delete = false
 	}

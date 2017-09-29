@@ -35,8 +35,10 @@ resource "google_compute_instance" "www" {
   zone         = "${var.region_zone}"
   tags         = ["www-node"]
 
-  disk {
-    image = "ubuntu-os-cloud/ubuntu-1404-trusty-v20160602"
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-1404-trusty-v20160602"
+    }
   }
 
   network_interface {

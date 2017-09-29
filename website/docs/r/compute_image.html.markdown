@@ -29,8 +29,10 @@ resource "google_compute_instance" "vm" {
   machine_type = "n1-standard-1"
   zone         = "us-east1-c"
 
-  disk {
-    image = "${google_compute_image.bootable-image.self_link}"
+  boot_disk {
+    initialize_params {
+      image = "${google_compute_image.bootable-image.self_link}"
+    }
   }
 
   network_interface {
