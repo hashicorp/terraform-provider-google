@@ -32,6 +32,7 @@ IMPROVEMENTS:
 * compute: Add support for computed field 'instance_id' in `google_compute_instance` [GH-427]
 * compute: Improve import for `google_compute_address` to support multiple id formats. [GH-378]
 * compute: Add state migration from `disk` to boot_disk/scratch_disk/attached_disk [GH-329]
+* compute: Mark certificate as sensitive within `google_compute_ssl_certificate` [GH-490]
 * project: Add support for 'labels' field on `google_project` [GH-383]
 * project: Move a `google_project` in and out of a folder [GH-438]
 * pubsub: Add import support for `google_pubsub_topic`. [GH-392]
