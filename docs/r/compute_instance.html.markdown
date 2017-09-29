@@ -113,11 +113,6 @@ The following arguments are supported:
 
 ---
 
-* `disk` - (DEPRECATED) Disks to attach to the instance. This can be specified
-    multiple times for multiple disks. Structure is documented below.
-
----
-
 The `boot_disk` block supports:
 
 * `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
@@ -220,13 +215,6 @@ The `service_account` block supports:
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
     short names are supported.
-
-(DEPRECATED) The `network` block supports:
-
-* `source` - (Required) The name of the network to attach this interface to.
-
-* `address` - (Optional) The IP address of a reserved IP address to assign
-    to this interface.
 
 The `scheduling` block supports:
 
