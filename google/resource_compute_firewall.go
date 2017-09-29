@@ -20,7 +20,7 @@ var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
-	Feature{Version: v0beta, Item: "priority"},
+	Feature{Version: v0beta, Item: "priority", DefaultValue: COMPUTE_FIREWALL_PRIORITY_DEFAULT},
 }
 
 func resourceComputeFirewall() *schema.Resource {
