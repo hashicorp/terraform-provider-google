@@ -50,10 +50,10 @@ func resourceStorageBucket() *schema.Resource {
 			},
 
 			"predefined_acl": &schema.Schema{
-				Type:       schema.TypeString,
-				Deprecated: "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
-				Optional:   true,
-				ForceNew:   true,
+				Type:     schema.TypeString,
+				Removed:  "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"project": &schema.Schema{
@@ -264,12 +264,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	var res *storage.Bucket
 
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		call := config.clientStorage.Buckets.Insert(project, sb)
-		if v, ok := d.GetOk("predefined_acl"); ok {
-			call = call.PredefinedAcl(v.(string))
-		}
-
-		res, err = call.Do()
+		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
 		if err == nil {
 			return nil
 		}

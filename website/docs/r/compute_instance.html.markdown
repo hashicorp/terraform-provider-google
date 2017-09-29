@@ -113,15 +113,6 @@ The following arguments are supported:
 
 ---
 
-* `disk` - (DEPRECATED) Disks to attach to the instance. This can be specified
-    multiple times for multiple disks. Structure is documented below.
-
-* `network` - (DEPRECATED) Networks to attach to the instance. This
-    can be specified multiple times for multiple networks. Structure is
-    documented below.
-
----
-
 The `boot_disk` block supports:
 
 * `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
@@ -159,38 +150,6 @@ The `scratch_disk` block supports:
 
 * `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
     Defaults to SCSI.
-
-(DEPRECATED) The `disk` block supports: (Note that either disk or image is required, unless
-the type is "local-ssd", in which case scratch must be true).
-
-* `disk` - The name of the existing disk (such as those managed by
-    `google_compute_disk`) to attach.
-
-* `image` - The image from which to initialize this disk. This can be
-    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
-    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
-    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-    `{project}/{image}`, `{family}`, or `{image}`.
-
-* `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
-    This defaults to true. Leave true for local SSDs.
-
-* `type` - (Optional) The GCE disk type, e.g. pd-standard, pd-ssd, or local-ssd.
-
-* `scratch` - (Optional) Whether the disk is a scratch disk as opposed to a
-    persistent disk (required for local-ssd).
-
-* `size` - (Optional) The size of the image in gigabytes. If not specified, it
-    will inherit the size of its base image. Do not specify for local SSDs as
-    their size is fixed.
-
-* `device_name` - (Optional) Name with which attached disk will be accessible
-    under `/dev/disk/by-id/`
-
-* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
-    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
 
 The `attached_disk` block supports:
 
@@ -256,13 +215,6 @@ The `service_account` block supports:
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
     short names are supported.
-
-(DEPRECATED) The `network` block supports:
-
-* `source` - (Required) The name of the network to attach this interface to.
-
-* `address` - (Optional) The IP address of a reserved IP address to assign
-    to this interface.
 
 The `scheduling` block supports:
 

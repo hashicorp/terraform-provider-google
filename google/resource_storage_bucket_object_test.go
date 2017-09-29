@@ -231,7 +231,6 @@ resource "google_storage_bucket_object" "object" {
 	name = "%s"
 	bucket = "${google_storage_bucket.bucket.name}"
 	content = "%s"
-	predefined_acl = "projectPrivate"
 }
 `, bucketName, objectName, content)
 }
@@ -246,7 +245,6 @@ resource "google_storage_bucket_object" "object" {
 	name = "%s"
 	bucket = "${google_storage_bucket.bucket.name}"
 	source = "%s"
-	predefined_acl = "projectPrivate"
 }
 `, bucketName, objectName, tf.Name())
 }

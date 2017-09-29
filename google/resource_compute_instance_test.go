@@ -15,29 +15,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeInstance_basic_deprecated_network(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_basic_deprecated_network(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceTag(&instance, "foo"),
-					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstance_basic1(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -178,52 +155,6 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_deprecated_disksWithoutAutodelete(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_deprecated_disks(diskName, instanceName, false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
-					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_deprecated_disksWithAutodelete(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_deprecated_disks(diskName, instanceName, true),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
-					testAccCheckComputeInstanceDisk(&instance, diskName, true, false),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -343,27 +274,6 @@ func TestAccComputeInstance_noDisk(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_deprecated_local_ssd(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_deprecated_local_ssd(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.local-ssd", &instance),
-					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstance_scratchDisk(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -379,36 +289,6 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.scratch", &instance),
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_update_deprecated_network(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_basic_deprecated_network(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-				),
-			},
-			resource.TestStep{
-				Config: testAccComputeInstance_update_deprecated_network(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceMetadata(
-						&instance, "bar", "baz"),
-					testAccCheckComputeInstanceTag(&instance, "baz"),
 				),
 			},
 		},
@@ -646,23 +526,6 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
 				),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_deprecated_invalid_disk(t *testing.T) {
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config:      testAccComputeInstance_deprecated_invalid_disk(diskName, instanceName),
-				ExpectError: regexp.MustCompile("Error: cannot define both disk and type."),
 			},
 		},
 	})
@@ -1089,19 +952,6 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			}
 		}
 
-		numDisks, err := strconv.Atoi(rs.Primary.Attributes["disk.#"])
-		if err != nil {
-			return fmt.Errorf("Error converting value of disk.#")
-		}
-		for i := 0; i < numDisks; i++ {
-			diskName := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk", i)]
-			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
-			expectedEncryptionKey := diskNameToEncryptionKey[diskName].Sha256
-			if encryptionKey != expectedEncryptionKey {
-				return fmt.Errorf("Disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
-			}
-		}
-
 		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
 		if err != nil {
 			return fmt.Errorf("Error converting value of attached_disk.#")
@@ -1257,57 +1107,6 @@ func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subn
 
 		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
 	}
-}
-
-func testAccComputeInstance_basic_deprecated_network(instance string) string {
-	return fmt.Sprintf(`
-resource "google_compute_instance" "foobar" {
-	name           = "%s"
-	machine_type   = "n1-standard-1"
-	zone           = "us-central1-a"
-	can_ip_forward = false
-	tags           = ["foo", "bar"]
-
-	boot_disk {
-		initialize_params{
-			image = "debian-8-jessie-v20160803"
-		}
-	}
-
-	network {
-		source = "default"
-	}
-
-	metadata {
-		foo = "bar"
-	}
-}
-`, instance)
-}
-
-func testAccComputeInstance_update_deprecated_network(instance string) string {
-	return fmt.Sprintf(`
-resource "google_compute_instance" "foobar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-	tags         = ["baz"]
-
-	boot_disk {
-		initialize_params{
-			image = "debian-8-jessie-v20160803"
-		}
-	}
-
-	network {
-		source = "default"
-	}
-
-	metadata {
-		bar = "baz"
-	}
-}
-`, instance)
 }
 
 func testAccComputeInstance_basic(instance string) string {
@@ -1547,40 +1346,6 @@ resource "google_compute_instance" "foobar" {
 `, ip, instance)
 }
 
-func testAccComputeInstance_deprecated_disks(disk, instance string, autodelete bool) string {
-	return fmt.Sprintf(`
-resource "google_compute_disk" "foobar" {
-	name = "%s"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
-}
-
-resource "google_compute_instance" "foobar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-
-	disk {
-		image = "debian-8-jessie-v20160803"
-	}
-
-	disk {
-		disk        = "${google_compute_disk.foobar.name}"
-		auto_delete = %v
-	}
-
-	network_interface {
-		network = "default"
-	}
-
-	metadata {
-		foo = "bar"
-	}
-}
-`, disk, instance, autodelete)
-}
-
 func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
 	diskNames := []string{}
 	for k, _ := range diskNameToEncryptionKey {
@@ -1633,8 +1398,8 @@ resource "google_compute_instance" "foobar" {
 		disk_encryption_key_raw = "%s"
 	}
 
-	disk {
-		disk = "${google_compute_disk.foobar.name}"
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
 		disk_encryption_key_raw = "%s"
 	}
 
@@ -1756,32 +1521,6 @@ resource "google_compute_instance" "foobar" {
 	metadata {
 		foo = "bar"
 	}
-}
-`, instance)
-}
-
-func testAccComputeInstance_deprecated_local_ssd(instance string) string {
-	return fmt.Sprintf(`
-resource "google_compute_instance" "local-ssd" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-
-	boot_disk {
-		initialize_params{
-			image = "debian-8-jessie-v20160803"
-		}
-	}
-
-	disk {
-		type = "local-ssd"
-		scratch = true
-	}
-
-	network_interface {
-		network = "default"
-	}
-
 }
 `, instance)
 }
@@ -2064,38 +1803,6 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, disk, image, family, instance)
-}
-
-func testAccComputeInstance_deprecated_invalid_disk(disk, instance string) string {
-	return fmt.Sprintf(`
-resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "f1-micro"
-  zone         = "us-central1-a"
-
-  disk {
-    image = "ubuntu-os-cloud/ubuntu-1604-lts"
-    type  = "pd-standard"
-  }
-
-  disk {
-    disk        = "${google_compute_disk.foobar.name}"
-    type        = "pd-standard"
-    device_name = "xvdb"
-  }
-
-  network_interface {
-    network = "default"
-  }
-}
-
-resource "google_compute_disk" "foobar" {
-  name = "%s"
-  zone = "us-central1-a"
-  type = "pd-standard"
-  size = "1"
-}
-`, instance, disk)
 }
 
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {

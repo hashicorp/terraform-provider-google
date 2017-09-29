@@ -207,8 +207,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
-					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
@@ -221,8 +219,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -244,8 +240,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -279,8 +273,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -524,7 +516,6 @@ func testAccStorageBucket_customAttributes(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 }
@@ -535,7 +526,6 @@ func testAccStorageBucket_customAttributes_withLifecycle1(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {
@@ -554,7 +544,6 @@ func testAccStorageBucket_customAttributes_withLifecycle2(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {
