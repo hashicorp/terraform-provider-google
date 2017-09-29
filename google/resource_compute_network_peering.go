@@ -54,6 +54,11 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
