@@ -93,7 +93,6 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_router":                        resourceComputeRouter(),
 			"google_compute_router_interface":              resourceComputeRouterInterface(),
 			"google_compute_router_peer":                   resourceComputeRouterPeer(),
-			"google_compute_shared_vpc":                    resourceComputeSharedVpc(),
 			"google_compute_ssl_certificate":               resourceComputeSslCertificate(),
 			"google_compute_subnetwork":                    resourceComputeSubnetwork(),
 			"google_compute_target_http_proxy":             resourceComputeTargetHttpProxy(),
