@@ -30,8 +30,10 @@ resource "google_compute_instance" "frontend" {
   machine_type = "g1-small"
   zone         = "us-central1-b"
 
-  disk {
-    image = "debian-cloud/debian-8"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-8"
+    }
   }
 
   network_interface {

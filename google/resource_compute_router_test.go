@@ -140,7 +140,7 @@ func testAccComputeRouterBasic(resourceRegion string) string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
+			name = "router-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "%s"
@@ -163,7 +163,7 @@ func testAccComputeRouterNoRegion(providerRegion string) string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
+			name = "router-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "%s"
@@ -185,7 +185,7 @@ func testAccComputeRouterNetworkLink() string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
+			name = "router-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "europe-west1"

@@ -156,7 +156,7 @@ func testAccComputeRouterPeerBasic(testId string) string {
 			name = "router-peer-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-peer-test-%s"
+			name = "router-peer-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"
@@ -234,7 +234,7 @@ func testAccComputeRouterPeerKeepRouter(testId string) string {
 			name = "router-peer-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-peer-test-%s"
+			name = "router-peer-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"
