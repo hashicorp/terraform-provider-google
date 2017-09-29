@@ -952,19 +952,6 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			}
 		}
 
-		numDisks, err := strconv.Atoi(rs.Primary.Attributes["disk.#"])
-		if err != nil {
-			return fmt.Errorf("Error converting value of disk.#")
-		}
-		for i := 0; i < numDisks; i++ {
-			diskName := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk", i)]
-			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("disk.%d.disk_encryption_key_sha256", i)]
-			expectedEncryptionKey := diskNameToEncryptionKey[diskName].Sha256
-			if encryptionKey != expectedEncryptionKey {
-				return fmt.Errorf("Disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
-			}
-		}
-
 		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
 		if err != nil {
 			return fmt.Errorf("Error converting value of attached_disk.#")
@@ -1412,7 +1399,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	attached_disk {
-		disk = "${google_compute_disk.foobar.name}"
+		source = "${google_compute_disk.foobar.self_link}"
 		disk_encryption_key_raw = "%s"
 	}
 
