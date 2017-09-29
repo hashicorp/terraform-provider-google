@@ -264,7 +264,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	var res *storage.Bucket
 
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		res, err := config.clientStorage.Buckets.Insert(project, sb).Do()
+		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
 		if err == nil {
 			return nil
 		}
