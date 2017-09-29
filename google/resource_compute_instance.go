@@ -135,10 +135,10 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"disk": &schema.Schema{
-				Type:       schema.TypeList,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Use boot_disk, scratch_disk, and attached_disk instead",
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "Use boot_disk, scratch_disk, and attached_disk instead",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// TODO(mitchellh): one of image or disk is required
@@ -200,8 +200,6 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			// Preferred way of adding persistent disks to an instance.
-			// Use this instead of `disk` when possible.
 			"attached_disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -615,7 +613,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, bootDisk)
 	}
 
-	var hasScratchDisk bool
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
 		scratchDisks, err := expandScratchDisks(d, config, zone, project)
 		if err != nil {
@@ -624,106 +621,10 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, scratchDisks...)
 	}
 
-	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 
-	if disksCount+attachedDisksCount == 0 && !hasBootDisk {
+	if attachedDisksCount == 0 && !hasBootDisk {
 		return fmt.Errorf("At least one disk, attached_disk, or boot_disk must be set")
-	}
-	for i := 0; i < disksCount; i++ {
-		prefix := fmt.Sprintf("disk.%d", i)
-
-		// var sourceLink string
-
-		// Build the disk
-		var disk computeBeta.AttachedDisk
-		disk.Type = "PERSISTENT"
-		disk.Mode = "READ_WRITE"
-		disk.Boot = i == 0 && !hasBootDisk
-		disk.AutoDelete = d.Get(prefix + ".auto_delete").(bool)
-
-		if _, ok := d.GetOk(prefix + ".disk"); ok {
-			if _, ok := d.GetOk(prefix + ".type"); ok {
-				return fmt.Errorf(
-					"Error: cannot define both disk and type.")
-			}
-		}
-
-		hasSource := false
-		// Load up the disk for this disk if specified
-		if v, ok := d.GetOk(prefix + ".disk"); ok {
-			diskName := v.(string)
-			diskData, err := config.clientCompute.Disks.Get(
-				project, zone.Name, diskName).Do()
-			if err != nil {
-				return fmt.Errorf(
-					"Error loading disk '%s': %s",
-					diskName, err)
-			}
-
-			disk.Source = diskData.SelfLink
-			hasSource = true
-		} else {
-			// Create a new disk
-			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
-		}
-
-		if v, ok := d.GetOk(prefix + ".scratch"); ok {
-			if v.(bool) {
-				if hasScratchDisk {
-					return fmt.Errorf("Cannot set scratch disks using both `scratch_disk` and `disk` properties")
-				}
-				disk.Type = "SCRATCH"
-			}
-		}
-
-		// Load up the image for this disk if specified
-		if v, ok := d.GetOk(prefix + ".image"); ok && !hasSource {
-			imageName := v.(string)
-
-			imageUrl, err := resolveImage(config, project, imageName)
-			if err != nil {
-				return fmt.Errorf(
-					"Error resolving image name '%s': %s",
-					imageName, err)
-			}
-
-			disk.InitializeParams.SourceImage = imageUrl
-		} else if ok && hasSource {
-			return fmt.Errorf("Cannot specify disk image when referencing an existing disk")
-		}
-
-		if v, ok := d.GetOk(prefix + ".type"); ok && !hasSource {
-			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, project, diskTypeName)
-			if err != nil {
-				return fmt.Errorf(
-					"Error loading disk type '%s': %s",
-					diskTypeName, err)
-			}
-
-			disk.InitializeParams.DiskType = diskType.SelfLink
-		} else if ok && hasSource {
-			return fmt.Errorf("Cannot specify disk type when referencing an existing disk")
-		}
-
-		if v, ok := d.GetOk(prefix + ".size"); ok && !hasSource {
-			diskSizeGb := v.(int)
-			disk.InitializeParams.DiskSizeGb = int64(diskSizeGb)
-		} else if ok && hasSource {
-			return fmt.Errorf("Cannot specify disk size when referencing an existing disk")
-		}
-
-		if v, ok := d.GetOk(prefix + ".device_name"); ok {
-			disk.DeviceName = v.(string)
-		}
-
-		if v, ok := d.GetOk(prefix + ".disk_encryption_key_raw"); ok {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{}
-			disk.DiskEncryptionKey.RawKey = v.(string)
-		}
-
-		disks = append(disks, &disk)
 	}
 
 	for i := 0; i < attachedDisksCount; i++ {
@@ -733,7 +634,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
 
-		disk.Boot = i == 0 && disksCount == 0 && !hasBootDisk
+		disk.Boot = i == 0 && !hasBootDisk
 
 		if v, ok := d.GetOk(prefix + ".device_name"); ok {
 			disk.DeviceName = v.(string)
@@ -1040,7 +941,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	dIndex := 0
 	sIndex := 0
-	disks := make([]map[string]interface{}, 0, disksCount)
 	attachedDisks := make([]map[string]interface{}, attachedDisksCount)
 	scratchDisks := make([]map[string]interface{}, 0, scratchDisksCount)
 	for _, disk := range instance.Disks {
@@ -1071,7 +971,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				}
 				di["disk_encryption_key_sha256"] = sha
 			}
-			disks = append(disks, di)
 			dIndex++
 		} else {
 			adIndex := attachedDiskSources[disk.Source]
@@ -1087,7 +986,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	d.Set("disk", disks)
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenBetaScheduling(instance.Scheduling))
