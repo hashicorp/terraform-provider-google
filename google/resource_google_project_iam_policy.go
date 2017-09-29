@@ -33,7 +33,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 			"authoritative": &schema.Schema{
 				Type:       schema.TypeBool,
 				Optional:   true,
-				Deprecated: "Use google_project_iam_policy_binding nad google_project_iam_policy_member instead.",
+				Deprecated: "Use google_project_iam_policy_binding and google_project_iam_policy_member instead.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
