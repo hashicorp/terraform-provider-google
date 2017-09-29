@@ -156,38 +156,6 @@ The `scratch_disk` block supports:
 * `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
     Defaults to SCSI.
 
-(DEPRECATED) The `disk` block supports: (Note that either disk or image is required, unless
-the type is "local-ssd", in which case scratch must be true).
-
-* `disk` - The name of the existing disk (such as those managed by
-    `google_compute_disk`) to attach.
-
-* `image` - The image from which to initialize this disk. This can be
-    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
-    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
-    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-    `{project}/{image}`, `{family}`, or `{image}`.
-
-* `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
-    This defaults to true. Leave true for local SSDs.
-
-* `type` - (Optional) The GCE disk type, e.g. pd-standard, pd-ssd, or local-ssd.
-
-* `scratch` - (Optional) Whether the disk is a scratch disk as opposed to a
-    persistent disk (required for local-ssd).
-
-* `size` - (Optional) The size of the image in gigabytes. If not specified, it
-    will inherit the size of its base image. Do not specify for local SSDs as
-    their size is fixed.
-
-* `device_name` - (Optional) Name with which attached disk will be accessible
-    under `/dev/disk/by-id/`
-
-* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
-    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
-
 The `attached_disk` block supports:
 
 * `source` - (Required) The self_link of the disk to attach to this instance.
