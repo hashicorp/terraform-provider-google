@@ -99,21 +99,6 @@ func TestAccGoogleStorageBucketIAMPolicy_upgrade(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleStorageBucketIAMPolicyDelete(bucket, roleEntityS string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		roleEntity, _ := getRoleEntityPair(roleEntityS)
-		config := testAccProvider.Meta().(*Config)
-
-		_, err := config.clientStorage.BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
-
-		if err != nil {
-			return nil
-		}
-
-		return fmt.Errorf("Error, entity %s still exists", roleEntity.Entity)
-	}
-}
-
 func testAccCheckGoogleStorageBucketIAMPolicy(bucket string, policy *storagev1.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[bucket]
