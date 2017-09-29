@@ -44,8 +44,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				Computed: true,
 			},
 			"disable_project": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Deprecated: "This will be removed with the authoritative field. Use lifecycle.prevent_destroy instead.",
+				Type:       schema.TypeBool,
+				Optional:   true,
 			},
 		},
 	}
