@@ -149,7 +149,7 @@ resource "google_compute_instance_template" "foobar" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-cloud/debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true
@@ -209,7 +209,7 @@ resource "google_compute_instance_template" "foobar" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-cloud/debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true

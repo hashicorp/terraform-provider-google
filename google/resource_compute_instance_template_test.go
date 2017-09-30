@@ -419,7 +419,7 @@ resource "google_compute_instance_template" "foobar" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true
@@ -450,7 +450,7 @@ resource "google_compute_instance_template" "foobar" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true
@@ -484,7 +484,7 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 	}
 
@@ -542,7 +542,7 @@ resource "google_compute_instance_template" "foobar" {
 		boot = true
 	}
 
-	attached_disk {
+	disk {
 		source = "terraform-test-foobar"
 		auto_delete = false
 		boot = false

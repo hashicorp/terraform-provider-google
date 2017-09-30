@@ -432,7 +432,7 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -486,7 +486,7 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -523,7 +523,7 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -572,7 +572,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -609,7 +609,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -657,7 +657,7 @@ func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 		can_ip_forward = false
 		tags = ["%s"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -697,7 +697,7 @@ func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
-		boot_disk {
+		disk {
 			source_image = "debian-cloud/debian-8-jessie-v20160803"
 			auto_delete = true
 			boot = true
@@ -743,7 +743,7 @@ resource "google_compute_instance_template" "igm-basic" {
 	machine_type = "n1-standard-1"
 	can_ip_forward = false
 	tags = ["foo", "bar"]
-	boot_disk {
+	disk {
 		source_image = "debian-cloud/debian-8-jessie-v20160803"
 		auto_delete = true
 		boot = true

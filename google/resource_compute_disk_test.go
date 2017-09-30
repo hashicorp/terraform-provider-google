@@ -360,7 +360,7 @@ resource "google_compute_instance" "bar" {
 	}
 
 	attached_disk {
-		disk = "${google_compute_disk.foo.name}"
+		source = "${google_compute_disk.foo.self_link}"
 		auto_delete = false
 	}
 
