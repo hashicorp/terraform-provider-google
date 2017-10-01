@@ -114,7 +114,7 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
-						"kubernetes_dashboard": {
+						"dashboard": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
