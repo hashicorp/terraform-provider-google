@@ -507,7 +507,7 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 	tags = ["foo", "bar"]
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 	}
 
@@ -535,7 +535,7 @@ resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 		auto_delete = true
 		disk_size_gb = 100
@@ -568,7 +568,7 @@ func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 		name = "instance-tpl-%s"
 		machine_type = "n1-standard-1"
 
-		boot_disk {
+		disk {
 			source_image = "debian-8-jessie-v20160803"
 			auto_delete = true
 			disk_size_gb = 10
@@ -603,7 +603,7 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 	region = "us-central1"
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 		auto_delete = true
 		disk_size_gb = 10
@@ -640,7 +640,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(xpn_host string) string {
 		machine_type = "n1-standard-1"
 		region = "us-central1"
 
-		boot_disk {
+		disk {
 			source_image = "debian-8-jessie-v20160803"
 			auto_delete = true
 			disk_size_gb = 10
@@ -663,7 +663,7 @@ resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
-	boot_disk {
+	disk {
 		source_image = "debian-8-jessie-v20160803"
 		auto_delete = true
 		disk_size_gb = 10

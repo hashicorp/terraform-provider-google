@@ -356,12 +356,13 @@ resource "google_compute_instance" "bar" {
 	zone = "us-central1-a"
 
 	boot_disk {
-		image = "debian-8-jessie-v20170523"
+		initialize_params {
+			image = "debian-8-jessie-v20170523"
+		}
 	}
 
 	attached_disk {
 		source = "${google_compute_disk.foo.self_link}"
-		auto_delete = false
 	}
 
 	network_interface {
