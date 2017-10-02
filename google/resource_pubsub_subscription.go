@@ -190,7 +190,7 @@ func flattenPubsubSubscriptionPushConfig(pushConfig *pubsub.PushConfig) []map[st
 }
 
 func expandPubsubSubscriptionPushConfig(configured []interface{}) *pubsub.PushConfig {
-	if len(configured) != 1 {
+	if len(configured) == 0 {
 		// An empty `pushConfig` indicates that the Pub/Sub system should stop pushing messages
 		// from the given subscription and allow messages to be pulled and acknowledged.
 		return &pubsub.PushConfig{}
