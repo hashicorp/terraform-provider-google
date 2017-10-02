@@ -1,7 +1,7 @@
-## 1.0.1 (Unreleased)
+## 1.0.1 (October 02, 2017)
 
 BUG FIXES:
-* compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. [GH-511]
+* compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. ([#511](https://github.com/terraform-providers/terraform-provider-google/issues/511))
 
 ## 1.0.0 (October 02, 2017)
 
