@@ -1,4 +1,8 @@
 ## 1.0.1 (Unreleased)
+
+BUG FIXES:
+* compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. [GH-511]
+
 ## 1.0.0 (October 02, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
