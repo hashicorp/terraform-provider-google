@@ -13,7 +13,7 @@ of homogeneous Compute Engine virtual machine instances from a common instance
 template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/manager)
 and [API](https://cloud.google.com/compute/docs/reference/latest/instanceGroupManagers)
 
-~> **Note:** Use [google_compute_region_instance_group_manager](/docs/providers/google/r/google_compute_region_instance_group_manager.html) to create a regional (multi-zone) instance group manager.
+~> **Note:** Use [google_compute_region_instance_group_manager](/docs/providers/google/r/compute_region_instance_group_manager.html) to create a regional (multi-zone) instance group manager.
 
 ## Example Usage
 
