@@ -24,6 +24,10 @@ resource "google_compute_instance_template" "default" {
 
   tags = ["foo", "bar"]
 
+  labels = {
+    environment = "dev"
+  }
+
   instance_description = "description assigned to instances"
   machine_type         = "n1-standard-1"
   can_ip_forward       = false
@@ -132,6 +136,9 @@ The following arguments are supported:
 
 * `instance_description` - (Optional) A brief description to use for instances
     created from this template.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to instances
+    created from this template,
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within instances created from this template.
