@@ -1,52 +1,52 @@
-## 1.0.0 (Unreleased)
+## 1.0.0 (October 02, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * compute: A state migration was added to convert `google_compute_instance.disk` fields into the correct one of `attached_disk`, `boot_disk`, or `scratch_disk`. This will lead to plan-time diffs for anyone still using the `disk` field. Please verify its results carefully and update configs appropriately.
-* container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. [GH-331]
-* storage: `google_storage_bucket_acl` now sets the bucket ACL to whatever is in the config, correcting any drift. This means any permissions set automatically by GCP (e.g., project-viewers-\* policies, etc.) will be removed unless they're added to your config. Also, the `OWNER:project-owners-{project-id}` will never be deleted, as the API won't allow it. This is now correctly handled, and it is removed from state without being deleted in the API. [GH-358] [GH-439]
+* container: `google_container_cluster.node_pool.initial_node_count` is now deprecated. Please replace with `google_container_cluster.node_pool.node_count` instead. ([#331](https://github.com/terraform-providers/terraform-provider-google/issues/331))
+* storage: `google_storage_bucket_acl` now sets the bucket ACL to whatever is in the config, correcting any drift. This means any permissions set automatically by GCP (e.g., project-viewers-\* policies, etc.) will be removed unless they're added to your config. Also, the `OWNER:project-owners-{project-id}` will never be deleted, as the API won't allow it. This is now correctly handled, and it is removed from state without being deleted in the API. ([#358](https://github.com/terraform-providers/terraform-provider-google/issues/358)] [[#439](https://github.com/terraform-providers/terraform-provider-google/issues/439))
 
 FEATURES:
 * **New Data Source:** `google_client_config` ([#385](https://github.com/terraform-providers/terraform-provider-google/issues/385))
 * **New Resource:** `google_compute_region_instance_group_manager` ([#394](https://github.com/terraform-providers/terraform-provider-google/issues/394))
-* **New Resource:** `google_folder` [GH-416]
-* **New Resource:** `google_folder_iam_policy` [GH-447]
-* **New Resource:** `google_logging_project_sink` [GH-432]
-* **New Resource:** `google_logging_billing_account_sink` [GH-457]
+* **New Resource:** `google_folder` ([#416](https://github.com/terraform-providers/terraform-provider-google/issues/416))
+* **New Resource:** `google_folder_iam_policy` ([#447](https://github.com/terraform-providers/terraform-provider-google/issues/447))
+* **New Resource:** `google_logging_project_sink` ([#432](https://github.com/terraform-providers/terraform-provider-google/issues/432))
+* **New Resource:** `google_logging_billing_account_sink` ([#457](https://github.com/terraform-providers/terraform-provider-google/issues/457))
 
 IMPROVEMENTS:
-* bigquery: Support Bigquery Views [GH-230]
+* bigquery: Support Bigquery Views ([#230](https://github.com/terraform-providers/terraform-provider-google/issues/230))
 * container: Add import support for `google_container_cluster` ([#391](https://github.com/terraform-providers/terraform-provider-google/issues/391))
-* container: Add support for resizing a node pool defined in `google_container_cluster` [GH-331]
-* container: Allow updating `google_container_cluster.logging_service` [GH-343]
-* container: Add support for 'node_config.preemptible' field on `google_container_cluster` [GH-341]
-* container: Allow min node counts of 0 for node pool autoscaling [GH-468]
-* compute: Add support for 'labels' field on `google_compute_image` [GH-339]
-* compute: Add support for 'labels' field on `google_compute_disk` [GH-344]
-* compute: Add support for `labels` field on `google_compute_global_forwarding_rule` [GH-354]
-* compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` [GH-330]
-* compute: Add support for 'priority' field on `google_compute_firewall` [GH-342]
-* compute: `google_compute_firewall` network field now supports self_link in addition of name [GH-477]
-* compute: Add support for 'min_cpu_platform' in `google_compute_instance` [GH-349]
-* compute: Add support for 'alias_ip_range' in `google_compute_instance` [GH-375]
-* compute: Add support for computed field 'instance_id' in `google_compute_instance` [GH-427]
-* compute: Improve import for `google_compute_address` to support multiple id formats. [GH-378]
-* compute: Add state migration from `disk` to boot_disk/scratch_disk/attached_disk [GH-329]
-* compute: Mark certificate as sensitive within `google_compute_ssl_certificate` [GH-490]
-* project: Add support for 'labels' field on `google_project` [GH-383]
-* project: Move a `google_project` in and out of a folder [GH-438]
-* pubsub: Add import support for `google_pubsub_topic`. [GH-392]
-* pubsub: Add import support for `google_pubsub_subscription`. [GH-456]
-* sql: Add support for `connection_name` in `google_sql_database_instance` [GH-387]
-* storage: Add support for versioning in `google_storage_bucket` [GH-381]
+* container: Add support for resizing a node pool defined in `google_container_cluster` ([#331](https://github.com/terraform-providers/terraform-provider-google/issues/331))
+* container: Allow updating `google_container_cluster.logging_service` ([#343](https://github.com/terraform-providers/terraform-provider-google/issues/343))
+* container: Add support for 'node_config.preemptible' field on `google_container_cluster` ([#341](https://github.com/terraform-providers/terraform-provider-google/issues/341))
+* container: Allow min node counts of 0 for node pool autoscaling ([#468](https://github.com/terraform-providers/terraform-provider-google/issues/468))
+* compute: Add support for 'labels' field on `google_compute_image` ([#339](https://github.com/terraform-providers/terraform-provider-google/issues/339))
+* compute: Add support for 'labels' field on `google_compute_disk` ([#344](https://github.com/terraform-providers/terraform-provider-google/issues/344))
+* compute: Add support for `labels` field on `google_compute_global_forwarding_rule` ([#354](https://github.com/terraform-providers/terraform-provider-google/issues/354))
+* compute: Add support for 'guest_accelerators' (GPU) on `google_compute_instance` ([#330](https://github.com/terraform-providers/terraform-provider-google/issues/330))
+* compute: Add support for 'priority' field on `google_compute_firewall` ([#342](https://github.com/terraform-providers/terraform-provider-google/issues/342))
+* compute: `google_compute_firewall` network field now supports self_link in addition of name ([#477](https://github.com/terraform-providers/terraform-provider-google/issues/477))
+* compute: Add support for 'min_cpu_platform' in `google_compute_instance` ([#349](https://github.com/terraform-providers/terraform-provider-google/issues/349))
+* compute: Add support for 'alias_ip_range' in `google_compute_instance` ([#375](https://github.com/terraform-providers/terraform-provider-google/issues/375))
+* compute: Add support for computed field 'instance_id' in `google_compute_instance` ([#427](https://github.com/terraform-providers/terraform-provider-google/issues/427))
+* compute: Improve import for `google_compute_address` to support multiple id formats. ([#378](https://github.com/terraform-providers/terraform-provider-google/issues/378))
+* compute: Add state migration from `disk` to boot_disk/scratch_disk/attached_disk ([#329](https://github.com/terraform-providers/terraform-provider-google/issues/329))
+* compute: Mark certificate as sensitive within `google_compute_ssl_certificate` ([#490](https://github.com/terraform-providers/terraform-provider-google/issues/490))
+* project: Add support for 'labels' field on `google_project` ([#383](https://github.com/terraform-providers/terraform-provider-google/issues/383))
+* project: Move a `google_project` in and out of a folder ([#438](https://github.com/terraform-providers/terraform-provider-google/issues/438))
+* pubsub: Add import support for `google_pubsub_topic`. ([#392](https://github.com/terraform-providers/terraform-provider-google/issues/392))
+* pubsub: Add import support for `google_pubsub_subscription`. ([#456](https://github.com/terraform-providers/terraform-provider-google/issues/456))
+* sql: Add support for `connection_name` in `google_sql_database_instance` ([#387](https://github.com/terraform-providers/terraform-provider-google/issues/387))
+* storage: Add support for versioning in `google_storage_bucket` ([#381](https://github.com/terraform-providers/terraform-provider-google/issues/381))
 
 BUG FIXES:
-* compute/sql: Fix a few instances where we read the project from the provider config and not using the helper function [GH-469]
-* compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk [GH-327]
-* compute: Fix bug where 'session_affinity' would get reset on `google_compute_backend_service` resource [GH-348]
-* sql: Fixed bug where ip_address elements were offset incorrectly [GH-352]
-* sql: Fixed bug where default user on replica would cause an incorrect delete api call [GH-347]
-* project: Fixed bug where deleting a project outside Terraform would cause `google_project` to fail. [GH-466]
-* pubsub: Fixed bug where `google_pubsub_subscription` did not read its state from the API. [GH-456]
+* compute/sql: Fix a few instances where we read the project from the provider config and not using the helper function ([#469](https://github.com/terraform-providers/terraform-provider-google/issues/469))
+* compute: Fix bug with CSEK where the key stored in state might be associated with the wrong disk ([#327](https://github.com/terraform-providers/terraform-provider-google/issues/327))
+* compute: Fix bug where 'session_affinity' would get reset on `google_compute_backend_service` resource ([#348](https://github.com/terraform-providers/terraform-provider-google/issues/348))
+* sql: Fixed bug where ip_address elements were offset incorrectly ([#352](https://github.com/terraform-providers/terraform-provider-google/issues/352))
+* sql: Fixed bug where default user on replica would cause an incorrect delete api call ([#347](https://github.com/terraform-providers/terraform-provider-google/issues/347))
+* project: Fixed bug where deleting a project outside Terraform would cause `google_project` to fail. ([#466](https://github.com/terraform-providers/terraform-provider-google/issues/466))
+* pubsub: Fixed bug where `google_pubsub_subscription` did not read its state from the API. ([#456](https://github.com/terraform-providers/terraform-provider-google/issues/456))
 
 ## 0.1.3 (August 17, 2017)
 
