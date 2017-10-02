@@ -19,35 +19,45 @@ func resourceComputeInstanceMigrateState(
 		return is, nil
 	}
 
+	var err error
+
 	switch v {
 	case 0:
 		log.Println("[INFO] Found Compute Instance State v0; migrating to v1")
-		is, err := migrateStateV0toV1(is)
+		is, err = migrateStateV0toV1(is)
 		if err != nil {
 			return is, err
 		}
 		fallthrough
 	case 1:
 		log.Println("[INFO] Found Compute Instance State v1; migrating to v2")
-		is, err := migrateStateV1toV2(is)
+		is, err = migrateStateV1toV2(is)
 		if err != nil {
 			return is, err
 		}
-		return is, nil
+		fallthrough
 	case 2:
 		log.Println("[INFO] Found Compute Instance State v2; migrating to v3")
-		is, err := migrateStateV2toV3(is)
+		is, err = migrateStateV2toV3(is)
 		if err != nil {
 			return is, err
 		}
-		return is, nil
+		fallthrough
 	case 3:
 		log.Println("[INFO] Found Compute Instance State v3; migrating to v4")
-		is, err := migrateStateV3toV4(is, meta)
+		is, err = migrateStateV3toV4(is, meta)
 		if err != nil {
 			return is, err
 		}
-		return is, nil
+		fallthrough
+	case 4:
+		log.Println("[INFO] Found Compute Instance State v4; migrating to v5")
+		is, err = migrateStateV4toV5(is, meta)
+		if err != nil {
+			return is, err
+		}
+		// when adding case 5, make sure to turn this into a fallthrough
+		return is, err
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
 	}
@@ -271,6 +281,13 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 	}
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
+	return is, nil
+}
+
+func migrateStateV4toV5(is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
+	if v := is.Attributes["disk.#"]; v != "" {
+		return migrateStateV3toV4(is, meta)
+	}
 	return is, nil
 }
 

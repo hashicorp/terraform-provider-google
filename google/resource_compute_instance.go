@@ -40,7 +40,7 @@ func resourceComputeInstance() *schema.Resource {
 		Update: resourceComputeInstanceUpdate,
 		Delete: resourceComputeInstanceDelete,
 
-		SchemaVersion: 4,
+		SchemaVersion: 5,
 		MigrateState:  resourceComputeInstanceMigrateState,
 
 		Schema: map[string]*schema.Schema{
