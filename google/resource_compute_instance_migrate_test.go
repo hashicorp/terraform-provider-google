@@ -14,6 +14,9 @@ import (
 )
 
 func TestComputeInstanceMigrateState(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 	cases := map[string]struct {
 		StateVersion int
 		Attributes   map[string]string
@@ -70,6 +73,9 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 }
 
 func TestComputeInstanceMigrateState_empty(t *testing.T) {
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 	var is *terraform.InstanceState
 	var meta interface{}
 
