@@ -470,6 +470,9 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			if cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
 				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled)})
 			}
+			if cluster.AddonsConfig.KubernetesDashboard != nil {
+				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.KubernetesDashboard.0.disabled", strconv.FormatBool(cluster.AddonsConfig.KubernetesDashboard.Disabled)})
+			}
 		}
 
 		for i, np := range cluster.NodePools {
