@@ -318,6 +318,14 @@ func convertStringSet(set *schema.Set) []string {
 	return s
 }
 
+func convertStringMap(v map[string]interface{}) map[string]string {
+	m := make(map[string]string)
+	for k, val := range v {
+		m[k] = val.(string)
+	}
+	return m
+}
+
 func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
 	sm := make(map[string]struct{})
 	for _, s := range ifaceArr {
