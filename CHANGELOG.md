@@ -1,5 +1,8 @@
 ## 1.0.2 (Unreleased)
 
+BUG FIXES:
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
+
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
 
