@@ -207,8 +207,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
-					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
@@ -221,8 +219,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -244,8 +240,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -279,8 +273,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -319,6 +311,30 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 				Config: testAccStorageBucket_customAttributes("idontexist"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketMissing(bucketName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_versioning(t *testing.T) {
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_versioning(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.0.enabled", "true"),
 				),
 			},
 		},
@@ -500,7 +516,6 @@ func testAccStorageBucket_customAttributes(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 }
@@ -511,7 +526,6 @@ func testAccStorageBucket_customAttributes_withLifecycle1(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {
@@ -530,7 +544,6 @@ func testAccStorageBucket_customAttributes_withLifecycle2(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {
@@ -585,6 +598,17 @@ resource "google_storage_bucket" "bucket" {
 	  method = ["z9z"]
 	  response_header = ["000"]
 	  max_age_seconds = 5
+	}
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_versioning(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	versioning = {
+		enabled = "true"
 	}
 }
 `, bucketName)

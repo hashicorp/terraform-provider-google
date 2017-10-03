@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -101,9 +102,26 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 
 	}
 	if len(role_entity) > 0 {
+		current, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
+		if err != nil {
+			return fmt.Errorf("Error retrieving current ACLs: %s", err)
+		}
 		for _, v := range role_entity {
 			pair, err := getRoleEntityPair(v.(string))
-
+			if err != nil {
+				return err
+			}
+			var alreadyInserted bool
+			for _, cur := range current.Items {
+				if cur.Entity == pair.Entity && cur.Role == pair.Role {
+					alreadyInserted = true
+					break
+				}
+			}
+			if alreadyInserted {
+				log.Printf("[DEBUG]: pair %s-%s already exists, not trying to insert again\n", pair.Role, pair.Entity)
+				continue
+			}
 			bucketAccessControl := &storage.BucketAccessControl{
 				Role:   pair.Role,
 				Entity: pair.Entity,
@@ -174,6 +192,12 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 
 	if d.HasChange("role_entity") {
+		bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
+		if err != nil {
+			return fmt.Errorf("Error reading bucket %q: %v", bucket, err)
+		}
+
+		project := strconv.FormatUint(bkt.ProjectNumber, 10)
 		o, n := d.GetChange("role_entity")
 		old_re, new_re := o.([]interface{}), n.([]interface{})
 
@@ -197,12 +221,8 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 				Entity: pair.Entity,
 			}
 
-			// If the old state is missing this entity, it needs to
-			// be created. Otherwise it is updated
-			if _, ok := old_re_map[pair.Entity]; ok {
-				_, err = config.clientStorage.BucketAccessControls.Update(
-					bucket, pair.Entity, bucketAccessControl).Do()
-			} else {
+			// If the old state is missing this entity, it needs to be inserted
+			if _, ok := old_re_map[pair.Entity]; !ok {
 				_, err = config.clientStorage.BucketAccessControls.Insert(
 					bucket, bucketAccessControl).Do()
 			}
@@ -215,7 +235,11 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 
-		for entity, _ := range old_re_map {
+		for entity, role := range old_re_map {
+			if entity == fmt.Sprintf("project-owners-%s", project) && role == "OWNER" {
+				log.Printf("Skipping %s-%s; not deleting owner ACL.", role, entity)
+				continue
+			}
 			log.Printf("[DEBUG]: removing entity %s", entity)
 			err := config.clientStorage.BucketAccessControls.Delete(bucket, entity).Do()
 
@@ -254,11 +278,22 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 
 	bucket := d.Get("bucket").(string)
 
+	bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
+	if err != nil {
+		return fmt.Errorf("Error retrieving bucket %q: %v", bucket, err)
+	}
+	project := strconv.FormatUint(bkt.ProjectNumber, 10)
+
 	re_local := d.Get("role_entity").([]interface{})
 	for _, v := range re_local {
 		res, err := getRoleEntityPair(v.(string))
 		if err != nil {
 			return err
+		}
+
+		if res.Entity == fmt.Sprintf("project-owners-%s", project) && res.Role == "OWNER" {
+			log.Printf("Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
+			continue
 		}
 
 		log.Printf("[DEBUG]: removing entity %s", res.Entity)

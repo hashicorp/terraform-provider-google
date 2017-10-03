@@ -2,21 +2,24 @@ package google
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	//"google.golang.org/api/storage/v1"
 )
 
-var roleEntityBasic1 = "OWNER:user-omeemail@gmail.com"
+var (
+	roleEntityBasic1        = "OWNER:user-paddy@hashicorp.com"
+	roleEntityBasic2        = "READER:user-paddy@carvers.co"
+	roleEntityBasic3_owner  = "OWNER:user-paddy@paddy.io"
+	roleEntityBasic3_reader = "READER:user-foran.paddy@gmail.com"
 
-var roleEntityBasic2 = "READER:user-anotheremail@gmail.com"
-
-var roleEntityBasic3_owner = "OWNER:user-yetanotheremail@gmail.com"
-
-var roleEntityBasic3_reader = "READER:user-yetanotheremail@gmail.com"
+	roleEntityOwners  = "OWNER:project-owners-" + os.Getenv("GOOGLE_PROJECT_NUMBER")
+	roleEntityEditors = "OWNER:project-editors-" + os.Getenv("GOOGLE_PROJECT_NUMBER")
+	roleEntityViewers = "READER:project-viewers-" + os.Getenv("GOOGLE_PROJECT_NUMBER")
+)
 
 func testBucketName() string {
 	return fmt.Sprintf("%s-%d", "tf-test-acl-bucket", acctest.RandInt())
@@ -24,6 +27,7 @@ func testBucketName() string {
 
 func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
 	bucketName := testBucketName()
+	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -42,6 +46,7 @@ func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
 
 func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 	bucketName := testBucketName()
+	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -77,6 +82,7 @@ func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 
 func TestAccGoogleStorageBucketAcl_downgrade(t *testing.T) {
 	bucketName := testBucketName()
+	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -186,9 +192,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic1, roleEntityBasic2)
+`, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic1, roleEntityBasic2)
 }
 
 func testGoogleStorageBucketsAclBasic2(bucketName string) string {
@@ -199,9 +205,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic2, roleEntityBasic3_owner)
+`, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic2, roleEntityBasic3_owner)
 }
 
 func testGoogleStorageBucketsAclBasicDelete(bucketName string) string {
@@ -225,9 +231,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
-`, bucketName, roleEntityBasic2, roleEntityBasic3_reader)
+`, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic2, roleEntityBasic3_reader)
 }
 
 func testGoogleStorageBucketsAclPredefined(bucketName string) string {

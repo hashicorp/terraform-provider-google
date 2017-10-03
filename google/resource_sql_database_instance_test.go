@@ -76,7 +76,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
 			}
 
-			err = sqladminOperationWait(config, op, "Stop Replica")
+			err = sqladminOperationWait(config, op, config.Project, "Stop Replica")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -106,7 +106,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
 			}
 
-			err = sqladminOperationWait(config, op, "Delete Instance")
+			err = sqladminOperationWait(config, op, config.Project, "Delete Instance")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -224,7 +224,7 @@ func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
 					}
-					err = sqladminOperationWait(config, op, "Waiting for user to insert")
+					err = sqladminOperationWait(config, op, config.Project, "Waiting for user to insert")
 					if err != nil {
 						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
 					}

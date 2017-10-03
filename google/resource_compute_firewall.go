@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -44,9 +43,10 @@ func resourceComputeFirewall() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"priority": {
@@ -294,10 +294,9 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	networkUrl := strings.Split(firewall.Network, "/")
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
 	d.Set("name", firewall.Name)
-	d.Set("network", networkUrl[len(networkUrl)-1])
+	d.Set("network", ConvertSelfLinkToV1(firewall.Network))
 
 	// Unlike most other Beta properties, direction will always have a value even when
 	// a zero is sent by the client. We'll never revert back to v1 without conditionally reading it.
@@ -405,12 +404,6 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
-	project, _ := getProject(d, config)
-
-	network, err := config.clientCompute.Networks.Get(project, d.Get("network").(string)).Do()
-	if err != nil {
-		return nil, fmt.Errorf("Error reading network: %s", err)
-	}
 
 	// Build up the list of allowed entries
 	var allowed []*computeBeta.FirewallAllowed
@@ -494,7 +487,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
-		Network:           network.SelfLink,
+		Network:           ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
 		Allowed:           allowed,
 		Denied:            denied,
 		SourceRanges:      sourceRanges,

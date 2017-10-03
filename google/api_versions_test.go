@@ -2,152 +2,150 @@ package google
 
 import "testing"
 
-func TestResourceWithOnlyBaseVersionFields(t *testing.T) {
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"normal_field": "foo",
-		},
-	}
-
-	resourceVersion := v1
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{})
-	if computeApiVersion != resourceVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
-	}
-
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{}, []Feature{})
-	if computeApiVersion != resourceVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
-	}
+type ExpectedApiVersions struct {
+	Create     ComputeApiVersion
+	ReadDelete ComputeApiVersion
+	Update     ComputeApiVersion
 }
 
-func TestResourceWithBetaFields(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"normal_field": "foo",
-			"beta_field":   "bar",
+func TestComputeApiVersion(t *testing.T) {
+	baseVersion := v1
+	betaVersion := v0beta
+
+	cases := map[string]struct {
+		Features         []Feature
+		FieldsInSchema   map[string]interface{}
+		UpdatedFields    []string
+		UpdateOnlyFields []Feature
+		ExpectedApiVersions
+	}{
+		"no beta fields": {
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     baseVersion,
+			},
+		},
+		"beta fields no set": {
+			Features: []Feature{{Version: betaVersion, Item: "beta_field"}},
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     baseVersion,
+			},
+		},
+		"beta fields set": {
+			Features: []Feature{{Version: betaVersion, Item: "beta_field"}},
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+				"beta_field":   "bar",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     betaVersion,
+				ReadDelete: betaVersion,
+				Update:     betaVersion,
+			},
+		},
+		"update only beta fields": {
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+			},
+			UpdatedFields:    []string{"beta_update_field"},
+			UpdateOnlyFields: []Feature{{Version: betaVersion, Item: "beta_update_field"}},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     betaVersion,
+			},
+		},
+		"nested beta fields not set": {
+			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field"}},
+			FieldsInSchema: map[string]interface{}{
+				"list_field.#":              2,
+				"list_field.0.normal_field": "foo",
+				"list_field.1.normal_field": "bar",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     baseVersion,
+			},
+		},
+		"nested beta fields set": {
+			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field"}},
+			FieldsInSchema: map[string]interface{}{
+				"list_field.#":                   2,
+				"list_field.0.normal_field":      "foo",
+				"list_field.1.normal_field":      "bar",
+				"list_field.1.beta_nested_field": "baz",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     betaVersion,
+				ReadDelete: betaVersion,
+				Update:     betaVersion,
+			},
+		},
+		"double nested fields set": {
+			Features: []Feature{{Version: betaVersion, Item: "list_field.*.nested_list_field.*.beta_nested_field"}},
+			FieldsInSchema: map[string]interface{}{
+				"list_field.#":                                       1,
+				"list_field.0.nested_list_field.#":                   1,
+				"list_field.0.nested_list_field.0.beta_nested_field": "foo",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     betaVersion,
+				ReadDelete: betaVersion,
+				Update:     betaVersion,
+			},
 		},
 	}
 
-	expectedVersion := v0beta
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
+	for tn, tc := range cases {
+		// Create
+		// All fields with value have HasChange set to true.
+		keys := make([]string, 0, len(tc.FieldsInSchema))
+		for key := range tc.FieldsInSchema {
+			keys = append(keys, key)
+		}
 
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}}, []Feature{})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-}
+		d := &ResourceDataMock{
+			FieldsInSchema:      tc.FieldsInSchema,
+			FieldsWithHasChange: keys,
+		}
 
-func TestResourceWithBetaFieldsNotInSchema(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"normal_field": "foo",
-		},
-	}
+		apiVersion := getComputeApiVersion(d, v1, tc.Features)
+		if apiVersion != tc.ExpectedApiVersions.Create {
+			t.Errorf("bad: %s, Expected to see version %v for create, got version %v", tn, tc.ExpectedApiVersions.Create, apiVersion)
+		}
 
-	expectedVersion := v1
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
+		// Read/Delete
+		// All fields have HasChange set to false.
+		d = &ResourceDataMock{
+			FieldsInSchema: tc.FieldsInSchema,
+		}
 
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "beta_field"}}, []Feature{})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-}
+		apiVersion = getComputeApiVersion(d, v1, tc.Features)
+		if apiVersion != tc.ExpectedApiVersions.ReadDelete {
+			t.Errorf("bad: %s, Expected to see version %v for read/delete, got version %v", tn, tc.ExpectedApiVersions.ReadDelete, apiVersion)
+		}
 
-func TestResourceWithBetaUpdateFields(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"normal_field": "foo",
-			"beta_field":   "bar",
-		},
-		FieldsWithHasChange: []string{"beta_update_field"},
-	}
+		// Update
+		// Only fields defined as updated in the test case have HasChange set to true.
+		d = &ResourceDataMock{
+			FieldsInSchema:      tc.FieldsInSchema,
+			FieldsWithHasChange: tc.UpdatedFields,
+		}
 
-	expectedVersion := v1
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-
-	expectedVersion = v0beta
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{}, []Feature{{Version: expectedVersion, Item: "beta_update_field"}})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-}
-
-func TestResourceWithOnlyBaseNestedFields(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"list_field.#":              2,
-			"list_field.0.normal_field": "foo",
-			"list_field.1.normal_field": "bar",
-		},
-	}
-
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{})
-	if computeApiVersion != resourceVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
-	}
-
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{}, []Feature{{Version: resourceVersion, Item: "list_field.*.beta_nested_field"}})
-	if computeApiVersion != resourceVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", resourceVersion, computeApiVersion)
-	}
-}
-
-func TestResourceWithBetaNestedFields(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"list_field.#":                   2,
-			"list_field.0.normal_field":      "foo",
-			"list_field.1.normal_field":      "bar",
-			"list_field.1.beta_nested_field": "baz",
-		},
-	}
-
-	expectedVersion := v0beta
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "list_field.*.beta_nested_field"}})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "list_field.*.beta_nested_field"}}, []Feature{})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-}
-
-func TestResourceWithBetaDoubleNestedFields(t *testing.T) {
-	resourceVersion := v1
-	d := &ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"list_field.#":                                       1,
-			"list_field.0.nested_list_field.#":                   1,
-			"list_field.0.nested_list_field.0.beta_nested_field": "foo",
-		},
-	}
-
-	expectedVersion := v0beta
-	computeApiVersion := getComputeApiVersion(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "list_field.*.nested_list_field.*.beta_nested_field"}})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
-	}
-
-	computeApiVersion = getComputeApiVersionUpdate(d, resourceVersion, []Feature{{Version: expectedVersion, Item: "list_field.*.nested_list_field.*.beta_nested_field"}}, []Feature{})
-	if computeApiVersion != expectedVersion {
-		t.Errorf("Expected to see version: %v. Saw version: %v.", expectedVersion, computeApiVersion)
+		apiVersion = getComputeApiVersionUpdate(d, v1, tc.Features, tc.UpdateOnlyFields)
+		if apiVersion != tc.ExpectedApiVersions.Update {
+			t.Errorf("bad: %s, Expected to see version %v for update, got version %v", tn, tc.ExpectedApiVersions.Update, apiVersion)
+		}
 	}
 }
 

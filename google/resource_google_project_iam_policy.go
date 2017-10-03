@@ -31,8 +31,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
 			"authoritative": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "Use google_project_iam_policy_binding and google_project_iam_policy_member instead.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
@@ -43,8 +44,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				Computed: true,
 			},
 			"disable_project": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Deprecated: "This will be removed with the authoritative field. Use lifecycle.prevent_destroy instead.",
+				Type:       schema.TypeBool,
+				Optional:   true,
 			},
 		},
 	}
@@ -259,7 +261,7 @@ func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pi
 		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
 	}
 	return nil
 }

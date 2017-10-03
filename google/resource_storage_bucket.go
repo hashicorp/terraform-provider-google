@@ -50,10 +50,10 @@ func resourceStorageBucket() *schema.Resource {
 			},
 
 			"predefined_acl": &schema.Schema{
-				Type:       schema.TypeString,
-				Deprecated: "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
-				Optional:   true,
-				ForceNew:   true,
+				Type:     schema.TypeString,
+				Removed:  "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"project": &schema.Schema{
@@ -141,6 +141,21 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
+			"versioning": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
+
 			"website": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -218,6 +233,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if v, ok := d.GetOk("versioning"); ok {
+		sb.Versioning = expandBucketVersioning(v)
+	}
+
 	if v, ok := d.GetOk("website"); ok {
 		websites := v.([]interface{})
 
@@ -245,11 +264,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	var res *storage.Bucket
 
 	err = retry(func() error {
-		call := config.clientStorage.Buckets.Insert(project, sb)
-		if v, ok := d.GetOk("predefined_acl"); ok {
-			call = call.PredefinedAcl(v.(string))
-		}
-		res, err = call.Do()
+		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
 		return err
 	})
 
@@ -272,6 +287,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("lifecycle_rule") {
 		if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb); err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("versioning") {
+		if v, ok := d.GetOk("versioning"); ok {
+			sb.Versioning = expandBucketVersioning(v)
 		}
 	}
 
@@ -344,6 +365,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("storage_class", res.StorageClass)
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
+	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.SetId(res.Id)
 	return nil
 }
@@ -439,6 +461,32 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 		corsRulesSchema = append(corsRulesSchema, data)
 	}
 	return corsRulesSchema
+}
+
+func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
+	versionings := configured.([]interface{})
+	versioning := versionings[0].(map[string]interface{})
+
+	bucketVersioning := &storage.BucketVersioning{}
+
+	bucketVersioning.Enabled = versioning["enabled"].(bool)
+	bucketVersioning.ForceSendFields = append(bucketVersioning.ForceSendFields, "Enabled")
+
+	return bucketVersioning
+}
+
+func flattenBucketVersioning(bucketVersioning *storage.BucketVersioning) []map[string]interface{} {
+	versionings := make([]map[string]interface{}, 0, 1)
+
+	if bucketVersioning == nil {
+		return versionings
+	}
+
+	versioning := map[string]interface{}{
+		"enabled": bucketVersioning.Enabled,
+	}
+	versionings = append(versionings, versioning)
+	return versionings
 }
 
 func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket) error {

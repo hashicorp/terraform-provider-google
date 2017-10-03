@@ -125,7 +125,7 @@ resource "google_compute_network" "foobar" {
 	name = "tunnel-test-%s"
 }
 resource "google_compute_subnetwork" "foobar" {
-	name = "tunnel-test-%s"
+	name = "tunnel-test-subnetwork-%s"
 	network = "${google_compute_network.foobar.self_link}"
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
@@ -181,7 +181,7 @@ func testAccComputeVpnTunnelRouter(router string) string {
 			name = "tunnel-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "tunnel-test-%s"
+			name = "tunnel-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"

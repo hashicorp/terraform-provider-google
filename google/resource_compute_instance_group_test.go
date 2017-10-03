@@ -269,8 +269,10 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 		can_ip_forward = false
 		zone = "us-central1-c"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {
@@ -317,8 +319,10 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		zone = "us-central1-c"
 		count = 2
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {
@@ -352,8 +356,10 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 		zone = "us-central1-c"
 		count = 1
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {
@@ -386,8 +392,10 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 		can_ip_forward = false
 		zone = "us-central1-c"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {
@@ -401,8 +409,10 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 		can_ip_forward = false
 		zone = "us-central1-c"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {
@@ -439,8 +449,10 @@ func testAccComputeInstanceGroup_network(instance string) string {
 		can_ip_forward = false
 		zone = "us-central1-c"
 
-		disk {
-			image = "debian-8-jessie-v20160803"
+		boot_disk {
+			initialize_params {
+				image = "debian-8-jessie-v20160803"
+			}
 		}
 
 		network_interface {

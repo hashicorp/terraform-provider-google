@@ -69,3 +69,7 @@ func GetResourceNameFromSelfLink(link string) string {
 	parts := strings.Split(link, "/")
 	return parts[len(parts)-1]
 }
+
+func StoreResourceName(resourceLink interface{}) string {
+	return GetResourceNameFromSelfLink(resourceLink.(string))
+}

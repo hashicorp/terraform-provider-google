@@ -48,15 +48,14 @@ The following arguments are supported:
 * `location` - (Optional, Default: 'US') The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
 
-* `predefined_acl` - (Optional, Deprecated) The [canned GCS ACL](https://cloud.google.com/storage/docs/access-control#predefined-acl) to apply. Please switch
-to `google_storage_bucket_acl.predefined_acl`.
-
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `storage_class` - (Optional) The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
 
 * `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+
+* `versioning` - (Optional) The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.
 
 * `website` - (Optional) Configuration if the bucket acts as a website. Structure is documented below.
 
@@ -85,6 +84,10 @@ The `condition` block supports the following elements, and requires at least one
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
 * `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
+
+The `versioning` block supports:
+
+* `enabled` - (Optional) While set to `true`, versioning is fully enabled for this bucket.
 
 The `website` block supports:
 

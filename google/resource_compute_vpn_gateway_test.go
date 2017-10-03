@@ -85,8 +85,9 @@ func testAccCheckComputeVpnGatewayExists(n string) resource.TestCheckFunc {
 var testAccComputeVpnGateway_basic = fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "gateway-test-%s"
-	ipv4_range = "10.0.0.0/16"
+	auto_create_subnetworks = true
 }
+
 resource "google_compute_vpn_gateway" "foobar" {
 	name = "gateway-test-%s"
 	network = "${google_compute_network.foobar.self_link}"

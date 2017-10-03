@@ -66,7 +66,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Pubsub Topic %q", name))
 	}
 
-	d.Set("name", res.Name)
+	d.Set("name", GetResourceNameFromSelfLink(res.Name))
 
 	return nil
 }

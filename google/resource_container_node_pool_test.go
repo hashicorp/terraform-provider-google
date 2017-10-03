@@ -77,18 +77,24 @@ func TestAccContainerNodePool_autoscaling(t *testing.T) {
 				Config: testAccContainerNodePool_autoscaling(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count", "3"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccContainerNodePool_updateAutoscaling(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count", "5"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccContainerNodePool_basic(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count"),
 				),
 			},
 		},
@@ -249,7 +255,7 @@ resource "google_container_node_pool" "np" {
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
 	autoscaling {
-		min_node_count = 1
+		min_node_count = 0
 		max_node_count = 5
 	}
 }`, cluster, np)

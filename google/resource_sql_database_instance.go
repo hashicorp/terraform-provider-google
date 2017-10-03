@@ -611,7 +611,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	d.SetId(instance.Name)
 
-	err = sqladminOperationWait(config, op, "Create Instance")
+	err = sqladminOperationWait(config, op, project, "Create Instance")
 	if err != nil {
 		d.SetId("")
 		return err
@@ -638,7 +638,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 				err = retry(func() error {
 					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
 					if err == nil {
-						err = sqladminOperationWait(config, op, "Delete default root User")
+						err = sqladminOperationWait(config, op, project, "Delete default root User")
 					}
 					return err
 				})
@@ -945,7 +945,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to update instance %s: %s", instance.Name, err)
 	}
 
-	err = sqladminOperationWait(config, op, "Create Instance")
+	err = sqladminOperationWait(config, op, project, "Create Instance")
 	if err != nil {
 		return err
 	}
@@ -967,7 +967,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
 
-	err = sqladminOperationWait(config, op, "Delete Instance")
+	err = sqladminOperationWait(config, op, project, "Delete Instance")
 	if err != nil {
 		return err
 	}
