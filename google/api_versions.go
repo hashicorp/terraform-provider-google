@@ -45,7 +45,7 @@ type TerraformResourceData interface {
 func getComputeApiVersion(d TerraformResourceData, resourceVersion ComputeApiVersion, features []Feature) ComputeApiVersion {
 	versions := map[ComputeApiVersion]struct{}{resourceVersion: struct{}{}}
 	for _, feature := range features {
-		if feature.InUseBy(d) {
+		if feature.InUseByDefault(d) {
 			versions[feature.Version] = struct{}{}
 		}
 	}
@@ -58,8 +58,12 @@ func getComputeApiVersion(d TerraformResourceData, resourceVersion ComputeApiVer
 // version, to determine what version of the API is required in order to update the resource.
 func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion ComputeApiVersion, features, updateOnlyFields []Feature) ComputeApiVersion {
 	versions := map[ComputeApiVersion]struct{}{resourceVersion: struct{}{}}
-	schemaVersion := getComputeApiVersion(d, resourceVersion, features)
-	versions[schemaVersion] = struct{}{}
+
+	for _, feature := range features {
+		if feature.InUseByUpdate(d) {
+			versions[feature.Version] = struct{}{}
+		}
+	}
 
 	for _, feature := range updateOnlyFields {
 		if feature.HasChangeBy(d) {
@@ -83,6 +87,10 @@ type Feature struct {
 	//
 	// Note: beta field nested inside a SET are NOT supported at the moment.
 	Item string
+
+	// Optional, only set if your field has a default value.
+	// If the value for the field is equal to the DefaultValue, we assume the beta feature is not activated.
+	DefaultValue interface{}
 }
 
 // Returns true when a feature has been modified.
@@ -93,16 +101,37 @@ func (s Feature) HasChangeBy(d TerraformResourceData) bool {
 	return d.HasChange(s.Item)
 }
 
-// Return true when a feature appears in schema or has been modified.
-func (s Feature) InUseBy(d TerraformResourceData) bool {
-	return inUseBy(d, s.Item)
+type InUseFunc func(d TerraformResourceData, path string, defaultValue interface{}) bool
+
+func defaultInUseFunc(d TerraformResourceData, path string, defaultValue interface{}) bool {
+	// At read and delete time, there is no change.
+	// At create time, all fields are marked has changed. We should only consider the feature active if the field has
+	// a value set and that this value is not the default value.
+	value, ok := d.GetOk(path)
+	return ok && value != defaultValue
 }
 
-func inUseBy(d TerraformResourceData, path string) bool {
+func updateInUseFunc(d TerraformResourceData, path string, defaultValue interface{}) bool {
+	// During a resource update, if the beta field has changes, the feature is considered active even if the new value
+	// is the default value. This is because the beta API must be called to change the value of the field back to the
+	// default value.
+	value, ok := d.GetOk(path)
+	return (ok && value != defaultValue) || d.HasChange(path)
+}
+
+// Return true when a feature appears in schema and doesn't hold the default value.
+func (s Feature) InUseByDefault(d TerraformResourceData) bool {
+	return inUseBy(d, s.Item, s.DefaultValue, defaultInUseFunc)
+}
+
+func (s Feature) InUseByUpdate(d TerraformResourceData) bool {
+	return inUseBy(d, s.Item, s.DefaultValue, updateInUseFunc)
+}
+
+func inUseBy(d TerraformResourceData, path string, defaultValue interface{}, inUseFunc InUseFunc) bool {
 	pos := strings.Index(path, "*")
 	if pos == -1 {
-		_, ok := d.GetOk(path)
-		return ok || d.HasChange(path)
+		return inUseFunc(d, path, defaultValue)
 	}
 
 	prefix := path[0:pos]
@@ -117,7 +146,7 @@ func inUseBy(d TerraformResourceData, path string) bool {
 	count := v.(int)
 	for i := 0; i < count; i++ {
 		nestedPath := fmt.Sprintf("%s%d%s", prefix, i, suffix)
-		if inUseBy(d, nestedPath) {
+		if inUseBy(d, nestedPath, defaultValue, inUseFunc) {
 			return true
 		}
 	}

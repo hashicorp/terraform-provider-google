@@ -19,7 +19,7 @@ func TestComputeApiVersion(t *testing.T) {
 		UpdateOnlyFields []Feature
 		ExpectedApiVersions
 	}{
-		"no beta fields": {
+		"no beta field": {
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
 			},
@@ -29,7 +29,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"beta fields no set": {
+		"beta field not set": {
 			Features: []Feature{{Version: betaVersion, Item: "beta_field"}},
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
@@ -40,7 +40,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"beta fields set": {
+		"beta field set": {
 			Features: []Feature{{Version: betaVersion, Item: "beta_field"}},
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
@@ -52,7 +52,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     betaVersion,
 			},
 		},
-		"update only beta fields": {
+		"update only beta field": {
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
 			},
@@ -64,7 +64,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     betaVersion,
 			},
 		},
-		"nested beta fields not set": {
+		"nested beta field not set": {
 			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field"}},
 			FieldsInSchema: map[string]interface{}{
 				"list_field.#":              2,
@@ -77,7 +77,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"nested beta fields set": {
+		"nested beta field set": {
 			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field"}},
 			FieldsInSchema: map[string]interface{}{
 				"list_field.#":                   2,
@@ -101,6 +101,60 @@ func TestComputeApiVersion(t *testing.T) {
 			ExpectedApiVersions: ExpectedApiVersions{
 				Create:     betaVersion,
 				ReadDelete: betaVersion,
+				Update:     betaVersion,
+			},
+		},
+		"beta field has default value": {
+			Features: []Feature{{Version: betaVersion, Item: "beta_field", DefaultValue: "bar"}},
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+				"beta_field":   "bar",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     baseVersion,
+			},
+		},
+		"beta field is updated to default value": {
+			Features: []Feature{{Version: betaVersion, Item: "beta_field", DefaultValue: "bar"}},
+			FieldsInSchema: map[string]interface{}{
+				"normal_field": "foo",
+				"beta_field":   "bar",
+			},
+			UpdatedFields: []string{"beta_field"},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     betaVersion,
+			},
+		},
+		"nested beta field has default value": {
+			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field", DefaultValue: "baz"}},
+			FieldsInSchema: map[string]interface{}{
+				"list_field.#":                   2,
+				"list_field.0.normal_field":      "foo",
+				"list_field.1.normal_field":      "bar",
+				"list_field.1.beta_nested_field": "baz",
+			},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
+				Update:     baseVersion,
+			},
+		},
+		"nested beta field is updated default value": {
+			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field", DefaultValue: "baz"}},
+			FieldsInSchema: map[string]interface{}{
+				"list_field.#":                   2,
+				"list_field.0.normal_field":      "foo",
+				"list_field.1.normal_field":      "bar",
+				"list_field.1.beta_nested_field": "baz",
+			},
+			UpdatedFields: []string{"list_field.1.beta_nested_field"},
+			ExpectedApiVersions: ExpectedApiVersions{
+				Create:     baseVersion,
+				ReadDelete: baseVersion,
 				Update:     betaVersion,
 			},
 		},
