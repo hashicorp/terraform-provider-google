@@ -6,6 +6,7 @@ FEATURES:
 IMPROVEMENTS:
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
 * sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
+* pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
 
 ## 1.0.1 (October 02, 2017)
 
