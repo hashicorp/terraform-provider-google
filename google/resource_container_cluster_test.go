@@ -50,6 +50,22 @@ func TestAccContainerCluster_withTimeout(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAddons(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAddons,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+				),
+			},
+		},
+	})
+}
 func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -462,15 +478,22 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		}
 		clusterTests = append(clusterTests, clusterTestField{"additional_zones", additionalZones})
 
-		// AddonsConfig is neither Required or Computed, so the API may return nil for it
-		if cluster.AddonsConfig != nil {
-			if cluster.AddonsConfig.HttpLoadBalancing != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HttpLoadBalancing.Disabled)})
-			}
-			if cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled)})
-			}
+		// AddonsConfig is neither Required or Computed, so the API may return nil for it.
+		httpLoadBalancingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HttpLoadBalancing != nil {
+			httpLoadBalancingDisabled = cluster.AddonsConfig.HttpLoadBalancing.Disabled
 		}
+		horizontalPodAutoscalingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
+			horizontalPodAutoscalingDisabled = cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled
+		}
+		kubernetesDashboardDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.KubernetesDashboard != nil {
+			kubernetesDashboardDisabled = cluster.AddonsConfig.KubernetesDashboard.Disabled
+		}
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", httpLoadBalancingDisabled})
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", horizontalPodAutoscalingDisabled})
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.kubernetes_dashboard.0.disabled", kubernetesDashboardDisabled})
 
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
@@ -608,10 +631,17 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 }
 
 func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
-	tf, err := strconv.ParseBool(attributes[attr])
-	if err != nil {
-		return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+	// Handle the case where an unset value defaults to false
+	var tf bool
+	if attributes[attr] == "" {
+		tf = false
+	} else {
+		tf, err = strconv.ParseBool(attributes[attr])
+		if err != nil {
+			return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+		}
 	}
+
 	if tf != gcpBool {
 		return matchError(attr, tf, gcpBool)
 	}
@@ -642,6 +672,18 @@ resource "google_container_cluster" "primary" {
 		create = "30m"
 		delete = "30m"
 		update = "30m"
+	}
+}`, acctest.RandString(10))
+
+var testAccContainerCluster_withAddons = fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	addons_config {
+		http_load_balancing { disabled = true }
+		kubernetes_dashboard { disabled = true }
 	}
 }`, acctest.RandString(10))
 
