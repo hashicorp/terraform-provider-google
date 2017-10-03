@@ -682,9 +682,9 @@ resource "google_container_cluster" "primary" {
 	initial_node_count = 3
 
 	addons_config {
-        http_load_balancing { disabled = true }
-        kubernetes_dashboard { disabled = true }
-    }
+		http_load_balancing { disabled = true }
+		kubernetes_dashboard { disabled = true }
+	}
 }`, acctest.RandString(10))
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
