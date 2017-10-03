@@ -263,15 +263,9 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	var res *storage.Bucket
 
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+	err = retry(func() error {
 		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
-		if err == nil {
-			return nil
-		}
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
-			return resource.RetryableError(gerr)
-		}
-		return resource.NonRetryableError(err)
+		return err
 	})
 
 	if err != nil {

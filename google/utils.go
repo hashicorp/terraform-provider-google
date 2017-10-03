@@ -7,8 +7,10 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -330,4 +332,17 @@ func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
 		sm[s.(string)] = struct{}{}
 	}
 	return sm
+}
+
+func retry(retryFunc func() error) error {
+	return resource.Retry(1*time.Minute, func() *resource.RetryError {
+		err := retryFunc()
+		if err == nil {
+			return nil
+		}
+		if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+			return resource.RetryableError(gerr)
+		}
+		return resource.NonRetryableError(err)
+	})
 }
