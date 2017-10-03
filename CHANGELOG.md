@@ -5,6 +5,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
+* sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
 
 ## 1.0.1 (October 02, 2017)
 
