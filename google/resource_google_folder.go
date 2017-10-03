@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -75,8 +76,9 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Requires 3 successive checks for safety. Nested IFs are used to avoid 3 error statement with the same message.
-	if response, ok := waitOp.Response.(map[string]interface{}); ok {
-		if val, ok := response["name"]; ok {
+	var responseMap map[string]interface{}
+	if err := json.Unmarshal(waitOp.Response, &responseMap); err == nil {
+		if val, ok := responseMap["name"]; ok {
 			if name, ok := val.(string); ok {
 				d.SetId(name)
 				return resourceGoogleFolderRead(d, meta)
