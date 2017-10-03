@@ -3,6 +3,9 @@
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
 
+IMPROVEMENTS:
+* container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
+
 ## 1.0.1 (October 02, 2017)
 
 BUG FIXES:
