@@ -1,4 +1,8 @@
 ## 1.0.2 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
+
 ## 1.0.1 (October 02, 2017)
 
 BUG FIXES:
