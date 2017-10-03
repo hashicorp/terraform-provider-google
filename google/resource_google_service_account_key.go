@@ -14,31 +14,39 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 		Read:   resourceGoogleServiceAccountKeyRead,
 		Delete: resourceGoogleServiceAccountKeyDelete,
 		Schema: map[string]*schema.Schema{
+			// Required
 			"service_account_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+			// Optional
 			"key_algorithm": &schema.Schema{
 				Type:     schema.TypeString,
 				Default:  "KEY_ALG_RSA_2048",
 				Optional: true,
 				ForceNew: true,
 			},
-			"private_key": &schema.Schema{
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
-			},
 			"private_key_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Default:  "TYPE_GOOGLE_CREDENTIALS_FILE",
 				Optional: true,
 				ForceNew: true,
+			},
+			"pgp_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			// Computed
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"private_key": &schema.Schema{
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"valid_after": &schema.Schema{
 				Type:     schema.TypeString,
@@ -47,11 +55,6 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 			"valid_before": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			"private_key_encrypted": {
 				Type:     schema.TypeString,
@@ -102,12 +105,10 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		d.Set("private_key", sak.PrivateKeyData)
 	}
 
-	d.SetId(sak.Name)
-	d.Set("name", sak.Name)
-	d.Set("key_algorithm", sak.KeyAlgorithm)
-	d.Set("private_key_type", sak.PrivateKeyType)
-	d.Set("valid_after", sak.ValidAfterTime)
-	d.Set("valid_before", sak.ValidBeforeTime)
+	resourceGoogleServiceAccountKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

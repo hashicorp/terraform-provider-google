@@ -11,16 +11,19 @@ import (
 
 // Test that a service account key can be created and destroyed
 func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
-	accountId := "a" + acctest.RandString(10)
+	resourceName := "google_service_account_key.acceptance"
+	accountID := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountKey(accountId, displayName),
+				Config: testAccGoogleServiceAccountKey(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleServiceAccountKeyExists("google_service_account_key.acceptance"),
+					testAccCheckGoogleServiceAccountKeyExists(resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "display_name"),
 				),
 			},
 		},
@@ -43,14 +46,12 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 }
 
 func testAccGoogleServiceAccountKey(account, name string) string {
-	t := `resource "google_service_account" "acceptance" {
+	return fmt.Sprintf(`resource "google_service_account" "acceptance" {
 	account_id = "%v"
 	display_name = "%v"
-}
+	}
 
-resource "google_service_account_key" "acceptance" {
-	service_account_id = "${google_service_account.acceptance.id}"
-}
- `
-	return fmt.Sprintf(t, account, name)
+	resource "google_service_account_key" "acceptance" {
+		service_account_id = "${google_service_account.acceptance.id}"
+	}`, account, name)
 }
