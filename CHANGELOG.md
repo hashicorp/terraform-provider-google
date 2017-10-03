@@ -2,6 +2,7 @@
 
 BUG FIXES:
 * compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
 
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
