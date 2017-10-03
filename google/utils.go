@@ -297,14 +297,21 @@ func expandLabels(d *schema.ResourceData) map[string]string {
 
 // expandStringMap pulls the value of key out of a schema.ResourceData as a map[string]string.
 func expandStringMap(d *schema.ResourceData, key string) map[string]string {
-	mp := map[string]string{}
-	if v, ok := d.GetOk(key); ok {
-		labelMap := v.(map[string]interface{})
-		for k, v := range labelMap {
-			mp[k] = v.(string)
-		}
+	v, ok := d.GetOk(key)
+
+	if !ok {
+		return map[string]string{}
 	}
-	return mp
+
+	return convertStringMap(v.(map[string]interface{}))
+}
+
+func convertStringMap(v map[string]interface{}) map[string]string {
+	m := make(map[string]string)
+	for k, val := range v {
+		m[k] = val.(string)
+	}
+	return m
 }
 
 func convertStringArr(ifaceArr []interface{}) []string {
