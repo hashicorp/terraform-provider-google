@@ -29,7 +29,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"beta field no set": {
+		"beta field not set": {
 			Features: []Feature{{Version: betaVersion, Item: "beta_field"}},
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
@@ -116,7 +116,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"beta fields is being updated to default value": {
+		"beta field is updated to default value": {
 			Features: []Feature{{Version: betaVersion, Item: "beta_field", DefaultValue: "bar"}},
 			FieldsInSchema: map[string]interface{}{
 				"normal_field": "foo",
@@ -143,7 +143,7 @@ func TestComputeApiVersion(t *testing.T) {
 				Update:     baseVersion,
 			},
 		},
-		"nested beta field is being updated default value": {
+		"nested beta field is updated default value": {
 			Features: []Feature{{Version: betaVersion, Item: "list_field.*.beta_nested_field", DefaultValue: "baz"}},
 			FieldsInSchema: map[string]interface{}{
 				"list_field.#":                   2,

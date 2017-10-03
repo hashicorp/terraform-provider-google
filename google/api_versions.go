@@ -105,7 +105,7 @@ type InUseFunc func(d TerraformResourceData, path string, defaultValue interface
 
 func defaultInUseFunc(d TerraformResourceData, path string, defaultValue interface{}) bool {
 	// At read and delete time, there is no change.
-	// At create time, all fields are marked has changed. We should only considered the feature active if the field has
+	// At create time, all fields are marked has changed. We should only consider the feature active if the field has
 	// a value set and that this value is not the default value.
 	value, ok := d.GetOk(path)
 	return ok && value != defaultValue
@@ -113,7 +113,7 @@ func defaultInUseFunc(d TerraformResourceData, path string, defaultValue interfa
 
 func updateInUseFunc(d TerraformResourceData, path string, defaultValue interface{}) bool {
 	// During a resource update, if the beta field has changes, the feature is considered active even if the new value
-	// is the default value. This is because the beta API must be call to change the value of the field back to the
+	// is the default value. This is because the beta API must be called to change the value of the field back to the
 	// default value.
 	value, ok := d.GetOk(path)
 	return (ok && value != defaultValue) || d.HasChange(path)
