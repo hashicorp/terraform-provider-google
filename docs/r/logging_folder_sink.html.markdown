@@ -1,14 +1,14 @@
 ---
 layout: "google"
-page_title: "Google: google_logging_billing_account_sink"
-sidebar_current: "docs-google-logging-billing-account-sink"
+page_title: "Google: google_logging_folder_sink"
+sidebar_current: "docs-google-logging-folder-sink"
 description: |-
-  Manages a billing account logging sink.
+  Manages a folder-level logging sink.
 ---
 
-# google\_logging\_billing\_account\_sink
+# google\_logging\_folder\_sink
 
-Manages a billing account logging sink. For more information see
+Manages a folder-level logging sink. For more information see
 [the official documentation](https://cloud.google.com/logging/docs/) and
 [Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs).
 
@@ -18,24 +18,32 @@ granted to the credentials used with terraform.
 ## Example Usage
 
 ```hcl
-resource "google_logging_billing_account_sink" "my-sink" {
-    name = "my-sink"
-    billing_account = "ABCDEF-012345-GHIJKL"
+resource "google_logging_folder_sink" "my-sink" {
+    name        = "my-sink"
+    folder      = "${google_folder.my-folder.name}"
 
     # Can export to pubsub, cloud storage, or bigtable
     destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+
+    # Log all WARN or higher severity messages relating to instances
+    filter      = "resource.type = gce_instance AND severity >= WARN"
 }
 
 resource "google_storage_bucket" "log-bucket" {
-    name     = "billing-logging-bucket"
+    name = "folder-logging-bucket"
 }
 
 resource "google_project_iam_binding" "log-writer" {
-    role = "roles/storage.objectCreator"
+    role    = "roles/storage.objectCreator"
 
     members = [
-        "${google_logging_billing_account_sink.my-sink.writer_identity}",
+        "${google_logging_folder_sink.my-sink.writer_identity}",
     ]
+}
+
+resource "google_folder" "my-folder" {
+	display_name = "My folder"
+    parent       = "organizations/123456"
 }
 ```
 
@@ -45,7 +53,8 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the logging sink.
 
-* `billing_account` - (Required) The billing account exported to the sink.
+* `folder` - (Required) The folder to be exported to the sink. Note that either [FOLDER_ID] or "folders/[FOLDER_ID]" is
+    accepted.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
     Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:
@@ -59,6 +68,9 @@ The following arguments are supported:
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See (Advanced Log Filters)[https://cloud.google.com/logging/docs/view/advanced_filters] for information on how to
     write a filter.
+
+* `include_children` - (Optional) Whether or not to include children folders in the sink export. If true, logs
+    associated with child projects are also exported; otherwise only logs relating to the provided folder are included.
 
 ## Attributes Reference
 
