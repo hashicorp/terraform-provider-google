@@ -108,6 +108,7 @@ func Provider() terraform.ResourceProvider {
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_iam_policy":                     resourceGoogleFolderIamPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
+			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_sourcerepo_repository":                 resourceSourceRepoRepository(),
 			"google_spanner_instance":                      resourceSpannerInstance(),

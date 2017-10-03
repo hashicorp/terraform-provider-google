@@ -258,6 +258,12 @@ func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		return prefix+old == new || prefix+new == old
+	}
+}
+
 func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// The range may be a:
 	// A) single IP address (e.g. 10.2.3.4)
