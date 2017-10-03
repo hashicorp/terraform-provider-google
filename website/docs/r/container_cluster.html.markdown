@@ -117,6 +117,9 @@ which the cluster's instances are launched
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
+* `issue_client_certificate` - (Optional) Enables or disables the creation of the client
+    certificates on the cluster
+
 **Node Config** supports the following arguments:
 
 * `machine_type` - (Optional) The name of a Google Compute Engine machine type.
@@ -189,6 +192,26 @@ addons_config {
 
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
+
+* `autoscaling` - (Optional) Configures the auto scaling parameters for the cluster
+
+* `management` - (Optional) Defines the set of node management services turned on for the node pool
+
+**Auto Scaling** supports the following arguments:
+
+* `enabled` - (Optional) Enabled or disables auto-scaling for the node pool
+
+* `min_node_count` - (Optional) The minimum number of nodes that the node pool should keep active
+
+* `max_node_count` - (Optional) The maximum number of nodes that the node pool can auto-scale to
+
+**Management** supports the following arguments:
+
+* `auto_repair` - (Optional) Enables or disables auto-repair for the node pool. If enabled, the nodes in the pool will be
+monitored and it they fail a health check too many times, an automatic repair action will be triggerd.
+
+* `auto_upgrade` - (Optional) Specifies whether auto-node upgrade is enabled for this node pool. If enabled,
+node auto-upgrade helps keep the nodes in your node pool up to date with the latest release version of Kubernetes.
 
 ## Attributes Reference
 

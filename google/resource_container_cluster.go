@@ -60,6 +60,12 @@ func resourceContainerCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"issue_client_certificate": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+							Default:  true,
+						},
 						"password": {
 							Type:      schema.TypeString,
 							Required:  true,
@@ -258,12 +264,62 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"autoscaling": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_node_count": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+
+									"max_node_count": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+
 						"initial_node_count": {
 							Type:       schema.TypeInt,
 							Optional:   true,
 							ForceNew:   true,
 							Computed:   true,
 							Deprecated: "Use node_count instead",
+						},
+
+						"management": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"auto_repair": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+
+									"auto_upgrade": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+								},
+							},
 						},
 
 						"node_count": {
@@ -324,6 +380,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.MasterAuth = &container.MasterAuth{
 			Password: masterAuth["password"].(string),
 			Username: masterAuth["username"].(string),
+		}
+
+		if v, ok := masterAuth["issue_client_certificate"]; ok {
+			cluster.MasterAuth.ClientCertificateConfig = &container.ClientCertificateConfig{
+				IssueClientCertificate: v.(bool),
+			}
 		}
 	}
 
@@ -441,6 +503,47 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 				nodePool.Config = expandNodeConfig(v)
 			}
 
+			if v, ok := d.GetOk(prefix + ".autoscaling"); ok {
+				autoscalingConfig := v.([]interface{})[0].(map[string]interface{})
+				nodePool.Autoscaling = &container.NodePoolAutoscaling{}
+
+				// default behavior is disabled. Set to true as the cluster has it defined giving the intent to enable
+				// it
+				nodePool.Autoscaling.Enabled = true
+
+				var minNodeCount int
+				minNodeCount = 1
+
+				if v, ok := autoscalingConfig["min_node_count"]; ok {
+					minNodeCount = v.(int)
+					nodePool.Autoscaling.MinNodeCount = int64(minNodeCount)
+				}
+
+				if v, ok := autoscalingConfig["max_node_count"]; ok {
+					var maxNodeCount int
+					maxNodeCount = v.(int)
+
+					if maxNodeCount < minNodeCount {
+						return fmt.Errorf("Cannot set autoscaling option max_node_count to less than the min_node_count value on nodepool %d", i)
+					}
+
+					nodePool.Autoscaling.MaxNodeCount = int64(maxNodeCount)
+				}
+			}
+
+			if v, ok := d.GetOk(prefix + ".management"); ok {
+				managementConfig := v.([]interface{})[0].(map[string]interface{})
+				nodePool.Management = &container.NodeManagement{}
+
+				if v, ok := managementConfig["auto_repair"]; ok {
+					nodePool.Management.AutoRepair = v.(bool)
+				}
+
+				if v, ok := managementConfig["auto_upgrade"]; ok {
+					nodePool.Management.AutoUpgrade = v.(bool)
+				}
+			}
+
 			nodePools = append(nodePools, nodePool)
 		}
 		cluster.NodePools = nodePools
@@ -511,6 +614,15 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			"cluster_ca_certificate": cluster.MasterAuth.ClusterCaCertificate,
 		},
 	}
+
+	// we might not get this value back on existing clusters, however we can insinuate that
+	// if the client certificate doesn't exist the cluster was created with this set to false.
+	if cluster.MasterAuth.ClientCertificateConfig != nil {
+		masterAuth[0]["issue_client_certificate"] = cluster.MasterAuth.ClientCertificateConfig.IssueClientCertificate
+	} else {
+		masterAuth[0]["issue_client_certificate"] = cluster.MasterAuth.ClientCertificate != ""
+	}
+
 	d.Set("master_auth", masterAuth)
 
 	d.Set("initial_node_count", cluster.InitialNodeCount)
@@ -785,6 +897,25 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 			"node_count":         size / len(np.InstanceGroupUrls),
 			"node_config":        flattenNodeConfig(np.Config),
 		}
+
+		if np.Management != nil {
+			nodePool["management"] = []map[string]interface{}{
+				{
+					"auto_repair":  np.Management.AutoRepair,
+					"auto_upgrade": np.Management.AutoUpgrade,
+				},
+			}
+		}
+
+		if np.Autoscaling != nil {
+			nodePool["autoscaling"] = []map[string]interface{}{
+				{
+					"min_node_count": np.Autoscaling.MinNodeCount,
+					"max_node_count": np.Autoscaling.MaxNodeCount,
+				},
+			}
+		}
+
 		nodePools = append(nodePools, nodePool)
 	}
 

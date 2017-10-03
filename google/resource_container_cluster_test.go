@@ -83,6 +83,23 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMasterAuthNoClientCert(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthNoClientCert,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_master_auth_no_client_cert"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
@@ -390,6 +407,40 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolManagement(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolManagement(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_node_pool_management"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodePoolAutoScaling(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolAutoScaling(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_node_pool_autoscaling"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -447,6 +498,9 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"master_auth.0.cluster_ca_certificate", cluster.MasterAuth.ClusterCaCertificate},
 			{"master_auth.0.password", cluster.MasterAuth.Password},
 			{"master_auth.0.username", cluster.MasterAuth.Username},
+			// issue_client_certificate is a flag and therefore is optional and not computed. The state is assumed by
+			// the existance of a client certificate on the cluster itself.
+			{"master_auth.0.issue_client_certificate", strconv.FormatBool(cluster.MasterAuth.ClientCertificate != "")},
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
@@ -498,6 +552,28 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
 			clusterTests = append(clusterTests, clusterTestField{prefix + "name", np.Name})
+
+			if np.Autoscaling != nil {
+				if np.Autoscaling.Enabled {
+					clusterTests = append(clusterTests,
+						clusterTestField{prefix + "autoscaling.0.min_node_count", strconv.FormatInt(np.Autoscaling.MinNodeCount, 10)},
+						clusterTestField{prefix + "autoscaling.0.max_node_count", strconv.FormatInt(np.Autoscaling.MaxNodeCount, 10)})
+				}
+			}
+
+			// Management blocks are returned by GCP regardless of whether or not they are submitted. Since the terraform
+			// attributes won't contain the mapped values unless they were provided in the template the tests will
+			// fail. We limit checking these fields unless they are part of the template itself
+			if np.Management != nil {
+				if _, ok := attributes[prefix+"management.0.auto_upgrade"]; ok {
+					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_upgrade", strconv.FormatBool(np.Management.AutoUpgrade)})
+				}
+
+				if _, ok := attributes[prefix+"management.0.auto_repair"]; ok {
+					clusterTests = append(clusterTests, clusterTestField{prefix + "management.0.auto_repair", strconv.FormatBool(np.Management.AutoRepair)})
+				}
+			}
+
 			if np.Config != nil {
 				clusterTests = append(clusterTests,
 					clusterTestField{prefix + "node_config.0.machine_type", np.Config.MachineType},
@@ -696,6 +772,20 @@ resource "google_container_cluster" "with_master_auth" {
 	master_auth {
 		username = "mr.yoda"
 		password = "adoy.rm"
+		issue_client_certificate = true
+	}
+}`, acctest.RandString(10))
+
+var testAccContainerCluster_withMasterAuthNoClientCert = fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth_no_client_cert" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+		issue_client_certificate = false
 	}
 }`, acctest.RandString(10))
 
@@ -1066,6 +1156,84 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 	node_pool {
 		name = "tf-cluster-nodepool-test-%s"
 		node_count = 2
+		node_config {
+			machine_type = "n1-standard-1"
+			disk_size_gb = 15
+			local_ssd_count = 1
+			oauth_scopes = [
+				"https://www.googleapis.com/auth/compute",
+				"https://www.googleapis.com/auth/devstorage.read_only",
+				"https://www.googleapis.com/auth/logging.write",
+				"https://www.googleapis.com/auth/monitoring"
+			]
+			service_account = "default"
+			metadata {
+				foo = "bar"
+			}
+			image_type = "COS"
+			labels {
+				foo = "bar"
+			}
+			tags = ["foo", "bar"]
+		}
+	}
+
+}
+`, testId, testId)
+}
+
+func testAccContainerCluster_withNodePoolManagement() string {
+	testId := acctest.RandString(10)
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_management" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+	node_pool {
+		name = "tf-cluster-nodepool-test-%s"
+		node_count = 2
+		management {
+			auto_repair = true
+			auto_upgrade = true
+		}
+		node_config {
+			machine_type = "n1-standard-1"
+			disk_size_gb = 15
+			local_ssd_count = 1
+			oauth_scopes = [
+				"https://www.googleapis.com/auth/compute",
+				"https://www.googleapis.com/auth/devstorage.read_only",
+				"https://www.googleapis.com/auth/logging.write",
+				"https://www.googleapis.com/auth/monitoring"
+			]
+			service_account = "default"
+			metadata {
+				foo = "bar"
+			}
+			image_type = "COS"
+			labels {
+				foo = "bar"
+			}
+			tags = ["foo", "bar"]
+		}
+	}
+
+}
+`, testId, testId)
+}
+
+func testAccContainerCluster_withNodePoolAutoScaling() string {
+	testId := acctest.RandString(10)
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_autoscaling" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+	node_pool {
+		name = "tf-cluster-nodepool-test-%s"
+		node_count = 2
+		autoscaling {
+			min_node_count = 1
+			max_node_count = 5
+		}
 		node_config {
 			machine_type = "n1-standard-1"
 			disk_size_gb = 15
