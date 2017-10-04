@@ -1,16 +1,17 @@
 ## 1.0.2 (Unreleased)
 
-BUG FIXES:
-* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
-* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
-
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
 
 IMPROVEMENTS:
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
+* container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
 * sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
 * pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
+
+BUG FIXES:
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
 
 ## 1.0.1 (October 02, 2017)
 
