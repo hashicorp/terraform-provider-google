@@ -165,7 +165,6 @@ func testAccCheckComputeNetworkIsCustomSubnet(n string, network *compute.Network
 var testAccComputeNetwork_basic = fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "network-test-%s"
-	ipv4_range = "10.0.0.0/16"
 }`, acctest.RandString(10))
 
 var testAccComputeNetwork_auto_subnet = fmt.Sprintf(`

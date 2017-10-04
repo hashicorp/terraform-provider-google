@@ -156,7 +156,7 @@ func testAccComputeRouterInterfaceBasic(testId string) string {
 			name = "router-interface-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-interface-test-%s"
+			name = "router-interface-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"
@@ -225,7 +225,7 @@ func testAccComputeRouterInterfaceKeepRouter(testId string) string {
 			name = "router-interface-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-interface-test-%s"
+			name = "router-interface-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"

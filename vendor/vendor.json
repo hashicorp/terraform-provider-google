@@ -888,10 +888,10 @@
 			"revisionTime": "2017-09-27T00:04:17Z"
 		},
 		{
-			"checksumSHA1": "Ny63yO2/yvMFQltnIXU3gzim69M=",
+			"checksumSHA1": "9DJNWrpYeGBJXNN4lb9ad3/q6L0=",
 			"path": "google.golang.org/api/container/v1",
-			"revision": "66dba45b06824cbfe030e696b156d562994531e1",
-			"revisionTime": "2017-07-22T12:18:25Z"
+			"revision": "654f863362977d69086620b5f72f13e911da2410",
+			"revisionTime": "2017-09-14T00:03:44Z"
 		},
 		{
 			"checksumSHA1": "wv8+a9dOWrdJEIt1mva9qLlTSfo=",

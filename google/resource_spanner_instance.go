@@ -335,11 +335,3 @@ func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
 		Instance: parts[1],
 	}, nil
 }
-
-func convertStringMap(v map[string]interface{}) map[string]string {
-	m := make(map[string]string)
-	for k, val := range v {
-		m[k] = val.(string)
-	}
-	return m
-}

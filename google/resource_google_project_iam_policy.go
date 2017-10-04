@@ -31,8 +31,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
 			"authoritative": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "Use google_project_iam_policy_binding and google_project_iam_policy_member instead.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
@@ -43,8 +44,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				Computed: true,
 			},
 			"disable_project": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
+				Deprecated: "This will be removed with the authoritative field. Use lifecycle.prevent_destroy instead.",
+				Type:       schema.TypeBool,
+				Optional:   true,
 			},
 		},
 	}
