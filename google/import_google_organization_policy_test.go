@@ -16,7 +16,7 @@ func TestAccGoogleOrganizationPolicy_import(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleOrganizationPolicy_listAll(org, "allow"),
+				Config: testAccGoogleOrganizationPolicy_list_allowAll(org),
 			},
 			{
 				ResourceName:      "google_organization_policy.listAll",

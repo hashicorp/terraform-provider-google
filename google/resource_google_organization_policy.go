@@ -51,15 +51,17 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allow": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:          schema.TypeList,
+							Optional:      true,
+							MaxItems:      1,
+							ConflictsWith: []string{"list_policy.0.deny"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"all": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Type:          schema.TypeBool,
+										Optional:      true,
+										Default:       false,
+										ConflictsWith: []string{"list_policy.0.allow.0.values"},
 									},
 									"values": {
 										Type:     schema.TypeSet,
@@ -77,9 +79,10 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"all": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Type:          schema.TypeBool,
+										Optional:      true,
+										Default:       false,
+										ConflictsWith: []string{"list_policy.0.deny.0.values"},
 									},
 									"values": {
 										Type:     schema.TypeSet,
@@ -271,10 +274,6 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 	allow := listPolicyMap["allow"].([]interface{})
 	deny := listPolicyMap["deny"].([]interface{})
 
-	if len(allow) > 0 && len(deny) > 0 {
-		return nil, fmt.Errorf("You cannot specified an `allow` and a `deny` block")
-	}
-
 	var allValues string
 	var allowedValues []string
 	var deniedValues []string
@@ -282,10 +281,6 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 		allowMap := allow[0].(map[string]interface{})
 		all := allowMap["all"].(bool)
 		values := allowMap["values"].(*schema.Set)
-
-		if all && values.Len() > 0 {
-			return nil, fmt.Errorf("Invalid `allow` block, `all` cannot be used in conjunction with a specific list of `values`")
-		}
 
 		if all {
 			allValues = "ALLOW"
@@ -298,10 +293,6 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 		denyMap := deny[0].(map[string]interface{})
 		all := denyMap["all"].(bool)
 		values := denyMap["values"].(*schema.Set)
-
-		if all && values.Len() > 0 {
-			return nil, fmt.Errorf("Invalid `deny` block, `all` cannot be used in conjunction with a specific list of `values`")
-		}
 
 		if all {
 			allValues = "DENY"
