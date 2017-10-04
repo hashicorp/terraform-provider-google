@@ -36,6 +36,18 @@ The following arguments are supported:
 * `region` - (Optional) The Region in which the created address should reside.
     If it is not provided, the provider region is used.
 
+* `address_type` - (Optional) The Address Type that should be configured. If it
+    is not provided, this defaults to EXTERNAL.
+    Supported values include: INTERNAL EXTERNAL.
+
+* `sub_network` - (Optional) The URI of the Sub Network that the address will be created
+    in. If it is not provide the project default will be used. This is only needed
+    if using INTERNAL address_type.
+
+* `internal_address` - (Optional) The Internal Address will allow setting a
+    specific IP address. If not provided a random address will be configured.
+    This is only needed if using INTERNAL address_type.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
