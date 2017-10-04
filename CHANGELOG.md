@@ -14,6 +14,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
 * compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
+* container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
 
 ## 1.0.1 (October 02, 2017)
 
