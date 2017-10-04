@@ -19,6 +19,7 @@ func resourceComputeBackendService() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -42,8 +43,9 @@ func resourceComputeBackendService() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 						"balancing_mode": &schema.Schema{
 							Type:     schema.TypeString,
@@ -374,7 +376,8 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
+	group, _ := getRelativePath(m["group"].(string))
+	buf.WriteString(fmt.Sprintf("%s-", group))
 
 	if v, ok := m["balancing_mode"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
