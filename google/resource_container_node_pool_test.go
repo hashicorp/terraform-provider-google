@@ -32,6 +32,42 @@ func TestAccContainerNodePool_basic(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_namePrefix(t *testing.T) {
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_namePrefix(cluster, "tf-np-"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_noName(t *testing.T) {
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_noName(cluster),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -236,6 +272,37 @@ resource "google_container_node_pool" "np" {
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
 }`, cluster, np)
+}
+
+func testAccContainerNodePool_namePrefix(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np" {
+	name_prefix = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_noName(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np" {
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+}`, cluster)
 }
 
 func testAccContainerNodePool_autoscaling(cluster, np string) string {

@@ -158,8 +158,8 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	zone := d.Get("zone").(string)
-	name := d.Get("name").(string)
 	cluster := d.Get("cluster").(string)
+	name := getNodePoolName(d.Id())
 
 	nodePool, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
 		project, zone, cluster, name).Do()
@@ -233,13 +233,13 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 	}
 
 	zone := d.Get("zone").(string)
-	name := d.Get("name").(string)
 	cluster := d.Get("cluster").(string)
+	name := getNodePoolName(d.Id())
 
 	_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
 		project, zone, cluster, name).Do()
 	if err != nil {
-		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", d.Get("name").(string))); err == nil {
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
 		}
 		// There was some other error in reading the resource
@@ -416,4 +416,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	return nil
+}
+
+func getNodePoolName(id string) string {
+	// name can be specified with name, name_prefix, or neither, so read it from the id.
+	return strings.Split(id, "/")[2]
 }
