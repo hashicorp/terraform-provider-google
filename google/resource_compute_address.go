@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v0.beta"
 )
 
 var (
@@ -37,6 +38,24 @@ func resourceComputeAddress() *schema.Resource {
 			"address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"address_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"sub_network": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"internal_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"project": &schema.Schema{
@@ -74,8 +93,13 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Build the address parameter
-	addr := &compute.Address{Name: d.Get("name").(string)}
-	op, err := config.clientCompute.Addresses.Insert(
+	addr := &compute.Address{
+		Name:        d.Get("name").(string),
+		AddressType: d.Get("address_type").(string),
+		Address:     d.Get("internal_address").(string),
+		Subnetwork:  d.Get("sub_network").(string),
+	}
+	op, err := config.clientComputeBeta.Addresses.Insert(
 		project, region, addr).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating address: %s", err)
@@ -88,7 +112,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		Name:    addr.Name,
 	}.canonicalId())
 
-	err = computeOperationWait(config, op, project, "Creating Address")
+	err = computeBetaOperationWait(config, op, project, "Creating Address")
 	if err != nil {
 		return err
 	}

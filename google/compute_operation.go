@@ -93,6 +93,10 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 	return nil
 }
 
+func computeBetaOperationWait(config *Config, op *computeBeta.Operation, project, activity string) error {
+	return computeBetaOperationWaitTime(config, op, project, activity, 4)
+}
+
 func computeBetaOperationWaitTime(config *Config, op *computeBeta.Operation, project, activity string, timeoutMin int) error {
 	opV1 := &compute.Operation{}
 	err := Convert(op, opV1)
