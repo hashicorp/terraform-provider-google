@@ -4,6 +4,7 @@ FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
 
 IMPROVEMENTS:
+* compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
 * compute: Improve VPN gateway and router to generate network link without calling network API [GH-527]
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
 * container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
