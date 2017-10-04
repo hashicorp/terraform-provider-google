@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -19,6 +20,12 @@ func resourceContainerNodePool() *schema.Resource {
 		Delete: resourceContainerNodePoolDelete,
 		Exists: resourceContainerNodePoolExists,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		SchemaVersion: 1,
 		MigrateState:  resourceContainerNodePoolMigrateState,
 
@@ -26,69 +33,79 @@ func resourceContainerNodePool() *schema.Resource {
 			State: resourceContainerNodePoolStateImporter,
 		},
 
-		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
+		Schema: mergeSchemas(
+			schemaNodePool,
+			map[string]*schema.Schema{
+				"project": &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+				},
+				"zone": &schema.Schema{
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"cluster": &schema.Schema{
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+			}),
+	}
+}
 
-			"name": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"name_prefix"},
-				ForceNew:      true,
-			},
+var schemaNodePool = map[string]*schema.Schema{
+	"name": &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
 
-			"name_prefix": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
+	"name_prefix": &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+	},
 
-			"zone": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
+	"initial_node_count": &schema.Schema{
+		Type:       schema.TypeInt,
+		Optional:   true,
+		ForceNew:   true,
+		Computed:   true,
+		Deprecated: "Use node_count instead",
+	},
 
-			"cluster": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
+	"node_count": {
+		Type:         schema.TypeInt,
+		Optional:     true,
+		Computed:     true,
+		ValidateFunc: validation.IntAtLeast(1),
+	},
 
-			"initial_node_count": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
+	"node_config": schemaNodeConfig,
 
-			"node_config": schemaNodeConfig,
+	"autoscaling": &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"min_node_count": &schema.Schema{
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+				},
 
-			"autoscaling": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"min_node_count": &schema.Schema{
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntAtLeast(0),
-						},
-
-						"max_node_count": &schema.Schema{
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntAtLeast(1),
-						},
-					},
+				"max_node_count": &schema.Schema{
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(1),
 				},
 			},
 		},
-	}
+	},
 }
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
@@ -99,41 +116,17 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	zone := d.Get("zone").(string)
-	cluster := d.Get("cluster").(string)
-	nodeCount := d.Get("initial_node_count").(int)
-
-	var name string
-	if v, ok := d.GetOk("name"); ok {
-		name = v.(string)
-	} else if v, ok := d.GetOk("name_prefix"); ok {
-		name = resource.PrefixedUniqueId(v.(string))
-	} else {
-		name = resource.UniqueId()
-	}
-
-	nodePool := &container.NodePool{
-		Name:             name,
-		InitialNodeCount: int64(nodeCount),
-	}
-
-	if v, ok := d.GetOk("node_config"); ok {
-		nodePool.Config = expandNodeConfig(v)
-	}
-
-	if v, ok := d.GetOk("autoscaling"); ok {
-		autoscaling := v.([]interface{})[0].(map[string]interface{})
-		nodePool.Autoscaling = &container.NodePoolAutoscaling{
-			Enabled:         true,
-			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
-			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
-			ForceSendFields: []string{"MinNodeCount"},
-		}
+	nodePool, err := expandNodePool(d, "")
+	if err != nil {
+		return err
 	}
 
 	req := &container.CreateNodePoolRequest{
 		NodePool: nodePool,
 	}
+
+	zone := d.Get("zone").(string)
+	cluster := d.Get("cluster").(string)
 
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, req).Do()
 
@@ -141,16 +134,17 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error creating NodePool: %s", err)
 	}
 
-	waitErr := containerOperationWait(config, op, project, zone, "creating GKE NodePool", 10, 3)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	waitErr := containerOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
 	}
 
-	log.Printf("[INFO] GKE NodePool %s has been created", name)
+	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, name))
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -173,70 +167,27 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading NodePool: %s", err)
 	}
 
-	d.Set("name", nodePool.Name)
-	d.Set("initial_node_count", nodePool.InitialNodeCount)
-	d.Set("node_config", flattenNodeConfig(nodePool.Config))
-
-	autoscaling := []map[string]interface{}{}
-	if nodePool.Autoscaling != nil && nodePool.Autoscaling.Enabled {
-		autoscaling = []map[string]interface{}{
-			map[string]interface{}{
-				"min_node_count": nodePool.Autoscaling.MinNodeCount,
-				"max_node_count": nodePool.Autoscaling.MaxNodeCount,
-			},
-		}
+	npMap, err := flattenNodePool(d, config, nodePool, "")
+	if err != nil {
+		return err
 	}
-	d.Set("autoscaling", autoscaling)
+
+	for k, v := range npMap {
+		d.Set(k, v)
+	}
 
 	return nil
 }
 
 func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	cluster := d.Get("cluster").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
-	project, err := getProject(d, config)
-	if err != nil {
+	d.Partial(true)
+	if err := nodePoolUpdate(d, meta, cluster, "", timeoutInMinutes); err != nil {
 		return err
 	}
-
-	zone := d.Get("zone").(string)
-	name := d.Get("name").(string)
-	cluster := d.Get("cluster").(string)
-
-	if d.HasChange("autoscaling") {
-		update := &container.ClusterUpdate{
-			DesiredNodePoolId: name,
-		}
-		if v, ok := d.GetOk("autoscaling"); ok {
-			autoscaling := v.([]interface{})[0].(map[string]interface{})
-			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
-				Enabled:      true,
-				MinNodeCount: int64(autoscaling["min_node_count"].(int)),
-				MaxNodeCount: int64(autoscaling["max_node_count"].(int)),
-			}
-		} else {
-			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
-				Enabled: false,
-			}
-		}
-
-		req := &container.UpdateClusterRequest{
-			Update: update,
-		}
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zone, cluster, req).Do()
-		if err != nil {
-			return err
-		}
-
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool", 10, 2)
-		if waitErr != nil {
-			return waitErr
-		}
-
-		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
-	}
+	d.Partial(false)
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -252,6 +203,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	zone := d.Get("zone").(string)
 	name := d.Get("name").(string)
 	cluster := d.Get("cluster").(string)
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
 		project, zone, cluster, name).Do()
@@ -260,7 +212,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, project, zone, "deleting GKE NodePool", 10, 2)
+	waitErr := containerOperationWait(config, op, project, zone, "deleting GKE NodePool", timeoutInMinutes, 2)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -307,4 +259,161 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool, error) {
+	var name string
+	if v, ok := d.GetOk(prefix + "name"); ok {
+		name = v.(string)
+	} else if v, ok := d.GetOk(prefix + "name_prefix"); ok {
+		name = resource.PrefixedUniqueId(v.(string))
+	} else {
+		name = resource.UniqueId()
+	}
+
+	nodeCount := 0
+	if initialNodeCount, ok := d.GetOk(prefix + "initial_node_count"); ok {
+		nodeCount = initialNodeCount.(int)
+	}
+	if nc, ok := d.GetOk(prefix + "node_count"); ok {
+		if nodeCount != 0 {
+			return nil, fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %s", name)
+		}
+		nodeCount = nc.(int)
+	}
+	if nodeCount == 0 {
+		return nil, fmt.Errorf("Node pool %s cannot be set with 0 node count", name)
+	}
+
+	np := &container.NodePool{
+		Name:             name,
+		InitialNodeCount: int64(nodeCount),
+	}
+
+	if v, ok := d.GetOk(prefix + "node_config"); ok {
+		np.Config = expandNodeConfig(v)
+	}
+
+	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
+		autoscaling := v.([]interface{})[0].(map[string]interface{})
+		np.Autoscaling = &container.NodePoolAutoscaling{
+			Enabled:         true,
+			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
+			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
+			ForceSendFields: []string{"MinNodeCount"},
+		}
+	}
+
+	return np, nil
+}
+
+func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
+	// Node pools don't expose the current node count in their API, so read the
+	// instance groups instead. They should all have the same size, but in case a resize
+	// failed or something else strange happened, we'll just use the average size.
+	size := 0
+	for _, url := range np.InstanceGroupUrls {
+		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
+		matches := instanceGroupManagerURL.FindStringSubmatch(url)
+		igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		if err != nil {
+			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+		}
+		size += int(igm.TargetSize)
+	}
+	nodePool := map[string]interface{}{
+		"name":               np.Name,
+		"name_prefix":        d.Get(prefix + "name_prefix"),
+		"initial_node_count": np.InitialNodeCount,
+		"node_count":         size / len(np.InstanceGroupUrls),
+		"node_config":        flattenNodeConfig(np.Config),
+	}
+
+	if np.Autoscaling != nil && np.Autoscaling.Enabled {
+		nodePool["autoscaling"] = []map[string]interface{}{
+			map[string]interface{}{
+				"min_node_count": np.Autoscaling.MinNodeCount,
+				"max_node_count": np.Autoscaling.MaxNodeCount,
+			},
+		}
+	}
+
+	return nodePool, nil
+}
+
+func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefix string, timeoutInMinutes int) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	zone := d.Get("zone").(string)
+	npName := d.Get(prefix + "name").(string)
+
+	if d.HasChange(prefix + "autoscaling") {
+		update := &container.ClusterUpdate{
+			DesiredNodePoolId: npName,
+		}
+		if v, ok := d.GetOk(prefix + "autoscaling"); ok {
+			autoscaling := v.([]interface{})[0].(map[string]interface{})
+			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+				Enabled:         true,
+				MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
+				MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
+				ForceSendFields: []string{"MinNodeCount"},
+			}
+		} else {
+			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+				Enabled: false,
+			}
+		}
+
+		req := &container.UpdateClusterRequest{
+			Update: update,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zone, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
+
+		if prefix == "" {
+			d.SetPartial("autoscaling")
+		}
+	}
+
+	if d.HasChange(prefix + "node_count") {
+		newSize := int64(d.Get(prefix + "node_count").(int))
+		req := &container.SetNodePoolSizeRequest{
+			NodeCount: newSize,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
+
+		if prefix == "" {
+			d.SetPartial("node_count")
+		}
+	}
+
+	return nil
 }

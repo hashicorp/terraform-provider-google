@@ -101,6 +101,33 @@ func TestAccContainerNodePool_autoscaling(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_resize(t *testing.T) {
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_additionalZones(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_count", "2"),
+				),
+			},
+			{
+				Config: testAccContainerNodePool_resize(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_count", "3"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -259,6 +286,48 @@ resource "google_container_node_pool" "np" {
 		max_node_count = 5
 	}
 }`, cluster, np)
+}
+
+func testAccContainerNodePool_additionalZones(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c"
+	]
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	node_count = 2
+}`, cluster, nodePool)
+}
+
+func testAccContainerNodePool_resize(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c"
+	]
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	node_count = 3
+}`, cluster, nodePool)
 }
 
 func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface{}) string {

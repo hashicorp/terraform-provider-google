@@ -341,6 +341,20 @@ func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
 	return sm
 }
 
+func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
+	merged := make(map[string]*schema.Schema)
+
+	for k, v := range a {
+		merged[k] = v
+	}
+
+	for k, v := range b {
+		merged[k] = v
+	}
+
+	return merged
+}
+
 func retry(retryFunc func() error) error {
 	return resource.Retry(1*time.Minute, func() *resource.RetryError {
 		err := retryFunc()
