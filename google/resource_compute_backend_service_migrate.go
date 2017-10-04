@@ -34,11 +34,7 @@ func migrateBackendServiceStateV0toV1(is *terraform.InstanceState) (*terraform.I
 
 	oldHashToValue := map[string]map[string]interface{}{}
 	for k, v := range is.Attributes {
-		if !strings.HasPrefix(k, "backend.") {
-			continue
-		}
-
-		if k == "backend.#" {
+		if !strings.HasPrefix(k, "backend.") || k == "backend.#" {
 			continue
 		}
 
