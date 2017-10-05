@@ -66,11 +66,6 @@ func resourceComputeRoute() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"next_hop_network": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"next_hop_vpn_tunnel": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -83,17 +78,22 @@ func resourceComputeRoute() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"self_link": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"next_hop_network": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
