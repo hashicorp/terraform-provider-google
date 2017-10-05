@@ -839,13 +839,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Set the service accounts
 	serviceAccounts := make([]map[string]interface{}, 0, 1)
 	for _, serviceAccount := range instance.ServiceAccounts {
-		scopes := make([]interface{}, len(serviceAccount.Scopes))
-		for i, scope := range serviceAccount.Scopes {
-			scopes[i] = scope
-		}
 		serviceAccounts = append(serviceAccounts, map[string]interface{}{
 			"email":  serviceAccount.Email,
-			"scopes": schema.NewSet(stringScopeHashcode, scopes),
+			"scopes": schema.NewSet(stringScopeHashcode, convertStringArrToInterface(serviceAccount.Scopes)),
 		})
 	}
 	d.Set("service_account", serviceAccounts)

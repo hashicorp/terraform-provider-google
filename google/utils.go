@@ -325,6 +325,14 @@ func convertStringArr(ifaceArr []interface{}) []string {
 	return arr
 }
 
+func convertStringArrToInterface(strs []string) []interface{} {
+	arr := make([]interface{}, len(strs))
+	for i, str := range strs {
+		arr[i] = str
+	}
+	return arr
+}
+
 func convertStringSet(set *schema.Set) []string {
 	s := make([]string, 0, set.Len())
 	for _, v := range set.List() {
