@@ -51,10 +51,10 @@ The following arguments are supported:
 
 * `backend_service` - (Required) The URL of a Backend Service resource to receive the matched traffic.
 
+- - -
+
 * `proxy_header` - (Optional) Type of proxy header to append before sending
     data to the backend, either NONE or PROXY_V1 (default NONE).
-
-- - -
 
 * `description` - (Optional) A description of this resource. Changing this
     forces a new resource to be created.
@@ -70,3 +70,11 @@ exported:
 * `proxy_id` - A unique ID assigned by GCE.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+TCP proxy can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_target_tcp_proxy.default test
+```

@@ -16,6 +16,10 @@ func resourceComputeTargetTcpProxy() *schema.Resource {
 		Delete: resourceComputeTargetTcpProxyDelete,
 		Update: resourceComputeTargetTcpProxyUpdate,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -27,11 +31,13 @@ func resourceComputeTargetTcpProxy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+
 			"proxy_header": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "NONE",
 			},
+
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -137,6 +143,10 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Target TCP Proxy %q", d.Get("name").(string)))
 	}
 
+	d.Set("name", proxy.Name)
+	d.Set("backend_service", proxy.Service)
+	d.Set("proxy_header", proxy.ProxyHeader)
+	d.Set("description", proxy.Description)
 	d.Set("self_link", proxy.SelfLink)
 	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 
