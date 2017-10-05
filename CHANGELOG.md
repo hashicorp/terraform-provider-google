@@ -2,6 +2,7 @@
 
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
+* **New Resource:** `google_compute_target_tcp_proxy` ([#528](https://github.com/terraform-providers/terraform-provider-google/pull/528))
 
 IMPROVEMENTS:
 * compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
