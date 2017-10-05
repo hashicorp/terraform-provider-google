@@ -97,6 +97,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_subnetwork":                    resourceComputeSubnetwork(),
 			"google_compute_target_http_proxy":             resourceComputeTargetHttpProxy(),
 			"google_compute_target_https_proxy":            resourceComputeTargetHttpsProxy(),
+			"google_compute_target_tcp_proxy":              resourceComputeTargetTcpProxy(),
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_compute_url_map":                       resourceComputeUrlMap(),
 			"google_compute_vpn_gateway":                   resourceComputeVpnGateway(),
