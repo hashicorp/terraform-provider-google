@@ -102,7 +102,7 @@ The following arguments are supported:
 The `backend` block supports:
 
 * `group` - (Required) The name or URI of a Compute Engine instance group
-    (`google_compute_instance_group_manager.xyz.instance_group`) that can
+    (`google_compute_region_instance_group_manager.xyz.instance_group`) that can
     receive traffic. Instance groups must contain at least one instance.
 
 * `balancing_mode` - (Optional) Defines the strategy for balancing load.
