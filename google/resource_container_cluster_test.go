@@ -172,7 +172,7 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccContainerCluster_withVersion(clusterName),
+				Config: testAccContainerCluster_updateVersion(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_version"),
@@ -824,7 +824,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	node_version = "${data.google_container_engine_versions.central1a.latest_node_version}"
+	master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
 	initial_node_count = 1
 
 	master_auth {
@@ -843,7 +843,27 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	node_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	initial_node_count = 1
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateVersion(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_version" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+	node_version = "${data.google_container_engine_versions.central1a.latest_node_version}"
 	initial_node_count = 1
 
 	master_auth {
