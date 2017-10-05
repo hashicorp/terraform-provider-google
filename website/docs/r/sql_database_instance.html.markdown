@@ -35,9 +35,9 @@ resource "google_sql_database_instance" "master" {
 
 The following arguments are supported:
 
-* `region` - (Required) The region the instance will sit in. Note, this does
-    not line up with the Google Compute Engine (GCE) regions - your options are
-    `us-central`, `asia-west1`, `europe-west1`, and `us-east1`.
+* `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance 
+    regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not 
+    available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
 
 * `settings` - (Required) The settings to use for the database. The
     configuration is detailed below.
