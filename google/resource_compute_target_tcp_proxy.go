@@ -38,7 +38,7 @@ func resourceComputeTargetTcpProxy() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"id": &schema.Schema{
+			"proxy_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -66,12 +66,10 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	proxy := &compute.TargetTcpProxy{
-		Name:    d.Get("name").(string),
-		Service: d.Get("backend_service").(string),
-	}
-
-	if v, ok := d.GetOk("description"); ok {
-		proxy.Description = v.(string)
+		Name:        d.Get("name").(string),
+		Service:     d.Get("backend_service").(string),
+		ProxyHeader: d.Get("proxy_header").(string),
+		Description: d.Get("description").(string),
 	}
 
 	log.Printf("[DEBUG] TargetTcpProxy insert request: %#v", proxy)
@@ -140,7 +138,7 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("self_link", proxy.SelfLink)
-	d.Set("id", strconv.FormatUint(proxy.Id, 10))
+	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 
 	return nil
 }
