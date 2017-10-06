@@ -125,6 +125,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
@@ -148,7 +153,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		Description:         d.Get("description").(string),
 		LoadBalancingScheme: d.Get("load_balancing_scheme").(string),
 		Name:                d.Get("name").(string),
-		Network:             ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
+		Network:             network.RelativeLink(),
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
 		Subnetwork:          d.Get("subnetwork").(string),

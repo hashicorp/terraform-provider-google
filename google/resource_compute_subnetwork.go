@@ -99,6 +99,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -117,7 +121,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
 		PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
 		SecondaryIpRanges:     expandSecondaryRanges(d.Get("secondary_ip_range").([]interface{})),
-		Network:               ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
+		Network:               network.RelativeLink(),
 	}
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)

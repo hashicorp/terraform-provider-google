@@ -58,6 +58,10 @@ func resourceComputeVpnGateway() *schema.Resource {
 
 func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -70,7 +74,6 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	name := d.Get("name").(string)
-	network := ParseNetworkFieldValue(d.Get("network").(string), config)
 
 	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.clientCompute)
 

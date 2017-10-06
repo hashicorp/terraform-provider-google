@@ -405,6 +405,11 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
 
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return nil, err
+	}
+
 	// Build up the list of allowed entries
 	var allowed []*computeBeta.FirewallAllowed
 	if v := d.Get("allow").(*schema.Set); v.Len() > 0 {
@@ -487,7 +492,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
-		Network:           ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
+		Network:           network.RelativeLink(),
 		Allowed:           allowed,
 		Denied:            denied,
 		SourceRanges:      sourceRanges,
