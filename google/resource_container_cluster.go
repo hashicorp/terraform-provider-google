@@ -242,6 +242,12 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"master_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"node_config": schemaNodeConfig,
 
 			"node_version": {
@@ -296,8 +302,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	if v, ok := d.GetOk("node_version"); ok {
+	if v, ok := d.GetOk("master_version"); ok {
 		cluster.InitialClusterVersion = v.(string)
+	}
+
+	if _, ok := d.GetOk("node_version"); ok {
+		return fmt.Errorf("cannot set node_version on create, use master_version instead")
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
@@ -458,6 +468,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("master_auth", masterAuth)
 
 	d.Set("initial_node_count", cluster.InitialNodeCount)
+	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
@@ -496,13 +507,12 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
-	if d.HasChange("node_version") {
-		desiredNodeVersion := d.Get("node_version").(string)
-
-		// The master must be updated before the nodes
+	// The master must be updated before the nodes
+	if d.HasChange("master_version") {
+		desiredMasterVersion := d.Get("master_version").(string)
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredMasterVersion: desiredNodeVersion,
+				DesiredMasterVersion: desiredMasterVersion,
 			},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
@@ -518,22 +528,27 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
-			desiredNodeVersion)
+			desiredMasterVersion)
 
-		// Update the nodes
-		req = &container.UpdateClusterRequest{
+		d.SetPartial("master_version")
+	}
+
+	if d.HasChange("node_version") {
+		desiredNodeVersion := d.Get("node_version").(string)
+
+		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredNodeVersion: desiredNodeVersion,
 			},
 		}
-		op, err = config.clientContainer.Projects.Zones.Clusters.Update(
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
 			return err
 		}
 
 		// Wait until it's updated
-		waitErr = containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
 		if waitErr != nil {
 			return waitErr
 		}
