@@ -223,7 +223,7 @@ resource "google_compute_forwarding_rule" "foobar" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = "${google_compute_region_backend_service.foobar-bs.self_link}"
   ports                 = ["80"]
-  network				= "${google_compute_network.foobar.name}"
+  network               = "${google_compute_network.foobar.name}"
 }
 resource "google_compute_forwarding_rule" "foobar2" {
   description           = "Resource created for Terraform acceptance testing"
@@ -231,7 +231,7 @@ resource "google_compute_forwarding_rule" "foobar2" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = "${google_compute_region_backend_service.foobar-bs.self_link}"
   ports                 = ["80"]
-  network				= "${google_compute_network.foobar.self_link}"
+  network               = "${google_compute_network.foobar.self_link}"
 }
 `, serviceName, checkName, networkName, ruleName1, ruleName2)
 }
