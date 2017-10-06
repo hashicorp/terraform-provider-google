@@ -76,6 +76,7 @@ func Provider() terraform.ResourceProvider {
 			"google_active_folder":                 dataSourceGoogleActiveFolder(),
 			"google_iam_policy":                    dataSourceGoogleIamPolicy(),
 			"google_kms_secret":                    dataSourceGoogleKmsSecret(),
+			"google_organization":                  dataSourceGoogleOrganization(),
 			"google_storage_object_signed_url":     dataSourceGoogleSignedUrl(),
 		},
 
