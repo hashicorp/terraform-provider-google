@@ -87,6 +87,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
 			"google_compute_project_metadata":              resourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":         resourceComputeProjectMetadataItem(),
+			"google_compute_region_autoscaler":             resourceComputeRegionAutoscaler(),
 			"google_compute_region_backend_service":        resourceComputeRegionBackendService(),
 			"google_compute_region_instance_group_manager": resourceComputeRegionInstanceGroupManager(),
 			"google_compute_route":                         resourceComputeRoute(),
