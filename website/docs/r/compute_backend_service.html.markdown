@@ -101,7 +101,7 @@ The following arguments are supported:
     to a request before considering the request failed. Defaults to `30`.
 
 * `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
-but still work to finish started ones). Defaults to `0`.
+but still work to finish started ones). Defaults to `300`.
 
 The `backend` block supports:
 
