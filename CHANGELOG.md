@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * compute: Add import support to `google_compute_target_tcp_proxy` [GH-534]
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
 * container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
+* container: Add master_version to container cluster [GH-538]
 * sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
 * pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
 
