@@ -71,9 +71,9 @@ func migrateSqlDatabaseInstanceStateV0toV1(is *terraform.InstanceState) (*terraf
 		}
 
 		// Get the values for all items in the set that make up the hash.
-		vTime := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%d.expiration_time", kParts[5])]
-		vName := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%d.name", kParts[5])]
-		vValue := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%d.value", kParts[5])]
+		vTime := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%s.expiration_time", kParts[5])]
+		vName := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%s.name", kParts[5])]
+		vValue := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%s.value", kParts[5])]
 
 		// Generate the hash based on the expected values using the actual hash function.
 		networkHash := resourceSqlDatabaseInstanceAuthNetworkHash(struct {
@@ -86,7 +86,7 @@ func migrateSqlDatabaseInstanceStateV0toV1(is *terraform.InstanceState) (*terraf
 			value:           vValue,
 		})
 
-		newK := fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%s.%s", networkHash, kParts[6])
+		newK := fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%d.%s", networkHash, kParts[6])
 		networkCount++
 		newNetworks[newK] = is.Attributes[k]
 		delete(is.Attributes, k)
