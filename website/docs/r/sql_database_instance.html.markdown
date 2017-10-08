@@ -35,14 +35,16 @@ resource "google_sql_database_instance" "master" {
 
 The following arguments are supported:
 
-* `region` - (Required) The region the instance will sit in. Note, this does
-    not line up with the Google Compute Engine (GCE) regions - your options are
-    `us-central`, `asia-west1`, `europe-west1`, and `us-east1`.
+* `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance 
+    regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not 
+    available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
 
 * `settings` - (Required) The settings to use for the database. The
     configuration is detailed below.
 
 - - -
+
+* `connection_name` - (Optional) The connection name of the instance to be used in connection strings.
 
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
@@ -114,7 +116,7 @@ The optional `settings.backup_configuration` subblock supports:
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) True if the instance should be assigned an IP
-    address.
+    address. The IPv4 address cannot be disabled for Second Generation instances.
 
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.

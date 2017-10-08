@@ -98,21 +98,33 @@ func testAccCheckComputeRouteExists(n string, route *compute.Route) resource.Tes
 var testAccComputeRoute_basic = fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "route-test-%s"
-	ipv4_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "route-test-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  network       = "${google_compute_network.foobar.self_link}"
+  region        = "us-central1"
 }
 
 resource "google_compute_route" "foobar" {
 	name = "route-test-%s"
 	dest_range = "15.0.0.0/24"
 	network = "${google_compute_network.foobar.name}"
-	next_hop_ip = "10.0.1.5"
+	next_hop_ip = "10.154.0.1"
 	priority = 100
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 
 var testAccComputeRoute_defaultInternetGateway = fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "route-test-%s"
-	ipv4_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "route-test-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  network       = "${google_compute_network.foobar.self_link}"
+  region        = "us-central1"
 }
 
 resource "google_compute_route" "foobar" {
@@ -121,4 +133,4 @@ resource "google_compute_route" "foobar" {
 	network = "${google_compute_network.foobar.name}"
 	next_hop_gateway = "default-internet-gateway"
 	priority = 100
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))

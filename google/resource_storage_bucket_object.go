@@ -81,10 +81,10 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"predefined_acl": &schema.Schema{
-				Type:       schema.TypeString,
-				Deprecated: "Please use resource \"storage_object_acl.predefined_acl\" instead.",
-				Optional:   true,
-				ForceNew:   true,
+				Type:     schema.TypeString,
+				Removed:  "Please use resource \"storage_object_acl.predefined_acl\" instead.",
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"source": &schema.Schema{
@@ -157,9 +157,6 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	insertCall := objectsService.Insert(bucket, object)
 	insertCall.Name(name)
 	insertCall.Media(media)
-	if v, ok := d.GetOk("predefined_acl"); ok {
-		insertCall.PredefinedAcl(v.(string))
-	}
 
 	_, err := insertCall.Do()
 

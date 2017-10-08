@@ -40,8 +40,24 @@ Terraform. Only newly added projects are affected.
 
 ```hcl
 resource "google_project" "my_project" {
+  name = "My Project"
   project_id = "your-project-id"
   org_id     = "1234567"
+}
+```
+
+To create a project under a specific folder
+
+```hcl
+resource "google_project" "my_project-in-a-folder" {
+  name = "My Project"
+  project_id = "your-project-id"
+  folder_id  = "${google_folder.department1.name}"
+}
+
+resource "google_folder" "department1" {
+  display_name = "Department 1"
+  parent     = "organizations/1234567"
 }
 ```
 
@@ -49,29 +65,28 @@ resource "google_project" "my_project" {
 
 The following arguments are supported:
 
-* `project_id` - (Optional) The project ID.
-    Changing this forces a new project to be created. If this attribute is not
-    set, `id` must be set. As `id` is deprecated, consider this attribute
-    required. If you are using `project_id` and creating a new project, the
-    `org_id` and `name` attributes are also required.
+* `name` - (Required) The display name of the project.
 
-* `id` - (Deprecated) The project ID.
-    This attribute has unexpected behaviour and probably does not work
-    as users would expect; it has been deprecated, and will be removed in future
-    versions of Terraform. The `project_id` attribute should be used instead. See
-    [below](#id-field) for more information about its behaviour.
+* `project_id` - (Required) The project ID. Changing this forces a new project to be created.
 
 * `org_id` - (Optional) The numeric ID of the organization this project belongs to.
-    This is required if you are creating a new project.
-    Changing this forces a new project to be created.
+    Changing this forces a new project to be created.  Only one of
+    `org_id` or `folder_id` may be specified. If the `org_id` is
+    specified then the project is created at the top level. Changing
+    this forces the project to be migrated to the newly specified
+    organization.
+
+* `folder_id` - (Optional) The numeric ID of the folder this project should be
+   created under. Only one of `org_id` or `folder_id` may be
+   specified. If the `folder_id` is specified, then the project is
+   created under the specified folder. Changing this forces the
+   project to be migrated to the newly specified folder.
 
 * `billing_account` - (Optional) The alphanumeric ID of the billing account this project
     belongs to. The user or service account performing this operation with Terraform
     must have Billing Account Administrator privileges (`roles/billing.admin`) in
     the organization. See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/v1/how-tos/access-control)
     for more details.
-
-* `name` - (Required) The display name of the project.
 
 * `skip_delete` - (Optional) If true, the Terraform resource can be deleted
     without deleting the Project via the Google API.
@@ -80,26 +95,19 @@ The following arguments are supported:
     This argument is no longer supported, and will be removed in a future version
     of Terraform. It should be replaced with a `google_project_iam_policy` resource.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the project.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `number` - The numeric identifier of the project.
+
 * `policy_etag` - (Deprecated) The etag of the project's IAM policy, used to
     determine if the IAM policy has changed. Please use `google_project_iam_policy`'s
     `etag` property instead; future versions of Terraform will remove the `policy_etag`
     attribute
-
-## ID Field
-
-In versions of Terraform prior to 0.8.5, `google_project` resources used an `id` field in
-config files to specify the project ID. Unfortunately, due to limitations in Terraform,
-this field always looked empty to Terraform. Terraform fell back on using the project
-the Google Cloud provider is configured with. If you're using the `id` field in your
-configurations, know that it is being ignored, and its value will always be seen as the
-ID of the project being used to authenticate Terraform's requests. You should move to the
-`project_id` field as soon as possible.
 
 ## Import
 

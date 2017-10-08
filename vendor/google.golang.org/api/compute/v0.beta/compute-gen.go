@@ -752,11 +752,11 @@ func (s *AcceleratorType) MarshalJSON() ([]byte, error) {
 }
 
 type AcceleratorTypeAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped accelerator type lists.
+	// Items: A list of AcceleratorTypesScopedList resources.
 	Items map[string]AcceleratorTypesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -815,8 +815,12 @@ type AcceleratorTypeList struct {
 	// compute#acceleratorTypeList for lists of accelerator types.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: [Output Only] A token used to continue a truncated
-	// list request.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -1032,6 +1036,15 @@ type Address struct {
 	// Address: The static external IP address represented by this resource.
 	Address string `json:"address,omitempty"`
 
+	// AddressType: The type of address to reserve. If unspecified, defaults
+	// to EXTERNAL.
+	//
+	// Possible values:
+	//   "EXTERNAL"
+	//   "INTERNAL"
+	//   "UNSPECIFIED_TYPE"
+	AddressType string `json:"addressType,omitempty"`
+
 	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
 	// format.
 	CreationTimestamp string `json:"creationTimestamp,omitempty"`
@@ -1100,6 +1113,13 @@ type Address struct {
 	//   "RESERVED"
 	Status string `json:"status,omitempty"`
 
+	// Subnetwork: For external addresses, this field should not be
+	// used.
+	//
+	// The URL of the subnetwork in which to reserve the address. If an IP
+	// address is specified, it must be within the subnetwork's IP range.
+	Subnetwork string `json:"subnetwork,omitempty"`
+
 	// Users: [Output Only] The URLs of the resources that are using this
 	// address.
 	Users []string `json:"users,omitempty"`
@@ -1136,7 +1156,7 @@ type AddressAggregatedList struct {
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped address lists.
+	// Items: A list of AddressesScopedList resources.
 	Items map[string]AddressesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -1183,11 +1203,11 @@ func (s *AddressAggregatedList) MarshalJSON() ([]byte, error) {
 
 // AddressList: Contains a list of addresses.
 type AddressList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of addresses.
+	// Items: A list of Address resources.
 	Items []*Address `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#addressList for
@@ -1202,7 +1222,7 @@ type AddressList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] Server-defined URL for the resource.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1740,6 +1760,43 @@ func (s *AuditLogConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// AuthorizationLoggingOptions: Authorization-related information used
+// by Cloud Audit Logging.
+type AuthorizationLoggingOptions struct {
+	// PermissionType: The type of the permission that was checked.
+	//
+	// Possible values:
+	//   "ADMIN_READ"
+	//   "ADMIN_WRITE"
+	//   "DATA_READ"
+	//   "DATA_WRITE"
+	//   "PERMISSION_TYPE_UNSPECIFIED"
+	PermissionType string `json:"permissionType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PermissionType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PermissionType") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AuthorizationLoggingOptions) MarshalJSON() ([]byte, error) {
+	type noMethod AuthorizationLoggingOptions
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Autoscaler: Represents an Autoscaler resource. Autoscalers allow you
 // to automatically scale virtual machine instances in managed instance
 // groups according to an autoscaling policy that you define. For more
@@ -1837,11 +1894,11 @@ func (s *Autoscaler) MarshalJSON() ([]byte, error) {
 }
 
 type AutoscalerAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped autoscaler lists.
+	// Items: A list of AutoscalersScopedList resources.
 	Items map[string]AutoscalersScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -1888,8 +1945,8 @@ func (s *AutoscalerAggregatedList) MarshalJSON() ([]byte, error) {
 
 // AutoscalerList: Contains a list of Autoscaler resources.
 type AutoscalerList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of Autoscaler resources.
@@ -2234,6 +2291,39 @@ func (s *AutoscalingPolicyCpuUtilization) UnmarshalJSON(data []byte) error {
 // AutoscalingPolicyCustomMetricUtilization: Custom utilization metric
 // policy.
 type AutoscalingPolicyCustomMetricUtilization struct {
+	// Filter: A filter string, compatible with a Stackdriver Monitoring
+	// filter string for TimeSeries.list API call. This filter is used to
+	// select a specific TimeSeries for the purpose of autoscaling and to
+	// determine whether the metric is exporting per-instance or global
+	// data.
+	//
+	// For the filter to be valid for autoscaling purposes, the following
+	// rules apply:
+	// - You can only use the AND operator for joining selectors.
+	// - You can only use direct equality comparison operator (=) without
+	// any functions for each selector.
+	// - You can specify the metric in both the filter string and in the
+	// metric field. However, if specified in both places, the metric must
+	// be identical.
+	// - The monitored resource type determines what kind of values are
+	// expected for the metric. If it is a gce_instance, the autoscaler
+	// expects the metric to include a separate TimeSeries for each instance
+	// in a group. In such a case, you cannot filter on resource labels.
+	// If the resource type is any other value, the autoscaler expects this
+	// metric to contain values that apply to the entire autoscaled instance
+	// group and resource label filtering can be performed to point
+	// autoscaler at the correct TimeSeries to scale upon. This is / called
+	// a global metric for the purpose of autoscaling.
+	//
+	// If not specified, the type defaults to gce_instance.
+	//
+	// You should provide a filter that is selective enough to pick just one
+	// TimeSeries for the autoscaled group or for each of the instances (if
+	// you are using gce_instance resource type). If multiple TimeSeries are
+	// returned upon the query execution, the autoscaler will sum their
+	// respective values to obtain its scaling value.
+	Filter string `json:"filter,omitempty"`
+
 	// Metric: The identifier (type) of the Stackdriver Monitoring metric.
 	// The metric cannot have negative values and should be a utilization
 	// metric, which means that the number of virtual machines handling
@@ -2242,6 +2332,24 @@ type AutoscalingPolicyCustomMetricUtilization struct {
 	//
 	// The metric must have a value type of INT64 or DOUBLE.
 	Metric string `json:"metric,omitempty"`
+
+	// SingleInstanceAssignment: If scaling is based on a global metric
+	// value that represents the total amount of work to be done or resource
+	// usage, set this value to an amount assigned for a single instance of
+	// the scaled group. Autoscaler will keep the number of instances
+	// proportional to the value of this metric, the metric itself should
+	// not change value due to group resizing.
+	//
+	// A good metric to use with the target is for example
+	// pubsub.googleapis.com/subscription/num_undelivered_messages or a
+	// custom metric exporting the total number of requests coming to your
+	// instances.
+	//
+	// A bad example would be a metric exporting an average or median
+	// latency, since this value can't include a chunk assignable to a
+	// single instance, it could be better used with utilization_target
+	// instead.
+	SingleInstanceAssignment float64 `json:"singleInstanceAssignment,omitempty"`
 
 	// UtilizationTarget: The target value of the metric that autoscaler
 	// should maintain. This must be a positive value.
@@ -2263,7 +2371,7 @@ type AutoscalingPolicyCustomMetricUtilization struct {
 	//   "GAUGE"
 	UtilizationTargetType string `json:"utilizationTargetType,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Metric") to
+	// ForceSendFields is a list of field names (e.g. "Filter") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -2271,7 +2379,7 @@ type AutoscalingPolicyCustomMetricUtilization struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Metric") to include in API
+	// NullFields is a list of field names (e.g. "Filter") to include in API
 	// requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -2289,13 +2397,15 @@ func (s *AutoscalingPolicyCustomMetricUtilization) MarshalJSON() ([]byte, error)
 func (s *AutoscalingPolicyCustomMetricUtilization) UnmarshalJSON(data []byte) error {
 	type noMethod AutoscalingPolicyCustomMetricUtilization
 	var s1 struct {
-		UtilizationTarget gensupport.JSONFloat64 `json:"utilizationTarget"`
+		SingleInstanceAssignment gensupport.JSONFloat64 `json:"singleInstanceAssignment"`
+		UtilizationTarget        gensupport.JSONFloat64 `json:"utilizationTarget"`
 		*noMethod
 	}
 	s1.noMethod = (*noMethod)(s)
 	if err := json.Unmarshal(data, &s1); err != nil {
 		return err
 	}
+	s.SingleInstanceAssignment = float64(s1.SingleInstanceAssignment)
 	s.UtilizationTarget = float64(s1.UtilizationTarget)
 	return nil
 }
@@ -2354,7 +2464,8 @@ type Backend struct {
 	// Valid values are UTILIZATION, RATE (for HTTP(S)) and CONNECTION (for
 	// TCP/SSL).
 	//
-	// This cannot be used for internal load balancing.
+	// For Internal Load Balancing, the default and only supported mode is
+	// CONNECTION.
 	//
 	// Possible values:
 	//   "CONNECTION"
@@ -2376,8 +2487,8 @@ type Backend struct {
 	// property when you create the resource.
 	Description string `json:"description,omitempty"`
 
-	// Group: The fully-qualified URL of a zonal Instance Group resource.
-	// This instance group defines the list of instances that serve traffic.
+	// Group: The fully-qualified URL of a Instance Group resource. This
+	// instance group defines the list of instances that serve traffic.
 	// Member virtual machine instances from each instance group must live
 	// in the same zone as the instance group itself. No two backends in a
 	// backend service are allowed to use same Instance Group
@@ -2387,8 +2498,7 @@ type Backend struct {
 	// fully-qualified URL, rather than a partial URL.
 	//
 	// When the BackendService has load balancing scheme INTERNAL, the
-	// instance group must be in a zone within the same region as the
-	// BackendService.
+	// instance group must be within the same region as the BackendService.
 	Group string `json:"group,omitempty"`
 
 	// MaxConnections: The max number of simultaneous connections for the
@@ -2547,8 +2657,12 @@ type BackendBucketList struct {
 	// Kind: Type of resource.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: [Output Only] A token used to continue a truncated
-	// list request.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -2622,7 +2736,8 @@ type BackendService struct {
 	// HealthChecks: The list of URLs to the HttpHealthCheck or
 	// HttpsHealthCheck resource for health checking this BackendService.
 	// Currently at most one health check can be specified, and a health
-	// check is required.
+	// check is required for GCE backend services. A health check must not
+	// be specified for GAE app backend and Cloud Function backend.
 	//
 	// For internal load balancing, a URL to a HealthCheck resource must be
 	// specified instead.
@@ -2750,14 +2865,18 @@ type BackendServiceAggregatedList struct {
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped BackendService lists.
+	// Items: A list of BackendServicesScopedList resources.
 	Items map[string]BackendServicesScopedList `json:"items,omitempty"`
 
 	// Kind: Type of resource.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: [Output Only] A token used to continue a truncated
-	// list request.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -3070,6 +3189,12 @@ func (s *BackendServicesScopedListWarningData) MarshalJSON() ([]byte, error) {
 
 // Binding: Associates `members` with a `role`.
 type Binding struct {
+	// Condition: The condition that is associated with this binding. NOTE:
+	// an unsatisfied condition will not allow user access via current
+	// binding. Different bindings, including their conditions, are examined
+	// independently. This field is GOOGLE_INTERNAL.
+	Condition *Expr `json:"condition,omitempty"`
+
 	// Members: Specifies the identities requesting access for a Cloud
 	// Platform resource. `members` can have the following values:
 	//
@@ -3103,7 +3228,7 @@ type Binding struct {
 	// `roles/viewer`, `roles/editor`, or `roles/owner`.
 	Role string `json:"role,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Members") to
+	// ForceSendFields is a list of field names (e.g. "Condition") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -3111,7 +3236,7 @@ type Binding struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Members") to include in
+	// NullFields is a list of field names (e.g. "Condition") to include in
 	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -3318,11 +3443,11 @@ func (s *Commitment) MarshalJSON() ([]byte, error) {
 }
 
 type CommitmentAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: Commitments by scope.
+	// Items: A list of CommitmentsScopedList resources.
 	Items map[string]CommitmentsScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -3369,8 +3494,8 @@ func (s *CommitmentAggregatedList) MarshalJSON() ([]byte, error) {
 
 // CommitmentList: Contains a list of Commitment resources.
 type CommitmentList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of Commitment resources.
@@ -3871,7 +3996,8 @@ type Disk struct {
 	//
 	// If you specify this field along with sourceImage or sourceSnapshot,
 	// the value of sizeGb must not be less than the size of the sourceImage
-	// or the size of the snapshot.
+	// or the size of the snapshot. Acceptable values are 1 to 65536,
+	// inclusive.
 	SizeGb int64 `json:"sizeGb,omitempty,string"`
 
 	// SourceImage: The source image used to create this disk. If the source
@@ -3993,11 +4119,11 @@ func (s *Disk) MarshalJSON() ([]byte, error) {
 }
 
 type DiskAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped disk lists.
+	// Items: A list of DisksScopedList resources.
 	Items map[string]DisksScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -4009,8 +4135,7 @@ type DiskAggregatedList struct {
 	// than maxResults, use the nextPageToken as a value for the query
 	// parameter pageToken in the next list request. Subsequent list
 	// requests will have their own nextPageToken to continue paging through
-	// the results. Acceptable values are 0 to 500, inclusive. (Default:
-	// 500)
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -4056,11 +4181,12 @@ type DiskList struct {
 	// lists of disks.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: This token allows you to get the next page of results
-	// for list requests. If the number of results is larger than
-	// maxResults, use the nextPageToken as a value for the query parameter
-	// pageToken in the next list request. Subsequent list requests will
-	// have their own nextPageToken to continue paging through the results.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -4203,11 +4329,11 @@ func (s *DiskType) MarshalJSON() ([]byte, error) {
 }
 
 type DiskTypeAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped disk type lists.
+	// Items: A list of DiskTypesScopedList resources.
 	Items map[string]DiskTypesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -4254,11 +4380,11 @@ func (s *DiskTypeAggregatedList) MarshalJSON() ([]byte, error) {
 
 // DiskTypeList: Contains a list of disk types.
 type DiskTypeList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Disk Type resources.
+	// Items: A list of DiskType resources.
 	Items []*DiskType `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#diskTypeList for
@@ -4585,6 +4711,56 @@ func (s *DisksScopedListWarningData) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Expr: Represents an expression text. Example:
+//
+// title: "User account presence" description: "Determines whether the
+// request has a user account" expression: "size(request.user) > 0"
+type Expr struct {
+	// Description: An optional description of the expression. This is a
+	// longer text which describes the expression, e.g. when hovered over it
+	// in a UI.
+	Description string `json:"description,omitempty"`
+
+	// Expression: Textual representation of an expression in Common
+	// Expression Language syntax.
+	//
+	// The application context of the containing message determines which
+	// well-known feature set of CEL is supported.
+	Expression string `json:"expression,omitempty"`
+
+	// Location: An optional string indicating the location of the
+	// expression for error reporting, e.g. a file name and a position in
+	// the file.
+	Location string `json:"location,omitempty"`
+
+	// Title: An optional title for the expression, i.e. a short string
+	// describing its purpose. This can be used e.g. in UIs which allow to
+	// enter the expression.
+	Title string `json:"title,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Description") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Expr) MarshalJSON() ([]byte, error) {
+	type noMethod Expr
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Firewall: Represents a Firewall resource.
 type Firewall struct {
 	// Allowed: The list of ALLOW rules specified by this firewall. Each
@@ -4672,16 +4848,41 @@ type Firewall struct {
 	// the firewall to apply. Only IPv4 is supported.
 	SourceRanges []string `json:"sourceRanges,omitempty"`
 
-	// SourceTags: If source tags are specified, the firewall will apply
-	// only to traffic with source IP that belongs to a tag listed in source
-	// tags. Source tags cannot be used to control traffic to an instance's
-	// external IP address. Because tags are associated with an instance,
-	// not an IP address. One or both of sourceRanges and sourceTags may be
-	// set. If both properties are set, the firewall will apply to traffic
-	// that has source IP address within sourceRanges OR the source IP that
-	// belongs to a tag listed in the sourceTags property. The connection
+	// SourceServiceAccounts: If source service accounts are specified, the
+	// firewall will apply only to traffic originating from an instance with
+	// a service account in this list. Source service accounts cannot be
+	// used to control traffic to an instance's external IP address because
+	// service accounts are associated with an instance, not an IP address.
+	// sourceRanges can be set at the same time as sourceServiceAccounts. If
+	// both are set, the firewall will apply to traffic that has source IP
+	// address within sourceRanges OR the source IP belongs to an instance
+	// with service account listed in sourceServiceAccount. The connection
 	// does not need to match both properties for the firewall to apply.
+	// sourceServiceAccounts cannot be used at the same time as sourceTags
+	// or targetTags.
+	SourceServiceAccounts []string `json:"sourceServiceAccounts,omitempty"`
+
+	// SourceTags: If source tags are specified, the firewall rule applies
+	// only to traffic with source IPs that match the primary network
+	// interfaces of VM instances that have the tag and are in the same VPC
+	// network. Source tags cannot be used to control traffic to an
+	// instance's external IP address, it only applies to traffic between
+	// instances in the same virtual network. Because tags are associated
+	// with instances, not IP addresses. One or both of sourceRanges and
+	// sourceTags may be set. If both properties are set, the firewall will
+	// apply to traffic that has source IP address within sourceRanges OR
+	// the source IP that belongs to a tag listed in the sourceTags
+	// property. The connection does not need to match both properties for
+	// the firewall to apply.
 	SourceTags []string `json:"sourceTags,omitempty"`
+
+	// TargetServiceAccounts: A list of service accounts indicating sets of
+	// instances located in the network that may make network connections as
+	// specified in allowed[]. targetServiceAccounts cannot be used at the
+	// same time as targetTags or sourceTags. If neither
+	// targetServiceAccounts nor targetTags are specified, the firewall rule
+	// applies to all instances on the specified network.
+	TargetServiceAccounts []string `json:"targetServiceAccounts,omitempty"`
 
 	// TargetTags: A list of instance tags indicating sets of instances
 	// located in the network that may make network connections as specified
@@ -4720,7 +4921,7 @@ type FirewallAllowed struct {
 	// IPProtocol: The IP protocol to which this rule applies. The protocol
 	// type is required when creating a firewall rule. This value can either
 	// be one of the following well known protocol strings (tcp, udp, icmp,
-	// esp, ah, sctp), or the IP protocol number.
+	// esp, ah, ipip, sctp), or the IP protocol number.
 	IPProtocol string `json:"IPProtocol,omitempty"`
 
 	// Ports: An optional list of ports to which this rule applies. This
@@ -4758,7 +4959,7 @@ type FirewallDenied struct {
 	// IPProtocol: The IP protocol to which this rule applies. The protocol
 	// type is required when creating a firewall rule. This value can either
 	// be one of the following well known protocol strings (tcp, udp, icmp,
-	// esp, ah, sctp), or the IP protocol number.
+	// esp, ah, ipip, sctp), or the IP protocol number.
 	IPProtocol string `json:"IPProtocol,omitempty"`
 
 	// Ports: An optional list of ports to which this rule applies. This
@@ -4794,11 +4995,11 @@ func (s *FirewallDenied) MarshalJSON() ([]byte, error) {
 
 // FirewallList: Contains a list of firewalls.
 type FirewallList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Firewall resources.
+	// Items: A list of Firewall resources.
 	Items []*Firewall `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#firewallList for
@@ -4839,6 +5040,43 @@ type FirewallList struct {
 
 func (s *FirewallList) MarshalJSON() ([]byte, error) {
 	type noMethod FirewallList
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// FixedOrPercent: Encapsulates numeric value that can be either
+// absolute or relative.
+type FixedOrPercent struct {
+	// Calculated: [Output Only] Absolute value calculated based on mode:
+	// mode = fixed -> calculated = fixed = percent -> calculated =
+	// ceiling(percent/100 * base_value)
+	Calculated int64 `json:"calculated,omitempty"`
+
+	// Fixed: fixed must be non-negative.
+	Fixed int64 `json:"fixed,omitempty"`
+
+	// Percent: percent must belong to [0, 100].
+	Percent int64 `json:"percent,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Calculated") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Calculated") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *FixedOrPercent) MarshalJSON() ([]byte, error) {
+	type noMethod FixedOrPercent
 	raw := noMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -4971,10 +5209,10 @@ type ForwardingRule struct {
 	// ports:
 	// - TargetHttpProxy: 80, 8080
 	// - TargetHttpsProxy: 443
-	// - TargetTcpProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995
-	//
-	// - TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995
-	//
+	// - TargetTcpProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993,
+	// 995, 1883, 5222
+	// - TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993,
+	// 995, 1883, 5222
 	// - TargetVpnGateway: 500, 4500
 	// -
 	PortRange string `json:"portRange,omitempty"`
@@ -5066,11 +5304,11 @@ func (s *ForwardingRule) MarshalJSON() ([]byte, error) {
 }
 
 type ForwardingRuleAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped forwarding rule lists.
+	// Items: A list of ForwardingRulesScopedList resources.
 	Items map[string]ForwardingRulesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -5117,7 +5355,7 @@ func (s *ForwardingRuleAggregatedList) MarshalJSON() ([]byte, error) {
 
 // ForwardingRuleList: Contains a list of ForwardingRule resources.
 type ForwardingRuleList struct {
-	// Id: [Output Only] Unique identifier for the resource. Set by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
@@ -5338,7 +5576,7 @@ func (s *GlobalSetLabelsRequest) MarshalJSON() ([]byte, error) {
 
 // GuestOsFeature: Guest OS features.
 type GuestOsFeature struct {
-	// Type: The type of supported feature. Currenty only
+	// Type: The type of supported feature. Currently only
 	// VIRTIO_SCSI_MULTIQUEUE is supported. For newer Windows images, the
 	// server might also populate this property with the value WINDOWS to
 	// indicate that this is a Windows image. This value is purely
@@ -5577,8 +5815,8 @@ func (s *HealthCheck) MarshalJSON() ([]byte, error) {
 
 // HealthCheckList: Contains a list of HealthCheck resources.
 type HealthCheckList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of HealthCheck resources.
@@ -5830,7 +6068,7 @@ func (s *HttpHealthCheck) MarshalJSON() ([]byte, error) {
 
 // HttpHealthCheckList: Contains a list of HttpHealthCheck resources.
 type HttpHealthCheckList struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
@@ -6136,6 +6374,24 @@ type Image struct {
 	// the current or a previous instance of a given disk name.
 	SourceDiskId string `json:"sourceDiskId,omitempty"`
 
+	// SourceImage: URL of the source image used to create this image. This
+	// can be a full or valid partial URL. You must provide exactly one of:
+	//
+	// - this property, or
+	// - the rawDisk.source property, or
+	// - the sourceDisk property   in order to create an image.
+	SourceImage string `json:"sourceImage,omitempty"`
+
+	// SourceImageEncryptionKey: The customer-supplied encryption key of the
+	// source image. Required if the source image is protected by a
+	// customer-supplied encryption key.
+	SourceImageEncryptionKey *CustomerEncryptionKey `json:"sourceImageEncryptionKey,omitempty"`
+
+	// SourceImageId: [Output Only] The ID value of the image used to create
+	// this image. This value may be used to determine whether the image was
+	// taken from the current or a previous instance of a given image name.
+	SourceImageId string `json:"sourceImageId,omitempty"`
+
 	// SourceType: The type of the image used to create this disk. The
 	// default and only value is RAW
 	//
@@ -6227,11 +6483,11 @@ func (s *ImageRawDisk) MarshalJSON() ([]byte, error) {
 
 // ImageList: Contains a list of images.
 type ImageList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Image resources.
+	// Items: A list of Image resources.
 	Items []*Image `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -6352,8 +6608,10 @@ type Instance struct {
 	// This includes custom metadata and predefined keys.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
-	// MinCpuPlatform: Minimum cpu/platform to be used by this instance. We
-	// may schedule on the specified or later cpu/platform.
+	// MinCpuPlatform: Specifies a minimum CPU platform for the VM instance.
+	// Applicable values are the friendly names of CPU platforms, such as
+	// minCpuPlatform: "Intel Haswell" or minCpuPlatform: "Intel Sandy
+	// Bridge".
 	MinCpuPlatform string `json:"minCpuPlatform,omitempty"`
 
 	// Name: The name of the resource, provided by the client when initially
@@ -6392,7 +6650,7 @@ type Instance struct {
 	StartRestricted bool `json:"startRestricted,omitempty"`
 
 	// Status: [Output Only] The status of the instance. One of the
-	// following values: PROVISIONING, STAGING, RUNNING, STOPPING,
+	// following values: PROVISIONING, STAGING, RUNNING, STOPPING, STOPPED,
 	// SUSPENDING, SUSPENDED, and TERMINATED.
 	//
 	// Possible values:
@@ -6448,11 +6706,11 @@ func (s *Instance) MarshalJSON() ([]byte, error) {
 }
 
 type InstanceAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped instance lists.
+	// Items: A list of InstancesScopedList resources.
 	Items map[string]InstancesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -6588,11 +6846,11 @@ func (s *InstanceGroup) MarshalJSON() ([]byte, error) {
 }
 
 type InstanceGroupAggregatedList struct {
-	// Id: [Output Only] A unique identifier for this aggregated list of
-	// instance groups. The server generates this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped instance group lists.
+	// Items: A list of InstanceGroupsScopedList resources.
 	Items map[string]InstanceGroupsScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -6608,8 +6866,7 @@ type InstanceGroupAggregatedList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this resource type. The server
-	// generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -6641,11 +6898,11 @@ func (s *InstanceGroupAggregatedList) MarshalJSON() ([]byte, error) {
 
 // InstanceGroupList: A list of InstanceGroup resources.
 type InstanceGroupList struct {
-	// Id: [Output Only] A unique identifier for this list of instance
-	// groups. The server generates this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A list of instance groups.
+	// Items: A list of InstanceGroup resources.
 	Items []*InstanceGroup `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -6660,8 +6917,7 @@ type InstanceGroupList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this resource type. The server
-	// generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -6753,6 +7009,11 @@ type InstanceGroupManager struct {
 	// complementary to this Instance Group Manager.
 	NamedPorts []*NamedPort `json:"namedPorts,omitempty"`
 
+	// PendingActions: [Output Only] The list of instance actions and the
+	// number of instances in this managed instance group that are pending
+	// for each of those actions.
+	PendingActions *InstanceGroupManagerPendingActionsSummary `json:"pendingActions,omitempty"`
+
 	// Region: [Output Only] The URL of the region where the managed
 	// instance group resides (for regional resources).
 	Region string `json:"region,omitempty"`
@@ -6777,6 +7038,20 @@ type InstanceGroupManager struct {
 	// instance group. Deleting or abandoning instances reduces this number.
 	// Resizing the group changes this number.
 	TargetSize int64 `json:"targetSize,omitempty"`
+
+	// UpdatePolicy: The update policy for this managed instance group.
+	UpdatePolicy *InstanceGroupManagerUpdatePolicy `json:"updatePolicy,omitempty"`
+
+	// Versions: Versions supported by this IGM. User should set this field
+	// if they need fine-grained control over how many instances in each
+	// version are run by this IGM. Versions are keyed by instanceTemplate.
+	// Every instanceTemplate can appear at most once. This field overrides
+	// instanceTemplate field. If both instanceTemplate and versions are
+	// set, the user receives a warning. "instanceTemplate: X" is
+	// semantically equivalent to "versions [ { instanceTemplate: X } ]".
+	// Exactly one version must have targetSize field left unset. Size of
+	// such a version will be calculated automatically.
+	Versions []*InstanceGroupManagerVersion `json:"versions,omitempty"`
 
 	// Zone: [Output Only] The URL of the zone where the managed instance
 	// group is located (for zonal resources).
@@ -6861,6 +7136,12 @@ type InstanceGroupManagerActionsSummary struct {
 	// being restarted.
 	Restarting int64 `json:"restarting,omitempty"`
 
+	// Verifying: [Output Only] The number of instances in the managed
+	// instance group that are being verified. More details regarding
+	// verification process are covered in the documentation of
+	// ManagedInstance.InstanceAction.VERIFYING enum field.
+	Verifying int64 `json:"verifying,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "Abandoning") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
@@ -6885,11 +7166,11 @@ func (s *InstanceGroupManagerActionsSummary) MarshalJSON() ([]byte, error) {
 }
 
 type InstanceGroupManagerAggregatedList struct {
-	// Id: [Output Only] A unique identifier for this aggregated list of
-	// managed instance groups. The server generates this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of filtered managed instance group lists.
+	// Items: A list of InstanceGroupManagersScopedList resources.
 	Items map[string]InstanceGroupManagersScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -6905,8 +7186,7 @@ type InstanceGroupManagerAggregatedList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this resource type. The server
-	// generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -6975,11 +7255,11 @@ func (s *InstanceGroupManagerAutoHealingPolicy) MarshalJSON() ([]byte, error) {
 // InstanceGroupManagerList: [Output Only] A list of managed instance
 // groups.
 type InstanceGroupManagerList struct {
-	// Id: [Output Only] A unique identifier for this resource type. The
-	// server generates this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of managed instance groups.
+	// Items: A list of InstanceGroupManager resources.
 	Items []*InstanceGroupManager `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -7021,6 +7301,143 @@ type InstanceGroupManagerList struct {
 
 func (s *InstanceGroupManagerList) MarshalJSON() ([]byte, error) {
 	type noMethod InstanceGroupManagerList
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type InstanceGroupManagerPendingActionsSummary struct {
+	// Creating: [Output Only] The number of instances in the managed
+	// instance group that are pending to be created.
+	Creating int64 `json:"creating,omitempty"`
+
+	// Deleting: [Output Only] The number of instances in the managed
+	// instance group that are pending to be deleted.
+	Deleting int64 `json:"deleting,omitempty"`
+
+	// Recreating: [Output Only] The number of instances in the managed
+	// instance group that are pending to be recreated.
+	Recreating int64 `json:"recreating,omitempty"`
+
+	// Restarting: [Output Only] The number of instances in the managed
+	// instance group that are pending to be restarted.
+	Restarting int64 `json:"restarting,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Creating") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Creating") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InstanceGroupManagerPendingActionsSummary) MarshalJSON() ([]byte, error) {
+	type noMethod InstanceGroupManagerPendingActionsSummary
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type InstanceGroupManagerUpdatePolicy struct {
+	// MaxSurge: Maximum number of instances that can be created above the
+	// InstanceGroupManager.targetSize during the update process. By
+	// default, a fixed value of 1 is used. Using maxSurge > 0 will cause
+	// instance names to change during the update process. At least one of {
+	// maxSurge, maxUnavailable } must be greater than 0.
+	MaxSurge *FixedOrPercent `json:"maxSurge,omitempty"`
+
+	// MaxUnavailable: Maximum number of instances that can be unavailable
+	// during the update process. The instance is considered available if
+	// all of the following conditions are satisfied: 1. Instance's status
+	// is RUNNING. 2. Instance's liveness health check result was observed
+	// to be HEALTHY at least once. By default, a fixed value of 1 is used.
+	// At least one of { maxSurge, maxUnavailable } must be greater than 0.
+	MaxUnavailable *FixedOrPercent `json:"maxUnavailable,omitempty"`
+
+	// MinReadySec: Minimum number of seconds to wait for after a newly
+	// created instance becomes available. This value must be from range [0,
+	// 3600].
+	MinReadySec int64 `json:"minReadySec,omitempty"`
+
+	// MinimalAction: Minimal action to be taken on an instance. The order
+	// of action types is: RESTART < REPLACE.
+	//
+	// Possible values:
+	//   "REPLACE"
+	//   "RESTART"
+	MinimalAction string `json:"minimalAction,omitempty"`
+
+	// Possible values:
+	//   "OPPORTUNISTIC"
+	//   "PROACTIVE"
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "MaxSurge") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "MaxSurge") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InstanceGroupManagerUpdatePolicy) MarshalJSON() ([]byte, error) {
+	type noMethod InstanceGroupManagerUpdatePolicy
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type InstanceGroupManagerVersion struct {
+	InstanceTemplate string `json:"instanceTemplate,omitempty"`
+
+	// Name: Name of the version. Unique among all versions in the scope of
+	// this managed instance group.
+	Name string `json:"name,omitempty"`
+
+	// TargetSize: Intended number of instances that are created from
+	// instanceTemplate. The final number of instances created from
+	// instanceTemplate will be equal to: * if expressed as fixed number:
+	// min(targetSize.fixed, instanceGroupManager.targetSize), * if
+	// expressed as percent: ceiling(targetSize.percent *
+	// InstanceGroupManager.targetSize). If unset, this version will handle
+	// all the remaining instances.
+	TargetSize *FixedOrPercent `json:"targetSize,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "InstanceTemplate") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "InstanceTemplate") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InstanceGroupManagerVersion) MarshalJSON() ([]byte, error) {
+	type noMethod InstanceGroupManagerVersion
 	raw := noMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -7462,12 +7879,11 @@ func (s *InstanceGroupsAddInstancesRequest) MarshalJSON() ([]byte, error) {
 }
 
 type InstanceGroupsListInstances struct {
-	// Id: [Output Only] A unique identifier for this list of instances in
-	// the specified instance group. The server generates this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of instances and any named ports that are
-	// assigned to those instances.
+	// Items: A list of InstanceWithNamedPorts resources.
 	Items []*InstanceWithNamedPorts `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -7483,8 +7899,7 @@ type InstanceGroupsListInstances struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this list of instances in the
-	// specified instance groups. The server generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -7742,11 +8157,11 @@ func (s *InstanceGroupsSetNamedPortsRequest) MarshalJSON() ([]byte, error) {
 
 // InstanceList: Contains a list of instances.
 type InstanceList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of instances.
+	// Items: A list of Instance resources.
 	Items []*Instance `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#instanceList for
@@ -7793,11 +8208,11 @@ func (s *InstanceList) MarshalJSON() ([]byte, error) {
 
 // InstanceListReferrers: Contains a list of instance referrers.
 type InstanceListReferrers struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of referrers.
+	// Items: A list of Reference resources.
 	Items []*Reference `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -7922,7 +8337,11 @@ type InstanceProperties struct {
 	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// MinCpuPlatform: Minimum cpu/platform to be used by this instance. The
-	// instance may be scheduled on the specified or later cpu/platform.
+	// instance may be scheduled on the specified or newer cpu/platform.
+	// Applicable values are the friendly names of CPU platforms, such as
+	// minCpuPlatform: "Intel Haswell" or minCpuPlatform: "Intel Sandy
+	// Bridge". For more information, read Specifying a Minimum CPU
+	// Platform.
 	MinCpuPlatform string `json:"minCpuPlatform,omitempty"`
 
 	// NetworkInterfaces: An array of network access configurations for this
@@ -8059,11 +8478,11 @@ func (s *InstanceTemplate) MarshalJSON() ([]byte, error) {
 
 // InstanceTemplateList: A list of instance templates.
 type InstanceTemplateList struct {
-	// Id: [Output Only] A unique identifier for this instance template. The
-	// server defines this identifier.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] list of InstanceTemplate resources.
+	// Items: A list of InstanceTemplate resources.
 	Items []*InstanceTemplate `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -8078,8 +8497,7 @@ type InstanceTemplateList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this instance template list. The
-	// server defines this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -8541,6 +8959,10 @@ func (s *LogConfig) MarshalJSON() ([]byte, error) {
 
 // LogConfigCloudAuditOptions: Write a Cloud Audit log
 type LogConfigCloudAuditOptions struct {
+	// AuthorizationLoggingOptions: Information used by the Cloud Audit
+	// Logging pipeline.
+	AuthorizationLoggingOptions *AuthorizationLoggingOptions `json:"authorizationLoggingOptions,omitempty"`
+
 	// LogName: The log_name to populate in the Cloud Audit Record.
 	//
 	// Possible values:
@@ -8549,20 +8971,22 @@ type LogConfigCloudAuditOptions struct {
 	//   "UNSPECIFIED_LOG_NAME"
 	LogName string `json:"logName,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "LogName") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "AuthorizationLoggingOptions") to unconditionally include in API
+	// requests. By default, fields with empty values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "LogName") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g.
+	// "AuthorizationLoggingOptions") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -8684,11 +9108,11 @@ func (s *MachineType) MarshalJSON() ([]byte, error) {
 }
 
 type MachineTypeAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped machine type lists.
+	// Items: A list of MachineTypesScopedList resources.
 	Items map[string]MachineTypesScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -8736,11 +9160,11 @@ func (s *MachineTypeAggregatedList) MarshalJSON() ([]byte, error) {
 
 // MachineTypeList: Contains a list of machine types.
 type MachineTypeList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Machine Type resources.
+	// Items: A list of MachineType resources.
 	Items []*MachineType `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#machineTypeList
@@ -8948,6 +9372,7 @@ type ManagedInstance struct {
 	//   "RECREATING"
 	//   "REFRESHING"
 	//   "RESTARTING"
+	//   "VERIFYING"
 	CurrentAction string `json:"currentAction,omitempty"`
 
 	// Id: [Output only] The unique identifier for this resource. This field
@@ -9179,8 +9604,8 @@ type MetadataItems struct {
 	// Value: Value for the metadata entry. These are free-form strings, and
 	// only have meaning as interpreted by the image running in the
 	// instance. The only restriction placed on values is that their size
-	// must be less than or equal to 32768 bytes.
-	Value string `json:"value,omitempty"`
+	// must be less than or equal to 262144 bytes (256 KiB).
+	Value *string `json:"value,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Key") to
 	// unconditionally include in API requests. By default, fields with
@@ -9403,11 +9828,11 @@ func (s *NetworkInterface) MarshalJSON() ([]byte, error) {
 
 // NetworkList: Contains a list of networks.
 type NetworkList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Network resources.
+	// Items: A list of Network resources.
 	Items []*Network `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#networkList for
@@ -10206,8 +10631,7 @@ type Policy struct {
 	// policy.
 	AuditConfigs []*AuditConfig `json:"auditConfigs,omitempty"`
 
-	// Bindings: Associates a list of `members` to a `role`. Multiple
-	// `bindings` must not be specified for the same `role`. `bindings` with
+	// Bindings: Associates a list of `members` to a `role`. `bindings` with
 	// no members will result in an error.
 	Bindings []*Binding `json:"bindings,omitempty"`
 
@@ -10312,9 +10736,8 @@ type Project struct {
 	// the Google Cloud Storage bucket where they are stored.
 	UsageExportLocation *UsageExportLocation `json:"usageExportLocation,omitempty"`
 
-	// XpnProjectStatus: [Output Only] The role this project has in a Cross
-	// Project Network (XPN) configuration. Currently only HOST projects are
-	// differentiated.
+	// XpnProjectStatus: [Output Only] The role this project has in a shared
+	// VPC configuration. Currently only HOST projects are differentiated.
 	//
 	// Possible values:
 	//   "HOST"
@@ -10351,7 +10774,7 @@ func (s *Project) MarshalJSON() ([]byte, error) {
 }
 
 type ProjectsDisableXpnResourceRequest struct {
-	// XpnResource: XPN resource ID.
+	// XpnResource: Service resource (a.k.a service project) ID.
 	XpnResource *XpnResourceId `json:"xpnResource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "XpnResource") to
@@ -10378,7 +10801,7 @@ func (s *ProjectsDisableXpnResourceRequest) MarshalJSON() ([]byte, error) {
 }
 
 type ProjectsEnableXpnResourceRequest struct {
-	// XpnResource: XPN resource ID.
+	// XpnResource: Service resource (a.k.a service project) ID.
 	XpnResource *XpnResourceId `json:"xpnResource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "XpnResource") to
@@ -10406,7 +10829,8 @@ func (s *ProjectsEnableXpnResourceRequest) MarshalJSON() ([]byte, error) {
 
 type ProjectsGetXpnResources struct {
 	// Kind: [Output Only] Type of resource. Always
-	// compute#projectsGetXpnResources for lists of XPN resources.
+	// compute#projectsGetXpnResources for lists of service resources (a.k.a
+	// service projects)
 	Kind string `json:"kind,omitempty"`
 
 	// NextPageToken: [Output Only] This token allows you to get the next
@@ -10417,7 +10841,8 @@ type ProjectsGetXpnResources struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// Resources: XPN resources attached to this project as their XPN host.
+	// Resources: Serive resources (a.k.a service projects) attached to this
+	// project as their shared VPC host.
 	Resources []*XpnResourceId `json:"resources,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -10449,8 +10874,8 @@ func (s *ProjectsGetXpnResources) MarshalJSON() ([]byte, error) {
 
 type ProjectsListXpnHostsRequest struct {
 	// Organization: Optional organization ID managed by Cloud Resource
-	// Manager, for which to list XPN host projects. If not specified, the
-	// organization will be inferred from the project.
+	// Manager, for which to list shared VPC host projects. If not
+	// specified, the organization will be inferred from the project.
 	Organization string `json:"organization,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Organization") to
@@ -10504,10 +10929,13 @@ type Quota struct {
 	//   "NETWORKS"
 	//   "NVIDIA_K80_GPUS"
 	//   "PREEMPTIBLE_CPUS"
+	//   "PREEMPTIBLE_LOCAL_SSD_GB"
 	//   "REGIONAL_AUTOSCALERS"
 	//   "REGIONAL_INSTANCE_GROUP_MANAGERS"
 	//   "ROUTERS"
 	//   "ROUTES"
+	//   "SECURITY_POLICIES"
+	//   "SECURITY_POLICY_RULES"
 	//   "SNAPSHOTS"
 	//   "SSD_TOTAL_GB"
 	//   "SSL_CERTIFICATES"
@@ -10676,18 +11104,22 @@ func (s *Region) MarshalJSON() ([]byte, error) {
 
 // RegionAutoscalerList: Contains a list of autoscalers.
 type RegionAutoscalerList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A list of autoscalers.
+	// Items: A list of Autoscaler resources.
 	Items []*Autoscaler `json:"items,omitempty"`
 
 	// Kind: Type of resource.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: [Output Only] A token used to continue a truncated
-	// list request.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// SelfLink: [Output Only] Server-defined URL for this resource.
@@ -10722,8 +11154,8 @@ func (s *RegionAutoscalerList) MarshalJSON() ([]byte, error) {
 
 // RegionInstanceGroupList: Contains a list of InstanceGroup resources.
 type RegionInstanceGroupList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of InstanceGroup resources.
@@ -10740,8 +11172,7 @@ type RegionInstanceGroupList struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] The URL for this resource type. The server
-	// generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -10774,11 +11205,11 @@ func (s *RegionInstanceGroupList) MarshalJSON() ([]byte, error) {
 // RegionInstanceGroupManagerList: Contains a list of managed instance
 // groups.
 type RegionInstanceGroupManagerList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A list of managed instance groups.
+	// Items: A list of InstanceGroupManager resources.
 	Items []*InstanceGroupManager `json:"items,omitempty"`
 
 	// Kind: [Output Only] The resource type, which is always
@@ -10786,12 +11217,15 @@ type RegionInstanceGroupManagerList struct {
 	// groups that exist in th regional scope.
 	Kind string `json:"kind,omitempty"`
 
-	// NextPageToken: [Output only] A token used to continue a truncated
-	// list request.
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output only] The URL for this resource type. The server
-	// generates this URL.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -11039,12 +11473,11 @@ func (s *RegionInstanceGroupManagersSetTemplateRequest) MarshalJSON() ([]byte, e
 }
 
 type RegionInstanceGroupsListInstances struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A list of instances and any named ports that are assigned to
-	// those instances.
+	// Items: A list of InstanceWithNamedPorts resources.
 	Items []*InstanceWithNamedPorts `json:"items,omitempty"`
 
 	// Kind: The resource type.
@@ -11058,7 +11491,7 @@ type RegionInstanceGroupsListInstances struct {
 	// the results.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
-	// SelfLink: [Output Only] Server-defined URL for the resource.
+	// SelfLink: [Output Only] Server-defined URL for this resource.
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -11163,11 +11596,11 @@ func (s *RegionInstanceGroupsSetNamedPortsRequest) MarshalJSON() ([]byte, error)
 
 // RegionList: Contains a list of region resources.
 type RegionList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Region resources.
+	// Items: A list of Region resources.
 	Items []*Region `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#regionList for
@@ -11540,11 +11973,11 @@ func (s *RouteWarningsData) MarshalJSON() ([]byte, error) {
 
 // RouteList: Contains a list of Route resources.
 type RouteList struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Route resources.
+	// Items: A list of Route resources.
 	Items []*Route `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -11666,11 +12099,11 @@ func (s *Router) MarshalJSON() ([]byte, error) {
 
 // RouterAggregatedList: Contains a list of routers.
 type RouterAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped router lists.
+	// Items: A list of Router resources.
 	Items map[string]RoutersScopedList `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -11837,8 +12270,8 @@ func (s *RouterInterface) MarshalJSON() ([]byte, error) {
 
 // RouterList: Contains a list of Router resources.
 type RouterList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of Router resources.
@@ -12295,7 +12728,7 @@ type Scheduling struct {
 	//
 	// By default, this is set to true so an instance is automatically
 	// restarted if it is terminated by Compute Engine.
-	AutomaticRestart bool `json:"automaticRestart,omitempty"`
+	AutomaticRestart *bool `json:"automaticRestart,omitempty"`
 
 	// OnHostMaintenance: Defines the maintenance behavior for this
 	// instance. For standard instances, the default behavior is MIGRATE.
@@ -12561,11 +12994,11 @@ func (s *Snapshot) MarshalJSON() ([]byte, error) {
 
 // SnapshotList: Contains a list of Snapshot resources.
 type SnapshotList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Snapshot resources.
+	// Items: A list of Snapshot resources.
 	Items []*Snapshot `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -12679,7 +13112,7 @@ func (s *SslCertificate) MarshalJSON() ([]byte, error) {
 
 // SslCertificateList: Contains a list of SslCertificate resources.
 type SslCertificateList struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
@@ -12821,11 +13254,11 @@ func (s *Subnetwork) MarshalJSON() ([]byte, error) {
 }
 
 type SubnetworkAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output] A map of scoped Subnetwork lists.
+	// Items: A list of SubnetworksScopedList resources.
 	Items map[string]SubnetworksScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -12872,11 +13305,11 @@ func (s *SubnetworkAggregatedList) MarshalJSON() ([]byte, error) {
 
 // SubnetworkList: Contains a list of Subnetwork resources.
 type SubnetworkList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: The Subnetwork resources.
+	// Items: A list of Subnetwork resources.
 	Items []*Subnetwork `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#subnetworkList
@@ -13302,8 +13735,8 @@ func (s *TargetHttpProxy) MarshalJSON() ([]byte, error) {
 
 // TargetHttpProxyList: A list of TargetHttpProxy resources.
 type TargetHttpProxyList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of TargetHttpProxy resources.
@@ -13456,8 +13889,8 @@ func (s *TargetHttpsProxy) MarshalJSON() ([]byte, error) {
 
 // TargetHttpsProxyList: Contains a list of TargetHttpsProxy resources.
 type TargetHttpsProxyList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of TargetHttpsProxy resources.
@@ -13590,7 +14023,7 @@ type TargetInstanceAggregatedList struct {
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped target instance lists.
+	// Items: A list of TargetInstance resources.
 	Items map[string]TargetInstancesScopedList `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -13636,8 +14069,8 @@ func (s *TargetInstanceAggregatedList) MarshalJSON() ([]byte, error) {
 
 // TargetInstanceList: Contains a list of TargetInstance resources.
 type TargetInstanceList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of TargetInstance resources.
@@ -13956,11 +14389,11 @@ func (s *TargetPool) UnmarshalJSON(data []byte) error {
 }
 
 type TargetPoolAggregatedList struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped target pool lists.
+	// Items: A list of TargetPool resources.
 	Items map[string]TargetPoolsScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always
@@ -14043,7 +14476,7 @@ func (s *TargetPoolInstanceHealth) MarshalJSON() ([]byte, error) {
 
 // TargetPoolList: Contains a list of TargetPool resources.
 type TargetPoolList struct {
-	// Id: [Output Only] Unique identifier for the resource. Defined by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
@@ -14532,8 +14965,8 @@ func (s *TargetSslProxy) MarshalJSON() ([]byte, error) {
 
 // TargetSslProxyList: Contains a list of TargetSslProxy resources.
 type TargetSslProxyList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of TargetSslProxy resources.
@@ -14713,8 +15146,8 @@ func (s *TargetTcpProxy) MarshalJSON() ([]byte, error) {
 
 // TargetTcpProxyList: Contains a list of TargetTcpProxy resources.
 type TargetTcpProxyList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
 	// Items: A list of TargetTcpProxy resources.
@@ -14847,11 +15280,11 @@ func (s *TargetVpnGateway) MarshalJSON() ([]byte, error) {
 }
 
 type TargetVpnGatewayAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: A map of scoped target vpn gateway lists.
+	// Items: A list of TargetVpnGateway resources.
 	Items map[string]TargetVpnGatewaysScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#targetVpnGateway
@@ -14898,11 +15331,11 @@ func (s *TargetVpnGatewayAggregatedList) MarshalJSON() ([]byte, error) {
 
 // TargetVpnGatewayList: Contains a list of TargetVpnGateway resources.
 type TargetVpnGatewayList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of TargetVpnGateway resources.
+	// Items: A list of TargetVpnGateway resources.
 	Items []*TargetVpnGateway `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#targetVpnGateway
@@ -15292,7 +15725,7 @@ func (s *UrlMap) MarshalJSON() ([]byte, error) {
 
 // UrlMapList: Contains a list of UrlMap resources.
 type UrlMapList struct {
-	// Id: [Output Only] Unique identifier for the resource. Set by the
+	// Id: [Output Only] Unique identifier for the resource; defined by the
 	// server.
 	Id string `json:"id,omitempty"`
 
@@ -15659,11 +16092,11 @@ func (s *VpnTunnel) MarshalJSON() ([]byte, error) {
 }
 
 type VpnTunnelAggregatedList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A map of scoped vpn tunnel lists.
+	// Items: A list of VpnTunnelsScopedList resources.
 	Items map[string]VpnTunnelsScopedList `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#vpnTunnel for
@@ -15710,11 +16143,11 @@ func (s *VpnTunnelAggregatedList) MarshalJSON() ([]byte, error) {
 
 // VpnTunnelList: Contains a list of VpnTunnel resources.
 type VpnTunnelList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of VpnTunnel resources.
+	// Items: A list of VpnTunnel resources.
 	Items []*VpnTunnel `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#vpnTunnel for
@@ -15887,15 +16320,15 @@ func (s *VpnTunnelsScopedListWarningData) MarshalJSON() ([]byte, error) {
 }
 
 type XpnHostList struct {
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of XPN host project URLs.
+	// Items: [Output Only] A list of shared VPC host project URLs.
 	Items []*Project `json:"items,omitempty"`
 
 	// Kind: [Output Only] Type of resource. Always compute#xpnHostList for
-	// lists of XPN hosts.
+	// lists of shared VPC hosts.
 	Kind string `json:"kind,omitempty"`
 
 	// NextPageToken: [Output Only] This token allows you to get the next
@@ -15936,13 +16369,14 @@ func (s *XpnHostList) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// XpnResourceId: XpnResourceId
+// XpnResourceId: Service resource (a.k.a service project) ID.
 type XpnResourceId struct {
-	// Id: The ID of the XPN resource. In the case of projects, this field
-	// matches the project's name, not the canonical ID.
+	// Id: The ID of the service resource. In the case of projects, this
+	// field matches the project ID (e.g., my-project), not the project
+	// number (e.g., 12345678).
 	Id string `json:"id,omitempty"`
 
-	// Type: The type of the XPN resource.
+	// Type: The type of the service resource.
 	//
 	// Possible values:
 	//   "PROJECT"
@@ -16049,7 +16483,7 @@ type ZoneList struct {
 	// server.
 	Id string `json:"id,omitempty"`
 
-	// Items: [Output Only] A list of Zone resources.
+	// Items: A list of Zone resources.
 	Items []*Zone `json:"items,omitempty"`
 
 	// Kind: Type of resource.
@@ -17086,11 +17520,14 @@ func (r *AddressesService) Delete(project string, region string, address string)
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AddressesDeleteCall) RequestId(requestId string) *AddressesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -17210,7 +17647,7 @@ func (c *AddressesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -17419,11 +17856,14 @@ func (r *AddressesService) Insert(project string, region string, address *Addres
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AddressesInsertCall) RequestId(requestId string) *AddressesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -17539,7 +17979,7 @@ func (c *AddressesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -17853,11 +18293,14 @@ func (r *AddressesService) SetLabels(project string, region string, resource str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AddressesSetLabelsCall) RequestId(requestId string) *AddressesSetLabelsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -17975,7 +18418,7 @@ func (c *AddressesSetLabelsCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -18439,11 +18882,14 @@ func (r *AutoscalersService) Delete(project string, zone string, autoscaler stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AutoscalersDeleteCall) RequestId(requestId string) *AutoscalersDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -18556,7 +19002,7 @@ func (c *AutoscalersDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -18771,11 +19217,14 @@ func (r *AutoscalersService) Insert(project string, zone string, autoscaler *Aut
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AutoscalersInsertCall) RequestId(requestId string) *AutoscalersInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -18884,7 +19333,7 @@ func (c *AutoscalersInsertCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19187,7 +19636,8 @@ type AutoscalersPatchCall struct {
 }
 
 // Patch: Updates an autoscaler in the specified project using the data
-// included in the request. This method supports patch semantics.
+// included in the request. This method supports PATCH semantics and
+// uses the JSON merge patch format and processing rules.
 func (r *AutoscalersService) Patch(project string, zone string, autoscaler *Autoscaler) *AutoscalersPatchCall {
 	c := &AutoscalersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -19209,11 +19659,14 @@ func (c *AutoscalersPatchCall) Autoscaler(autoscaler string) *AutoscalersPatchCa
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AutoscalersPatchCall) RequestId(requestId string) *AutoscalersPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -19306,7 +19759,7 @@ func (c *AutoscalersPatchCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates an autoscaler in the specified project using the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates an autoscaler in the specified project using the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.autoscalers.patch",
 	//   "parameterOrder": [
@@ -19328,7 +19781,7 @@ func (c *AutoscalersPatchCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19550,11 +20003,14 @@ func (c *AutoscalersUpdateCall) Autoscaler(autoscaler string) *AutoscalersUpdate
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *AutoscalersUpdateCall) RequestId(requestId string) *AutoscalersUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -19669,7 +20125,7 @@ func (c *AutoscalersUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19721,11 +20177,14 @@ func (r *BackendBucketsService) Delete(project string, backendBucket string) *Ba
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendBucketsDeleteCall) RequestId(requestId string) *BackendBucketsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -19836,7 +20295,7 @@ func (c *BackendBucketsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -20031,11 +20490,14 @@ func (r *BackendBucketsService) Insert(project string, backendbucket *BackendBuc
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendBucketsInsertCall) RequestId(requestId string) *BackendBucketsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -20142,7 +20604,7 @@ func (c *BackendBucketsInsertCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -20427,7 +20889,8 @@ type BackendBucketsPatchCall struct {
 }
 
 // Patch: Updates the specified BackendBucket resource with the data
-// included in the request. This method supports patch semantics.
+// included in the request. This method supports PATCH semantics and
+// uses the JSON merge patch format and processing rules.
 func (r *BackendBucketsService) Patch(project string, backendBucket string, backendbucket *BackendBucket) *BackendBucketsPatchCall {
 	c := &BackendBucketsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -20442,11 +20905,14 @@ func (r *BackendBucketsService) Patch(project string, backendBucket string, back
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendBucketsPatchCall) RequestId(requestId string) *BackendBucketsPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -20539,7 +21005,7 @@ func (c *BackendBucketsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the specified BackendBucket resource with the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates the specified BackendBucket resource with the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.backendBuckets.patch",
 	//   "parameterOrder": [
@@ -20562,7 +21028,7 @@ func (c *BackendBucketsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -20611,11 +21077,14 @@ func (r *BackendBucketsService) Update(project string, backendBucket string, bac
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendBucketsUpdateCall) RequestId(requestId string) *BackendBucketsUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -20731,7 +21200,7 @@ func (c *BackendBucketsUpdateCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -21029,11 +21498,14 @@ func (r *BackendServicesService) Delete(project string, backendService string) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendServicesDeleteCall) RequestId(requestId string) *BackendServicesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -21144,7 +21616,7 @@ func (c *BackendServicesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -21491,11 +21963,14 @@ func (r *BackendServicesService) Insert(project string, backendservice *BackendS
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendServicesInsertCall) RequestId(requestId string) *BackendServicesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -21602,7 +22077,7 @@ func (c *BackendServicesInsertCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -21891,7 +22366,8 @@ type BackendServicesPatchCall struct {
 // included in the request. There are several restrictions and
 // guidelines to keep in mind when updating a backend service. Read
 // Restrictions and Guidelines for more information. This method
-// supports patch semantics.
+// supports PATCH semantics and uses the JSON merge patch format and
+// processing rules.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/backendServices/patch
 func (r *BackendServicesService) Patch(project string, backendService string, backendservice *BackendService) *BackendServicesPatchCall {
 	c := &BackendServicesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -21907,11 +22383,14 @@ func (r *BackendServicesService) Patch(project string, backendService string, ba
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendServicesPatchCall) RequestId(requestId string) *BackendServicesPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -22004,7 +22483,7 @@ func (c *BackendServicesPatchCall) Do(opts ...googleapi.CallOption) (*Operation,
 	}
 	return ret, nil
 	// {
-	//   "description": "Patches the specified BackendService resource with the data included in the request. There are several restrictions and guidelines to keep in mind when updating a backend service. Read  Restrictions and Guidelines for more information. This method supports patch semantics.",
+	//   "description": "Patches the specified BackendService resource with the data included in the request. There are several restrictions and guidelines to keep in mind when updating a backend service. Read  Restrictions and Guidelines for more information. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.backendServices.patch",
 	//   "parameterOrder": [
@@ -22027,7 +22506,7 @@ func (c *BackendServicesPatchCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -22227,11 +22706,14 @@ func (r *BackendServicesService) Update(project string, backendService string, b
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *BackendServicesUpdateCall) RequestId(requestId string) *BackendServicesUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -22347,7 +22829,7 @@ func (c *BackendServicesUpdateCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -23335,11 +23817,14 @@ func (c *DisksCreateSnapshotCall) GuestFlush(guestFlush bool) *DisksCreateSnapsh
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *DisksCreateSnapshotCall) RequestId(requestId string) *DisksCreateSnapshotCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -23461,7 +23946,7 @@ func (c *DisksCreateSnapshotCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -23519,11 +24004,14 @@ func (r *DisksService) Delete(project string, zone string, disk string) *DisksDe
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *DisksDeleteCall) RequestId(requestId string) *DisksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -23635,7 +24123,7 @@ func (c *DisksDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -23855,11 +24343,14 @@ func (r *DisksService) Insert(project string, zone string, disk *Disk) *DisksIns
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *DisksInsertCall) RequestId(requestId string) *DisksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -23975,7 +24466,7 @@ func (c *DisksInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -24300,11 +24791,14 @@ func (r *DisksService) Resize(project string, zone string, disk string, disksres
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *DisksResizeCall) RequestId(requestId string) *DisksResizeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -24422,7 +24916,7 @@ func (c *DisksResizeCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -24479,11 +24973,14 @@ func (r *DisksService) SetLabels(project string, zone string, resource string, z
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *DisksSetLabelsCall) RequestId(requestId string) *DisksSetLabelsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -24594,7 +25091,7 @@ func (c *DisksSetLabelsCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -24813,11 +25310,14 @@ func (r *FirewallsService) Delete(project string, firewall string) *FirewallsDel
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *FirewallsDeleteCall) RequestId(requestId string) *FirewallsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -24928,7 +25428,7 @@ func (c *FirewallsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -25124,11 +25624,14 @@ func (r *FirewallsService) Insert(project string, firewall *Firewall) *Firewalls
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *FirewallsInsertCall) RequestId(requestId string) *FirewallsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -25235,7 +25738,7 @@ func (c *FirewallsInsertCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -25521,7 +26024,8 @@ type FirewallsPatchCall struct {
 }
 
 // Patch: Updates the specified firewall rule with the data included in
-// the request. This method supports patch semantics.
+// the request. This method supports PATCH semantics and uses the JSON
+// merge patch format and processing rules.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/firewalls/patch
 func (r *FirewallsService) Patch(project string, firewall string, firewall2 *Firewall) *FirewallsPatchCall {
 	c := &FirewallsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -25537,11 +26041,14 @@ func (r *FirewallsService) Patch(project string, firewall string, firewall2 *Fir
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *FirewallsPatchCall) RequestId(requestId string) *FirewallsPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -25634,7 +26141,7 @@ func (c *FirewallsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the specified firewall rule with the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates the specified firewall rule with the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.firewalls.patch",
 	//   "parameterOrder": [
@@ -25657,7 +26164,7 @@ func (c *FirewallsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -25857,11 +26364,14 @@ func (r *FirewallsService) Update(project string, firewall string, firewall2 *Fi
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *FirewallsUpdateCall) RequestId(requestId string) *FirewallsUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -25977,7 +26487,7 @@ func (c *FirewallsUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -26277,11 +26787,14 @@ func (r *ForwardingRulesService) Delete(project string, region string, forwardin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ForwardingRulesDeleteCall) RequestId(requestId string) *ForwardingRulesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -26401,7 +26914,7 @@ func (c *ForwardingRulesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -26610,11 +27123,14 @@ func (r *ForwardingRulesService) Insert(project string, region string, forwardin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ForwardingRulesInsertCall) RequestId(requestId string) *ForwardingRulesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -26730,7 +27246,7 @@ func (c *ForwardingRulesInsertCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -27044,11 +27560,14 @@ func (r *ForwardingRulesService) SetLabels(project string, region string, resour
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ForwardingRulesSetLabelsCall) RequestId(requestId string) *ForwardingRulesSetLabelsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -27166,7 +27685,7 @@ func (c *ForwardingRulesSetLabelsCall) Do(opts ...googleapi.CallOption) (*Operat
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -27224,11 +27743,14 @@ func (r *ForwardingRulesService) SetTarget(project string, region string, forwar
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ForwardingRulesSetTargetCall) RequestId(requestId string) *ForwardingRulesSetTargetCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -27353,7 +27875,7 @@ func (c *ForwardingRulesSetTargetCall) Do(opts ...googleapi.CallOption) (*Operat
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -27558,11 +28080,14 @@ func (r *GlobalAddressesService) Delete(project string, address string) *GlobalA
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *GlobalAddressesDeleteCall) RequestId(requestId string) *GlobalAddressesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -27673,7 +28198,7 @@ func (c *GlobalAddressesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -27870,11 +28395,14 @@ func (r *GlobalAddressesService) Insert(project string, address *Address) *Globa
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *GlobalAddressesInsertCall) RequestId(requestId string) *GlobalAddressesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -27981,7 +28509,7 @@ func (c *GlobalAddressesInsertCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -28574,11 +29102,14 @@ func (r *GlobalForwardingRulesService) Delete(project string, forwardingRule str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *GlobalForwardingRulesDeleteCall) RequestId(requestId string) *GlobalForwardingRulesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -28689,7 +29220,7 @@ func (c *GlobalForwardingRulesDeleteCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -28886,11 +29417,14 @@ func (r *GlobalForwardingRulesService) Insert(project string, forwardingrule *Fo
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *GlobalForwardingRulesInsertCall) RequestId(requestId string) *GlobalForwardingRulesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -28997,7 +29531,7 @@ func (c *GlobalForwardingRulesInsertCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -29446,11 +29980,14 @@ func (r *GlobalForwardingRulesService) SetTarget(project string, forwardingRule 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *GlobalForwardingRulesSetTargetCall) RequestId(requestId string) *GlobalForwardingRulesSetTargetCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -29566,7 +30103,7 @@ func (c *GlobalForwardingRulesSetTargetCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -30526,11 +31063,14 @@ func (r *HealthChecksService) Delete(project string, healthCheck string) *Health
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HealthChecksDeleteCall) RequestId(requestId string) *HealthChecksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -30641,7 +31181,7 @@ func (c *HealthChecksDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -30836,11 +31376,14 @@ func (r *HealthChecksService) Insert(project string, healthcheck *HealthCheck) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HealthChecksInsertCall) RequestId(requestId string) *HealthChecksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -30947,7 +31490,7 @@ func (c *HealthChecksInsertCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -31232,8 +31775,8 @@ type HealthChecksPatchCall struct {
 }
 
 // Patch: Updates a HealthCheck resource in the specified project using
-// the data included in the request. This method supports patch
-// semantics.
+// the data included in the request. This method supports PATCH
+// semantics and uses the JSON merge patch format and processing rules.
 func (r *HealthChecksService) Patch(project string, healthCheck string, healthcheck *HealthCheck) *HealthChecksPatchCall {
 	c := &HealthChecksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -31248,11 +31791,14 @@ func (r *HealthChecksService) Patch(project string, healthCheck string, healthch
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HealthChecksPatchCall) RequestId(requestId string) *HealthChecksPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -31345,7 +31891,7 @@ func (c *HealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a HealthCheck resource in the specified project using the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates a HealthCheck resource in the specified project using the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.healthChecks.patch",
 	//   "parameterOrder": [
@@ -31368,7 +31914,7 @@ func (c *HealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -31565,11 +32111,14 @@ func (r *HealthChecksService) Update(project string, healthCheck string, healthc
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HealthChecksUpdateCall) RequestId(requestId string) *HealthChecksUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -31685,7 +32234,7 @@ func (c *HealthChecksUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -31731,11 +32280,14 @@ func (r *HttpHealthChecksService) Delete(project string, httpHealthCheck string)
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpHealthChecksDeleteCall) RequestId(requestId string) *HttpHealthChecksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -31846,7 +32398,7 @@ func (c *HttpHealthChecksDeleteCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -32043,11 +32595,14 @@ func (r *HttpHealthChecksService) Insert(project string, httphealthcheck *HttpHe
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpHealthChecksInsertCall) RequestId(requestId string) *HttpHealthChecksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -32154,7 +32709,7 @@ func (c *HttpHealthChecksInsertCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -32440,8 +32995,8 @@ type HttpHealthChecksPatchCall struct {
 }
 
 // Patch: Updates a HttpHealthCheck resource in the specified project
-// using the data included in the request. This method supports patch
-// semantics.
+// using the data included in the request. This method supports PATCH
+// semantics and uses the JSON merge patch format and processing rules.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/httpHealthChecks/patch
 func (r *HttpHealthChecksService) Patch(project string, httpHealthCheck string, httphealthcheck *HttpHealthCheck) *HttpHealthChecksPatchCall {
 	c := &HttpHealthChecksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -32457,11 +33012,14 @@ func (r *HttpHealthChecksService) Patch(project string, httpHealthCheck string, 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpHealthChecksPatchCall) RequestId(requestId string) *HttpHealthChecksPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -32554,7 +33112,7 @@ func (c *HttpHealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operation
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a HttpHealthCheck resource in the specified project using the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates a HttpHealthCheck resource in the specified project using the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.httpHealthChecks.patch",
 	//   "parameterOrder": [
@@ -32577,7 +33135,7 @@ func (c *HttpHealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -32775,11 +33333,14 @@ func (r *HttpHealthChecksService) Update(project string, httpHealthCheck string,
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpHealthChecksUpdateCall) RequestId(requestId string) *HttpHealthChecksUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -32895,7 +33456,7 @@ func (c *HttpHealthChecksUpdateCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -32940,11 +33501,14 @@ func (r *HttpsHealthChecksService) Delete(project string, httpsHealthCheck strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpsHealthChecksDeleteCall) RequestId(requestId string) *HttpsHealthChecksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -33055,7 +33619,7 @@ func (c *HttpsHealthChecksDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -33250,11 +33814,14 @@ func (r *HttpsHealthChecksService) Insert(project string, httpshealthcheck *Http
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpsHealthChecksInsertCall) RequestId(requestId string) *HttpsHealthChecksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -33361,7 +33928,7 @@ func (c *HttpsHealthChecksInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -33646,8 +34213,8 @@ type HttpsHealthChecksPatchCall struct {
 }
 
 // Patch: Updates a HttpsHealthCheck resource in the specified project
-// using the data included in the request. This method supports patch
-// semantics.
+// using the data included in the request. This method supports PATCH
+// semantics and uses the JSON merge patch format and processing rules.
 func (r *HttpsHealthChecksService) Patch(project string, httpsHealthCheck string, httpshealthcheck *HttpsHealthCheck) *HttpsHealthChecksPatchCall {
 	c := &HttpsHealthChecksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -33662,11 +34229,14 @@ func (r *HttpsHealthChecksService) Patch(project string, httpsHealthCheck string
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpsHealthChecksPatchCall) RequestId(requestId string) *HttpsHealthChecksPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -33759,7 +34329,7 @@ func (c *HttpsHealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operatio
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a HttpsHealthCheck resource in the specified project using the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates a HttpsHealthCheck resource in the specified project using the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.httpsHealthChecks.patch",
 	//   "parameterOrder": [
@@ -33782,7 +34352,7 @@ func (c *HttpsHealthChecksPatchCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -33979,11 +34549,14 @@ func (r *HttpsHealthChecksService) Update(project string, httpsHealthCheck strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *HttpsHealthChecksUpdateCall) RequestId(requestId string) *HttpsHealthChecksUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -34099,7 +34672,7 @@ func (c *HttpsHealthChecksUpdateCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -34145,11 +34718,14 @@ func (r *ImagesService) Delete(project string, image string) *ImagesDeleteCall {
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ImagesDeleteCall) RequestId(requestId string) *ImagesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -34260,7 +34836,7 @@ func (c *ImagesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -34774,17 +35350,27 @@ func (r *ImagesService) Insert(project string, image *Image) *ImagesInsertCall {
 	return c
 }
 
+// ForceCreate sets the optional parameter "forceCreate": Force image
+// creation if true.
+func (c *ImagesInsertCall) ForceCreate(forceCreate bool) *ImagesInsertCall {
+	c.urlParams_.Set("forceCreate", fmt.Sprint(forceCreate))
+	return c
+}
+
 // RequestId sets the optional parameter "requestId": An optional
 // request ID to identify requests. Specify a unique request ID so that
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ImagesInsertCall) RequestId(requestId string) *ImagesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -34883,6 +35469,11 @@ func (c *ImagesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//     "project"
 	//   ],
 	//   "parameters": {
+	//     "forceCreate": {
+	//       "description": "Force image creation if true.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     },
 	//     "project": {
 	//       "description": "Project ID for this request.",
 	//       "location": "path",
@@ -34891,7 +35482,7 @@ func (c *ImagesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -35512,11 +36103,14 @@ func (r *InstanceGroupManagersService) AbandonInstances(project string, zone str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersAbandonInstancesCall) RequestId(requestId string) *InstanceGroupManagersAbandonInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -35633,7 +36227,7 @@ func (c *InstanceGroupManagersAbandonInstancesCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -35942,11 +36536,14 @@ func (r *InstanceGroupManagersService) Delete(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersDeleteCall) RequestId(requestId string) *InstanceGroupManagersDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -36058,7 +36655,7 @@ func (c *InstanceGroupManagersDeleteCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -36125,11 +36722,14 @@ func (r *InstanceGroupManagersService) DeleteInstances(project string, zone stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersDeleteInstancesCall) RequestId(requestId string) *InstanceGroupManagersDeleteInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -36246,7 +36846,7 @@ func (c *InstanceGroupManagersDeleteInstancesCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -36470,11 +37070,14 @@ func (r *InstanceGroupManagersService) Insert(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersInsertCall) RequestId(requestId string) *InstanceGroupManagersInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -36583,7 +37186,7 @@ func (c *InstanceGroupManagersInsertCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -37106,7 +37709,8 @@ type InstanceGroupManagersPatchCall struct {
 // group is patched even if the instances in the group are still in the
 // process of being patched. You must separately verify the status of
 // the individual instances with the listManagedInstances method. This
-// method supports patch semantics.
+// method supports PATCH semantics and uses the JSON merge patch format
+// and processing rules.
 func (r *InstanceGroupManagersService) Patch(project string, zone string, instanceGroupManager string, instancegroupmanager *InstanceGroupManager) *InstanceGroupManagersPatchCall {
 	c := &InstanceGroupManagersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -37122,11 +37726,14 @@ func (r *InstanceGroupManagersService) Patch(project string, zone string, instan
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersPatchCall) RequestId(requestId string) *InstanceGroupManagersPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -37220,7 +37827,7 @@ func (c *InstanceGroupManagersPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a managed instance group using the information that you specify in the request. This operation is marked as DONE when the group is patched even if the instances in the group are still in the process of being patched. You must separately verify the status of the individual instances with the listManagedInstances method. This method supports patch semantics.",
+	//   "description": "Updates a managed instance group using the information that you specify in the request. This operation is marked as DONE when the group is patched even if the instances in the group are still in the process of being patched. You must separately verify the status of the individual instances with the listManagedInstances method. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.instanceGroupManagers.patch",
 	//   "parameterOrder": [
@@ -37243,7 +37850,7 @@ func (c *InstanceGroupManagersPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -37313,11 +37920,14 @@ func (r *InstanceGroupManagersService) RecreateInstances(project string, zone st
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersRecreateInstancesCall) RequestId(requestId string) *InstanceGroupManagersRecreateInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -37434,7 +38044,7 @@ func (c *InstanceGroupManagersRecreateInstancesCall) Do(opts ...googleapi.CallOp
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -37498,11 +38108,14 @@ func (r *InstanceGroupManagersService) Resize(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersResizeCall) RequestId(requestId string) *InstanceGroupManagersResizeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -37615,7 +38228,7 @@ func (c *InstanceGroupManagersResizeCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -37688,11 +38301,14 @@ func (r *InstanceGroupManagersService) ResizeAdvanced(project string, zone strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersResizeAdvancedCall) RequestId(requestId string) *InstanceGroupManagersResizeAdvancedCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -37809,7 +38425,7 @@ func (c *InstanceGroupManagersResizeAdvancedCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -37864,11 +38480,14 @@ func (r *InstanceGroupManagersService) SetAutoHealingPolicies(project string, zo
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersSetAutoHealingPoliciesCall) RequestId(requestId string) *InstanceGroupManagersSetAutoHealingPoliciesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -37985,7 +38604,7 @@ func (c *InstanceGroupManagersSetAutoHealingPoliciesCall) Do(opts ...googleapi.C
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -38042,11 +38661,14 @@ func (r *InstanceGroupManagersService) SetInstanceTemplate(project string, zone 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersSetInstanceTemplateCall) RequestId(requestId string) *InstanceGroupManagersSetInstanceTemplateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -38163,7 +38785,7 @@ func (c *InstanceGroupManagersSetInstanceTemplateCall) Do(opts ...googleapi.Call
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -38224,11 +38846,14 @@ func (r *InstanceGroupManagersService) SetTargetPools(project string, zone strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersSetTargetPoolsCall) RequestId(requestId string) *InstanceGroupManagersSetTargetPoolsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -38345,7 +38970,7 @@ func (c *InstanceGroupManagersSetTargetPoolsCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -38563,11 +39188,14 @@ func (r *InstanceGroupManagersService) Update(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupManagersUpdateCall) RequestId(requestId string) *InstanceGroupManagersUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -38684,7 +39312,7 @@ func (c *InstanceGroupManagersUpdateCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -38741,11 +39369,14 @@ func (r *InstanceGroupsService) AddInstances(project string, zone string, instan
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupsAddInstancesCall) RequestId(requestId string) *InstanceGroupsAddInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -38862,7 +39493,7 @@ func (c *InstanceGroupsAddInstancesCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -39170,11 +39801,14 @@ func (r *InstanceGroupsService) Delete(project string, zone string, instanceGrou
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupsDeleteCall) RequestId(requestId string) *InstanceGroupsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -39286,7 +39920,7 @@ func (c *InstanceGroupsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -39498,11 +40132,14 @@ func (r *InstanceGroupsService) Insert(project string, zone string, instancegrou
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupsInsertCall) RequestId(requestId string) *InstanceGroupsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -39611,7 +40248,7 @@ func (c *InstanceGroupsInsertCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -40200,11 +40837,14 @@ func (r *InstanceGroupsService) RemoveInstances(project string, zone string, ins
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupsRemoveInstancesCall) RequestId(requestId string) *InstanceGroupsRemoveInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -40321,7 +40961,7 @@ func (c *InstanceGroupsRemoveInstancesCall) Do(opts ...googleapi.CallOption) (*O
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -40376,11 +41016,14 @@ func (r *InstanceGroupsService) SetNamedPorts(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceGroupsSetNamedPortsCall) RequestId(requestId string) *InstanceGroupsSetNamedPortsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -40497,7 +41140,7 @@ func (c *InstanceGroupsSetNamedPortsCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -40712,11 +41355,14 @@ func (r *InstanceTemplatesService) Delete(project string, instanceTemplate strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceTemplatesDeleteCall) RequestId(requestId string) *InstanceTemplatesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -40827,7 +41473,7 @@ func (c *InstanceTemplatesDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -41027,11 +41673,14 @@ func (r *InstanceTemplatesService) Insert(project string, instancetemplate *Inst
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstanceTemplatesInsertCall) RequestId(requestId string) *InstanceTemplatesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -41138,7 +41787,7 @@ func (c *InstanceTemplatesInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -41591,11 +42240,14 @@ func (r *InstancesService) AddAccessConfig(project string, zone string, instance
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesAddAccessConfigCall) RequestId(requestId string) *InstancesAddAccessConfigCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -41720,7 +42372,7 @@ func (c *InstancesAddAccessConfigCall) Do(opts ...googleapi.CallOption) (*Operat
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -42032,11 +42684,14 @@ func (r *InstancesService) AttachDisk(project string, zone string, instance stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesAttachDiskCall) RequestId(requestId string) *InstancesAttachDiskCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -42154,7 +42809,7 @@ func (c *InstancesAttachDiskCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -42210,11 +42865,14 @@ func (r *InstancesService) Delete(project string, zone string, instance string) 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesDeleteCall) RequestId(requestId string) *InstancesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -42327,7 +42985,7 @@ func (c *InstancesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -42382,11 +43040,14 @@ func (r *InstancesService) DeleteAccessConfig(project string, zone string, insta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesDeleteAccessConfigCall) RequestId(requestId string) *InstancesDeleteAccessConfigCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -42513,7 +43174,7 @@ func (c *InstancesDeleteAccessConfigCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -42566,11 +43227,14 @@ func (r *InstancesService) DetachDisk(project string, zone string, instance stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesDetachDiskCall) RequestId(requestId string) *InstancesDetachDiskCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -42690,7 +43354,7 @@ func (c *InstancesDetachDiskCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -43104,11 +43768,14 @@ func (r *InstancesService) Insert(project string, zone string, instance *Instanc
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesInsertCall) RequestId(requestId string) *InstancesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -43217,7 +43884,7 @@ func (c *InstancesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -43811,11 +44478,14 @@ func (r *InstancesService) Reset(project string, zone string, instance string) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesResetCall) RequestId(requestId string) *InstancesResetCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -43928,7 +44598,7 @@ func (c *InstancesResetCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -43983,11 +44653,14 @@ func (r *InstancesService) SetDiskAutoDelete(project string, zone string, instan
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetDiskAutoDeleteCall) RequestId(requestId string) *InstancesSetDiskAutoDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44115,7 +44788,7 @@ func (c *InstancesSetDiskAutoDeleteCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -44169,11 +44842,14 @@ func (r *InstancesService) SetLabels(project string, zone string, instance strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetLabelsCall) RequestId(requestId string) *InstancesSetLabelsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44291,7 +44967,7 @@ func (c *InstancesSetLabelsCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -44348,11 +45024,14 @@ func (r *InstancesService) SetMachineResources(project string, zone string, inst
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetMachineResourcesCall) RequestId(requestId string) *InstancesSetMachineResourcesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44470,7 +45149,7 @@ func (c *InstancesSetMachineResourcesCall) Do(opts ...googleapi.CallOption) (*Op
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -44527,11 +45206,14 @@ func (r *InstancesService) SetMachineType(project string, zone string, instance 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetMachineTypeCall) RequestId(requestId string) *InstancesSetMachineTypeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44649,7 +45331,7 @@ func (c *InstancesSetMachineTypeCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -44707,11 +45389,14 @@ func (r *InstancesService) SetMetadata(project string, zone string, instance str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetMetadataCall) RequestId(requestId string) *InstancesSetMetadataCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44829,7 +45514,7 @@ func (c *InstancesSetMetadataCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -44869,8 +45554,10 @@ type InstancesSetMinCpuPlatformCall struct {
 	header_                           http.Header
 }
 
-// SetMinCpuPlatform: Changes the minimum cpu/platform that this
-// instance should be started as. This is called on a stopped instance.
+// SetMinCpuPlatform: Changes the minimum CPU platform that this
+// instance should use. This method can only be called on a stopped
+// instance. For more information, read Specifying a Minimum CPU
+// Platform.
 func (r *InstancesService) SetMinCpuPlatform(project string, zone string, instance string, instancessetmincpuplatformrequest *InstancesSetMinCpuPlatformRequest) *InstancesSetMinCpuPlatformCall {
 	c := &InstancesSetMinCpuPlatformCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -44886,11 +45573,14 @@ func (r *InstancesService) SetMinCpuPlatform(project string, zone string, instan
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetMinCpuPlatformCall) RequestId(requestId string) *InstancesSetMinCpuPlatformCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -44984,7 +45674,7 @@ func (c *InstancesSetMinCpuPlatformCall) Do(opts ...googleapi.CallOption) (*Oper
 	}
 	return ret, nil
 	// {
-	//   "description": "Changes the minimum cpu/platform that this instance should be started as. This is called on a stopped instance.",
+	//   "description": "Changes the minimum CPU platform that this instance should use. This method can only be called on a stopped instance. For more information, read Specifying a Minimum CPU Platform.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.instances.setMinCpuPlatform",
 	//   "parameterOrder": [
@@ -45008,7 +45698,7 @@ func (c *InstancesSetMinCpuPlatformCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45065,11 +45755,14 @@ func (r *InstancesService) SetScheduling(project string, zone string, instance s
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetSchedulingCall) RequestId(requestId string) *InstancesSetSchedulingCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -45187,7 +45880,7 @@ func (c *InstancesSetSchedulingCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45245,11 +45938,14 @@ func (r *InstancesService) SetServiceAccount(project string, zone string, instan
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetServiceAccountCall) RequestId(requestId string) *InstancesSetServiceAccountCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -45367,7 +46063,7 @@ func (c *InstancesSetServiceAccountCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45425,11 +46121,14 @@ func (r *InstancesService) SetTags(project string, zone string, instance string,
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesSetTagsCall) RequestId(requestId string) *InstancesSetTagsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -45547,7 +46246,7 @@ func (c *InstancesSetTagsCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45604,11 +46303,14 @@ func (r *InstancesService) Start(project string, zone string, instance string) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesStartCall) RequestId(requestId string) *InstancesStartCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -45721,7 +46423,7 @@ func (c *InstancesStartCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45776,11 +46478,14 @@ func (r *InstancesService) StartWithEncryptionKey(project string, zone string, i
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesStartWithEncryptionKeyCall) RequestId(requestId string) *InstancesStartWithEncryptionKeyCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -45898,7 +46603,7 @@ func (c *InstancesStartWithEncryptionKeyCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -45959,11 +46664,14 @@ func (r *InstancesService) Stop(project string, zone string, instance string) *I
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *InstancesStopCall) RequestId(requestId string) *InstancesStopCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -46076,7 +46784,7 @@ func (c *InstancesStopCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -46271,8 +46979,7 @@ type LicensesGetCall struct {
 	header_      http.Header
 }
 
-// Get: Returns the specified License resource. Get a list of available
-// licenses by making a list() request.
+// Get: Returns the specified License resource.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/licenses/get
 func (r *LicensesService) Get(project string, license string) *LicensesGetCall {
 	c := &LicensesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -46376,7 +47083,7 @@ func (c *LicensesGetCall) Do(opts ...googleapi.CallOption) (*License, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns the specified License resource. Get a list of available licenses by making a list() request.",
+	//   "description": "Returns the specified License resource.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.licenses.get",
 	//   "parameterOrder": [
@@ -47119,11 +47826,14 @@ func (r *NetworksService) AddPeering(project string, network string, networksadd
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *NetworksAddPeeringCall) RequestId(requestId string) *NetworksAddPeeringCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -47239,7 +47949,7 @@ func (c *NetworksAddPeeringCall) Do(opts ...googleapi.CallOption) (*Operation, e
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -47285,11 +47995,14 @@ func (r *NetworksService) Delete(project string, network string) *NetworksDelete
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *NetworksDeleteCall) RequestId(requestId string) *NetworksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -47400,7 +48113,7 @@ func (c *NetworksDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -47597,11 +48310,14 @@ func (r *NetworksService) Insert(project string, network *Network) *NetworksInse
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *NetworksInsertCall) RequestId(requestId string) *NetworksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -47708,7 +48424,7 @@ func (c *NetworksInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48008,11 +48724,14 @@ func (r *NetworksService) RemovePeering(project string, network string, networks
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *NetworksRemovePeeringCall) RequestId(requestId string) *NetworksRemovePeeringCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -48128,7 +48847,7 @@ func (c *NetworksRemovePeeringCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48174,11 +48893,14 @@ func (r *NetworksService) SwitchToCustomMode(project string, network string) *Ne
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *NetworksSwitchToCustomModeCall) RequestId(requestId string) *NetworksSwitchToCustomModeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -48289,7 +49011,7 @@ func (c *NetworksSwitchToCustomModeCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48464,7 +49186,7 @@ type ProjectsDisableXpnHostCall struct {
 	header_    http.Header
 }
 
-// DisableXpnHost: Disable this project as an XPN host project.
+// DisableXpnHost: Disable this project as a shared VPC host project.
 func (r *ProjectsService) DisableXpnHost(project string) *ProjectsDisableXpnHostCall {
 	c := &ProjectsDisableXpnHostCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -48477,11 +49199,14 @@ func (r *ProjectsService) DisableXpnHost(project string) *ProjectsDisableXpnHost
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsDisableXpnHostCall) RequestId(requestId string) *ProjectsDisableXpnHostCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -48568,7 +49293,7 @@ func (c *ProjectsDisableXpnHostCall) Do(opts ...googleapi.CallOption) (*Operatio
 	}
 	return ret, nil
 	// {
-	//   "description": "Disable this project as an XPN host project.",
+	//   "description": "Disable this project as a shared VPC host project.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.projects.disableXpnHost",
 	//   "parameterOrder": [
@@ -48583,7 +49308,7 @@ func (c *ProjectsDisableXpnHostCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48611,8 +49336,8 @@ type ProjectsDisableXpnResourceCall struct {
 	header_                           http.Header
 }
 
-// DisableXpnResource: Disable an XPN resource associated with this host
-// project.
+// DisableXpnResource: Disable a serivce resource (a.k.a service
+// project) associated with this host project.
 func (r *ProjectsService) DisableXpnResource(project string, projectsdisablexpnresourcerequest *ProjectsDisableXpnResourceRequest) *ProjectsDisableXpnResourceCall {
 	c := &ProjectsDisableXpnResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -48626,11 +49351,14 @@ func (r *ProjectsService) DisableXpnResource(project string, projectsdisablexpnr
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsDisableXpnResourceCall) RequestId(requestId string) *ProjectsDisableXpnResourceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -48722,7 +49450,7 @@ func (c *ProjectsDisableXpnResourceCall) Do(opts ...googleapi.CallOption) (*Oper
 	}
 	return ret, nil
 	// {
-	//   "description": "Disable an XPN resource associated with this host project.",
+	//   "description": "Disable a serivce resource (a.k.a service project) associated with this host project.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.projects.disableXpnResource",
 	//   "parameterOrder": [
@@ -48737,7 +49465,7 @@ func (c *ProjectsDisableXpnResourceCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48767,7 +49495,7 @@ type ProjectsEnableXpnHostCall struct {
 	header_    http.Header
 }
 
-// EnableXpnHost: Enable this project as an XPN host project.
+// EnableXpnHost: Enable this project as a shared VPC host project.
 func (r *ProjectsService) EnableXpnHost(project string) *ProjectsEnableXpnHostCall {
 	c := &ProjectsEnableXpnHostCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -48780,11 +49508,14 @@ func (r *ProjectsService) EnableXpnHost(project string) *ProjectsEnableXpnHostCa
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsEnableXpnHostCall) RequestId(requestId string) *ProjectsEnableXpnHostCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -48871,7 +49602,7 @@ func (c *ProjectsEnableXpnHostCall) Do(opts ...googleapi.CallOption) (*Operation
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable this project as an XPN host project.",
+	//   "description": "Enable this project as a shared VPC host project.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.projects.enableXpnHost",
 	//   "parameterOrder": [
@@ -48886,7 +49617,7 @@ func (c *ProjectsEnableXpnHostCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -48914,10 +49645,9 @@ type ProjectsEnableXpnResourceCall struct {
 	header_                          http.Header
 }
 
-// EnableXpnResource: Enable XPN resource (a.k.a service project or
-// service folder in the future) for a host project, so that subnetworks
-// in the host project can be used by instances in the service project
-// or folder.
+// EnableXpnResource: Enable service resource (a.k.a service project)
+// for a host project, so that subnets in the host project can be used
+// by instances in the service project.
 func (r *ProjectsService) EnableXpnResource(project string, projectsenablexpnresourcerequest *ProjectsEnableXpnResourceRequest) *ProjectsEnableXpnResourceCall {
 	c := &ProjectsEnableXpnResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -48931,11 +49661,14 @@ func (r *ProjectsService) EnableXpnResource(project string, projectsenablexpnres
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsEnableXpnResourceCall) RequestId(requestId string) *ProjectsEnableXpnResourceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -49027,7 +49760,7 @@ func (c *ProjectsEnableXpnResourceCall) Do(opts ...googleapi.CallOption) (*Opera
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable XPN resource (a.k.a service project or service folder in the future) for a host project, so that subnetworks in the host project can be used by instances in the service project or folder.",
+	//   "description": "Enable service resource (a.k.a service project) for a host project, so that subnets in the host project can be used by instances in the service project.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.projects.enableXpnResource",
 	//   "parameterOrder": [
@@ -49042,7 +49775,7 @@ func (c *ProjectsEnableXpnResourceCall) Do(opts ...googleapi.CallOption) (*Opera
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -49214,8 +49947,8 @@ type ProjectsGetXpnHostCall struct {
 	header_      http.Header
 }
 
-// GetXpnHost: Get the XPN host project that this project links to. May
-// be empty if no link exists.
+// GetXpnHost: Get the shared VPC host project that this project links
+// to. May be empty if no link exists.
 func (r *ProjectsService) GetXpnHost(project string) *ProjectsGetXpnHostCall {
 	c := &ProjectsGetXpnHostCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -49316,7 +50049,7 @@ func (c *ProjectsGetXpnHostCall) Do(opts ...googleapi.CallOption) (*Project, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the XPN host project that this project links to. May be empty if no link exists.",
+	//   "description": "Get the shared VPC host project that this project links to. May be empty if no link exists.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.projects.getXpnHost",
 	//   "parameterOrder": [
@@ -49337,8 +50070,7 @@ func (c *ProjectsGetXpnHostCall) Do(opts ...googleapi.CallOption) (*Project, err
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
+	//     "https://www.googleapis.com/auth/compute"
 	//   ]
 	// }
 
@@ -49355,7 +50087,8 @@ type ProjectsGetXpnResourcesCall struct {
 	header_      http.Header
 }
 
-// GetXpnResources: Get XPN resources associated with this host project.
+// GetXpnResources: Get service resources (a.k.a service project)
+// associated with this host project.
 func (r *ProjectsService) GetXpnResources(project string) *ProjectsGetXpnResourcesCall {
 	c := &ProjectsGetXpnResourcesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -49480,7 +50213,7 @@ func (c *ProjectsGetXpnResourcesCall) Do(opts ...googleapi.CallOption) (*Project
 	}
 	return ret, nil
 	// {
-	//   "description": "Get XPN resources associated with this host project.",
+	//   "description": "Get service resources (a.k.a service project) associated with this host project.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.projects.getXpnResources",
 	//   "parameterOrder": [
@@ -49520,8 +50253,7 @@ func (c *ProjectsGetXpnResourcesCall) Do(opts ...googleapi.CallOption) (*Project
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
+	//     "https://www.googleapis.com/auth/compute"
 	//   ]
 	// }
 
@@ -49559,8 +50291,8 @@ type ProjectsListXpnHostsCall struct {
 	header_                     http.Header
 }
 
-// ListXpnHosts: List all XPN host projects visible to the user in an
-// organization.
+// ListXpnHosts: List all shared VPC host projects visible to the user
+// in an organization.
 func (r *ProjectsService) ListXpnHosts(project string, projectslistxpnhostsrequest *ProjectsListXpnHostsRequest) *ProjectsListXpnHostsCall {
 	c := &ProjectsListXpnHostsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -49678,7 +50410,7 @@ func (c *ProjectsListXpnHostsCall) Do(opts ...googleapi.CallOption) (*XpnHostLis
 	}
 	return ret, nil
 	// {
-	//   "description": "List all XPN host projects visible to the user in an organization.",
+	//   "description": "List all shared VPC host projects visible to the user in an organization.",
 	//   "httpMethod": "POST",
 	//   "id": "compute.projects.listXpnHosts",
 	//   "parameterOrder": [
@@ -49721,8 +50453,7 @@ func (c *ProjectsListXpnHostsCall) Do(opts ...googleapi.CallOption) (*XpnHostLis
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
+	//     "https://www.googleapis.com/auth/compute"
 	//   ]
 	// }
 
@@ -49774,11 +50505,14 @@ func (r *ProjectsService) MoveDisk(project string, diskmoverequest *DiskMoveRequ
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsMoveDiskCall) RequestId(requestId string) *ProjectsMoveDiskCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -49885,7 +50619,7 @@ func (c *ProjectsMoveDiskCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -49931,11 +50665,14 @@ func (r *ProjectsService) MoveInstance(project string, instancemoverequest *Inst
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsMoveInstanceCall) RequestId(requestId string) *ProjectsMoveInstanceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -50042,7 +50779,7 @@ func (c *ProjectsMoveInstanceCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -50089,11 +50826,14 @@ func (r *ProjectsService) SetCommonInstanceMetadata(project string, metadata *Me
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsSetCommonInstanceMetadataCall) RequestId(requestId string) *ProjectsSetCommonInstanceMetadataCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -50200,7 +50940,7 @@ func (c *ProjectsSetCommonInstanceMetadataCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -50249,11 +50989,14 @@ func (r *ProjectsService) SetUsageExportBucket(project string, usageexportlocati
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *ProjectsSetUsageExportBucketCall) RequestId(requestId string) *ProjectsSetUsageExportBucketCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -50360,7 +51103,7 @@ func (c *ProjectsSetUsageExportBucketCall) Do(opts ...googleapi.CallOption) (*Op
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -50410,11 +51153,14 @@ func (r *RegionAutoscalersService) Delete(project string, region string, autosca
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionAutoscalersDeleteCall) RequestId(requestId string) *RegionAutoscalersDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -50534,7 +51280,7 @@ func (c *RegionAutoscalersDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -50741,11 +51487,14 @@ func (r *RegionAutoscalersService) Insert(project string, region string, autosca
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionAutoscalersInsertCall) RequestId(requestId string) *RegionAutoscalersInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -50861,7 +51610,7 @@ func (c *RegionAutoscalersInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -51157,7 +51906,8 @@ type RegionAutoscalersPatchCall struct {
 }
 
 // Patch: Updates an autoscaler in the specified project using the data
-// included in the request. This method supports patch semantics.
+// included in the request. This method supports PATCH semantics and
+// uses the JSON merge patch format and processing rules.
 func (r *RegionAutoscalersService) Patch(project string, region string, autoscaler *Autoscaler) *RegionAutoscalersPatchCall {
 	c := &RegionAutoscalersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -51184,6 +51934,9 @@ func (c *RegionAutoscalersPatchCall) Autoscaler(autoscaler string) *RegionAutosc
 // the same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionAutoscalersPatchCall) RequestId(requestId string) *RegionAutoscalersPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -51276,7 +52029,7 @@ func (c *RegionAutoscalersPatchCall) Do(opts ...googleapi.CallOption) (*Operatio
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates an autoscaler in the specified project using the data included in the request. This method supports patch semantics.",
+	//   "description": "Updates an autoscaler in the specified project using the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.regionAutoscalers.patch",
 	//   "parameterOrder": [
@@ -51305,7 +52058,7 @@ func (c *RegionAutoscalersPatchCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -51693,11 +52446,14 @@ func (r *RegionBackendServicesService) Delete(project string, region string, bac
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionBackendServicesDeleteCall) RequestId(requestId string) *RegionBackendServicesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -51817,7 +52573,7 @@ func (c *RegionBackendServicesDeleteCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -52185,11 +52941,14 @@ func (r *RegionBackendServicesService) Insert(project string, region string, bac
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionBackendServicesInsertCall) RequestId(requestId string) *RegionBackendServicesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -52305,7 +53064,7 @@ func (c *RegionBackendServicesInsertCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -52605,7 +53364,8 @@ type RegionBackendServicesPatchCall struct {
 // the data included in the request. There are several restrictions and
 // guidelines to keep in mind when updating a backend service. Read
 // Restrictions and Guidelines for more information. This method
-// supports patch semantics.
+// supports PATCH semantics and uses the JSON merge patch format and
+// processing rules.
 func (r *RegionBackendServicesService) Patch(project string, region string, backendService string, backendservice *BackendService) *RegionBackendServicesPatchCall {
 	c := &RegionBackendServicesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -52621,11 +53381,14 @@ func (r *RegionBackendServicesService) Patch(project string, region string, back
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionBackendServicesPatchCall) RequestId(requestId string) *RegionBackendServicesPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -52719,7 +53482,7 @@ func (c *RegionBackendServicesPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the specified regional BackendService resource with the data included in the request. There are several restrictions and guidelines to keep in mind when updating a backend service. Read  Restrictions and Guidelines for more information. This method supports patch semantics.",
+	//   "description": "Updates the specified regional BackendService resource with the data included in the request. There are several restrictions and guidelines to keep in mind when updating a backend service. Read  Restrictions and Guidelines for more information. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.regionBackendServices.patch",
 	//   "parameterOrder": [
@@ -52750,7 +53513,7 @@ func (c *RegionBackendServicesPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -52962,11 +53725,14 @@ func (r *RegionBackendServicesService) Update(project string, region string, bac
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionBackendServicesUpdateCall) RequestId(requestId string) *RegionBackendServicesUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -53091,7 +53857,7 @@ func (c *RegionBackendServicesUpdateCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -53553,11 +54319,14 @@ func (r *RegionCommitmentsService) Insert(project string, region string, commitm
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionCommitmentsInsertCall) RequestId(requestId string) *RegionCommitmentsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -53673,7 +54442,7 @@ func (c *RegionCommitmentsInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -54001,11 +54770,14 @@ func (r *RegionInstanceGroupManagersService) AbandonInstances(project string, re
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersAbandonInstancesCall) RequestId(requestId string) *RegionInstanceGroupManagersAbandonInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -54128,7 +54900,7 @@ func (c *RegionInstanceGroupManagersAbandonInstancesCall) Do(opts ...googleapi.C
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -54176,11 +54948,14 @@ func (r *RegionInstanceGroupManagersService) Delete(project string, region strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersDeleteCall) RequestId(requestId string) *RegionInstanceGroupManagersDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -54298,7 +55073,7 @@ func (c *RegionInstanceGroupManagersDeleteCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -54359,11 +55134,14 @@ func (r *RegionInstanceGroupManagersService) DeleteInstances(project string, reg
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersDeleteInstancesCall) RequestId(requestId string) *RegionInstanceGroupManagersDeleteInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -54486,7 +55264,7 @@ func (c *RegionInstanceGroupManagersDeleteInstancesCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -54702,11 +55480,14 @@ func (r *RegionInstanceGroupManagersService) Insert(project string, region strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersInsertCall) RequestId(requestId string) *RegionInstanceGroupManagersInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -54821,7 +55602,7 @@ func (c *RegionInstanceGroupManagersInsertCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -55336,7 +56117,8 @@ type RegionInstanceGroupManagersPatchCall struct {
 // group is patched even if the instances in the group are still in the
 // process of being patched. You must separately verify the status of
 // the individual instances with the listmanagedinstances method. This
-// method supports patch semantics.
+// method supports PATCH semantics and uses the JSON merge patch format
+// and processing rules.
 func (r *RegionInstanceGroupManagersService) Patch(project string, region string, instanceGroupManager string, instancegroupmanager *InstanceGroupManager) *RegionInstanceGroupManagersPatchCall {
 	c := &RegionInstanceGroupManagersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -55352,11 +56134,14 @@ func (r *RegionInstanceGroupManagersService) Patch(project string, region string
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersPatchCall) RequestId(requestId string) *RegionInstanceGroupManagersPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -55450,7 +56235,7 @@ func (c *RegionInstanceGroupManagersPatchCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a managed instance group using the information that you specify in the request. This operation is marked as DONE when the group is patched even if the instances in the group are still in the process of being patched. You must separately verify the status of the individual instances with the listmanagedinstances method. This method supports patch semantics.",
+	//   "description": "Updates a managed instance group using the information that you specify in the request. This operation is marked as DONE when the group is patched even if the instances in the group are still in the process of being patched. You must separately verify the status of the individual instances with the listmanagedinstances method. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.regionInstanceGroupManagers.patch",
 	//   "parameterOrder": [
@@ -55479,7 +56264,7 @@ func (c *RegionInstanceGroupManagersPatchCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -55543,11 +56328,14 @@ func (r *RegionInstanceGroupManagersService) RecreateInstances(project string, r
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersRecreateInstancesCall) RequestId(requestId string) *RegionInstanceGroupManagersRecreateInstancesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -55670,7 +56458,7 @@ func (c *RegionInstanceGroupManagersRecreateInstancesCall) Do(opts ...googleapi.
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -55729,11 +56517,14 @@ func (r *RegionInstanceGroupManagersService) Resize(project string, region strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersResizeCall) RequestId(requestId string) *RegionInstanceGroupManagersResizeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -55852,7 +56643,7 @@ func (c *RegionInstanceGroupManagersResizeCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -55907,11 +56698,14 @@ func (r *RegionInstanceGroupManagersService) SetAutoHealingPolicies(project stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersSetAutoHealingPoliciesCall) RequestId(requestId string) *RegionInstanceGroupManagersSetAutoHealingPoliciesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -56034,7 +56828,7 @@ func (c *RegionInstanceGroupManagersSetAutoHealingPoliciesCall) Do(opts ...googl
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -56085,11 +56879,14 @@ func (r *RegionInstanceGroupManagersService) SetInstanceTemplate(project string,
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersSetInstanceTemplateCall) RequestId(requestId string) *RegionInstanceGroupManagersSetInstanceTemplateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -56212,7 +57009,7 @@ func (c *RegionInstanceGroupManagersSetInstanceTemplateCall) Do(opts ...googleap
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -56263,11 +57060,14 @@ func (r *RegionInstanceGroupManagersService) SetTargetPools(project string, regi
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersSetTargetPoolsCall) RequestId(requestId string) *RegionInstanceGroupManagersSetTargetPoolsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -56390,7 +57190,7 @@ func (c *RegionInstanceGroupManagersSetTargetPoolsCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -56602,11 +57402,14 @@ func (r *RegionInstanceGroupManagersService) Update(project string, region strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupManagersUpdateCall) RequestId(requestId string) *RegionInstanceGroupManagersUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -56729,7 +57532,7 @@ func (c *RegionInstanceGroupManagersUpdateCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -57472,11 +58275,14 @@ func (r *RegionInstanceGroupsService) SetNamedPorts(project string, region strin
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RegionInstanceGroupsSetNamedPortsCall) RequestId(requestId string) *RegionInstanceGroupsSetNamedPortsCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -57599,7 +58405,7 @@ func (c *RegionInstanceGroupsSetNamedPortsCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -59009,11 +59815,14 @@ func (r *RoutersService) Delete(project string, region string, router string) *R
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutersDeleteCall) RequestId(requestId string) *RoutersDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -59126,7 +59935,7 @@ func (c *RoutersDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -59504,11 +60313,14 @@ func (r *RoutersService) Insert(project string, region string, router *Router) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutersInsertCall) RequestId(requestId string) *RoutersInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -59624,7 +60436,7 @@ func (c *RoutersInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -59921,7 +60733,8 @@ type RoutersPatchCall struct {
 }
 
 // Patch: Patches the specified Router resource with the data included
-// in the request. This method supports patch semantics.
+// in the request. This method supports PATCH semantics and uses JSON
+// merge patch format and processing rules.
 func (r *RoutersService) Patch(project string, region string, router string, router2 *Router) *RoutersPatchCall {
 	c := &RoutersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -59937,11 +60750,14 @@ func (r *RoutersService) Patch(project string, region string, router string, rou
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutersPatchCall) RequestId(requestId string) *RoutersPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -60035,7 +60851,7 @@ func (c *RoutersPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Patches the specified Router resource with the data included in the request. This method supports patch semantics.",
+	//   "description": "Patches the specified Router resource with the data included in the request. This method supports PATCH semantics and uses JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.routers.patch",
 	//   "parameterOrder": [
@@ -60059,7 +60875,7 @@ func (c *RoutersPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -60436,11 +61252,14 @@ func (r *RoutersService) Update(project string, region string, router string, ro
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutersUpdateCall) RequestId(requestId string) *RoutersUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -60558,7 +61377,7 @@ func (c *RoutersUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -60611,11 +61430,14 @@ func (r *RoutesService) Delete(project string, route string) *RoutesDeleteCall {
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutesDeleteCall) RequestId(requestId string) *RoutesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -60719,7 +61541,7 @@ func (c *RoutesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -60923,11 +61745,14 @@ func (r *RoutesService) Insert(project string, route *Route) *RoutesInsertCall {
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *RoutesInsertCall) RequestId(requestId string) *RoutesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -61034,7 +61859,7 @@ func (c *RoutesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -61487,11 +62312,14 @@ func (r *SnapshotsService) Delete(project string, snapshot string) *SnapshotsDel
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SnapshotsDeleteCall) RequestId(requestId string) *SnapshotsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -61595,7 +62423,7 @@ func (c *SnapshotsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -62345,11 +63173,14 @@ func (r *SslCertificatesService) Delete(project string, sslCertificate string) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SslCertificatesDeleteCall) RequestId(requestId string) *SslCertificatesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -62453,7 +63284,7 @@ func (c *SslCertificatesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -62655,11 +63486,14 @@ func (r *SslCertificatesService) Insert(project string, sslcertificate *SslCerti
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SslCertificatesInsertCall) RequestId(requestId string) *SslCertificatesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -62766,7 +63600,7 @@ func (c *SslCertificatesInsertCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -63464,11 +64298,14 @@ func (r *SubnetworksService) Delete(project string, region string, subnetwork st
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SubnetworksDeleteCall) RequestId(requestId string) *SubnetworksDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -63581,7 +64418,7 @@ func (c *SubnetworksDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -63635,11 +64472,14 @@ func (r *SubnetworksService) ExpandIpCidrRange(project string, region string, su
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SubnetworksExpandIpCidrRangeCall) RequestId(requestId string) *SubnetworksExpandIpCidrRangeCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -63757,7 +64597,7 @@ func (c *SubnetworksExpandIpCidrRangeCall) Do(opts ...googleapi.CallOption) (*Op
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -64138,11 +64978,14 @@ func (r *SubnetworksService) Insert(project string, region string, subnetwork *S
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SubnetworksInsertCall) RequestId(requestId string) *SubnetworksInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -64258,7 +65101,7 @@ func (c *SubnetworksInsertCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -64730,11 +65573,14 @@ func (r *SubnetworksService) SetPrivateIpGoogleAccess(project string, region str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *SubnetworksSetPrivateIpGoogleAccessCall) RequestId(requestId string) *SubnetworksSetPrivateIpGoogleAccessCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -64852,7 +65698,7 @@ func (c *SubnetworksSetPrivateIpGoogleAccessCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -65064,11 +65910,14 @@ func (r *TargetHttpProxiesService) Delete(project string, targetHttpProxy string
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpProxiesDeleteCall) RequestId(requestId string) *TargetHttpProxiesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -65172,7 +66021,7 @@ func (c *TargetHttpProxiesDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -65376,11 +66225,14 @@ func (r *TargetHttpProxiesService) Insert(project string, targethttpproxy *Targe
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpProxiesInsertCall) RequestId(requestId string) *TargetHttpProxiesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -65487,7 +66339,7 @@ func (c *TargetHttpProxiesInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -65788,11 +66640,14 @@ func (r *TargetHttpProxiesService) SetUrlMap(project string, targetHttpProxy str
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpProxiesSetUrlMapCall) RequestId(requestId string) *TargetHttpProxiesSetUrlMapCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -65901,7 +66756,7 @@ func (c *TargetHttpProxiesSetUrlMapCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -66101,11 +66956,14 @@ func (r *TargetHttpsProxiesService) Delete(project string, targetHttpsProxy stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpsProxiesDeleteCall) RequestId(requestId string) *TargetHttpsProxiesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -66209,7 +67067,7 @@ func (c *TargetHttpsProxiesDeleteCall) Do(opts ...googleapi.CallOption) (*Operat
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -66411,11 +67269,14 @@ func (r *TargetHttpsProxiesService) Insert(project string, targethttpsproxy *Tar
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpsProxiesInsertCall) RequestId(requestId string) *TargetHttpsProxiesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -66522,7 +67383,7 @@ func (c *TargetHttpsProxiesInsertCall) Do(opts ...googleapi.CallOption) (*Operat
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -66821,11 +67682,14 @@ func (r *TargetHttpsProxiesService) SetSslCertificates(project string, targetHtt
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpsProxiesSetSslCertificatesCall) RequestId(requestId string) *TargetHttpsProxiesSetSslCertificatesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -66934,7 +67798,7 @@ func (c *TargetHttpsProxiesSetSslCertificatesCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -66988,11 +67852,14 @@ func (r *TargetHttpsProxiesService) SetUrlMap(project string, targetHttpsProxy s
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetHttpsProxiesSetUrlMapCall) RequestId(requestId string) *TargetHttpsProxiesSetUrlMapCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -67101,7 +67968,7 @@ func (c *TargetHttpsProxiesSetUrlMapCall) Do(opts ...googleapi.CallOption) (*Ope
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -67556,11 +68423,14 @@ func (r *TargetInstancesService) Delete(project string, zone string, targetInsta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetInstancesDeleteCall) RequestId(requestId string) *TargetInstancesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -67666,7 +68536,7 @@ func (c *TargetInstancesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -67890,11 +68760,14 @@ func (r *TargetInstancesService) Insert(project string, zone string, targetinsta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetInstancesInsertCall) RequestId(requestId string) *TargetInstancesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -68003,7 +68876,7 @@ func (c *TargetInstancesInsertCall) Do(opts ...googleapi.CallOption) (*Operation
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -68483,11 +69356,14 @@ func (r *TargetPoolsService) AddHealthCheck(project string, region string, targe
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsAddHealthCheckCall) RequestId(requestId string) *TargetPoolsAddHealthCheckCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -68605,7 +69481,7 @@ func (c *TargetPoolsAddHealthCheckCall) Do(opts ...googleapi.CallOption) (*Opera
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -68662,11 +69538,14 @@ func (r *TargetPoolsService) AddInstance(project string, region string, targetPo
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsAddInstanceCall) RequestId(requestId string) *TargetPoolsAddInstanceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -68784,7 +69663,7 @@ func (c *TargetPoolsAddInstanceCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -69091,11 +69970,14 @@ func (r *TargetPoolsService) Delete(project string, region string, targetPool st
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsDeleteCall) RequestId(requestId string) *TargetPoolsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -69208,7 +70090,7 @@ func (c *TargetPoolsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -69585,11 +70467,14 @@ func (r *TargetPoolsService) Insert(project string, region string, targetpool *T
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsInsertCall) RequestId(requestId string) *TargetPoolsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -69705,7 +70590,7 @@ func (c *TargetPoolsInsertCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -70019,11 +70904,14 @@ func (r *TargetPoolsService) RemoveHealthCheck(project string, region string, ta
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsRemoveHealthCheckCall) RequestId(requestId string) *TargetPoolsRemoveHealthCheckCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -70141,7 +71029,7 @@ func (c *TargetPoolsRemoveHealthCheckCall) Do(opts ...googleapi.CallOption) (*Op
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -70198,11 +71086,14 @@ func (r *TargetPoolsService) RemoveInstance(project string, region string, targe
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsRemoveInstanceCall) RequestId(requestId string) *TargetPoolsRemoveInstanceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -70320,7 +71211,7 @@ func (c *TargetPoolsRemoveInstanceCall) Do(opts ...googleapi.CallOption) (*Opera
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -70384,11 +71275,14 @@ func (c *TargetPoolsSetBackupCall) FailoverRatio(failoverRatio float64) *TargetP
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetPoolsSetBackupCall) RequestId(requestId string) *TargetPoolsSetBackupCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -70512,7 +71406,7 @@ func (c *TargetPoolsSetBackupCall) Do(opts ...googleapi.CallOption) (*Operation,
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -70723,11 +71617,14 @@ func (r *TargetSslProxiesService) Delete(project string, targetSslProxy string) 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetSslProxiesDeleteCall) RequestId(requestId string) *TargetSslProxiesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -70831,7 +71728,7 @@ func (c *TargetSslProxiesDeleteCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -71033,11 +71930,14 @@ func (r *TargetSslProxiesService) Insert(project string, targetsslproxy *TargetS
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetSslProxiesInsertCall) RequestId(requestId string) *TargetSslProxiesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -71144,7 +72044,7 @@ func (c *TargetSslProxiesInsertCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -71443,11 +72343,14 @@ func (r *TargetSslProxiesService) SetBackendService(project string, targetSslPro
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetSslProxiesSetBackendServiceCall) RequestId(requestId string) *TargetSslProxiesSetBackendServiceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -71556,7 +72459,7 @@ func (c *TargetSslProxiesSetBackendServiceCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -71610,11 +72513,14 @@ func (r *TargetSslProxiesService) SetProxyHeader(project string, targetSslProxy 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetSslProxiesSetProxyHeaderCall) RequestId(requestId string) *TargetSslProxiesSetProxyHeaderCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -71723,7 +72629,7 @@ func (c *TargetSslProxiesSetProxyHeaderCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -71777,11 +72683,14 @@ func (r *TargetSslProxiesService) SetSslCertificates(project string, targetSslPr
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetSslProxiesSetSslCertificatesCall) RequestId(requestId string) *TargetSslProxiesSetSslCertificatesCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -71890,7 +72799,7 @@ func (c *TargetSslProxiesSetSslCertificatesCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -72090,11 +72999,14 @@ func (r *TargetTcpProxiesService) Delete(project string, targetTcpProxy string) 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetTcpProxiesDeleteCall) RequestId(requestId string) *TargetTcpProxiesDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -72198,7 +73110,7 @@ func (c *TargetTcpProxiesDeleteCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -72400,11 +73312,14 @@ func (r *TargetTcpProxiesService) Insert(project string, targettcpproxy *TargetT
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetTcpProxiesInsertCall) RequestId(requestId string) *TargetTcpProxiesInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -72511,7 +73426,7 @@ func (c *TargetTcpProxiesInsertCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -72810,11 +73725,14 @@ func (r *TargetTcpProxiesService) SetBackendService(project string, targetTcpPro
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetTcpProxiesSetBackendServiceCall) RequestId(requestId string) *TargetTcpProxiesSetBackendServiceCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -72923,7 +73841,7 @@ func (c *TargetTcpProxiesSetBackendServiceCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -72977,11 +73895,14 @@ func (r *TargetTcpProxiesService) SetProxyHeader(project string, targetTcpProxy 
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetTcpProxiesSetProxyHeaderCall) RequestId(requestId string) *TargetTcpProxiesSetProxyHeaderCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -73090,7 +74011,7 @@ func (c *TargetTcpProxiesSetProxyHeaderCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -73395,11 +74316,14 @@ func (r *TargetVpnGatewaysService) Delete(project string, region string, targetV
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetVpnGatewaysDeleteCall) RequestId(requestId string) *TargetVpnGatewaysDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -73512,7 +74436,7 @@ func (c *TargetVpnGatewaysDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -73727,11 +74651,14 @@ func (r *TargetVpnGatewaysService) Insert(project string, region string, targetv
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *TargetVpnGatewaysInsertCall) RequestId(requestId string) *TargetVpnGatewaysInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -73847,7 +74774,7 @@ func (c *TargetVpnGatewaysInsertCall) Do(opts ...googleapi.CallOption) (*Operati
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -74315,11 +75242,14 @@ func (r *UrlMapsService) Delete(project string, urlMap string) *UrlMapsDeleteCal
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *UrlMapsDeleteCall) RequestId(requestId string) *UrlMapsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -74423,7 +75353,7 @@ func (c *UrlMapsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -74627,11 +75557,14 @@ func (r *UrlMapsService) Insert(project string, urlmap *UrlMap) *UrlMapsInsertCa
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *UrlMapsInsertCall) RequestId(requestId string) *UrlMapsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -74738,7 +75671,7 @@ func (c *UrlMapsInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -74786,11 +75719,14 @@ func (r *UrlMapsService) InvalidateCache(project string, urlMap string, cacheinv
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *UrlMapsInvalidateCacheCall) RequestId(requestId string) *UrlMapsInvalidateCacheCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -74899,7 +75835,7 @@ func (c *UrlMapsInvalidateCacheCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -75192,7 +76128,8 @@ type UrlMapsPatchCall struct {
 }
 
 // Patch: Patches the specified UrlMap resource with the data included
-// in the request. This method supports patch semantics.
+// in the request. This method supports PATCH semantics and uses the
+// JSON merge patch format and processing rules.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/urlMaps/patch
 func (r *UrlMapsService) Patch(project string, urlMap string, urlmap *UrlMap) *UrlMapsPatchCall {
 	c := &UrlMapsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -75208,11 +76145,14 @@ func (r *UrlMapsService) Patch(project string, urlMap string, urlmap *UrlMap) *U
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *UrlMapsPatchCall) RequestId(requestId string) *UrlMapsPatchCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -75305,7 +76245,7 @@ func (c *UrlMapsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Patches the specified UrlMap resource with the data included in the request. This method supports patch semantics.",
+	//   "description": "Patches the specified UrlMap resource with the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.",
 	//   "httpMethod": "PATCH",
 	//   "id": "compute.urlMaps.patch",
 	//   "parameterOrder": [
@@ -75321,7 +76261,7 @@ func (c *UrlMapsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -75526,11 +76466,14 @@ func (r *UrlMapsService) Update(project string, urlMap string, urlmap *UrlMap) *
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *UrlMapsUpdateCall) RequestId(requestId string) *UrlMapsUpdateCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -75639,7 +76582,7 @@ func (c *UrlMapsUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -76093,11 +77036,14 @@ func (r *VpnTunnelsService) Delete(project string, region string, vpnTunnel stri
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *VpnTunnelsDeleteCall) RequestId(requestId string) *VpnTunnelsDeleteCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -76210,7 +77156,7 @@ func (c *VpnTunnelsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -76425,11 +77371,14 @@ func (r *VpnTunnelsService) Insert(project string, region string, vpntunnel *Vpn
 // request if it has already been completed.
 //
 // For example, consider a situation where you make an initial request
-// and then the request times out. If you make the request again with
-// the same request ID, the server can check if original operation with
-// the same request ID was received, and if so, will ignore the second
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
 // request. This prevents clients from accidentally creating duplicate
 // commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
 func (c *VpnTunnelsInsertCall) RequestId(requestId string) *VpnTunnelsInsertCall {
 	c.urlParams_.Set("requestId", requestId)
 	return c
@@ -76545,7 +77494,7 @@ func (c *VpnTunnelsInsertCall) Do(opts ...googleapi.CallOption) (*Operation, err
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and then the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.",
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }

@@ -98,15 +98,15 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"update_strategy": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "RESTART",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "RESTART",
+				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE"}, false),
 			},
 
 			"target_pools": &schema.Schema{
-				Type:             schema.TypeSet,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -178,45 +178,18 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	targetSize := int64(0)
-	if v, ok := d.GetOk("target_size"); ok {
-		targetSize = int64(v.(int))
-	}
-
 	// Build the parameter
 	manager := &computeBeta.InstanceGroupManager{
-		Name:             d.Get("name").(string),
-		BaseInstanceName: d.Get("base_instance_name").(string),
-		InstanceTemplate: d.Get("instance_template").(string),
-		TargetSize:       targetSize,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		BaseInstanceName:    d.Get("base_instance_name").(string),
+		InstanceTemplate:    d.Get("instance_template").(string),
+		TargetSize:          int64(d.Get("target_size").(int)),
+		NamedPorts:          getNamedPortsBeta(d.Get("named_port").([]interface{})),
+		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
+		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
 		// Force send TargetSize to allow a value of 0.
 		ForceSendFields: []string{"TargetSize"},
-	}
-
-	// Set optional fields
-	if v, ok := d.GetOk("description"); ok {
-		manager.Description = v.(string)
-	}
-
-	if v, ok := d.GetOk("named_port"); ok {
-		manager.NamedPorts = getNamedPortsBeta(v.([]interface{}))
-	}
-
-	if attr := d.Get("target_pools").(*schema.Set); attr.Len() > 0 {
-		var s []string
-		for _, v := range attr.List() {
-			s = append(s, v.(string))
-		}
-		manager.TargetPools = s
-	}
-
-	updateStrategy := d.Get("update_strategy").(string)
-	if !(updateStrategy == "NONE" || updateStrategy == "RESTART") {
-		return fmt.Errorf("Update strategy must be \"NONE\" or \"RESTART\"")
-	}
-
-	if v, ok := d.GetOk("auto_healing_policies"); ok {
-		manager.AutoHealingPolicies = expandAutoHealingPolicies(v.([]interface{}))
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
@@ -363,11 +336,10 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		manager = v0betaManager
 	}
 
-	zoneUrl := strings.Split(manager.Zone, "/")
 	d.Set("base_instance_name", manager.BaseInstanceName)
 	d.Set("instance_template", manager.InstanceTemplate)
 	d.Set("name", manager.Name)
-	d.Set("zone", zoneUrl[len(zoneUrl)-1])
+	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
 	d.Set("description", manager.Description)
 	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
@@ -399,12 +371,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	// If target_pools changes then update
 	if d.HasChange("target_pools") {
-		var targetPools []string
-		if attr := d.Get("target_pools").(*schema.Set); attr.Len() > 0 {
-			for _, v := range attr.List() {
-				targetPools = append(targetPools, v.(string))
-			}
-		}
+		targetPools := convertStringSet(d.Get("target_pools").(*schema.Set))
 
 		// Build the parameter
 		setTargetPools := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{

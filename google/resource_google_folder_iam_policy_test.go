@@ -1,0 +1,176 @@
+package google
+
+import (
+	"bytes"
+	"fmt"
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	"os"
+	"reflect"
+	"testing"
+)
+
+func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
+	skipIfEnvNotSet(t, "GOOGLE_ORG")
+
+	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	org := os.Getenv("GOOGLE_ORG")
+	parent := "organizations/" + org
+
+	policy := &resourceManagerV2Beta1.Policy{
+		Bindings: []*resourceManagerV2Beta1.Binding{
+			{
+				Role: "roles/viewer",
+				Members: []string{
+					"user:admin@hashicorptest.com",
+				},
+			},
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy),
+				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy),
+			},
+		},
+	})
+}
+
+func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
+	skipIfEnvNotSet(t, "GOOGLE_ORG")
+
+	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	org := os.Getenv("GOOGLE_ORG")
+	parent := "organizations/" + org
+
+	policy1 := &resourceManagerV2Beta1.Policy{
+		Bindings: []*resourceManagerV2Beta1.Binding{
+			{
+				Role: "roles/viewer",
+				Members: []string{
+					"user:admin@hashicorptest.com",
+				},
+			},
+		},
+	}
+	policy2 := &resourceManagerV2Beta1.Policy{
+		Bindings: []*resourceManagerV2Beta1.Binding{
+			{
+				Role: "roles/editor",
+				Members: []string{
+					"user:admin@hashicorptest.com",
+				},
+			},
+			{
+				Role: "roles/viewer",
+				Members: []string{
+					"user:admin@hashicorptest.com",
+				},
+			},
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy1),
+				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy1),
+			},
+			resource.TestStep{
+				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy2),
+				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy2),
+			},
+		},
+	})
+}
+
+func testAccCheckGoogleFolderIamPolicyDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_folder_iam_policy" {
+			continue
+		}
+
+		folder := rs.Primary.Attributes["folder"]
+		policy, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
+
+		if err != nil && len(policy.Bindings) > 0 {
+			return fmt.Errorf("Folder '%s' policy hasn't been deleted.", folder)
+		}
+	}
+	return nil
+}
+
+func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.Policy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		p, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(rs.Primary.ID, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(p.Bindings, policy.Bindings) {
+			return fmt.Errorf("Incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, p.Bindings)
+		}
+
+		if _, ok = rs.Primary.Attributes["etag"]; !ok {
+			return fmt.Errorf("Etag should be set.")
+		}
+
+		if rs.Primary.Attributes["etag"] != p.Etag {
+			return fmt.Errorf("Incorrect etag value. Expected '%s', got '%s'", p.Etag, rs.Primary.Attributes["etag"])
+		}
+
+		return nil
+	}
+}
+
+func testAccGoogleFolderIamPolicy_basic(folder, parent string, policy *resourceManagerV2Beta1.Policy) string {
+	var bindingBuffer bytes.Buffer
+
+	for _, binding := range policy.Bindings {
+		bindingBuffer.WriteString("binding {\n")
+		bindingBuffer.WriteString(fmt.Sprintf("role = \"%s\"\n", binding.Role))
+		bindingBuffer.WriteString(fmt.Sprintf("members = [\n"))
+		for _, member := range binding.Members {
+			bindingBuffer.WriteString(fmt.Sprintf("\"%s\",\n", member))
+		}
+		bindingBuffer.WriteString("]}\n")
+	}
+	return fmt.Sprintf(`
+resource "google_folder" "permissiontest" {
+  display_name = "%s"
+  parent = "%s"
+}
+
+data "google_iam_policy" "test" {
+  %s
+}
+
+resource "google_folder_iam_policy" "test" {
+  folder = "${google_folder.permissiontest.name}"
+  policy_data = "${data.google_iam_policy.test.policy_data}"
+}
+`, folder, parent, bindingBuffer.String())
+}

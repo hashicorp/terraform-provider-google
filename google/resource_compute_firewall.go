@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -14,11 +13,14 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const COMPUTE_FIREWALL_PRIORITY_DEFAULT = 1000
+
 var FirewallBaseApiVersion = v1
 var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
+	Feature{Version: v0beta, Item: "priority", DefaultValue: COMPUTE_FIREWALL_PRIORITY_DEFAULT},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -41,9 +43,18 @@ func resourceComputeFirewall() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+
+			"priority": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      COMPUTE_FIREWALL_PRIORITY_DEFAULT,
+				ValidateFunc: validation.IntBetween(0, 65535),
 			},
 
 			"allow": {
@@ -267,6 +278,10 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
+		// During firewall conversion from v1 to v0beta, the value for Priority is read as 0 (as it doesn't exist in
+		// v1). Unfortunately this is a valid value, but not the same as the default. To avoid this, we explicitly set
+		// the default value here.
+		firewall.Priority = COMPUTE_FIREWALL_PRIORITY_DEFAULT
 	case v0beta:
 		firewallV0Beta, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
 		if err != nil {
@@ -279,10 +294,9 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	networkUrl := strings.Split(firewall.Network, "/")
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
 	d.Set("name", firewall.Name)
-	d.Set("network", networkUrl[len(networkUrl)-1])
+	d.Set("network", ConvertSelfLinkToV1(firewall.Network))
 
 	// Unlike most other Beta properties, direction will always have a value even when
 	// a zero is sent by the client. We'll never revert back to v1 without conditionally reading it.
@@ -299,6 +313,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("target_tags", firewall.TargetTags)
 	d.Set("allow", flattenAllowed(firewall.Allowed))
 	d.Set("deny", flattenDenied(firewall.Denied))
+	d.Set("priority", int(firewall.Priority))
 	return nil
 }
 
@@ -389,12 +404,6 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
-	project, _ := getProject(d, config)
-
-	network, err := config.clientCompute.Networks.Get(project, d.Get("network").(string)).Do()
-	if err != nil {
-		return nil, fmt.Errorf("Error reading network: %s", err)
-	}
 
 	// Build up the list of allowed entries
 	var allowed []*computeBeta.FirewallAllowed
@@ -478,12 +487,13 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
-		Network:           network.SelfLink,
+		Network:           ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
 		Allowed:           allowed,
 		Denied:            denied,
 		SourceRanges:      sourceRanges,
 		SourceTags:        sourceTags,
 		DestinationRanges: destinationRanges,
 		TargetTags:        targetTags,
+		Priority:          int64(d.Get("priority").(int)),
 	}, nil
 }

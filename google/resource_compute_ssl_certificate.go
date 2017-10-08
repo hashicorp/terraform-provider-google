@@ -17,9 +17,10 @@ func resourceComputeSslCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"certificate": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 
 			"name": &schema.Schema{

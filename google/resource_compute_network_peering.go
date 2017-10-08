@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"sort"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -60,14 +59,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	networkLink := d.Get("network").(string)
-	networkName := getNameFromNetworkLink(networkLink)
+	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
 
 	request := &compute.NetworksAddPeeringRequest{
 		Name:             d.Get("name").(string),
@@ -75,17 +67,17 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		AutoCreateRoutes: d.Get("auto_create_routes").(bool),
 	}
 
-	addOp, err := config.clientCompute.Networks.AddPeering(project, networkName, request).Do()
+	addOp, err := config.clientCompute.Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
 
-	err = computeOperationWait(config, addOp, project, "Adding Network Peering")
+	err = computeOperationWait(config, addOp, networkFieldValue.Project, "Adding Network Peering")
 	if err != nil {
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", networkName, d.Get("name").(string)))
+	d.SetId(fmt.Sprintf("%s/%s", networkFieldValue.Name, d.Get("name").(string)))
 
 	return resourceComputeNetworkPeeringRead(d, meta)
 }
@@ -93,23 +85,17 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	peeringName := d.Get("name").(string)
-	networkLink := d.Get("network").(string)
-	networkName := getNameFromNetworkLink(networkLink)
+	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
 
-	network, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	network, err := config.clientCompute.Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", networkName))
+		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", network.Name))
 	}
 
 	peering := findPeeringFromNetwork(network, peeringName)
 	if peering == nil {
-		log.Printf("[WARN] Removing network peering %s from network %s because it's gone", peeringName, networkName)
+		log.Printf("[WARN] Removing network peering %s from network %s because it's gone", peeringName, network.Name)
 		d.SetId("")
 		return nil
 	}
@@ -126,35 +112,28 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 
 	// Remove the `network` to `peer_network` peering
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	name := d.Get("name").(string)
-	networkLink := d.Get("network").(string)
-	peerNetworkLink := d.Get("peer_network").(string)
-	networkName := getNameFromNetworkLink(networkLink)
-	peerNetworkName := getNameFromNetworkLink(peerNetworkLink)
+	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
+	peerNetworkFieldValue := ParseNetworkFieldValue(d.Get("peer_network").(string), config)
 
 	request := &compute.NetworksRemovePeeringRequest{
 		Name: name,
 	}
 
 	// Only one delete peering operation at a time can be performed inside any peered VPCs.
-	peeringLockName := getNetworkPeeringLockName(networkName, peerNetworkName)
+	peeringLockName := getNetworkPeeringLockName(networkFieldValue.Name, peerNetworkFieldValue.Name)
 	mutexKV.Lock(peeringLockName)
 	defer mutexKV.Unlock(peeringLockName)
 
-	removeOp, err := config.clientCompute.Networks.RemovePeering(project, networkName, request).Do()
+	removeOp, err := config.clientCompute.Networks.RemovePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Peering `%s` already removed from network `%s`", name, networkName)
+			log.Printf("[WARN] Peering `%s` already removed from network `%s`", name, networkFieldValue.Name)
 		} else {
-			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkName, err)
+			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
-		err = computeOperationWait(config, removeOp, project, "Removing Network Peering")
+		err = computeOperationWait(config, removeOp, networkFieldValue.Project, "Removing Network Peering")
 		if err != nil {
 			return err
 		}
@@ -170,13 +149,6 @@ func findPeeringFromNetwork(network *compute.Network, peeringName string) *compu
 		}
 	}
 	return nil
-}
-
-func getNameFromNetworkLink(network string) string {
-	r := regexp.MustCompile(peerNetworkLinkRegex)
-
-	m := r.FindStringSubmatch(network)
-	return m[2]
 }
 
 func getNetworkPeeringLockName(networkName, peerNetworkName string) string {

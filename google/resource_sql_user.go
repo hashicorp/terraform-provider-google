@@ -88,7 +88,7 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(fmt.Sprintf("%s/%s", instance, name))
 
-	err = sqladminOperationWait(config, op, "Insert User")
+	err = sqladminOperationWait(config, op, project, "Insert User")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for insertion of %s "+
@@ -175,7 +175,7 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 				"user %s into user %s: %s", name, instance, err)
 		}
 
-		err = sqladminOperationWait(config, op, "Insert User")
+		err = sqladminOperationWait(config, op, project, "Insert User")
 
 		if err != nil {
 			return fmt.Errorf("Error, failure waiting for update of %s "+
@@ -210,7 +210,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 			instance, err)
 	}
 
-	err = sqladminOperationWait(config, op, "Delete User")
+	err = sqladminOperationWait(config, op, project, "Delete User")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of %s "+

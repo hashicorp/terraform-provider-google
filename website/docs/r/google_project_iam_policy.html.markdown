@@ -50,16 +50,18 @@ The following arguments are supported:
     intact. If there are overlapping `binding` entries between the original
     project policy and the data source policy, they will be removed.
 
-* `authoritative` - (Optional) A boolean value indicating if this policy
+* `authoritative` - (DEPRECATED) (Optional) A boolean value indicating if this policy
     should overwrite any existing IAM policy on the project. When set to true,
     **any policies not in your config file will be removed**. This can **lock
     you out** of your project until an Organization Administrator grants you
     access again, so please exercise caution. If this argument is `true` and you
     want to delete the resource, you must set the `disable_project` argument to
     `true`, acknowledging that the project will be inaccessible to anyone but the
-    Organization Admins, as it will no longer have an IAM policy.
+    Organization Admins, as it will no longer have an IAM policy. Rather than using
+    this, you should use `google_project_iam_policy_binding` and
+    `google_project_iam_policy_member`.
 
-* `disable_project` - (Optional) A boolean value that must be set to `true`
+* `disable_project` - (DEPRECATED) (Optional) A boolean value that must be set to `true`
     if you want to delete a `google_project_iam_policy` that is authoritative.
 
 ## Attributes Reference
@@ -69,5 +71,5 @@ exported:
 
 * `etag` - (Computed) The etag of the project's IAM policy.
 
-* `restore_policy` - (Computed) The IAM policy that will be restored when a
+* `restore_policy` - (DEPRECATED) (Computed) The IAM policy that will be restored when a
     non-authoritative policy resource is deleted.

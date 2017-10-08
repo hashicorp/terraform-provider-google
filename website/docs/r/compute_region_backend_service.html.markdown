@@ -23,17 +23,17 @@ resource "google_compute_region_backend_service" "foobar" {
   session_affinity = "CLIENT_IP"
 
   backend {
-    group = "${google_compute_instance_group_manager.foo.instance_group}"
+    group = "${google_compute_region_instance_group_manager.foo.instance_group}"
   }
 
   health_checks = ["${google_compute_health_check.default.self_link}"]
 }
 
-resource "google_compute_instance_group_manager" "foo" {
+resource "google_compute_region_instance_group_manager" "foo" {
   name               = "terraform-test"
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
   base_instance_name = "foobar"
-  zone               = "us-central1-f"
+  region             = "us-central1"
   target_size        = 1
 }
 
@@ -102,7 +102,7 @@ The following arguments are supported:
 The `backend` block supports:
 
 * `group` - (Required) The name or URI of a Compute Engine instance group
-    (`google_compute_instance_group_manager.xyz.instance_group`) that can
+    (`google_compute_region_instance_group_manager.xyz.instance_group`) that can
     receive traffic. Instance groups must contain at least one instance.
 
 * `balancing_mode` - (Optional) Defines the strategy for balancing load.

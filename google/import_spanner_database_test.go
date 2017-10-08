@@ -36,7 +36,7 @@ func TestAccSpannerDatabase_importProjectInstanceDatabase(t *testing.T) {
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
-	var projectId = multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
+	projectId := getTestProjectFromEnv()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
