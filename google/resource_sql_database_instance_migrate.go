@@ -43,7 +43,7 @@ func migrateSqlDatabaseInstanceStateV0toV1(is *terraform.InstanceState) (*terraf
 	}
 	sort.Strings(keys)
 	for _, k := range keys {
-		if !strings.HasPrefix(k, "settings.0.ip_configuration.0.") {
+		if !strings.HasPrefix(k, "settings.0.ip_configuration.0.authorized_networks.") {
 			continue
 		}
 
@@ -76,14 +76,10 @@ func migrateSqlDatabaseInstanceStateV0toV1(is *terraform.InstanceState) (*terraf
 		vValue := is.Attributes[fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%s.value", kParts[5])]
 
 		// Generate the hash based on the expected values using the actual hash function.
-		networkHash := resourceSqlDatabaseInstanceAuthNetworkHash(struct {
-			expiration_time string
-			name            string
-			value           string
-		}{
-			expiration_time: vTime,
-			name:            vName,
-			value:           vValue,
+		networkHash := resourceSqlDatabaseInstanceAuthNetworkHash(map[string]interface{}{
+			"expiration_time": vTime,
+			"name":            vName,
+			"value":           vValue,
 		})
 
 		newK := fmt.Sprintf("settings.0.ip_configuration.0.authorized_networks.%d.%s", networkHash, kParts[6])
