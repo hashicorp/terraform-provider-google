@@ -27,6 +27,7 @@ BUG FIXES:
 
 BUG FIXES:
 * compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. ([#511](https://github.com/terraform-providers/terraform-provider-google/issues/511))
+* compute: Fix bug causing a crash if the API returns an error on `google_compute_instance` creation [GH-556]
 
 ## 1.0.0 (October 02, 2017)
 
