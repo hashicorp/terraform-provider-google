@@ -39,7 +39,7 @@ func (f GlobalFieldValue) RelativeLink() string {
 
 // Parses a global field supporting 4 different formats:
 // - https://www.googleapis.com/compute/ANY_VERSION/projects/{my-project}/global/{resource_type}/{resource_name}
-// - projects{my-project}/global/{resource_type}/{resource_name}
+// - projects/{my-project}/global/{resource_type}/{resource_name}
 // - global/{resource_type}/{resource_name} (default project is used)
 // - resource_name (default project is used)
 // - "" (empty string). RelativeLink() returns empty if isEmptyValid is true.

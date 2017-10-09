@@ -25,36 +25,36 @@ func TestParseGlobalFieldValue(t *testing.T) {
 		},
 		"network is a partial relative self link": {
 			FieldValue:           "global/networks/my-network",
-			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 			Config:               &Config{Project: "default-project"},
+			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 		},
 		"network is the name only": {
 			FieldValue:           "my-network",
-			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 			Config:               &Config{Project: "default-project"},
+			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 		},
 		"network is the name only and has a project set in schema": {
 			FieldValue:           "my-network",
-			ExpectedRelativeLink: "projects/schema-project/global/networks/my-network",
 			ProjectSchemaField:   "project",
 			ProjectSchemaValue:   "schema-project",
 			Config:               &Config{Project: "default-project"},
+			ExpectedRelativeLink: "projects/schema-project/global/networks/my-network",
 		},
 		"network is the name only and has a project set in schema but the field is not specified.": {
 			FieldValue:           "my-network",
-			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 			ProjectSchemaValue:   "schema-project",
 			Config:               &Config{Project: "default-project"},
+			ExpectedRelativeLink: "projects/default-project/global/networks/my-network",
 		},
 		"network is empty and it is valid": {
 			FieldValue:           "",
-			ExpectedRelativeLink: "",
 			IsEmptyValid:         true,
+			ExpectedRelativeLink: "",
 		},
 		"network is empty and it is not valid": {
 			FieldValue:    "",
-			ExpectedError: true,
 			IsEmptyValid:  false,
+			ExpectedError: true,
 		},
 	}
 
