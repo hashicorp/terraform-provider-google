@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeTargetTcpProxy_basic(t *testing.T) {
+	t.Parallel()
+
 	target := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	backend := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	hc := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
@@ -31,6 +33,8 @@ func TestAccComputeTargetTcpProxy_basic(t *testing.T) {
 }
 
 func TestAccComputeTargetTcpProxy_update(t *testing.T) {
+	t.Parallel()
+
 	target := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	backend := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	hc := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))

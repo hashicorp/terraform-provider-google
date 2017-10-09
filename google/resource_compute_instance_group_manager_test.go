@@ -17,6 +17,8 @@ import (
 )
 
 func TestAccInstanceGroupManager_basic(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -43,6 +45,8 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	templateName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -69,6 +73,8 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_update(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -113,6 +119,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	tag1 := "tag1"
@@ -145,6 +153,8 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 
@@ -167,6 +177,8 @@ func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	igm1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -191,6 +203,8 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
+	t.Parallel()
+
 	var manager computeBeta.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -220,6 +234,8 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 // Once auto_healing_policies is no longer beta, we will need to use a new field or resource
 // with Beta fields.
 func TestAccInstanceGroupManager_selfLinkStability(t *testing.T) {
+	t.Parallel()
+
 	var manager computeBeta.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))

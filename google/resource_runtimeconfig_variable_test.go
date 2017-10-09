@@ -13,6 +13,8 @@ import (
 )
 
 func TestAccRuntimeconfigVariable_basic(t *testing.T) {
+	t.Parallel()
+
 	var variable runtimeconfig.Variable
 
 	varName := fmt.Sprintf("variable-test-%s", acctest.RandString(10))
@@ -37,6 +39,8 @@ func TestAccRuntimeconfigVariable_basic(t *testing.T) {
 }
 
 func TestAccRuntimeconfigVariable_basicUpdate(t *testing.T) {
+	t.Parallel()
+
 	var variable runtimeconfig.Variable
 
 	configName := fmt.Sprintf("some-name-%s", acctest.RandString(10))
@@ -69,6 +73,8 @@ func TestAccRuntimeconfigVariable_basicUpdate(t *testing.T) {
 }
 
 func TestAccRuntimeconfigVariable_basicValue(t *testing.T) {
+	t.Parallel()
+
 	var variable runtimeconfig.Variable
 
 	varName := fmt.Sprintf("variable-test-%s", acctest.RandString(10))
@@ -93,6 +99,8 @@ func TestAccRuntimeconfigVariable_basicValue(t *testing.T) {
 }
 
 func TestAccRuntimeconfigVariable_errorsOnBothValueAndText(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -106,6 +114,8 @@ func TestAccRuntimeconfigVariable_errorsOnBothValueAndText(t *testing.T) {
 }
 
 func TestAccRuntimeconfigVariable_errorsOnMissingValueAndText(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,

@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeHealthCheck_tcp(t *testing.T) {
+	t.Parallel()
+
 	var healthCheck compute.HealthCheck
 
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -36,6 +38,8 @@ func TestAccComputeHealthCheck_tcp(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
+	t.Parallel()
+
 	var healthCheck compute.HealthCheck
 
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -70,6 +74,8 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_ssl(t *testing.T) {
+	t.Parallel()
+
 	var healthCheck compute.HealthCheck
 
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -93,6 +99,8 @@ func TestAccComputeHealthCheck_ssl(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_http(t *testing.T) {
+	t.Parallel()
+
 	var healthCheck compute.HealthCheck
 
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -116,6 +124,8 @@ func TestAccComputeHealthCheck_http(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_https(t *testing.T) {
+	t.Parallel()
+
 	var healthCheck compute.HealthCheck
 
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -139,6 +149,8 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
+	t.Parallel()
+
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

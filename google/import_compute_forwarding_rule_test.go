@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccComputeForwardingRule_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_forwarding_rule.foobar"
 	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))

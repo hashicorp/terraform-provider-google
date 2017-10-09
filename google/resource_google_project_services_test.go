@@ -17,6 +17,8 @@ import (
 
 // Test that services can be enabled and disabled on a project
 func TestAccGoogleProjectServices_basic(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	services1 := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services2 := []string{"cloudresourcemanager.googleapis.com"}
@@ -57,6 +59,8 @@ func TestAccGoogleProjectServices_basic(t *testing.T) {
 // Test that services are authoritative when a project has existing
 // sevices not represented in config
 func TestAccGoogleProjectServices_authoritative(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{"cloudresourcemanager.googleapis.com"}
 	oobService := "iam.googleapis.com"
@@ -91,6 +95,8 @@ func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 // sevices, some which are represented in the config and others
 // that are not
 func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	oobServices := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services := []string{"iam.googleapis.com"}
@@ -128,6 +134,8 @@ func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 // don't end up causing diffs when they are enabled as a side-effect of a different service's
 // enablement.
 func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -167,6 +175,8 @@ func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
 }
 
 func TestAccGoogleProjectServices_manyServices(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",

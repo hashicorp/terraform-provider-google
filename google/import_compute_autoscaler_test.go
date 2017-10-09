@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccComputeAutoscaler_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_autoscaler.foobar"
 
 	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))

@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeSslCertificate_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -27,6 +29,8 @@ func TestAccComputeSslCertificate_basic(t *testing.T) {
 }
 
 func TestAccComputeSslCertificate_no_name(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -44,6 +48,8 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 }
 
 func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

@@ -99,6 +99,8 @@ func TestComputeInstanceMigrateState_empty(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -161,6 +163,8 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -222,6 +226,8 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -300,6 +306,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -377,6 +385,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -443,6 +453,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -508,6 +520,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -578,6 +592,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -647,6 +663,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 }
 
 func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -709,6 +727,8 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}

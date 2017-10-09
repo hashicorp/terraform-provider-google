@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
+	t.Parallel()
+
 	resourceRegion := "europe-west1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,6 +32,8 @@ func TestAccComputeRouter_basic(t *testing.T) {
 }
 
 func TestAccComputeRouter_noRegion(t *testing.T) {
+	t.Parallel()
+
 	providerRegion := "us-central1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -50,6 +54,8 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 }
 
 func TestAccComputeRouter_networkLink(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

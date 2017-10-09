@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT")
 
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
@@ -37,6 +39,8 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 }
 
 func TestAccLoggingBillingAccountSink_update(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT")
 
 	sinkName := "tf-test-sink-" + acctest.RandString(10)

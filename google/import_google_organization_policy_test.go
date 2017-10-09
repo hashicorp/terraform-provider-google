@@ -7,6 +7,8 @@ import (
 )
 
 func TestAccGoogleOrganizationPolicy_import(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 

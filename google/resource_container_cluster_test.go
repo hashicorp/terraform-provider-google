@@ -17,6 +17,8 @@ import (
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -34,6 +36,8 @@ func TestAccContainerCluster_basic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withTimeout(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -51,6 +55,8 @@ func TestAccContainerCluster_withTimeout(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAddons(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -67,6 +73,8 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 func TestAccContainerCluster_withMasterAuth(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -84,6 +92,8 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -110,6 +120,8 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 }
 
 func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -138,6 +150,8 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 }
 
 func TestAccContainerCluster_withVersion(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -157,6 +171,8 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_updateVersion(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -183,6 +199,8 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodeConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -200,6 +218,8 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -217,6 +237,8 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 }
 
 func TestAccContainerCluster_network(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -236,6 +258,8 @@ func TestAccContainerCluster_network(t *testing.T) {
 }
 
 func TestAccContainerCluster_backend(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -253,6 +277,8 @@ func TestAccContainerCluster_backend(t *testing.T) {
 }
 
 func TestAccContainerCluster_withLogging(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -281,6 +307,8 @@ func TestAccContainerCluster_withLogging(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 
@@ -301,6 +329,8 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
@@ -329,6 +359,8 @@ func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 
@@ -366,6 +398,8 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -383,6 +417,8 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -400,6 +436,8 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -414,6 +452,8 @@ func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
