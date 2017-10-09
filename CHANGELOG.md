@@ -9,6 +9,7 @@ IMPROVEMENTS:
 * compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
 * compute: Generate network link without calling network API in `google_compute_vpn_gateway` and `google_compute_router` [GH-527]
 * compute: Add import support to `google_compute_target_tcp_proxy` [GH-534]
+* compute: Add labels support to `google_compute_instance_template` ([#17](https://github.com/terraform-providers/terraform-provider-google/issues/17))
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
 * container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
 * container: Add master_version to container cluster [GH-538]
