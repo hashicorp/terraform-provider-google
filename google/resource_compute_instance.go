@@ -770,7 +770,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	switch computeApiVersion {
 	case v1:
 		instanceV1 := &compute.Instance{}
-		err := Convert(instance, instanceV1)
+		err = Convert(instance, instanceV1)
 		if err != nil {
 			return err
 		}
