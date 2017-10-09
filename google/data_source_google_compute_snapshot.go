@@ -8,16 +8,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func labelsSchemaComputed() *schema.Schema {
-	return &schema.Schema{
-		Type:     schema.TypeMap,
-		Optional: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
-		Set:      schema.HashString,
-		Computed: true,
-	}
-}
-
 func dataSourceGoogleComputeSnapshot() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeSnapshotRead,
@@ -29,6 +19,17 @@ func dataSourceGoogleComputeSnapshot() *schema.Resource {
 				Optional: true,
 			},
 
+			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -37,11 +38,6 @@ func dataSourceGoogleComputeSnapshot() *schema.Resource {
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-
-			"project": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 
 			"status": &schema.Schema{
@@ -69,17 +65,17 @@ func dataSourceGoogleComputeSnapshot() *schema.Resource {
 				Computed: true,
 			},
 
-			"disk_size": &schema.Schema{
+			"disk_size_gb": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
-			"storage_size": &schema.Schema{
+			"storage_bytes": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
-			"storage_size_status": &schema.Schema{
+			"storage_bytes_status": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -89,7 +85,6 @@ func dataSourceGoogleComputeSnapshot() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"labels": labelsSchemaComputed(),
 		},
 	}
 }
@@ -101,7 +96,7 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	labels := resourceSnapshotLabels(d)
+	labels := expandLabels(d)
 	log.Printf("[DEBUG] Labels %s", labels)
 
 	if len(labels) > 0 {
@@ -114,17 +109,22 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 		log.Printf("[DEBUG] Labels filter : %s", filter)
 		snapshotList, err := config.clientCompute.Snapshots.List(project).Filter(filter).Do()
 		if err != nil {
-			return fmt.Errorf("Snapshot, error while Listing with filter '%s' ", filter)
+			return fmt.Errorf("error while listing snapshots with filter %s: %s", filter, err)
 		}
 		log.Printf("[DEBUG] SnapshotList length : %d", len(snapshotList.Items))
 
 		if len(snapshotList.Items) > 1 {
-			return fmt.Errorf("Snapshot : too many snapshots found with these tags")
+			return fmt.Errorf("too many snapshots found with these labels")
 		} else if len(snapshotList.Items) == 0 {
-			return fmt.Errorf("Snapshot : no snapshot found with these tags")
-		} else {
-			d.Set("name", snapshotList.Items[0].Name)
+			return fmt.Errorf("no snapshot found with these labels")
+		} else if v, ok := d.GetOk("name"); ok {
+			foundSnapName := snapshotList.Items[0].Name
+			if v != foundSnapName {
+				return fmt.Errorf("error, name different from snapshot name found with these labels : %s != %s", v, foundSnapName)
+			}
+
 		}
+		d.Set("name", snapshotList.Items[0].Name)
 	}
 
 	snapshot, err := config.clientCompute.Snapshots.Get(
@@ -159,15 +159,4 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 
 	d.SetId(snapshot.Name)
 	return nil
-}
-
-func resourceSnapshotLabels(d *schema.ResourceData) map[string]string {
-	labels := map[string]string{}
-	if v, ok := d.GetOk("labels"); ok {
-		labelMap := v.(map[string]interface{})
-		for k, v := range labelMap {
-			labels[k] = v.(string)
-		}
-	}
-	return labels
 }
