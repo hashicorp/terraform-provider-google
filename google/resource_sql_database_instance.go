@@ -625,19 +625,25 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// If a default root user was created with a wildcard ('%') hostname, delete it. Note that if the resource is a
 	// replica, then any users are inherited from the master instance and should be left alone.
 	if !sqlResourceIsReplica(d) {
-		users, err := config.clientSqlAdmin.Users.List(project, instance.Name).Do()
+		var users *sqladmin.UsersListResponse
+		err = retry(func() error {
+			users, err = config.clientSqlAdmin.Users.List(project, instance.Name).Do()
+			return err
+		})
 		if err != nil {
 			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
-				op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
+				err = retry(func() error {
+					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
+					if err == nil {
+						err = sqladminOperationWait(config, op, project, "Delete default root User")
+					}
+					return err
+				})
 				if err != nil {
 					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
-				}
-				err = sqladminOperationWait(config, op, project, "Delete default root User")
-				if err != nil {
-					return err
 				}
 			}
 		}

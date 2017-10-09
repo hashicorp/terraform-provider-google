@@ -28,6 +28,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateTag(&instanceTemplate, "foo"),
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 				),
 			},
 		},
@@ -412,6 +413,19 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
+func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := instanceTemplate.Properties.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
 var testAccComputeInstanceTemplate_basic = fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
@@ -441,6 +455,10 @@ resource "google_compute_instance_template" "foobar" {
 	service_account {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
+
+    labels {
+        my_label = "foobar"
+    }
 }`, acctest.RandString(10))
 
 var testAccComputeInstanceTemplate_preemptible = fmt.Sprintf(`

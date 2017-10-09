@@ -1,8 +1,33 @@
 ## 1.0.2 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
+* **New Resource:** `google_organization_policy` ([#523](https://github.com/terraform-providers/terraform-provider-google/pull/523))
+* **New Resource:** `google_compute_target_tcp_proxy` ([#528](https://github.com/terraform-providers/terraform-provider-google/pull/528))
+* **New Resource:** `google_compute_region_autoscaler` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/544))
+
+IMPROVEMENTS:
+* compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
+* compute: Generate network link without calling network API in `google_compute_vpn_gateway` and `google_compute_router` [GH-527]
+* compute: Add import support to `google_compute_target_tcp_proxy` [GH-534]
+* compute: Add labels support to `google_compute_instance_template` ([#17](https://github.com/terraform-providers/terraform-provider-google/issues/17))
+* container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
+* container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
+* container: Add master_version to container cluster [GH-538]
+* sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
+* pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
+
+BUG FIXES:
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
+* compute: Fix BackendService group hash when instance groups use beta features [GH-522]
+* container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
+
 ## 1.0.1 (October 02, 2017)
 
 BUG FIXES:
 * compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. ([#511](https://github.com/terraform-providers/terraform-provider-google/issues/511))
+* compute: Fix bug causing a crash if the API returns an error on `google_compute_instance` creation [GH-556]
 
 ## 1.0.0 (October 02, 2017)
 

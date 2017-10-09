@@ -65,10 +65,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 			},
 
 			"network": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Computed:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"port_range": &schema.Schema{
@@ -147,7 +148,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		Description:         d.Get("description").(string),
 		LoadBalancingScheme: d.Get("load_balancing_scheme").(string),
 		Name:                d.Get("name").(string),
-		Network:             d.Get("network").(string),
+		Network:             ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
 		Subnetwork:          d.Get("subnetwork").(string),
