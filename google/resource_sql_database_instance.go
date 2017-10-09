@@ -992,7 +992,7 @@ func resourceSqlDatabaseInstanceAuthNetworkHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%f-", v.(string)))
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 	if v, ok := m["value"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
