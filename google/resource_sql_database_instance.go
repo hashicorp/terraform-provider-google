@@ -14,6 +14,23 @@ import (
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
+var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"expiration_time": &schema.Schema{
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"name": &schema.Schema{
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"value": &schema.Schema{
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+	},
+}
+
 func resourceSqlDatabaseInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlDatabaseInstanceCreate,
@@ -128,24 +145,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authorized_networks": &schema.Schema{
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"expiration_time": &schema.Schema{
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"name": &schema.Schema{
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": &schema.Schema{
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
+										Set:      schema.HashResource(sqlDatabaseAuthorizedNetWorkSchemaElem),
+										Elem:     sqlDatabaseAuthorizedNetWorkSchemaElem,
 									},
 									"ipv4_enabled": &schema.Schema{
 										Type:     schema.TypeBool,
@@ -441,46 +444,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if v, ok := _settings["ip_configuration"]; ok {
-		_ipConfigurationList := v.([]interface{})
-
-		if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-			settings.IpConfiguration = &sqladmin.IpConfiguration{}
-			_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _ipConfiguration["ipv4_enabled"]; okp {
-				settings.IpConfiguration.Ipv4Enabled = vp.(bool)
-			}
-
-			if vp, okp := _ipConfiguration["require_ssl"]; okp {
-				settings.IpConfiguration.RequireSsl = vp.(bool)
-			}
-
-			if vp, okp := _ipConfiguration["authorized_networks"]; okp {
-				settings.IpConfiguration.AuthorizedNetworks = make([]*sqladmin.AclEntry, 0)
-				_authorizedNetworksList := vp.([]interface{})
-				for _, _acl := range _authorizedNetworksList {
-					_entry := _acl.(map[string]interface{})
-					entry := &sqladmin.AclEntry{}
-
-					if vpp, okpp := _entry["expiration_time"]; okpp {
-						entry.ExpirationTime = vpp.(string)
-					}
-
-					if vpp, okpp := _entry["name"]; okpp {
-						entry.Name = vpp.(string)
-					}
-
-					if vpp, okpp := _entry["value"]; okpp {
-						entry.Value = vpp.(string)
-					}
-
-					settings.IpConfiguration.AuthorizedNetworks = append(
-						settings.IpConfiguration.AuthorizedNetworks, entry)
-				}
-			}
-		}
-	}
+	settings.IpConfiguration = expandIpConfiguration(_settings["ip_configuration"].([]interface{}))
 
 	if v, ok := _settings["location_preference"]; ok {
 		_locationPreferenceList := v.([]interface{})
@@ -673,13 +637,13 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("connection_name", instance.ConnectionName)
 
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
-		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
+		log.Printf("[WARN] Failed to set SQL Database Instance Settings: %s", err)
 	}
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
-		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
+		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration: %s", err)
 	}
 	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
-		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
+		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses: %s", err)
 	}
 
 	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
@@ -697,8 +661,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-
-	d.Partial(true)
 
 	instance, err := config.clientSqlAdmin.Instances.Get(project,
 		d.Get("name").(string)).Do()
@@ -814,78 +776,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
-		if v, ok := _settings["ip_configuration"]; ok {
-			_ipConfigurationList := v.([]interface{})
-
-			settings.IpConfiguration = &sqladmin.IpConfiguration{}
-			if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-				_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
-
-				if vp, okp := _ipConfiguration["ipv4_enabled"]; okp {
-					settings.IpConfiguration.Ipv4Enabled = vp.(bool)
-				}
-
-				if vp, okp := _ipConfiguration["require_ssl"]; okp {
-					settings.IpConfiguration.RequireSsl = vp.(bool)
-				}
-
-				_oldAuthorizedNetworkList := make([]interface{}, 0)
-				if ov, ook := _o["ip_configuration"]; ook {
-					_oldIpConfList := ov.([]interface{})
-					if len(_oldIpConfList) > 0 {
-						_oldIpConf := _oldIpConfList[0].(map[string]interface{})
-						if ovp, ookp := _oldIpConf["authorized_networks"]; ookp {
-							_oldAuthorizedNetworkList = ovp.([]interface{})
-						}
-					}
-				}
-
-				if vp, okp := _ipConfiguration["authorized_networks"]; okp || len(_oldAuthorizedNetworkList) > 0 {
-					oldAuthorizedNetworks := instance.Settings.IpConfiguration.AuthorizedNetworks
-					settings.IpConfiguration.AuthorizedNetworks = make([]*sqladmin.AclEntry, 0)
-
-					_authorizedNetworksList := make([]interface{}, 0)
-					if vp != nil {
-						_authorizedNetworksList = vp.([]interface{})
-					}
-					_oipc_map := make(map[string]interface{})
-					for _, _ipc := range _oldAuthorizedNetworkList {
-						_entry := _ipc.(map[string]interface{})
-						_oipc_map[_entry["value"].(string)] = true
-					}
-					// Next read the network tuples from the server, and reinsert those that
-					// were not previously defined
-					for _, entry := range oldAuthorizedNetworks {
-						_, ok_old := _oipc_map[entry.Value]
-						if !ok_old {
-							settings.IpConfiguration.AuthorizedNetworks = append(
-								settings.IpConfiguration.AuthorizedNetworks, entry)
-						}
-					}
-					// finally, update old entries and insert new ones
-					// and are still defined.
-					for _, _ipc := range _authorizedNetworksList {
-						_entry := _ipc.(map[string]interface{})
-						entry := &sqladmin.AclEntry{}
-
-						if vpp, okpp := _entry["expiration_time"]; okpp {
-							entry.ExpirationTime = vpp.(string)
-						}
-
-						if vpp, okpp := _entry["name"]; okpp {
-							entry.Name = vpp.(string)
-						}
-
-						if vpp, okpp := _entry["value"]; okpp {
-							entry.Value = vpp.(string)
-						}
-
-						settings.IpConfiguration.AuthorizedNetworks = append(
-							settings.IpConfiguration.AuthorizedNetworks, entry)
-					}
-				}
-			}
-		}
+		settings.IpConfiguration = expandIpConfiguration(_settings["ip_configuration"].([]interface{}))
 
 		if v, ok := _settings["location_preference"]; ok {
 			_locationPreferenceList := v.([]interface{})
@@ -937,8 +828,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		instance.Settings = settings
 	}
-
-	d.Partial(false)
 
 	op, err := config.clientSqlAdmin.Instances.Update(project, instance.Name, instance).Do()
 	if err != nil {
@@ -1049,8 +938,21 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface
 	return []map[string]interface{}{data}
 }
 
-func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) interface{} {
-	networks := make([]map[string]interface{}, 0, len(entries))
+func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
+	if len(configured) == 0 {
+		return &sqladmin.IpConfiguration{}
+	}
+
+	ipConfig := configured[0].(map[string]interface{})
+	return &sqladmin.IpConfiguration{
+		Ipv4Enabled:        ipConfig["ipv4_enabled"].(bool),
+		RequireSsl:         ipConfig["require_ssl"].(bool),
+		AuthorizedNetworks: expandAuthorizedNetworks(ipConfig["authorized_networks"].(*schema.Set)),
+	}
+}
+
+func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) *schema.Set {
+	networks := make([]interface{}, 0, len(entries))
 
 	for _, entry := range entries {
 		data := map[string]interface{}{
@@ -1062,7 +964,21 @@ func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) interface{} {
 		networks = append(networks, data)
 	}
 
-	return networks
+	return schema.NewSet(schema.HashResource(sqlDatabaseAuthorizedNetWorkSchemaElem), networks)
+}
+
+func expandAuthorizedNetworks(configured *schema.Set) []*sqladmin.AclEntry {
+	entries := make([]*sqladmin.AclEntry, 0)
+	for _, authNetworkConfig := range configured.List() {
+		entry := authNetworkConfig.(map[string]interface{})
+
+		entries = append(entries, &sqladmin.AclEntry{
+			ExpirationTime: entry["expiration_time"].(string),
+			Name:           entry["name"].(string),
+			Value:          entry["value"].(string),
+		})
+	}
+	return entries
 }
 
 func flattenLocationPreference(locationPreference *sqladmin.LocationPreference) interface{} {
