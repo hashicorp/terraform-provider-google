@@ -18,6 +18,10 @@ func ParseNetworkFieldValue(network string, d TerraformResourceData, config *Con
 	return parseGlobalFieldValue("networks", network, "project", d, config, true)
 }
 
+func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("sslCertificates", sslCertificate, "project", d, config, false)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------
