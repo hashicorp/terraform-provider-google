@@ -17,9 +17,9 @@ and
 
 ```js
 resource "google_compute_snapshot" "default" {
-  name  = "test-snapshot"
-  source_disk  = "test-disk"
-  zone  = "us-central1-a"
+  name        = "test-snapshot"
+  source_disk = "test-disk"
+  zone        = "us-central1-a"
 
   labels {
     my-label = "my-label-value"
