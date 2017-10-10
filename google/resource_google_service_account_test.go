@@ -11,6 +11,8 @@ import (
 
 // Test that a service account resource can be created, updated, and destroyed
 func TestAccGoogleServiceAccount_basic(t *testing.T) {
+	t.Parallel()
+
 	accountId := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
@@ -39,6 +41,8 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 // Test that a service account resource can be created with a policy, updated,
 // and destroyed.
 func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
+	t.Parallel()
+
 	accountId := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
 	resource.Test(t, resource.TestCase{

@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeVpnTunnel_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -33,6 +35,8 @@ func TestAccComputeVpnTunnel_basic(t *testing.T) {
 }
 
 func TestAccComputeVpnTunnel_router(t *testing.T) {
+	t.Parallel()
+
 	router := fmt.Sprintf("tunnel-test-router-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,6 +57,7 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 }
 
 func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
+	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

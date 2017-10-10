@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccGoogleSqlUser_basic(t *testing.T) {
+	t.Parallel()
+
 	user := acctest.RandString(10)
 	instance := acctest.RandString(10)
 
@@ -29,6 +31,8 @@ func TestAccGoogleSqlUser_basic(t *testing.T) {
 }
 
 func TestAccGoogleSqlUser_update(t *testing.T) {
+	t.Parallel()
+
 	user := acctest.RandString(10)
 	instance := acctest.RandString(10)
 

@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccRuntimeconfigConfig_basic(t *testing.T) {
+	t.Parallel()
+
 	var runtimeConfig runtimeconfig.RuntimeConfig
 	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
 	description := "my test description"
@@ -33,6 +35,8 @@ func TestAccRuntimeconfigConfig_basic(t *testing.T) {
 }
 
 func TestAccRuntimeconfig_update(t *testing.T) {
+	t.Parallel()
+
 	var runtimeConfig runtimeconfig.RuntimeConfig
 	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
 	firstDescription := "my test description"
@@ -63,6 +67,8 @@ func TestAccRuntimeconfig_update(t *testing.T) {
 }
 
 func TestAccRuntimeconfig_updateEmptyDescription(t *testing.T) {
+	t.Parallel()
+
 	var runtimeConfig runtimeconfig.RuntimeConfig
 	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
 	description := "my test description"
