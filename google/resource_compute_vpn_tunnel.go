@@ -34,9 +34,10 @@ func resourceComputeVpnTunnel() *schema.Resource {
 			},
 
 			"shared_secret": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
+				ForceNew:  true,
 			},
 
 			"target_vpn_gateway": &schema.Schema{
