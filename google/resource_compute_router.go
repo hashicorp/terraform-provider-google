@@ -99,7 +99,11 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	network := ParseNetworkFieldValue(d.Get("network").(string), config)
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+
 	routersService := config.clientCompute.Routers
 
 	router := &compute.Router{
