@@ -18,22 +18,23 @@ func resourceComputeRoute() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"dest_range": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"network": &schema.Schema{
+			"dest_range": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"network": &schema.Schema{
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"priority": &schema.Schema{
@@ -43,9 +44,10 @@ func resourceComputeRoute() *schema.Resource {
 			},
 
 			"next_hop_gateway": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"next_hop_instance": &schema.Schema{
@@ -130,10 +132,15 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		nextHopVpnTunnel = v.(string)
 	}
 	if v, ok := d.GetOk("next_hop_instance"); ok {
+		nextHopInstanceFieldValue, err := parseComputeRouteNextHopInstanceFieldValue(v.(string), d, config)
+		if err != nil {
+			return fmt.Errorf("Invalid next_hop_instance: %s", err)
+		}
+
 		nextInstance, err := config.clientCompute.Instances.Get(
 			project,
-			d.Get("next_hop_instance_zone").(string),
-			v.(string)).Do()
+			nextHopInstanceFieldValue.Zone,
+			nextHopInstanceFieldValue.Name).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading instance: %s", err)
 		}
@@ -194,6 +201,21 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Route %q", d.Get("name").(string)))
 	}
 
+	nextHopInstanceFieldValue, err := parseComputeRouteNextHopInstanceFieldValue(route.NextHopInstance, d, config)
+	if err != nil {
+		return fmt.Errorf("Invalid next_hop_instance: %s", err)
+	}
+
+	d.Set("name", route.Name)
+	d.Set("dest_range", route.DestRange)
+	d.Set("network", route.Network)
+	d.Set("priority", route.Priority)
+	d.Set("next_hop_gateway", route.NextHopGateway)
+	d.Set("next_hop_instance", nextHopInstanceFieldValue.Name)
+	d.Set("next_hop_instance_zone", nextHopInstanceFieldValue.Zone)
+	d.Set("next_hop_ip", route.NextHopIp)
+	d.Set("next_hop_vpn_tunnel", route.NextHopVpnTunnel)
+	d.Set("tags", route.Tags)
 	d.Set("next_hop_network", route.NextHopNetwork)
 	d.Set("self_link", route.SelfLink)
 
@@ -222,4 +244,8 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId("")
 	return nil
+}
+
+func parseComputeRouteNextHopInstanceFieldValue(nextHopInstance string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("instances", nextHopInstance, "project", "next_hop_instance_zone", d, config, true)
 }
