@@ -70,6 +70,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"device_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
