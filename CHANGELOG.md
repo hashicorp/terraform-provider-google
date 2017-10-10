@@ -22,6 +22,7 @@ BUG FIXES:
 * compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
 * compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
 * compute: Fix BackendService group hash when instance groups use beta features [GH-522]
+* compute: Make `disk.device_name` computed in `google_compute_instance_template` [GH-566]
 * dns: Error out if DNS zone is not found [GH-560]
 * container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
 
