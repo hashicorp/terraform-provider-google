@@ -109,10 +109,9 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	// Look up the network to attach the route to
-	network, err := getNetworkLink(d, config, "network")
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
-		return fmt.Errorf("Error reading network: %s", err)
+		return err
 	}
 
 	// Next hop data
@@ -161,7 +160,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	route := &compute.Route{
 		Name:             d.Get("name").(string),
 		DestRange:        d.Get("dest_range").(string),
-		Network:          network,
+		Network:          network.RelativeLink(),
 		NextHopInstance:  nextHopInstance,
 		NextHopVpnTunnel: nextHopVpnTunnel,
 		NextHopIp:        nextHopIp,
