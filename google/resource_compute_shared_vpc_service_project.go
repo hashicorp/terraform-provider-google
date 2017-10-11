@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeSharedVpcServiceProject() *schema.Resource {
@@ -83,9 +84,19 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
+	if err := disableXpnResource(config, hostProject, serviceProject); err != nil {
+		if !isDisabledXpnResourceError(err) {
+			return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", serviceProject, err)
+		}
+	}
+
+	return nil
+}
+
+func disableXpnResource(config *Config, hostProject, project string) error {
 	req := &compute.ProjectsDisableXpnResourceRequest{
 		XpnResource: &compute.XpnResourceId{
-			Id:   serviceProject,
+			Id:   project,
 			Type: "PROJECT",
 		},
 	}
@@ -96,6 +107,14 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	if err = computeOperationWait(config, op, hostProject, "Disabling Shared VPC Resource"); err != nil {
 		return err
 	}
-
 	return nil
+}
+
+func isDisabledXpnResourceError(err error) bool {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && len(gerr.Errors) > 0 && gerr.Errors[0].Reason == "invalidResourceUsage" {
+			return true
+		}
+	}
+	return false
 }
