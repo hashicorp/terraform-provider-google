@@ -83,7 +83,7 @@ func testAccCheckComputeSharedVpcServiceProject(n string) resource.TestCheckFunc
 		}
 
 		if serviceHostProject.Name != hostProject {
-			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Id)
+			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Name)
 		}
 
 		return nil
