@@ -668,17 +668,18 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		}
 		clusterTests = append(clusterTests, clusterTestField{"additional_zones", additionalZones})
 
-		// AddonsConfig is neither Required or Computed, so the API may return nil for it
-		if cluster.AddonsConfig != nil {
-			if cluster.AddonsConfig.HttpLoadBalancing != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HttpLoadBalancing.Disabled)})
-			}
-			if cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled)})
-			}
-			if cluster.AddonsConfig.KubernetesDashboard != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.KubernetesDashboard.0.disabled", strconv.FormatBool(cluster.AddonsConfig.KubernetesDashboard.Disabled)})
-			}
+		// AddonsConfig is neither Required or Computed, so the API may return nil for it.
+		httpLoadBalancingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HttpLoadBalancing != nil {
+			httpLoadBalancingDisabled = cluster.AddonsConfig.HttpLoadBalancing.Disabled
+		}
+		horizontalPodAutoscalingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
+			horizontalPodAutoscalingDisabled = cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled
+		}
+		kubernetesDashboardDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.KubernetesDashboard != nil {
+			kubernetesDashboardDisabled = cluster.AddonsConfig.KubernetesDashboard.Disabled
 		}
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", httpLoadBalancingDisabled})
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", horizontalPodAutoscalingDisabled})
