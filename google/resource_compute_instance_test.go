@@ -155,6 +155,28 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_GenerateIP(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_generateIp(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+					testAccCheckComputeInstanceHasAssignedIP,
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -1109,6 +1131,19 @@ func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subn
 	}
 }
 
+func testAccCheckComputeInstanceHasAssignedIP(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_instance" {
+			continue
+		}
+		ip := rs.Primary.Attributes["network_interface.0.access_config.0.assigned_nat_ip"]
+		if ip == "" {
+			return fmt.Errorf("No assigned NatIP for instance %s", rs.Primary.Attributes["name"])
+		}
+	}
+	return nil
+}
+
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
@@ -1344,6 +1379,34 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, ip, instance)
+}
+
+func testAccComputeInstance_generateIp(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			// generate ephemeral IP
+		}
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
 }
 
 func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
