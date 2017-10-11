@@ -40,7 +40,7 @@ func (w *ServiceManagementOperationWaiter) Conf() *resource.StateChangeConf {
 }
 
 func serviceManagementOperationWait(config *Config, op *servicemanagement.Operation, activity string) error {
-	return serviceManagementOperationWaitTime(config, op, activity, 4)
+	return serviceManagementOperationWaitTime(config, op, activity, 10)
 }
 
 func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMin int) error {
