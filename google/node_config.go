@@ -3,7 +3,7 @@ package google
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/container/v1"
+	container "google.golang.org/api/container/v1"
 )
 
 var schemaNodeConfig = &schema.Schema{
@@ -38,7 +38,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"oauth_scopes": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
@@ -48,6 +48,7 @@ var schemaNodeConfig = &schema.Schema{
 						return canonicalizeServiceScope(v.(string))
 					},
 				},
+				Set: stringScopeHashcode,
 			},
 
 			"service_account": {
@@ -113,11 +114,11 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.LocalSsdCount = int64(v.(int))
 	}
 
-	if v, ok := nodeConfig["oauth_scopes"]; ok {
-		scopesList := v.([]interface{})
-		scopes := []string{}
-		for _, v := range scopesList {
-			scopes = append(scopes, canonicalizeServiceScope(v.(string)))
+	if scopes, ok := nodeConfig["oauth_scopes"]; ok {
+		scopesSet := scopes.(*schema.Set)
+		scopes := make([]string, scopesSet.Len())
+		for i, scope := range scopesSet.List() {
+			scopes[i] = canonicalizeServiceScope(scope.(string))
 		}
 
 		nc.OauthScopes = scopes
@@ -181,7 +182,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	})
 
 	if len(c.OauthScopes) > 0 {
-		config[0]["oauth_scopes"] = c.OauthScopes
+		config[0]["oauth_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(c.OauthScopes))
 	}
 
 	return config
