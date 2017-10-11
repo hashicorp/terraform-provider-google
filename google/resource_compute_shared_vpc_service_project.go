@@ -1,14 +1,13 @@
 package google
 
 import (
-	"context"
 	"fmt"
-	"log"
 
 	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/googleapi"
+	"log"
 )
 
 func resourceComputeSharedVpcServiceProject() *schema.Resource {
@@ -63,17 +62,18 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
-	req := config.clientCompute.Projects.GetXpnResources(hostProject)
-	if err := req.Pages(context.Background(), func(page *compute.ProjectsGetXpnResources) error {
-		for _, xpnResourceId := range page.Resources {
-			if xpnResourceId.Type == "PROJECT" && xpnResourceId.Id == serviceProject {
-				return nil
-			}
-		}
-		return fmt.Errorf("%s is not a service project of %s", serviceProject, hostProject)
-	}); err != nil {
-		log.Printf("[WARN] %s", err)
+	associatedHostProject, err := config.clientCompute.Projects.GetXpnHost(serviceProject).Do()
+	if err != nil {
+		log.Printf("[WARN] Removing shared VPC service. The service project is not associated with any host")
+
 		d.SetId("")
+		return nil
+	}
+
+	if hostProject != associatedHostProject.Name {
+		log.Printf("[WARN] Removing shared VPC service. Expected associated host project to be '%s', got '%s'", hostProject, associatedHostProject.Name)
+		d.SetId("")
+		return nil
 	}
 
 	return nil
@@ -85,6 +85,7 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	serviceProject := d.Get("service_project").(string)
 
 	if err := disableXpnResource(config, hostProject, serviceProject); err != nil {
+		// Don't fail if the service project is already disabled.
 		if !isDisabledXpnResourceError(err) {
 			return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", serviceProject, err)
 		}
