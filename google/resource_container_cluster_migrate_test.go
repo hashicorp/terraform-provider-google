@@ -27,6 +27,20 @@ func TestContainerClusterMigrateState(t *testing.T) {
 			},
 			Meta: &Config{},
 		},
+		"change node_config.0.oauth_scopes from list to set": {
+			StateVersion: 1,
+			Attributes: map[string]string{
+				"node_config.0.oauth_scopes.#": "2",
+				"node_config.0.oauth_scopes.0": "monitoring",
+				"node_config.0.oauth_scopes.1": "https://www.googleapis.com/auth/compute",
+			},
+			Expected: map[string]string{
+				"node_config.0.oauth_scopes.#":          "2",
+				"node_config.0.oauth_scopes.1277378754": "monitoring",
+				"node_config.0.oauth_scopes.299962681":  "https://www.googleapis.com/auth/compute",
+			},
+			Meta: &Config{},
+		},
 	}
 
 	for tn, tc := range cases {
