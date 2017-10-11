@@ -20,8 +20,9 @@ IMPROVEMENTS:
 * pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
 
 BUG FIXES:
-* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
-* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
+* compute: Fix bug in `google_compute_instance` preventing the `assigned_nat_ip` field from ever getting assigned [GH-536]
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500]
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496]
 * compute: Fix BackendService group hash when instance groups use beta features [GH-522]
 * compute: Make `disk.device_name` computed in `google_compute_instance_template` [GH-566]
 * dns: Error out if DNS zone is not found [GH-560]
