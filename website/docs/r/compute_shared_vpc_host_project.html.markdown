@@ -3,12 +3,12 @@ layout: "google"
 page_title: "Google: google_compute_shared_vpc_host_project"
 sidebar_current: "docs-google-compute-shared-vpc-host-project"
 description: |-
- Allows enablig and disabling Shared VPC for the host Google Cloud Platform project.
+ Allows enabling and disabling Shared VPC for the host Google Cloud Platform project.
 ---
 
 # google\_compute\_shared\_vpc\_host\_project
 
-Allows enablig and disabling Shared VPC for the host Google Cloud Platform project. For more information see
+Allows enabling and disabling Shared VPC for the host Google Cloud Platform project. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/shared-vpc)
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/projects).
