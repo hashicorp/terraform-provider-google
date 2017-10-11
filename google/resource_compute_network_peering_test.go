@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
-	t.Parallel()
-
 	var peering compute.NetworkPeering
 
 	resource.Test(t, resource.TestCase{

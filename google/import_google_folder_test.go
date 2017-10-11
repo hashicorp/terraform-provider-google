@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccGoogleFolder_import(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)

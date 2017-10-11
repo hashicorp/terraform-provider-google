@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccComputeInstanceTemplate_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_instance_template.foobar"
 
 	resource.Test(t, resource.TestCase{
@@ -31,8 +29,6 @@ func TestAccComputeInstanceTemplate_importBasic(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_importIp(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_instance_template.foobar"
 
 	resource.Test(t, resource.TestCase{
@@ -54,8 +50,6 @@ func TestAccComputeInstanceTemplate_importIp(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_importDisks(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_instance_template.foobar"
 
 	resource.Test(t, resource.TestCase{
@@ -77,8 +71,6 @@ func TestAccComputeInstanceTemplate_importDisks(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_importSubnetAuto(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_instance_template.foobar"
 	network := "network-" + acctest.RandString(10)
 
@@ -101,8 +93,6 @@ func TestAccComputeInstanceTemplate_importSubnetAuto(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_importSubnetCustom(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_instance_template.foobar"
 
 	resource.Test(t, resource.TestCase{

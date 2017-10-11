@@ -139,8 +139,6 @@ func expectEquals(t *testing.T, expected, actual string) {
 // Acceptance Tests
 
 func TestAccSpannerInstance_basic(t *testing.T) {
-	t.Parallel()
-
 	var instance spanner.Instance
 	rnd := acctest.RandString(10)
 	idName := fmt.Sprintf("spanner-test-%s", rnd)
@@ -165,8 +163,6 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 }
 
 func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
-	t.Parallel()
-
 	var instance spanner.Instance
 	rnd := acctest.RandString(10)
 	displayName := fmt.Sprintf("spanner-test-%s-dname", rnd)
@@ -189,8 +185,6 @@ func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 }
 
 func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
-	t.Parallel()
-
 	var instance spanner.Instance
 	rnd := acctest.RandString(10)
 	idName := fmt.Sprintf("spanner-test-%s", rnd)
@@ -215,8 +209,6 @@ func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
 }
 
 func TestAccSpannerInstance_update(t *testing.T) {
-	t.Parallel()
-
 	var instance spanner.Instance
 	rnd := acctest.RandString(10)
 	dName1 := fmt.Sprintf("spanner-dname1-%s", rnd)

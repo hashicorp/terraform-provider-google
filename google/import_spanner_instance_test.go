@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccSpannerInstance_importInstance(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 
@@ -34,8 +32,6 @@ func TestAccSpannerInstance_importInstance(t *testing.T) {
 }
 
 func TestAccSpannerInstance_importProjectInstance(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_spanner_instance.basic"
 	instanceName := fmt.Sprintf("span-itest-%s", acctest.RandString(10))
 	projectId := getTestProjectFromEnv()

@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccComputeNetwork_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_network.foobar"
 
 	resource.Test(t, resource.TestCase{
@@ -29,8 +27,6 @@ func TestAccComputeNetwork_importBasic(t *testing.T) {
 }
 
 func TestAccComputeNetwork_importAuto_subnet(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_network.bar"
 
 	resource.Test(t, resource.TestCase{
@@ -50,8 +46,6 @@ func TestAccComputeNetwork_importAuto_subnet(t *testing.T) {
 }
 
 func TestAccComputeNetwork_importCustom_subnet(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_network.baz"
 
 	resource.Test(t, resource.TestCase{

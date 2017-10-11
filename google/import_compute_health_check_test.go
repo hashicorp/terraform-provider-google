@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccComputeHealthCheck_importBasicHttp(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_health_check.foobar"
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -33,8 +31,6 @@ func TestAccComputeHealthCheck_importBasicHttp(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_importBasicHttps(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_health_check.foobar"
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -57,8 +53,6 @@ func TestAccComputeHealthCheck_importBasicHttps(t *testing.T) {
 }
 
 func TestAccComputeHealthCheck_importBasicTcp(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_health_check.foobar"
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -80,8 +74,6 @@ func TestAccComputeHealthCheck_importBasicTcp(t *testing.T) {
 	})
 }
 func TestAccComputeHealthCheck_importBasicSsl(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_health_check.foobar"
 	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 

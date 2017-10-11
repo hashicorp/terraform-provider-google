@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccGoogleSqlUser_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_sql_user.user"
 	user := acctest.RandString(10)
 	instance := acctest.RandString(10)

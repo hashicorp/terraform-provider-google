@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccComputeDisk_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_disk.foobar"
 	diskName := fmt.Sprintf("disk-test-%s", acctest.RandString(10))
 

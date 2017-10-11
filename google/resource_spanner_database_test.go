@@ -85,8 +85,6 @@ func expectInvalidSpannerDbImportId(t *testing.T, id *spannerDatabaseId, e error
 // Acceptance Tests
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
-	t.Parallel()
-
 	var db spanner.Database
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -110,8 +108,6 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 }
 
 func TestAccSpannerDatabase_basicWithInitialDDL(t *testing.T) {
-	t.Parallel()
-
 	var db spanner.Database
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -132,8 +128,6 @@ func TestAccSpannerDatabase_basicWithInitialDDL(t *testing.T) {
 }
 
 func TestAccSpannerDatabase_duplicateNameError(t *testing.T) {
-	t.Parallel()
-
 	var db spanner.Database
 	rnd := acctest.RandString(10)
 	dbName := fmt.Sprintf("spanner-test-%s", rnd)

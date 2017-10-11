@@ -12,8 +12,6 @@ import (
 )
 
 func TestAccComputeImage_resolveImage(t *testing.T) {
-	t.Parallel()
-
 	var image compute.Image
 	rand := acctest.RandString(10)
 	name := fmt.Sprintf("test-image-%s", rand)

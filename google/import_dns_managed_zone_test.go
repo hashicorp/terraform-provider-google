@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccDnsManagedZone_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_dns_managed_zone.foobar"
 
 	resource.Test(t, resource.TestCase{

@@ -10,8 +10,6 @@ import (
 )
 
 func TestAccDataSourceGoogleNetwork(t *testing.T) {
-	t.Parallel()
-
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

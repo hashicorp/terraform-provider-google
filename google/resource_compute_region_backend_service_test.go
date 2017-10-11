@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeRegionBackendService_basic(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	extraCheckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -43,8 +41,6 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withBackend(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -78,8 +74,6 @@ func TestAccComputeRegionBackendService_withBackend(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -121,8 +115,6 @@ func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withConnectionDraining(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -148,8 +140,6 @@ func TestAccComputeRegionBackendService_withConnectionDraining(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -182,8 +172,6 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 }
 
 func TestAccComputeRegionBackendService_withSessionAffinity(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService

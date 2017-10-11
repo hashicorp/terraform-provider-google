@@ -16,8 +16,6 @@ var DENIED_ORG_POLICIES = []string{
 }
 
 func TestAccGoogleOrganizationPolicy_boolean_enforced(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 
@@ -36,8 +34,6 @@ func TestAccGoogleOrganizationPolicy_boolean_enforced(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_boolean_notEnforced(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 
@@ -55,8 +51,6 @@ func TestAccGoogleOrganizationPolicy_boolean_notEnforced(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_boolean_update(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 
@@ -82,8 +76,6 @@ func TestAccGoogleOrganizationPolicy_boolean_update(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 
@@ -101,8 +93,6 @@ func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 	project := getTestProjectFromEnv()
@@ -121,8 +111,6 @@ func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 
@@ -140,8 +128,6 @@ func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 }
 
 func TestAccGoogleOrganizationPolicy_list_update(t *testing.T) {
-	t.Parallel()
-
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 	org := os.Getenv("GOOGLE_ORG")
 

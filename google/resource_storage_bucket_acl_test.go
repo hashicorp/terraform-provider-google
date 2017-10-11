@@ -26,8 +26,6 @@ func testBucketName() string {
 }
 
 func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
@@ -47,8 +45,6 @@ func TestAccGoogleStorageBucketAcl_basic(t *testing.T) {
 }
 
 func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
@@ -85,8 +81,6 @@ func TestAccGoogleStorageBucketAcl_upgrade(t *testing.T) {
 }
 
 func TestAccGoogleStorageBucketAcl_downgrade(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	resource.Test(t, resource.TestCase{
@@ -123,8 +117,6 @@ func TestAccGoogleStorageBucketAcl_downgrade(t *testing.T) {
 }
 
 func TestAccGoogleStorageBucketAcl_predefined(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

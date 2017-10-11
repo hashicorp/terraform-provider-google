@@ -13,8 +13,6 @@ import (
 )
 
 func TestAccComputeDisk_basic(t *testing.T) {
-	t.Parallel()
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var disk compute.Disk
 
@@ -37,8 +35,6 @@ func TestAccComputeDisk_basic(t *testing.T) {
 }
 
 func TestAccComputeDisk_update(t *testing.T) {
-	t.Parallel()
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var disk compute.Disk
 
@@ -72,8 +68,6 @@ func TestAccComputeDisk_update(t *testing.T) {
 }
 
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
-	t.Parallel()
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -105,8 +99,6 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 }
 
 func TestAccComputeDisk_encryption(t *testing.T) {
-	t.Parallel()
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var disk compute.Disk
 
@@ -129,8 +121,6 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 }
 
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
-	t.Parallel()
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var disk compute.Disk

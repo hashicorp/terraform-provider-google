@@ -100,8 +100,6 @@ func TestUrlData_SignedUrl(t *testing.T) {
 }
 
 func TestAccStorageSignedUrl_basic(t *testing.T) {
-	t.Parallel()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -117,8 +115,6 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 }
 
 func TestAccStorageSignedUrl_accTest(t *testing.T) {
-	t.Parallel()
-
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 
 	headers := map[string]string{

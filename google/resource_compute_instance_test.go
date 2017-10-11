@@ -16,8 +16,6 @@ import (
 )
 
 func TestAccComputeInstance_basic1(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -44,8 +42,6 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 }
 
 func TestAccComputeInstance_basic2(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -69,8 +65,6 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 }
 
 func TestAccComputeInstance_basic3(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -94,8 +88,6 @@ func TestAccComputeInstance_basic3(t *testing.T) {
 }
 
 func TestAccComputeInstance_basic4(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -119,8 +111,6 @@ func TestAccComputeInstance_basic4(t *testing.T) {
 }
 
 func TestAccComputeInstance_basic5(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -144,8 +134,6 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 }
 
 func TestAccComputeInstance_IP(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var ipName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -168,8 +156,6 @@ func TestAccComputeInstance_IP(t *testing.T) {
 }
 
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	bootEncryptionKey := "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
@@ -207,8 +193,6 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 }
 
 func TestAccComputeInstance_attachedDisk(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
@@ -231,8 +215,6 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 }
 
 func TestAccComputeInstance_bootDisk_source(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -255,8 +237,6 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 }
 
 func TestAccComputeInstance_bootDisk_type(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskType = "pd-ssd"
@@ -279,8 +259,6 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 }
 
 func TestAccComputeInstance_noDisk(t *testing.T) {
-	t.Parallel()
-
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -297,8 +275,6 @@ func TestAccComputeInstance_noDisk(t *testing.T) {
 }
 
 func TestAccComputeInstance_scratchDisk(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -320,8 +296,6 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 }
 
 func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -351,8 +325,6 @@ func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 }
 
 func TestAccComputeInstance_update(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -385,8 +357,6 @@ func TestAccComputeInstance_update(t *testing.T) {
 }
 
 func TestAccComputeInstance_service_account(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -413,8 +383,6 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 }
 
 func TestAccComputeInstance_scheduling(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -435,8 +403,6 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 }
 
 func TestAccComputeInstance_subnet_auto(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -458,8 +424,6 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 }
 
 func TestAccComputeInstance_subnet_custom(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -481,8 +445,6 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 }
 
 func TestAccComputeInstance_subnet_xpn(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
@@ -505,8 +467,6 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 }
 
 func TestAccComputeInstance_address_auto(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -528,8 +488,6 @@ func TestAccComputeInstance_address_auto(t *testing.T) {
 }
 
 func TestAccComputeInstance_address_custom(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var address = "10.0.200.200"
@@ -551,8 +509,6 @@ func TestAccComputeInstance_address_custom(t *testing.T) {
 }
 
 func TestAccComputeInstance_private_image_family(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
@@ -576,8 +532,6 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 }
 
 func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
@@ -599,8 +553,6 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 }
 
 func TestAccComputeInstance_multiNic(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 	networkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
@@ -623,8 +575,6 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 }
 
 func TestAccComputeInstance_guestAccelerator(t *testing.T) {
-	t.Parallel()
-
 	var instance computeBeta.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
@@ -646,8 +596,6 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 }
 
 func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
-	t.Parallel()
-
 	var instance computeBeta.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
@@ -668,8 +616,6 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 }
 
 func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
@@ -690,8 +636,6 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 }
 
 func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
-	t.Parallel()
-
 	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 

@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccComputeRoute_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_network.foobar"
 
 	resource.Test(t, resource.TestCase{
@@ -29,8 +27,6 @@ func TestAccComputeRoute_importBasic(t *testing.T) {
 }
 
 func TestAccComputeRoute_importDefaultInternetGateway(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_network.foobar"
 
 	resource.Test(t, resource.TestCase{

@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccComputeTargetTcpProxy_import(t *testing.T) {
-	t.Parallel()
-
 	target := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	backend := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
 	hc := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))

@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
-	t.Parallel()
-
 	var healthCheck compute.HttpsHealthCheck
 
 	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -38,8 +36,6 @@ func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
 }
 
 func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
-	t.Parallel()
-
 	var healthCheck compute.HttpsHealthCheck
 
 	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))

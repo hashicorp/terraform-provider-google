@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccLoggingProjectSink_basic(t *testing.T) {
-	t.Parallel()
-
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 
@@ -35,8 +33,6 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 }
 
 func TestAccLoggingProjectSink_uniqueWriter(t *testing.T) {
-	t.Parallel()
-
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 
@@ -59,8 +55,6 @@ func TestAccLoggingProjectSink_uniqueWriter(t *testing.T) {
 }
 
 func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
-	t.Parallel()
-
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)

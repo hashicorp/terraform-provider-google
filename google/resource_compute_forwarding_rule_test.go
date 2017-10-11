@@ -10,8 +10,6 @@ import (
 )
 
 func TestAccComputeForwardingRule_basic(t *testing.T) {
-	t.Parallel()
-
 	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 
@@ -32,8 +30,6 @@ func TestAccComputeForwardingRule_basic(t *testing.T) {
 }
 
 func TestAccComputeForwardingRule_singlePort(t *testing.T) {
-	t.Parallel()
-
 	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 
@@ -54,8 +50,6 @@ func TestAccComputeForwardingRule_singlePort(t *testing.T) {
 }
 
 func TestAccComputeForwardingRule_ip(t *testing.T) {
-	t.Parallel()
-
 	addrName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
@@ -77,8 +71,6 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 }
 
 func TestAccComputeForwardingRule_internalLoadBalancing(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-%s", acctest.RandString(10))
 	networkName := fmt.Sprintf("tf-%s", acctest.RandString(10))

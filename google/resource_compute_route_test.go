@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeRoute_basic(t *testing.T) {
-	t.Parallel()
-
 	var route compute.Route
 
 	resource.Test(t, resource.TestCase{
@@ -32,8 +30,6 @@ func TestAccComputeRoute_basic(t *testing.T) {
 }
 
 func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
-	t.Parallel()
-
 	var route compute.Route
 
 	resource.Test(t, resource.TestCase{

@@ -15,8 +15,6 @@ import (
 )
 
 func TestAccStorageBucket_basic(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -41,8 +39,6 @@ func TestAccStorageBucket_basic(t *testing.T) {
 }
 
 func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -63,8 +59,6 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 }
 
 func TestAccStorageBucket_customAttributes(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -89,8 +83,6 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 }
 
 func TestAccStorageBucket_lifecycleRules(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
 
@@ -137,8 +129,6 @@ func TestAccStorageBucket_lifecycleRules(t *testing.T) {
 }
 
 func TestAccStorageBucket_storageClass(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
 
@@ -181,8 +171,6 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 }
 
 func TestAccStorageBucket_update(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -298,8 +286,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 }
 
 func TestAccStorageBucket_forceDestroy(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -332,8 +318,6 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 }
 
 func TestAccStorageBucket_versioning(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -358,8 +342,6 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 }
 
 func TestAccStorageBucket_cors(t *testing.T) {
-	t.Parallel()
-
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 

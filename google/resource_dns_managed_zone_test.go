@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccDnsManagedZone_basic(t *testing.T) {
-	t.Parallel()
-
 	var zone dns.ManagedZone
 
 	resource.Test(t, resource.TestCase{

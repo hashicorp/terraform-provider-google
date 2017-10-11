@@ -20,8 +20,6 @@ func testAclObjectName() string {
 }
 
 func TestAccGoogleStorageObjectAcl_basic(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
@@ -50,8 +48,6 @@ func TestAccGoogleStorageObjectAcl_basic(t *testing.T) {
 }
 
 func TestAccGoogleStorageObjectAcl_upgrade(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
@@ -102,8 +98,6 @@ func TestAccGoogleStorageObjectAcl_upgrade(t *testing.T) {
 }
 
 func TestAccGoogleStorageObjectAcl_downgrade(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
@@ -154,8 +148,6 @@ func TestAccGoogleStorageObjectAcl_downgrade(t *testing.T) {
 }
 
 func TestAccGoogleStorageObjectAcl_predefined(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")

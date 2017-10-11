@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccDataSourceGoogleClientConfig_basic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "data.google_client_config.current"
 
 	resource.Test(t, resource.TestCase{

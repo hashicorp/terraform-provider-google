@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccGoogleContainerNodePool_import(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_container_node_pool.np"
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))

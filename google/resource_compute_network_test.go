@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeNetwork_basic(t *testing.T) {
-	t.Parallel()
-
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{
@@ -32,8 +30,6 @@ func TestAccComputeNetwork_basic(t *testing.T) {
 }
 
 func TestAccComputeNetwork_auto_subnet(t *testing.T) {
-	t.Parallel()
-
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{
@@ -55,8 +51,6 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 }
 
 func TestAccComputeNetwork_custom_subnet(t *testing.T) {
-	t.Parallel()
-
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{

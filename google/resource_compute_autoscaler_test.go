@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeAutoscaler_basic(t *testing.T) {
-	t.Parallel()
-
 	var ascaler compute.Autoscaler
 
 	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
@@ -37,8 +35,6 @@ func TestAccComputeAutoscaler_basic(t *testing.T) {
 }
 
 func TestAccComputeAutoscaler_update(t *testing.T) {
-	t.Parallel()
-
 	var ascaler compute.Autoscaler
 
 	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))

@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccBigtableTable_basic(t *testing.T) {
-	t.Parallel()
-
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -33,8 +31,6 @@ func TestAccBigtableTable_basic(t *testing.T) {
 }
 
 func TestAccBigtableTable_splitKeys(t *testing.T) {
-	t.Parallel()
-
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 

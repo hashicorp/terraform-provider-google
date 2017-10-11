@@ -15,8 +15,6 @@ import (
 )
 
 func TestAccComputeFirewall_basic(t *testing.T) {
-	t.Parallel()
-
 	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
@@ -39,8 +37,6 @@ func TestAccComputeFirewall_basic(t *testing.T) {
 }
 
 func TestAccComputeFirewall_update(t *testing.T) {
-	t.Parallel()
-
 	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
@@ -73,8 +69,6 @@ func TestAccComputeFirewall_update(t *testing.T) {
 }
 
 func TestAccComputeFirewall_priority(t *testing.T) {
-	t.Parallel()
-
 	var firewall computeBeta.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
@@ -96,8 +90,6 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 }
 
 func TestAccComputeFirewall_noSource(t *testing.T) {
-	t.Parallel()
-
 	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
@@ -120,8 +112,6 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 }
 
 func TestAccComputeFirewall_denied(t *testing.T) {
-	t.Parallel()
-
 	var firewall computeBeta.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
@@ -144,8 +134,6 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 }
 
 func TestAccComputeFirewall_egress(t *testing.T) {
-	t.Parallel()
-
 	var firewall computeBeta.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))

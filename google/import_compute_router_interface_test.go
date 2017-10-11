@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccComputeRouterInterface_import(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_router_interface.foobar"
 	testId := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{

@@ -10,8 +10,6 @@ import (
 )
 
 func TestAccSourceRepoRepository_basic(t *testing.T) {
-	t.Parallel()
-
 	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

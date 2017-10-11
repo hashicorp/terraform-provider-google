@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccComputeImage_basic(t *testing.T) {
-	t.Parallel()
-
 	var image compute.Image
 
 	resource.Test(t, resource.TestCase{
@@ -37,8 +35,6 @@ func TestAccComputeImage_basic(t *testing.T) {
 }
 
 func TestAccComputeImage_update(t *testing.T) {
-	t.Parallel()
-
 	var image compute.Image
 
 	name := "image-test-" + acctest.RandString(10)
@@ -74,8 +70,6 @@ func TestAccComputeImage_update(t *testing.T) {
 }
 
 func TestAccComputeImage_basedondisk(t *testing.T) {
-	t.Parallel()
-
 	var image compute.Image
 
 	resource.Test(t, resource.TestCase{

@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccBigtableInstance_basic(t *testing.T) {
-	t.Parallel()
-
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -32,8 +30,6 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 }
 
 func TestAccBigtableInstance_development(t *testing.T) {
-	t.Parallel()
-
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

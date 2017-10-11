@@ -12,8 +12,6 @@ import (
 )
 
 func TestAccComputeGlobalAddress_basic(t *testing.T) {
-	t.Parallel()
-
 	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{
@@ -36,8 +34,6 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 }
 
 func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
-	t.Parallel()
-
 	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{

@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccComputeTargetPool_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_target_pool.foobar"
 
 	resource.Test(t, resource.TestCase{

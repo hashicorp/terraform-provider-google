@@ -8,8 +8,6 @@ import (
 )
 
 func TestAccComputeImage_importFromRawDisk(t *testing.T) {
-	t.Parallel()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -29,8 +27,6 @@ func TestAccComputeImage_importFromRawDisk(t *testing.T) {
 }
 
 func TestAccComputeImage_importFromSourceDisk(t *testing.T) {
-	t.Parallel()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

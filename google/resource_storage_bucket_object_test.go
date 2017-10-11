@@ -19,8 +19,6 @@ var objectName = "tf-gce-test"
 var content = "now this is content!"
 
 func TestAccGoogleStorageObject_basic(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	data := []byte("data data data")
 	h := md5.New()
@@ -47,8 +45,6 @@ func TestAccGoogleStorageObject_basic(t *testing.T) {
 }
 
 func TestAccGoogleStorageObject_content(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
@@ -81,8 +77,6 @@ func TestAccGoogleStorageObject_content(t *testing.T) {
 }
 
 func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
@@ -121,8 +115,6 @@ func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
 }
 
 func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
@@ -154,8 +146,6 @@ func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
 }
 
 func TestAccGoogleStorageObject_storageClass(t *testing.T) {
-	t.Parallel()
-
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()

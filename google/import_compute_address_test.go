@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccComputeAddress_importBasic(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_compute_address.foobar"
 
 	resource.Test(t, resource.TestCase{

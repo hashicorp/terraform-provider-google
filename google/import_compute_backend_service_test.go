@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccComputeBackendService_importBasic(t *testing.T) {
-	t.Parallel()
-
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 

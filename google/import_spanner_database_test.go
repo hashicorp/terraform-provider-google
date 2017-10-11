@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccSpannerDatabase_importInstanceDatabase(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))
@@ -35,8 +33,6 @@ func TestAccSpannerDatabase_importInstanceDatabase(t *testing.T) {
 }
 
 func TestAccSpannerDatabase_importProjectInstanceDatabase(t *testing.T) {
-	t.Parallel()
-
 	resourceName := "google_spanner_database.basic"
 	instanceName := fmt.Sprintf("span-iname-%s", acctest.RandString(10))
 	dbName := fmt.Sprintf("span-dbname-%s", acctest.RandString(10))

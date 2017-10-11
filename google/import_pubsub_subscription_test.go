@@ -9,8 +9,6 @@ import (
 )
 
 func TestAccPubsubSubscription_import(t *testing.T) {
-	t.Parallel()
-
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(10))
 	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 
