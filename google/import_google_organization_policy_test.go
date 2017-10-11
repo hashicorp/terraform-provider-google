@@ -19,7 +19,7 @@ func TestAccGoogleOrganizationPolicy_import(t *testing.T) {
 				Config: testAccGoogleOrganizationPolicy_list_allowAll(org),
 			},
 			{
-				ResourceName:      "google_organization_policy.listAll",
+				ResourceName:      "google_organization_policy.list",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
