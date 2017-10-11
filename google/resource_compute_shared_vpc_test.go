@@ -118,12 +118,12 @@ resource "google_project_services" "service" {
 
 resource "google_compute_shared_vpc_host_project" "host" {
 	project    = "${google_project.host.project_id}"
-	depends_on = ["google_project_services.host", "google_project_services.service"]
+	depends_on = ["google_project_services.host"]
 }
 
 resource "google_compute_shared_vpc_service_project" "service" {
 	host_project    = "${google_project.host.project_id}"
 	service_project = "${google_project.service.project_id}"
-	depends_on      = ["google_compute_shared_vpc_host_project.host"]
+	depends_on      = ["google_compute_shared_vpc_host_project.host", "google_project_services.service"]
 }`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
 }
