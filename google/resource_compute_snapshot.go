@@ -138,16 +138,8 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Eror when reading snapshot for label update: %s", err)
 		}
 
-		setLabelsReq := compute.GlobalSetLabelsRequest{
-			Labels:           labels,
-			LabelFingerprint: apiSnapshot.LabelFingerprint,
-		}
-		op, err = config.clientCompute.Snapshots.SetLabels(project, d.Id(), &setLabelsReq).Do()
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on snapshot")
+		// HERE
+		err = updateLabels(config.clientCompute, project, d.Id(), labels, apiSnapshot.LabelFingerprint)
 		if err != nil {
 			return err
 		}
@@ -198,19 +190,11 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 
 	if d.HasChange("labels") {
-		gslr := compute.GlobalSetLabelsRequest{
-			Labels:           expandLabels(d),
-			LabelFingerprint: d.Get("label_fingerprint").(string),
-		}
-		op, err := config.clientCompute.Snapshots.SetLabels(project, d.Id(), &gslr).Do()
+		err = updateLabels(config.clientCompute, project, d.Id(), expandLabels(d), d.Get("label_fingerprint").(string))
 		if err != nil {
 			return err
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on snapshot")
-		if err != nil {
-			return err
-		}
 		d.SetPartial("labels")
 	}
 
@@ -270,4 +254,17 @@ func resourceComputeSnapshotExists(d *schema.ResourceData, meta interface{}) (bo
 		return true, err
 	}
 	return true, nil
+}
+
+func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string) error {
+	setLabelsReq := compute.GlobalSetLabelsRequest{
+		Labels:           labels,
+		LabelFingerprint: labelFingerprint,
+	}
+	op, err := client.Snapshots.SetLabels(project, resourceId, &setLabelsReq).Do()
+	if err != nil {
+		return err
+	}
+
+	return computeOperationWait(client, op, project, "Setting labels on snapshot")
 }
