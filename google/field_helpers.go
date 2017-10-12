@@ -57,10 +57,7 @@ func parseGlobalFieldValue(resourceType, fieldValue, projectSchemaField string, 
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(globalLinkBasePattern, resourceType))
-
-	if r.MatchString(fieldValue) {
-		parts := r.FindStringSubmatch(fieldValue)
-
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
 		return &GlobalFieldValue{
 			Project: parts[1],
 			Name:    parts[2],
@@ -107,7 +104,6 @@ func (f ZonalFieldValue) RelativeLink() string {
 //
 // If the project is not specified, it first tries to get the project from the `projectSchemaField` and then fallback on the default project.
 // If the zone is not specified, it takes the value of `zoneSchemaField`.
-
 func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config, isEmptyValid bool) (*ZonalFieldValue, error) {
 	if len(fieldValue) == 0 {
 		if isEmptyValid {
@@ -117,9 +113,7 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, resourceType))
-	if r.MatchString(fieldValue) {
-		parts := r.FindStringSubmatch(fieldValue)
-
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
 		return &ZonalFieldValue{
 			Project:      parts[1],
 			Zone:         parts[2],
@@ -134,9 +128,7 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 	}
 
 	r = regexp.MustCompile(fmt.Sprintf(zonalPartialLinkBasePattern, resourceType))
-	if r.MatchString(fieldValue) {
-		parts := r.FindStringSubmatch(fieldValue)
-
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
 		return &ZonalFieldValue{
 			Project:      project,
 			Zone:         parts[1],
