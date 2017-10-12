@@ -312,16 +312,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.InitialClusterVersion = v.(string)
 	}
 
+	// Only allow setting node_version on create if it's set to the equivalent master version,
+	// since `InitialClusterVersion` only accepts valid master-style versions.
 	if v, ok := d.GetOk("node_version"); ok {
-		if cluster.InitialClusterVersion != "" {
-			// ignore -gke.X suffix for now. if it becomes a problem later, we can fix it.
-			mv := strings.Split(cluster.InitialClusterVersion, "-")[0]
-			nv := strings.Split(v.(string), "-")[0]
-			if mv != nv {
-				return fmt.Errorf("node_version and min_master_version must be set to equivalent values on create")
-			}
-		} else {
-			cluster.InitialClusterVersion = v.(string)
+		// ignore -gke.X suffix for now. if it becomes a problem later, we can fix it.
+		mv := strings.Split(cluster.InitialClusterVersion, "-")[0]
+		nv := strings.Split(v.(string), "-")[0]
+		if mv != nv {
+			return fmt.Errorf("node_version and min_master_version must be set to equivalent values on create")
 		}
 	}
 
