@@ -1,4 +1,4 @@
-## 1.1.0 (Unreleased)
+## 1.1.0 (October 12, 2017)
 
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
@@ -8,32 +8,32 @@ FEATURES:
 * **New Resources:** `google_compute_shared_vpc_host_project` and `google_compute_shared_vpc_service_project` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/572))
 
 IMPROVEMENTS:
-* compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
-* compute: Generate network link without calling network API in `google_compute_vpn_gateway` and `google_compute_router` [GH-527]
-* compute: Add import support to `google_compute_target_tcp_proxy` [GH-534]
+* compute: Generate network link without calling network API in `google_compute_subnetwork` ([#527](https://github.com/terraform-providers/terraform-provider-google/issues/527))
+* compute: Generate network link without calling network API in `google_compute_vpn_gateway` and `google_compute_router` ([#527](https://github.com/terraform-providers/terraform-provider-google/issues/527))
+* compute: Add import support to `google_compute_target_tcp_proxy` ([#534](https://github.com/terraform-providers/terraform-provider-google/issues/534))
 * compute: Add labels support to `google_compute_instance_template` ([#17](https://github.com/terraform-providers/terraform-provider-google/issues/17))
-* compute: `google_vpn_tunnel` - Mark 'shared_secret' as sensitive [GH-561]
+* compute: `google_vpn_tunnel` - Mark 'shared_secret' as sensitive ([#561](https://github.com/terraform-providers/terraform-provider-google/issues/561))
 * container: Allow disabling of Kubernetes Dashboard via `kubernetes_dashboard` addon ([#433](https://github.com/terraform-providers/terraform-provider-google/issues/433))
-* container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability [GH-489]
-* container: Add master_version to container cluster [GH-538]
-* sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 [GH-417]
-* pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
+* container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability ([#489](https://github.com/terraform-providers/terraform-provider-google/issues/489))
+* container: Add master_version to container cluster ([#538](https://github.com/terraform-providers/terraform-provider-google/issues/538))
+* sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 ([#417](https://github.com/terraform-providers/terraform-provider-google/issues/417))
+* pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable ([#512](https://github.com/terraform-providers/terraform-provider-google/issues/512))
 
 BUG FIXES:
-* compute: Fix bug in `google_compute_instance` preventing the `assigned_nat_ip` field from ever getting assigned [GH-536]
-* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500]
-* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496]
-* compute: Fix BackendService group hash when instance groups use beta features [GH-522]
-* compute: Make `disk.device_name` computed in `google_compute_instance_template` [GH-566]
-* dns: Error out if DNS zone is not found [GH-560]
-* container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
-* container: Fix cluster version upgrades [GH-577]
+* compute: Fix bug in `google_compute_instance` preventing the `assigned_nat_ip` field from ever getting assigned ([#536](https://github.com/terraform-providers/terraform-provider-google/issues/536))
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used ([#500](https://github.com/terraform-providers/terraform-provider-google/issues/500))
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project ([#496](https://github.com/terraform-providers/terraform-provider-google/issues/496))
+* compute: Fix BackendService group hash when instance groups use beta features ([#522](https://github.com/terraform-providers/terraform-provider-google/issues/522))
+* compute: Make `disk.device_name` computed in `google_compute_instance_template` ([#566](https://github.com/terraform-providers/terraform-provider-google/issues/566))
+* dns: Error out if DNS zone is not found ([#560](https://github.com/terraform-providers/terraform-provider-google/issues/560))
+* container: Fix crash when creating node pools with `name_prefix` or no name ([#531](https://github.com/terraform-providers/terraform-provider-google/issues/531))
+* container: Fix cluster version upgrades ([#577](https://github.com/terraform-providers/terraform-provider-google/issues/577))
 
 ## 1.0.1 (October 02, 2017)
 
 BUG FIXES:
 * compute: Fix bug that prevented the state migration for `google_compute_instance` from updating to use attached_disk, boot_disk, and scratch_disk. ([#511](https://github.com/terraform-providers/terraform-provider-google/issues/511))
-* compute: Fix bug causing a crash if the API returns an error on `google_compute_instance` creation [GH-556]
+* compute: Fix bug causing a crash if the API returns an error on `google_compute_instance` creation ([#556](https://github.com/terraform-providers/terraform-provider-google/issues/556))
 
 ## 1.0.0 (October 02, 2017)
 
