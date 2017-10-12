@@ -308,7 +308,7 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccStorageBucket_customAttributes("idontexist"),
+				Config: testAccStorageBucket_customAttributes(acctest.RandomWithPrefix("tf-test-acl-bucket")),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketMissing(bucketName),
 				),
