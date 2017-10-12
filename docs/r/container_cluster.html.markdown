@@ -13,10 +13,6 @@ Creates a GKE cluster. For more information see
 and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
 
-!> **Warning:** Due to limitations of the API, all arguments except
-`node_version` are non-updateable. Changing any will cause recreation of the
-whole cluster!
-
 ~> **Note:** All arguments including the username and password will be stored in the raw state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
@@ -84,6 +80,12 @@ resource "google_container_cluster" "primary" {
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
+
+* `min_master_version` - (Optional) The minimum version of the master. GKE
+    will auto-update the master to new versions, so this does not guarantee the
+    current master version--use the read-only `master_version` field to obtain that.
+    If unset, the cluster's version will be set by GKE to the version of the most recent
+    official release (which is not necessarily the latest version).
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
     should write metrics to. Available options include
@@ -208,6 +210,10 @@ exported:
 
 * `master_auth.cluster_ca_certificate` - Base64 encoded public certificate
     that is the root of trust for the cluster
+
+* `master_version` - The current version of the master in the cluster. This may
+    be different than the `min_master_version` set in the config if the master
+    has been updated by GKE.
 
 <a id="timeouts"></a>
 ## Timeouts
