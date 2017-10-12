@@ -13,6 +13,8 @@ import (
 )
 
 func TestAccLoggingFolderSink_basic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
@@ -39,6 +41,8 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 }
 
 func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
@@ -65,6 +69,8 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 }
 
 func TestAccLoggingFolderSink_update(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	sinkName := "tf-test-sink-" + acctest.RandString(10)

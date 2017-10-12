@@ -14,6 +14,8 @@ import (
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
+	t.Parallel()
+
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 
@@ -33,6 +35,8 @@ func TestAccContainerNodePool_basic(t *testing.T) {
 }
 
 func TestAccContainerNodePool_namePrefix(t *testing.T) {
+	t.Parallel()
+
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -51,6 +55,8 @@ func TestAccContainerNodePool_namePrefix(t *testing.T) {
 }
 
 func TestAccContainerNodePool_noName(t *testing.T) {
+	t.Parallel()
+
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -69,6 +75,8 @@ func TestAccContainerNodePool_noName(t *testing.T) {
 }
 
 func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -85,6 +93,8 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 }
 
 func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -101,6 +111,8 @@ func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 }
 
 func TestAccContainerNodePool_autoscaling(t *testing.T) {
+	t.Parallel()
+
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 
@@ -138,6 +150,8 @@ func TestAccContainerNodePool_autoscaling(t *testing.T) {
 }
 
 func TestAccContainerNodePool_resize(t *testing.T) {
+	t.Parallel()
+
 	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
 

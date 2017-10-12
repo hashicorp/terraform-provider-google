@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccComputeProjectMetadataItem_importBasic(t *testing.T) {
+	t.Parallel()
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

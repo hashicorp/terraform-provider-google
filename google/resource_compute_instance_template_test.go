@@ -13,6 +13,8 @@ import (
 )
 
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -36,6 +38,8 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -57,6 +61,8 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_IP(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -77,6 +83,8 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	networkIP := "10.128.0.2"
 
@@ -100,6 +108,8 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -121,6 +131,8 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	network := "network-" + acctest.RandString(10)
 
@@ -142,6 +154,8 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -162,6 +176,8 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
 
@@ -183,6 +199,8 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{

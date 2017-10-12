@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccGoogleFolder_rename(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
@@ -45,6 +47,8 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 }
 
 func TestAccGoogleFolder_moveParent(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	folder1DisplayName := "tf-test-" + acctest.RandString(10)

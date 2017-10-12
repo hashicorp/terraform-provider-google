@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeSnapshot_basic(t *testing.T) {
+	t.Parallel()
+
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var snapshot compute.Snapshot
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -33,6 +35,8 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 }
 
 func TestAccComputeSnapshot_encryption(t *testing.T) {
+	t.Parallel()
+
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var snapshot compute.Snapshot
