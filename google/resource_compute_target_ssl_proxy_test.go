@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"reflect"
 )
 
 func TestAccComputeTargetSslProxy_basic(t *testing.T) {
@@ -23,8 +24,8 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeTargetSslProxy_basic1(target, cert, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeTargetSslProxyExists(
-						"google_compute_target_ssl_proxy.foobar"),
+					testAccCheckComputeTargetSslProxy(
+						"google_compute_target_ssl_proxy.foobar", "NONE", []string{cert}),
 				),
 			},
 		},
@@ -47,15 +48,15 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeTargetSslProxy_basic1(target, cert1, backend1, hc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeTargetSslProxyExists(
-						"google_compute_target_ssl_proxy.foobar"),
+					testAccCheckComputeTargetSslProxy(
+						"google_compute_target_ssl_proxy.foobar", "NONE", []string{cert1}),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeTargetSslProxy_basic2(target, cert1, cert2, backend1, backend2, hc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeTargetSslProxyExists(
-						"google_compute_target_ssl_proxy.foobar"),
+					testAccCheckComputeTargetSslProxy(
+						"google_compute_target_ssl_proxy.foobar", "PROXY_V1", []string{cert1, cert2}),
 				),
 			},
 		},
@@ -80,7 +81,7 @@ func testAccCheckComputeTargetSslProxyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeTargetSslProxyExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeTargetSslProxy(n, proxyHeader string, sslCerts []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -101,6 +102,19 @@ func testAccCheckComputeTargetSslProxyExists(n string) resource.TestCheckFunc {
 
 		if found.Name != rs.Primary.ID {
 			return fmt.Errorf("TargetSslProxy not found")
+		}
+
+		if found.ProxyHeader != proxyHeader {
+			return fmt.Errorf("Wrong proxy header. Expected '%s', got '%s'", proxyHeader, found.ProxyHeader)
+		}
+
+		foundCertsName := make([]string, 0, len(found.SslCertificates))
+		for _, foundCert := range found.SslCertificates {
+			foundCertsName = append(foundCertsName, GetResourceNameFromSelfLink(foundCert))
+		}
+
+		if !reflect.DeepEqual(foundCertsName, sslCerts) {
+			return fmt.Errorf("Wrong ssl certificates. Expected '%s', got '%s'", sslCerts, found.SslCertificates)
 		}
 
 		return nil

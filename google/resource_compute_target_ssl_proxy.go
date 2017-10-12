@@ -80,7 +80,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	sslCertificates, err := expandSslCertificates(d.Get("ssl_certificates").([]interface{}), d, config)
+	sslCertificates, err := expandSslCertificates(d, config)
 	if err != nil {
 		return err
 	}
@@ -121,12 +121,12 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	d.Partial(true)
 
 	if d.HasChange("proxy_header") {
-		proxy_header := d.Get("proxy_header").(string)
-		proxy_header_payload := &compute.TargetSslProxiesSetProxyHeaderRequest{
-			ProxyHeader: proxy_header,
+		proxyHeader := d.Get("proxy_header").(string)
+		proxyHeaderPayload := &compute.TargetSslProxiesSetProxyHeaderRequest{
+			ProxyHeader: proxyHeader,
 		}
 		op, err := config.clientCompute.TargetSslProxies.SetProxyHeader(
-			project, d.Id(), proxy_header_payload).Do()
+			project, d.Id(), proxyHeaderPayload).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating proxy_header: %s", err)
 		}
@@ -157,7 +157,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("ssl_certificates") {
-		sslCertificates, err := expandSslCertificates(d.Get("ssl_certificates").([]interface{}), d, config)
+		sslCertificates, err := expandSslCertificates(d, config)
 		if err != nil {
 			return err
 		}
@@ -231,7 +231,8 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandSslCertificates(configured []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
+func expandSslCertificates(d *schema.ResourceData, config *Config) ([]string, error) {
+	configured := d.Get("ssl_certificates").([]interface{})
 	certs := make([]string, 0, len(configured))
 
 	for _, sslCertificate := range configured {
