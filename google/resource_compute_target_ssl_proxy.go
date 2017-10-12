@@ -35,6 +35,7 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 			"ssl_certificates": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
+				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
