@@ -1,4 +1,4 @@
-## 1.0.2 (Unreleased)
+## 1.1.0 (Unreleased)
 
 FEATURES:
 * **New Resource:** `google_logging_folder_sink` ([#470](https://github.com/terraform-providers/terraform-provider-google/pull/470))
