@@ -245,8 +245,12 @@ func resourceContainerCluster() *schema.Resource {
 
 			"master_version": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
+			},
+
+			"min_master_version": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"node_config": schemaNodeConfig,
@@ -303,12 +307,17 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	if v, ok := d.GetOk("master_version"); ok {
+	if v, ok := d.GetOk("min_master_version"); ok {
 		cluster.InitialClusterVersion = v.(string)
 	}
 
-	if _, ok := d.GetOk("node_version"); ok {
-		return fmt.Errorf("cannot set node_version on create, use master_version instead")
+	if v, ok := d.GetOk("node_version"); ok {
+		// ignore -gke.X suffix for now. if it becomes a problem later, we can fix it.
+		mv := strings.Split(cluster.InitialClusterVersion, "-")[0]
+		nv := strings.Split(v.(string), "-")[0]
+		if mv != nv {
+			return fmt.Errorf("node_version and min_master_version must be set to equivalent values on create")
+		}
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
@@ -519,8 +528,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	d.Partial(true)
 
 	// The master must be updated before the nodes
-	if d.HasChange("master_version") {
-		desiredMasterVersion := d.Get("master_version").(string)
+	if d.HasChange("min_master_version") {
+		desiredMasterVersion := d.Get("min_master_version").(string)
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredMasterVersion: desiredMasterVersion,
@@ -541,7 +550,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
 			desiredMasterVersion)
 
-		d.SetPartial("master_version")
+		d.SetPartial("min_master_version")
 	}
 
 	if d.HasChange("node_version") {
