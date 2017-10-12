@@ -27,6 +27,7 @@ BUG FIXES:
 * compute: Make `disk.device_name` computed in `google_compute_instance_template` [GH-566]
 * dns: Error out if DNS zone is not found [GH-560]
 * container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
+* container: Fix cluster version upgrades [GH-577]
 
 ## 1.0.1 (October 02, 2017)
 
