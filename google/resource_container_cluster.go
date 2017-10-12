@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
@@ -435,8 +436,18 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	zoneName := d.Get("zone").(string)
 
-	cluster, err := config.clientContainer.Projects.Zones.Clusters.Get(
-		project, zoneName, d.Get("name").(string)).Do()
+	var cluster *container.Cluster
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+		cluster, err = config.clientContainer.Projects.Zones.Clusters.Get(
+			project, zoneName, d.Get("name").(string)).Do()
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if cluster.Status != "RUNNING" {
+			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
+		}
+		return nil
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
 	}
