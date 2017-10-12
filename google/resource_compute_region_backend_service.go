@@ -121,6 +121,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		LoadBalancingScheme: "INTERNAL",
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
 		service.Backends, err = expandBackends(v.(*schema.Set).List())
 		if err != nil {

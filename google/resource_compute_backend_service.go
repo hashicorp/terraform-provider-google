@@ -342,6 +342,7 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 		HealthChecks: healthChecks,
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
 		service.Backends, err = expandBackends(v.(*schema.Set).List())
 		if err != nil {
