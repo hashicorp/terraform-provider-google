@@ -191,8 +191,8 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 			key := k[len("labels."):]
 			attrMap[key] = v
 		}
-		if !reflect.DeepEqual(attrMap, found.Labels) {
-			return fmt.Errorf("Snapshot %s has mismatched labels.\nTF State: %+v.\nGCP State: %+v",
+		if (len(attrMap) != 0 || len(found.Labels) != 0) && !reflect.DeepEqual(attrMap, found.Labels) {
+			return fmt.Errorf("Snapshot %s has mismatched labels.\nTF State: %+v\nGCP State: %+v",
 				n, attrMap, found.Labels)
 		}
 
