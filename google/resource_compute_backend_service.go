@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 
@@ -44,7 +45,7 @@ func resourceComputeBackendService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
 							Type:             schema.TypeString,
-							Required:         true,
+							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 						"balancing_mode": &schema.Schema{
@@ -150,7 +151,10 @@ func resourceComputeBackendService() *schema.Resource {
 func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	service := expandBackendService(d)
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -159,7 +163,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Creating new Backend Service: %#v", service)
 	op, err := config.clientCompute.BackendServices.Insert(
-		project, &service).Do()
+		project, service).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating backend service: %s", err)
 	}
@@ -214,7 +218,10 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	service := expandBackendService(d)
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
+	}
 	service.Fingerprint = d.Get("fingerprint").(string)
 
 	project, err := getProject(d, config)
@@ -224,7 +231,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
 	op, err := config.clientCompute.BackendServices.Update(
-		project, d.Id(), &service).Do()
+		project, d.Id(), service).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
@@ -263,14 +270,19 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandBackends(configured []interface{}) []*compute.Backend {
+func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	backends := make([]*compute.Backend, 0, len(configured))
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
+		g, ok := data["group"]
+		if !ok {
+			return nil, errors.New("google_compute_backend_service.backend.group must be set")
+		}
+
 		b := compute.Backend{
-			Group: data["group"].(string),
+			Group: g.(string),
 		}
 
 		if v, ok := data["balancing_mode"]; ok {
@@ -295,7 +307,7 @@ func expandBackends(configured []interface{}) []*compute.Backend {
 		backends = append(backends, &b)
 	}
 
-	return backends
+	return backends, nil
 }
 
 func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
@@ -318,20 +330,24 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 	return result
 }
 
-func expandBackendService(d *schema.ResourceData) compute.BackendService {
+func expandBackendService(d *schema.ResourceData) (*compute.BackendService, error) {
 	hc := d.Get("health_checks").(*schema.Set).List()
 	healthChecks := make([]string, 0, len(hc))
 	for _, v := range hc {
 		healthChecks = append(healthChecks, v.(string))
 	}
 
-	service := compute.BackendService{
+	service := &compute.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -365,7 +381,7 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 
 	service.ConnectionDraining = connectionDraining
 
-	return service
+	return service, nil
 }
 
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
