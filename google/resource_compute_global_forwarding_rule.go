@@ -150,7 +150,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	// It probably maybe worked, so store the ID now
 	d.SetId(frule.Name)
 
-	err = computeSharedOperationWait(config, op, project, "Creating Global Fowarding Rule")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Global Fowarding Rule")
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 			}
 		}
 
-		err = computeSharedOperationWait(config, op, project, "Updating Global Forwarding Rule")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Global Forwarding Rule")
 		if err != nil {
 			return err
 		}
@@ -308,7 +308,7 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 		}
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Deleting GlobalForwarding Rule")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting GlobalForwarding Rule")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceComputeGlobalForwardingRuleSetLabels(config *Config, computeApiVers
 			computeApiVersion)
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Setting labels on Global Forwarding Rule")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Setting labels on Global Forwarding Rule")
 	if err != nil {
 		return err
 	}

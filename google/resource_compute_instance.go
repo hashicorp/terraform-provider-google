@@ -790,7 +790,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(instance.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeSharedOperationWaitTime(config, op, project, createTimeout, "instance to create")
+	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project, createTimeout, "instance to create")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -1051,7 +1051,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
 
-			opErr := computeOperationWait(config, op, project, "metadata to update")
+			opErr := computeOperationWait(config.clientCompute, op, project, "metadata to update")
 			if opErr != nil {
 				return opErr
 			}
@@ -1071,7 +1071,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWait(config, op, project, "tags to update")
+		opErr := computeOperationWait(config.clientCompute, op, project, "tags to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1089,7 +1089,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWait(config, op, project, "labels to update")
+		opErr := computeOperationWait(config.clientCompute, op, project, "labels to update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1119,7 +1119,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWait(config, op, project, "scheduling policy update")
+		opErr := computeOperationWait(config.clientCompute, op, project, "scheduling policy update")
 		if opErr != nil {
 			return opErr
 		}
@@ -1159,7 +1159,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error deleting old access_config: %s", err)
 				}
-				opErr := computeOperationWait(config, op, project, "old access_config to delete")
+				opErr := computeOperationWait(config.clientCompute, op, project, "old access_config to delete")
 				if opErr != nil {
 					return opErr
 				}
@@ -1178,7 +1178,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
-				opErr := computeOperationWait(config, op, project, "new access_config to add")
+				opErr := computeOperationWait(config.clientCompute, op, project, "new access_config to add")
 				if opErr != nil {
 					return opErr
 				}
@@ -1208,7 +1208,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config, op, project, "instance to delete")
+	opErr := computeOperationWait(config.clientCompute, op, project, "instance to delete")
 	if opErr != nil {
 		return opErr
 	}

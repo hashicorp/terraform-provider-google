@@ -177,7 +177,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	d.SetId(manager.Name)
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWait(config, op, project, "Creating InstanceGroupManager")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating InstanceGroupManager")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWait(config, op, project, "Updating RegionInstanceGroupManager")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating RegionInstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -320,7 +320,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWait(config, op, project, "Updating InstanceGroupManager")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -363,7 +363,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Wait for the operation to complete:
-		err = computeSharedOperationWait(config, op, project, "Updating RegionInstanceGroupManager")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating RegionInstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -388,7 +388,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWait(config, op, project, "Resizing RegionInstanceGroupManager")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Resizing RegionInstanceGroupManager")
 		if err != nil {
 			return err
 		}
@@ -410,7 +410,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Wait for the operation to complete
-		err = computeSharedOperationWait(config, op, project, "Updating AutoHealingPolicies")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating AutoHealingPolicies")
 		if err != nil {
 			return err
 		}
@@ -447,7 +447,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	}
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWait(config, op, project, "Deleting RegionInstanceGroupManager")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting RegionInstanceGroupManager")
 
 	d.SetId("")
 	return nil

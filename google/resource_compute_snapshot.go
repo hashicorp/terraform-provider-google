@@ -125,7 +125,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(snapshot.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Snapshot")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Snapshot")
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		err = computeOperationWait(config, op, project, "Setting labels on snapshot")
+		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on snapshot")
 		if err != nil {
 			return err
 		}
@@ -207,7 +207,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		err = computeOperationWait(config, op, project, "Setting labels on snapshot")
+		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on snapshot")
 		if err != nil {
 			return err
 		}
@@ -240,7 +240,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error deleting snapshot: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Snapshot")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Snapshot")
 	if err != nil {
 		return err
 	}

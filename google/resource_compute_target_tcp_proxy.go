@@ -85,7 +85,7 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error creating TargetTcpProxy: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Creating Target Tcp Proxy")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Target Tcp Proxy")
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating target: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Tcp Proxy")
+		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Tcp Proxy")
 		if err != nil {
 			return err
 		}
@@ -169,7 +169,7 @@ func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting TargetTcpProxy: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Target Tcp Proxy")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Target Tcp Proxy")
 	if err != nil {
 		return err
 	}
