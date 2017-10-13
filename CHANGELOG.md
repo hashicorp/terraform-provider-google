@@ -5,6 +5,9 @@ FEATURES:
 * **New Resource:** `google_compute_target_ssl_proxy` [GH-569]
 * **New Data Source:** `google_compute_lb_ip_ranges` [GH-567]
 
+BUG FIXES:
+* compute: Fix import functionality in `google_compute_route` [GH-565]
+
 ## 1.1.0 (October 12, 2017)
 
 FEATURES:
