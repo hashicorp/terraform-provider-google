@@ -8,8 +8,7 @@ import (
 
 func TestAccComputeRoute_importBasic(t *testing.T) {
 	t.Parallel()
-
-	resourceName := "google_compute_network.foobar"
+	resourceName := "google_compute_route.foobar"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -17,7 +16,7 @@ func TestAccComputeRoute_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_basic,
+				Config: testAccComputeRoute_basic(),
 			},
 			{
 				ResourceName:      resourceName,
@@ -30,8 +29,7 @@ func TestAccComputeRoute_importBasic(t *testing.T) {
 
 func TestAccComputeRoute_importDefaultInternetGateway(t *testing.T) {
 	t.Parallel()
-
-	resourceName := "google_compute_network.foobar"
+	resourceName := "google_compute_route.foobar"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -39,7 +37,7 @@ func TestAccComputeRoute_importDefaultInternetGateway(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_defaultInternetGateway,
+				Config: testAccComputeRoute_defaultInternetGateway(),
 			},
 			{
 				ResourceName:      resourceName,
