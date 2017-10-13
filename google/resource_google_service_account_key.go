@@ -20,34 +20,49 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			// Optional
-			"key_algorithm": &schema.Schema{
+			"public_key_type": &schema.Schema{
 				Type:     schema.TypeString,
-				Default:  "KEY_ALG_RSA_2048",
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 			},
+			// Optional
 			"private_key_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Default:  "TYPE_GOOGLE_CREDENTIALS_FILE",
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"key_algorithm": &schema.Schema{
+				Type:     schema.TypeString,
+				Default:  "KEY_ALG_RSA_2048",
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"pgp_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			// Computed
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"private_key": &schema.Schema{
 				Type:      schema.TypeString,
 				Computed:  true,
 				Sensitive: true,
 			},
+			"public_key": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			// Computed
 			"valid_after": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -79,32 +94,41 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		r.KeyAlgorithm = v.(string)
 	}
 
-	if v, ok := d.GetOk("private_key_type"); ok {
-		r.PrivateKeyType = v.(string)
+	var pubKey string
+	var err error
+	if pubkeyInterface, ok := d.GetOk("public_key"); ok {
+		pubKey = pubkeyInterface.(string)
 	}
 
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
-	if err != nil {
-		return fmt.Errorf("Error creating service account key: %s", err)
-	}
+	if pubKey == "" {
 
-	if v, ok := d.GetOk("pgp_key"); ok {
-		encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
-		if err != nil {
-			return err
+		if v, ok := d.GetOk("private_key_type"); ok {
+			r.PrivateKeyType = v.(string)
 		}
 
-		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, sak.PrivateKeyData, "Google Service Account Key")
-		if err != nil {
-			return err
+		sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
+		if err != nil || sak == nil {
+			return fmt.Errorf("Error creating service account key: %s", err)
 		}
 
-		d.Set("private_key_encrypted", encrypted)
-		d.Set("private_key_fingerprint", fingerprint)
-	} else {
-		d.Set("private_key", sak.PrivateKeyData)
-	}
+		d.SetId(sak.Name)
+		if v, ok := d.GetOk("pgp_key"); ok {
+			encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
+			if err != nil {
+				return err
+			}
 
+			fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, sak.PrivateKeyData, "Google Service Account Key")
+			if err != nil {
+				return err
+			}
+
+			d.Set("private_key_encrypted", encrypted)
+			d.Set("private_key_fingerprint", fingerprint)
+		} else {
+			d.Set("private_key", sak.PrivateKeyData)
+		}
+	}
 	resourceGoogleServiceAccountKeyRead(d, meta)
 	if err != nil {
 		return err
@@ -116,18 +140,19 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	publicKeyType := d.Get("public_key_type").(string)
+
 	// Confirm the service account key exists
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(d.Id()).Do()
+	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(d.Id()).PublicKeyType(publicKeyType).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
 	}
 
-	d.SetId(sak.Name)
 	d.Set("name", sak.Name)
 	d.Set("key_algorithm", sak.KeyAlgorithm)
 	d.Set("valid_after", sak.ValidAfterTime)
 	d.Set("valid_before", sak.ValidBeforeTime)
-
+	d.Set("public_key", sak.PublicKeyData)
 	return nil
 }
 

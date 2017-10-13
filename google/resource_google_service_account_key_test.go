@@ -22,8 +22,9 @@ func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
 				Config: testAccGoogleServiceAccountKey(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
-					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "display_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_after"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_before"),
 				),
 			},
 		},
@@ -49,9 +50,11 @@ func testAccGoogleServiceAccountKey(account, name string) string {
 	return fmt.Sprintf(`resource "google_service_account" "acceptance" {
 	account_id = "%v"
 	display_name = "%v"
+
 	}
 
 	resource "google_service_account_key" "acceptance" {
 		service_account_id = "${google_service_account.acceptance.id}"
+		public_key_type = "TYPE_X509_PEM_FILE"
 	}`, account, name)
 }
