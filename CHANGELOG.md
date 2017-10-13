@@ -1,4 +1,9 @@
 ## 1.1.1 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `google_compute_lb_ip_ranges` [GH-567]
+
 ## 1.1.0 (October 12, 2017)
 
 FEATURES:
