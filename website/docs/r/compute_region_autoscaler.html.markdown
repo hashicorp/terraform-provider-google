@@ -1,21 +1,21 @@
 ---
 layout: "google"
-page_title: "Google: google_compute_autoscaler"
-sidebar_current: "docs-google-compute-autoscaler"
+page_title: "Google: google_compute_region_autoscaler"
+sidebar_current: "docs-google-compute-region-autoscaler"
 description: |-
-  Manages an Autoscaler within GCE.
+  Manages a Regional Autoscaler within GCE.
 ---
 
-# google\_compute\_autoscaler
+# google\_compute\_region\_autoscaler
 
-A Compute Engine Autoscaler automatically adds or removes virtual machines from
+A Compute Engine Regional Autoscaler automatically adds or removes virtual machines from
 a managed instance group based on increases or decreases in load. This allows
 your applications to gracefully handle increases in traffic and reduces cost
 when the need for resources is lower. You just define the autoscaling policy and
 the autoscaler performs automatic scaling based on the measured load. For more
 information, see [the official
 documentation](https://cloud.google.com/compute/docs/autoscaler/) and
-[API](https://cloud.google.com/compute/docs/reference/latest/autoscalers)
+[API](https://cloud.google.com/compute/docs/reference/latest/regionAutoscalers)
 
 
 ## Example Usage
@@ -49,19 +49,19 @@ resource "google_compute_target_pool" "foobar" {
   name = "foobar"
 }
 
-resource "google_compute_instance_group_manager" "foobar" {
-  name = "foobar"
-  zone = "us-central1-f"
+resource "google_compute_region_instance_group_manager" "foobar" {
+  name   = "foobar"
+  region = "us-central1"
 
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
   target_pools       = ["${google_compute_target_pool.foobar.self_link}"]
   base_instance_name = "foobar"
 }
 
-resource "google_compute_autoscaler" "foobar" {
+resource "google_compute_region_autoscaler" "foobar" {
   name   = "scaler"
-  zone   = "us-central1-f"
-  target = "${google_compute_instance_group_manager.foobar.self_link}"
+  region = "us-central1"
+  target = "${google_compute_region_instance_group_manager.foobar.self_link}"
 
   autoscaling_policy = {
     max_replicas    = 5
@@ -84,7 +84,7 @@ The following arguments are supported:
 * `target` - (Required) The full URL to the instance group manager whose size we
   control.
 
-* `zone` - (Required) The zone of the target.
+* `region` - (Required) The region of the target.
 
 * `autoscaling_policy` - (Required) The parameters of the autoscaling
   algorithm. Structure is documented below.
@@ -151,5 +151,5 @@ exported:
 Autoscalers can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_compute_autoscaler.foobar scaler
+$ terraform import google_compute_region_autoscaler.foobar scaler
 ```
