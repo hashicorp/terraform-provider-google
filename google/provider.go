@@ -51,6 +51,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
 			"google_client_config":             dataSourceGoogleClientConfig(),
+			"google_compute_lb_ip_ranges":      dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":             dataSourceGoogleComputeZones(),
