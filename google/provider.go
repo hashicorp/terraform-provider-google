@@ -51,6 +51,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
 			"google_client_config":             dataSourceGoogleClientConfig(),
+			"google_compute_lb_ip_ranges":      dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":             dataSourceGoogleComputeZones(),
@@ -101,6 +102,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_target_http_proxy":             resourceComputeTargetHttpProxy(),
 			"google_compute_target_https_proxy":            resourceComputeTargetHttpsProxy(),
 			"google_compute_target_tcp_proxy":              resourceComputeTargetTcpProxy(),
+			"google_compute_target_ssl_proxy":              resourceComputeTargetSslProxy(),
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_compute_url_map":                       resourceComputeUrlMap(),
 			"google_compute_vpn_gateway":                   resourceComputeVpnGateway(),
