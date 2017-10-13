@@ -138,7 +138,6 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Eror when reading snapshot for label update: %s", err)
 		}
 
-		// HERE
 		err = updateLabels(config.clientCompute, project, d.Id(), labels, apiSnapshot.LabelFingerprint)
 		if err != nil {
 			return err
