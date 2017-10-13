@@ -47,7 +47,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	if err = computeOperationWait(config, op, hostProject, "Enabling Shared VPC Resource"); err != nil {
+	if err = computeOperationWait(config.clientCompute, op, hostProject, "Enabling Shared VPC Resource"); err != nil {
 		return err
 	}
 
@@ -105,7 +105,7 @@ func disableXpnResource(config *Config, hostProject, project string) error {
 	if err != nil {
 		return err
 	}
-	if err = computeOperationWait(config, op, hostProject, "Disabling Shared VPC Resource"); err != nil {
+	if err = computeOperationWait(config.clientCompute, op, hostProject, "Disabling Shared VPC Resource"); err != nil {
 		return err
 	}
 	return nil
