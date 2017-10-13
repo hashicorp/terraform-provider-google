@@ -88,7 +88,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		Name:    addr.Name,
 	}.canonicalId())
 
-	err = computeOperationWait(config, op, project, "Creating Address")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Address")
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error deleting address: %s", err)
 	}
 
-	err = computeOperationWait(config, op, addressId.Project, "Deleting Address")
+	err = computeOperationWait(config.clientCompute, op, addressId.Project, "Deleting Address")
 	if err != nil {
 		return err
 	}

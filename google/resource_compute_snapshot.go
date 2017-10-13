@@ -15,6 +15,7 @@ func resourceComputeSnapshot() *schema.Resource {
 		Read:   resourceComputeSnapshotRead,
 		Delete: resourceComputeSnapshotDelete,
 		Exists: resourceComputeSnapshotExists,
+		Update: resourceComputeSnapshotUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -74,6 +75,18 @@ func resourceComputeSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -112,9 +125,23 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(snapshot.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Snapshot")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Snapshot")
 	if err != nil {
 		return err
+	}
+
+	// Now if labels are set, go ahead and apply them
+	if labels := expandLabels(d); len(labels) > 0 {
+		// First, read the remote resource in order to find the fingerprint
+		apiSnapshot, err := config.clientCompute.Snapshots.Get(project, d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("Eror when reading snapshot for label update: %s", err)
+		}
+
+		err = updateLabels(config.clientCompute, project, d.Id(), labels, apiSnapshot.LabelFingerprint)
+		if err != nil {
+			return err
+		}
 	}
 	return resourceComputeSnapshotRead(d, meta)
 }
@@ -145,7 +172,34 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("source_disk_encryption_key_sha256", snapshot.SourceDiskEncryptionKey.Sha256)
 	}
 
+	d.Set("labels", snapshot.Labels)
+	d.Set("label_fingerprint", snapshot.LabelFingerprint)
+
 	return nil
+}
+
+func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	d.Partial(true)
+
+	if d.HasChange("labels") {
+		err = updateLabels(config.clientCompute, project, d.Id(), expandLabels(d), d.Get("label_fingerprint").(string))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("labels")
+	}
+
+	d.Partial(false)
+
+	return resourceComputeSnapshotRead(d, meta)
 }
 
 func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
@@ -169,7 +223,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error deleting snapshot: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Snapshot")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Snapshot")
 	if err != nil {
 		return err
 	}
@@ -199,4 +253,17 @@ func resourceComputeSnapshotExists(d *schema.ResourceData, meta interface{}) (bo
 		return true, err
 	}
 	return true, nil
+}
+
+func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string) error {
+	setLabelsReq := compute.GlobalSetLabelsRequest{
+		Labels:           labels,
+		LabelFingerprint: labelFingerprint,
+	}
+	op, err := client.Snapshots.SetLabels(project, resourceId, &setLabelsReq).Do()
+	if err != nil {
+		return err
+	}
+
+	return computeOperationWait(client, op, project, "Setting labels on snapshot")
 }

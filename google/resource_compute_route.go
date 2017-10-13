@@ -178,7 +178,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	// It probably maybe worked, so store the ID now
 	d.SetId(route.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Route")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Route")
 	if err != nil {
 		return err
 	}
@@ -236,7 +236,7 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error deleting route: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Route")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Route")
 	if err != nil {
 		return err
 	}

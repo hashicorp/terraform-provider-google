@@ -199,7 +199,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	// It probably maybe worked, so store the ID now
 	d.SetId(disk.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Disk")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Disk")
 	if err != nil {
 		return err
 	}
@@ -225,7 +225,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.SetPartial("size")
 
-		err = computeOperationWait(config, op, project, "Resizing Disk")
+		err = computeOperationWait(config.clientCompute, op, project, "Resizing Disk")
 		if err != nil {
 			return err
 		}
@@ -243,7 +243,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.SetPartial("labels")
 
-		err = computeOperationWait(config, op, project, "Setting labels on disk")
+		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on disk")
 		if err != nil {
 			return err
 		}
@@ -357,7 +357,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
-			err = computeOperationWait(config, op, call.project,
+			err = computeOperationWait(config.clientCompute, op, call.project,
 				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance))
 			if err != nil {
 				return err
@@ -378,7 +378,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting disk: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Disk")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Disk")
 	if err != nil {
 		return err
 	}

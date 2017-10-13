@@ -101,7 +101,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error creating TargetSslProxy: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Creating Target Ssl Proxy")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Target Ssl Proxy")
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating proxy_header: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target SSL Proxy")
+		err = computeOperationWait(config.clientCompute, op, project, "Updating Target SSL Proxy")
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating backend_service: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target SSL Proxy")
+		err = computeOperationWait(config.clientCompute, op, project, "Updating Target SSL Proxy")
 		if err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating backend_service: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target SSL Proxy")
+		err = computeOperationWait(config.clientCompute, op, project, "Updating Target SSL Proxy")
 		if err != nil {
 			return err
 		}
@@ -223,7 +223,7 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting TargetSslProxy: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Target SSL Proxy")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Target SSL Proxy")
 	if err != nil {
 		return err
 	}
