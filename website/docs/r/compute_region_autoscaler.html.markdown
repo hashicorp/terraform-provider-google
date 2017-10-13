@@ -50,7 +50,7 @@ resource "google_compute_target_pool" "foobar" {
 }
 
 resource "google_compute_region_instance_group_manager" "foobar" {
-  name = "foobar"
+  name   = "foobar"
   region = "us-central1"
 
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
@@ -60,7 +60,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
 
 resource "google_compute_region_autoscaler" "foobar" {
   name   = "scaler"
-  region   = "us-central1"
+  region = "us-central1"
   target = "${google_compute_region_instance_group_manager.foobar.self_link}"
 
   autoscaling_policy = {
