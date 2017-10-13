@@ -121,8 +121,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		LoadBalancingScheme: "INTERNAL",
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -239,7 +243,10 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 	// Optional things
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
 	}
 	if v, ok := d.GetOk("description"); ok {
 		service.Description = v.(string)

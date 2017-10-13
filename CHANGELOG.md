@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource:** `google_organization_policy` ([#523](https://github.com/terraform-providers/terraform-provider-google/pull/523))
 * **New Resource:** `google_compute_target_tcp_proxy` ([#528](https://github.com/terraform-providers/terraform-provider-google/pull/528))
 * **New Resource:** `google_compute_region_autoscaler` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/544))
+* **New Resources:** `google_compute_shared_vpc_host_project` and `google_compute_shared_vpc_service_project` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/572))
 
 IMPROVEMENTS:
 * compute: Generate network link without calling network API in `google_compute_subnetwork` [GH-527]
@@ -19,12 +20,14 @@ IMPROVEMENTS:
 * pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable [GH-512]
 
 BUG FIXES:
-* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500].
-* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496].
+* compute: Fix bug in `google_compute_instance` preventing the `assigned_nat_ip` field from ever getting assigned [GH-536]
+* compute: Fix bug in `google_compute_firewall` causing the beta APIs even if no beta features are used [GH-500]
+* compute: Fix bug in `google_network_peering` preventing creating a peering for a network outside the provider default project [GH-496]
 * compute: Fix BackendService group hash when instance groups use beta features [GH-522]
 * compute: Make `disk.device_name` computed in `google_compute_instance_template` [GH-566]
 * dns: Error out if DNS zone is not found [GH-560]
 * container: Fix crash when creating node pools with `name_prefix` or no name [GH-531]
+* container: Fix cluster version upgrades [GH-577]
 
 ## 1.0.1 (October 02, 2017)
 

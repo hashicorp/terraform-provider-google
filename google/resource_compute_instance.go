@@ -886,6 +886,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
 		})
 	}
+	d.Set("network_interface", networkInterfaces)
 
 	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
 	// terraform is being used on a cloud instance and can therefore access the instances it creates

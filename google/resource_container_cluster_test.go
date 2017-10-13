@@ -864,7 +864,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+	min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
 	initial_node_count = 1
 
 	master_auth {
@@ -883,7 +883,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.2}"
 	initial_node_count = 1
 
 	master_auth {
@@ -902,8 +902,8 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
-	node_version = "${data.google_container_engine_versions.central1a.latest_node_version}"
+	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	node_version = "${data.google_container_engine_versions.central1a.valid_node_versions.1}"
 	initial_node_count = 1
 
 	master_auth {

@@ -94,7 +94,7 @@ func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleOrganizationPolicy_list_allowAll(org),
-				Check:  testAccCheckGoogleOrganizationListPolicyAll("listAll", "ALLOW"),
+				Check:  testAccCheckGoogleOrganizationListPolicyAll("list", "ALLOW"),
 			},
 		},
 	})
@@ -114,7 +114,7 @@ func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleOrganizationPolicy_list_allowSome(org, project),
-				Check:  testAccCheckGoogleOrganizationListPolicyAllowedValues("listSome", []string{project}),
+				Check:  testAccCheckGoogleOrganizationListPolicyAllowedValues("list", []string{project}),
 			},
 		},
 	})
@@ -133,7 +133,7 @@ func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleOrganizationPolicy_list_denySome(org),
-				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("listSome", DENIED_ORG_POLICIES),
+				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
 	})
@@ -152,11 +152,11 @@ func TestAccGoogleOrganizationPolicy_list_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleOrganizationPolicy_list_allowAll(org),
-				Check:  testAccCheckGoogleOrganizationListPolicyAll("listAll", "ALLOW"),
+				Check:  testAccCheckGoogleOrganizationListPolicyAll("list", "ALLOW"),
 			},
 			{
 				Config: testAccGoogleOrganizationPolicy_list_denySome(org),
-				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("listSome", DENIED_ORG_POLICIES),
+				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
 	})
@@ -284,7 +284,7 @@ resource "google_organization_policy" "bool" {
 
 func testAccGoogleOrganizationPolicy_list_allowAll(org string) string {
 	return fmt.Sprintf(`
-resource "google_organization_policy" "listAll" {
+resource "google_organization_policy" "list" {
 	org_id = "%s"
 	constraint = "constraints/serviceuser.services"
 
@@ -299,7 +299,7 @@ resource "google_organization_policy" "listAll" {
 
 func testAccGoogleOrganizationPolicy_list_allowSome(org, project string) string {
 	return fmt.Sprintf(`
-resource "google_organization_policy" "listSome" {
+resource "google_organization_policy" "list" {
 	org_id = "%s"
 	constraint = "constraints/compute.trustedImageProjects"
 
@@ -316,7 +316,7 @@ resource "google_organization_policy" "listSome" {
 
 func testAccGoogleOrganizationPolicy_list_denySome(org string) string {
 	return fmt.Sprintf(`
-resource "google_organization_policy" "listSome" {
+resource "google_organization_policy" "list" {
 	org_id = "%s"
  	constraint = "serviceuser.services"
 
