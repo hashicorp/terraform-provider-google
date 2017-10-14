@@ -6,13 +6,13 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
@@ -76,7 +76,9 @@ func resourceDataprocCluster() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     schema.TypeString,
-				// GCP automatically adds a 'goog-dataproc-cluster-name' label
+				// GCP automatically adds two labels
+				//    'goog-dataproc-cluster-uuid'
+				//    'goog-dataproc-cluster-name'
 				Computed: true,
 			},
 
@@ -129,7 +131,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Optional:      true,
 										Computed:      true,
 										ForceNew:      true,
-										ConflictsWith: []string{"cluster_config.gce_cluster_config.subnetwork"},
+										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.subnetwork"},
 										StateFunc: func(s interface{}) string {
 											return extractLastResourceFromUri(s.(string))
 										},
@@ -139,7 +141,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:          schema.TypeString,
 										Optional:      true,
 										ForceNew:      true,
-										ConflictsWith: []string{"cluster_config.gce_cluster_config.network"},
+										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.network"},
 										StateFunc: func(s interface{}) string {
 											return extractLastResourceFromUri(s.(string))
 										},
@@ -159,7 +161,7 @@ func resourceDataprocCluster() *schema.Resource {
 									},
 
 									"service_account_scopes": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Optional: true,
 										Computed: true,
 										ForceNew: true,
@@ -169,6 +171,7 @@ func resourceDataprocCluster() *schema.Resource {
 												return canonicalizeServiceScope(v.(string))
 											},
 										},
+										Set: stringScopeHashcode,
 									},
 								},
 							},
@@ -208,19 +211,11 @@ func resourceDataprocCluster() *schema.Resource {
 												// "num_local_ssds": { ... }
 
 												"boot_disk_size_gb": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
-													ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-														value := v.(int)
-
-														if value < 10 {
-															errors = append(errors, fmt.Errorf(
-																"%q cannot be less than 10", k))
-														}
-														return
-													},
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													ForceNew:     true,
+													ValidateFunc: validation.IntAtLeast(10),
 												},
 											},
 										},
@@ -261,6 +256,15 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:     schema.TypeMap,
 										Computed: true,
 									},
+
+									// We have two versions of the properties field here because by default
+									// dataproc will set a number of default properties for you out of the
+									// box. If you want to override one or more, if we only had one field,
+									// you would need to add in all these values as well otherwise you would
+									// get a diff. To make this easier, 'properties' simply contains the computed
+									// values (including overrides) for all properties, whilst override_properties
+									// is only for properties the user specifically wants to override. If nothing
+									// is overriden, this will be empty.
 								},
 							},
 						},
@@ -281,6 +285,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Default:  300,
+										ForceNew: true,
 									},
 								},
 							},
@@ -329,19 +334,11 @@ func instanceConfigSchema() *schema.Schema {
 							},
 
 							"boot_disk_size_gb": {
-								Type:     schema.TypeInt,
-								Optional: true,
-								Computed: true,
-								ForceNew: true,
-								ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-									value := v.(int)
-
-									if value < 10 {
-										errors = append(errors, fmt.Errorf(
-											"%q cannot be less than 10", k))
-									}
-									return
-								},
+								Type:         schema.TypeInt,
+								Optional:     true,
+								Computed:     true,
+								ForceNew:     true,
+								ValidateFunc: validation.IntAtLeast(10),
 							},
 						},
 					},
@@ -377,12 +374,8 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		},
 	}
 
-	if v, ok := d.GetOk("labels"); ok {
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
-		}
-		cluster.Labels = m
+	if _, ok := d.GetOk("labels"); ok {
+		cluster.Labels = expandLabels(d)
 	}
 
 	if v, ok := d.GetOk("cluster_config"); ok {
@@ -395,7 +388,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
-				log.Println("[INFO] got gce config")
+				log.Println("[DEBUG] got gce config")
 				zone, zok := cfg["zone"]
 				if zok {
 					cluster.Config.GceClusterConfig.ZoneUri = zone.(string)
@@ -412,9 +405,13 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 				if v, ok := cfg["service_account"]; ok {
 					cluster.Config.GceClusterConfig.ServiceAccount = v.(string)
 				}
-				if v, ok := cfg["service_account_scopes"]; ok {
-					cluster.Config.GceClusterConfig.ServiceAccountScopes = convertAndMapStringArr(v.([]interface{}), canonicalizeServiceScope)
-					sort.Strings(cluster.Config.GceClusterConfig.ServiceAccountScopes)
+				if scopes, ok := cfg["service_account_scopes"]; ok {
+					scopesSet := scopes.(*schema.Set)
+					scopes := make([]string, scopesSet.Len())
+					for i, scope := range scopesSet.List() {
+						scopes[i] = canonicalizeServiceScope(scope.(string))
+					}
+					cluster.Config.GceClusterConfig.ServiceAccountScopes = scopes
 				}
 			}
 
@@ -463,7 +460,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 			if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
 				log.Println("[INFO] got preemtible worker config")
-				cluster.Config.SecondaryWorkerConfig = preemptibleInstanceGroupConfigCreate(cfg)
+				cluster.Config.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
 				if cluster.Config.SecondaryWorkerConfig.NumInstances > 0 {
 					cluster.Config.SecondaryWorkerConfig.IsPreemptible = true
 				}
@@ -500,7 +497,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 }
 
-func preemptibleInstanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
+func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
 	icg := &dataproc.InstanceGroupConfig{}
 
 	if v, ok := cfg["num_instances"]; ok {
@@ -579,10 +576,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("cluster_config.0.worker_config.0.num_instances") {
-		wconfigs := d.Get("cluster_config.0.worker_config").([]interface{})
-		conf := wconfigs[0].(map[string]interface{})
-
-		desiredNumWorks := conf["num_instances"].(int)
+		desiredNumWorks := d.Get("cluster_config.0.worker_config.0.num_instances").(int)
 		cluster.Config.WorkerConfig = &dataproc.InstanceGroupConfig{
 			NumInstances: int64(desiredNumWorks),
 		}
@@ -591,10 +585,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("cluster_config.0.preemptible_worker_config.0.num_instances") {
-		wconfigs := d.Get("cluster_config.0.preemptible_worker_config").([]interface{})
-		conf := wconfigs[0].(map[string]interface{})
-
-		desiredNumWorks := conf["num_instances"].(int)
+		desiredNumWorks := d.Get("cluster_config.0.preemptible_worker_config.0.num_instances").(int)
 		cluster.Config.SecondaryWorkerConfig = &dataproc.InstanceGroupConfig{
 			NumInstances: int64(desiredNumWorks),
 		}
@@ -718,8 +709,7 @@ func flattenGceClusterConfig(parent map[string]interface{}, gcc *dataproc.GceClu
 	}
 
 	if len(gcc.ServiceAccountScopes) > 0 {
-		sort.Strings(gcc.ServiceAccountScopes)
-		gceConfig["service_account_scopes"] = gcc.ServiceAccountScopes
+		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
 	}
 	return []map[string]interface{}{gceConfig}
 }

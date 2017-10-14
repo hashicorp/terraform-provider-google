@@ -7,7 +7,6 @@ import (
 )
 
 func TestConvertStringArr(t *testing.T) {
-
 	input := make([]interface{}, 3)
 	input[0] = "aaa"
 	input[1] = "bbb"
@@ -22,7 +21,6 @@ func TestConvertStringArr(t *testing.T) {
 }
 
 func TestConvertAndMapStringArr(t *testing.T) {
-
 	input := make([]interface{}, 3)
 	input[0] = "aaa"
 	input[1] = "bbb"

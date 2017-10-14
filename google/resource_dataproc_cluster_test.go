@@ -317,6 +317,31 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withLabels(t *testing.T) {
+	rnd := acctest.RandString(10)
+	var cluster dataproc.Cluster
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withLabels(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.with_labels", &cluster),
+
+					// We only provide one, but GCP adds two, so expect 3. This means unfortunately a
+					// diff will exist unless the user adds these in. An alternative approach would
+					// be to follow the same approach as properties, i.e. split in into labels
+					// and override_labels
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key1", "value1"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 	var c1, c2 dataproc.Cluster
 	rnd := acctest.RandString(10)
@@ -780,6 +805,25 @@ resource "google_dataproc_cluster" "with_bucket" {
 }`, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
 }
 
+func testAccDataprocCluster_withLabels(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_labels" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+	labels {
+		key1 = "value1"
+	}
+
+	# This is because GCP automatically adds its own labels as well.
+	# In this case we just want to test our newly added label is there
+	lifecycle {
+	    ignore_changes = ["labels"]
+	}
+
+}`, rnd)
+}
+
 func testAccDataprocCluster_withImageVersion(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
@@ -818,15 +862,15 @@ resource "google_dataproc_cluster" "with_service_account" {
 		gce_cluster_config {
 			service_account = "%s"
 			service_account_scopes = [
+				#	User supplied scopes
+				"https://www.googleapis.com/auth/monitoring",
+
 				#	The following scopes necessary for the cluster to function properly are
 				#	always added, even if not explicitly specified:
 				#		useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
 				#		storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
 				#		logging-write:   https://www.googleapis.com/auth/logging.write
-				"useraccounts-ro","storage-rw","logging-write",
-
-				#	Note for now must be in alpha order of fully qualified scope name)
-				"https://www.googleapis.com/auth/monitoring"
+				"useraccounts-ro","storage-rw","logging-write"
 			]
 		}
 	}

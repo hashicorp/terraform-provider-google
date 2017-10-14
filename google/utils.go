@@ -314,12 +314,8 @@ func convertStringMap(v map[string]interface{}) map[string]string {
 	return m
 }
 
-func noOpString(s string) string {
-	return s
-}
-
 func convertStringArr(ifaceArr []interface{}) []string {
-	return convertAndMapStringArr(ifaceArr, noOpString)
+	return convertAndMapStringArr(ifaceArr, func(s string) string { return s })
 }
 
 func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []string {
