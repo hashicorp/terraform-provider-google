@@ -32,8 +32,8 @@ func kmsResourceParentString(project, location string) string {
 	return fmt.Sprintf("projects/%s/locations/%s", project, location)
 }
 
-func kmsResourceParentKeyRingName(project, location, keyRingName string) string {
-	return fmt.Sprintf("%s/keyRings/%s", kmsResourceParentString(project, location), keyRingName)
+func kmsResourceParentKeyRingName(project, location, name string) string {
+	return fmt.Sprintf("%s/keyRings/%s", kmsResourceParentString(project, location), name)
 }
 
 func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
@@ -58,9 +58,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
 	}
 
-	keyRingName := kmsResourceParentKeyRingName(project, location, name)
-
-	d.SetId(keyRingName)
+	d.SetId(name)
 
 	return resourceKmsKeyRingRead(d, meta)
 }
@@ -68,9 +66,17 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	keyRingName := d.Id()
+	name := d.Id()
+	location := d.Get("location").(string)
 
-	log.Printf("[DEBUG] Executing read for KMS KeyRing %s", keyRingName)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	keyRingName := kmsResourceParentKeyRingName(project, location, name)
+
+	log.Printf("[DEBUG] Executing read for KMS KeyRing %s", name)
 
 	keyRing, err := config.clientKms.Projects.Locations.KeyRings.
 		Get(keyRingName).
