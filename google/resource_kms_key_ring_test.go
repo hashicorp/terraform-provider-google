@@ -11,15 +11,29 @@ import (
 )
 
 func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
-	name := acctest.RandString(10)
+	skipIfEnvNotSet(t,
+		[]string{
+			"GOOGLE_ORG",
+			"GOOGLE_BILLING_ACCOUNT",
+		}...,
+	)
+
+	projectId := "terraform-" + acctest.RandString(10)
+	projectOrg := multiEnvSearch([]string{
+		"GOOGLE_ORG",
+	})
+	projectBillingAccount := multiEnvSearch([]string{
+		"GOOGLE_BILLING_ACCOUNT",
+	})
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testGoogleKmsKeyRing_recreate(name),
+		CheckDestroy: testGoogleKmsKeyRing_recreate(keyRingName),
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleKmsKeyRing_basic(name),
+				Config: testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsKeyRingExists("google_kms_key_ring.key_ring"),
 				),
@@ -39,9 +53,10 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 
 		name := rs.Primary.Attributes["name"]
 		location := rs.Primary.Attributes["location"]
+		project := rs.Primary.Attributes["project"]
 
-		parent := kmsResourceParentString(config.Project, location)
-		keyRingName := kmsResourceParentKeyRingName(config.Project, location, name)
+		parent := kmsResourceParentString(project, location)
+		keyRingName := kmsResourceParentKeyRingName(project, location, name)
 
 		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(parent).Do()
 		if err != nil {
@@ -68,11 +83,26 @@ func testGoogleKmsKeyRing_recreate(name string) resource.TestCheckFunc {
 	}
 }
 
-func testGoogleKmsKeyRing_basic(name string) string {
+func testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    name            = "%s"
+	project_id      = "%s"
+    org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_services" "acceptance" {
+    project  = "${google_project.acceptance.project_id}"
+    services = [
+        "cloudkms.googleapis.com"
+    ]
+}
+
 resource "google_kms_key_ring" "key_ring" {
-	name = "%s"
+	project  = "${google_project_services.acceptance.project}"
+	name     = "%s"
 	location = "us-central1"
 }
-	`, name)
+	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
 }

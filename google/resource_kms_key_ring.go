@@ -24,6 +24,11 @@ func resourceKmsKeyRing() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
