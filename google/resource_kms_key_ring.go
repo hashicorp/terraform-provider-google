@@ -28,12 +28,12 @@ func resourceKmsKeyRing() *schema.Resource {
 	}
 }
 
-func createKmsResourceParentString(project, location string) string {
+func kmsResourceParentString(project, location string) string {
 	return fmt.Sprintf("projects/%s/locations/%s", project, location)
 }
 
-func createKmsResourceKeyRingName(project, location, keyRingName string) string {
-	return fmt.Sprintf("%s/keyRings/%s", createKmsResourceParentString(project, location), keyRingName)
+func kmsResourceParentKeyRingName(project, location, keyRingName string) string {
+	return fmt.Sprintf("%s/keyRings/%s", kmsResourceParentString(project, location), keyRingName)
 }
 
 func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
@@ -47,7 +47,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	location := d.Get("location").(string)
 
-	parent := createKmsResourceParentString(project, location)
+	parent := kmsResourceParentString(project, location)
 
 	_, err = config.clientKms.Projects.Locations.KeyRings.
 		Create(parent, &cloudkms.KeyRing{}).
@@ -58,7 +58,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
 	}
 
-	keyRingName := createKmsResourceKeyRingName(project, location, name)
+	keyRingName := kmsResourceParentKeyRingName(project, location, name)
 
 	d.SetId(keyRingName)
 

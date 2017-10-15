@@ -28,15 +28,6 @@ func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
 	})
 }
 
-func testGoogleKmsKeyRing_basic(name string) string {
-	return fmt.Sprintf(`
-	resource "google_kms_key_ring" "key_ring" {
-		name = "%s"
-		location = "us-central1"
-	}
-	`, name)
-}
-
 func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -49,8 +40,8 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 		name := rs.Primary.Attributes["name"]
 		location := rs.Primary.Attributes["location"]
 
-		parent := createKmsResourceParentString(config.Project, location)
-		keyRingName := createKmsResourceKeyRingName(config.Project, location, name)
+		parent := kmsResourceParentString(config.Project, location)
+		keyRingName := kmsResourceParentKeyRingName(config.Project, location, name)
 
 		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(parent).Do()
 		if err != nil {
@@ -75,4 +66,13 @@ func testGoogleKmsKeyRing_recreate(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return nil
 	}
+}
+
+func testGoogleKmsKeyRing_basic(name string) string {
+	return fmt.Sprintf(`
+resource "google_kms_key_ring" "key_ring" {
+	name = "%s"
+	location = "us-central1"
+}
+	`, name)
 }
