@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccComputeHttpHealthCheck_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_http_health_check.foobar"
 
 	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))

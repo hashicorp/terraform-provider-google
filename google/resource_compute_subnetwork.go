@@ -99,6 +99,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -117,7 +121,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
 		PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
 		SecondaryIpRanges:     expandSecondaryRanges(d.Get("secondary_ip_range").([]interface{})),
-		Network:               ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
+		Network:               network.RelativeLink(),
 	}
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)
@@ -136,7 +140,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	subnetwork.Region = region
 	d.SetId(createSubnetID(subnetwork))
 
-	err = computeSharedOperationWait(config, op, project, "Creating Subnetwork")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Subnetwork")
 	if err != nil {
 		return err
 	}
@@ -205,7 +209,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating subnetwork PrivateIpGoogleAccess: %s", err)
 		}
 
-		err = computeSharedOperationWait(config, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Subnetwork PrivateIpGoogleAccess")
 		if err != nil {
 			return err
 		}
@@ -238,7 +242,7 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting subnetwork: %s", err)
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Deleting Subnetwork")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting Subnetwork")
 	if err != nil {
 		return err
 	}

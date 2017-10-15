@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccContainerCluster_import(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_container_cluster.primary"
 	name := fmt.Sprintf("tf-cluster-test-%s", acctest.RandString(10))
 	conf := testAccContainerCluster_basic(name)

@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
+	t.Parallel()
+
 	var proxy compute.TargetHttpsProxy
 	resourceSuffix := acctest.RandString(10)
 
@@ -34,6 +36,8 @@ func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 }
 
 func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
+	t.Parallel()
+
 	var proxy compute.TargetHttpsProxy
 	resourceSuffix := acctest.RandString(10)
 
@@ -67,6 +71,8 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 }
 
 func TestAccComputeTargetHttpsProxy_invalidCertificate(t *testing.T) {
+	t.Parallel()
+
 	resourceSuffix := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

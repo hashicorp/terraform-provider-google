@@ -87,7 +87,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(bucket.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWait(config, op, project, "Creating Backend Bucket")
+	waitErr := computeOperationWait(config.clientCompute, op, project, "Creating Backend Bucket")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -150,7 +150,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 
 	d.SetId(bucket.Name)
 
-	err = computeOperationWait(config, op, project, "Updating Backend Bucket")
+	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Bucket")
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting backend bucket: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Backend Bucket")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Bucket")
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccComputeFirewall_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_firewall.foobar"
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))

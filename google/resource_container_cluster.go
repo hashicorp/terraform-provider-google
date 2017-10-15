@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	version "github.com/hashicorp/go-version"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
@@ -244,8 +246,12 @@ func resourceContainerCluster() *schema.Resource {
 
 			"master_version": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
+			},
+
+			"min_master_version": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"node_config": schemaNodeConfig,
@@ -302,12 +308,19 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	if v, ok := d.GetOk("master_version"); ok {
+	if v, ok := d.GetOk("min_master_version"); ok {
 		cluster.InitialClusterVersion = v.(string)
 	}
 
-	if _, ok := d.GetOk("node_version"); ok {
-		return fmt.Errorf("cannot set node_version on create, use master_version instead")
+	// Only allow setting node_version on create if it's set to the equivalent master version,
+	// since `InitialClusterVersion` only accepts valid master-style versions.
+	if v, ok := d.GetOk("node_version"); ok {
+		// ignore -gke.X suffix for now. if it becomes a problem later, we can fix it.
+		mv := strings.Split(cluster.InitialClusterVersion, "-")[0]
+		nv := strings.Split(v.(string), "-")[0]
+		if mv != nv {
+			return fmt.Errorf("node_version and min_master_version must be set to equivalent values on create")
+		}
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
@@ -435,8 +448,18 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	zoneName := d.Get("zone").(string)
 
-	cluster, err := config.clientContainer.Projects.Zones.Clusters.Get(
-		project, zoneName, d.Get("name").(string)).Do()
+	var cluster *container.Cluster
+	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
+		cluster, err = config.clientContainer.Projects.Zones.Clusters.Get(
+			project, zoneName, d.Get("name").(string)).Do()
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if cluster.Status != "RUNNING" {
+			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
+		}
+		return nil
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
 	}
@@ -508,29 +531,42 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	d.Partial(true)
 
 	// The master must be updated before the nodes
-	if d.HasChange("master_version") {
-		desiredMasterVersion := d.Get("master_version").(string)
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredMasterVersion: desiredMasterVersion,
-			},
+	if d.HasChange("min_master_version") {
+		desiredMasterVersion := d.Get("min_master_version").(string)
+		currentMasterVersion := d.Get("master_version").(string)
+		des, err := version.NewVersion(desiredMasterVersion)
+		if err != nil {
+			return err
 		}
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
+		cur, err := version.NewVersion(currentMasterVersion)
 		if err != nil {
 			return err
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Only upgrade the master if the current version is lower than the desired version
+		if cur.LessThan(des) {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredMasterVersion: desiredMasterVersion,
+				},
+			}
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+
+			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
+				desiredMasterVersion)
 		}
 
-		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
-			desiredMasterVersion)
-
-		d.SetPartial("master_version")
+		d.SetPartial("min_master_version")
 	}
 
 	if d.HasChange("node_version") {

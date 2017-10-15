@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"reflect"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -12,6 +15,8 @@ import (
 )
 
 func TestAccComputeSnapshot_basic(t *testing.T) {
+	t.Parallel()
+
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var snapshot compute.Snapshot
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -22,7 +27,37 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSnapshotDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSnapshot_basic(snapshotName, diskName),
+				Config: testAccComputeSnapshot_basic(snapshotName, diskName, "my-value"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_update(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_basic(snapshotName, diskName, "my-value"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_basic(snapshotName, diskName, "my-updated-value"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSnapshotExists(
 						"google_compute_snapshot.foobar", &snapshot),
@@ -33,6 +68,8 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 }
 
 func TestAccComputeSnapshot_encryption(t *testing.T) {
+	t.Parallel()
+
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var snapshot compute.Snapshot
@@ -140,13 +177,38 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 				n, attr, found.SelfLink)
 		}
 
+		// We should have a map
+		attr, ok = rs.Primary.Attributes["labels.%"]
+		if !ok {
+			return fmt.Errorf("Snapshot %s has no labels map in attributes", n)
+		}
+		// Parse out our map
+		attrMap := make(map[string]string)
+		for k, v := range rs.Primary.Attributes {
+			if !strings.HasPrefix(k, "labels.") || k == "labels.%" {
+				continue
+			}
+			key := k[len("labels."):]
+			attrMap[key] = v
+		}
+		if (len(attrMap) != 0 || len(found.Labels) != 0) && !reflect.DeepEqual(attrMap, found.Labels) {
+			return fmt.Errorf("Snapshot %s has mismatched labels.\nTF State: %+v\nGCP State: %+v",
+				n, attrMap, found.Labels)
+		}
+
+		attr = rs.Primary.Attributes["label_fingerprint"]
+		if found.LabelFingerprint != attr {
+			return fmt.Errorf("Snapshot %s has mismatched label fingerprint\nTF State: %+v.\nGCP State: %+v",
+				n, attr, found.LabelFingerprint)
+		}
+
 		*snapshot = *found
 
 		return nil
 	}
 }
 
-func testAccComputeSnapshot_basic(snapshotName string, diskName string) string {
+func testAccComputeSnapshot_basic(snapshotName, diskName, labelValue string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
@@ -160,7 +222,10 @@ resource "google_compute_snapshot" "foobar" {
 	name = "%s"
 	source_disk = "${google_compute_disk.foobar.name}"
 	zone = "us-central1-a"
-}`, diskName, snapshotName)
+	labels = {
+		my_label = "%s"
+	}
+}`, diskName, snapshotName, labelValue)
 }
 
 func testAccComputeSnapshot_encryption(snapshotName string, diskName string) string {

@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccComputeHttpsHealthCheck_importBasic(t *testing.T) {
+	t.Parallel()
+
 	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

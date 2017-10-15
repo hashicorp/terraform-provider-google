@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeRouterPeer_basic(t *testing.T) {
+	t.Parallel()
+
 	testId := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

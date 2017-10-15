@@ -59,7 +59,10 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
+	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	request := &compute.NetworksAddPeeringRequest{
 		Name:             d.Get("name").(string),
@@ -72,7 +75,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
 
-	err = computeOperationWait(config, addOp, networkFieldValue.Project, "Adding Network Peering")
+	err = computeOperationWait(config.clientCompute, addOp, networkFieldValue.Project, "Adding Network Peering")
 	if err != nil {
 		return err
 	}
@@ -86,7 +89,10 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	peeringName := d.Get("name").(string)
-	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
+	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	network, err := config.clientCompute.Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
 	if err != nil {
@@ -113,8 +119,14 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 
 	// Remove the `network` to `peer_network` peering
 	name := d.Get("name").(string)
-	networkFieldValue := ParseNetworkFieldValue(d.Get("network").(string), config)
-	peerNetworkFieldValue := ParseNetworkFieldValue(d.Get("peer_network").(string), config)
+	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	request := &compute.NetworksRemovePeeringRequest{
 		Name: name,
@@ -133,7 +145,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
-		err = computeOperationWait(config, removeOp, networkFieldValue.Project, "Removing Network Peering")
+		err = computeOperationWait(config.clientCompute, removeOp, networkFieldValue.Project, "Removing Network Peering")
 		if err != nil {
 			return err
 		}

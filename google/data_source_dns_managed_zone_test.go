@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -16,7 +18,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccDataSourceDnsManagedZone_basic,
-				Check:  testAccDataSourceDnsManagedZoneCheck("qa", "foo"),
+				Check:  testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.qa", "google_dns_managed_zone.foo"),
 			},
 		},
 	})
@@ -24,16 +26,14 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 
 func testAccDataSourceDnsManagedZoneCheck(dsName, rsName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		dsFullName := "data.google_dns_managed_zone." + dsName
-		rsFullName := "google_dns_managed_zone." + rsName
-		ds, ok := s.RootModule().Resources[dsFullName]
+		ds, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return fmt.Errorf("cant' find resource called %s in state", dsFullName)
+			return fmt.Errorf("can't find resource called %s in state", rsName)
 		}
 
-		rs, ok := s.RootModule().Resources[rsFullName]
+		rs, ok := s.RootModule().Resources[dsName]
 		if !ok {
-			return fmt.Errorf("can't find data source called %s in state", rsFullName)
+			return fmt.Errorf("can't find data source called %s in state", dsName)
 		}
 
 		dsAttr := ds.Primary.Attributes

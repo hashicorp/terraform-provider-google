@@ -121,8 +121,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		LoadBalancingScheme: "INTERNAL",
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -171,7 +175,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Region Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Region Backend Service")
 	if err != nil {
 		return err
 	}
@@ -239,7 +243,10 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 	// Optional things
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
 	}
 	if v, ok := d.GetOk("description"); ok {
 		service.Description = v.(string)
@@ -271,7 +278,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config, op, project, "Updating Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
 	}
@@ -299,7 +306,7 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error deleting backend service: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Service")
 	if err != nil {
 		return err
 	}

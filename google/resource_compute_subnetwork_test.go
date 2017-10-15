@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccComputeSubnetwork_basic(t *testing.T) {
+	t.Parallel()
+
 	var subnetwork1 compute.Subnetwork
 	var subnetwork2 compute.Subnetwork
 
@@ -38,6 +40,8 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 }
 
 func TestAccComputeSubnetwork_update(t *testing.T) {
+	t.Parallel()
+
 	var subnetwork compute.Subnetwork
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -71,6 +75,8 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 }
 
 func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
+	t.Parallel()
+
 	var subnetwork compute.Subnetwork
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
