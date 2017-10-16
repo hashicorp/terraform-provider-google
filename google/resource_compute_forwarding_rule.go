@@ -146,6 +146,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		ports = append(ports, v.(string))
 	}
 
+	subnetwork, err := getSubnetworkLinkWithRegionAndProject(d, config, region, project)
+
+	if err != nil {
+		return err
+	}
+
 	frule := &compute.ForwardingRule{
 		BackendService:      d.Get("backend_service").(string),
 		IPAddress:           d.Get("ip_address").(string),
@@ -156,7 +162,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		Network:             network.RelativeLink(),
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
-		Subnetwork:          d.Get("subnetwork").(string),
+		Subnetwork:          subnetwork,
 		Target:              d.Get("target").(string),
 	}
 
