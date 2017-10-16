@@ -9,8 +9,11 @@ description: |-
 # google\_compute\_address
 
 Creates a static IP address resource for Google Compute Engine. For more information see
-[the official documentation](https://cloud.google.com/compute/docs/instances-and-network) and
-[API](https://cloud.google.com/compute/docs/reference/latest/addresses).
+the official documentation for
+[external](https://cloud.google.com/compute/docs/instances-and-network) and
+[internal](https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address)
+static IP reservations, as well as the
+[API](https://cloud.google.com/compute/docs/reference/beta/addresses/insert).
 
 
 ## Example Usage
@@ -35,6 +38,14 @@ The following arguments are supported:
 
 * `region` - (Optional) The Region in which the created address should reside.
     If it is not provided, the provider region is used.
+
+* `address_type` - (Optional) The Address Type that should be configured.
+    Specify INTERNAL to reserve an internal static IP address EXTERNAL to
+    specify an external static IP address. Defaults to EXTERNAL if omitted.
+
+* `subnetwork` - (Optional) The self link URI of the subnetwork in which to
+    create the address. A subnetwork may only be specified for INTERNAL
+    addresses.
 
 ## Attributes Reference
 
