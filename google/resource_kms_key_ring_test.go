@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"log"
+	"os"
 )
 
 func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
@@ -19,12 +20,8 @@ func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
 	)
 
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := multiEnvSearch([]string{
-		"GOOGLE_ORG",
-	})
-	projectBillingAccount := multiEnvSearch([]string{
-		"GOOGLE_BILLING_ACCOUNT",
-	})
+	projectOrg := os.Getenv("GOOGLE_ORG")
+	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
