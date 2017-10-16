@@ -112,6 +112,9 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		}
 
 		d.SetId(sak.Name)
+		// Data only available on create.
+		d.Set("valid_after", sak.ValidAfterTime)
+		d.Set("valid_before", sak.ValidBeforeTime)
 		if v, ok := d.GetOk("pgp_key"); ok {
 			encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
 			if err != nil {
@@ -128,6 +131,11 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		} else {
 			d.Set("private_key", sak.PrivateKeyData)
 		}
+	}
+
+	err = serviceAccountKeyWaitTime(config.clientIAM.Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4)
+	if err != nil {
+		return err
 	}
 	resourceGoogleServiceAccountKeyRead(d, meta)
 	if err != nil {
@@ -150,8 +158,6 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 
 	d.Set("name", sak.Name)
 	d.Set("key_algorithm", sak.KeyAlgorithm)
-	d.Set("valid_after", sak.ValidAfterTime)
-	d.Set("valid_before", sak.ValidBeforeTime)
 	d.Set("public_key", sak.PublicKeyData)
 	return nil
 }
