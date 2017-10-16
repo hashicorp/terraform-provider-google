@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"log"
 
 	"regexp"
 	"strings"
@@ -35,6 +34,8 @@ func resourceComputeAddress() *schema.Resource {
 		SchemaVersion: 1,
 		MigrateState:  resourceComputeAddressMigrateState,
 
+		// These fields mostly correlate to the fields in the beta Address
+		// resource. See https://cloud.google.com/compute/docs/reference/beta/addresses#resource
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -42,10 +43,12 @@ func resourceComputeAddress() *schema.Resource {
 				ForceNew: true,
 			},
 
+			// address_type defaults to EXTERNAL when omitted.
 			"address_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Default:  "EXTERNAL",
 				ValidateFunc: validation.StringInSlice(
 					[]string{"INTERNAL", "EXTERNAL"}, false),
 			},
@@ -98,7 +101,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Build the address parameter
-	addr := &computeBeta.Address{
+	v0BetaAddress := &computeBeta.Address{
 		Name:        d.Get("name").(string),
 		AddressType: d.Get("address_type").(string),
 		Subnetwork:  d.Get("subnetwork").(string),
@@ -108,33 +111,25 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	switch computeApiVersion {
 	case v1:
 		v1Address := &compute.Address{}
-		err = Convert(addr, v1Address)
+		err = Convert(v0BetaAddress, v1Address)
 		if err != nil {
 			return err
 		}
 		op, err = config.clientCompute.Addresses.Insert(
 			project, region, v1Address).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating address: %s", err)
-		}
 	case v0beta:
-		v0BetaAddress := &computeBeta.Address{}
-		err = Convert(addr, v0BetaAddress)
-		if err != nil {
-			return err
-		}
 		op, err = config.clientComputeBeta.Addresses.Insert(
 			project, region, v0BetaAddress).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating address: %s", err)
-		}
+	}
+	if err != nil {
+		return fmt.Errorf("Error creating address: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
 	d.SetId(computeAddressId{
 		Project: project,
 		Region:  region,
-		Name:    addr.Name,
+		Name:    v0BetaAddress.Name,
 	}.canonicalId())
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Address")
@@ -168,15 +163,11 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 			return err
 		}
 	case v0beta:
-		v0BetaAddr, err := config.clientComputeBeta.Addresses.Get(
+		var err error
+		addr, err = config.clientComputeBeta.Addresses.Get(
 			addressId.Project, addressId.Region, addressId.Name).Do()
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
-		}
-
-		err = Convert(v0BetaAddr, addr)
-		if err != nil {
-			return err
 		}
 	}
 
@@ -197,11 +188,10 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	// Delete the address
 	var op interface{}
 	switch computeApiVersion {
 	case v1:
-		// Delete the address
-		log.Printf("[DEBUG] address delete request")
 		op, err = config.clientCompute.Addresses.Delete(
 			addressId.Project, addressId.Region, addressId.Name).Do()
 		if err != nil {
