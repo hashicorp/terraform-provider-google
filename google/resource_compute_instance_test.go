@@ -244,7 +244,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceDisk(&instance, diskName, false, true),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
 		},
