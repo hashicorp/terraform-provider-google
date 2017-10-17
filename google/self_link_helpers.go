@@ -28,6 +28,23 @@ func compareSelfLinkRelativePaths(k, old, new string, d *schema.ResourceData) bo
 	return false
 }
 
+// Use this method when the field accepts either a name or a self_link referencing a resource.
+// The value we store (i.e. `old` in this method), must be a self_link.
+func compareSelfLinkOrResourceName(k, old, new string, d *schema.ResourceData) bool {
+	oldParts := strings.Split(old, "/") // always a self_link
+	newParts := strings.Split(new, "/")
+
+	if len(newParts) == 1 {
+		// The `new` string is a name
+		if oldParts[len(oldParts)-1] == newParts[0] {
+			return true
+		}
+	}
+
+	// The `new` string is a self_link
+	return compareSelfLinkRelativePaths(k, old, new, d)
+}
+
 // Hash the relative path of a self link.
 func selfLinkRelativePathHash(selfLink interface{}) int {
 	path, _ := getRelativePath(selfLink.(string))
@@ -46,4 +63,13 @@ func getRelativePath(selfLink string) (string, error) {
 func ConvertSelfLinkToV1(link string) string {
 	reg := regexp.MustCompile("/compute/[a-zA-Z0-9]*/projects/")
 	return reg.ReplaceAllString(link, "/compute/v1/projects/")
+}
+
+func GetResourceNameFromSelfLink(link string) string {
+	parts := strings.Split(link, "/")
+	return parts[len(parts)-1]
+}
+
+func StoreResourceName(resourceLink interface{}) string {
+	return GetResourceNameFromSelfLink(resourceLink.(string))
 }

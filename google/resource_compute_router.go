@@ -31,7 +31,7 @@ func resourceComputeRouter() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"description": &schema.Schema{
@@ -99,15 +99,16 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	network, err := getNetworkLink(d, config, "network")
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
 	}
+
 	routersService := config.clientCompute.Routers
 
 	router := &compute.Router{
 		Name:    name,
-		Network: network,
+		Network: network.RelativeLink(),
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -127,13 +128,13 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 
 	op, err := routersService.Insert(project, region, router).Do()
 	if err != nil {
-		return fmt.Errorf("Error Inserting Router %s into network %s: %s", name, network, err)
+		return fmt.Errorf("Error Inserting Router %s into network %s: %s", name, network.Name, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s", region, name))
-	err = computeOperationWait(config, op, project, "Inserting Router")
+	err = computeOperationWait(config.clientCompute, op, project, "Inserting Router")
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error Waiting to Insert Router %s into network %s: %s", name, network, err)
+		return fmt.Errorf("Error Waiting to Insert Router %s into network %s: %s", name, network.Name, err)
 	}
 
 	return resourceComputeRouterRead(d, meta)
@@ -208,7 +209,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error Reading Router %s: %s", name, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Router")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Router")
 	if err != nil {
 		return fmt.Errorf("Error Waiting to Delete Router %s: %s", name, err)
 	}

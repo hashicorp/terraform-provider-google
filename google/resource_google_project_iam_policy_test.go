@@ -222,6 +222,8 @@ func TestSubtractIamPolicy(t *testing.T) {
 
 // Test that an IAM policy can be applied to a project
 func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -256,6 +258,8 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 
 // Test that a non-collapsed IAM policy doesn't perpetually diff
 func TestAccGoogleProjectIamPolicy_expanded(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -656,6 +660,14 @@ data "google_iam_policy" "admin" {
   }
 }
 `, pid, name, org)
+}
+
+func testAccGoogleProject_createWithoutOrg(pid, name string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+}`, pid, name)
 }
 
 func testAccGoogleProject_create(pid, name, org string) string {

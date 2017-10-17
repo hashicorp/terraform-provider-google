@@ -13,21 +13,6 @@ Creates a GKE cluster. For more information see
 and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
 
-!> **Warning:** Due to limitations of the API, the following arguments are non-updateable:
-- `node_version`
-- `name`
-- `zone`
-- `initial_node_count`
-- `cluster_ipv4_cidr`
-- `description`
-- `logging_service`
-- `network`
-- `subnetwork`
-- `addons_config`
-- `project`
-
-Changing any of these will cause recreation of the whole cluster!
-
 ~> **Note:** All arguments including the username and password will be stored in the raw state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
@@ -95,6 +80,12 @@ resource "google_container_cluster" "primary" {
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
+
+* `min_master_version` - (Optional) The minimum version of the master. GKE
+    will auto-update the master to new versions, so this does not guarantee the
+    current master version--use the read-only `master_version` field to obtain that.
+    If unset, the cluster's version will be set by GKE to the version of the most recent
+    official release (which is not necessarily the latest version).
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
     should write metrics to. Available options include
@@ -164,6 +155,10 @@ which the cluster's instances are launched
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
     valid sources or targets for network firewalls.
 
+* `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
+    are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
+    for more information. Defaults to false.
+
 **Addons Config** supports the following addons:
 
 * `http_load_balancing` - (Optional) The status of the HTTP Load Balancing
@@ -171,6 +166,8 @@ which the cluster's instances are launched
 * `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod
     Autoscaling addon. It is enabled by default; set `disabled = true` to
     disable.
+* `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
+    add-on. It is enabled by default; set `disabled = true` to disable.
 
 This example `addons_config` disables both addons:
 
@@ -214,6 +211,10 @@ exported:
 * `master_auth.cluster_ca_certificate` - Base64 encoded public certificate
     that is the root of trust for the cluster
 
+* `master_version` - The current version of the master in the cluster. This may
+    be different than the `min_master_version` set in the config if the master
+    has been updated by GKE.
+
 <a id="timeouts"></a>
 ## Timeouts
 
@@ -223,3 +224,11 @@ exported:
 - `create` - (Default `30 minutes`) Used for clusters
 - `update` - (Default `10 minutes`) Used for updates to clusters
 - `delete` - (Default `10 minutes`) Used for destroying clusters.
+
+## Import
+
+Container clusters can be imported using the `zone`, and `name`, e.g.
+
+```
+$ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
+```

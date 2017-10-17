@@ -76,7 +76,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
 			}
 
-			err = sqladminOperationWait(config, op, "Stop Replica")
+			err = sqladminOperationWait(config, op, config.Project, "Stop Replica")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -106,7 +106,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
 			}
 
-			err = sqladminOperationWait(config, op, "Delete Instance")
+			err = sqladminOperationWait(config, op, config.Project, "Delete Instance")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -121,6 +121,8 @@ func testSweepDatabases(region string) error {
 }
 
 func TestAccGoogleSqlDatabaseInstance_basic(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
@@ -144,6 +146,8 @@ func TestAccGoogleSqlDatabaseInstance_basic(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_basic2(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 
 	resource.Test(t, resource.TestCase{
@@ -165,6 +169,8 @@ func TestAccGoogleSqlDatabaseInstance_basic2(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_basic3(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
@@ -188,7 +194,59 @@ func TestAccGoogleSqlDatabaseInstance_basic3(t *testing.T) {
 		},
 	})
 }
+
+func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
+	t.Parallel()
+
+	var instance sqladmin.DatabaseInstance
+	databaseName := "sql-instance-test-" + acctest.RandString(10)
+	failoverName := "sql-instance-test-failover-" + acctest.RandString(10)
+	// 1. Create an instance.
+	// 2. Add a root@'%' user.
+	// 3. Create a replica and assert it succeeds (it'll fail if we try to delete the root user thinking it's a
+	//    default user)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleSqlDatabaseInstanceConfig_withoutReplica(databaseName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+				),
+			}, resource.TestStep{
+				PreConfig: func() {
+					// Add a root user
+					config := testAccProvider.Meta().(*Config)
+					user := sqladmin.User{
+						Name:     "root",
+						Host:     "%",
+						Password: acctest.RandString(26),
+					}
+					op, err := config.clientSqlAdmin.Users.Insert(config.Project, databaseName, &user).Do()
+					if err != nil {
+						t.Errorf("Error while inserting root@%% user: %s", err)
+						return
+					}
+					err = sqladminOperationWait(config, op, config.Project, "Waiting for user to insert")
+					if err != nil {
+						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
+					}
+					// User was created, now create replica
+				},
+				Config: testGoogleSqlDatabaseInstanceConfig_withReplica(databaseName, failoverName),
+			},
+		},
+	})
+}
+
 func TestAccGoogleSqlDatabaseInstance_settings_basic(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
@@ -212,6 +270,8 @@ func TestAccGoogleSqlDatabaseInstance_settings_basic(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 	slaveID := acctest.RandInt()
@@ -240,6 +300,8 @@ func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 
@@ -263,6 +325,8 @@ func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_maintenance(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 
@@ -286,6 +350,8 @@ func TestAccGoogleSqlDatabaseInstance_maintenance(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
@@ -319,6 +385,8 @@ func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabaseInstance_settings_downgrade(t *testing.T) {
+	t.Parallel()
+
 	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
@@ -353,7 +421,10 @@ func TestAccGoogleSqlDatabaseInstance_settings_downgrade(t *testing.T) {
 
 // GH-4222
 func TestAccGoogleSqlDatabaseInstance_authNets(t *testing.T) {
+	t.Parallel(
 	// var instance sqladmin.DatabaseInstance
+	)
+
 	databaseID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -380,6 +451,8 @@ func TestAccGoogleSqlDatabaseInstance_authNets(t *testing.T) {
 // Tests that a SQL instance can be referenced from more than one other resource without
 // throwing an error during provisioning, see #9018.
 func TestAccGoogleSqlDatabaseInstance_multipleOperations(t *testing.T) {
+	t.Parallel()
+
 	databaseID, instanceID, userID := acctest.RandString(8), acctest.RandString(8), acctest.RandString(8)
 
 	resource.Test(t, resource.TestCase{
@@ -420,6 +493,28 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 		local = attributes["master_instance_name"]
 		if server != local && len(server) > 0 && len(local) > 0 {
 			return fmt.Errorf("Error master_instance_name mismatch, (%s, %s)", server, local)
+		}
+
+		ip_len, err := strconv.Atoi(attributes["ip_address.#"])
+		if err != nil {
+			return fmt.Errorf("Error parsing ip_addresses.# : %s", err.Error())
+		}
+		if ip_len != len(instance.IpAddresses) {
+			return fmt.Errorf("Error ip_addresses.# mismatch, server has %d but local has %d", len(instance.IpAddresses), ip_len)
+		}
+		// For now, assume the order matches
+		for idx, ip := range instance.IpAddresses {
+			server = attributes["ip_address."+strconv.Itoa(idx)+".ip_address"]
+			local = ip.IpAddress
+			if server != local {
+				return fmt.Errorf("Error ip_addresses.%d.ip_address mismatch, server has %s but local has %s", idx, server, local)
+			}
+
+			server = attributes["ip_address."+strconv.Itoa(idx)+".time_to_retire"]
+			local = ip.TimeToRetire
+			if server != local {
+				return fmt.Errorf("Error ip_addresses.%d.time_to_retire mismatch, server has %s but local has %s", idx, server, local)
+			}
 		}
 
 		server = instance.Settings.ActivationPolicy
@@ -534,6 +629,12 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			}
 		}
 
+		server = instance.ConnectionName
+		local = attributes["connection_name"]
+		if server != local {
+			return fmt.Errorf("Error connection_name mismatch. (%s, %s)", server, local)
+		}
+
 		return nil
 	}
 }
@@ -627,6 +728,59 @@ resource "google_sql_database_instance" "instance" {
 	}
 }
 `
+
+func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
+	return fmt.Sprintf(`resource "google_sql_database_instance" "instance" {
+  name               = "%s"
+  region             = "us-central1"
+  database_version   = "MYSQL_5_7"
+
+  settings {
+    tier             = "db-n1-standard-1"
+
+    backup_configuration {
+        binary_log_enabled = "true"
+        enabled            = "true"
+        start_time         = "18:00"
+    }
+  }
+}`, instanceName)
+}
+
+func testGoogleSqlDatabaseInstanceConfig_withReplica(instanceName, failoverName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name               = "%s"
+  region             = "us-central1"
+  database_version   = "MYSQL_5_7"
+
+  settings {
+    tier             = "db-n1-standard-1"
+
+    backup_configuration {
+        binary_log_enabled = "true"
+        enabled            = "true"
+        start_time         = "18:00"
+    }
+  }
+}
+
+resource "google_sql_database_instance" "instance-failover" {
+  name               = "%s"
+  region             = "us-central1"
+  database_version   = "MYSQL_5_7"
+  master_instance_name = "${google_sql_database_instance.instance.name}"
+
+  replica_configuration {
+    failover_target        = "true"
+  }
+
+  settings {
+    tier             = "db-n1-standard-1"
+  }
+}
+`, instanceName, failoverName)
+}
 
 var testGoogleSqlDatabaseInstance_settings = `
 resource "google_sql_database_instance" "instance" {

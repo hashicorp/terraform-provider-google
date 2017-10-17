@@ -9,12 +9,16 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 
+	"sort"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccInstanceGroupManager_basic(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -41,6 +45,8 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	templateName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -67,10 +73,13 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_update(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	target1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	target2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 	template2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 
@@ -80,10 +89,11 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccInstanceGroupManager_update(template1, target, igm),
+				Config: testAccInstanceGroupManager_update(template1, target1, igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerExists(
 						"google_compute_instance_group_manager.igm-update", &manager),
+					testAccCheckInstanceGroupManagerUpdated("google_compute_instance_group_manager.igm-update", 2, []string{target1}, template1),
 					testAccCheckInstanceGroupManagerNamedPorts(
 						"google_compute_instance_group_manager.igm-update",
 						map[string]int64{"customhttp": 8080},
@@ -91,13 +101,13 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccInstanceGroupManager_update2(template1, target, template2, igm),
+				Config: testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerExists(
 						"google_compute_instance_group_manager.igm-update", &manager),
 					testAccCheckInstanceGroupManagerUpdated(
 						"google_compute_instance_group_manager.igm-update", 3,
-						"google_compute_target_pool.igm-update", template2),
+						[]string{target1, target2}, template2),
 					testAccCheckInstanceGroupManagerNamedPorts(
 						"google_compute_instance_group_manager.igm-update",
 						map[string]int64{"customhttp": 8080, "customhttps": 8443},
@@ -109,6 +119,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	tag1 := "tag1"
@@ -141,6 +153,8 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 
@@ -163,6 +177,8 @@ func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	igm1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -187,6 +203,8 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
+	t.Parallel()
+
 	var manager computeBeta.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -216,6 +234,8 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 // Once auto_healing_policies is no longer beta, we will need to use a new field or resource
 // with Beta fields.
 func TestAccInstanceGroupManager_selfLinkStability(t *testing.T) {
+	t.Parallel()
+
 	var manager computeBeta.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -313,7 +333,7 @@ func testAccCheckInstanceGroupManagerBetaExists(n string, manager *computeBeta.I
 	}
 }
 
-func testAccCheckInstanceGroupManagerUpdated(n string, size int64, targetPool string, template string) resource.TestCheckFunc {
+func testAccCheckInstanceGroupManagerUpdated(n string, size int64, targetPools []string, template string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -336,6 +356,18 @@ func testAccCheckInstanceGroupManagerUpdated(n string, size int64, targetPool st
 		// check the target_size.
 		if manager.TargetSize != size {
 			return fmt.Errorf("instance count incorrect")
+		}
+
+		tpNames := make([]string, 0, len(manager.TargetPools))
+		for _, targetPool := range manager.TargetPools {
+			targetPoolParts := strings.Split(targetPool, "/")
+			tpNames = append(tpNames, targetPoolParts[len(targetPoolParts)-1])
+		}
+
+		sort.Strings(tpNames)
+		sort.Strings(targetPools)
+		if !reflect.DeepEqual(tpNames, targetPools) {
+			return fmt.Errorf("target pools incorrect. Expected %s, got %s", targetPools, tpNames)
 		}
 
 		// check that the instance template updated
@@ -617,7 +649,7 @@ func testAccInstanceGroupManager_update(template, target, igm string) string {
 }
 
 // Change IGM's instance template and target size
-func testAccInstanceGroupManager_update2(template1, target, template2, igm string) string {
+func testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_instance_template" "igm-update" {
 		name = "%s"
@@ -645,6 +677,12 @@ func testAccInstanceGroupManager_update2(template1, target, template2, igm strin
 	}
 
 	resource "google_compute_target_pool" "igm-update" {
+		description = "Resource created for Terraform acceptance testing"
+		name = "%s"
+		session_affinity = "CLIENT_IP_PROTO"
+	}
+
+	resource "google_compute_target_pool" "igm-update2" {
 		description = "Resource created for Terraform acceptance testing"
 		name = "%s"
 		session_affinity = "CLIENT_IP_PROTO"
@@ -679,7 +717,10 @@ func testAccInstanceGroupManager_update2(template1, target, template2, igm strin
 		description = "Terraform test instance group manager"
 		name = "%s"
 		instance_template = "${google_compute_instance_template.igm-update2.self_link}"
-		target_pools = ["${google_compute_target_pool.igm-update.self_link}"]
+		target_pools = [
+			"${google_compute_target_pool.igm-update.self_link}",
+			"${google_compute_target_pool.igm-update2.self_link}",
+		]
 		base_instance_name = "igm-update"
 		zone = "us-central1-c"
 		target_size = 3
@@ -691,7 +732,7 @@ func testAccInstanceGroupManager_update2(template1, target, template2, igm strin
 			name = "customhttps"
 			port = 8443
 		}
-	}`, template1, target, template2, igm)
+	}`, template1, target1, target2, template2, igm)
 }
 
 func testAccInstanceGroupManager_updateLifecycle(tag, igm string) string {

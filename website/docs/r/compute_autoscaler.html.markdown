@@ -15,7 +15,7 @@ when the need for resources is lower. You just define the autoscaling policy and
 the autoscaler performs automatic scaling based on the measured load. For more
 information, see [the official
 documentation](https://cloud.google.com/compute/docs/autoscaler/) and
-[API](https://cloud.google.com/compute/docs/autoscaler/v1beta2/autoscalers)
+[API](https://cloud.google.com/compute/docs/reference/latest/autoscalers)
 
 
 ## Example Usage

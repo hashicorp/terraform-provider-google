@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeImage_resolveImage(t *testing.T) {
+	t.Parallel()
+
 	var image compute.Image
 	rand := acctest.RandString(10)
 	name := fmt.Sprintf("test-image-%s", rand)
@@ -79,7 +81,7 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		}
 
 		for input, expectation := range images {
-			result, err := resolveImage(config, input)
+			result, err := resolveImage(config, project, input)
 			if err != nil {
 				return fmt.Errorf("Error resolving input %s to image: %+v\n", input, err)
 			}

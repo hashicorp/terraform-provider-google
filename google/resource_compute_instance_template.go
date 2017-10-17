@@ -18,6 +18,8 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		MigrateState:  resourceComputeInstanceTemplateMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -44,6 +46,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					return
 				},
 			},
+
 			"disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
@@ -67,6 +70,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"device_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
@@ -132,11 +136,10 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"automatic_restart": &schema.Schema{
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Default:    true,
-				ForceNew:   true,
-				Deprecated: "Please use `scheduling.automatic_restart` instead",
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "Use 'scheduling.automatic_restart' instead.",
 			},
 
 			"can_ip_forward": &schema.Schema{
@@ -226,10 +229,10 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"on_host_maintenance": &schema.Schema{
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Please use `scheduling.on_host_maintenance` instead",
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "Use 'scheduling.on_host_maintenance' instead.",
 			},
 
 			"project": &schema.Schema{
@@ -322,12 +325,25 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 		},
 	}
 }
 
 func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDisk, error) {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
 
 	disksCount := d.Get("disk.#").(int)
 
@@ -369,7 +385,7 @@ func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDi
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
-				imageUrl, err := resolveImage(config, imageName)
+				imageUrl, err := resolveImage(config, project, imageName)
 				if err != nil {
 					return nil, fmt.Errorf(
 						"Error resolving image name '%s': %s",
@@ -510,15 +526,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	instanceProperties.Scheduling = &compute.Scheduling{}
 	instanceProperties.Scheduling.OnHostMaintenance = "MIGRATE"
 
-	// Depreciated fields
-	if v, ok := d.GetOk("automatic_restart"); ok {
-		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(v.(bool))
-	}
-
-	if v, ok := d.GetOk("on_host_maintenance"); ok {
-		instanceProperties.Scheduling.OnHostMaintenance = v.(string)
-	}
-
 	forceSendFieldsScheduling := make([]string, 0, 3)
 	var hasSendMaintenance bool
 	hasSendMaintenance = false
@@ -529,10 +536,10 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		}
 		_scheduling := _schedulings[0].(map[string]interface{})
 
-		if vp, okp := _scheduling["automatic_restart"]; okp {
-			instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(vp.(bool))
-			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
-		}
+		// "automatic_restart" has a default value and is always safe to dereference
+		automaticRestart := _scheduling["automatic_restart"].(bool)
+		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(automaticRestart)
+		forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
 
 		if vp, okp := _scheduling["on_host_maintenance"]; okp {
 			instanceProperties.Scheduling.OnHostMaintenance = vp.(string)
@@ -578,6 +585,9 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	instanceProperties.ServiceAccounts = serviceAccounts
 
 	instanceProperties.Tags = resourceInstanceTags(d)
+	if _, ok := d.GetOk("labels"); ok {
+		instanceProperties.Labels = expandLabels(d)
+	}
 
 	var itName string
 	if v, ok := d.GetOk("name"); ok {
@@ -602,7 +612,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(instanceTemplate.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Instance Template")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Instance Template")
 	if err != nil {
 		return err
 	}
@@ -672,17 +682,17 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 	return result, region
 }
 
-func flattenScheduling(scheduling *compute.Scheduling) ([]map[string]interface{}, *bool) {
+func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
-	schedulingMap := make(map[string]interface{})
+	schedulingMap := map[string]interface{}{
+		"on_host_maintenance": scheduling.OnHostMaintenance,
+		"preemptible":         scheduling.Preemptible,
+	}
 	if scheduling.AutomaticRestart != nil {
 		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
 	}
-	schedulingMap["on_host_maintenance"] = scheduling.OnHostMaintenance
-	schedulingMap["preemptible"] = scheduling.Preemptible
 	result = append(result, schedulingMap)
-	// TODO(selmanj) No need to return two values as automatic restart is captured in map
-	return result, scheduling.AutomaticRestart
+	return result
 }
 
 func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
@@ -745,6 +755,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	}
+	if instanceTemplate.Properties.Labels != nil {
+		d.Set("labels", instanceTemplate.Properties.Labels)
+	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
@@ -786,12 +799,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.Scheduling != nil {
-		scheduling, autoRestart := flattenScheduling(instanceTemplate.Properties.Scheduling)
+		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
-		}
-		if err = d.Set("automatic_restart", autoRestart); err != nil {
-			return fmt.Errorf("Error setting automatic_restart: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.Tags != nil {
@@ -821,7 +831,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Instance Template")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Instance Template")
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccBigQueryDataset_basic(t *testing.T) {
+	t.Parallel()
+
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

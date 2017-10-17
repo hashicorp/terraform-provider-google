@@ -132,6 +132,42 @@ type ProjectsZonesOperationsService struct {
 	s *Service
 }
 
+// AcceleratorConfig: AcceleratorConfig represents a Hardware
+// Accelerator request.
+type AcceleratorConfig struct {
+	// AcceleratorCount: The number of the accelerator cards exposed to an
+	// instance.
+	AcceleratorCount int64 `json:"acceleratorCount,omitempty,string"`
+
+	// AcceleratorType: The accelerator type resource name. List of
+	// supported accelerators
+	// [here](/compute/docs/gpus/#Introduction)
+	AcceleratorType string `json:"acceleratorType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AcceleratorCount") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AcceleratorCount") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AcceleratorConfig) MarshalJSON() ([]byte, error) {
+	type noMethod AcceleratorConfig
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // AddonsConfig: Configuration for the addons that can be automatically
 // spun up in the
 // cluster, enabling additional functionality.
@@ -148,6 +184,9 @@ type AddonsConfig struct {
 	// makes it easy to set up HTTP load balancers for services in a
 	// cluster.
 	HttpLoadBalancing *HttpLoadBalancing `json:"httpLoadBalancing,omitempty"`
+
+	// KubernetesDashboard: Configuration for the Kubernetes Dashboard.
+	KubernetesDashboard *KubernetesDashboard `json:"kubernetesDashboard,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
 	// "HorizontalPodAutoscaling") to unconditionally include in API
@@ -218,6 +257,38 @@ func (s *AutoUpgradeOptions) MarshalJSON() ([]byte, error) {
 // CancelOperationRequest: CancelOperationRequest cancels a single
 // operation.
 type CancelOperationRequest struct {
+}
+
+// CidrBlock: CidrBlock contains an optional name and one CIDR block.
+type CidrBlock struct {
+	// CidrBlock: cidr_block must be specified in CIDR notation.
+	CidrBlock string `json:"cidrBlock,omitempty"`
+
+	// DisplayName: display_name is an optional field for users to identify
+	// CIDR blocks.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CidrBlock") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CidrBlock") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CidrBlock) MarshalJSON() ([]byte, error) {
+	type noMethod CidrBlock
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // ClientCertificateConfig: Configuration for client certificates on the
@@ -378,6 +449,11 @@ type Cluster struct {
 	// MasterAuth: The authentication information for accessing the master
 	// endpoint.
 	MasterAuth *MasterAuth `json:"masterAuth,omitempty"`
+
+	// MasterAuthorizedNetworksConfig: Master authorized networks is a Beta
+	// feature.
+	// The configuration options for master authorized networks feature.
+	MasterAuthorizedNetworksConfig *MasterAuthorizedNetworksConfig `json:"masterAuthorizedNetworksConfig,omitempty"`
 
 	// MonitoringService: The monitoring service the cluster should use to
 	// write metrics.
@@ -549,6 +625,12 @@ type ClusterUpdate struct {
 	//
 	// This list must always include the cluster's primary zone.
 	DesiredLocations []string `json:"desiredLocations,omitempty"`
+
+	// DesiredMasterAuthorizedNetworksConfig: Master authorized networks is
+	// a Beta feature.
+	// The desired configuration options for master authorized networks
+	// feature.
+	DesiredMasterAuthorizedNetworksConfig *MasterAuthorizedNetworksConfig `json:"desiredMasterAuthorizedNetworksConfig,omitempty"`
 
 	// DesiredMasterVersion: The Kubernetes version to change the master to.
 	// The only valid value is the
@@ -768,28 +850,43 @@ func (s *HttpLoadBalancing) MarshalJSON() ([]byte, error) {
 // IPAllocationPolicy: Configuration for controlling how IPs are
 // allocated in the cluster.
 type IPAllocationPolicy struct {
-	// ClusterIpv4Cidr: The IP address range for the cluster pod IPs. If
-	// this field is set, then
+	// ClusterIpv4Cidr: This field is deprecated, use
+	// cluster_ipv4_cidr_block.
+	ClusterIpv4Cidr string `json:"clusterIpv4Cidr,omitempty"`
+
+	// ClusterIpv4CidrBlock: The IP address range for the cluster pod IPs.
+	// If this field is set, then
 	// `cluster.cluster_ipv4_cidr` must be left blank.
 	//
 	// This field is only applicable when `use_ip_aliases` is true.
 	//
-	// Set to blank to have a range will be chosen with the default
-	// size.
+	// Set to blank to have a range chosen with the default size.
 	//
-	// Set to /netmask (e.g. `/14`) to have a range be chosen with a
+	// Set to /netmask (e.g. `/14`) to have a range chosen with a
 	// specific
 	// netmask.
 	//
-	// Set to a
+	// Set to
+	// a
 	// [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
-	// no
-	// tation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
+	//
+	// notation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
 	// (e.g.
 	// `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) to pick a specific
 	// range
 	// to use.
-	ClusterIpv4Cidr string `json:"clusterIpv4Cidr,omitempty"`
+	ClusterIpv4CidrBlock string `json:"clusterIpv4CidrBlock,omitempty"`
+
+	// ClusterSecondaryRangeName: The name of the secondary range to be used
+	// for the cluster CIDR
+	// block.  The secondary range will be used for pod IP
+	// addresses. This must be an existing secondary range associated
+	// with the cluster subnetwork.
+	//
+	// This field is only applicable with use_ip_aliases is true
+	// and
+	// create_subnetwork is false.
+	ClusterSecondaryRangeName string `json:"clusterSecondaryRangeName,omitempty"`
 
 	// CreateSubnetwork: Whether a new subnetwork will be created
 	// automatically for the cluster.
@@ -797,54 +894,72 @@ type IPAllocationPolicy struct {
 	// This field is only applicable when `use_ip_aliases` is true.
 	CreateSubnetwork bool `json:"createSubnetwork,omitempty"`
 
-	// NodeIpv4Cidr: The IP address range of the instance IPs in this
+	// NodeIpv4Cidr: This field is deprecated, use node_ipv4_cidr_block.
+	NodeIpv4Cidr string `json:"nodeIpv4Cidr,omitempty"`
+
+	// NodeIpv4CidrBlock: The IP address range of the instance IPs in this
 	// cluster.
 	//
 	// This is applicable only if `create_subnetwork` is true.
 	//
-	// Set to blank to have a range will be chosen with the default
-	// size.
+	// Set to blank to have a range chosen with the default size.
 	//
-	// Set to /netmask (e.g. `/14`) to have a range be chosen with a
+	// Set to /netmask (e.g. `/14`) to have a range chosen with a
 	// specific
 	// netmask.
 	//
-	// Set to a
+	// Set to
+	// a
 	// [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
-	// no
-	// tation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
+	//
+	// notation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
 	// (e.g.
 	// `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) to pick a specific
 	// range
 	// to use.
-	NodeIpv4Cidr string `json:"nodeIpv4Cidr,omitempty"`
+	NodeIpv4CidrBlock string `json:"nodeIpv4CidrBlock,omitempty"`
 
-	// ServicesIpv4Cidr: The IP address range of the services IPs in this
-	// cluster. If blank, a range
+	// ServicesIpv4Cidr: This field is deprecated, use
+	// services_ipv4_cidr_block.
+	ServicesIpv4Cidr string `json:"servicesIpv4Cidr,omitempty"`
+
+	// ServicesIpv4CidrBlock: The IP address range of the services IPs in
+	// this cluster. If blank, a range
 	// will be automatically chosen with the default size.
 	//
 	// This field is only applicable when `use_ip_aliases` is true.
 	//
-	// Set to blank to have a range will be chosen with the default
-	// size.
+	// Set to blank to have a range chosen with the default size.
 	//
-	// Set to /netmask (e.g. `/14`) to have a range be chosen with a
+	// Set to /netmask (e.g. `/14`) to have a range chosen with a
 	// specific
 	// netmask.
 	//
-	// Set to a
+	// Set to
+	// a
 	// [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
-	// no
-	// tation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
+	//
+	// notation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks
 	// (e.g.
 	// `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) to pick a specific
 	// range
 	// to use.
-	ServicesIpv4Cidr string `json:"servicesIpv4Cidr,omitempty"`
+	ServicesIpv4CidrBlock string `json:"servicesIpv4CidrBlock,omitempty"`
+
+	// ServicesSecondaryRangeName: The name of the secondary range to be
+	// used as for the services
+	// CIDR block.  The secondary range will be used for service
+	// ClusterIPs. This must be an existing secondary range associated
+	// with the cluster subnetwork.
+	//
+	// This field is only applicable with use_ip_aliases is true
+	// and
+	// create_subnetwork is false.
+	ServicesSecondaryRangeName string `json:"servicesSecondaryRangeName,omitempty"`
 
 	// SubnetworkName: A custom subnetwork name to be used if
 	// `create_subnetwork` is true.  If
-	// this field is empty, then an automatic name will choosen for the
+	// this field is empty, then an automatic name will be chosen for the
 	// new
 	// subnetwork.
 	SubnetworkName string `json:"subnetworkName,omitempty"`
@@ -873,6 +988,35 @@ type IPAllocationPolicy struct {
 
 func (s *IPAllocationPolicy) MarshalJSON() ([]byte, error) {
 	type noMethod IPAllocationPolicy
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// KubernetesDashboard: Configuration for the Kubernetes Dashboard.
+type KubernetesDashboard struct {
+	// Disabled: Whether the Kubernetes Dashboard is enabled for this
+	// cluster.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Disabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Disabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *KubernetesDashboard) MarshalJSON() ([]byte, error) {
+	type noMethod KubernetesDashboard
 	raw := noMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1091,6 +1235,47 @@ func (s *MasterAuth) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// MasterAuthorizedNetworksConfig: Master authorized networks is a Beta
+// feature.
+// Configuration options for the master authorized networks feature.
+// Enabled
+// master authorized networks will disallow all external traffic to
+// access
+// Kubernetes master through HTTPS except traffic from the given CIDR
+// blocks,
+// Google Compute Engine Public IPs and Google Prod IPs.
+type MasterAuthorizedNetworksConfig struct {
+	// CidrBlocks: cidr_blocks define up to 10 external networks that could
+	// access
+	// Kubernetes master through HTTPS.
+	CidrBlocks []*CidrBlock `json:"cidrBlocks,omitempty"`
+
+	// Enabled: Whether or not master authorized networks is enabled.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CidrBlocks") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CidrBlocks") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MasterAuthorizedNetworksConfig) MarshalJSON() ([]byte, error) {
+	type noMethod MasterAuthorizedNetworksConfig
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // NetworkPolicy: Configuration options for the NetworkPolicy
 // feature.
 // https://kubernetes.io/docs/concepts/services-networking/netwo
@@ -1102,7 +1287,7 @@ type NetworkPolicy struct {
 	// Provider: The selected network policy provider.
 	//
 	// Possible values:
-	//   "UNKNOWN" - Not set
+	//   "PROVIDER_UNSPECIFIED" - Not set
 	//   "CALICO" - Tigera (Calico Felix).
 	Provider string `json:"provider,omitempty"`
 
@@ -1131,6 +1316,13 @@ func (s *NetworkPolicy) MarshalJSON() ([]byte, error) {
 
 // NodeConfig: Parameters that describe the nodes in a cluster.
 type NodeConfig struct {
+	// Accelerators: A list of hardware accelerators to be attached to each
+	// node.
+	// See https://cloud.google.com/compute/docs/gpus for more information
+	// about
+	// support for GPUs.
+	Accelerators []*AcceleratorConfig `json:"accelerators,omitempty"`
+
 	// DiskSizeGb: Size of the disk attached to each node, specified in
 	// GB.
 	// The smallest allowed disk size is 10GB.
@@ -1154,7 +1346,8 @@ type NodeConfig struct {
 	// and conflicts should be avoided.
 	// For more information, including usage and the valid values,
 	// see:
-	// http://kubernetes.io/v1.1/docs/user-guide/labels.html
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects
+	// /labels/
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// LocalSsdCount: The number of local SSD disks to be attached to the
@@ -1246,7 +1439,7 @@ type NodeConfig struct {
 	// must comply with RFC1035.
 	Tags []string `json:"tags,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "DiskSizeGb") to
+	// ForceSendFields is a list of field names (e.g. "Accelerators") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -1254,10 +1447,10 @@ type NodeConfig struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DiskSizeGb") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Accelerators") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -1468,6 +1661,11 @@ type Operation struct {
 	// Detail: Detailed operation progress, if available.
 	Detail string `json:"detail,omitempty"`
 
+	// EndTime: [Output only] The time the operation completed,
+	// in
+	// [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	EndTime string `json:"endTime,omitempty"`
+
 	// Name: The server-assigned ID for the operation.
 	Name string `json:"name,omitempty"`
 
@@ -1494,6 +1692,11 @@ type Operation struct {
 
 	// SelfLink: Server-defined URL for the resource.
 	SelfLink string `json:"selfLink,omitempty"`
+
+	// StartTime: [Output only] The time the operation started,
+	// in
+	// [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	StartTime string `json:"startTime,omitempty"`
 
 	// Status: The current status of the operation.
 	//

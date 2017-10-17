@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccComputeNetwork_basic(t *testing.T) {
+	t.Parallel()
+
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{
@@ -30,6 +32,8 @@ func TestAccComputeNetwork_basic(t *testing.T) {
 }
 
 func TestAccComputeNetwork_auto_subnet(t *testing.T) {
+	t.Parallel()
+
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{
@@ -51,6 +55,8 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 }
 
 func TestAccComputeNetwork_custom_subnet(t *testing.T) {
+	t.Parallel()
+
 	var network compute.Network
 
 	resource.Test(t, resource.TestCase{
@@ -165,7 +171,6 @@ func testAccCheckComputeNetworkIsCustomSubnet(n string, network *compute.Network
 var testAccComputeNetwork_basic = fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "network-test-%s"
-	ipv4_range = "10.0.0.0/16"
 }`, acctest.RandString(10))
 
 var testAccComputeNetwork_auto_subnet = fmt.Sprintf(`

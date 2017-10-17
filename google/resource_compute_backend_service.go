@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 
@@ -19,6 +20,7 @@ func resourceComputeBackendService() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -42,8 +44,9 @@ func resourceComputeBackendService() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 						"balancing_mode": &schema.Schema{
 							Type:     schema.TypeString,
@@ -139,7 +142,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"connection_draining_timeout_sec": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+				Default:  300,
 			},
 		},
 	}
@@ -148,51 +151,9 @@ func resourceComputeBackendService() *schema.Resource {
 func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hc := d.Get("health_checks").(*schema.Set).List()
-	healthChecks := make([]string, 0, len(hc))
-	for _, v := range hc {
-		healthChecks = append(healthChecks, v.(string))
-	}
-
-	service := compute.BackendService{
-		Name:         d.Get("name").(string),
-		HealthChecks: healthChecks,
-	}
-
-	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
-	}
-
-	if v, ok := d.GetOk("description"); ok {
-		service.Description = v.(string)
-	}
-
-	if v, ok := d.GetOk("port_name"); ok {
-		service.PortName = v.(string)
-	}
-
-	if v, ok := d.GetOk("protocol"); ok {
-		service.Protocol = v.(string)
-	}
-
-	if v, ok := d.GetOk("session_affinity"); ok {
-		service.SessionAffinity = v.(string)
-	}
-
-	if v, ok := d.GetOk("timeout_sec"); ok {
-		service.TimeoutSec = int64(v.(int))
-	}
-
-	if v, ok := d.GetOk("enable_cdn"); ok {
-		service.EnableCDN = v.(bool)
-	}
-
-	if v, ok := d.GetOk("connection_draining_timeout_sec"); ok {
-		connectionDraining := &compute.ConnectionDraining{
-			DrainingTimeoutSec: int64(v.(int)),
-		}
-
-		service.ConnectionDraining = connectionDraining
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
 	}
 
 	project, err := getProject(d, config)
@@ -202,7 +163,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Creating new Backend Service: %#v", service)
 	op, err := config.clientCompute.BackendServices.Insert(
-		project, &service).Do()
+		project, service).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating backend service: %s", err)
 	}
@@ -213,7 +174,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	d.SetId(service.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWait(config, op, project, "Creating Backend Service")
+	waitErr := computeOperationWait(config.clientCompute, op, project, "Creating Backend Service")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -257,66 +218,27 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
+	}
+	service.Fingerprint = d.Get("fingerprint").(string)
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	hc := d.Get("health_checks").(*schema.Set).List()
-	healthChecks := make([]string, 0, len(hc))
-	for _, v := range hc {
-		healthChecks = append(healthChecks, v.(string))
-	}
-
-	service := compute.BackendService{
-		Name:         d.Get("name").(string),
-		Fingerprint:  d.Get("fingerprint").(string),
-		HealthChecks: healthChecks,
-	}
-
-	// Optional things
-	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
-	}
-	if v, ok := d.GetOk("description"); ok {
-		service.Description = v.(string)
-	}
-	if v, ok := d.GetOk("port_name"); ok {
-		service.PortName = v.(string)
-	}
-	if v, ok := d.GetOk("protocol"); ok {
-		service.Protocol = v.(string)
-	}
-	if v, ok := d.GetOk("timeout_sec"); ok {
-		service.TimeoutSec = int64(v.(int))
-	}
-
-	if d.HasChange("connection_draining_timeout_sec") {
-		connectionDraining := &compute.ConnectionDraining{
-			DrainingTimeoutSec: int64(d.Get("connection_draining_timeout_sec").(int)),
-		}
-
-		service.ConnectionDraining = connectionDraining
-	}
-
-	if d.HasChange("session_affinity") {
-		service.SessionAffinity = d.Get("session_affinity").(string)
-	}
-
-	if d.HasChange("enable_cdn") {
-		service.EnableCDN = d.Get("enable_cdn").(bool)
-	}
-
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
 	op, err := config.clientCompute.BackendServices.Update(
-		project, d.Id(), &service).Do()
+		project, d.Id(), service).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config, op, project, "Updating Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
 	}
@@ -339,7 +261,7 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting backend service: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Service")
 	if err != nil {
 		return err
 	}
@@ -348,14 +270,19 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandBackends(configured []interface{}) []*compute.Backend {
+func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	backends := make([]*compute.Backend, 0, len(configured))
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
+		g, ok := data["group"]
+		if !ok {
+			return nil, errors.New("google_compute_backend_service.backend.group must be set")
+		}
+
 		b := compute.Backend{
-			Group: data["group"].(string),
+			Group: g.(string),
 		}
 
 		if v, ok := data["balancing_mode"]; ok {
@@ -380,7 +307,7 @@ func expandBackends(configured []interface{}) []*compute.Backend {
 		backends = append(backends, &b)
 	}
 
-	return backends
+	return backends, nil
 }
 
 func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
@@ -403,6 +330,60 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 	return result
 }
 
+func expandBackendService(d *schema.ResourceData) (*compute.BackendService, error) {
+	hc := d.Get("health_checks").(*schema.Set).List()
+	healthChecks := make([]string, 0, len(hc))
+	for _, v := range hc {
+		healthChecks = append(healthChecks, v.(string))
+	}
+
+	service := &compute.BackendService{
+		Name:         d.Get("name").(string),
+		HealthChecks: healthChecks,
+	}
+
+	var err error
+	if v, ok := d.GetOk("backend"); ok {
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		service.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("port_name"); ok {
+		service.PortName = v.(string)
+	}
+
+	if v, ok := d.GetOk("protocol"); ok {
+		service.Protocol = v.(string)
+	}
+
+	if v, ok := d.GetOk("session_affinity"); ok {
+		service.SessionAffinity = v.(string)
+	}
+
+	if v, ok := d.GetOk("timeout_sec"); ok {
+		service.TimeoutSec = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("enable_cdn"); ok {
+		service.EnableCDN = v.(bool)
+	}
+
+	connectionDrainingTimeoutSec := d.Get("connection_draining_timeout_sec")
+	connectionDraining := &compute.ConnectionDraining{
+		DrainingTimeoutSec: int64(connectionDrainingTimeoutSec.(int)),
+	}
+
+	service.ConnectionDraining = connectionDraining
+
+	return service, nil
+}
+
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	if v == nil {
 		return 0
@@ -411,7 +392,8 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
+	group, _ := getRelativePath(m["group"].(string))
+	buf.WriteString(fmt.Sprintf("%s-", group))
 
 	if v, ok := m["balancing_mode"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))

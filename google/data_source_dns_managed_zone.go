@@ -41,7 +41,25 @@ func dataSourceDnsManagedZone() *schema.Resource {
 }
 
 func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
 	d.SetId(d.Get("name").(string))
 
-	return resourceDnsManagedZoneRead(d, meta)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	zone, err := config.clientDns.ManagedZones.Get(
+		project, d.Id()).Do()
+	if err != nil {
+		return err
+	}
+
+	d.Set("name_servers", zone.NameServers)
+	d.Set("name", zone.Name)
+	d.Set("dns_name", zone.DnsName)
+	d.Set("description", zone.Description)
+
+	return nil
 }

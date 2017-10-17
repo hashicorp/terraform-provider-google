@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeUrlMap_basic(t *testing.T) {
+	t.Parallel()
+
 	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
@@ -30,6 +32,8 @@ func TestAccComputeUrlMap_basic(t *testing.T) {
 }
 
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
+	t.Parallel()
+
 	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
@@ -58,6 +62,8 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 }
 
 func TestAccComputeUrlMap_advanced(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -83,6 +89,8 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 }
 
 func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
+	t.Parallel()
+
 	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
 	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))

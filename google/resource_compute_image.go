@@ -90,6 +90,18 @@ func resourceComputeImage() *schema.Resource {
 				Optional: true,
 				Default:  computeImageCreateTimeoutDefault,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -134,6 +146,10 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		image.RawDisk = imageRawDisk
 	}
 
+	if _, ok := d.GetOk("labels"); ok {
+		image.Labels = expandLabels(d)
+	}
+
 	// Read create timeout
 	var createTimeout int
 	if v, ok := d.GetOk("create_timeout"); ok {
@@ -150,7 +166,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	// Store the ID
 	d.SetId(image.Name)
 
-	err = computeOperationWaitTime(config, op, project, "Creating Image", createTimeout)
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Creating Image", createTimeout)
 	if err != nil {
 		return err
 	}
@@ -186,13 +202,53 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", image.Description)
 	d.Set("family", image.Family)
 	d.Set("self_link", image.SelfLink)
+	d.Set("labels", image.Labels)
+	d.Set("label_fingerprint", image.LabelFingerprint)
 
 	return nil
 }
 
 func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Pass-through for updates to Terraform-specific `create_timeout` field.
-	// The Google Cloud Image resource doesn't support update.
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	// Technically we are only updating one attribute, but setting d.Partial here makes it easier to add updates later
+	d.Partial(true)
+
+	if d.HasChange("labels") {
+		labels := expandLabels(d)
+		labelFingerprint := d.Get("label_fingerprint").(string)
+		setLabelsRequest := compute.GlobalSetLabelsRequest{
+			LabelFingerprint: labelFingerprint,
+			Labels:           labels,
+			ForceSendFields:  []string{"Labels"},
+		}
+
+		op, err := config.clientCompute.Images.SetLabels(project, d.Id(), &setLabelsRequest).Do()
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("labels")
+
+		err = computeOperationWaitTime(config.clientCompute, op, project, "Setting labels", 4)
+		if err != nil {
+			return err
+		}
+		// Perform a read to see the new label_fingerprint value
+		image, err := config.clientCompute.Images.Get(project, d.Id()).Do()
+		if err != nil {
+			return err
+		}
+		d.Set("label_fingerprint", image.LabelFingerprint)
+		d.SetPartial("label_fingerprint")
+	}
+
+	d.Partial(false)
 	return nil
 }
 
@@ -212,7 +268,7 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error deleting image: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting image")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting image")
 	if err != nil {
 		return err
 	}

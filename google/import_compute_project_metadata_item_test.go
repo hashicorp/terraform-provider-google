@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccComputeProjectMetadataItem_importBasic(t *testing.T) {
+	t.Parallel()
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -16,7 +18,7 @@ func TestAccComputeProjectMetadataItem_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic(key, "myValue"),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, "myValue"),
 			},
 			{
 				ResourceName:      "google_compute_project_metadata_item.foobar",

@@ -1,19 +1,21 @@
 # https://cloud.google.com/compute/docs/load-balancing/http/content-based-example
 
 provider "google" {
-  region = "${var.region}"
-  project = "${var.project_name}"
+  region      = "${var.region}"
+  project     = "${var.project_name}"
   credentials = "${file("${var.credentials_file_path}")}"
 }
 
 resource "google_compute_instance" "www" {
-  name = "tf-www-compute"
+  name         = "tf-www-compute"
   machine_type = "f1-micro"
-  zone = "${var.region_zone}"
-  tags = ["http-tag"]
+  zone         = "${var.region_zone}"
+  tags         = ["http-tag"]
 
-  disk {
-    image = "projects/debian-cloud/global/images/family/debian-8"
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/family/debian-8"
+    }
   }
 
   network_interface {
@@ -32,13 +34,15 @@ resource "google_compute_instance" "www" {
 }
 
 resource "google_compute_instance" "www-video" {
-  name = "tf-www-video-compute"
+  name         = "tf-www-video-compute"
   machine_type = "f1-micro"
-  zone = "${var.region_zone}"
-  tags = ["http-tag"]
+  zone         = "${var.region_zone}"
+  tags         = ["http-tag"]
 
-  disk {
-    image = "projects/debian-cloud/global/images/family/debian-8"
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/family/debian-8"
+    }
   }
 
   network_interface {
@@ -87,12 +91,11 @@ resource "google_compute_instance_group" "video-resources" {
 resource "google_compute_health_check" "health-check" {
   name = "tf-health-check"
 
-  http_health_check {
-  }
+  http_health_check {}
 }
 
 resource "google_compute_backend_service" "www-service" {
-  name = "tf-www-service"
+  name     = "tf-www-service"
   protocol = "HTTP"
 
   backend {
@@ -103,7 +106,7 @@ resource "google_compute_backend_service" "www-service" {
 }
 
 resource "google_compute_backend_service" "video-service" {
-  name = "tf-video-service"
+  name     = "tf-video-service"
   protocol = "HTTP"
 
   backend {
@@ -114,46 +117,46 @@ resource "google_compute_backend_service" "video-service" {
 }
 
 resource "google_compute_url_map" "web-map" {
-  name = "tf-web-map"
+  name            = "tf-web-map"
   default_service = "${google_compute_backend_service.www-service.self_link}"
 
   host_rule {
-    hosts = ["*"]
+    hosts        = ["*"]
     path_matcher = "tf-allpaths"
   }
 
   path_matcher {
-    name = "tf-allpaths"
+    name            = "tf-allpaths"
     default_service = "${google_compute_backend_service.www-service.self_link}"
 
     path_rule {
-      paths = ["/video", "/video/*",]
+      paths   = ["/video", "/video/*"]
       service = "${google_compute_backend_service.video-service.self_link}"
     }
   }
 }
 
 resource "google_compute_target_http_proxy" "http-lb-proxy" {
-  name = "tf-http-lb-proxy"
+  name    = "tf-http-lb-proxy"
   url_map = "${google_compute_url_map.web-map.self_link}"
 }
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-http-content-gfr"
-  target = "${google_compute_target_http_proxy.http-lb-proxy.self_link}"
+  name       = "tf-http-content-gfr"
+  target     = "${google_compute_target_http_proxy.http-lb-proxy.self_link}"
   ip_address = "${google_compute_global_address.external-address.address}"
   port_range = "80"
 }
 
 resource "google_compute_firewall" "default" {
-  name = "tf-www-firewall-allow-internal-only"
+  name    = "tf-www-firewall-allow-internal-only"
   network = "default"
 
   allow {
     protocol = "tcp"
-    ports = ["80"]
+    ports    = ["80"]
   }
 
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
-  target_tags = ["http-tag"]
+  target_tags   = ["http-tag"]
 }

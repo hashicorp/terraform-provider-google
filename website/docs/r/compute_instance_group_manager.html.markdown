@@ -11,7 +11,9 @@ description: |-
 The Google Compute Engine Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance
 template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/manager)
-and [API](https://cloud.google.com/compute/docs/instance-groups/manager/v1beta2/instanceGroupManagers)
+and [API](https://cloud.google.com/compute/docs/reference/latest/instanceGroupManagers)
+
+~> **Note:** Use [google_compute_region_instance_group_manager](/docs/providers/google/r/compute_region_instance_group_manager.html) to create a regional (multi-zone) instance group manager.
 
 ## Example Usage
 
@@ -83,7 +85,7 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, Beta) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below.
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).

@@ -3,17 +3,20 @@ package google
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccComputeImage_importFromRawDisk(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeImage_basic,
+				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(10)),
 			},
 			resource.TestStep{
 				ResourceName:            "google_compute_image.foobar",
@@ -26,6 +29,8 @@ func TestAccComputeImage_importFromRawDisk(t *testing.T) {
 }
 
 func TestAccComputeImage_importFromSourceDisk(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

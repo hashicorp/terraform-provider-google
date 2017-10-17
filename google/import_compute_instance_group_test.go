@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccComputeInstanceGroup_import(t *testing.T) {
+	t.Parallel()
+
 	instanceName := fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

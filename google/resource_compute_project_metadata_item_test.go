@@ -10,7 +10,10 @@ import (
 )
 
 func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -29,7 +32,10 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
+	t.Parallel(
 	// Generate a config of two config keys
+	)
+
 	config := testAccProjectMetadataItem_basic("myKey", "myValue") +
 		testAccProjectMetadataItem_basic("myOtherKey", "myOtherValue")
 	resource.Test(t, resource.TestCase{
@@ -49,7 +55,10 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -68,7 +77,10 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -77,13 +89,13 @@ func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic(key, "myValue"),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, "myValue"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectMetadataItem_hasMetadata(key, "myValue"),
 				),
 			},
 			{
-				Config: testAccProjectMetadataItem_basic(key, "myUpdatedValue"),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, "myUpdatedValue"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectMetadataItem_hasMetadata(key, "myUpdatedValue"),
 				),
@@ -139,10 +151,14 @@ func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
 }
 
 func testAccProjectMetadataItem_basic(key, val string) string {
+	return testAccProjectMetadataItem_basicWithResourceName(acctest.RandString(10), key, val)
+}
+
+func testAccProjectMetadataItem_basicWithResourceName(resourceName, key, val string) string {
 	return fmt.Sprintf(`
-resource "google_compute_project_metadata_item" "foobar-%s" {
+resource "google_compute_project_metadata_item" "%s" {
   key   = "%s"
   value = "%s"
 }
-`, acctest.RandString(10), key, val)
+`, resourceName, key, val)
 }

@@ -67,7 +67,7 @@ func sanityTestRegexMatches(expected int, got []string, regexType, name string) 
 //    If not, check if it could be a GCP-provided image, and if it exists. If it does, return it as projects/{project}/global/images/{image}.
 //    If not, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
 //    If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}
-func resolveImage(c *Config, name string) (string, error) {
+func resolveImage(c *Config, project, name string) (string, error) {
 	// built-in projects to look for images/families containing the string
 	// on the left in
 	imageMap := map[string]string{
@@ -119,7 +119,7 @@ func resolveImage(c *Config, name string) (string, error) {
 		if err := sanityTestRegexMatches(1, res, "family family", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageFamilyExists(c, c.Project, res[1]); err != nil {
+		if ok, err := resolveImageFamilyExists(c, project, res[1]); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("global/images/family/%s", res[1]), nil
@@ -157,7 +157,7 @@ func resolveImage(c *Config, name string) (string, error) {
 		if err := sanityTestRegexMatches(1, res, "image", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageImageExists(c, c.Project, res[1]); err != nil {
+		if ok, err := resolveImageImageExists(c, project, res[1]); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("global/images/%s", res[1]), nil

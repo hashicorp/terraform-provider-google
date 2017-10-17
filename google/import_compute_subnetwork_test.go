@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccComputeSubnetwork_importBasic(t *testing.T) {
+	t.Parallel()
+
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	subnetwork1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	subnetwork2Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))

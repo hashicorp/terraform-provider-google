@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccComputeSubnetwork_basic(t *testing.T) {
+	t.Parallel()
+
 	var subnetwork1 compute.Subnetwork
 	var subnetwork2 compute.Subnetwork
 
@@ -38,6 +40,8 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 }
 
 func TestAccComputeSubnetwork_update(t *testing.T) {
+	t.Parallel()
+
 	var subnetwork compute.Subnetwork
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -68,6 +72,30 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 	if subnetwork.PrivateIpGoogleAccess {
 		t.Errorf("Expected PrivateIpGoogleAccess to be false, got %v", subnetwork.PrivateIpGoogleAccess)
 	}
+}
+
+func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSubnetwork_secondaryIpRanges(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-range", &subnetwork),
+					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range", "192.168.1.0/24"),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
@@ -116,6 +144,21 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 		*subnetwork = *found
 
 		return nil
+	}
+}
+
+func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *compute.Subnetwork, rangeName, ipCidrRange string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
+			if secondaryRange.RangeName == rangeName {
+				if secondaryRange.IpCidrRange == ipCidrRange {
+					return nil
+				}
+				return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
+			}
+		}
+
+		return fmt.Errorf("Secondary range %s not found", rangeName)
 	}
 }
 
@@ -180,6 +223,26 @@ resource "google_compute_subnetwork" "network-with-private-google-access" {
 	ip_cidr_range = "10.2.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_secondaryIpRanges(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-range" {
+	name = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	secondary_ip_range {
+		range_name = "tf-test-secondary-range"
+		ip_cidr_range = "192.168.1.0/24"
+	}
 }
 `, cnName, subnetworkName)
 }

@@ -8,11 +8,12 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeGlobalAddress_basic(t *testing.T) {
+	t.Parallel()
+
 	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{
@@ -26,8 +27,8 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
 
-					// implicitly IPV4 - if we don't send an ip_version, we don't get one back even when using Beta apis
-					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
+					// implicitly IPV4 - if we don't send an ip_version, we don't get one back.
+					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
 		},
@@ -35,7 +36,9 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 }
 
 func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
-	var addr computeBeta.Address
+	t.Parallel()
+
+	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -45,9 +48,9 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeGlobalAddress_ipv6,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaGlobalAddressExists(
+					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
-					testAccCheckComputeBetaGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
+					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
 				),
 			},
 		},
@@ -101,7 +104,7 @@ func testAccCheckComputeGlobalAddressExists(n string, addr *compute.Address) res
 	}
 }
 
-func testAccCheckComputeBetaGlobalAddressExists(n string, addr *computeBeta.Address) resource.TestCheckFunc {
+func testAccCheckComputeGlobalAddressIpVersion(n, version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -114,35 +117,7 @@ func testAccCheckComputeBetaGlobalAddressExists(n string, addr *computeBeta.Addr
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientComputeBeta.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Addr not found")
-		}
-
-		*addr = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeBetaGlobalAddressIpVersion(n, version string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		addr, err := config.clientComputeBeta.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
+		addr, err := config.clientCompute.GlobalAddresses.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}

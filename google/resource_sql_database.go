@@ -46,13 +46,13 @@ func resourceSqlDatabase() *schema.Resource {
 			"charset": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "utf8",
+				Computed: true,
 			},
 
 			"collation": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "utf8_general_ci",
+				Computed: true,
 			},
 		},
 	}
@@ -88,7 +88,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, "Insert Database")
+	err = sqladminOperationWait(config, op, project, "Insert Database")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for insertion of %s "+
@@ -162,7 +162,7 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, "Update Database")
+	err = sqladminOperationWait(config, op, project, "Update Database")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for update of %s "+
@@ -194,7 +194,7 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, "Delete Database")
+	err = sqladminOperationWait(config, op, project, "Delete Database")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of %s "+

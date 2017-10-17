@@ -86,8 +86,7 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 		// Retrieve existing IAM policy from project. This will be merged
 		// with the policy defined here.
-		// TODO(evanbrown): Add an 'authoritative' flag that allows policy
-		// in manifest to overwrite existing policy.
+		// TODO: overwrite existing policy, instead of merging it
 		p, err := getServiceAccountIamPolicy(sa.Name, config)
 		if err != nil {
 			return fmt.Errorf("Could not find service account %q when applying IAM policy: %s", sa.Name, err)
@@ -212,8 +211,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 
 		// Retrieve existing IAM policy from project. This will be merged
 		// with the policy in the current state
-		// TODO(evanbrown): Add an 'authoritative' flag that allows policy
-		// in manifest to overwrite existing policy.
+		// TODO: overwrite existing policy instead of merging it
 		p, err := getServiceAccountIamPolicy(d.Id(), config)
 		if err != nil {
 			return err

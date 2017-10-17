@@ -29,8 +29,10 @@ resource "google_compute_instance" "vm" {
   machine_type = "n1-standard-1"
   zone         = "us-east1-c"
 
-  disk {
-    image = "${google_compute_image.bootable-image.self_link}"
+  boot_disk {
+    initialize_params {
+      image = "${google_compute_image.bootable-image.self_link}"
+    }
   }
 
   network_interface {
@@ -77,12 +79,16 @@ The `raw_disk` block supports:
 
 * `family` - (Optional) The name of the image family to which this image belongs.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the image.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `self_link` - The URI of the created resource.
+
+* `label_fingerprint` - The fingerprint of the assigned labels.
 
 ## Import
 

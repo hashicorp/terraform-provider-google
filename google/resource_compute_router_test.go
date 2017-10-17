@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
+	t.Parallel()
+
 	resourceRegion := "europe-west1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,6 +32,8 @@ func TestAccComputeRouter_basic(t *testing.T) {
 }
 
 func TestAccComputeRouter_noRegion(t *testing.T) {
+	t.Parallel()
+
 	providerRegion := "us-central1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -50,6 +54,8 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 }
 
 func TestAccComputeRouter_networkLink(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -140,7 +146,7 @@ func testAccComputeRouterBasic(resourceRegion string) string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
+			name = "router-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "%s"
@@ -163,8 +169,8 @@ func testAccComputeRouterNoRegion(providerRegion string) string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
-			network = "${google_compute_network.foobar.self_link}"
+			name = "router-test-subnetwork-%s"
+			network = "${google_compute_network.foobar.name}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "%s"
 		}
@@ -185,7 +191,7 @@ func testAccComputeRouterNetworkLink() string {
 			name = "router-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "router-test-%s"
+			name = "router-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "europe-west1"

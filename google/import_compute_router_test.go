@@ -7,6 +7,8 @@ import (
 )
 
 func TestAccComputeRouter_import(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_router.foobar"
 	resourceRegion := "europe-west1"
 	resource.Test(t, resource.TestCase{

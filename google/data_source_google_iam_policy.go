@@ -71,7 +71,7 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		binding := v.(map[string]interface{})
 		policy.Bindings[i] = &cloudresourcemanager.Binding{
 			Role:    binding["role"].(string),
-			Members: dataSourceGoogleIamPolicyMembers(binding["members"].(*schema.Set)),
+			Members: convertStringSet(binding["members"].(*schema.Set)),
 		}
 	}
 
@@ -87,17 +87,4 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	d.SetId(strconv.Itoa(hashcode.String(pstring)))
 
 	return nil
-}
-
-// dataSourceGoogleIamPolicyMembers converts a set of members in a binding
-// (a member is a principal, usually an e-mail address) into an array of
-// string.
-func dataSourceGoogleIamPolicyMembers(d *schema.Set) []string {
-	var members []string
-	members = make([]string, d.Len())
-
-	for i, v := range d.List() {
-		members[i] = v.(string)
-	}
-	return members
 }

@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccBigtableTable_basic(t *testing.T) {
+	t.Parallel()
+
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -31,6 +33,8 @@ func TestAccBigtableTable_basic(t *testing.T) {
 }
 
 func TestAccBigtableTable_splitKeys(t *testing.T) {
+	t.Parallel()
+
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -106,11 +110,10 @@ func testAccBigtableTableExists(n string) resource.TestCheckFunc {
 func testAccBigtableTable(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name         = "%s"
-  cluster_id   = "%s"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name          = "%s"
+  cluster_id    = "%s"
+  zone          = "us-central1-b"
+  instance_type = "DEVELOPMENT"
 }
 
 resource "google_bigtable_table" "table" {
@@ -123,11 +126,10 @@ resource "google_bigtable_table" "table" {
 func testAccBigtableTable_splitKeys(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name         = "%s"
-  cluster_id   = "%s"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name          = "%s"
+  cluster_id    = "%s"
+  zone          = "us-central1-b"
+  instance_type = "DEVELOPMENT"
 }
 
 resource "google_bigtable_table" "table" {

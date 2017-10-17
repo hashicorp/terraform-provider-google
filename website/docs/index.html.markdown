@@ -95,3 +95,13 @@ the process more straightforwarded, it is documented here:
    dropdown, and select "JSON" as the key type.
 
 4. Clicking "Create" will download your `credentials`.
+
+## Beta Features
+
+Some Google Provider resources contain Beta features; Beta GCP Features have no
+deprecation policy, and no SLA, but are otherwise considered to be feature-complete
+with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
+is publicly announced, and is when they generally become publicly available.
+
+Resources will automatically be provisioned using Beta APIs when you specify a feature
+marked Beta in your Terraform config file.

@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccBigtableInstance_basic(t *testing.T) {
+	t.Parallel()
+
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -20,6 +22,27 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableInstance(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableInstanceExists(
+						"google_bigtable_instance.instance"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_development(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableInstance_development(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
 						"google_bigtable_instance.instance"),
@@ -89,6 +112,17 @@ resource "google_bigtable_instance" "instance" {
 	zone         = "us-central1-b"
 	num_nodes    = 3
 	storage_type = "HDD"
+}
+`, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_development(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name          = "%s"
+	cluster_id    = "%s"
+	zone          = "us-central1-b"
+	instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
 }

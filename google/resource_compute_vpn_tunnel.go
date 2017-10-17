@@ -34,9 +34,10 @@ func resourceComputeVpnTunnel() *schema.Resource {
 			},
 
 			"shared_secret": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
+				ForceNew:  true,
 			},
 
 			"target_vpn_gateway": &schema.Schema{
@@ -176,7 +177,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error Inserting VPN Tunnel %s : %s", name, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Inserting VPN Tunnel")
+	err = computeOperationWait(config.clientCompute, op, project, "Inserting VPN Tunnel")
 	if err != nil {
 		return fmt.Errorf("Error Waiting to Insert VPN Tunnel %s: %s", name, err)
 	}
@@ -248,7 +249,7 @@ func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error Reading VPN Tunnel %s: %s", name, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting VPN Tunnel")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting VPN Tunnel")
 	if err != nil {
 		return fmt.Errorf("Error Waiting to Delete VPN Tunnel %s: %s", name, err)
 	}

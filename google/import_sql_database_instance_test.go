@@ -10,6 +10,8 @@ import (
 
 // Test importing a first generation database
 func TestAccGoogleSqlDatabaseInstance_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_sql_database_instance.instance"
 	databaseID := acctest.RandInt()
 
@@ -34,6 +36,8 @@ func TestAccGoogleSqlDatabaseInstance_importBasic(t *testing.T) {
 
 // Test importing a second generation database
 func TestAccGoogleSqlDatabaseInstance_importBasic3(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_sql_database_instance.instance"
 	databaseID := acctest.RandInt()
 
