@@ -17,6 +17,7 @@ var (
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
 	AddressBaseApiVersion    = v1
 	AddressVersionedFeatures = []Feature{
+		{Version: v0beta, Item: "address"},
 		{Version: v0beta, Item: "address_type"},
 		{Version: v0beta, Item: "subnetwork"},
 	}
@@ -60,8 +61,12 @@ func resourceComputeAddress() *schema.Resource {
 				DiffSuppressFunc: linkDiffSuppress,
 			},
 
+			// address will be computed unless it is specified explicitly.
+			// address may only be specified for the INTERNAL address_type.
 			"address": &schema.Schema{
 				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
 
@@ -105,6 +110,10 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		Name:        d.Get("name").(string),
 		AddressType: d.Get("address_type").(string),
 		Subnetwork:  d.Get("subnetwork").(string),
+	}
+
+	if desired, ok := d.GetOk("address"); ok {
+		v0BetaAddress.Address = desired.(string)
 	}
 
 	var op interface{}

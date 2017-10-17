@@ -45,7 +45,11 @@ The following arguments are supported:
 
 * `subnetwork` - (Optional) The self link URI of the subnetwork in which to
     create the address. A subnetwork may only be specified for INTERNAL
-    addresses.
+    address types.
+
+* `address` - (Optional) The IP address to reserve. An address may only be
+    specified for INTERNAL address types. The IP address must be inside the
+    specified subnetwork, if any.
 
 ## Attributes Reference
 
