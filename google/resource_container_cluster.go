@@ -191,21 +191,20 @@ func resourceContainerCluster() *schema.Resource {
 			"addons_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"http_load_balancing": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -213,14 +212,13 @@ func resourceContainerCluster() *schema.Resource {
 						"horizontal_pod_autoscaling": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -228,14 +226,13 @@ func resourceContainerCluster() *schema.Resource {
 						"kubernetes_dashboard": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -371,30 +368,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("addons_config"); ok {
-		addonsConfig := v.([]interface{})[0].(map[string]interface{})
-		cluster.AddonsConfig = &container.AddonsConfig{}
-
-		if v, ok := addonsConfig["http_load_balancing"]; ok && len(v.([]interface{})) > 0 {
-			addon := v.([]interface{})[0].(map[string]interface{})
-			cluster.AddonsConfig.HttpLoadBalancing = &container.HttpLoadBalancing{
-				Disabled: addon["disabled"].(bool),
-			}
-		}
-
-		if v, ok := addonsConfig["horizontal_pod_autoscaling"]; ok && len(v.([]interface{})) > 0 {
-			addon := v.([]interface{})[0].(map[string]interface{})
-			cluster.AddonsConfig.HorizontalPodAutoscaling = &container.HorizontalPodAutoscaling{
-				Disabled: addon["disabled"].(bool),
-			}
-		}
-
-		if v, ok := addonsConfig["kubernetes_dashboard"]; ok && len(v.([]interface{})) > 0 {
-			addon := v.([]interface{})[0].(map[string]interface{})
-			cluster.AddonsConfig.KubernetesDashboard = &container.KubernetesDashboard{
-				Disabled: addon["disabled"].(bool),
-			}
-		}
+		cluster.AddonsConfig = expandClusterAddonsConfig(v)
 	}
+
 	if v, ok := d.GetOk("node_config"); ok {
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
@@ -501,6 +477,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	if cluster.AddonsConfig != nil {
+		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
+	}
 	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
 	if err != nil {
 		return err
@@ -593,6 +572,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
+	}
+
+	if d.HasChange("addons_config") {
+		if ac, ok := d.GetOk("addons_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
+				},
+			}
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster addons", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+
+			log.Printf("[INFO] GKE cluster %s addons have been updated", d.Id())
+
+			d.SetPartial("addons_config")
+		}
 	}
 
 	if d.HasChange("additional_zones") {
@@ -738,6 +742,62 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 	}
 	return instanceGroupURLs, nil
+}
+
+func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
+	config := configured.([]interface{})[0].(map[string]interface{})
+	ac := &container.AddonsConfig{}
+
+	if v, ok := config["http_load_balancing"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.HttpLoadBalancing = &container.HttpLoadBalancing{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["horizontal_pod_autoscaling"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.HorizontalPodAutoscaling = &container.HorizontalPodAutoscaling{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["kubernetes_dashboard"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.KubernetesDashboard = &container.KubernetesDashboard{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+	return ac
+}
+
+func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interface{} {
+	result := make(map[string]interface{})
+	if c.HorizontalPodAutoscaling != nil {
+		result["horizontal_pod_autoscaling"] = []map[string]interface{}{
+			{
+				"disabled": c.HorizontalPodAutoscaling.Disabled,
+			},
+		}
+	}
+	if c.HttpLoadBalancing != nil {
+		result["http_load_balancing"] = []map[string]interface{}{
+			{
+				"disabled": c.HttpLoadBalancing.Disabled,
+			},
+		}
+	}
+	if c.KubernetesDashboard != nil {
+		result["kubernetes_dashboard"] = []map[string]interface{}{
+			{
+				"disabled": c.KubernetesDashboard.Disabled,
+			},
+		}
+	}
+	return []map[string]interface{}{result}
 }
 
 func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*container.NodePool) ([]map[string]interface{}, error) {
