@@ -8,8 +8,7 @@ description: |-
 
 # google\_service\_account\_key
 
-Allows management of a key, and must be created or imported for use with
-[Google Cloud Platform service account](https://cloud.google.com/compute/docs/access/service-accounts).
+Creates and manages service account key-pairs, which allow the user to establish identity of a service account outside of GCP. For more information, see [the official documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and [API](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys).
 
 
 ## Example Usage, creating a new Key Pair
@@ -46,9 +45,11 @@ resource "google_service_account_key" "acceptance" {
 The following arguments are supported:
 * `name` - The name used for this key pair (not used on create)
 
-* `service_account_id` - (Required) The Serice account id of the Key Pair.
+* `service_account_id` - (Required) The Service account id of the Key Pair.
 
-* `key_algorithm` - (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format. Valid values [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountPrivateKeyType) (only used on create)
+* `key_algorithm` - (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format. Valid values are listed at [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountPrivateKeyType) (only used on create)
+
+* `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
 
 * `private_key_type` (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format.
 
@@ -63,16 +64,17 @@ Without a PGP key, the private key material will be stored in state unencrypted.
 The following attributes are exported in addition to the arguments listed above:
 
 * `fingerprint` - The MD5 public key fingerprint as specified in section 4 of RFC 4716.
-* `public_key` - the public key, base64 encoded
-* `private_key` - the private key, base64 encoded. This is only populated
+* `public_key` - The public key, base64 encoded
+* `private_key` - The private key, base64 encoded. This is only populated
 when creating a new key, and when no `pgp_key` is provided
-* `encrypted_private_key` – the private key material, base 64 encoded and
+* `private_key_encrypted` – The private key material, base 64 encoded and
 encrypted with the given `pgp_key`. This is only populated when creating a new
 key and `pgp_key` is supplied
-* `encrypted_fingerprint` - The MD5 public key fingerprint for the encrypted
+* `private_key_fingerprint` - The MD5 public key fingerprint for the encrypted
 private key
 
-## Import
+* `valid_after` - The key can be used after this timestamp. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 
-Lightsail Key Pairs cannot be imported, because the private and public key are
-only available on initial creation.
+* `valid_before` - The key can be used before this timestamp.
+A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
+

@@ -76,16 +76,17 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 }
 
 func testAccGoogleServiceAccountKey(account, name string) string {
-	return fmt.Sprintf(
-		`resource "google_service_account" "acceptance" {
-		account_id = "%s"
-		display_name = "%s"
-	}
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+	account_id = "%s"
+	display_name = "%s"
+}
 
-	resource "google_service_account_key" "acceptance" {
-		service_account_id = "${google_service_account.acceptance.id}"
-		public_key_type = "TYPE_X509_PEM_FILE"
-	}`, account, name)
+resource "google_service_account_key" "acceptance" {
+	service_account_id = "${google_service_account.acceptance.id}"
+	public_key_type = "TYPE_X509_PEM_FILE"
+}
+`, account, name)
 }
 
 func testAccGoogleServiceAccountKey_pgp(account, name string, key string) string {
