@@ -33,6 +33,7 @@ func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
 
 func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
 			return fmt.Errorf("Not found: %s", r)
@@ -40,6 +41,12 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
+		}
+		config := testAccProvider.Meta().(*Config)
+
+		_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(rs.Primary.ID).Do()
+		if err != nil {
+			return err
 		}
 
 		return nil

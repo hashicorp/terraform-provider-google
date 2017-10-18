@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/encryption"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -20,35 +21,25 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"public_key_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			// Optional
-			"private_key_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Default:  "TYPE_GOOGLE_CREDENTIALS_FILE",
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"key_algorithm": &schema.Schema{
-				Type:     schema.TypeString,
-				Default:  "KEY_ALG_RSA_2048",
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Default:      "KEY_ALG_RSA_2048",
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"KEY_ALG_UNSPECIFIED", "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048"}, false),
 			},
-
 			"pgp_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"private_key": &schema.Schema{
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+			"private_key_type": &schema.Schema{
+				Type:         schema.TypeString,
+				Default:      "TYPE_GOOGLE_CREDENTIALS_FILE",
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "TYPE_PKCS12_FILE", "TYPE_GOOGLE_CREDENTIALS_FILE"}, false),
 			},
 			"public_key": {
 				Type:     schema.TypeString,
@@ -56,13 +47,24 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"public_key_type": &schema.Schema{
+				Type:         schema.TypeString,
+				Default:      "X509_PEM",
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"TYPE_NONE", "TYPE_X509_PEM_FILE", "TYPE_RAW_PUBLIC_KEY"}, false),
+			},
+			// Computed
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 				ForceNew: true,
 			},
-			// Computed
+			"private_key": &schema.Schema{
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
 			"valid_after": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -88,26 +90,18 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 
 	serviceAccount := d.Get("service_account_id").(string)
 
-	r := &iam.CreateServiceAccountKeyRequest{}
-
-	if v, ok := d.GetOk("key_algorithm"); ok {
-		r.KeyAlgorithm = v.(string)
+	r := &iam.CreateServiceAccountKeyRequest{
+		KeyAlgorithm: d.Get("key_algorithm").(string),
 	}
 
-	var pubKey string
 	var err error
-	if pubkeyInterface, ok := d.GetOk("public_key"); ok {
-		pubKey = pubkeyInterface.(string)
-	}
 
-	if pubKey == "" {
+	if _, ok := d.GetOk("public_key"); !ok {
 
-		if v, ok := d.GetOk("private_key_type"); ok {
-			r.PrivateKeyType = v.(string)
-		}
+		r.PrivateKeyType = d.Get("private_key_type").(string)
 
 		sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
-		if err != nil || sak == nil {
+		if err != nil {
 			return fmt.Errorf("Error creating service account key: %s", err)
 		}
 

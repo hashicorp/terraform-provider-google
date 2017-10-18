@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/googleapi"
-	iam "google.golang.org/api/iam/v1"
+	"google.golang.org/api/iam/v1"
 )
 
 type ServiceAccountKeyWaiter struct {
