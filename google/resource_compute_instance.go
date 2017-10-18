@@ -920,7 +920,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 	attachedDiskSources := make(map[string]int, attachedDisksCount)
 	for i := 0; i < attachedDisksCount; i++ {
-		attachedDiskSources[d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string)] = i
+		source, err := ParseDiskFieldValue(d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string), d, config)
+		if err != nil {
+			return err
+		}
+		attachedDiskSources[source.RelativeLink()] = i
 	}
 
 	sIndex := 0
@@ -934,7 +938,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
 		} else {
-			adIndex, inConfig := attachedDiskSources[disk.Source]
+			source, err := ParseDiskFieldValue(disk.Source, d, config)
+			if err != nil {
+				return err
+			}
+			adIndex, inConfig := attachedDiskSources[source.RelativeLink()]
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
