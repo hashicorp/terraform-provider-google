@@ -1,17 +1,19 @@
 package google
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 func resourceSqlDatabaseInstance() *schema.Resource {
@@ -23,6 +25,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		MigrateState:  resourceSqlDatabaseInstanceMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
@@ -128,8 +132,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authorized_networks": &schema.Schema{
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Optional: true,
+										Set:      resourceSqlDatabaseInstanceAuthNetworkHash,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"expiration_time": &schema.Schema{
@@ -973,6 +978,27 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func resourceSqlDatabaseInstanceAuthNetworkHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	if v, ok := m["expiration_time"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := m["name"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := m["value"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
 }
 
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {

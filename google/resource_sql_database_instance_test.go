@@ -14,11 +14,11 @@ import (
 	"strings"
 	"testing"
 
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-
-	"google.golang.org/api/sqladmin/v1beta4"
 )
 
 func init() {
@@ -204,7 +204,7 @@ func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.
 	// 1. Create an instance.
 	// 2. Add a root@'%' user.
 	// 3. Create a replica and assert it succeeds (it'll fail if we try to delete the root user thinking it's a
-	//    default user)
+	//		default user)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -731,53 +731,53 @@ resource "google_sql_database_instance" "instance" {
 
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
 	return fmt.Sprintf(`resource "google_sql_database_instance" "instance" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
+	name							 = "%s"
+	region						 = "us-central1"
+	database_version	 = "MYSQL_5_7"
 
-  settings {
-    tier             = "db-n1-standard-1"
+	settings {
+		tier						 = "db-n1-standard-1"
 
-    backup_configuration {
-        binary_log_enabled = "true"
-        enabled            = "true"
-        start_time         = "18:00"
-    }
-  }
+		backup_configuration {
+				binary_log_enabled = "true"
+				enabled						 = "true"
+				start_time				 = "18:00"
+		}
+	}
 }`, instanceName)
 }
 
 func testGoogleSqlDatabaseInstanceConfig_withReplica(instanceName, failoverName string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
+	name							 = "%s"
+	region						 = "us-central1"
+	database_version	 = "MYSQL_5_7"
 
-  settings {
-    tier             = "db-n1-standard-1"
+	settings {
+		tier						 = "db-n1-standard-1"
 
-    backup_configuration {
-        binary_log_enabled = "true"
-        enabled            = "true"
-        start_time         = "18:00"
-    }
-  }
+		backup_configuration {
+				binary_log_enabled = "true"
+				enabled						 = "true"
+				start_time				 = "18:00"
+		}
+	}
 }
 
 resource "google_sql_database_instance" "instance-failover" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
-  master_instance_name = "${google_sql_database_instance.instance.name}"
+	name							 = "%s"
+	region						 = "us-central1"
+	database_version	 = "MYSQL_5_7"
+	master_instance_name = "${google_sql_database_instance.instance.name}"
 
-  replica_configuration {
-    failover_target        = "true"
-  }
+	replica_configuration {
+		failover_target				 = "true"
+	}
 
-  settings {
-    tier             = "db-n1-standard-1"
-  }
+	settings {
+		tier						 = "db-n1-standard-1"
+	}
 }
 `, instanceName, failoverName)
 }
@@ -908,10 +908,10 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 
 		maintenance_window {
-		  day  = 7
-		  hour = 3
+			day  = 7
+			hour = 3
 			update_track = "canary"
-	  }
+		}
 	}
 }
 `
