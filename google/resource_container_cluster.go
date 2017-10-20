@@ -173,7 +173,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"network": {
@@ -645,6 +644,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
 
 		d.SetPartial("enable_legacy_abac")
+	}
+
+	if d.HasChange("monitoring_service") {
+		desiredMonitoringService := d.Get("monitoring_service").(string)
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredMonitoringService: desiredMonitoringService,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster monitoring service", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+		log.Printf("[INFO] Monitoring service for GKE cluster %s has been updated to %s", d.Id(),
+			desiredMonitoringService)
+
+		d.SetPartial("monitoring_service")
 	}
 
 	if n, ok := d.GetOk("node_pool.#"); ok {
