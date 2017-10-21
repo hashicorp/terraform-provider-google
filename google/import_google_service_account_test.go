@@ -13,9 +13,8 @@ func TestAccGoogleServiceAccount_importBasic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_service_account.acceptance"
-	project := os.Getenv("GOOGLE_PROJECT")
 	sa_name := "terraform-" + acctest.RandString(10)
-	conf := testAccGoogleServiceAccount_import(project, sa_name)
+	conf := testAccGoogleServiceAccount_import(sa_name)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -34,7 +33,40 @@ func TestAccGoogleServiceAccount_importBasic(t *testing.T) {
 	})
 }
 
-func testAccGoogleServiceAccount_import(project, sa_name string) string {
+func testAccGoogleServiceAccount_import(sa_name string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+    account_id = "%s"
+    display_name = "%s"
+}`, sa_name, sa_name)
+}
+
+func TestAccGoogleServiceAccount_importWithProject(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_service_account.acceptance"
+	project := os.Getenv("GOOGLE_PROJECT")
+	sa_name := "terraform-" + acctest.RandString(10)
+	conf := testAccGoogleServiceAccount_importWithProject(project, sa_name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: conf,
+			},
+
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGoogleServiceAccount_importWithProject(project, sa_name string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
     project = "%s"
