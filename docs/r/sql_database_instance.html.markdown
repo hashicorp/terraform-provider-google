@@ -142,7 +142,7 @@ The optional `settings.location_preference` subblock supports:
 
 The optional `settings.maintenance_window` subblock for Second Generation
 instances declares a one-hour [maintenance window](https://cloud.google.com/sql/docs/instance-settings?hl=en#maintenance-window-2ndgen)
-when an Instance can automatically restart to apply updates. It supports:
+when an Instance can automatically restart to apply updates. The maintenance window is specified in UTC time. It supports:
 
 * `day` - (Optional) Day of week (`1-7`), starting on Monday
 
