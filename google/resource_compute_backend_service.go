@@ -305,14 +305,12 @@ func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
 		return make([]map[string]interface{}, 1, 1)
 	}
 
-	result := make([]map[string]interface{}, 0, 1)
 	iapMap := map[string]interface{}{
 		"enabled":              iap.Enabled,
 		"oauth2_client_id":     iap.Oauth2ClientId,
 		"oauth2_client_secret": iap.Oauth2ClientSecretSha256,
 	}
-	result = append(result, iapMap)
-	return result
+	return []map[string]interface{}{iapMap}
 }
 
 func expandBackends(configured []interface{}) []*compute.Backend {
@@ -376,6 +374,13 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 		healthChecks = append(healthChecks, v.(string))
 	}
 
+	// The IAP service is enabled and disabled by adding or removing
+	// the IAP configuration block (and providing the client id
+	// and secret). We are force sending the three required API fields
+	// to enable/disable IAP at all times here, and relying on Golang's
+	// type defaults to enable or disable IAP in the existance or absense
+	// of the block, instead of checking if the block exists, zeroing out
+	// fields, etc.
 	service := compute.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,

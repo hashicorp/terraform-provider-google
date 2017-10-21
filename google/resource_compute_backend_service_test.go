@@ -525,10 +525,10 @@ resource "google_compute_backend_service" "lipsum" {
     group = "${google_compute_instance_group_manager.foobar.instance_group}"
 	}
 
-	iap {
-		oauth2_client_id = "test"
-		oauth2_client_secret = "test"
-	}
+  iap {
+    oauth2_client_id = "test"
+    oauth2_client_secret = "test"
+  }
 
   health_checks = ["${google_compute_http_health_check.default.self_link}"]
 }
