@@ -3,6 +3,7 @@ package google
 import (
 	"bytes"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"log"
 
@@ -20,6 +21,7 @@ func resourceComputeBackendService() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -70,8 +72,9 @@ func resourceComputeBackendService() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 						"balancing_mode": &schema.Schema{
 							Type:     schema.TypeString,
@@ -174,7 +177,10 @@ func resourceComputeBackendService() *schema.Resource {
 func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	service := expandBackendService(d)
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -183,7 +189,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Creating new Backend Service: %#v", service)
 	op, err := config.clientCompute.BackendServices.Insert(
-		project, &service).Do()
+		project, service).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating backend service: %s", err)
 	}
@@ -194,7 +200,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	d.SetId(service.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWait(config, op, project, "Creating Backend Service")
+	waitErr := computeOperationWait(config.clientCompute, op, project, "Creating Backend Service")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -239,7 +245,10 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	service := expandBackendService(d)
+	service, err := expandBackendService(d)
+	if err != nil {
+		return err
+	}
 	service.Fingerprint = d.Get("fingerprint").(string)
 
 	project, err := getProject(d, config)
@@ -249,14 +258,14 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
 	op, err := config.clientCompute.BackendServices.Update(
-		project, d.Id(), &service).Do()
+		project, d.Id(), service).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config, op, project, "Updating Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
 	}
@@ -279,7 +288,7 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting backend service: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Backend Service")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Service")
 	if err != nil {
 		return err
 	}
@@ -313,14 +322,19 @@ func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
 	return []map[string]interface{}{iapMap}
 }
 
-func expandBackends(configured []interface{}) []*compute.Backend {
+func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	backends := make([]*compute.Backend, 0, len(configured))
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
+		g, ok := data["group"]
+		if !ok {
+			return nil, errors.New("google_compute_backend_service.backend.group must be set")
+		}
+
 		b := compute.Backend{
-			Group: data["group"].(string),
+			Group: g.(string),
 		}
 
 		if v, ok := data["balancing_mode"]; ok {
@@ -345,7 +359,7 @@ func expandBackends(configured []interface{}) []*compute.Backend {
 		backends = append(backends, &b)
 	}
 
-	return backends
+	return backends, nil
 }
 
 func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
@@ -367,7 +381,7 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 	return result
 }
 
-func expandBackendService(d *schema.ResourceData) compute.BackendService {
+func expandBackendService(d *schema.ResourceData) (*compute.BackendService, error) {
 	hc := d.Get("health_checks").(*schema.Set).List()
 	healthChecks := make([]string, 0, len(hc))
 	for _, v := range hc {
@@ -381,7 +395,7 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 	// type defaults to enable or disable IAP in the existance or absense
 	// of the block, instead of checking if the block exists, zeroing out
 	// fields, etc.
-	service := compute.BackendService{
+	service := &compute.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,
 		Iap: &compute.BackendServiceIAP{
@@ -393,8 +407,12 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 		service.Iap = expandIap(v.([]interface{}))
 	}
 
+	var err error
 	if v, ok := d.GetOk("backend"); ok {
-		service.Backends = expandBackends(v.(*schema.Set).List())
+		service.Backends, err = expandBackends(v.(*schema.Set).List())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -428,7 +446,7 @@ func expandBackendService(d *schema.ResourceData) compute.BackendService {
 
 	service.ConnectionDraining = connectionDraining
 
-	return service
+	return service, nil
 }
 
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
@@ -439,7 +457,8 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
+	group, _ := getRelativePath(m["group"].(string))
+	buf.WriteString(fmt.Sprintf("%s-", group))
 
 	if v, ok := m["balancing_mode"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))

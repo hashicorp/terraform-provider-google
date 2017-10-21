@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccGoogleSqlDatabase_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_sql_database.database"
 
 	resource.Test(t, resource.TestCase{

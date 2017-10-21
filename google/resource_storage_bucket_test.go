@@ -15,6 +15,8 @@ import (
 )
 
 func TestAccStorageBucket_basic(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -39,6 +41,8 @@ func TestAccStorageBucket_basic(t *testing.T) {
 }
 
 func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -59,6 +63,8 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 }
 
 func TestAccStorageBucket_customAttributes(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -83,6 +89,8 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 }
 
 func TestAccStorageBucket_lifecycleRules(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
 
@@ -129,6 +137,8 @@ func TestAccStorageBucket_lifecycleRules(t *testing.T) {
 }
 
 func TestAccStorageBucket_storageClass(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
 
@@ -171,6 +181,8 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 }
 
 func TestAccStorageBucket_update(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -207,8 +219,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
-					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
@@ -221,8 +231,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -244,8 +252,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
@@ -280,8 +286,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "predefined_acl", "publicReadWrite"),
-					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
@@ -294,6 +298,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 }
 
 func TestAccStorageBucket_forceDestroy(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -316,7 +322,7 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccStorageBucket_customAttributes("idontexist"),
+				Config: testAccStorageBucket_customAttributes(acctest.RandomWithPrefix("tf-test-acl-bucket")),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketMissing(bucketName),
 				),
@@ -326,6 +332,8 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 }
 
 func TestAccStorageBucket_versioning(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -350,6 +358,8 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 }
 
 func TestAccStorageBucket_cors(t *testing.T) {
+	t.Parallel()
+
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
@@ -524,7 +534,6 @@ func testAccStorageBucket_customAttributes(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 }
@@ -535,7 +544,6 @@ func testAccStorageBucket_customAttributes_withLifecycle1(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {
@@ -554,7 +562,6 @@ func testAccStorageBucket_customAttributes_withLifecycle2(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	predefined_acl = "publicReadWrite"
 	location = "EU"
 	force_destroy = "true"
 	lifecycle_rule {

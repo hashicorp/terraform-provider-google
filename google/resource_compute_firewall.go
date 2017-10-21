@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -21,7 +20,7 @@ var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "deny"},
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
-	Feature{Version: v0beta, Item: "priority"},
+	Feature{Version: v0beta, Item: "priority", DefaultValue: COMPUTE_FIREWALL_PRIORITY_DEFAULT},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -44,9 +43,10 @@ func resourceComputeFirewall() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"priority": {
@@ -225,7 +225,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(firewall.Name)
 
-	err = computeSharedOperationWait(config, op, project, "Creating Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Firewall")
 	if err != nil {
 		return err
 	}
@@ -294,10 +294,9 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	networkUrl := strings.Split(firewall.Network, "/")
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
 	d.Set("name", firewall.Name)
-	d.Set("network", networkUrl[len(networkUrl)-1])
+	d.Set("network", ConvertSelfLinkToV1(firewall.Network))
 
 	// Unlike most other Beta properties, direction will always have a value even when
 	// a zero is sent by the client. We'll never revert back to v1 without conditionally reading it.
@@ -360,7 +359,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Updating Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Firewall")
 	if err != nil {
 		return err
 	}
@@ -394,7 +393,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Deleting Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting Firewall")
 	if err != nil {
 		return err
 	}
@@ -405,11 +404,10 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
-	project, _ := getProject(d, config)
 
-	network, err := config.clientCompute.Networks.Get(project, d.Get("network").(string)).Do()
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading network: %s", err)
+		return nil, err
 	}
 
 	// Build up the list of allowed entries
@@ -494,7 +492,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
-		Network:           network.SelfLink,
+		Network:           network.RelativeLink(),
 		Allowed:           allowed,
 		Denied:            denied,
 		SourceRanges:      sourceRanges,

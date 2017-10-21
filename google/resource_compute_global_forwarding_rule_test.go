@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeGlobalForwardingRule_basic(t *testing.T) {
+	t.Parallel()
+
 	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
 	proxy1 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
 	proxy2 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
@@ -39,6 +41,8 @@ func TestAccComputeGlobalForwardingRule_basic(t *testing.T) {
 }
 
 func TestAccComputeGlobalForwardingRule_update(t *testing.T) {
+	t.Parallel()
+
 	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
 	proxy1 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
 	proxy2 := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
@@ -71,6 +75,8 @@ func TestAccComputeGlobalForwardingRule_update(t *testing.T) {
 }
 
 func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
+	t.Parallel()
+
 	var frule computeBeta.ForwardingRule
 
 	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))
@@ -98,6 +104,8 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 }
 
 func TestAccComputeGlobalForwardingRule_labels(t *testing.T) {
+	t.Parallel()
+
 	var frule computeBeta.ForwardingRule
 
 	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(10))

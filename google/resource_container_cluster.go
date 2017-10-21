@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -172,7 +173,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"network": {
@@ -190,21 +190,20 @@ func resourceContainerCluster() *schema.Resource {
 			"addons_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"http_load_balancing": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -212,20 +211,43 @@ func resourceContainerCluster() *schema.Resource {
 						"horizontal_pod_autoscaling": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
+									},
+								},
+							},
+						},
+						"kubernetes_dashboard": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
 									},
 								},
 							},
 						},
 					},
 				},
+			},
+
+			"master_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"min_master_version": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"node_config": schemaNodeConfig,
@@ -242,37 +264,7 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"initial_node_count": {
-							Type:       schema.TypeInt,
-							Optional:   true,
-							ForceNew:   true,
-							Computed:   true,
-							Deprecated: "Use node_count instead",
-						},
-
-						"node_count": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntAtLeast(1),
-						},
-
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
-
-						"name_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-
-						"node_config": schemaNodeConfig,
-					},
+					Schema: schemaNodePool,
 				},
 			},
 
@@ -312,8 +304,19 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	if v, ok := d.GetOk("node_version"); ok {
+	if v, ok := d.GetOk("min_master_version"); ok {
 		cluster.InitialClusterVersion = v.(string)
+	}
+
+	// Only allow setting node_version on create if it's set to the equivalent master version,
+	// since `InitialClusterVersion` only accepts valid master-style versions.
+	if v, ok := d.GetOk("node_version"); ok {
+		// ignore -gke.X suffix for now. if it becomes a problem later, we can fix it.
+		mv := strings.Split(cluster.InitialClusterVersion, "-")[0]
+		nv := strings.Split(v.(string), "-")[0]
+		if mv != nv {
+			return fmt.Errorf("node_version and min_master_version must be set to equivalent values on create")
+		}
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
@@ -364,23 +367,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("addons_config"); ok {
-		addonsConfig := v.([]interface{})[0].(map[string]interface{})
-		cluster.AddonsConfig = &container.AddonsConfig{}
-
-		if v, ok := addonsConfig["http_load_balancing"]; ok && len(v.([]interface{})) > 0 {
-			addon := v.([]interface{})[0].(map[string]interface{})
-			cluster.AddonsConfig.HttpLoadBalancing = &container.HttpLoadBalancing{
-				Disabled: addon["disabled"].(bool),
-			}
-		}
-
-		if v, ok := addonsConfig["horizontal_pod_autoscaling"]; ok && len(v.([]interface{})) > 0 {
-			addon := v.([]interface{})[0].(map[string]interface{})
-			cluster.AddonsConfig.HorizontalPodAutoscaling = &container.HorizontalPodAutoscaling{
-				Disabled: addon["disabled"].(bool),
-			}
-		}
+		cluster.AddonsConfig = expandClusterAddonsConfig(v)
 	}
+
 	if v, ok := d.GetOk("node_config"); ok {
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
@@ -389,36 +378,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	if nodePoolsCount > 0 {
 		nodePools := make([]*container.NodePool, 0, nodePoolsCount)
 		for i := 0; i < nodePoolsCount; i++ {
-			prefix := fmt.Sprintf("node_pool.%d", i)
-
-			nodeCount := 0
-			if initialNodeCount, ok := d.GetOk(prefix + ".initial_node_count"); ok {
-				nodeCount = initialNodeCount.(int)
-			}
-			if nc, ok := d.GetOk(prefix + ".node_count"); ok {
-				if nodeCount != 0 {
-					return fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %d", i)
-				}
-				nodeCount = nc.(int)
-			}
-			if nodeCount == 0 {
-				return fmt.Errorf("Node pool %d cannot be set with 0 node count", i)
-			}
-
-			name, err := generateNodePoolName(prefix, d)
+			prefix := fmt.Sprintf("node_pool.%d.", i)
+			nodePool, err := expandNodePool(d, prefix)
 			if err != nil {
 				return err
 			}
-
-			nodePool := &container.NodePool{
-				Name:             name,
-				InitialNodeCount: int64(nodeCount),
-			}
-
-			if v, ok := d.GetOk(prefix + ".node_config"); ok {
-				nodePool.Config = expandNodeConfig(v)
-			}
-
 			nodePools = append(nodePools, nodePool)
 		}
 		cluster.NodePools = nodePools
@@ -459,8 +423,18 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	zoneName := d.Get("zone").(string)
 
-	cluster, err := config.clientContainer.Projects.Zones.Clusters.Get(
-		project, zoneName, d.Get("name").(string)).Do()
+	var cluster *container.Cluster
+	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
+		cluster, err = config.clientContainer.Projects.Zones.Clusters.Get(
+			project, zoneName, d.Get("name").(string)).Do()
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if cluster.Status != "RUNNING" {
+			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
+		}
+		return nil
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
 	}
@@ -492,6 +466,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("master_auth", masterAuth)
 
 	d.Set("initial_node_count", cluster.InitialNodeCount)
+	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
@@ -501,6 +476,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	if cluster.AddonsConfig != nil {
+		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
+	}
 	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
 	if err != nil {
 		return err
@@ -530,13 +508,51 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
+	// The master must be updated before the nodes
+	if d.HasChange("min_master_version") {
+		desiredMasterVersion := d.Get("min_master_version").(string)
+		currentMasterVersion := d.Get("master_version").(string)
+		des, err := version.NewVersion(desiredMasterVersion)
+		if err != nil {
+			return err
+		}
+		cur, err := version.NewVersion(currentMasterVersion)
+		if err != nil {
+			return err
+		}
+
+		// Only upgrade the master if the current version is lower than the desired version
+		if cur.LessThan(des) {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredMasterVersion: desiredMasterVersion,
+				},
+			}
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+
+			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
+				desiredMasterVersion)
+		}
+
+		d.SetPartial("min_master_version")
+	}
+
 	if d.HasChange("node_version") {
 		desiredNodeVersion := d.Get("node_version").(string)
 
-		// The master must be updated before the nodes
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredMasterVersion: desiredNodeVersion,
+				DesiredNodeVersion: desiredNodeVersion,
 			},
 		}
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
@@ -546,28 +562,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
-		}
-
-		log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
-			desiredNodeVersion)
-
-		// Update the nodes
-		req = &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
-			},
-		}
-		op, err = config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
-		}
-
-		// Wait until it's updated
-		waitErr = containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
 		if waitErr != nil {
 			return waitErr
 		}
@@ -576,6 +571,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			desiredNodeVersion)
 
 		d.SetPartial("node_version")
+	}
+
+	if d.HasChange("addons_config") {
+		if ac, ok := d.GetOk("addons_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
+				},
+			}
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster addons", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+
+			log.Printf("[INFO] GKE cluster %s addons have been updated", d.Id())
+
+			d.SetPartial("addons_config")
+		}
 	}
 
 	if d.HasChange("additional_zones") {
@@ -630,26 +650,35 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("enable_legacy_abac")
 	}
 
+	if d.HasChange("monitoring_service") {
+		desiredMonitoringService := d.Get("monitoring_service").(string)
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredMonitoringService: desiredMonitoringService,
+			},
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster monitoring service", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+		log.Printf("[INFO] Monitoring service for GKE cluster %s has been updated to %s", d.Id(),
+			desiredMonitoringService)
+
+		d.SetPartial("monitoring_service")
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
-			if d.HasChange(fmt.Sprintf("node_pool.%d.node_count", i)) {
-				newSize := int64(d.Get(fmt.Sprintf("node_pool.%d.node_count", i)).(int))
-				req := &container.SetNodePoolSizeRequest{
-					NodeCount: newSize,
-				}
-				npName := d.Get(fmt.Sprintf("node_pool.%d.name", i)).(string)
-				op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zoneName, clusterName, npName, req).Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node pool size", timeoutInMinutes, 2)
-				if waitErr != nil {
-					return waitErr
-				}
-
-				log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
+			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
+				return err
 			}
 		}
 		d.SetPartial("node_pool")
@@ -739,51 +768,74 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 	return instanceGroupURLs, nil
 }
 
+func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
+	config := configured.([]interface{})[0].(map[string]interface{})
+	ac := &container.AddonsConfig{}
+
+	if v, ok := config["http_load_balancing"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.HttpLoadBalancing = &container.HttpLoadBalancing{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["horizontal_pod_autoscaling"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.HorizontalPodAutoscaling = &container.HorizontalPodAutoscaling{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["kubernetes_dashboard"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.KubernetesDashboard = &container.KubernetesDashboard{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+	return ac
+}
+
+func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interface{} {
+	result := make(map[string]interface{})
+	if c.HorizontalPodAutoscaling != nil {
+		result["horizontal_pod_autoscaling"] = []map[string]interface{}{
+			{
+				"disabled": c.HorizontalPodAutoscaling.Disabled,
+			},
+		}
+	}
+	if c.HttpLoadBalancing != nil {
+		result["http_load_balancing"] = []map[string]interface{}{
+			{
+				"disabled": c.HttpLoadBalancing.Disabled,
+			},
+		}
+	}
+	if c.KubernetesDashboard != nil {
+		result["kubernetes_dashboard"] = []map[string]interface{}{
+			{
+				"disabled": c.KubernetesDashboard.Disabled,
+			},
+		}
+	}
+	return []map[string]interface{}{result}
+}
+
 func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*container.NodePool) ([]map[string]interface{}, error) {
 	nodePools := make([]map[string]interface{}, 0, len(c))
 
 	for i, np := range c {
-		// Node pools don't expose the current node count in their API, so read the
-		// instance groups instead. They should all have the same size, but in case a resize
-		// failed or something else strange happened, we'll just use the average size.
-		size := 0
-		for _, url := range np.InstanceGroupUrls {
-			// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
-			matches := instanceGroupManagerURL.FindStringSubmatch(url)
-			igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
-			if err != nil {
-				return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
-			}
-			size += int(igm.TargetSize)
-		}
-		nodePool := map[string]interface{}{
-			"name":               np.Name,
-			"name_prefix":        d.Get(fmt.Sprintf("node_pool.%d.name_prefix", i)),
-			"initial_node_count": np.InitialNodeCount,
-			"node_count":         size / len(np.InstanceGroupUrls),
-			"node_config":        flattenNodeConfig(np.Config),
+		nodePool, err := flattenNodePool(d, config, np, fmt.Sprintf("node_pool.%d.", i))
+		if err != nil {
+			return nil, err
 		}
 		nodePools = append(nodePools, nodePool)
 	}
 
 	return nodePools, nil
-}
-
-func generateNodePoolName(prefix string, d *schema.ResourceData) (string, error) {
-	name, okName := d.GetOk(prefix + ".name")
-	namePrefix, okPrefix := d.GetOk(prefix + ".name_prefix")
-
-	if okName && okPrefix {
-		return "", fmt.Errorf("Cannot specify both name and name_prefix for a node_pool")
-	}
-
-	if okName {
-		return name.(string), nil
-	} else if okPrefix {
-		return resource.PrefixedUniqueId(namePrefix.(string)), nil
-	} else {
-		return resource.UniqueId(), nil
-	}
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

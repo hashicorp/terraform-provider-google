@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccStorageBucket_import(t *testing.T) {
+	t.Parallel()
+
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
 
 	resource.Test(t, resource.TestCase{

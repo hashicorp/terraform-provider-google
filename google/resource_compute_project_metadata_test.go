@@ -13,6 +13,8 @@ import (
 
 // Add two key value pairs
 func TestAccComputeProjectMetadata_basic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -45,6 +47,8 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 
 // Add three key value pairs, then replace one and modify a second
 func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -90,6 +94,8 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 
 // Add two key value pairs, and replace both
 func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",

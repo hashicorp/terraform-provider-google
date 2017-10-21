@@ -48,9 +48,6 @@ The following arguments are supported:
 * `location` - (Optional, Default: 'US') The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
 
-* `predefined_acl` - (Optional, Deprecated) The [canned GCS ACL](https://cloud.google.com/storage/docs/access-control#predefined-acl) to apply. Please switch
-to `google_storage_bucket_acl.predefined_acl`.
-
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 

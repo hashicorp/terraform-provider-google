@@ -2,149 +2,85 @@ package google
 
 import (
 	"fmt"
-	"os"
-	"reflect"
-	"sort"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"os"
 )
 
 func TestAccComputeSharedVpc_basic(t *testing.T) {
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
+	skipIfEnvNotSet(t, "GOOGLE_ORG", "GOOGLE_BILLING_ACCOUNT")
 	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
-	pid := "terraform-" + acctest.RandString(10)
-	pid2 := "terraform-" + acctest.RandString(10)
+
+	hostProject := "xpn-host-" + acctest.RandString(10)
+	serviceProject := "xpn-service-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSharedVpc_basic(pid, pid2, pname, org, billingId),
+				Config: testAccComputeSharedVpc_basic(hostProject, serviceProject, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSharedVpcHost("google_compute_shared_vpc.vpc", true),
-					testAccCheckComputeSharedVpcResources("google_compute_shared_vpc.vpc", []string{pid2})),
+					testAccCheckComputeSharedVpcHostProject(hostProject, true),
+					testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject, true),
+				),
 			},
-			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist
-			// in order to check the XPN status.
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{
-				Config: testAccComputeSharedVpc_disabled(pid, pid2, pname, org, billingId),
-				// Use the project ID since the google_compute_shared_vpc_host resource no longer exists
-				Check: testAccCheckComputeSharedVpcHost("google_project.host", false),
+				Config: testAccComputeSharedVpc_disabled(hostProject, serviceProject, org, billingId),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSharedVpcHostProject(hostProject, false),
+					testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject, false),
+				),
 			},
 		},
 	})
 }
 
-func TestAccComputeSharedVpc_update(t *testing.T) {
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
-	pid := "terraform-" + acctest.RandString(10)
-	pid2 := "terraform-" + acctest.RandString(10)
-	pid3 := "terraform-" + acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeSharedVpc_basic(pid, pid2, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSharedVpcHost("google_compute_shared_vpc.vpc", true),
-					testAccCheckComputeSharedVpcResources("google_compute_shared_vpc.vpc", []string{pid2})),
-			},
-			resource.TestStep{
-				Config: testAccComputeSharedVpc_addServiceProjects(pid, pid2, pid3, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSharedVpcHost("google_compute_shared_vpc.vpc", true),
-					testAccCheckComputeSharedVpcResources("google_compute_shared_vpc.vpc", []string{pid2, pid3})),
-			},
-			resource.TestStep{
-				Config: testAccComputeSharedVpc_removeServiceProjects(pid, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSharedVpcHost("google_compute_shared_vpc.vpc", true),
-					testAccCheckComputeSharedVpcResources("google_compute_shared_vpc.vpc", []string{})),
-			},
-		},
-	})
-}
-
-func testAccCheckComputeSharedVpcHost(n string, enabled bool) resource.TestCheckFunc {
+func testAccCheckComputeSharedVpcHostProject(hostProject string, enabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientCompute.Projects.Get(rs.Primary.ID).Do()
+		found, err := config.clientCompute.Projects.Get(hostProject).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading project %s: %s", rs.Primary.ID, err)
+			return fmt.Errorf("Error reading project %s: %s", hostProject, err)
 		}
 
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Project %s not found", rs.Primary.ID)
+		if found.Name != hostProject {
+			return fmt.Errorf("Project %s not found", hostProject)
 		}
 
 		if enabled != (found.XpnProjectStatus == "HOST") {
-			return fmt.Errorf("Project %q Shared VPC status was not expected, got %q", rs.Primary.ID, found.XpnProjectStatus)
+			return fmt.Errorf("Project %q shared VPC status was not expected, got %q", hostProject, found.XpnProjectStatus)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeSharedVpcResources(n string, expected []string) resource.TestCheckFunc {
+func testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject string, enabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		tfServiceProjects := []string{}
-		// We don't know the exact keys of the elements, so go through the whole list looking for matching ones
-		for k, v := range rs.Primary.Attributes {
-			if strings.HasPrefix(k, "service_projects") && k != "service_projects.#" {
-				tfServiceProjects = append(tfServiceProjects, v)
+		config := testAccProvider.Meta().(*Config)
+		serviceHostProject, err := config.clientCompute.Projects.GetXpnHost(serviceProject).Do()
+		if err != nil {
+			if enabled {
+				return fmt.Errorf("Expected service project to be enabled.")
 			}
+			return nil
 		}
 
-		sort.Strings(tfServiceProjects)
-		sort.Strings(expected)
-
-		if !reflect.DeepEqual(expected, tfServiceProjects) {
-			return fmt.Errorf("Service projects mismatch. Expected: %v, Actual: %v", expected, tfServiceProjects)
+		if enabled != (serviceHostProject.Name == hostProject) {
+			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Name)
 		}
+
 		return nil
 	}
 }
 
-func testAccComputeSharedVpc_basic(pid, pid2, name, org, billing string) string {
+func testAccComputeSharedVpc_basic(hostProject, serviceProject, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "host" {
 	project_id      = "%s"
@@ -161,115 +97,51 @@ resource "google_project" "service" {
 }
 
 resource "google_project_services" "host" {
-	project = "${google_project.host.project_id}"
+	project  = "${google_project.host.project_id}"
 	services = ["compute.googleapis.com"]
 }
 
 resource "google_project_services" "service" {
-	project = "${google_project.service.project_id}"
+	project  = "${google_project.service.project_id}"
 	services = ["compute.googleapis.com"]
 }
 
-resource "google_compute_shared_vpc" "vpc" {
-	host_project     = "${google_project.host.project_id}"
-	service_projects = ["${google_project.service.project_id}"]
-
-	depends_on = ["google_project_services.host", "google_project_services.service"]
-}`, pid, name, org, billing, pid2, name, org, billing)
-}
-
-func testAccComputeSharedVpc_disabled(pid, pid2, name, org, billing string) string {
-	return fmt.Sprintf(`
-resource "google_project" "host" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project" "service" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_services" "host" {
-	project = "${google_project.host.project_id}"
-	services = ["compute.googleapis.com"]
-}
-
-resource "google_project_services" "service" {
-	project = "${google_project.service.project_id}"
-	services = ["compute.googleapis.com"]
-}`, pid, name, org, billing, pid2, name, org, billing)
-}
-
-func testAccComputeSharedVpc_addServiceProjects(pid, pid2, pid3, name, org, billing string) string {
-	return fmt.Sprintf(`
-resource "google_project" "host" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project" "service" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project" "service2" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_services" "host" {
-	project = "${google_project.host.project_id}"
-	services = ["compute.googleapis.com"]
-}
-
-resource "google_project_services" "service" {
-	project = "${google_project.service.project_id}"
-	services = ["compute.googleapis.com"]
-}
-
-resource "google_project_services" "service2" {
-	project = "${google_project.service2.project_id}"
-	services = ["compute.googleapis.com"]
-}
-
-resource "google_compute_shared_vpc" "vpc" {
-	host_project     = "${google_project.host.project_id}"
-	service_projects = ["${google_project.service.project_id}", "${google_project.service2.project_id}"]
-
-	depends_on = ["google_project_services.host", "google_project_services.service", "google_project_services.service2"]
-}`, pid, name, org, billing,
-		pid2, name, org, billing,
-		pid3, name, org, billing)
-}
-
-func testAccComputeSharedVpc_removeServiceProjects(pid, name, org, billing string) string {
-	return fmt.Sprintf(`
-resource "google_project" "host" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_services" "host" {
-	project = "${google_project.host.project_id}"
-	services = ["compute.googleapis.com"]
-}
-
-resource "google_compute_shared_vpc" "vpc" {
-	host_project     = "${google_project.host.project_id}"
-
+resource "google_compute_shared_vpc_host_project" "host" {
+	project    = "${google_project.host.project_id}"
 	depends_on = ["google_project_services.host"]
-}`, pid, name, org, billing)
+}
+
+resource "google_compute_shared_vpc_service_project" "service" {
+	host_project    = "${google_project.host.project_id}"
+	service_project = "${google_project.service.project_id}"
+	depends_on      = ["google_compute_shared_vpc_host_project.host", "google_project_services.service"]
+}`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
+}
+
+func testAccComputeSharedVpc_disabled(hostProject, serviceProject, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "host" {
+	project_id      = "%s"
+	name            = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project" "service" {
+	project_id      = "%s"
+	name            = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_services" "host" {
+	project  = "${google_project.host.project_id}"
+	services = ["compute.googleapis.com"]
+}
+
+resource "google_project_services" "service" {
+	project  = "${google_project.service.project_id}"
+	services = ["compute.googleapis.com"]
+}
+`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
 }

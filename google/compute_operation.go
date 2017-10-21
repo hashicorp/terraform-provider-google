@@ -65,13 +65,13 @@ func (e ComputeOperationError) Error() string {
 	return buf.String()
 }
 
-func computeOperationWait(config *Config, op *compute.Operation, project, activity string) error {
-	return computeOperationWaitTime(config, op, project, activity, 4)
+func computeOperationWait(client *compute.Service, op *compute.Operation, project, activity string) error {
+	return computeOperationWaitTime(client, op, project, activity, 4)
 }
 
-func computeOperationWaitTime(config *Config, op *compute.Operation, project, activity string, timeoutMin int) error {
+func computeOperationWaitTime(client *compute.Service, op *compute.Operation, project, activity string, timeoutMin int) error {
 	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
+		Service: client,
 		Op:      op,
 		Project: project,
 	}
@@ -93,12 +93,12 @@ func computeOperationWaitTime(config *Config, op *compute.Operation, project, ac
 	return nil
 }
 
-func computeBetaOperationWaitTime(config *Config, op *computeBeta.Operation, project, activity string, timeoutMin int) error {
+func computeBetaOperationWaitTime(client *compute.Service, op *computeBeta.Operation, project, activity string, timeoutMin int) error {
 	opV1 := &compute.Operation{}
 	err := Convert(op, opV1)
 	if err != nil {
 		return err
 	}
 
-	return computeOperationWaitTime(config, opV1, project, activity, timeoutMin)
+	return computeOperationWaitTime(client, opV1, project, activity, timeoutMin)
 }

@@ -17,6 +17,8 @@ import (
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -34,6 +36,8 @@ func TestAccContainerCluster_basic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withTimeout(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -50,7 +54,42 @@ func TestAccContainerCluster_withTimeout(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAddons(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAddons(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateAddons(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.horizontal_pod_autoscaling.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMasterAuth(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -68,6 +107,8 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -94,6 +135,8 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 }
 
 func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -122,6 +165,8 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 }
 
 func TestAccContainerCluster_withVersion(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -141,6 +186,8 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_updateVersion(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -156,7 +203,7 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccContainerCluster_withVersion(clusterName),
+				Config: testAccContainerCluster_updateVersion(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_version"),
@@ -167,6 +214,8 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodeConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -184,6 +233,8 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -201,6 +252,8 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 }
 
 func TestAccContainerCluster_network(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -220,6 +273,8 @@ func TestAccContainerCluster_network(t *testing.T) {
 }
 
 func TestAccContainerCluster_backend(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -237,6 +292,8 @@ func TestAccContainerCluster_backend(t *testing.T) {
 }
 
 func TestAccContainerCluster_withLogging(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -264,14 +321,49 @@ func TestAccContainerCluster_withLogging(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
+func TestAccContainerCluster_withMonitoring(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolBasic,
+				Config: testAccContainerCluster_withMonitoring(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_monitoring"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "monitoring.googleapis.com"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateMonitoring(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_monitoring"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "none"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolBasic(clusterName, npName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_pool"),
@@ -282,6 +374,8 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
+	t.Parallel()
+
 	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
@@ -309,7 +403,48 @@ func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerCluster_withNodePoolAutoscaling(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_node_pool"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count", "3"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccContainerCluster_withNodePoolUpdateAutoscaling(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_node_pool"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count", "5"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccContainerCluster_withNodePoolBasic(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_node_pool"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -327,6 +462,8 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -344,6 +481,8 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -358,6 +497,8 @@ func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -462,15 +603,22 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		}
 		clusterTests = append(clusterTests, clusterTestField{"additional_zones", additionalZones})
 
-		// AddonsConfig is neither Required or Computed, so the API may return nil for it
-		if cluster.AddonsConfig != nil {
-			if cluster.AddonsConfig.HttpLoadBalancing != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HttpLoadBalancing.Disabled)})
-			}
-			if cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
-				clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", strconv.FormatBool(cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled)})
-			}
+		// AddonsConfig is neither Required or Computed, so the API may return nil for it.
+		httpLoadBalancingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HttpLoadBalancing != nil {
+			httpLoadBalancingDisabled = cluster.AddonsConfig.HttpLoadBalancing.Disabled
 		}
+		horizontalPodAutoscalingDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.HorizontalPodAutoscaling != nil {
+			horizontalPodAutoscalingDisabled = cluster.AddonsConfig.HorizontalPodAutoscaling.Disabled
+		}
+		kubernetesDashboardDisabled := false
+		if cluster.AddonsConfig != nil && cluster.AddonsConfig.KubernetesDashboard != nil {
+			kubernetesDashboardDisabled = cluster.AddonsConfig.KubernetesDashboard.Disabled
+		}
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", httpLoadBalancingDisabled})
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", horizontalPodAutoscalingDisabled})
+		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.kubernetes_dashboard.0.disabled", kubernetesDashboardDisabled})
 
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
@@ -487,6 +635,21 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 					clusterTestField{prefix + "node_config.0.labels", np.Config.Labels},
 					clusterTestField{prefix + "node_config.0.tags", np.Config.Tags})
 
+			}
+			tfAS := attributes[prefix+"autoscaling.#"] == "1"
+			if gcpAS := np.Autoscaling != nil && np.Autoscaling.Enabled == true; tfAS != gcpAS {
+				return fmt.Errorf("Mismatched autoscaling status. TF State: %t. GCP State: %t", tfAS, gcpAS)
+			}
+			if tfAS {
+				if tf := attributes[prefix+"autoscaling.0.min_node_count"]; strconv.FormatInt(np.Autoscaling.MinNodeCount, 10) != tf {
+					return fmt.Errorf("Mismatched Autoscaling.MinNodeCount. TF State: %s. GCP State: %d",
+						tf, np.Autoscaling.MinNodeCount)
+				}
+
+				if tf := attributes[prefix+"autoscaling.0.max_node_count"]; strconv.FormatInt(np.Autoscaling.MaxNodeCount, 10) != tf {
+					return fmt.Errorf("Mismatched Autoscaling.MaxNodeCount. TF State: %s. GCP State: %d",
+						tf, np.Autoscaling.MaxNodeCount)
+				}
 			}
 		}
 
@@ -608,10 +771,17 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 }
 
 func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
-	tf, err := strconv.ParseBool(attributes[attr])
-	if err != nil {
-		return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+	// Handle the case where an unset value defaults to false
+	var tf bool
+	if attributes[attr] == "" {
+		tf = false
+	} else {
+		tf, err = strconv.ParseBool(attributes[attr])
+		if err != nil {
+			return fmt.Sprintf("Error converting attribute %s to boolean: value is %s", attr, attributes[attr])
+		}
 	}
+
 	if tf != gcpBool {
 		return matchError(attr, tf, gcpBool)
 	}
@@ -644,6 +814,35 @@ resource "google_container_cluster" "primary" {
 		update = "30m"
 	}
 }`, acctest.RandString(10))
+
+func testAccContainerCluster_withAddons(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	addons_config {
+		http_load_balancing { disabled = true }
+		kubernetes_dashboard { disabled = true }
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateAddons(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	addons_config {
+		http_load_balancing { disabled = false }
+		kubernetes_dashboard { disabled = true }
+		horizontal_pod_autoscaling { disabled = true }
+	}
+}`, clusterName)
+}
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
@@ -727,7 +926,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	node_version = "${data.google_container_engine_versions.central1a.latest_node_version}"
+	min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
 	initial_node_count = 1
 
 	master_auth {
@@ -746,7 +945,27 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
-	node_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.2}"
+	initial_node_count = 1
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateVersion(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_version" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
+	node_version = "${data.google_container_engine_versions.central1a.valid_node_versions.1}"
 	initial_node_count = 1
 
 	master_auth {
@@ -908,9 +1127,32 @@ resource "google_container_cluster" "with_logging" {
 }`, clusterName)
 }
 
-var testAccContainerCluster_withNodePoolBasic = fmt.Sprintf(`
+func testAccContainerCluster_withMonitoring(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_monitoring" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	monitoring_service = "monitoring.googleapis.com"
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateMonitoring(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_monitoring" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	monitoring_service = "none"
+}`, clusterName)
+}
+
+func testAccContainerCluster_withNodePoolBasic(cluster, nodePool string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool" {
-	name = "tf-cluster-nodepool-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 
 	master_auth {
@@ -919,10 +1161,11 @@ resource "google_container_cluster" "with_node_pool" {
 	}
 
 	node_pool {
-		name               = "tf-cluster-nodepool-test-%s"
+		name               = "%s"
 		initial_node_count = 2
 	}
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, cluster, nodePool)
+}
 
 func testAccContainerCluster_withNodePoolAdditionalZones(cluster, nodePool string) string {
 	return fmt.Sprintf(`
@@ -958,6 +1201,50 @@ resource "google_container_cluster" "with_node_pool" {
 		node_count = 3
 	}
 }`, cluster, nodePool)
+}
+
+func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+
+	node_pool {
+		name               = "%s"
+		initial_node_count = 2
+		autoscaling {
+			min_node_count = 1
+			max_node_count = 3
+		}
+	}
+}`, cluster, np)
+}
+
+func testAccContainerCluster_withNodePoolUpdateAutoscaling(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm"
+	}
+
+	node_pool {
+		name               = "%s"
+		initial_node_count = 2
+		autoscaling {
+			min_node_count = 1
+			max_node_count = 5
+		}
+	}
+}`, cluster, np)
 }
 
 var testAccContainerCluster_withNodePoolNamePrefix = fmt.Sprintf(`

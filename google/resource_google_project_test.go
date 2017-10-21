@@ -26,6 +26,8 @@ var (
 
 // Test that a Project resource can be created without an organization
 func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
+	t.Parallel()
+
 	creds := multiEnvSearch(credsEnvVars)
 	if strings.Contains(creds, "iam.gserviceaccount.com") {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
@@ -50,6 +52,8 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 // Test that a Project resource can be created and an IAM policy
 // associated
 func TestAccGoogleProject_create(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -75,6 +79,8 @@ func TestAccGoogleProject_create(t *testing.T) {
 // Test that a Project resource can be created with an associated
 // billing account
 func TestAccGoogleProject_createBilling(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -101,6 +107,8 @@ func TestAccGoogleProject_createBilling(t *testing.T) {
 
 // Test that a Project resource can be created with labels
 func TestAccGoogleProject_createLabels(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -119,6 +127,8 @@ func TestAccGoogleProject_createLabels(t *testing.T) {
 // Test that a Project resource can be created and updated
 // with billing account information
 func TestAccGoogleProject_updateBilling(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -169,6 +179,8 @@ func TestAccGoogleProject_updateBilling(t *testing.T) {
 // Test that a Project resource merges the IAM policies that already
 // exist, and won't lock people out.
 func TestAccGoogleProject_merge(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -196,6 +208,8 @@ func TestAccGoogleProject_merge(t *testing.T) {
 
 // Test that a Project resource can be updated with labels
 func TestAccGoogleProject_updateLabels(t *testing.T) {
+	t.Parallel()
+
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

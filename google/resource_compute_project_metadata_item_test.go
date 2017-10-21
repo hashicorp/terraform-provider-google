@@ -10,7 +10,10 @@ import (
 )
 
 func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -29,7 +32,10 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
+	t.Parallel(
 	// Generate a config of two config keys
+	)
+
 	config := testAccProjectMetadataItem_basic("myKey", "myValue") +
 		testAccProjectMetadataItem_basic("myOtherKey", "myOtherValue")
 	resource.Test(t, resource.TestCase{
@@ -49,7 +55,10 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -68,7 +77,10 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 }
 
 func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
+	t.Parallel(
 	// Key must be unique to avoid concurrent tests interfering with each other
+	)
+
 	key := "myKey" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

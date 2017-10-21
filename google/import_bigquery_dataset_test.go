@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccBigQueryDataset_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_bigquery_dataset.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 

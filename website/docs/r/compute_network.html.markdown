@@ -33,18 +33,10 @@ The following arguments are supported:
 
 * `auto_create_subnetworks` - (Optional) If set to true, this network will be
     created in auto subnet mode, and Google will create a subnet for each region
-    automatically. If set to false, and `ipv4_range` is not set, a custom
-    subnetted network will be created that can support
-    `google_compute_subnetwork` resources. This attribute may not be used if
-    `ipv4_range` is specified.
+    automatically. If set to false, a custom subnetted network will be created that
+    can support `google_compute_subnetwork` resources.
 
 * `description` - (Optional) A brief description of this resource.
-
-* `ipv4_range` - (DEPRECATED, Optional) The IPv4 address range that machines in this network
-    are assigned to, represented as a CIDR block. If not set, an auto or custom
-    subnetted network will be created, depending on the value of
-    `auto_create_subnetworks` attribute. This attribute may not be used if
-    `auto_create_subnetworks` is specified. This attribute is deprecated.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.

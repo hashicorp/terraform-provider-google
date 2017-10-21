@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccComputeVpnTunnel_basic(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -33,6 +35,8 @@ func TestAccComputeVpnTunnel_basic(t *testing.T) {
 }
 
 func TestAccComputeVpnTunnel_router(t *testing.T) {
+	t.Parallel()
+
 	router := fmt.Sprintf("tunnel-test-router-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,6 +57,7 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 }
 
 func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
+	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -125,7 +130,7 @@ resource "google_compute_network" "foobar" {
 	name = "tunnel-test-%s"
 }
 resource "google_compute_subnetwork" "foobar" {
-	name = "tunnel-test-%s"
+	name = "tunnel-test-subnetwork-%s"
 	network = "${google_compute_network.foobar.self_link}"
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
@@ -181,7 +186,7 @@ func testAccComputeVpnTunnelRouter(router string) string {
 			name = "tunnel-test-%s"
 		}
 		resource "google_compute_subnetwork" "foobar" {
-			name = "tunnel-test-%s"
+			name = "tunnel-test-subnetwork-%s"
 			network = "${google_compute_network.foobar.self_link}"
 			ip_cidr_range = "10.0.0.0/16"
 			region = "us-central1"

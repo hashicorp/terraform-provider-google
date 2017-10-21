@@ -11,6 +11,9 @@ description: |-
 Manages a VPN Tunnel to the GCE network. For more info, read the
 [documentation](https://cloud.google.com/compute/docs/vpn).
 
+~> **Note:** All arguments including the `shared_secret` will be stored in the raw state as plain-text.
+[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 ## Example Usage
 
 ```hcl

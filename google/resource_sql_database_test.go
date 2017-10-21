@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccGoogleSqlDatabase_basic(t *testing.T) {
+	t.Parallel()
+
 	var database sqladmin.Database
 
 	resource.Test(t, resource.TestCase{
@@ -34,6 +36,8 @@ func TestAccGoogleSqlDatabase_basic(t *testing.T) {
 }
 
 func TestAccGoogleSqlDatabase_update(t *testing.T) {
+	t.Parallel()
+
 	var database sqladmin.Database
 
 	instance_name := acctest.RandString(10)

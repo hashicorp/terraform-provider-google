@@ -13,6 +13,8 @@ import (
 )
 
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -28,6 +30,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateTag(&instanceTemplate, "foo"),
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 				),
 			},
 		},
@@ -35,6 +38,8 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -56,6 +61,8 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_IP(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -76,6 +83,8 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	networkIP := "10.128.0.2"
 
@@ -99,6 +108,8 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -120,6 +131,8 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	network := "network-" + acctest.RandString(10)
 
@@ -141,6 +154,8 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -161,6 +176,8 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
 
@@ -182,6 +199,8 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
+	t.Parallel()
+
 	var instanceTemplate compute.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
@@ -412,6 +431,19 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
+func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := instanceTemplate.Properties.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
 var testAccComputeInstanceTemplate_basic = fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
@@ -441,6 +473,10 @@ resource "google_compute_instance_template" "foobar" {
 	service_account {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
+
+    labels {
+        my_label = "foobar"
+    }
 }`, acctest.RandString(10))
 
 var testAccComputeInstanceTemplate_preemptible = fmt.Sprintf(`

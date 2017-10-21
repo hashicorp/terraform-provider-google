@@ -1,6 +1,6 @@
 ---
 layout: "google"
-page_title: "Google: google_logging_billing-account_sink"
+page_title: "Google: google_logging_billing_account_sink"
 sidebar_current: "docs-google-logging-billing-account-sink"
 description: |-
   Manages a billing account logging sink.

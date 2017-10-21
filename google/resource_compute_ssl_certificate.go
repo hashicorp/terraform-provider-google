@@ -17,9 +17,10 @@ func resourceComputeSslCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"certificate": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 
 			"name": &schema.Schema{
@@ -114,7 +115,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error creating ssl certificate: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Creating SslCertificate")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating SslCertificate")
 	if err != nil {
 		return err
 	}
@@ -158,7 +159,7 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error deleting ssl certificate: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting SslCertificate")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting SslCertificate")
 	if err != nil {
 		return err
 	}

@@ -47,9 +47,9 @@ The following arguments are supported:
 * `load_balancing_scheme` - (Optional) Type of load balancing to use. Can be
     set to "INTERNAL" or "EXTERNAL" (default "EXTERNAL").
 
-* `network` - (Optional) Network that the load balanced IP should belong to.
-    Only used for internal load balancing. If it is not provided, the default
-    network is used.
+* `network` - (Optional) Network name or self_link that the load balanced IP
+    should belong to. Only used for internal load balancing. If it is not
+    provided, the default network is used.
 
 * `port_range` - (Optional) A range e.g. "1024-2048" or a single port "1024"
     (defaults to all ports!). Only used for external load balancing.

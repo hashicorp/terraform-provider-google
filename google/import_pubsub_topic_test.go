@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccPubsubTopic_import(t *testing.T) {
+	t.Parallel()
+
 	topicName := fmt.Sprintf("tf-test-topic-%d", acctest.RandInt())
 	conf := fmt.Sprintf(`
 		resource "google_pubsub_topic" "tf-test" {
