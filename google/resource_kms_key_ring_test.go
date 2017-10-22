@@ -27,12 +27,18 @@ func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testGoogleKmsKeyRing_recreate(keyRingName),
+		CheckDestroy: testAccCheckGoogleKmsKeyRingWasRemovedFromState("google_kms_key_ring.key_ring"),
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsKeyRingExists("google_kms_key_ring.key_ring"),
+				),
+			},
+			resource.TestStep{
+				Config: testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsKeyRingWasRemovedFromState("google_kms_key_ring.key_ring"),
 				),
 			},
 		},
@@ -72,10 +78,18 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 	}
 }
 
-// TODO
-// KMS KeyRings cannot be deleted. This will test if the resource can be added back to state after being removed
-func testGoogleKmsKeyRing_recreate(name string) resource.TestCheckFunc {
+/*
+	KMS KeyRings cannot be deleted. This ensures that the KeyRing resource was removed from state,
+	even though the server-side resource was not removed.
+*/
+func testAccCheckGoogleKmsKeyRingWasRemovedFromState(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		_, ok := s.RootModule().Resources[resourceName]
+
+		if ok {
+			return fmt.Errorf("Resource was not removed from state: %s", resourceName)
+		}
+
 		return nil
 	}
 }
@@ -102,4 +116,22 @@ resource "google_kms_key_ring" "key_ring" {
 	location = "us-central1"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+}
+
+func testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    name            = "%s"
+	project_id      = "%s"
+    org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_services" "acceptance" {
+    project  = "${google_project.acceptance.project_id}"
+    services = [
+        "cloudkms.googleapis.com"
+    ]
+}
+	`, projectId, projectId, projectOrg, projectBillingAccount)
 }

@@ -89,5 +89,11 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
+	keyRingName := d.Id()
+
+	log.Printf("[INFO] KMS KeyRing resources cannot be deleted from GCP. This KeyRing %s will be removed from Terraform state, but will still be present on the server.", keyRingName)
+
+	d.SetId("")
+
 	return nil
 }
