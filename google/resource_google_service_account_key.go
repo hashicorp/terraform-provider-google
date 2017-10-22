@@ -96,35 +96,32 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 
 	var err error
 
-	if _, ok := d.GetOk("public_key"); !ok {
+	r.PrivateKeyType = d.Get("private_key_type").(string)
 
-		r.PrivateKeyType = d.Get("private_key_type").(string)
+	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
+	if err != nil {
+		return fmt.Errorf("Error creating service account key: %s", err)
+	}
 
-		sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
+	d.SetId(sak.Name)
+	// Data only available on create.
+	d.Set("valid_after", sak.ValidAfterTime)
+	d.Set("valid_before", sak.ValidBeforeTime)
+	if v, ok := d.GetOk("pgp_key"); ok {
+		encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
 		if err != nil {
-			return fmt.Errorf("Error creating service account key: %s", err)
+			return err
 		}
 
-		d.SetId(sak.Name)
-		// Data only available on create.
-		d.Set("valid_after", sak.ValidAfterTime)
-		d.Set("valid_before", sak.ValidBeforeTime)
-		if v, ok := d.GetOk("pgp_key"); ok {
-			encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
-			if err != nil {
-				return err
-			}
-
-			fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, sak.PrivateKeyData, "Google Service Account Key")
-			if err != nil {
-				return err
-			}
-
-			d.Set("private_key_encrypted", encrypted)
-			d.Set("private_key_fingerprint", fingerprint)
-		} else {
-			d.Set("private_key", sak.PrivateKeyData)
+		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, sak.PrivateKeyData, "Google Service Account Key")
+		if err != nil {
+			return err
 		}
+
+		d.Set("private_key_encrypted", encrypted)
+		d.Set("private_key_fingerprint", fingerprint)
+	} else {
+		d.Set("private_key", sak.PrivateKeyData)
 	}
 
 	err = serviceAccountKeyWaitTime(config.clientIAM.Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4)
