@@ -55,7 +55,7 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 func TestAccComputeRoute_hopInstance(t *testing.T) {
 	var route compute.Route
 
-	instanceName := acctest.RandString(10)
+	instanceName := "tf" + acctest.RandString(10)
 	zone := "us-central1-b"
 
 	resource.Test(t, resource.TestCase{
