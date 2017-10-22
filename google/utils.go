@@ -59,14 +59,7 @@ func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (st
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
 func getProject(d *schema.ResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("project")
-	if !ok {
-		if config.Project != "" {
-			return config.Project, nil
-		}
-		return "", fmt.Errorf("project: required field is not set")
-	}
-	return res.(string), nil
+	return getProjectFromSchema("project", d, config)
 }
 
 func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {

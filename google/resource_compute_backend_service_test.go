@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccComputeBackendService_basic(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	extraCheckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -41,6 +43,8 @@ func TestAccComputeBackendService_basic(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withBackend(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -74,6 +78,8 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withBackendAndUpdate(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -115,6 +121,8 @@ func TestAccComputeBackendService_withBackendAndUpdate(t *testing.T) {
 }
 
 func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -149,6 +157,8 @@ func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T
 }
 
 func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -174,6 +184,8 @@ func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -206,6 +218,8 @@ func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) 
 }
 
 func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -274,6 +288,8 @@ func testAccCheckComputeBackendServiceExists(n string, svc *compute.BackendServi
 }
 
 func TestAccComputeBackendService_withCDNEnabled(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService
@@ -300,6 +316,8 @@ func TestAccComputeBackendService_withCDNEnabled(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	var svc compute.BackendService

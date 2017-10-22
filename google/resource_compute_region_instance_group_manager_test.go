@@ -17,6 +17,8 @@ import (
 )
 
 func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -43,6 +45,8 @@ func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_targetSizeZero(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	templateName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -69,6 +73,8 @@ func TestAccRegionInstanceGroupManager_targetSizeZero(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_update(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	template1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -112,6 +118,8 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	tag1 := "tag1"
@@ -144,6 +152,8 @@ func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
+	t.Parallel()
+
 	var manager compute.InstanceGroupManager
 
 	igm1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -168,6 +178,8 @@ func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_autoHealingPolicies(t *testing.T) {
+	t.Parallel()
+
 	var manager computeBeta.InstanceGroupManager
 
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))

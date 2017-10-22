@@ -70,6 +70,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"device_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
@@ -324,6 +325,14 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 		},
 	}
 }
@@ -576,6 +585,9 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	instanceProperties.ServiceAccounts = serviceAccounts
 
 	instanceProperties.Tags = resourceInstanceTags(d)
+	if _, ok := d.GetOk("labels"); ok {
+		instanceProperties.Labels = expandLabels(d)
+	}
 
 	var itName string
 	if v, ok := d.GetOk("name"); ok {
@@ -600,7 +612,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(instanceTemplate.Name)
 
-	err = computeOperationWait(config, op, project, "Creating Instance Template")
+	err = computeOperationWait(config.clientCompute, op, project, "Creating Instance Template")
 	if err != nil {
 		return err
 	}
@@ -743,6 +755,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	}
+	if instanceTemplate.Properties.Labels != nil {
+		d.Set("labels", instanceTemplate.Properties.Labels)
+	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
@@ -816,7 +831,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Instance Template")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting Instance Template")
 	if err != nil {
 		return err
 	}

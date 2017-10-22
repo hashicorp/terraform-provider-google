@@ -75,6 +75,8 @@ func TestComputeAddressIdParsing(t *testing.T) {
 // Acceptance tests
 
 func TestAccComputeAddress_basic(t *testing.T) {
+	t.Parallel()
+
 	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{

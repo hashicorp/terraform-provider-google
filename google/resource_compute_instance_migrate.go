@@ -238,7 +238,18 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 			is.Attributes["boot_disk.0.disk_encryption_key_raw"] = is.Attributes["disk.0.disk_encryption_key_raw"]
 			is.Attributes["boot_disk.0.disk_encryption_key_sha256"] = is.Attributes["disk.0.disk_encryption_key_sha256"]
 
-			// Don't worry about initialize_params, since the disk has already been created.
+			if is.Attributes["disk.0.size"] != "" {
+				is.Attributes["boot_disk.0.initialize_params.#"] = "1"
+				is.Attributes["boot_disk.0.initialize_params.0.size"] = is.Attributes["disk.0.size"]
+			}
+			if is.Attributes["disk.0.type"] != "" {
+				is.Attributes["boot_disk.0.initialize_params.#"] = "1"
+				is.Attributes["boot_disk.0.initialize_params.0.type"] = is.Attributes["disk.0.type"]
+			}
+			if is.Attributes["disk.0.image"] != "" {
+				is.Attributes["boot_disk.0.initialize_params.#"] = "1"
+				is.Attributes["boot_disk.0.initialize_params.0.image"] = is.Attributes["disk.0.image"]
+			}
 		} else if is.Attributes[fmt.Sprintf("disk.%d.scratch", i)] == "true" {
 			// Note: the GCP API does not allow for scratch disks without auto_delete, so this situation
 			// should never occur.

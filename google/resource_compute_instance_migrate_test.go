@@ -99,6 +99,8 @@ func TestComputeInstanceMigrateState_empty(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -129,7 +131,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -152,6 +154,9 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 		"boot_disk.0.device_name":                "persistent-disk-0",
 		"boot_disk.0.disk_encryption_key_raw":    "encrypt-key",
 		"boot_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"boot_disk.0.initialize_params.#":        "1",
+		"boot_disk.0.initialize_params.0.size":   "12",
+		"boot_disk.0.initialize_params.0.type":   "pd-ssd",
 		"boot_disk.0.source":                     instanceName,
 		"zone":                                   zone,
 		"create_timeout":                         "4",
@@ -161,6 +166,8 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -191,7 +198,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -214,6 +221,9 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 		"boot_disk.0.device_name":                "persistent-disk-0",
 		"boot_disk.0.disk_encryption_key_raw":    "encrypt-key",
 		"boot_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"boot_disk.0.initialize_params.#":        "1",
+		"boot_disk.0.initialize_params.0.size":   "12",
+		"boot_disk.0.initialize_params.0.type":   "pd-ssd",
 		"boot_disk.0.source":                     instanceName,
 		"zone":                                   zone,
 	}
@@ -222,6 +232,8 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -239,7 +251,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "disk to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "disk to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -270,7 +282,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr = computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -300,6 +312,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -317,7 +331,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "disk to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "disk to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -348,7 +362,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr = computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -377,6 +391,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -414,7 +430,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -443,6 +459,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -480,7 +498,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -508,6 +526,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 }
 
 func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -548,7 +568,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -578,6 +598,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 }
 
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -618,7 +640,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -647,6 +669,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 }
 
 func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -683,7 +707,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -709,6 +733,8 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 }
 
 func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
@@ -745,7 +771,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config, op, config.Project, "instance to create")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -804,7 +830,7 @@ func cleanUpInstance(config *Config, instanceName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config, op, config.Project, "instance to delete")
+	opErr := computeOperationWait(config.clientCompute, op, config.Project, "instance to delete")
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, opErr)
 	}
@@ -818,7 +844,7 @@ func cleanUpDisk(config *Config, diskName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config, op, config.Project, "disk to delete")
+	opErr := computeOperationWait(config.clientCompute, op, config.Project, "disk to delete")
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, opErr)
 	}

@@ -13,6 +13,8 @@ import (
 )
 
 func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
@@ -44,6 +46,8 @@ func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
 }
 
 func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)

@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccInstanceGroupManager_importBasic(t *testing.T) {
+	t.Parallel()
+
 	resourceName1 := "google_compute_instance_group_manager.igm-basic"
 	resourceName2 := "google_compute_instance_group_manager.igm-no-tp"
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
@@ -41,6 +43,8 @@ func TestAccInstanceGroupManager_importBasic(t *testing.T) {
 }
 
 func TestAccInstanceGroupManager_importUpdate(t *testing.T) {
+	t.Parallel()
+
 	resourceName := "google_compute_instance_group_manager.igm-update"
 	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
 	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))

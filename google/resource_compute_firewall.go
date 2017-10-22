@@ -225,7 +225,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(firewall.Name)
 
-	err = computeSharedOperationWait(config, op, project, "Creating Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Firewall")
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Updating Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Firewall")
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	err = computeSharedOperationWait(config, op, project, "Deleting Firewall")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting Firewall")
 	if err != nil {
 		return err
 	}
@@ -404,6 +404,11 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
+
+	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return nil, err
+	}
 
 	// Build up the list of allowed entries
 	var allowed []*computeBeta.FirewallAllowed
@@ -487,7 +492,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Direction:         d.Get("direction").(string),
-		Network:           ParseNetworkFieldValue(d.Get("network").(string), config).RelativeLink(),
+		Network:           network.RelativeLink(),
 		Allowed:           allowed,
 		Denied:            denied,
 		SourceRanges:      sourceRanges,

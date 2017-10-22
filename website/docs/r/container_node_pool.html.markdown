@@ -105,6 +105,11 @@ resource "google_container_cluster" "primary" {
 
 * `image_type` - (Optional) The image type to use for this node.
 
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
+
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
+    valid sources or targets for network firewalls.
+
 * `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.

@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
+	t.Parallel()
+
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -39,6 +41,8 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 }
 
 func TestAccBigQueryTable_View(t *testing.T) {
+	t.Parallel()
+
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -59,6 +63,8 @@ func TestAccBigQueryTable_View(t *testing.T) {
 }
 
 func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
+	t.Parallel()
+
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 

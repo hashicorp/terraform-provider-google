@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccDnsRecordSet_basic(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -28,6 +30,8 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_modify(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -60,6 +64,8 @@ func TestAccDnsRecordSet_modify(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_changeType(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
