@@ -362,115 +362,20 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	clusterName := d.Get("name").(string)
 	region := d.Get("region").(string)
-	zok := false
-
 	cluster := &dataproc.Cluster{
-		ClusterName: clusterName,
+		ClusterName: d.Get("name").(string),
 		ProjectId:   project,
-		Config: &dataproc.ClusterConfig{
-			GceClusterConfig: &dataproc.GceClusterConfig{},
-		},
 	}
 
+	cluster.Config = expandClusterConfig(d)
 	if _, ok := d.GetOk("labels"); ok {
 		cluster.Labels = expandLabels(d)
 	}
 
-	if v, ok := d.GetOk("cluster_config"); ok {
-
-		confs := v.([]interface{})
-		if (len(confs)) > 0 {
-
-			if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
-				cluster.Config.ConfigBucket = v.(string)
-			}
-
-			if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
-				log.Println("[DEBUG] got gce config")
-				zone, zok := cfg["zone"]
-				if zok {
-					cluster.Config.GceClusterConfig.ZoneUri = zone.(string)
-				}
-				if v, ok := cfg["network"]; ok {
-					cluster.Config.GceClusterConfig.NetworkUri = extractLastResourceFromUri(v.(string))
-				}
-				if v, ok := cfg["subnetwork"]; ok {
-					cluster.Config.GceClusterConfig.SubnetworkUri = extractLastResourceFromUri(v.(string))
-				}
-				if v, ok := cfg["tags"]; ok {
-					cluster.Config.GceClusterConfig.Tags = convertStringArr(v.([]interface{}))
-				}
-				if v, ok := cfg["service_account"]; ok {
-					cluster.Config.GceClusterConfig.ServiceAccount = v.(string)
-				}
-				if scopes, ok := cfg["service_account_scopes"]; ok {
-					scopesSet := scopes.(*schema.Set)
-					scopes := make([]string, scopesSet.Len())
-					for i, scope := range scopesSet.List() {
-						scopes[i] = canonicalizeServiceScope(scope.(string))
-					}
-					cluster.Config.GceClusterConfig.ServiceAccountScopes = scopes
-				}
-			}
-
-			if cfg, ok := configOptions(d, "cluster_config.0.software_config"); ok {
-				cluster.Config.SoftwareConfig = &dataproc.SoftwareConfig{}
-
-				if v, ok := cfg["override_properties"]; ok {
-					m := make(map[string]string)
-					for k, val := range v.(map[string]interface{}) {
-						m[k] = val.(string)
-					}
-					cluster.Config.SoftwareConfig.Properties = m
-				}
-				if v, ok := cfg["image_version"]; ok {
-					cluster.Config.SoftwareConfig.ImageVersion = v.(string)
-				}
-			}
-
-			if v, ok := d.GetOk("cluster_config.0.initialization_action"); ok {
-				actionList := v.([]interface{})
-
-				actions := []*dataproc.NodeInitializationAction{}
-				for _, v1 := range actionList {
-					actionItem := v1.(map[string]interface{})
-					action := &dataproc.NodeInitializationAction{
-						ExecutableFile: actionItem["script"].(string),
-					}
-					if x, ok := actionItem["timeout_sec"]; ok {
-						action.ExecutionTimeout = strconv.Itoa(x.(int)) + "s"
-					}
-
-					actions = append(actions, action)
-				}
-				cluster.Config.InitializationActions = actions
-			}
-
-			if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
-				log.Println("[INFO] got master_config")
-				cluster.Config.MasterConfig = instanceGroupConfigCreate(cfg)
-			}
-
-			if cfg, ok := configOptions(d, "cluster_config.0.worker_config"); ok {
-				log.Println("[INFO] got worker config")
-				cluster.Config.WorkerConfig = instanceGroupConfigCreate(cfg)
-			}
-
-			if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
-				log.Println("[INFO] got preemtible worker config")
-				cluster.Config.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
-				if cluster.Config.SecondaryWorkerConfig.NumInstances > 0 {
-					cluster.Config.SecondaryWorkerConfig.IsPreemptible = true
-				}
-			}
-		}
-	}
-
 	// Checking here caters for the case where the user does not specify cluster_config
 	// at all, as well where it is simply missing from the gce_cluster_config
-	if region == "global" && !zok {
+	if region == "global" && cluster.Config.GceClusterConfig.ZoneUri == "" {
 		return errors.New("zone is mandatory when region is set to 'global'")
 	}
 
@@ -481,7 +386,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	d.SetId(clusterName)
+	d.SetId(cluster.ClusterName)
 
 	// Wait until it's created
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
@@ -492,9 +397,121 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	log.Printf("[INFO] Dataproc cluster %s has been created", clusterName)
+	log.Printf("[INFO] Dataproc cluster %s has been created", cluster.ClusterName)
 	return resourceDataprocClusterRead(d, meta)
 
+}
+
+func expandClusterConfig(d *schema.ResourceData) *dataproc.ClusterConfig {
+	conf := &dataproc.ClusterConfig{
+		// SDK requires GceClusterConfig to be specified,
+		// even if no explicit values specified
+		GceClusterConfig: &dataproc.GceClusterConfig{},
+	}
+
+	if v, ok := d.GetOk("cluster_config"); ok {
+		confs := v.([]interface{})
+		if (len(confs)) == 0 {
+			return conf
+		}
+	}
+
+	if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
+		conf.ConfigBucket = v.(string)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
+		conf.GceClusterConfig = expandGceClusterConfig(cfg)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.software_config"); ok {
+		conf.SoftwareConfig = expandSoftwareConfig(cfg)
+	}
+
+	if v, ok := d.GetOk("cluster_config.0.initialization_action"); ok {
+		conf.InitializationActions = expandInitializationActions(v)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
+		log.Println("[INFO] got master_config")
+		conf.MasterConfig = expandInstanceGroupConfig(cfg)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.worker_config"); ok {
+		log.Println("[INFO] got worker config")
+		conf.WorkerConfig = expandInstanceGroupConfig(cfg)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
+		log.Println("[INFO] got preemtible worker config")
+		conf.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
+		if conf.SecondaryWorkerConfig.NumInstances > 0 {
+			conf.SecondaryWorkerConfig.IsPreemptible = true
+		}
+	}
+	return conf
+}
+
+func expandGceClusterConfig(cfg map[string]interface{}) *dataproc.GceClusterConfig {
+	conf := &dataproc.GceClusterConfig{}
+
+	if v, ok := cfg["zone"]; ok {
+		conf.ZoneUri = v.(string)
+	}
+	if v, ok := cfg["network"]; ok {
+		conf.NetworkUri = extractLastResourceFromUri(v.(string))
+	}
+	if v, ok := cfg["subnetwork"]; ok {
+		conf.SubnetworkUri = extractLastResourceFromUri(v.(string))
+	}
+	if v, ok := cfg["tags"]; ok {
+		conf.Tags = convertStringArr(v.([]interface{}))
+	}
+	if v, ok := cfg["service_account"]; ok {
+		conf.ServiceAccount = v.(string)
+	}
+	if scopes, ok := cfg["service_account_scopes"]; ok {
+		scopesSet := scopes.(*schema.Set)
+		scopes := make([]string, scopesSet.Len())
+		for i, scope := range scopesSet.List() {
+			scopes[i] = canonicalizeServiceScope(scope.(string))
+		}
+		conf.ServiceAccountScopes = scopes
+	}
+	return conf
+}
+
+func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
+	conf := &dataproc.SoftwareConfig{}
+	if v, ok := cfg["override_properties"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		conf.Properties = m
+	}
+	if v, ok := cfg["image_version"]; ok {
+		conf.ImageVersion = v.(string)
+	}
+	return conf
+}
+
+func expandInitializationActions(v interface{}) []*dataproc.NodeInitializationAction {
+	actionList := v.([]interface{})
+
+	actions := []*dataproc.NodeInitializationAction{}
+	for _, v1 := range actionList {
+		actionItem := v1.(map[string]interface{})
+		action := &dataproc.NodeInitializationAction{
+			ExecutableFile: actionItem["script"].(string),
+		}
+		if x, ok := actionItem["timeout_sec"]; ok {
+			action.ExecutionTimeout = strconv.Itoa(x.(int)) + "s"
+		}
+		actions = append(actions, action)
+	}
+
+	return actions
 }
 
 func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
@@ -517,7 +534,7 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 	return icg
 }
 
-func instanceGroupConfigCreate(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
+func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
 	icg := &dataproc.InstanceGroupConfig{}
 
 	if v, ok := cfg["num_instances"]; ok {
