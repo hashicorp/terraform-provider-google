@@ -662,15 +662,17 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 
 func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) ([]map[string]interface{}, error) {
 
-	data := getOrCreateNewMapSchema(d, "cluster_config")
+	data := map[string]interface{}{
+		"delete_autogen_bucket": d.Get("cluster_config.0.delete_autogen_bucket").(bool),
+		"staging_bucket":        d.Get("cluster_config.0.staging_bucket").(string),
 
-	data["bucket"] = cfg.ConfigBucket
-	data["gce_cluster_config"] = flattenGceClusterConfig(data, cfg.GceClusterConfig)
-	data["software_config"] = flattenSoftwareConfig(data, cfg.SoftwareConfig)
-
-	data["master_config"] = flattenInstanceGroupConfig(data, "master_config", cfg.MasterConfig)
-	data["worker_config"] = flattenInstanceGroupConfig(data, "worker_config", cfg.WorkerConfig)
-	data["preemptible_worker_config"] = flattenPreemptibleInstanceGroupConfig(data, "preemptible_worker_config", cfg.SecondaryWorkerConfig)
+		"bucket":                    cfg.ConfigBucket,
+		"gce_cluster_config":        flattenGceClusterConfig(d, cfg.GceClusterConfig),
+		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
+		"master_config":             flattenInstanceGroupConfig(d, cfg.MasterConfig),
+		"worker_config":             flattenInstanceGroupConfig(d, cfg.WorkerConfig),
+		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
+	}
 
 	if len(cfg.InitializationActions) > 0 {
 		val, err := flattenInitializationActions(cfg.InitializationActions)
@@ -682,10 +684,12 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 	return []map[string]interface{}{data}, nil
 }
 
-func flattenSoftwareConfig(parent map[string]interface{}, sc *dataproc.SoftwareConfig) []map[string]interface{} {
-	data := getOrCreateNewMap(parent, "software_config")
-	data["image_version"] = sc.ImageVersion
-	data["properties"] = sc.Properties
+func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) []map[string]interface{} {
+	data := map[string]interface{}{
+		"image_version":       sc.ImageVersion,
+		"properties":          sc.Properties,
+		"override_properties": d.Get("cluster_config.0.software_config.0.override_properties").(map[string]interface{}),
+	}
 
 	return []map[string]interface{}{data}
 }
@@ -711,12 +715,13 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 
 }
 
-func flattenGceClusterConfig(parent map[string]interface{}, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
+func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
 
-	gceConfig := getOrCreateNewMap(parent, "gce_cluster_config")
-	gceConfig["zone"] = extractLastResourceFromUri(gcc.ZoneUri)
-	gceConfig["tags"] = gcc.Tags
-	gceConfig["service_account"] = gcc.ServiceAccount
+	gceConfig := map[string]interface{}{
+		"tags":            gcc.Tags,
+		"service_account": gcc.ServiceAccount,
+		"zone":            extractLastResourceFromUri(gcc.ZoneUri),
+	}
 
 	if gcc.NetworkUri != "" {
 		gceConfig["network"] = extractLastResourceFromUri(gcc.NetworkUri)
@@ -724,17 +729,16 @@ func flattenGceClusterConfig(parent map[string]interface{}, gcc *dataproc.GceClu
 	if gcc.SubnetworkUri != "" {
 		gceConfig["subnetwork"] = extractLastResourceFromUri(gcc.SubnetworkUri)
 	}
-
 	if len(gcc.ServiceAccountScopes) > 0 {
 		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
 	}
+
 	return []map[string]interface{}{gceConfig}
 }
 
-func flattenPreemptibleInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
-	data := getOrCreateNewMap(parent, name)
-	disk := getOrCreateNewMap(data, "disk_config")
-	data["instance_names"] = []string{}
+func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+	disk := map[string]interface{}{}
+	data := map[string]interface{}{}
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
@@ -748,10 +752,11 @@ func flattenPreemptibleInstanceGroupConfig(parent map[string]interface{}, name s
 	return []map[string]interface{}{data}
 }
 
-func flattenInstanceGroupConfig(parent map[string]interface{}, name string, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
-	data := getOrCreateNewMap(parent, name)
-	disk := getOrCreateNewMap(data, "disk_config")
-	data["instance_names"] = []string{}
+func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+	disk := map[string]interface{}{}
+	data := map[string]interface{}{
+	//"instance_names": []string{},
+	}
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
@@ -912,32 +917,4 @@ func configOptions(d *schema.ResourceData, option string) (map[string]interface{
 		}
 	}
 	return nil, false
-}
-
-func getOrCreateNewMapSchema(d *schema.ResourceData, key string) map[string]interface{} {
-	if v, ok := d.GetOk(key); ok {
-		clist := v.([]interface{})
-		if len(clist) == 0 {
-			return map[string]interface{}{}
-		}
-
-		if clist[0] != nil {
-			return clist[0].(map[string]interface{})
-		}
-	}
-	return map[string]interface{}{}
-}
-
-func getOrCreateNewMap(d map[string]interface{}, key string) map[string]interface{} {
-	if v, ok := d[key]; ok {
-		clist := v.([]interface{})
-		if len(clist) == 0 {
-			return map[string]interface{}{}
-		}
-
-		if clist[0] != nil {
-			return clist[0].(map[string]interface{})
-		}
-	}
-	return map[string]interface{}{}
 }

@@ -334,6 +334,9 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 					// diff will exist unless the user adds these in. An alternative approach would
 					// be to follow the same approach as properties, i.e. split in into labels
 					// and override_labels
+					//
+					// The config is currently configured with ignore_changes = ["labels"] to handle this
+					//
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "3"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key1", "value1"),
 				),
