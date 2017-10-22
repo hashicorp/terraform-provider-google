@@ -94,6 +94,10 @@ func testAccCheckGoogleKmsKeyRingWasRemovedFromState(resourceName string) resour
 	}
 }
 
+/*
+	This test runs in its own project, otherwise the test project would start to get filled
+	with undeletable resources
+ */
 func testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
