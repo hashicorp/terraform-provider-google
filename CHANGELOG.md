@@ -6,6 +6,8 @@ FEATURES:
 * **New Data Source:** `google_compute_lb_ip_ranges` [GH-567]
 
 IMPROVEMENTS:
+* compute: Make `boot_disk` required; remove checks around expected number of disks [GH-600]
+* compute: Allow setting boot and attached disk sources by name or self link [GH-605]
 * container: Allow updating `google_container_cluster.monitoring_service` [GH-598]
 * container: Allow updating `google_container_cluster.addons_config` [GH-597]
 
