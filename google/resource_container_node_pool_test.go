@@ -238,6 +238,7 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 			{"node_config.0.labels", nodepool.Config.Labels},
 			{"node_config.0.tags", nodepool.Config.Tags},
 			{"node_config.0.preemptible", nodepool.Config.Preemptible},
+			{"node_config.0.min_cpu_platform", nodepool.Config.MinCpuPlatform},
 		}
 
 		for _, attrs := range nodepoolTests {
@@ -517,6 +518,7 @@ resource "google_container_node_pool" "np_with_node_config" {
 			"https://www.googleapis.com/auth/monitoring"
 		]
 		preemptible = true
+		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 

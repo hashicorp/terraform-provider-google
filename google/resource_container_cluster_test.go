@@ -591,6 +591,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.labels", cluster.NodeConfig.Labels},
 			{"node_config.0.tags", cluster.NodeConfig.Tags},
 			{"node_config.0.preemptible", cluster.NodeConfig.Preemptible},
+			{"node_config.0.min_cpu_platform", cluster.NodeConfig.MinCpuPlatform},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -1006,6 +1007,7 @@ resource "google_container_cluster" "with_node_config" {
 		}
 		tags = ["foo", "bar"]
 		preemptible = true
+		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10))
 
