@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * compute: Allow setting boot and attached disk sources by name or self link [GH-605]
 * container: Allow updating `google_container_cluster.monitoring_service` [GH-598]
 * container: Allow updating `google_container_cluster.addons_config` [GH-597]
+* project: Make `google_project_services` resource importable [GH-601]
 
 BUG FIXES:
 * compute: Fix import functionality in `google_compute_route` [GH-565]
