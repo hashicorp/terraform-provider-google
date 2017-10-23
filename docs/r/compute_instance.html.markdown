@@ -130,7 +130,7 @@ The `boot_disk` block supports:
     alongside the new instance. Either `initialize_params` or `source` must be set.
     Structure is documented below.
 
-* `source` - (Optional) The name of the existing disk (such as those managed by
+* `source` - (Optional) The name or self_link of the existing disk (such as those managed by
     `google_compute_disk`) to attach.
 
 The `initialize_params` block supports:
@@ -153,7 +153,7 @@ The `scratch_disk` block supports:
 
 The `attached_disk` block supports:
 
-* `source` - (Required) The self_link of the disk to attach to this instance.
+* `source` - (Required) The name or self_link of the disk to attach to this instance.
 
 * `device_name` - (Optional) Name with which the attached disk will be accessible
     under `/dev/disk/by-id/`
