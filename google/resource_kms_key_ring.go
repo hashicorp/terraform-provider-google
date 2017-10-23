@@ -54,10 +54,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 	parent := kmsResourceParentString(project, location)
 
-	keyRing, err := config.clientKms.Projects.Locations.KeyRings.
-		Create(parent, &cloudkms.KeyRing{}).
-		KeyRingId(name).
-		Do()
+	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(parent, &cloudkms.KeyRing{}).KeyRingId(name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
@@ -77,9 +74,7 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS KeyRing %s", keyRingName)
 
-	_, err := config.clientKms.Projects.Locations.KeyRings.
-		Get(keyRingName).
-		Do()
+	_, err := config.clientKms.Projects.Locations.KeyRings.Get(keyRingName).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
