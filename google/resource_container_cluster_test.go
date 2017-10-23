@@ -57,21 +57,36 @@ func TestAccContainerCluster_withTimeout(t *testing.T) {
 func TestAccContainerCluster_withAddons(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAddons,
+				Config: testAccContainerCluster_withAddons(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateAddons(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.horizontal_pod_autoscaling.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
 				),
 			},
 		},
 	})
 }
+
 func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 	t.Parallel()
 
@@ -300,6 +315,36 @@ func TestAccContainerCluster_withLogging(t *testing.T) {
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_logging"),
 					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withMonitoring(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMonitoring(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_monitoring"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "monitoring.googleapis.com"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateMonitoring(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_monitoring"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "none"),
 				),
 			},
 		},
@@ -770,9 +815,10 @@ resource "google_container_cluster" "primary" {
 	}
 }`, acctest.RandString(10))
 
-var testAccContainerCluster_withAddons = fmt.Sprintf(`
+func testAccContainerCluster_withAddons(clusterName string) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
 
@@ -780,7 +826,23 @@ resource "google_container_cluster" "primary" {
 		http_load_balancing { disabled = true }
 		kubernetes_dashboard { disabled = true }
 	}
-}`, acctest.RandString(10))
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateAddons(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	addons_config {
+		http_load_balancing { disabled = false }
+		kubernetes_dashboard { disabled = true }
+		horizontal_pod_autoscaling { disabled = true }
+	}
+}`, clusterName)
+}
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
@@ -1062,6 +1124,28 @@ resource "google_container_cluster" "with_logging" {
 	initial_node_count = 1
 
 	logging_service = "none"
+}`, clusterName)
+}
+
+func testAccContainerCluster_withMonitoring(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_monitoring" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	monitoring_service = "monitoring.googleapis.com"
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateMonitoring(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_monitoring" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	monitoring_service = "none"
 }`, clusterName)
 }
 
