@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"os"
 )
 
 // Test that a service account resource can be created, updated, and destroyed
@@ -16,6 +17,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 	accountId := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
+	project := os.Getenv("GOOGLE_PROJECT")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -25,6 +27,8 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 				Config: testAccGoogleServiceAccountBasic(accountId, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountExists("google_service_account.acceptance"),
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
 				),
 			},
 			// The second step updates the service account
@@ -32,6 +36,17 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 				Config: testAccGoogleServiceAccountBasic(accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+				),
+			},
+			// The third step adds the default project to the service account
+			resource.TestStep{
+				Config: testAccGoogleServiceAccountWithProject(project, accountId, displayName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
 				),
 			},
 		},
@@ -124,6 +139,15 @@ func testAccGoogleServiceAccountBasic(account, name string) string {
 	display_name = "%v"
  }`
 	return fmt.Sprintf(t, account, name)
+}
+
+func testAccGoogleServiceAccountWithProject(project, account, name string) string {
+	t := `resource "google_service_account" "acceptance" {
+	project = "%v"
+    account_id = "%v"
+	display_name = "%v"
+ }`
+	return fmt.Sprintf(t, project, account, name)
 }
 
 func testAccGoogleServiceAccountPolicy(account, name string) string {

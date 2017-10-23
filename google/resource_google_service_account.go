@@ -43,6 +43,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 			},
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
