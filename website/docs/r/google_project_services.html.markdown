@@ -34,3 +34,11 @@ The following arguments are supported:
 
 * `services` - (Required) The list of services that are enabled. Supports
     update.
+
+## Import
+
+Project services can be imported using the `project_id`, e.g.
+
+```
+$ terraform import google_project_services.my_project your-project-id
+```
