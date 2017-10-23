@@ -91,7 +91,7 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 /*
 	Because KMS KeyRing resources cannot be deleted on GCP, we are only going to remove it from state.
 	Re-creation of this resource through Terraform will produce an error.
- */
+*/
 
 func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 	keyRingName := d.Id()
