@@ -108,11 +108,12 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"source": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"boot_disk.initialize_params"},
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							ConflictsWith:    []string{"boot_disk.initialize_params"},
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 					},
 				},
@@ -207,8 +208,9 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"device_name": &schema.Schema{
@@ -622,8 +624,12 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	for i := 0; i < attachedDisksCount; i++ {
 		prefix := fmt.Sprintf("attached_disk.%d", i)
+		source, err := ParseDiskFieldValue(d.Get(prefix+".source").(string), d, config)
+		if err != nil {
+			return err
+		}
 		disk := computeBeta.AttachedDisk{
-			Source:     d.Get(prefix + ".source").(string),
+			Source:     source.RelativeLink(),
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
 
@@ -914,7 +920,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 	attachedDiskSources := make(map[string]int, attachedDisksCount)
 	for i := 0; i < attachedDisksCount; i++ {
-		attachedDiskSources[d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string)] = i
+		source, err := ParseDiskFieldValue(d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string), d, config)
+		if err != nil {
+			return err
+		}
+		attachedDiskSources[source.RelativeLink()] = i
 	}
 
 	sIndex := 0
@@ -928,7 +938,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
 		} else {
-			adIndex, inConfig := attachedDiskSources[disk.Source]
+			source, err := ParseDiskFieldValue(disk.Source, d, config)
+			if err != nil {
+				return err
+			}
+			adIndex, inConfig := attachedDiskSources[source.RelativeLink()]
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
@@ -1282,13 +1296,11 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.source"); ok {
-		diskName := v.(string)
-		diskData, err := config.clientCompute.Disks.Get(
-			project, zone.Name, diskName).Do()
+		source, err := ParseDiskFieldValue(v.(string), d, config)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading disk '%s': %s", diskName, err)
+			return nil, err
 		}
-		disk.Source = diskData.SelfLink
+		disk.Source = source.RelativeLink()
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
@@ -1322,11 +1334,10 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 }
 
 func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
-	sourceUrl := strings.Split(disk.Source, "/")
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
-		"source":      sourceUrl[len(sourceUrl)-1],
+		"source":      disk.Source,
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),

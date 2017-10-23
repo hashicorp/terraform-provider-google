@@ -25,6 +25,10 @@ func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceDat
 	return parseGlobalFieldValue("sslCertificates", sslCertificate, "project", d, config, false)
 }
 
+func ParseDiskFieldValue(disk string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("disks", disk, "project", "zone", d, config, false)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------
