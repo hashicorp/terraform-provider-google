@@ -1334,11 +1334,10 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 }
 
 func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
-	sourceUrl := strings.Split(disk.Source, "/")
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
-		"source":      sourceUrl,
+		"source":      disk.Source,
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
