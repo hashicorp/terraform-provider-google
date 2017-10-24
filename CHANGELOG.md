@@ -1,20 +1,20 @@
-## 1.1.1 (Unreleased)
+## 1.1.1 (October 24, 2017)
 
 FEATURES:
 
-* **New Resource:** `google_compute_target_ssl_proxy` [GH-569]
-* **New Data Source:** `google_compute_lb_ip_ranges` [GH-567]
+* **New Resource:** `google_compute_target_ssl_proxy` ([#569](https://github.com/terraform-providers/terraform-provider-google/issues/569))
+* **New Data Source:** `google_compute_lb_ip_ranges` ([#567](https://github.com/terraform-providers/terraform-provider-google/issues/567))
 
 IMPROVEMENTS:
-* compute: Make `boot_disk` required; remove checks around expected number of disks [GH-600]
-* compute: Allow setting boot and attached disk sources by name or self link [GH-605]
-* container: Allow updating `google_container_cluster.monitoring_service` [GH-598]
-* container: Allow updating `google_container_cluster.addons_config` [GH-597]
-* project: Make `google_project_services` resource importable [GH-601]
+* compute: Make `boot_disk` required; remove checks around expected number of disks ([#600](https://github.com/terraform-providers/terraform-provider-google/issues/600))
+* compute: Allow setting boot and attached disk sources by name or self link ([#605](https://github.com/terraform-providers/terraform-provider-google/issues/605))
+* container: Allow updating `google_container_cluster.monitoring_service` ([#598](https://github.com/terraform-providers/terraform-provider-google/issues/598))
+* container: Allow updating `google_container_cluster.addons_config` ([#597](https://github.com/terraform-providers/terraform-provider-google/issues/597))
+* project: Make `google_project_services` resource importable ([#601](https://github.com/terraform-providers/terraform-provider-google/issues/601))
 
 BUG FIXES:
-* compute: Fix import functionality in `google_compute_route` [GH-565]
-* compute: Migrate boot disk initialize params [GH-592]
+* compute: Fix import functionality in `google_compute_route` ([#565](https://github.com/terraform-providers/terraform-provider-google/issues/565))
+* compute: Migrate boot disk initialize params ([#592](https://github.com/terraform-providers/terraform-provider-google/issues/592))
 
 ## 1.1.0 (October 12, 2017)
 
