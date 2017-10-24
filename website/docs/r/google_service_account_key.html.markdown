@@ -43,7 +43,6 @@ resource "google_service_account_key" "acceptance" {
 ## Argument Reference
 
 The following arguments are supported:
-* `name` - The name used for this key pair (not used on create)
 
 * `service_account_id` - (Required) The Service account id of the Key Pair.
 
@@ -63,13 +62,19 @@ Without a PGP key, the private key material will be stored in state unencrypted.
 
 The following attributes are exported in addition to the arguments listed above:
 
+* `name` - The name used for this key pair
+
 * `fingerprint` - The MD5 public key fingerprint as specified in section 4 of RFC 4716.
+
 * `public_key` - The public key, base64 encoded
+
 * `private_key` - The private key, base64 encoded. This is only populated
+
 when creating a new key, and when no `pgp_key` is provided
 * `private_key_encrypted` – The private key material, base 64 encoded and
 encrypted with the given `pgp_key`. This is only populated when creating a new
 key and `pgp_key` is supplied
+
 * `private_key_fingerprint` - The MD5 public key fingerprint for the encrypted
 private key
 

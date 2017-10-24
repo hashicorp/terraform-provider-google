@@ -11,6 +11,7 @@ import (
 
 // Test that a service account key can be created and destroyed
 func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
+	t.Parallel()
 	resourceName := "google_service_account_key.acceptance"
 	accountID := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
@@ -33,6 +34,7 @@ func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
 }
 
 func TestAccGoogleServiceAccountKey_pgp(t *testing.T) {
+	t.Parallel()
 	resourceName := "google_service_account_key.acceptance"
 	accountID := "a" + acctest.RandString(10)
 	displayName := "Terraform Test"
@@ -101,7 +103,7 @@ resource "google_service_account_key" "acceptance" {
 	public_key_type = "TYPE_X509_PEM_FILE"
 	pgp_key = <<EOF
 %s
-EOF 
+EOF
 }
 `, account, name, key)
 }

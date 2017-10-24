@@ -91,12 +91,9 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	serviceAccount := d.Get("service_account_id").(string)
 
 	r := &iam.CreateServiceAccountKeyRequest{
-		KeyAlgorithm: d.Get("key_algorithm").(string),
+		KeyAlgorithm:   d.Get("key_algorithm").(string),
+		PrivateKeyType: d.Get("private_key_type").(string),
 	}
-
-	var err error
-
-	r.PrivateKeyType = d.Get("private_key_type").(string)
 
 	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
 	if err != nil {
