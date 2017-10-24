@@ -15,6 +15,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
 	accountId := "a" + acctest.RandString(10)
+	uniqueId := ""
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
 	project := os.Getenv("GOOGLE_PROJECT")
@@ -38,15 +39,19 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
 					resource.TestCheckResourceAttr(
 						"google_service_account.acceptance", "project", project),
+					testAccStoreServiceAccountUniqueId(&uniqueId),
 				),
 			},
-			// The third step adds the default project to the service account
+			// The third step explicitely adds the same default project to the service account configuration
+			// and ensure the service account is not recreated by comparing the value of its unique_id with the one from the previous step
 			resource.TestStep{
 				Config: testAccGoogleServiceAccountWithProject(project, accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
 					resource.TestCheckResourceAttr(
 						"google_service_account.acceptance", "project", project),
+					resource.TestCheckResourceAttrPtr(
+						"google_service_account.acceptance", "unique_id", &uniqueId),
 				),
 			},
 		},
@@ -87,6 +92,13 @@ func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccStoreServiceAccountUniqueId(uniqueId *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		*uniqueId = s.RootModule().Resources["google_service_account.acceptance"].Primary.Attributes["unique_id"]
+		return nil
+	}
 }
 
 func testAccCheckGoogleServiceAccountPolicyCount(r string, n int) resource.TestCheckFunc {
