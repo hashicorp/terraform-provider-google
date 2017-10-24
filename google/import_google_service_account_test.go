@@ -12,20 +12,16 @@ import (
 func TestAccGoogleServiceAccount_importBasic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_service_account.acceptance"
-	sa_name := "terraform-" + acctest.RandString(10)
-	conf := testAccGoogleServiceAccount_import(sa_name)
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: conf,
+				Config: testAccGoogleServiceAccount_import("terraform-" + acctest.RandString(10)),
 			},
 
 			resource.TestStep{
-				ResourceName:      resourceName,
+				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -44,21 +40,16 @@ resource "google_service_account" "acceptance" {
 func TestAccGoogleServiceAccount_importWithProject(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_service_account.acceptance"
-	project := os.Getenv("GOOGLE_PROJECT")
-	sa_name := "terraform-" + acctest.RandString(10)
-	conf := testAccGoogleServiceAccount_importWithProject(project, sa_name)
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: conf,
+				Config: testAccGoogleServiceAccount_importWithProject(os.Getenv("GOOGLE_PROJECT"), "terraform-"+acctest.RandString(10)),
 			},
 
 			resource.TestStep{
-				ResourceName:      resourceName,
+				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
