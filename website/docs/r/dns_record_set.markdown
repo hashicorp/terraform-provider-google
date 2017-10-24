@@ -10,6 +10,12 @@ description: |-
 
 Manages a set of DNS records within Google Cloud DNS.
 
+~> **Note:** The Google Cloud DNS API requires NS records be present at all
+times. To accommodate this, when creating NS records, the default records
+Google automatically creates will be silently overwritten.  Also, when
+destroying NS records, Terraform will not actually remove NS records, but will
+report that it did.
+
 ## Example Usage
 
 ### Binding a DNS name to the ephemeral IP of a new instance:

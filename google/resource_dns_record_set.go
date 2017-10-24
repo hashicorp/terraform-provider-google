@@ -78,7 +78,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if d.Get("type").(string) == "NS" {
-		log.Printf("{DEBUG] DNS record list request for %q", zone)
+		log.Printf("[DEBUG] DNS record list request for %q", zone)
 		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
 		if err != nil {
 			return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
@@ -159,6 +159,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	// this allows terraform delete to work, but may have unexpected
 	// side-effects when deleting just that record set.
 	if d.Get("type").(string) == "NS" {
+		log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
 		return nil
 	}
 	config := meta.(*Config)
