@@ -5,6 +5,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
 	"log"
+	"regexp"
+	"strings"
 )
 
 func resourceKmsKeyRing() *schema.Resource {
@@ -12,6 +14,9 @@ func resourceKmsKeyRing() *schema.Resource {
 		Create: resourceKmsKeyRingCreate,
 		Read:   resourceKmsKeyRingRead,
 		Delete: resourceKmsKeyRingDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceKmsKeyRingImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -33,12 +38,18 @@ func resourceKmsKeyRing() *schema.Resource {
 	}
 }
 
-func kmsResourceParentString(project, location string) string {
-	return fmt.Sprintf("projects/%s/locations/%s", project, location)
+type kmsKeyRingId struct {
+	Project  string
+	Location string
+	Name     string
 }
 
-func kmsResourceParentKeyRingName(project, location, name string) string {
-	return fmt.Sprintf("%s/keyRings/%s", kmsResourceParentString(project, location), name)
+func (s *kmsKeyRingId) keyRingId() string {
+	return fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", s.Project, s.Location, s.Name)
+}
+
+func (s *kmsKeyRingId) parentString() string {
+	return fmt.Sprintf("projects/%s/locations/%s", s.Project, s.Location)
 }
 
 func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
@@ -49,12 +60,13 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	name := d.Get("name").(string)
-	location := d.Get("location").(string)
+	keyRingId := &kmsKeyRingId{
+		Project:  project,
+		Location: d.Get("location").(string),
+		Name:     d.Get("name").(string),
+	}
 
-	parent := kmsResourceParentString(project, location)
-
-	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(parent, &cloudkms.KeyRing{}).KeyRingId(name).Do()
+	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentString(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
@@ -96,4 +108,35 @@ func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func parseKmsKeyRingId(id string) (*kmsKeyRingId, error) {
+	keyRingIdRegex := regexp.MustCompile("projects/(.+)/locations/(.+)/keyRings/(.+)$")
+
+	if !keyRingIdRegex.MatchString(id) {
+		return nil, fmt.Errorf("Invalid KeyRing id format, expecting projects/{projectId}/locations/{locationId}/keyRings/{keyRingName}")
+	}
+
+	parts := strings.Split(id, "/")
+
+	return &kmsKeyRingId{
+		Project:  parts[1],
+		Location: parts[3],
+		Name:     parts[5],
+	}, nil
+}
+
+func resourceKmsKeyRingImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id, err := parseKmsKeyRingId(d.Id())
+
+	if err != nil {
+		return nil, err
+	}
+
+	d.Set("name", id.Name)
+	d.Set("location", id.Location)
+
+	d.SetId(id.keyRingId())
+
+	return []*schema.ResourceData{d}, nil
 }

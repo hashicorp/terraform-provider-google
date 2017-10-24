@@ -54,14 +54,13 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 			return fmt.Errorf("Resource not found: %s", resourceName)
 		}
 
-		name := rs.Primary.Attributes["name"]
-		location := rs.Primary.Attributes["location"]
-		project := rs.Primary.Attributes["project"]
+		keyRingId := &kmsKeyRingId{
+			Project:  rs.Primary.Attributes["project"],
+			Location: rs.Primary.Attributes["location"],
+			Name:     rs.Primary.Attributes["name"],
+		}
 
-		parent := kmsResourceParentString(project, location)
-		keyRingName := kmsResourceParentKeyRingName(project, location, name)
-
-		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(parent).Do()
+		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(keyRingId.parentString()).Do()
 		if err != nil {
 			return fmt.Errorf("Error listing KeyRings: %s", err)
 		}
@@ -69,12 +68,12 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 		for _, keyRing := range listKeyRingsResponse.KeyRings {
 			log.Printf("[DEBUG] Found KeyRing: %s", keyRing.Name)
 
-			if keyRing.Name == keyRingName {
+			if keyRing.Name == keyRingId.keyRingId() {
 				return nil
 			}
 		}
 
-		return fmt.Errorf("KeyRing not found: %s", keyRingName)
+		return fmt.Errorf("KeyRing not found: %s", keyRingId.keyRingId())
 	}
 }
 
