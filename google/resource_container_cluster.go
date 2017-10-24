@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"net"
 	"regexp"
 	"strings"
 	"time"
@@ -134,20 +133,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"cluster_ipv4_cidr": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					_, ipnet, err := net.ParseCIDR(value)
-
-					if err != nil || ipnet == nil || value != ipnet.String() {
-						errors = append(errors, fmt.Errorf(
-							"%q must contain a valid CIDR", k))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.CIDRNetwork(11, 19),
 			},
 
 			"description": {
@@ -217,6 +207,30 @@ func resourceContainerCluster() *schema.Resource {
 						"cluster_ca_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+					},
+				},
+			},
+
+			"master_authorized_networks_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"cidr_blocks": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							MaxItems: 10,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.CIDRNetwork(0, 32),
+							},
 						},
 					},
 				},
@@ -315,6 +329,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Password: masterAuth["password"].(string),
 			Username: masterAuth["username"].(string),
 		}
+	}
+
+	if v, ok := d.GetOk("master_authorized_networks_config"); ok {
+		cluster.MasterAuthorizedNetworksConfig = expandMasterAuthorizedNetworksConfig(v)
 	}
 
 	if v, ok := d.GetOk("min_master_version"); ok {
@@ -482,6 +500,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("master_auth", masterAuth)
 
+	if cluster.MasterAuthorizedNetworksConfig != nil {
+		d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig))
+	}
+
 	d.Set("initial_node_count", cluster.InitialNodeCount)
 	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
@@ -525,6 +547,30 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
 	d.Partial(true)
+
+	if d.HasChange("master_authorized_networks_config") {
+		if c, ok := d.GetOk("master_authorized_networks_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
+				},
+			}
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster master authorized networks", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+			log.Printf("[INFO] GKE cluster %s master authorized networks config has been updated", d.Id())
+
+			d.SetPartial("master_authorized_networks_config")
+		}
+	}
 
 	// The master must be updated before the nodes
 	if d.HasChange("min_master_version") {
@@ -816,6 +862,23 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 	return ac
 }
 
+func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.MasterAuthorizedNetworksConfig {
+	config := configured.([]interface{})[0].(map[string]interface{})
+	cidrBlocks := config["cidr_blocks"].(*schema.Set).List()
+	result := &container.MasterAuthorizedNetworksConfig{
+		Enabled:    config["enabled"].(bool),
+		CidrBlocks: make([]*container.CidrBlock, 0),
+	}
+	if result.Enabled {
+		for _, v := range cidrBlocks {
+			result.CidrBlocks = append(result.CidrBlocks, &container.CidrBlock{
+				CidrBlock: v.(string),
+			})
+		}
+	}
+	return result
+}
+
 func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if c.HorizontalPodAutoscaling != nil {
@@ -854,6 +917,20 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 	}
 
 	return nodePools, nil
+}
+
+func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworksConfig) []map[string]interface{} {
+	cidrBlocks := make([]string, 0, len(c.CidrBlocks))
+	for _, v := range c.CidrBlocks {
+		cidrBlocks = append(cidrBlocks, v.CidrBlock)
+	}
+	result := []map[string]interface{}{
+		map[string]interface{}{
+			"enabled":     c.Enabled,
+			"cidr_blocks": cidrBlocks,
+		},
+	}
+	return result
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

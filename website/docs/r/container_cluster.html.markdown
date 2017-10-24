@@ -41,11 +41,11 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
-    
+
     labels {
       foo = "bar"
     }
-    
+
     tags = ["foo", "bar"]
   }
 }
@@ -91,6 +91,9 @@ resource "google_container_cluster" "primary" {
 
 * `master_auth` - (Optional) The authentication information for accessing the
     Kubernetes master. Structure is documented below.
+
+* `master_authorized_networks_config` - (Optional) The desired configuration options
+    for master authorized networks
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -158,7 +161,18 @@ The `master_auth` block supports:
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
+The `master_authorized_networks_config` block supports:
+
+* `enabled` - (Required) Whether or not master authorized networks is enabled
+
+* `cidr_blocks` - (Optional) Defines up to 10 external networks that can access
+    Kubernetes master through HTTPS.  To avoid upstream failures, an empty list is
+    passed when this feature is disabled, irrespective of values passed here.
+
 The `node_config` block supports:
+
+* `machine_type` - (Optional) The name of a Google Compute Engine machine type.
+    Defaults to `n1-standard-1`.
 
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
@@ -201,7 +215,7 @@ The `node_config` block supports:
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
 
-* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
 ## Attributes Reference

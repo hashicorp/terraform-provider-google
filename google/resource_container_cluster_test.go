@@ -106,6 +106,50 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, true, []string{"0.0.0.0/0"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.cidr_blocks.#", "1"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, true, []string{}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.enabled", "true"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.cidr_blocks"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, false, []string{"8.8.8.8/32"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.enabled", "false"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.cidr_blocks"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	t.Parallel()
 
@@ -679,6 +723,13 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			}
 		}
 
+		masterAuthorizedNetworksEnabled := false
+		if cluster.MasterAuthorizedNetworksConfig != nil {
+			masterAuthorizedNetworksEnabled = cluster.MasterAuthorizedNetworksConfig.Enabled
+			clusterTests = append(clusterTests,
+				clusterTestField{"master_authorized_networks_config.0.enabled", masterAuthorizedNetworksEnabled})
+		}
+
 		for _, attrs := range clusterTests {
 			if c := checkMatch(attributes, attrs.tf_attr, attrs.gcp_attr); c != "" {
 				return fmt.Errorf(c)
@@ -881,6 +932,25 @@ resource "google_container_cluster" "with_master_auth" {
 		password = "adoy.rm"
 	}
 }`, acctest.RandString(10))
+
+func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName string, enabled bool, cidrBlocks []string) string {
+
+	for i, cidr := range cidrBlocks {
+		cidrBlocks[i] = strconv.Quote(cidr)
+	}
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_authorized_networks" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	master_authorized_networks_config {
+		enabled = %v
+		cidr_blocks = [%s]
+    }
+}`, clusterName, enabled, strings.Join(cidrBlocks, ","))
+}
 
 func testAccContainerCluster_withAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
