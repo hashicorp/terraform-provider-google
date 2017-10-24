@@ -143,9 +143,9 @@ func testAccGoogleServiceAccountBasic(account, name string) string {
 
 func testAccGoogleServiceAccountWithProject(project, account, name string) string {
 	t := `resource "google_service_account" "acceptance" {
-	project = "%v"
+    project = "%v"
     account_id = "%v"
-	display_name = "%v"
+    display_name = "%v"
  }`
 	return fmt.Sprintf(t, project, account, name)
 }
