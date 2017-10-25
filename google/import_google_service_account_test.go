@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"os"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
 )
 
 func TestAccGoogleServiceAccount_importBasic(t *testing.T) {
@@ -29,12 +30,12 @@ func TestAccGoogleServiceAccount_importBasic(t *testing.T) {
 	})
 }
 
-func testAccGoogleServiceAccount_import(sa_name string) string {
+func testAccGoogleServiceAccount_import(saName string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
     account_id = "%s"
     display_name = "%s"
-}`, sa_name, sa_name)
+}`, saName, saName)
 }
 
 func TestAccGoogleServiceAccount_importWithProject(t *testing.T) {
@@ -57,11 +58,11 @@ func TestAccGoogleServiceAccount_importWithProject(t *testing.T) {
 	})
 }
 
-func testAccGoogleServiceAccount_importWithProject(project, sa_name string) string {
+func testAccGoogleServiceAccount_importWithProject(project, saName string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
     project = "%s"
     account_id = "%s"
     display_name = "%s"
-}`, project, sa_name, sa_name)
+}`, project, saName, saName)
 }
