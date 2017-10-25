@@ -337,9 +337,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 	}
 }
 
-func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDisk, error) {
-	config := meta.(*Config)
-
+func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -413,10 +411,7 @@ func buildDisks(d *schema.ResourceData, meta interface{}) ([]*compute.AttachedDi
 	return disks, nil
 }
 
-func buildNetworks(d *schema.ResourceData, meta interface{}) ([]*compute.NetworkInterface, error) {
-	// Build up the list of networks
-	config := meta.(*Config)
-
+func buildNetworks(d *schema.ResourceData, config *Config) ([]*compute.NetworkInterface, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -506,7 +501,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	instanceProperties.CanIpForward = d.Get("can_ip_forward").(bool)
 	instanceProperties.Description = d.Get("instance_description").(string)
 	instanceProperties.MachineType = d.Get("machine_type").(string)
-	disks, err := buildDisks(d, meta)
+	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
 	}
@@ -517,7 +512,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	instanceProperties.Metadata = metadata
-	networks, err := buildNetworks(d, meta)
+	networks, err := buildNetworks(d, config)
 	if err != nil {
 		return err
 	}
