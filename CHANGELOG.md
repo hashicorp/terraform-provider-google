@@ -7,6 +7,9 @@ FEATURES:
 IMPROVEMENTS:
 * project: Make `google_service_account` resource importable [GH-606]
 
+BUG FIXES:
+* container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
+
 ## 1.1.1 (October 24, 2017)
 
 FEATURES:
