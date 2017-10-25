@@ -535,7 +535,9 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 }
 
 var setFields map[string]struct{} = map[string]struct{}{
-	"additional_zones": struct{}{},
+	"additional_zones":                       struct{}{},
+	"node_config.0.oauth_scopes":             struct{}{},
+	"node_pool.0.node_config.0.oauth_scopes": struct{}{},
 }
 
 func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
@@ -991,10 +993,10 @@ resource "google_container_cluster" "with_node_config" {
 		disk_size_gb = 15
 		local_ssd_count = 1
 		oauth_scopes = [
+			"https://www.googleapis.com/auth/monitoring",
 			"https://www.googleapis.com/auth/compute",
 			"https://www.googleapis.com/auth/devstorage.read_only",
-			"https://www.googleapis.com/auth/logging.write",
-			"https://www.googleapis.com/auth/monitoring"
+			"https://www.googleapis.com/auth/logging.write"
 		]
 		service_account = "default"
 		metadata {
