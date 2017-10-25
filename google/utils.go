@@ -408,3 +408,26 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 
 	return m[0].(map[string]interface{})
 }
+
+func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
+	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
+	for _, raw := range ranges {
+		data := raw.(map[string]interface{})
+		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
+			IpCidrRange:         data["ip_cidr_range"].(string),
+			SubnetworkRangeName: data["subnetwork_range_name"].(string),
+		})
+	}
+	return ipRanges
+}
+
+func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
+	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
+	for _, ipRange := range ranges {
+		rangesSchema = append(rangesSchema, map[string]interface{}{
+			"ip_cidr_range":         ipRange.IpCidrRange,
+			"subnetwork_range_name": ipRange.SubnetworkRangeName,
+		})
+	}
+	return rangesSchema
+}
