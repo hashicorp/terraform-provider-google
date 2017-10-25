@@ -1,5 +1,9 @@
 ## 1.1.2 (Unreleased)
 
+FEATURES:
+
+* **New Resource:** `google_service_account_key` [GH-472]
+
 IMPROVEMENTS:
 * project: Make `google_service_account` resource importable [GH-606]
 
