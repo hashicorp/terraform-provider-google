@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource:** `google_service_account_key` [GH-472]
 
 IMPROVEMENTS:
+* container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * project: Make `google_service_account` resource importable [GH-606]
 
 BUG FIXES:
