@@ -21,7 +21,6 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		StateVersion int
 		Attributes   map[string]string
 		Expected     map[string]string
-		Meta         interface{}
 	}{
 		"v0.4.2 and earlier": {
 			StateVersion: 0,
@@ -77,8 +76,9 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		},
 	}
 
+	config := getInitializedConfig(t)
 	for tn, tc := range cases {
-		runInstanceMigrateTest(t, "i-abc123", tn, tc.StateVersion, tc.Attributes, tc.Expected, tc.Meta)
+		runInstanceMigrateTest(t, "i-abc123", tn, tc.StateVersion, tc.Attributes, tc.Expected, config)
 	}
 }
 
