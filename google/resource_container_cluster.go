@@ -128,6 +128,22 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"network_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Default:  true,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -859,6 +875,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 	if v, ok := config["kubernetes_dashboard"]; ok && len(v.([]interface{})) > 0 {
 		addon := v.([]interface{})[0].(map[string]interface{})
 		ac.KubernetesDashboard = &container.KubernetesDashboard{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["network_policy"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.NetworkPolicyConfig = &container.NetworkPolicyConfig{
 			Disabled:        addon["disabled"].(bool),
 			ForceSendFields: []string{"Disabled"},
 		}
