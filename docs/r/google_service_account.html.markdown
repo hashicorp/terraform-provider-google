@@ -73,3 +73,11 @@ exported:
 * `name` - The fully-qualified name of the service account.
 
 * `unique_id` - The unique id of the service account.
+
+## Import
+
+Service accounts can be imported using their URI, e.g.
+
+```
+$ terraform import google_service_account.my_sa projects/my-project/serviceAccounts/my-sa@my-project.iam.gserviceaccount.com
+```
