@@ -41,12 +41,6 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "TYPE_PKCS12_FILE", "TYPE_GOOGLE_CREDENTIALS_FILE"}, false),
 			},
-			"public_key": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
 			"public_key_type": &schema.Schema{
 				Type:         schema.TypeString,
 				Default:      "X509_PEM",
@@ -56,6 +50,11 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 			},
 			// Computed
 			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+				ForceNew: true,
+			},
+			"public_key": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -125,12 +124,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	resourceGoogleServiceAccountKeyRead(d, meta)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return resourceGoogleServiceAccountKeyRead(d, meta)
 }
 
 func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {

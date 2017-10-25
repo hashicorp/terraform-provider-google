@@ -1,6 +1,6 @@
 ---
 layout: "google"
-page_title: "Google: google_service_accout_key"
+page_title: "Google: google_service_account_key"
 sidebar_current: "docs-google-service-account-key"
 description: |-
   Allows management of a Google Cloud Platform service account Key Pair
@@ -69,8 +69,8 @@ The following attributes are exported in addition to the arguments listed above:
 * `public_key` - The public key, base64 encoded
 
 * `private_key` - The private key, base64 encoded. This is only populated
-
 when creating a new key, and when no `pgp_key` is provided
+
 * `private_key_encrypted` – The private key material, base 64 encoded and
 encrypted with the given `pgp_key`. This is only populated when creating a new
 key and `pgp_key` is supplied
