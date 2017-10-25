@@ -677,19 +677,6 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 	return result, region
 }
 
-func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, 1)
-	schedulingMap := map[string]interface{}{
-		"on_host_maintenance": scheduling.OnHostMaintenance,
-		"preemptible":         scheduling.Preemptible,
-	}
-	if scheduling.AutomaticRestart != nil {
-		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
-	}
-	result = append(result, schedulingMap)
-	return result
-}
-
 func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(serviceAccounts))
 	for _, serviceAccount := range serviceAccounts {
@@ -700,14 +687,6 @@ func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[str
 		result = append(result, serviceAccountMap)
 	}
 	return result
-}
-
-func flattenMetadata(metadata *compute.Metadata) map[string]string {
-	metadataMap := make(map[string]string)
-	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
-	}
-	return metadataMap
 }
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {

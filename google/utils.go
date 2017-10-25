@@ -426,3 +426,65 @@ func flattenAliasIpRange(ranges []*compute.AliasIpRange) []map[string]interface{
 	}
 	return rangesSchema
 }
+
+func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error) {
+	m := &compute.Metadata{}
+	mdMap := d.Get("metadata").(map[string]interface{})
+	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
+		mdMap["startup-script"] = v
+	}
+	if len(mdMap) > 0 {
+		m.Items = make([]*compute.MetadataItems, 0, len(mdMap))
+		for key, val := range mdMap {
+			v := val.(string)
+			m.Items = append(m.Items, &compute.MetadataItems{
+				Key:   key,
+				Value: &v,
+			})
+		}
+
+		// Set the fingerprint. If the metadata has never been set before
+		// then this will just be blank.
+		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+	}
+
+	return m, nil
+}
+
+func flattenMetadata(metadata *compute.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
+	// Calculate the tags
+	var tags *compute.Tags
+	if v := d.Get("tags"); v != nil {
+		vs := v.(*schema.Set)
+		tags = new(compute.Tags)
+		tags.Items = make([]string, vs.Len())
+		for i, v := range vs.List() {
+			tags.Items[i] = v.(string)
+		}
+
+		tags.Fingerprint = d.Get("tags_fingerprint").(string)
+	}
+
+	return tags
+}
+
+func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	schedulingMap := map[string]interface{}{
+		"on_host_maintenance": scheduling.OnHostMaintenance,
+		"preemptible":         scheduling.Preemptible,
+	}
+	if scheduling.AutomaticRestart != nil {
+		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
+	}
+	result = append(result, schedulingMap)
+	return result
+}
