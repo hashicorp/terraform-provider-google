@@ -188,7 +188,7 @@ The `network_interface` block supports:
     on that network). This block can be repeated multiple times. Structure
     documented below.
 
-* `alias_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An
+* `alias_ip_range` - (Optional) An
     array of alias IP ranges for this network interface. Can only be specified for network
     interfaces on subnet-mode networks. Structure documented below.
 
@@ -229,9 +229,9 @@ The `scheduling` block supports:
 
 ---
 
-* `guest_accelerator` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
 
-* `min_cpu_platform` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
+* `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
 
 The `guest_accelerator` block supports:
