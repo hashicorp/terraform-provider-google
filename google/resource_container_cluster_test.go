@@ -738,7 +738,6 @@ resource "google_container_cluster" "primary" {
 	zone = "us-central1-a"
 	initial_node_count = 3
 
-	kubernetes_dashboard { disabled = true }
 	addons_config {
 		http_load_balancing { disabled = true }
 		kubernetes_dashboard { disabled = true }
@@ -892,10 +891,10 @@ resource "google_container_cluster" "with_node_config" {
 		disk_size_gb = 15
 		local_ssd_count = 1
 		oauth_scopes = [
-			"https://www.googleapis.com/auth/monitoring"
+			"https://www.googleapis.com/auth/monitoring",
 			"https://www.googleapis.com/auth/compute",
 			"https://www.googleapis.com/auth/devstorage.read_only",
-			"https://www.googleapis.com/auth/logging.write",
+			"https://www.googleapis.com/auth/logging.write"
 		]
 		service_account = "default"
 		metadata {
