@@ -416,7 +416,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		allowed = make([]*computeBeta.FirewallAllowed, 0, v.Len())
 		for _, v := range v.List() {
 			m := v.(map[string]interface{})
-			
+
 			allowed = append(allowed, &computeBeta.FirewallAllowed{
 				IPProtocol: m["protocol"].(string),
 				Ports:      convertStringArr(m["ports"].([]interface{})),
