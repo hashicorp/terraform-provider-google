@@ -128,29 +128,26 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 // - is a resource URL, returns the string unchanged
 // - is the network name only, then looks up the resource URL using the google client
 func getNetworkLink(d *schema.ResourceData, config *Config, field string) (string, error) {
-	if v, ok := d.GetOk(field); ok {
-		network := v.(string)
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return "", err
-		}
-
-		if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-			// Network value provided is just the name, lookup the network SelfLink
-			networkData, err := config.clientCompute.Networks.Get(
-				project, network).Do()
-			if err != nil {
-				return "", fmt.Errorf("Error reading network: %s", err)
-			}
-			network = networkData.SelfLink
-		}
-
-		return network, nil
-
-	} else {
+	v, ok := d.GetOk(field)
+	if !ok {
 		return "", nil
 	}
+
+	network := v.(string)
+	if strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
+		return network, nil
+	}
+
+	// Network value provided is just the name, lookup the network SelfLink
+	project, err := getProject(d, config)
+	if err != nil {
+		return "", err
+	}
+	networkData, err := config.clientCompute.Networks.Get(project, network).Do()
+	if err != nil {
+		return "", fmt.Errorf("Error reading network: %s", err)
+	}
+	return networkData.SelfLink, nil
 }
 
 // Reads the "subnetwork" fields from the given resource data and if the value is:
@@ -161,36 +158,35 @@ func getNetworkLink(d *schema.ResourceData, config *Config, field string) (strin
 // If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
 // 	as the project if set. If not, we fallback on the default project.
 func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, subnetworkProjectField, zoneField string) (string, error) {
-	if v, ok := d.GetOk(subnetworkField); ok {
-		subnetwork := v.(string)
-		r := regexp.MustCompile(SubnetworkLinkRegex)
-		if r.MatchString(subnetwork) {
-			return subnetwork, nil
-		}
-
-		var project string
-		if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
-			project = subnetworkProject.(string)
-		} else {
-			var err error
-			project, err = getProject(d, config)
-			if err != nil {
-				return "", err
-			}
-		}
-
-		region := getRegionFromZone(d.Get(zoneField).(string))
-
-		subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
-		if err != nil {
-			return "", fmt.Errorf(
-				"Error referencing subnetwork '%s' in region '%s': %s",
-				subnetwork, region, err)
-		}
-
-		return subnet.SelfLink, nil
+	v, ok := d.GetOk(subnetworkField)
+	if !ok {
+		return "", nil
 	}
-	return "", nil
+	subnetwork := v.(string)
+	if regexp.MustCompile(SubnetworkLinkRegex).MatchString(subnetwork) {
+		return subnetwork, nil
+	}
+
+	var project string
+	if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
+		project = subnetworkProject.(string)
+	} else {
+		var err error
+		project, err = getProject(d, config)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	region := getRegionFromZone(d.Get(zoneField).(string))
+
+	subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
+	if err != nil {
+		return "", fmt.Errorf(
+			"Error referencing subnetwork '%s' in region '%s': %s",
+			subnetwork, region, err)
+	}
+	return subnet.SelfLink, nil
 }
 
 // getNetworkName reads the "network" field from the given resource data and if the value:
@@ -205,16 +201,15 @@ func getNetworkName(d *schema.ResourceData, field string) (string, error) {
 }
 
 func getNetworkNameFromSelfLink(network string) (string, error) {
-	if strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		// extract the network name from SelfLink URL
-		networkName := network[strings.LastIndex(network, "/")+1:]
-		if networkName == "" {
-			return "", fmt.Errorf("network url not valid")
-		}
-		return networkName, nil
+	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
+		return network, nil
 	}
-
-	return network, nil
+	// extract the network name from SelfLink URL
+	networkName := network[strings.LastIndex(network, "/")+1:]
+	if networkName == "" {
+		return "", fmt.Errorf("network url not valid")
+	}
+	return networkName, nil
 }
 
 func getRouterLockName(region string, router string) string {
