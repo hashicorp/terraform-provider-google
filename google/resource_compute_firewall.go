@@ -416,18 +416,10 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		allowed = make([]*computeBeta.FirewallAllowed, 0, v.Len())
 		for _, v := range v.List() {
 			m := v.(map[string]interface{})
-
-			var ports []string
-			if v := convertStringArr(m["ports"].([]interface{})); len(v) > 0 {
-				ports = make([]string, len(v))
-				for i, v := range v {
-					ports[i] = v
-				}
-			}
-
+			
 			allowed = append(allowed, &computeBeta.FirewallAllowed{
 				IPProtocol: m["protocol"].(string),
-				Ports:      ports,
+				Ports:      convertStringArr(m["ports"].([]interface{})),
 			})
 		}
 	}
@@ -439,17 +431,9 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 		for _, v := range v.List() {
 			m := v.(map[string]interface{})
 
-			var ports []string
-			if v := convertStringArr(m["ports"].([]interface{})); len(v) > 0 {
-				ports = make([]string, len(v))
-				for i, v := range v {
-					ports[i] = v
-				}
-			}
-
 			denied = append(denied, &computeBeta.FirewallDenied{
 				IPProtocol: m["protocol"].(string),
-				Ports:      ports,
+				Ports:      convertStringArr(m["ports"].([]interface{})),
 			})
 		}
 	}
