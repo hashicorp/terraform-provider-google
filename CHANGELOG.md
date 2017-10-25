@@ -1,4 +1,8 @@
 ## 1.1.2 (Unreleased)
+
+IMPROVEMENTS:
+* project: Make `google_service_account` resource importable [GH-606]
+
 ## 1.1.1 (October 24, 2017)
 
 FEATURES:
