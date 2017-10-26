@@ -259,7 +259,7 @@ exported:
 
 * `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
 
-* `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+* `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]

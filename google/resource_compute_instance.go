@@ -7,8 +7,6 @@ import (
 	"log"
 	"strings"
 
-	"regexp"
-
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -16,11 +14,6 @@ import (
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
-
-func stringScopeHashcode(v interface{}) int {
-	v = canonicalizeServiceScope(v.(string))
-	return schema.HashString(v)
-}
 
 func resourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
@@ -32,6 +25,9 @@ func resourceComputeInstance() *schema.Resource {
 		SchemaVersion: 6,
 		MigrateState:  resourceComputeInstanceMigrateState,
 
+		// A compute instance is more or less a superset of a compute instance
+		// template. Please attempt to maintain consistency with the
+		// resource_compute_instance_template schema when updating this one.
 		Schema: map[string]*schema.Schema{
 			"boot_disk": &schema.Schema{
 				Type:     schema.TypeList,
@@ -315,6 +311,14 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"network_ip": &schema.Schema{
+							Type:       schema.TypeString,
+							Optional:   true,
+							ForceNew:   true,
+							Computed:   true,
+							Deprecated: "Please use address",
+						},
+
 						"access_config": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -323,11 +327,13 @@ func resourceComputeInstance() *schema.Resource {
 									"nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 
 									"assigned_nat_ip": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "Please use nat_ip",
 									},
 								},
 							},
@@ -599,78 +605,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, disk)
 	}
 
-	// Build up the list of networkInterfaces
-	networkInterfacesCount := d.Get("network_interface.#").(int)
-	networkInterfaces := make([]*compute.NetworkInterface, 0, networkInterfacesCount)
-	for i := 0; i < networkInterfacesCount; i++ {
-		prefix := fmt.Sprintf("network_interface.%d", i)
-		// Load up the name of this network_interface
-		networkName := d.Get(prefix + ".network").(string)
-		subnetworkName := d.Get(prefix + ".subnetwork").(string)
-		address := d.Get(prefix + ".address").(string)
-		var networkLink, subnetworkLink string
-
-		if networkName != "" && subnetworkName != "" {
-			return fmt.Errorf("Cannot specify both network and subnetwork values.")
-		} else if networkName != "" {
-			networkLink, err = getNetworkLink(d, config, prefix+".network")
-			if err != nil {
-				return fmt.Errorf(
-					"Error referencing network '%s': %s",
-					networkName, err)
-			}
-		} else {
-			subnetworkLink, err = getSubnetworkLink(d, config, prefix+".subnetwork", prefix+".subnetwork_project", "zone")
-			if err != nil {
-				return err
-			}
-		}
-
-		// Build the networkInterface
-		var iface compute.NetworkInterface
-		iface.Network = networkLink
-		iface.Subnetwork = subnetworkLink
-		iface.NetworkIP = address
-		iface.AliasIpRanges = expandAliasIpRanges(d.Get(prefix + ".alias_ip_range").([]interface{}))
-
-		// Handle access_config structs
-		accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
-		iface.AccessConfigs = make([]*compute.AccessConfig, accessConfigsCount)
-		for j := 0; j < accessConfigsCount; j++ {
-			acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-			iface.AccessConfigs[j] = &compute.AccessConfig{
-				Type:  "ONE_TO_ONE_NAT",
-				NatIP: d.Get(acPrefix + ".nat_ip").(string),
-			}
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
-	serviceAccountsCount := d.Get("service_account.#").(int)
-	serviceAccounts := make([]*compute.ServiceAccount, 0, serviceAccountsCount)
-	for i := 0; i < serviceAccountsCount; i++ {
-		prefix := fmt.Sprintf("service_account.%d", i)
-
-		scopesSet := d.Get(prefix + ".scopes").(*schema.Set)
-		scopes := make([]string, scopesSet.Len())
-		for i, v := range scopesSet.List() {
-			scopes[i] = canonicalizeServiceScope(v.(string))
-		}
-
-		email := "default"
-		if v := d.Get(prefix + ".email"); v != nil {
-			email = v.(string)
-		}
-
-		serviceAccount := &compute.ServiceAccount{
-			Email:  email,
-			Scopes: scopes,
-		}
-
-		serviceAccounts = append(serviceAccounts, serviceAccount)
-	}
-
 	prefix := "scheduling.0"
 	scheduling := &compute.Scheduling{}
 
@@ -698,6 +632,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error creating metadata: %s", err)
 	}
 
+	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return fmt.Errorf("Error creating network interfaces: %s", err)
+	}
+
 	// Create the instance information
 	instance := &compute.Instance{
 		CanIpForward:      d.Get("can_ip_forward").(bool),
@@ -709,7 +648,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		NetworkInterfaces: networkInterfaces,
 		Tags:              resourceInstanceTags(d),
 		Labels:            expandLabels(d),
-		ServiceAccounts:   serviceAccounts,
+		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
 		GuestAccelerators: expandGuestAccelerators(zone.Name, d.Get("guest_accelerator").([]interface{})),
 		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
 		Scheduling:        scheduling,
@@ -776,56 +715,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	machineType := machineTypeResource[len(machineTypeResource)-1]
 	d.Set("machine_type", machineType)
 
-	// Set the service accounts
-	serviceAccounts := make([]map[string]interface{}, 0, 1)
-	for _, serviceAccount := range instance.ServiceAccounts {
-		serviceAccounts = append(serviceAccounts, map[string]interface{}{
-			"email":  serviceAccount.Email,
-			"scopes": schema.NewSet(stringScopeHashcode, convertStringArrToInterface(serviceAccount.Scopes)),
-		})
-	}
-	d.Set("service_account", serviceAccounts)
-
 	// Set the networks
 	// Use the first external IP found for the default connection info.
-	externalIP := ""
-	internalIP := ""
-
-	networkInterfaces := make([]map[string]interface{}, 0, 1)
-	for i, iface := range instance.NetworkInterfaces {
-		// The first non-empty ip is left in natIP
-		var natIP string
-		accessConfigs := make(
-			[]map[string]interface{}, 0, len(iface.AccessConfigs))
-		for j, config := range iface.AccessConfigs {
-			accessConfigs = append(accessConfigs, map[string]interface{}{
-				"nat_ip":          d.Get(fmt.Sprintf("network_interface.%d.access_config.%d.nat_ip", i, j)),
-				"assigned_nat_ip": config.NatIP,
-			})
-
-			if natIP == "" {
-				natIP = config.NatIP
-			}
-		}
-
-		if externalIP == "" {
-			externalIP = natIP
-		}
-
-		if internalIP == "" {
-			internalIP = iface.NetworkIP
-		}
-
-		networkInterfaces = append(networkInterfaces, map[string]interface{}{
-			"name":               iface.Name,
-			"address":            iface.NetworkIP,
-			"network":            iface.Network,
-			"subnetwork":         iface.Subnetwork,
-			"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
-			"access_config":      accessConfigs,
-			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
-		})
-	}
+	networkInterfaces, _, internalIP, externalIP := flattenNetworkInterfaces(instance.NetworkInterfaces)
 	d.Set("network_interface", networkInterfaces)
 
 	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
@@ -905,6 +797,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	attachedDisks = append(attachedDisks, extraAttachedDisks...)
 
+	d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
@@ -1387,15 +1280,6 @@ func flattenGuestAccelerators(zone string, accelerators []*compute.AcceleratorCo
 		})
 	}
 	return acceleratorsSchema
-}
-
-func getProjectFromSubnetworkLink(subnetwork string) string {
-	r := regexp.MustCompile(SubnetworkLinkRegex)
-	if !r.MatchString(subnetwork) {
-		return ""
-	}
-
-	return r.FindStringSubmatch(subnetwork)[1]
 }
 
 func hash256(raw string) (string, error) {

@@ -21,6 +21,9 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 		SchemaVersion: 1,
 		MigrateState:  resourceComputeInstanceTemplateMigrateState,
 
+		// A compute instance template is more or less a subset of a compute
+		// instance. Please attempt to maintain consistency with the
+		// resource_compute_instance schema when updating this one.
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:          schema.TypeString,
@@ -184,23 +187,41 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"network": &schema.Schema{
+						"name": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 
-						"network_ip": &schema.Schema{
+						"network": &schema.Schema{
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							Computed:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+						},
+
+						"address": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 
+						"network_ip": &schema.Schema{
+							Type:       schema.TypeString,
+							Optional:   true,
+							Computed:   true,
+							ForceNew:   true,
+							Deprecated: "Please use address",
+						},
+
 						"subnetwork": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							Computed:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"subnetwork_project": &schema.Schema{
@@ -220,6 +241,33 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
+									},
+
+									"assigned_nat_ip": &schema.Schema{
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "Please use nat_ip",
+									},
+								},
+							},
+						},
+
+						"alias_ip_range": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_cidr_range": &schema.Schema{
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+									},
+									"subnetwork_range_name": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -299,7 +347,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						},
 
 						"scopes": &schema.Schema{
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
 							ForceNew: true,
 							Elem: &schema.Schema{
@@ -308,6 +356,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									return canonicalizeServiceScope(v.(string))
 								},
 							},
+							Set: stringScopeHashcode,
 						},
 					},
 				},
@@ -411,83 +460,6 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 	return disks, nil
 }
 
-func buildNetworks(d *schema.ResourceData, config *Config) ([]*compute.NetworkInterface, error) {
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	networksCount := d.Get("network_interface.#").(int)
-	networkInterfaces := make([]*compute.NetworkInterface, 0, networksCount)
-	for i := 0; i < networksCount; i++ {
-		prefix := fmt.Sprintf("network_interface.%d", i)
-
-		var networkName, subnetworkName, subnetworkProject string
-		if v, ok := d.GetOk(prefix + ".network"); ok {
-			networkName = v.(string)
-		}
-		if v, ok := d.GetOk(prefix + ".subnetwork"); ok {
-			subnetworkName = v.(string)
-		}
-		if v, ok := d.GetOk(prefix + ".subnetwork_project"); ok {
-			subnetworkProject = v.(string)
-		}
-		if networkName == "" && subnetworkName == "" {
-			return nil, fmt.Errorf("network or subnetwork must be provided")
-		}
-		if networkName != "" && subnetworkName != "" {
-			return nil, fmt.Errorf("network or subnetwork must not both be provided")
-		}
-
-		var networkLink, subnetworkLink string
-		if networkName != "" {
-			networkLink, err = getNetworkLink(d, config, prefix+".network")
-			if err != nil {
-				return nil, fmt.Errorf("Error referencing network '%s': %s",
-					networkName, err)
-			}
-
-		} else {
-			// lookup subnetwork link using region and subnetwork name
-			region, err := getRegion(d, config)
-			if err != nil {
-				return nil, err
-			}
-			if subnetworkProject == "" {
-				subnetworkProject = project
-			}
-			subnetwork, err := config.clientCompute.Subnetworks.Get(
-				subnetworkProject, region, subnetworkName).Do()
-			if err != nil {
-				return nil, fmt.Errorf(
-					"Error referencing subnetwork '%s' in region '%s': %s",
-					subnetworkName, region, err)
-			}
-			subnetworkLink = subnetwork.SelfLink
-		}
-
-		// Build the networkInterface
-		var iface compute.NetworkInterface
-		iface.Network = networkLink
-		iface.Subnetwork = subnetworkLink
-		if v, ok := d.GetOk(prefix + ".network_ip"); ok {
-			iface.NetworkIP = v.(string)
-		}
-		accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
-		iface.AccessConfigs = make([]*compute.AccessConfig, accessConfigsCount)
-		for j := 0; j < accessConfigsCount; j++ {
-			acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-			iface.AccessConfigs[j] = &compute.AccessConfig{
-				Type:  "ONE_TO_ONE_NAT",
-				NatIP: d.Get(acPrefix + ".nat_ip").(string),
-			}
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-	return networkInterfaces, nil
-}
-
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -512,7 +484,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	instanceProperties.Metadata = metadata
-	networks, err := buildNetworks(d, config)
+	networks, err := expandNetworkInterfaces(d, config)
 	if err != nil {
 		return err
 	}
@@ -553,31 +525,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 	instanceProperties.Scheduling.ForceSendFields = forceSendFieldsScheduling
 
-	serviceAccountsCount := d.Get("service_account.#").(int)
-	serviceAccounts := make([]*compute.ServiceAccount, 0, serviceAccountsCount)
-	for i := 0; i < serviceAccountsCount; i++ {
-		prefix := fmt.Sprintf("service_account.%d", i)
-
-		scopesCount := d.Get(prefix + ".scopes.#").(int)
-		scopes := make([]string, 0, scopesCount)
-		for j := 0; j < scopesCount; j++ {
-			scope := d.Get(fmt.Sprintf(prefix+".scopes.%d", j)).(string)
-			scopes = append(scopes, canonicalizeServiceScope(scope))
-		}
-
-		email := "default"
-		if v := d.Get(prefix + ".email"); v != nil {
-			email = v.(string)
-		}
-
-		serviceAccount := &compute.ServiceAccount{
-			Email:  email,
-			Scopes: scopes,
-		}
-
-		serviceAccounts = append(serviceAccounts, serviceAccount)
-	}
-	instanceProperties.ServiceAccounts = serviceAccounts
+	instanceProperties.ServiceAccounts = expandServiceAccounts(d.Get("service_account").([]interface{}))
 
 	instanceProperties.Tags = resourceInstanceTags(d)
 	if _, ok := d.GetOk("labels"); ok {
@@ -639,52 +587,6 @@ func flattenDisks(disks []*compute.AttachedDisk, d *schema.ResourceData) []map[s
 		diskMap["mode"] = disk.Mode
 		diskMap["type"] = disk.Type
 		result = append(result, diskMap)
-	}
-	return result
-}
-
-func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string) {
-	result := make([]map[string]interface{}, 0, len(networkInterfaces))
-	region := ""
-	for _, networkInterface := range networkInterfaces {
-		networkInterfaceMap := make(map[string]interface{})
-		if networkInterface.Network != "" {
-			networkUrl := strings.Split(networkInterface.Network, "/")
-			networkInterfaceMap["network"] = networkUrl[len(networkUrl)-1]
-		}
-		if networkInterface.NetworkIP != "" {
-			networkInterfaceMap["network_ip"] = networkInterface.NetworkIP
-		}
-		if networkInterface.Subnetwork != "" {
-			subnetworkUrl := strings.Split(networkInterface.Subnetwork, "/")
-			networkInterfaceMap["subnetwork"] = subnetworkUrl[len(subnetworkUrl)-1]
-			region = subnetworkUrl[len(subnetworkUrl)-3]
-			networkInterfaceMap["subnetwork_project"] = subnetworkUrl[len(subnetworkUrl)-5]
-		}
-
-		if networkInterface.AccessConfigs != nil {
-			accessConfigsMap := make([]map[string]interface{}, 0, len(networkInterface.AccessConfigs))
-			for _, accessConfig := range networkInterface.AccessConfigs {
-				accessConfigMap := make(map[string]interface{})
-				accessConfigMap["nat_ip"] = accessConfig.NatIP
-
-				accessConfigsMap = append(accessConfigsMap, accessConfigMap)
-			}
-			networkInterfaceMap["access_config"] = accessConfigsMap
-		}
-		result = append(result, networkInterfaceMap)
-	}
-	return result, region
-}
-
-func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(serviceAccounts))
-	for _, serviceAccount := range serviceAccounts {
-		serviceAccountMap := make(map[string]interface{})
-		serviceAccountMap["email"] = serviceAccount.Email
-		serviceAccountMap["scopes"] = serviceAccount.Scopes
-
-		result = append(result, serviceAccountMap)
 	}
 	return result
 }
@@ -761,7 +663,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region := flattenNetworkInterfaces(instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfaces, region, _, _ := flattenNetworkInterfaces(instanceTemplate.Properties.NetworkInterfaces)
 		if err = d.Set("network_interface", networkInterfaces); err != nil {
 			return fmt.Errorf("Error setting network_interface: %s", err)
 		}

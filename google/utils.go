@@ -124,25 +124,18 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-// getNetworkLink reads the "network" field from the given resource data and if the value:
+// getNetworkLink takes a "network" field and if the value:
 // - is a resource URL, returns the string unchanged
 // - is the network name only, then looks up the resource URL using the google client
-func getNetworkLink(d *schema.ResourceData, config *Config, field string) (string, error) {
-	v, ok := d.GetOk(field)
-	if !ok {
+func getNetworkLink(config *Config, project, network string) (string, error) {
+	if network == "" {
 		return "", nil
 	}
 
-	network := v.(string)
 	if strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
 		return network, nil
 	}
 
-	// Network value provided is just the name, lookup the network SelfLink
-	project, err := getProject(d, config)
-	if err != nil {
-		return "", err
-	}
 	networkData, err := config.clientCompute.Networks.Get(project, network).Do()
 	if err != nil {
 		return "", fmt.Errorf("Error reading network: %s", err)
@@ -150,43 +143,31 @@ func getNetworkLink(d *schema.ResourceData, config *Config, field string) (strin
 	return networkData.SelfLink, nil
 }
 
-// Reads the "subnetwork" fields from the given resource data and if the value is:
+// getSubnetworkLink takes the "subnetwork" field and if the value is:
 // - a resource URL, returns the string unchanged
 // - a subnetwork name, looks up the resource URL using the google client.
 //
 // If `subnetworkField` is a resource url, `subnetworkProjectField` cannot be set.
 // If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
 // 	as the project if set. If not, we fallback on the default project.
-func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, subnetworkProjectField, zoneField string) (string, error) {
-	v, ok := d.GetOk(subnetworkField)
-	if !ok {
+func getSubnetworkLink(config *Config, defaultProject, region, subnetworkProject, subnetwork string) (string, error) {
+	if subnetwork == "" {
 		return "", nil
 	}
-	subnetwork := v.(string)
+
 	if regexp.MustCompile(SubnetworkLinkRegex).MatchString(subnetwork) {
 		return subnetwork, nil
 	}
 
-	var project string
-	if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
-		project = subnetworkProject.(string)
-	} else {
-		var err error
-		project, err = getProject(d, config)
-		if err != nil {
-			return "", err
-		}
+	project := defaultProject
+	if subnetworkProject != "" {
+		project = subnetworkProject
 	}
-
-	region := getRegionFromZone(d.Get(zoneField).(string))
-
-	subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
+	subnetworkData, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
 	if err != nil {
-		return "", fmt.Errorf(
-			"Error referencing subnetwork '%s' in region '%s': %s",
-			subnetwork, region, err)
+		return "", fmt.Errorf("Error referencing subnetwork '%s' in region '%s': %s", subnetwork, region, err)
 	}
-	return subnet.SelfLink, nil
+	return subnetworkData.SelfLink, nil
 }
 
 // getNetworkName reads the "network" field from the given resource data and if the value:
@@ -487,4 +468,151 @@ func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} 
 	}
 	result = append(result, schedulingMap)
 	return result
+}
+
+func getProjectAndRegionFromSubnetworkLink(subnetwork string) (string, string) {
+	r := regexp.MustCompile(SubnetworkLinkRegex)
+	if !r.MatchString(subnetwork) {
+		return "", ""
+	}
+
+	matches := r.FindStringSubmatch(subnetwork)
+	return matches[1], matches[2]
+}
+
+func getProjectFromSubnetworkLink(subnetwork string) string {
+	project, _ := getProjectAndRegionFromSubnetworkLink(subnetwork)
+	return project
+}
+
+func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]interface{}, string) {
+	flattened := make([]map[string]interface{}, len(accessConfigs))
+	natIP := ""
+	for i, ac := range accessConfigs {
+		flattened[i] = map[string]interface{}{
+			"nat_ip":          ac.NatIP,
+			"assigned_nat_ip": ac.NatIP,
+		}
+		if natIP == "" {
+			natIP = ac.NatIP
+		}
+	}
+	return flattened, natIP
+}
+
+func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string, string, string) {
+	flattened := make([]map[string]interface{}, len(networkInterfaces))
+	var region, internalIP, externalIP string
+
+	for i, iface := range networkInterfaces {
+		var ac []map[string]interface{}
+		ac, externalIP = flattenAccessConfigs(iface.AccessConfigs)
+
+		var project string
+		project, region = getProjectAndRegionFromSubnetworkLink(iface.Subnetwork)
+
+		flattened[i] = map[string]interface{}{
+			"name":               iface.Name,
+			"address":            iface.NetworkIP,
+			"network_ip":         iface.NetworkIP,
+			"network":            iface.Network,
+			"subnetwork":         iface.Subnetwork,
+			"subnetwork_project": project,
+			"access_config":      ac,
+			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
+		}
+		if internalIP == "" {
+			internalIP = iface.NetworkIP
+		}
+	}
+	return flattened, region, internalIP, externalIP
+}
+
+func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
+	acs := make([]*compute.AccessConfig, len(configs))
+	for i, raw := range configs {
+		data := raw.(map[string]interface{})
+		acs[i] = &compute.AccessConfig{
+			Type:  "ONE_TO_ONE_NAT",
+			NatIP: data["nat_ip"].(string),
+		}
+	}
+	return acs
+}
+
+func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute.NetworkInterface, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+	region, err := getRegion(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	configs := d.Get("network_interface").([]interface{})
+	ifaces := make([]*compute.NetworkInterface, len(configs))
+	for i, raw := range configs {
+		data := raw.(map[string]interface{})
+
+		network := data["network"].(string)
+		subnetwork := data["subnetwork"].(string)
+		if (network == "" && subnetwork == "") || (network != "" && subnetwork != "") {
+			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
+		}
+
+		networkLink, err := getNetworkLink(config, project, network)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
+		}
+
+		subnetworkProject := data["subnetwork_project"].(string)
+		subnetLink, err := getSubnetworkLink(config, project, region, subnetworkProject, subnetwork)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
+		}
+
+		ifaces[i] = &compute.NetworkInterface{
+			NetworkIP:     data["network_ip"].(string),
+			Network:       networkLink,
+			Subnetwork:    subnetLink,
+			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
+			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+		}
+
+		// network_ip is deprecated. We want address to win if both are set.
+		if data["address"].(string) != "" {
+			ifaces[i].NetworkIP = data["address"].(string)
+		}
+
+	}
+	return ifaces, nil
+}
+
+func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(serviceAccounts))
+	for i, serviceAccount := range serviceAccounts {
+		result[i] = map[string]interface{}{
+			"email":  serviceAccount.Email,
+			"scopes": schema.NewSet(stringScopeHashcode, convertStringArrToInterface(serviceAccount.Scopes)),
+		}
+	}
+	return result
+}
+
+func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
+	accounts := make([]*compute.ServiceAccount, len(configs))
+	for i, raw := range configs {
+		data := raw.(map[string]interface{})
+
+		accounts[i] = &compute.ServiceAccount{
+			Email:  data["email"].(string),
+			Scopes: canonicalizeServiceScopes(convertStringSet(data["scopes"].(*schema.Set))),
+		}
+
+		if accounts[i].Email == "" {
+			accounts[i].Email = "default"
+		}
+	}
+	return accounts
 }
