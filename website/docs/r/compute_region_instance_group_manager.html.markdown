@@ -18,8 +18,21 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceG
 ## Example Usage
 
 ```hcl
+resource "google_compute_health_check" "autohealing" {
+  name                = "autohealing-health-check"
+  check_interval_sec  = 5
+  timeout_sec         = 5
+  healthy_threshold   = 2
+  unhealthy_threshold = 10                         # 50 seconds
+
+  http_health_check {
+    request_path = "/healthz"
+    port         = "8080"
+  }
+}
+
 resource "google_compute_region_instance_group_manager" "appserver" {
-  name        = "appserver-igm"
+  name = "appserver-igm"
 
   base_instance_name = "app"
   instance_template  = "${google_compute_instance_template.appserver.self_link}"
@@ -32,7 +45,13 @@ resource "google_compute_region_instance_group_manager" "appserver" {
     name = "custom"
     port = 8888
   }
+
+  auto_healing_policies {
+    health_check      = "${google_compute_health_check.autohealing.self_link}"
+    initial_delay_sec = 300
+  }
 }
+
 ```
 
 ## Argument Reference
@@ -78,7 +97,7 @@ The following arguments are supported:
 ---
 
 * `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
-group. You can specify only one value. Structure is documented below.
+group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).
 
@@ -88,7 +107,7 @@ The `named_port` block supports: (Include a `named_port` block for each named-po
 
 The `auto_healing_policies` block supports:
 
-* `health_check` - (Required) The health check that signals autohealing.
+* `health_check` - (Required) The health check resource that signals autohealing.
 
 * `initial_delay_sec` - (Required) The number of seconds that the managed instance group waits before
  it applies autohealing policies to new instances or recently recreated instances. Between 0 and 3600.
