@@ -60,7 +60,7 @@ func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckF
 			Name:     rs.Primary.Attributes["name"],
 		}
 
-		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(keyRingId.parentString()).Do()
+		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(keyRingId.parentId()).Do()
 		if err != nil {
 			return fmt.Errorf("Error listing KeyRings: %s", err)
 		}
