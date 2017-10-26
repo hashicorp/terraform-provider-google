@@ -121,7 +121,7 @@ func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func parseKmsKeyRingId(id string) (*kmsKeyRingId, error) {
-	keyRingIdRegex := regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$")
+	keyRingIdRegex := regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-zA-Z0-9_-]{1,63}$")
 
 	if !keyRingIdRegex.MatchString(id) {
 		return nil, fmt.Errorf("Invalid KeyRing id format, expecting {projectId}/{locationId}/{keyRingName}")
