@@ -275,6 +275,59 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
+	var diskName2 = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
+				),
+			},
+			// check attaching
+			resource.TestStep{
+				Config: testAccComputeInstance_addAttachedDisk(diskName, diskName2, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
+					testAccCheckComputeInstanceDisk(&instance, diskName2, false, false),
+				),
+			},
+			// check detaching
+			resource.TestStep{
+				Config: testAccComputeInstance_detachDisk(diskName, diskName2, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
+				),
+			},
+			// check updating
+			resource.TestStep{
+				Config: testAccComputeInstance_updateAttachedDiskEncryptionKey(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	t.Parallel()
 
@@ -1605,10 +1658,6 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 	}
-
-	metadata {
-		foo = "bar"
-	}
 }
 `, disk, instance)
 }
@@ -1640,9 +1689,118 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 	}
+}
+`, disk, instance)
+}
 
-	metadata {
-		foo = "bar"
+func testAccComputeInstance_addAttachedDisk(disk, disk2, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.name}"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar2.self_link}"
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, disk, disk2, instance)
+}
+
+func testAccComputeInstance_detachDisk(disk, disk2, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.name}"
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, disk, disk2, instance)
+}
+
+func testAccComputeInstance_updateAttachedDiskEncryptionKey(disk, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key_raw = "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.name}"
+		disk_encryption_key_raw = "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI"
+	}
+
+	network_interface {
+		network = "default"
 	}
 }
 `, disk, instance)
