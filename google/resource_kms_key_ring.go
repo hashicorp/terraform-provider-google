@@ -137,6 +137,10 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 	}
 
 	if keyRingIdWithoutProjectRegex.MatchString(id) {
+		if config.Project == "" {
+			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{keyRingName}` id format.")
+		}
+
 		return &kmsKeyRingId{
 			Project:  config.Project,
 			Location: parts[0],

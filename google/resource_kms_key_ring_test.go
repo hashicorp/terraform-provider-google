@@ -36,6 +36,11 @@ func TestKeyRingIdParsing(t *testing.T) {
 			ExpectedKeyRingId:   "projects/test-project/locations/us-central1/keyRings/test-key-ring",
 			Config:              &Config{Project: "test-project"},
 		},
+		"id is in location/keyRingName format without project in config": {
+			ImportId:      "us-central1/test-key-ring",
+			ExpectedError: true,
+			Config:        &Config{Project: ""},
+		},
 	}
 
 	for testName, testCase := range cases {
