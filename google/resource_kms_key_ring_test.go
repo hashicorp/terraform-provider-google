@@ -29,10 +29,17 @@ func TestKeyRingIdParsing(t *testing.T) {
 			ImportId:      "test-project/us-central1/can-you-believe-that-this-key-ring-name-is-exactly-64-characters",
 			ExpectedError: true,
 		},
+		"id is in location/keyRingName format": {
+			ImportId:            "us-central1/test-key-ring",
+			ExpectedError:       false,
+			ExpectedTerraformId: "test-project/us-central1/test-key-ring",
+			ExpectedKeyRingId:   "projects/test-project/locations/us-central1/keyRings/test-key-ring",
+			Config:              &Config{Project: "test-project"},
+		},
 	}
 
 	for testName, testCase := range cases {
-		keyRingId, err := parseKmsKeyRingId(testCase.ImportId)
+		keyRingId, err := parseKmsKeyRingId(testCase.ImportId, testCase.Config)
 
 		if testCase.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", testName)

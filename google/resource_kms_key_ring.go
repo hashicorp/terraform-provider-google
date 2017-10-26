@@ -86,7 +86,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	keyRingId, err := parseKmsKeyRingId(d.Id())
+	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,9 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 */
 
 func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
-	keyRingId, err := parseKmsKeyRingId(d.Id())
+	config := meta.(*Config)
+
+	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
 	if err != nil {
 		return err
 	}
@@ -120,24 +122,35 @@ func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func parseKmsKeyRingId(id string) (*kmsKeyRingId, error) {
-	keyRingIdRegex := regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-zA-Z0-9_-]{1,63}$")
-
-	if !keyRingIdRegex.MatchString(id) {
-		return nil, fmt.Errorf("Invalid KeyRing id format, expecting {projectId}/{locationId}/{keyRingName}")
-	}
-
+func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 	parts := strings.Split(id, "/")
 
-	return &kmsKeyRingId{
-		Project:  parts[0],
-		Location: parts[1],
-		Name:     parts[2],
-	}, nil
+	keyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	keyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+
+	if keyRingIdRegex.MatchString(id) {
+		return &kmsKeyRingId{
+			Project:  parts[0],
+			Location: parts[1],
+			Name:     parts[2],
+		}, nil
+	}
+
+	if keyRingIdWithoutProjectRegex.MatchString(id) {
+		return &kmsKeyRingId{
+			Project:  config.Project,
+			Location: parts[0],
+			Name:     parts[1],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid KeyRing id format, expecting `{projectId}/{locationId}/{keyRingName}` or `{locationId}/{keyRingName}.`")
 }
 
 func resourceKmsKeyRingImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	keyRingId, err := parseKmsKeyRingId(d.Id())
+	config := meta.(*Config)
+
+	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
 	if err != nil {
 		return nil, err
 	}
