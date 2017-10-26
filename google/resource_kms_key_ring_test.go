@@ -43,26 +43,26 @@ func TestKeyRingIdParsing(t *testing.T) {
 		},
 	}
 
-	for testName, testCase := range cases {
-		keyRingId, err := parseKmsKeyRingId(testCase.ImportId, testCase.Config)
+	for tn, tc := range cases {
+		keyRingId, err := parseKmsKeyRingId(tc.ImportId, tc.Config)
 
-		if testCase.ExpectedError && err == nil {
-			t.Fatalf("bad: %s, expected an error", testName)
+		if tc.ExpectedError && err == nil {
+			t.Fatalf("bad: %s, expected an error", tn)
 		}
 
 		if err != nil {
-			if testCase.ExpectedError {
+			if tc.ExpectedError {
 				continue
 			}
-			t.Fatalf("bad: %s, err: %#v", testName, err)
+			t.Fatalf("bad: %s, err: %#v", tn, err)
 		}
 
-		if keyRingId.terraformId() != testCase.ExpectedTerraformId {
-			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", testName, testCase.ExpectedTerraformId, keyRingId.terraformId())
+		if keyRingId.terraformId() != tc.ExpectedTerraformId {
+			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", tn, tc.ExpectedTerraformId, keyRingId.terraformId())
 		}
 
-		if keyRingId.keyRingId() != testCase.ExpectedKeyRingId {
-			t.Fatalf("bad: %s, expected KeyRing ID to be `%s` but is `%s`", testName, testCase.ExpectedKeyRingId, keyRingId.keyRingId())
+		if keyRingId.keyRingId() != tc.ExpectedKeyRingId {
+			t.Fatalf("bad: %s, expected KeyRing ID to be `%s` but is `%s`", tn, tc.ExpectedKeyRingId, keyRingId.keyRingId())
 		}
 	}
 }
