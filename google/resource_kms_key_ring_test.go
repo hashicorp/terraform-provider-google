@@ -11,6 +11,50 @@ import (
 	"os"
 )
 
+func TestKeyRingIdParsing(t *testing.T) {
+	cases := map[string]struct {
+		ImportId            string
+		ExpectedError       bool
+		ExpectedTerraformId string
+		ExpectedKeyRingId   string
+		Config              *Config
+	}{
+		"id is in project/location/keyRingName format": {
+			ImportId:            "test-project/us-central1/test-key-ring",
+			ExpectedError:       false,
+			ExpectedTerraformId: "test-project/us-central1/test-key-ring",
+			ExpectedKeyRingId:   "projects/test-project/locations/us-central1/keyRings/test-key-ring",
+		},
+		"id contains name that is longer than 63 characters": {
+			ImportId:      "test-project/us-central1/can-you-believe-that-this-key-ring-name-is-exactly-64-characters",
+			ExpectedError: true,
+		},
+	}
+
+	for testName, testCase := range cases {
+		keyRingId, err := parseKmsKeyRingId(testCase.ImportId)
+
+		if testCase.ExpectedError && err == nil {
+			t.Fatalf("bad: %s, expected an error", testName)
+		}
+
+		if err != nil {
+			if testCase.ExpectedError {
+				continue
+			}
+			t.Fatalf("bad: %s, err: %#v", testName, err)
+		}
+
+		if keyRingId.terraformId() != testCase.ExpectedTerraformId {
+			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", testName, testCase.ExpectedTerraformId, keyRingId.terraformId())
+		}
+
+		if keyRingId.keyRingId() != testCase.ExpectedKeyRingId {
+			t.Fatalf("bad: %s, expected KeyRing ID to be `%s` but is `%s`", testName, testCase.ExpectedKeyRingId, keyRingId.keyRingId())
+		}
+	}
+}
+
 func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
 	skipIfEnvNotSet(t,
 		[]string{
