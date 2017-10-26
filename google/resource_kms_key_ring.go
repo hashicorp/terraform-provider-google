@@ -162,6 +162,10 @@ func resourceKmsKeyRingImportState(d *schema.ResourceData, meta interface{}) ([]
 	d.Set("name", keyRingId.Name)
 	d.Set("location", keyRingId.Location)
 
+	if config.Project != keyRingId.Project {
+		d.Set("project", keyRingId.Project)
+	}
+
 	d.SetId(keyRingId.terraformId())
 
 	return []*schema.ResourceData{d}, nil
