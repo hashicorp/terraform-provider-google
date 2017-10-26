@@ -159,6 +159,12 @@ which the cluster's instances are launched
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
+* `min_cpu_platform` - (Optional) Minimum CPU platform to be used by this instance.
+    The instance may be scheduled on the specified or newer CPU platform. Applicable
+    values are the friendly names of CPU platforms, such as `Intel Haswell`. See the
+    [official documentation](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
+    for more information.
+
 **Addons Config** supports the following addons:
 
 * `http_load_balancing` - (Optional) The status of the HTTP Load Balancing

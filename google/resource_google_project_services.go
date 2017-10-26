@@ -14,6 +14,9 @@ func resourceGoogleProjectServices() *schema.Resource {
 		Read:   resourceGoogleProjectServicesRead,
 		Update: resourceGoogleProjectServicesUpdate,
 		Delete: resourceGoogleProjectServicesDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
@@ -71,6 +74,7 @@ func resourceGoogleProjectServicesRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	d.Set("project", d.Id())
 	d.Set("services", services)
 	return nil
 }

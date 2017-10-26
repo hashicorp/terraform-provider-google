@@ -535,7 +535,9 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 }
 
 var setFields map[string]struct{} = map[string]struct{}{
-	"additional_zones": struct{}{},
+	"additional_zones":                       struct{}{},
+	"node_config.0.oauth_scopes":             struct{}{},
+	"node_pool.0.node_config.0.oauth_scopes": struct{}{},
 }
 
 func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
@@ -591,6 +593,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"node_config.0.labels", cluster.NodeConfig.Labels},
 			{"node_config.0.tags", cluster.NodeConfig.Tags},
 			{"node_config.0.preemptible", cluster.NodeConfig.Preemptible},
+			{"node_config.0.min_cpu_platform", cluster.NodeConfig.MinCpuPlatform},
 			{"node_version", cluster.CurrentNodeVersion},
 		}
 
@@ -991,10 +994,10 @@ resource "google_container_cluster" "with_node_config" {
 		disk_size_gb = 15
 		local_ssd_count = 1
 		oauth_scopes = [
+			"https://www.googleapis.com/auth/monitoring",
 			"https://www.googleapis.com/auth/compute",
 			"https://www.googleapis.com/auth/devstorage.read_only",
-			"https://www.googleapis.com/auth/logging.write",
-			"https://www.googleapis.com/auth/monitoring"
+			"https://www.googleapis.com/auth/logging.write"
 		]
 		service_account = "default"
 		metadata {
@@ -1006,6 +1009,7 @@ resource "google_container_cluster" "with_node_config" {
 		}
 		tags = ["foo", "bar"]
 		preemptible = true
+		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10))
 

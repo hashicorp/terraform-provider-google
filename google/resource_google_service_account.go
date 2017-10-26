@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/iam/v1"
@@ -15,6 +16,9 @@ func resourceGoogleServiceAccount() *schema.Resource {
 		Read:   resourceGoogleServiceAccountRead,
 		Delete: resourceGoogleServiceAccountDelete,
 		Update: resourceGoogleServiceAccountUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Schema: map[string]*schema.Schema{
 			"email": &schema.Schema{
 				Type:     schema.TypeString,
@@ -39,6 +43,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 			},
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -119,6 +124,8 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 
 	d.Set("email", sa.Email)
 	d.Set("unique_id", sa.UniqueId)
+	d.Set("project", sa.ProjectId)
+	d.Set("account_id", strings.Split(sa.Email, "@")[0])
 	d.Set("name", sa.Name)
 	d.Set("display_name", sa.DisplayName)
 	return nil
