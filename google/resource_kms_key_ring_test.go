@@ -156,17 +156,17 @@ func testAccCheckGoogleKmsKeyRingWasRemovedFromState(resourceName string) resour
 func testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    name            = "%s"
-	project_id      = "%s"
-    org_id          = "%s"
-	billing_account = "%s"
+	name			= "%s"
+	project_id		= "%s"
+	org_id			= "%s"
+	billing_account	= "%s"
 }
 
 resource "google_project_services" "acceptance" {
-    project  = "${google_project.acceptance.project_id}"
-    services = [
-        "cloudkms.googleapis.com"
-    ]
+	project  = "${google_project.acceptance.project_id}"
+	services = [
+		"cloudkms.googleapis.com"
+	]
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -180,17 +180,17 @@ resource "google_kms_key_ring" "key_ring" {
 func testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    name            = "%s"
-	project_id      = "%s"
-    org_id          = "%s"
-	billing_account = "%s"
+	name 			= "%s"
+	project_id		= "%s"
+	org_id			= "%s"
+	billing_account	= "%s"
 }
 
 resource "google_project_services" "acceptance" {
-    project  = "${google_project.acceptance.project_id}"
-    services = [
-        "cloudkms.googleapis.com"
-    ]
+	project  = "${google_project.acceptance.project_id}"
+	services = [
+		"cloudkms.googleapis.com"
+	]
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount)
 }
