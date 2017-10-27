@@ -106,6 +106,30 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
+func TestAccComputeInstanceTemplate_address(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	address := "10.128.0.2"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_address(address),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						"google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
+					testAccCheckComputeInstanceTemplateAddress(
+						"google_compute_instance_template.foobar", address, &instanceTemplate),
+				),
+			},
+		},
+	})
+}
 
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 	t.Parallel()
@@ -496,6 +520,17 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
+func testAccCheckComputeInstanceTemplateAddress(n, address string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
+		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
+		if err != nil {
+			return err
+		}
+		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", address)(s)
+	}
+}
+
 func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := instanceTemplate.Properties.Labels[key]
@@ -659,6 +694,28 @@ resource "google_compute_instance_template" "foobar" {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), networkIP)
+}
+
+func testAccComputeInstanceTemplate_address(address string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	tags = ["foo", "bar"]
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+	}
+
+	network_interface {
+		network    = "default"
+		address    = "%s"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), address)
 }
 
 func testAccComputeInstanceTemplate_disks() string {
