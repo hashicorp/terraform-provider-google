@@ -53,9 +53,6 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `initial_node_count` - (Required) The number of nodes to create in this
-    cluster (not including the Kubernetes master).
-
 * `name` - (Required) The name of the cluster, unique within the project and
     zone.
 
@@ -63,23 +60,33 @@ resource "google_container_cluster" "primary" {
     in `initial_node_count` should be created in.
 
 - - -
-* `master_auth` - (Optional) The authentication information for accessing the
-    Kubernetes master.
 
-* `additional_zones` - (Optional) If additional zones are configured, the number
-    of nodes specified in `initial_node_count` is created in all specified zones.
+* `additional_zones` - (Optional) The list of additional Google Compute Engine
+    locations in which the cluster's nodes should be located. If additional zones are
+    configured, the number of nodes specified in `initial_node_count` is created in
+    all specified zones.
 
 * `addons_config` - (Optional) The configuration for addons supported by Google
-    Container Engine
+    Container Engine. Structure is documented below.
 
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the container pods in
     this cluster. Default is an automatically assigned CIDR.
 
 * `description` - (Optional) Description of the cluster.
 
+* `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
+    When enabled, identities in the system, including service accounts, nodes, and controllers,
+    will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
+
+* `initial_node_count` - (Required) The number of nodes to create in this
+    cluster (not including the Kubernetes master).
+
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
+
+* `master_auth` - (Optional) The authentication information for accessing the
+    Kubernetes master. Structure is documented below.
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -93,25 +100,53 @@ resource "google_container_cluster" "primary" {
     `monitoring.googleapis.com`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
-    network to which the cluster is connected
+    network to which the cluster is connected.
 
-* `node_config` -  (Optional) The machine type and image to use for all nodes in
-    this cluster
+* `node_config` -  (Optional) Parameters used in creating the cluster's nodes.
+    Structure is documented below.
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
+    See [google_container_node_pool](container_node_pool.html) for schema.
 
-* `node_version` - (Optional) The Kubernetes version on the nodes. Also affects
-    the initial master version on cluster creation. Updates affect nodes only.
-    Defaults to the default version set by GKE which is not necessarily the latest
-    version.
+* `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
+    or set to the same value as `min_master_version` on create. Defaults to the default
+    version set by GKE which is not necessarily the latest version.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `subnetwork` - (Optional) The name of the Google Compute Engine subnetwork in
-which the cluster's instances are launched
+    which the cluster's instances are launched.
 
-**Master Auth** supports the following arguments:
+The `addons_config` block supports:
+
+* `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod Autoscaling
+    addon, which increases or decreases the number of replica pods a replication controller
+    has based on the resource usage of the existing pods. It is enabled by default;
+    set `disabled = true` to disable.
+
+* `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
+    controller addon, which makes it easy to set up HTTP load balancers for services in a
+    cluster. It is enabled by default; set `disabled = true` to disable.
+
+* `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
+    add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
+    It is enabled by default; set `disabled = true` to disable.
+
+This example `addons_config` disables two addons:
+
+```
+addons_config {
+  http_load_balancing {
+    disabled = true
+  }
+  horizontal_pod_autoscaling {
+    disabled = true
+  }
+}
+```
+
+The `master_auth` block supports:
 
 * `password` - (Required) The password to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
@@ -119,16 +154,29 @@ which the cluster's instances are launched
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
-**Node Config** supports the following arguments:
-
-* `machine_type` - (Optional) The name of a Google Compute Engine machine type.
-    Defaults to `n1-standard-1`.
+The `node_config` block supports:
 
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
+* `image_type` - (Optional) The image type to use for this node.
+
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
+
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
+
+* `machine_type` - (Optional) The name of a Google Compute Engine machine type.
+    Defaults to `n1-standard-1`.
+
+* `metadata` - (Optional) The metadata key/value pairs assigned to instances in
+    the cluster.
+
+* `min_cpu_platform` - (Optional) Minimum CPU platform to be used by this instance.
+    The instance may be scheduled on the specified or newer CPU platform. Applicable
+    values are the friendly names of CPU platforms, such as `Intel Haswell`. See the
+    [official documentation](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
+    for more information.
 
 * `oauth_scopes` - (Optional) The set of Google API scopes to be made available
     on all of the node VMs under the "default" service account. These can be
@@ -142,80 +190,34 @@ which the cluster's instances are launched
   * `monitoring` (`https://www.googleapis.com/auth/monitoring`),
     if `monitoring_service` points to Google
 
-* `service_account` - (Optional) The service account to be used by the Node VMs.
-    If not specified, the "default" service account is used.
-
-* `metadata` - (Optional) The metadata key/value pairs assigned to instances in
-    the cluster.
-
-* `image_type` - (Optional) The image type to use for this node.
-
-* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
-
-* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
-    valid sources or targets for network firewalls.
-
 * `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
-* `min_cpu_platform` - (Optional) Minimum CPU platform to be used by this instance.
-    The instance may be scheduled on the specified or newer CPU platform. Applicable
-    values are the friendly names of CPU platforms, such as `Intel Haswell`. See the
-    [official documentation](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
-    for more information.
+* `service_account` - (Optional) The service account to be used by the Node VMs.
+    If not specified, the "default" service account is used.
 
-**Addons Config** supports the following addons:
-
-* `http_load_balancing` - (Optional) The status of the HTTP Load Balancing
-    add-on. It is enabled by default; set `disabled = true` to disable.
-* `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod
-    Autoscaling addon. It is enabled by default; set `disabled = true` to
-    disable.
-* `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
-    add-on. It is enabled by default; set `disabled = true` to disable.
-
-This example `addons_config` disables both addons:
-
-```
-addons_config {
-  http_load_balancing {
-    disabled = true
-  }
-  horizontal_pod_autoscaling {
-    disabled = true
-  }
-}
-```
-
-**Node Pool** supports the following arguments:
-
-* `initial_node_count` - (Required) The initial node count for the pool.
-
-* `name` - (Optional) The name of the node pool. If left blank, Terraform will
-    auto-generate a unique name.
-
-* `name_prefix` - (Optional) Creates a unique name for the node pool beginning
-    with the specified prefix. Conflicts with `name`.
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
+    valid sources or targets for network firewalls.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `endpoint` - The IP address of this cluster's Kubernetes master
+* `endpoint` - The IP address of this cluster's Kubernetes master.
 
 * `instance_group_urls` - List of instance group URLs which have been assigned
-    to the cluster
+    to the cluster.
 
 * `master_auth.client_certificate` - Base64 encoded public certificate
     used by clients to authenticate to the cluster endpoint.
 
 * `master_auth.client_key` - Base64 encoded private key used by clients
-    to authenticate to the cluster endpoint
+    to authenticate to the cluster endpoint.
 
 * `master_auth.cluster_ca_certificate` - Base64 encoded public certificate
-    that is the root of trust for the cluster
+    that is the root of trust for the cluster.
 
 * `master_version` - The current version of the master in the cluster. This may
     be different than the `min_master_version` set in the config if the master

@@ -40,42 +40,6 @@ func resourceContainerCluster() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"master_auth": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"client_certificate": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"client_key": {
-							Type:      schema.TypeString,
-							Computed:  true,
-							Sensitive: true,
-						},
-						"cluster_ca_certificate": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"password": {
-							Type:      schema.TypeString,
-							Required:  true,
-							ForceNew:  true,
-							Sensitive: true,
-						},
-						"username": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-					},
-				},
-			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -109,12 +73,6 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"initial_node_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"additional_zones": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -122,71 +80,6 @@ func resourceContainerCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"cluster_ipv4_cidr": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					_, ipnet, err := net.ParseCIDR(value)
-
-					if err != nil || ipnet == nil || value != ipnet.String() {
-						errors = append(errors, fmt.Errorf(
-							"%q must contain a valid CIDR", k))
-					}
-					return
-				},
-			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"enable_legacy_abac": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
-			"endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"instance_group_urls": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"logging_service": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
-			},
-
-			"monitoring_service": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"network": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Default:   "default",
-				ForceNew:  true,
-				StateFunc: StoreResourceName,
-			},
-			"subnetwork": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"addons_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -240,9 +133,86 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"master_version": {
+			"cluster_ipv4_cidr": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
+				ForceNew: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+					_, ipnet, err := net.ParseCIDR(value)
+
+					if err != nil || ipnet == nil || value != ipnet.String() {
+						errors = append(errors, fmt.Errorf(
+							"%q must contain a valid CIDR", k))
+					}
+					return
+				},
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"enable_legacy_abac": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+
+			"initial_node_count": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"logging_service": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
+			},
+
+			"master_auth": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"password": {
+							Type:      schema.TypeString,
+							Required:  true,
+							ForceNew:  true,
+							Sensitive: true,
+						},
+
+						"username": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"client_certificate": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"client_key": {
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
+						},
+
+						"cluster_ca_certificate": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 
 			"min_master_version": {
@@ -250,13 +220,21 @@ func resourceContainerCluster() *schema.Resource {
 				Optional: true,
 			},
 
-			"node_config": schemaNodeConfig,
-
-			"node_version": {
+			"monitoring_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
+
+			"network": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Default:   "default",
+				ForceNew:  true,
+				StateFunc: StoreResourceName,
+			},
+
+			"node_config": schemaNodeConfig,
 
 			"node_pool": {
 				Type:     schema.TypeList,
@@ -268,10 +246,38 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"node_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"subnetwork": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"endpoint": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"instance_group_urls": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"master_version": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
