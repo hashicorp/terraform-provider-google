@@ -78,7 +78,7 @@ resource "google_container_cluster" "primary" {
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
 
-* `initial_node_count` - (Required) The number of nodes to create in this
+* `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master).
 
 * `logging_service` - (Optional) The logging service that the cluster should
