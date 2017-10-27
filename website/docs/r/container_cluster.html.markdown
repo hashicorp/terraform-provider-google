@@ -79,7 +79,7 @@ resource "google_container_cluster" "primary" {
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
 
 * `initial_node_count` - (Optional) The number of nodes to create in this
-    cluster (not including the Kubernetes master).
+    cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
