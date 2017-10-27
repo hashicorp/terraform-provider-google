@@ -13,7 +13,7 @@ import (
 )
 
 func testBucketIamName() string {
-	return fmt.Sprintf("%s-%d", "tf-test-iam-bucket", acctest.RandInt())
+	return acctest.RandomWithPrefix("tf-test-iam-bucket")
 }
 
 func TestAccGoogleStorageBucketIAMPolicy_basic(t *testing.T) {

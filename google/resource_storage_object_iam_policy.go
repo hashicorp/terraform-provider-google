@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -48,7 +49,9 @@ func setObjectIamPolicy(d *schema.ResourceData, config *Config) error {
 		return fmt.Errorf("'policy_data' is not valid for %s: %s", object, err)
 	}
 
+	log.Printf("[DEBUG] Setting IAM policy for object %q on bucket %q", object, bucket)
 	_, err = config.clientStorage.Objects.SetIamPolicy(bucket, object, policy).Do()
+	log.Printf("[DEBUG] Set IAM policy for object %q on %q", object, bucket)
 	return err
 }
 
@@ -59,7 +62,7 @@ func resourceStorageObjectIAMPolicyCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	d.SetId(d.Get("object").(string))
+	d.SetId(d.Get("bucket").(string) + "-" + d.Get("object").(string) + "-iam-policy")
 
 	return resourceStorageObjectIAMPolicyRead(d, meta)
 }
@@ -69,13 +72,19 @@ func resourceStorageObjectIAMPolicyRead(d *schema.ResourceData, meta interface{}
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
+	log.Printf("[DEBUG] Reading IAM policy for object %q on bucket %q", object, bucket)
 	policy, err := config.clientStorage.Objects.GetIamPolicy(bucket, object).Do()
+	log.Printf("[DEBUG] Reat IAM policy for object %q on bucket %q: %v", object, bucket, policy)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Iam policy for %s", object))
 	}
 
 	d.Set("etag", policy.Etag)
-	d.Set("policy_data", marshalStorageIamPolicy(policy))
+	policyData, err := marshalStorageIamPolicy(policy)
+	if err != nil {
+		return fmt.Errorf("Fail to marshal policy data")
+	}
+	d.Set("policy_data", policyData)
 
 	return nil
 }

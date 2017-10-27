@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -43,7 +44,9 @@ func setBucketIamPolicy(d *schema.ResourceData, config *Config) error {
 		return fmt.Errorf("'policy_data' is not valid for %s: %s", bucket, err)
 	}
 
+	log.Printf("[DEBUG] Setting IAM policy for bucket %q", bucket)
 	_, err = config.clientStorage.Buckets.SetIamPolicy(bucket, policy).Do()
+	log.Printf("[DEBUG] Set IAM policy for bucket %q", bucket)
 	return err
 }
 
@@ -63,13 +66,19 @@ func resourceStorageBucketIAMPolicyRead(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	bucket := d.Get("bucket").(string)
 
+	log.Printf("[DEBUG] Reading IAM policy for bucket %q", bucket)
 	policy, err := config.clientStorage.Buckets.GetIamPolicy(bucket).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Iam policy for %s", bucket))
 	}
+	log.Printf("[DEBUG] Read IAM policy for bucket %q: %v", bucket, policy)
 
 	d.Set("etag", policy.Etag)
-	d.Set("policy_data", marshalStorageIamPolicy(policy))
+	policyData, err := marshalStorageIamPolicy(policy)
+	if err != nil {
+		return fmt.Errorf("Error marshal storage IAM policy: %v", err)
+	}
+	d.Set("policy_data", policyData)
 
 	return nil
 }
@@ -98,11 +107,14 @@ func resourceStorageBucketIAMPolicyDelete(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func marshalStorageIamPolicy(policy *storagev1.Policy) string {
-	pdBytes, _ := json.Marshal(&storagev1.Policy{
+func marshalStorageIamPolicy(policy *storagev1.Policy) (string, error) {
+	pdBytes, err := json.Marshal(&storagev1.Policy{
 		Bindings: policy.Bindings,
 	})
-	return string(pdBytes)
+	if err != nil {
+		return "", err
+	}
+	return string(pdBytes), nil
 }
 
 func unmarshalStorageIamPolicy(policyData string) (*storagev1.Policy, error) {
