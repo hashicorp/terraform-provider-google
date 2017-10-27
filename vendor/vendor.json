@@ -976,6 +976,12 @@
 			"revisionTime": "2016-11-21T18:05:46Z"
 		},
 		{
+			"checksumSHA1": "/cYz9AiKwLEO61OdoLnKi2uiOeQ=",
+			"path": "google.golang.org/api/cloudkms/v1",
+			"revision": "654f863362977d69086620b5f72f13e911da2410",
+			"revisionTime": "2017-09-14T00:03:44Z"
+		},
+		{
 			"checksumSHA1": "9mUF072lBQeUk8vYCGZt/+KCRTI=",
 			"path": "google.golang.org/api/cloudresourcemanager/v1",
 			"revision": "906273f42cdebd65de3a53f30dd9e23de1b55ba9",
