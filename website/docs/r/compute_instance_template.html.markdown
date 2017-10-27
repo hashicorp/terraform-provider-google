@@ -245,8 +245,9 @@ The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
     must belong to the specified subnetwork and cannot contain IP addresses reserved by
-    system or used by other network interfaces. This range may be a single IP address
-    (e.g. 10.2.3.4), a netmask (e.g. /24) or a CIDR format string (e.g. 10.1.2.0/24).
+    system or used by other network interfaces. At the time of writing only a
+    netmask (e.g. /24) may be supplied, with a CIDR format resulting in an API
+    error.
 
 * `subnetwork_range_name` - (Optional) The subnetwork secondary range name specifying
     the secondary range from which to allocate the IP CIDR range for this alias IP

@@ -122,3 +122,26 @@ func TestAccComputeInstanceTemplate_importSubnetCustom(t *testing.T) {
 		},
 	})
 }
+
+func TestAccComputeInstanceTemplate_importPrimaryAliasIpRange(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_compute_instance_template.foobar"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_primaryAliasIpRange(acctest.RandString(10)),
+			},
+
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
