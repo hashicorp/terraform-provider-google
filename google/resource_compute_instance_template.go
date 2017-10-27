@@ -363,6 +363,27 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				},
 			},
 
+			"guest_accelerator": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"count": &schema.Schema{
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"type": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
+						},
+					},
+				},
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -528,6 +549,8 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	instanceProperties.ServiceAccounts = expandServiceAccounts(d.Get("service_account").([]interface{}))
 
+	instanceProperties.GuestAccelerators = expandGuestAccelerators("", d.Get("guest_accelerator").([]interface{}))
+
 	instanceProperties.Tags = resourceInstanceTags(d)
 	if _, ok := d.GetOk("labels"); ok {
 		instanceProperties.Labels = expandLabels(d)
@@ -689,6 +712,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.ServiceAccounts != nil {
 		if err = d.Set("service_account", flattenServiceAccounts(instanceTemplate.Properties.ServiceAccounts)); err != nil {
 			return fmt.Errorf("Error setting service_account: %s", err)
+		}
+	}
+	if instanceTemplate.Properties.GuestAccelerators != nil {
+		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
+			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}
 	return nil

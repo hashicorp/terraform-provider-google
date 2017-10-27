@@ -801,7 +801,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
-	d.Set("guest_accelerator", flattenGuestAccelerators(instance.Zone, instance.GuestAccelerators))
+	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
@@ -1258,30 +1258,6 @@ func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 	return result
 }
 
-func expandGuestAccelerators(zone string, configs []interface{}) []*compute.AcceleratorConfig {
-	guestAccelerators := make([]*compute.AcceleratorConfig, 0, len(configs))
-	for _, raw := range configs {
-		data := raw.(map[string]interface{})
-		guestAccelerators = append(guestAccelerators, &compute.AcceleratorConfig{
-			AcceleratorCount: int64(data["count"].(int)),
-			AcceleratorType:  createAcceleratorPartialUrl(zone, data["type"].(string)),
-		})
-	}
-
-	return guestAccelerators
-}
-
-func flattenGuestAccelerators(zone string, accelerators []*compute.AcceleratorConfig) []map[string]interface{} {
-	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
-	for _, accelerator := range accelerators {
-		acceleratorsSchema = append(acceleratorsSchema, map[string]interface{}{
-			"count": accelerator.AcceleratorCount,
-			"type":  accelerator.AcceleratorType,
-		})
-	}
-	return acceleratorsSchema
-}
-
 func hash256(raw string) (string, error) {
 	decoded, err := base64.StdEncoding.DecodeString(raw)
 	if err != nil {
@@ -1289,8 +1265,4 @@ func hash256(raw string) (string, error) {
 	}
 	h := sha256.Sum256(decoded)
 	return base64.StdEncoding.EncodeToString(h[:]), nil
-}
-
-func createAcceleratorPartialUrl(zone, accelerator string) string {
-	return fmt.Sprintf("zones/%s/acceleratorTypes/%s", zone, accelerator)
 }

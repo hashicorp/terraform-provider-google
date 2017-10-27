@@ -616,3 +616,42 @@ func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
 	}
 	return accounts
 }
+
+func expandGuestAccelerators(zone string, configs []interface{}) []*compute.AcceleratorConfig {
+	guestAccelerators := make([]*compute.AcceleratorConfig, len(configs))
+	for i, raw := range configs {
+		data := raw.(map[string]interface{})
+		guestAccelerators[i] = &compute.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			AcceleratorType:  acceleratorRef(zone, data["type"].(string)),
+		}
+	}
+
+	return guestAccelerators
+}
+
+func flattenGuestAccelerators(accelerators []*compute.AcceleratorConfig) []map[string]interface{} {
+	acceleratorsSchema := make([]map[string]interface{}, len(accelerators))
+	for i, accelerator := range accelerators {
+		acceleratorsSchema[i] = map[string]interface{}{
+			"count": accelerator.AcceleratorCount,
+			"type":  accelerator.AcceleratorType,
+		}
+	}
+	return acceleratorsSchema
+}
+
+// Instances want a partial URL, but instance templates want the bare
+// accelerator name without zone (despite the docs saying otherwise).
+//
+// Using a partial URL on an instance template results in:
+// Invalid value for field 'resource.properties.guestAccelerators[0].acceleratorType':
+// 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'.
+// Accelerator type 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'
+// must be a valid resource name (not an url).
+func acceleratorRef(zone, accelerator string) string {
+	if strings.HasPrefix(accelerator, "zones/") || zone == "" {
+		return accelerator
+	}
+	return fmt.Sprintf("zones/%s/acceleratorTypes/%s", zone, accelerator)
+}

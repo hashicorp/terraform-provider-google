@@ -263,6 +263,28 @@ func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -498,6 +520,24 @@ func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *comput
 		}
 
 		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *compute.InstanceTemplate, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instanceTemplate.Properties.GuestAccelerators) != 1 {
+			return fmt.Errorf("Expected only one guest accelerator")
+		}
+
+		if !strings.HasSuffix(instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType)
+		}
+
+		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
 	}
 }
 
@@ -856,4 +896,33 @@ resource "google_compute_instance_template" "foobar" {
     	}
  	}
 }`, i, i, i)
+}
+
+func testAccComputeInstanceTemplate_guestAccelerator(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		# Instances with guest accelerators do not support live migration.
+		on_host_maintenance = "TERMINATE"
+	}
+
+	guest_accelerator {
+		count = 1
+		type = "nvidia-tesla-k80"
+	}
+}`, i)
 }
