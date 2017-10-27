@@ -294,6 +294,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 
 			"scheduling": &schema.Schema{
