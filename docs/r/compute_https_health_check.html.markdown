@@ -11,9 +11,11 @@ description: |-
 Manages an HTTPS health check within GCE. This is used to monitor instances
 behind load balancers. Timeouts or HTTPS errors cause the instance to be
 removed from the pool. For more information, see [the official
-documentation](https://cloud.google.com/compute/docs/load-balancing/health-checks)
+documentation](https://cloud.google.com/compute/docs/load-balancing/health-checks#legacy_health_checks)
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/httpsHealthChecks).
+
+~> **Note:** HTTPSHealthChecks/HttpHealthChecks are legacy health checks. The newer [google_compute_health_check](/docs/providers/google/r/compute_health_check.html) should be preferred for all uses except except [Network Load Balancers](https://cloud.google.com/compute/docs/load-balancing/network/) which still require the legacy HttpHealthChecks.
 
 ## Example Usage
 
