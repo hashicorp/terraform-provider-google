@@ -56,36 +56,6 @@ func resourceContainerNodePool() *schema.Resource {
 }
 
 var schemaNodePool = map[string]*schema.Schema{
-	"name": &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
-	},
-
-	"name_prefix": &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		ForceNew: true,
-	},
-
-	"initial_node_count": &schema.Schema{
-		Type:       schema.TypeInt,
-		Optional:   true,
-		ForceNew:   true,
-		Computed:   true,
-		Deprecated: "Use node_count instead",
-	},
-
-	"node_count": {
-		Type:         schema.TypeInt,
-		Optional:     true,
-		Computed:     true,
-		ValidateFunc: validation.IntAtLeast(1),
-	},
-
-	"node_config": schemaNodeConfig,
-
 	"autoscaling": &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
@@ -105,6 +75,36 @@ var schemaNodePool = map[string]*schema.Schema{
 				},
 			},
 		},
+	},
+
+	"initial_node_count": &schema.Schema{
+		Type:       schema.TypeInt,
+		Optional:   true,
+		ForceNew:   true,
+		Computed:   true,
+		Deprecated: "Use node_count instead",
+	},
+
+	"name": &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+
+	"name_prefix": &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+	},
+
+	"node_config": schemaNodeConfig,
+
+	"node_count": {
+		Type:         schema.TypeInt,
+		Optional:     true,
+		Computed:     true,
+		ValidateFunc: validation.IntAtLeast(1),
 	},
 }
 
