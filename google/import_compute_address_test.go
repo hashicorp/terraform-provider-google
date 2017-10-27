@@ -3,6 +3,7 @@ package google
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
@@ -17,7 +18,7 @@ func TestAccComputeAddress_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeAddress_basic,
+				Config: testAccComputeAddress_basic(acctest.RandString(10)),
 			},
 
 			resource.TestStep{
@@ -40,7 +41,7 @@ func TestAccComputeAddress_importInternal(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeAddress_internal,
+				Config: testAccComputeAddress_internal(acctest.RandString(10)),
 			},
 
 			resource.TestStep{

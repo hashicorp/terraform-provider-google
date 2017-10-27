@@ -86,7 +86,7 @@ func TestAccComputeAddress_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeAddress_basic,
+				Config: testAccComputeAddress_basic(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeAddressExists(
 						"google_compute_address.foobar", &addr),
@@ -105,7 +105,7 @@ func TestAccComputeAddress_internal(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeAddress_internal,
+				Config: testAccComputeAddress_internal(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBetaAddressExists("google_compute_address.internal", &addr),
 					testAccCheckComputeBetaAddressExists("google_compute_address.internal_with_subnet", &addr),
@@ -202,14 +202,17 @@ func testAccCheckComputeBetaAddressExists(n string, addr *computeBeta.Address) r
 	}
 }
 
-var testAccComputeAddress_basic = fmt.Sprintf(`
+func testAccComputeAddress_basic(i string) string {
+	return fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
 	name = "address-test-%s"
-}`, acctest.RandString(10))
+}`, i)
+}
 
-var testAccComputeAddress_internal = fmt.Sprintf(`
+func testAccComputeAddress_internal(i string) string {
+	return fmt.Sprintf(`
 resource "google_compute_address" "internal" {
-  name         = "address-test-%s"
+  name         = "address-test-internal-%s"
   address_type = "INTERNAL"
   region       = "us-east1"
 }
@@ -226,7 +229,7 @@ resource "google_compute_subnetwork" "foo" {
 }
 
 resource "google_compute_address" "internal_with_subnet" {
-  name         = "address-test-%s"
+  name         = "address-test-internal-with-subnet-%s"
   subnetwork   = "${google_compute_subnetwork.foo.self_link}"
   address_type = "INTERNAL"
   region       = "us-east1"
@@ -235,15 +238,16 @@ resource "google_compute_address" "internal_with_subnet" {
 // We can't test the address alone, because we don't know what IP range the
 // default subnetwork uses.
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "address-test-%s"
+  name         = "address-test-internal-with-subnet-and-address-%s"
   subnetwork   = "${google_compute_subnetwork.foo.self_link}"
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-east1"
 }`,
-	acctest.RandString(10), // google_compute_address.internal name
-	acctest.RandString(10), // google_compute_network.default name
-	acctest.RandString(10), // google_compute_subnetwork.foo name
-	acctest.RandString(10), // google_compute_address.internal_with_subnet_name
-	acctest.RandString(10), // google_compute_address.internal_with_subnet_and_address name
-)
+		i, // google_compute_address.internal name
+		i, // google_compute_network.default name
+		i, // google_compute_subnetwork.foo name
+		i, // google_compute_address.internal_with_subnet_name
+		i, // google_compute_address.internal_with_subnet_and_address name
+	)
+}
