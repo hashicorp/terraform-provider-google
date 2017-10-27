@@ -44,7 +44,6 @@ func resourceComputeAddress() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// address_type defaults to EXTERNAL when omitted.
 			"address_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -58,6 +57,7 @@ func resourceComputeAddress() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
+				Computed:         true,
 				DiffSuppressFunc: linkDiffSuppress,
 			},
 
@@ -171,6 +171,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
+
 	case v0beta:
 		var err error
 		addr, err = config.clientComputeBeta.Addresses.Get(
@@ -178,10 +179,18 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
 		}
+
 	}
 
-	d.Set("address", addr.Address)
+	// The v1 API does not include an AddressType field, as it only supports
+	// external addresses. An empty AddressType implies a v1 address that has
+	// been converted to v0beta, and thus an EXTERNAL address.
 	d.Set("address_type", addr.AddressType)
+	if addr.AddressType == "" {
+		d.Set("address_type", "EXTERNAL")
+	}
+	d.Set("subnetwork", ConvertSelfLinkToV1(addr.Subnetwork))
+	d.Set("address", addr.Address)
 	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 	d.Set("name", addr.Name)
 	d.Set("region", GetResourceNameFromSelfLink(addr.Region))
