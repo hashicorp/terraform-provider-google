@@ -248,6 +248,10 @@ func resourceComputeAddressImportState(d *schema.ResourceData, meta interface{})
 
 	d.SetId(addressId.canonicalId())
 
+	if err := resourceComputeAddressRead(d, meta); err != nil {
+		return nil, err
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
