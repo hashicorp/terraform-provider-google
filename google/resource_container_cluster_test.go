@@ -145,7 +145,7 @@ func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withLegacyAbac(clusterName),
+				Config: testAccContainerCluster_withKubernetesAlpha(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_kubernetes_alpha"),
@@ -921,7 +921,7 @@ resource "google_container_cluster" "with_additional_zones" {
 }`, clusterName)
 }
 
-func testAccContainerCluster_withKubenetesAlpha(clusterName string) string {
+func testAccContainerCluster_withKubernetesAlpha(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_kubernetes_alpha" {
 	name = "cluster-test-%s"
