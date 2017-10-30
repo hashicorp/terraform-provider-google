@@ -17,7 +17,7 @@ documentation](https://cloud.google.com/compute/docs/load-balancing/http/global-
 
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {
-  name       = "test"
+  name       = "default-rule"
   target     = "${google_compute_target_http_proxy.default.self_link}"
   port_range = "80"
 }
@@ -110,3 +110,11 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `label_fingerprint` - ([Beta](/docs/providers/google/index.html#beta-features)) The current label fingerprint.
+
+## Import
+
+Global forwarding rules can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_forwarding_rule.default default-rule
+```

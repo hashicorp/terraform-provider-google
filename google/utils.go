@@ -283,6 +283,16 @@ func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+// Port range '80' and '80-80' is equivalent.
+// `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
+// `new` can be either a single port or a port range.
+func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if old == new+"-"+new {
+		return true
+	}
+	return false
+}
+
 // expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
 func expandLabels(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "labels")
