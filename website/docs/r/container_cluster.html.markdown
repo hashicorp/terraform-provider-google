@@ -98,12 +98,14 @@ output "cluster_ca_certificate" {
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
+* `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
+
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
 
-* `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is 
-    documented below. 
+* `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
+    documented below.
 
 * `master_auth` - (Optional) The authentication information for accessing the
     Kubernetes master. Structure is documented below.
@@ -173,7 +175,7 @@ addons_config {
 The `maintenance_policy` block supports:
 
 * `daily_maintenance_window` - (Required) Time window specified for daily maintenance operations.
-    Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”, 
+    Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
 ```
@@ -183,6 +185,18 @@ maintenance_policy {
   }
 }
 ```
+
+The `ip_allocation_policy` block supports:
+
+* `cluster_secondary_range_name` - (Optional) The name of the secondary range to be
+    used as for the cluster CIDR block. The secondary range will be used for pod IP
+    addresses. This must be an existing secondary range associated with the cluster
+    subnetwork. This field is only applicable with `use_ip_aliases`.
+
+* `services_secondary_range_name` - (Optional) The name of the secondary range to be
+    used as for the services CIDR block.  The secondary range will be used for service
+    ClusterIPs. This must be an existing secondary range associated with the cluster
+    subnetwork. This field is only applicable with `use_ip_aliases`.
 
 The `master_auth` block supports:
 
@@ -261,7 +275,7 @@ exported:
     to the cluster.
 
 * `maintenance_policy.0.daily_maintenance_window.0.duration` - Duration of the time window, automatically chosen to be
-    smallest possible in the given scenario.  
+    smallest possible in the given scenario.
     Duration will be in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "PTnHnMnS".
 
 * `master_auth.0.client_certificate` - Base64 encoded public certificate
