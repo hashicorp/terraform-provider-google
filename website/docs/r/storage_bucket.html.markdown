@@ -47,7 +47,6 @@ The following arguments are supported:
 
 * `location` - (Optional, Default: 'US') The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
-
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -60,6 +59,8 @@ The following arguments are supported:
 * `website` - (Optional) Configuration if the bucket acts as a website. Structure is documented below.
 
 * `cors` - (Optional) The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the bucket.
 
 The `lifecycle_rule` block supports:
 
