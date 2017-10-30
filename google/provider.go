@@ -109,6 +109,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_vpn_tunnel":                    resourceComputeVpnTunnel(),
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),
+			"google_dataproc_cluster":                      resourceDataprocCluster(),
 			"google_dns_managed_zone":                      resourceDnsManagedZone(),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_folder":                                resourceGoogleFolder(),

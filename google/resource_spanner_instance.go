@@ -277,11 +277,6 @@ func extractInstanceNameFromUri(nameUri string) string {
 	return extractLastResourceFromUri(nameUri)
 }
 
-func extractLastResourceFromUri(uri string) string {
-	rUris := strings.Split(uri, "/")
-	return rUris[len(rUris)-1]
-}
-
 func genSpannerInstanceName() string {
 	return resource.PrefixedUniqueId("tfgen-spanid-")[:30]
 }

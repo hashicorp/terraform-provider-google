@@ -24,6 +24,7 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
@@ -47,6 +48,7 @@ type Config struct {
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
+	clientDataproc               *dataproc.Service
 	clientDns                    *dns.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
@@ -259,6 +261,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientSpanner.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
+	c.clientDataproc, err = dataproc.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDataproc.UserAgent = userAgent
 
 	return nil
 }
