@@ -8,6 +8,7 @@ FEATURES:
 IMPROVEMENTS:
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * project: Make `google_service_account` resource importable [GH-606]
+* pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
 
 BUG FIXES:
 * container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
