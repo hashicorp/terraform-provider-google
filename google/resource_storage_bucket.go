@@ -39,6 +39,12 @@ func resourceStorageBucket() *schema.Resource {
 				Default:  false,
 			},
 
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"location": &schema.Schema{
 				Type:     schema.TypeString,
 				Default:  "US",
@@ -223,7 +229,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	location := d.Get("location").(string)
 
 	// Create a bucket, setting the acl, location and name.
-	sb := &storage.Bucket{Name: bucket, Location: location}
+	sb := &storage.Bucket{
+		Name:     bucket,
+		Labels:   expandLabels(d),
+		Location: location,
+	}
 
 	if v, ok := d.GetOk("storage_class"); ok {
 		sb.StorageClass = v.(string)
@@ -331,6 +341,13 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		sb.Cors = expandCors(v.([]interface{}))
 	}
 
+	if d.HasChange("labels") {
+		sb.Labels = expandLabels(d)
+		if len(sb.Labels) == 0 {
+			sb.NullFields = append(sb.NullFields, "Labels")
+		}
+	}
+
 	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
 
 	if err != nil {
@@ -366,6 +383,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
+	d.Set("labels", res.Labels)
 	d.SetId(res.Id)
 	return nil
 }
@@ -534,7 +552,7 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 					}
 
 					if v, ok := condition["is_live"]; ok {
-						target_lifecycle_rule.Condition.IsLive = v.(bool)
+						target_lifecycle_rule.Condition.IsLive = googleapi.Bool(v.(bool))
 					}
 
 					if v, ok := condition["matches_storage_class"]; ok {
