@@ -4,6 +4,7 @@ FEATURES:
 
 * **New Resource:** `google_service_account_key` [GH-472]
 * **New Resource:** `google_kms_key_ring` [GH-518]
+* **New Resource:** `google_dataproc_cluster` [GH-252]
 
 IMPROVEMENTS:
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
