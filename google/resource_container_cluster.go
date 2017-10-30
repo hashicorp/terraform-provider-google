@@ -156,6 +156,13 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"enable_kubernetes_alpha": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
+
 			"enable_legacy_abac": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -380,6 +387,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
+	if v, ok := d.GetOk("enable_kubernetes_alpha"); ok {
+		cluster.EnableKubernetesAlpha = v.(bool)
+	}
+
 	nodePoolsCount := d.Get("node_pool.#").(int)
 	if nodePoolsCount > 0 {
 		nodePools := make([]*container.NodePool, 0, nodePoolsCount)
@@ -476,6 +487,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
+	d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha)
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
