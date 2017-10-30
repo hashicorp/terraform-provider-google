@@ -964,10 +964,10 @@
 			"revisionTime": "2016-12-14T09:25:55Z"
 		},
 		{
-			"checksumSHA1": "FEzQdhqmb6aqGL1lKnjOcUHIGSY=",
+			"checksumSHA1": "jhyv7qysp0NZbWzAaUCsKATDGuk=",
 			"path": "google.golang.org/api/bigquery/v2",
-			"revision": "16ab375f94503bfa0d19db78e96bffbe1a34354f",
-			"revisionTime": "2017-03-20T22:51:23Z"
+			"revision": "672d215daf0631fcae4c08c2a4324a763aaaf789",
+			"revisionTime": "2017-10-29T00:03:09Z"
 		},
 		{
 			"checksumSHA1": "I9nlJJGeNBvWlH7FLtRscT6NJhw=",
