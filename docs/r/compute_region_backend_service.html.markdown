@@ -105,25 +105,7 @@ The `backend` block supports:
     (`google_compute_region_instance_group_manager.xyz.instance_group`) that can
     receive traffic. Instance groups must contain at least one instance.
 
-* `balancing_mode` - (Optional) Defines the strategy for balancing load.
-    Defaults to `UTILIZATION`
-
-* `capacity_scaler` - (Optional) A float in the range [0, 1.0] that scales the
-    maximum parameters for the group (e.g., max rate). A value of 0.0 will cause
-    no requests to be sent to the group (i.e., it adds the group in a drained
-    state). The default is 1.0.
-
 * `description` - (Optional) Textual description for the backend.
-
-* `max_rate` - (Optional) Maximum requests per second (RPS) that the group can
-    handle.
-
-* `max_rate_per_instance` - (Optional) The maximum per-instance requests per
-    second (RPS).
-
-* `max_utilization` - (Optional) The target CPU utilization for the group as a
-    float in the range [0.0, 1.0]. This flag can only be provided when the
-    balancing mode is `UTILIZATION`. Defaults to `0.8`.
 
 ## Attributes Reference
 
