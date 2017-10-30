@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/pubsub/v1"
+	"regexp"
 )
 
 func resourcePubsubSubscription() *schema.Resource {
@@ -82,7 +83,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	name := fmt.Sprintf("projects/%s/subscriptions/%s", project, d.Get("name").(string))
-	computed_topic_name := fmt.Sprintf("projects/%s/topics/%s", project, d.Get("topic").(string))
+	computed_topic_name := getComputedTopicName(project, d.Get("topic").(string))
 
 	//  process optional parameters
 	var ackDeadlineSeconds int64
@@ -106,6 +107,17 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(res.Name)
 
 	return resourcePubsubSubscriptionRead(d, meta)
+}
+
+func getComputedTopicName(project string, topic string) string {
+	computed_topic_name := ""
+	match, _ := regexp.MatchString("projects\\/.*\\/topics\\/.*", topic)
+	if match {
+		computed_topic_name = topic
+	} else {
+		computed_topic_name = fmt.Sprintf("projects/%s/topics/%s", project, topic)
+	}
+	return computed_topic_name
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {

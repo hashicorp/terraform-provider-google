@@ -92,3 +92,31 @@ resource "google_pubsub_subscription" "foobar_sub" {
 	ack_deadline_seconds = 20
 }`, topic, subscription)
 }
+
+func TestGetComputedTopicName(t *testing.T) {
+	type testData struct {
+		project  string
+		topic    string
+		expected string
+	}
+
+	var testCases = []testData{
+		testData{
+			project:  "my-project",
+			topic:    "my-topic",
+			expected: "projects/my-project/topics/my-topic",
+		},
+		testData{
+			project:  "my-project",
+			topic:    "projects/another-project/topics/my-topic",
+			expected: "projects/another-project/topics/my-topic",
+		},
+	}
+
+	for _, testCase := range testCases {
+		computedTopicName := getComputedTopicName(testCase.project, testCase.topic)
+		if computedTopicName != testCase.expected {
+			t.Fatalf("bad computed topic name: %s' => expected %s", computedTopicName, testCase.expected)
+		}
+	}
+}
