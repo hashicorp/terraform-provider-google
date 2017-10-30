@@ -116,5 +116,5 @@ exported:
 Global forwarding rules can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_compute_forwarding_rule.default default-rule
+$ terraform import google_compute_global_forwarding_rule.default default-rule
 ```
