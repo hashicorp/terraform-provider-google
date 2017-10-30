@@ -12,13 +12,18 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const (
+	addressTypeExternal = "EXTERNAL"
+	addressTypeInternal = "INTERNAL"
+)
+
 var (
 	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
 	AddressBaseApiVersion    = v1
 	AddressVersionedFeatures = []Feature{
 		{Version: v0beta, Item: "address"},
-		{Version: v0beta, Item: "address_type"},
+		{Version: v0beta, Item: "address_type", DefaultValue: addressTypeExternal},
 		{Version: v0beta, Item: "subnetwork"},
 	}
 )
@@ -48,9 +53,9 @@ func resourceComputeAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "EXTERNAL",
+				Default:  addressTypeExternal,
 				ValidateFunc: validation.StringInSlice(
-					[]string{"INTERNAL", "EXTERNAL"}, false),
+					[]string{addressTypeInternal, addressTypeExternal}, false),
 			},
 
 			"subnetwork": &schema.Schema{
@@ -187,7 +192,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	// been converted to v0beta, and thus an EXTERNAL address.
 	d.Set("address_type", addr.AddressType)
 	if addr.AddressType == "" {
-		d.Set("address_type", "EXTERNAL")
+		d.Set("address_type", addressTypeExternal)
 	}
 	d.Set("subnetwork", ConvertSelfLinkToV1(addr.Subnetwork))
 	d.Set("address", addr.Address)
