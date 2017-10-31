@@ -7,6 +7,7 @@ FEATURES:
 * **New Resource:** `google_dataproc_cluster` [GH-252]
 
 IMPROVEMENTS:
+* compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * project: Make `google_service_account` resource importable [GH-606]
 * pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
