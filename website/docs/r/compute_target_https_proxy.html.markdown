@@ -96,6 +96,6 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `id` - A unique ID assigned by GCE.
+* `proxy_id` - A unique ID assigned by GCE.
 
 * `self_link` - The URI of the created resource.

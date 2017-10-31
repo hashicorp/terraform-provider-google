@@ -34,7 +34,7 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"id": &schema.Schema{
+			"proxy_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -134,7 +134,7 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 	}
 
 	d.Set("self_link", proxy.SelfLink)
-	d.Set("id", strconv.FormatUint(proxy.Id, 10))
+	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 
 	return nil
 }
