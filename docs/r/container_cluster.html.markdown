@@ -74,6 +74,10 @@ resource "google_container_cluster" "primary" {
 
 * `description` - (Optional) Description of the cluster.
 
+* `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
+    this cluster. Note that when this option is enabled, the cluster cannot be upgraded
+    and will be automatically deleted after 30 days.
+
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
