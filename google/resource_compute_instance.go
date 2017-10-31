@@ -1161,12 +1161,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		// were at the time we ran terraform plan.
 		currDisks := map[string]struct{}{}
 		for _, disk := range instance.Disks {
-			if !disk.Boot {
+			if !disk.Boot && disk.Type != "SCRATCH" {
 				currDisks[disk.DeviceName] = struct{}{}
 			}
 		}
 
-		// Keep track of previous config's disks.
+		// Keep track of disks currently in state.
 		// Since changing any field within the disk needs to detach+reattach it,
 		// keep track of the hash of the full disk.
 		oDisks := map[uint64]string{}
