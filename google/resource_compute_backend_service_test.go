@@ -143,7 +143,7 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendServiceExists(
+					testAccCheckComputeBackendServiceExistsWithoutIAP(
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
@@ -159,6 +159,7 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 	if len(svc.Backends) != 1 {
 		t.Errorf("Expected 1 backend, got %d", len(svc.Backends))
 	}
+
 }
 
 func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T) {
@@ -353,6 +354,39 @@ func testAccCheckComputeBackendServiceExistsWithIAP(n string, svc *compute.Backe
 
 		if found.Iap == nil || found.Iap.Enabled == false {
 			return fmt.Errorf("IAP not found or not enabled.")
+		}
+
+		*svc = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBackendServiceExistsWithoutIAP(n string, svc *compute.BackendService) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientCompute.BackendServices.Get(
+			config.Project, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Backend service %s not found", rs.Primary.ID)
+		}
+
+		if found.Iap != nil && found.Iap.Enabled == true {
+			return fmt.Errorf("IAP enabled when it should be disabled")
 		}
 
 		*svc = *found
