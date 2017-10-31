@@ -73,15 +73,10 @@ func resourceComputeForwardingRule() *schema.Resource {
 			},
 
 			"port_range": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					if old == new+"-"+new {
-						return true
-					}
-					return false
-				},
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: portRangeDiffSuppress,
 			},
 
 			"ports": &schema.Schema{
