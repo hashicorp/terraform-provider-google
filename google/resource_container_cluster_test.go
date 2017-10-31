@@ -134,6 +134,28 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withKubernetesAlpha(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_kubernetes_alpha"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_kubernetes_alpha", "enable_kubernetes_alpha", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 	t.Parallel()
 
@@ -577,6 +599,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 			{"zone", cluster.Zone},
 			{"cluster_ipv4_cidr", cluster.ClusterIpv4Cidr},
 			{"description", cluster.Description},
+			{"enable_kubernetes_alpha", strconv.FormatBool(cluster.EnableKubernetesAlpha)},
 			{"enable_legacy_abac", strconv.FormatBool(cluster.LegacyAbac.Enabled)},
 			{"endpoint", cluster.Endpoint},
 			{"instance_group_urls", igUrls},
@@ -895,6 +918,17 @@ resource "google_container_cluster" "with_additional_zones" {
 		username = "mr.yoda"
 		password = "adoy.rm"
 	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withKubernetesAlpha(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_kubernetes_alpha" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_kubernetes_alpha = true
 }`, clusterName)
 }
 
