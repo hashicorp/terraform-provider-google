@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
 * compute: Add IAP support for backend services [GH-471]
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
+* container: Add support for Kubernetes alpha features [GH-646]
 * project: Make `google_service_account` resource importable [GH-606]
 * pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
 * storage: Add labels to `google_storage_bucket` [GH-652]
