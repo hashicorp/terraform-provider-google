@@ -56,7 +56,14 @@ func resourceComputeInstanceMigrateState(
 		if err != nil {
 			return is, err
 		}
-		// when adding case 5, make sure to turn this into a fallthrough
+		fallthrough
+	case 5:
+		log.Println("[INFO] Found Compute Instance State v5; migrating to v6")
+		is, err = migrateStateV5toV6(is)
+		if err != nil {
+			return is, err
+		}
+		// when adding case 6, make sure to turn this into a fallthrough
 		return is, err
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
@@ -238,7 +245,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 			is.Attributes["boot_disk.0.disk_encryption_key_raw"] = is.Attributes["disk.0.disk_encryption_key_raw"]
 			is.Attributes["boot_disk.0.disk_encryption_key_sha256"] = is.Attributes["disk.0.disk_encryption_key_sha256"]
 
-			if is.Attributes["disk.0.size"] != "" {
+			if is.Attributes["disk.0.size"] != "" && is.Attributes["disk.0.size"] != "0" {
 				is.Attributes["boot_disk.0.initialize_params.#"] = "1"
 				is.Attributes["boot_disk.0.initialize_params.0.size"] = is.Attributes["disk.0.size"]
 			}
@@ -488,4 +495,18 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 	}
 
 	return nil, fmt.Errorf("could not find attached disk with image %q", image)
+}
+
+func migrateStateV5toV6(is *terraform.InstanceState) (*terraform.InstanceState, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
+	if is.Attributes["boot_disk.0.initialize_params.#"] == "1" {
+		if (is.Attributes["boot_disk.0.initialize_params.0.size"] == "0" ||
+			is.Attributes["boot_disk.0.initialize_params.0.size"] == "") &&
+			is.Attributes["boot_disk.0.initialize_params.0.type"] == "" &&
+			is.Attributes["boot_disk.0.initialize_params.0.image"] == "" {
+			is.Attributes["boot_disk.0.initialize_params.#"] = "0"
+		}
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
+	return is, nil
 }
