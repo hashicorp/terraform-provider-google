@@ -93,7 +93,8 @@ resource "google_container_cluster" "primary" {
     Kubernetes master. Structure is documented below.
 
 * `master_authorized_networks_config` - (Optional) The desired configuration options
-    for master authorized networks
+    for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
+    external access (except the cluster node IPs, which GKE automatically whitelists).
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -163,16 +164,17 @@ The `master_auth` block supports:
 
 The `master_authorized_networks_config` block supports:
 
-* `enabled` - (Required) Whether or not master authorized networks is enabled
-
 * `cidr_blocks` - (Optional) Defines up to 10 external networks that can access
-    Kubernetes master through HTTPS.  To avoid upstream failures, an empty list is
-    passed when this feature is disabled, irrespective of values passed here.
+    Kubernetes master through HTTPS.
+
+The `master_authorized_networks_config.cidr_blocks` block supports:
+
+* `cidr_block` - (Optional) External network that can access Kubernetes master through HTTPS.
+    Must be specified in CIDR notation.
+
+* `display_name` - (Optional) Field for users to identify CIDR blocks.
 
 The `node_config` block supports:
-
-* `machine_type` - (Optional) The name of a Google Compute Engine machine type.
-    Defaults to `n1-standard-1`.
 
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
