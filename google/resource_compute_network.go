@@ -136,7 +136,7 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error deleting network: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting Network")
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Network", 10)
 	if err != nil {
 		return err
 	}
