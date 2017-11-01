@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -57,6 +58,19 @@ func resourceComputeTargetPool() *schema.Resource {
 				Computed: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// instances are stored in state as "zone/name"
+					oldParts := strings.Split(old, "/")
+
+					// instances can also be specified in the config as a URL
+					r := regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
+					if parts := r.FindStringSubmatch(new); parts != nil {
+						if parts[2] == oldParts[0] && parts[3] == oldParts[1] {
+							return true
+						}
+					}
+					return false
+				},
 			},
 
 			"project": {
