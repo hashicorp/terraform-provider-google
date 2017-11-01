@@ -298,7 +298,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
+				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: schemaNodePool,
 				},
