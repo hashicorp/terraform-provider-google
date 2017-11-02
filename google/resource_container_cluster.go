@@ -933,6 +933,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			},
 		}
 	}
+
+	if c.NetworkPolicyConfig != nil {
+		result["network_policy"] = []map[string]interface{}{
+			{
+				"disabled": c.NetworkPolicyConfig.Disabled,
+			},
+		}
+	}
 	return []map[string]interface{}{result}
 }
 

@@ -72,6 +72,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 						"google_container_cluster.primary"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "true"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.network_policy.0.disabled", "false"),
 				),
 			},
 			{
@@ -81,6 +82,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 						"google_container_cluster.primary"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.horizontal_pod_autoscaling.0.disabled", "true"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
 				),
 			},
@@ -920,7 +922,7 @@ resource "google_container_cluster" "primary" {
 	addons_config {
 		http_load_balancing { disabled = true }
 		kubernetes_dashboard { disabled = true }
-		network_policy { disabled = true }
+		network_policy { disabled = false }
 	}
 }`, clusterName)
 }
@@ -936,7 +938,7 @@ resource "google_container_cluster" "primary" {
 		http_load_balancing { disabled = false }
 		kubernetes_dashboard { disabled = true }
 		horizontal_pod_autoscaling { disabled = true }
-		network_policy { disabled = false }
+		network_policy { disabled = true }
 	}
 }`, clusterName)
 }
