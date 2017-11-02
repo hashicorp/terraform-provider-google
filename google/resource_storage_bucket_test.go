@@ -429,6 +429,46 @@ func TestAccStorageBucket_cors(t *testing.T) {
 	}
 }
 
+func TestAccStorageBucket_labels(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_labels(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-label-value"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_updateLabels(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-updated-label-value"),
+					testAccCheckStorageBucketHasLabel(&bucket, "a-new-label", "a-new-label-value"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_basic(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					testAccCheckStorageBucketHasNoLabels(&bucket),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckStorageBucketExists(n string, bucketName string, bucket *storage.Bucket) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -456,6 +496,29 @@ func testAccCheckStorageBucketExists(n string, bucketName string, bucket *storag
 		}
 
 		*bucket = *found
+		return nil
+	}
+}
+
+func testAccCheckStorageBucketHasLabel(bucket *storage.Bucket, key, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		val, ok := bucket.Labels[key]
+		if !ok {
+			return fmt.Errorf("Label with key %s not found", key)
+		}
+
+		if val != value {
+			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+		}
+		return nil
+	}
+}
+
+func testAccCheckStorageBucketHasNoLabels(bucket *storage.Bucket) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(bucket.Labels) > 0 {
+			return fmt.Errorf("Expected 0 labels, found %v", bucket.Labels)
+		}
 		return nil
 	}
 }
@@ -652,6 +715,29 @@ resource "google_storage_bucket" "bucket" {
 		condition {
 			age = 10
 		}
+	}
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_labels(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	labels {
+		my-label = "my-label-value"
+	}
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_updateLabels(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	labels {
+		my-label    = "my-updated-label-value"
+		a-new-label = "a-new-label-value"
 	}
 }
 `, bucketName)

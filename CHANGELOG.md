@@ -1,17 +1,40 @@
-## 1.1.1 (Unreleased)
+## 1.2.0 (Unreleased)
 
 FEATURES:
 
-* **New Resource:** `google_compute_target_ssl_proxy` [GH-569]
-* **New Data Source:** `google_compute_lb_ip_ranges` [GH-567]
+* **New Resource:** `google_service_account_key` [GH-472]
+* **New Resource:** `google_kms_key_ring` [GH-518]
+* **New Resource:** `google_dataproc_cluster` [GH-252]
 
 IMPROVEMENTS:
-* container: Allow updating `google_container_cluster.monitoring_service` [GH-598]
-* container: Allow updating `google_container_cluster.addons_config` [GH-597]
+* compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
+* compute: Add IAP support for backend services [GH-471]
+* container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
+* container: Add support for Kubernetes alpha features [GH-646]
+* project: Make `google_service_account` resource importable [GH-606]
+* pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
+* storage: Add labels to `google_storage_bucket` [GH-652]
 
 BUG FIXES:
-* compute: Fix import functionality in `google_compute_route` [GH-565]
-* compute: Migrate boot disk initialize params [GH-592]
+* container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
+
+## 1.1.1 (October 24, 2017)
+
+FEATURES:
+
+* **New Resource:** `google_compute_target_ssl_proxy` ([#569](https://github.com/terraform-providers/terraform-provider-google/issues/569))
+* **New Data Source:** `google_compute_lb_ip_ranges` ([#567](https://github.com/terraform-providers/terraform-provider-google/issues/567))
+
+IMPROVEMENTS:
+* compute: Make `boot_disk` required; remove checks around expected number of disks ([#600](https://github.com/terraform-providers/terraform-provider-google/issues/600))
+* compute: Allow setting boot and attached disk sources by name or self link ([#605](https://github.com/terraform-providers/terraform-provider-google/issues/605))
+* container: Allow updating `google_container_cluster.monitoring_service` ([#598](https://github.com/terraform-providers/terraform-provider-google/issues/598))
+* container: Allow updating `google_container_cluster.addons_config` ([#597](https://github.com/terraform-providers/terraform-provider-google/issues/597))
+* project: Make `google_project_services` resource importable ([#601](https://github.com/terraform-providers/terraform-provider-google/issues/601))
+
+BUG FIXES:
+* compute: Fix import functionality in `google_compute_route` ([#565](https://github.com/terraform-providers/terraform-provider-google/issues/565))
+* compute: Migrate boot disk initialize params ([#592](https://github.com/terraform-providers/terraform-provider-google/issues/592))
 
 ## 1.1.0 (October 12, 2017)
 

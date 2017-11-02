@@ -61,7 +61,7 @@ func resourceComputeSslCertificate() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"id": &schema.Schema{
+			"certificate_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -140,7 +140,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("self_link", cert.SelfLink)
-	d.Set("id", strconv.FormatUint(cert.Id, 10))
+	d.Set("certificate_id", strconv.FormatUint(cert.Id, 10))
 
 	return nil
 }

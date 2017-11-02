@@ -46,7 +46,7 @@ func resourceComputeInstance() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"boot_disk": &schema.Schema{
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -108,11 +108,12 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"source": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"boot_disk.initialize_params"},
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ForceNew:         true,
+							ConflictsWith:    []string{"boot_disk.initialize_params"},
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 					},
 				},
@@ -207,8 +208,9 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: linkDiffSuppress,
 						},
 
 						"device_name": &schema.Schema{
@@ -604,14 +606,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	// Build up the list of disks
 
 	disks := []*computeBeta.AttachedDisk{}
-	var hasBootDisk bool
-	if _, hasBootDisk = d.GetOk("boot_disk"); hasBootDisk {
-		bootDisk, err := expandBootDisk(d, config, zone, project)
-		if err != nil {
-			return err
-		}
-		disks = append(disks, bootDisk)
+	bootDisk, err := expandBootDisk(d, config, zone, project)
+	if err != nil {
+		return err
 	}
+	disks = append(disks, bootDisk)
 
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
 		scratchDisks, err := expandScratchDisks(d, config, zone, project)
@@ -623,18 +622,16 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 
-	if attachedDisksCount == 0 && !hasBootDisk {
-		return fmt.Errorf("At least one disk, attached_disk, or boot_disk must be set")
-	}
-
 	for i := 0; i < attachedDisksCount; i++ {
 		prefix := fmt.Sprintf("attached_disk.%d", i)
+		source, err := ParseDiskFieldValue(d.Get(prefix+".source").(string), d, config)
+		if err != nil {
+			return err
+		}
 		disk := computeBeta.AttachedDisk{
-			Source:     d.Get(prefix + ".source").(string),
+			Source:     source.RelativeLink(),
 			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
 		}
-
-		disk.Boot = i == 0 && !hasBootDisk
 
 		if v, ok := d.GetOk(prefix + ".device_name"); ok {
 			disk.DeviceName = v.(string)
@@ -920,68 +917,50 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("label_fingerprint", instance.LabelFingerprint)
 	}
 
-	disksCount := d.Get("disk.#").(int)
 	attachedDisksCount := d.Get("attached_disk.#").(int)
-	scratchDisksCount := d.Get("scratch_disk.#").(int)
-
-	if _, ok := d.GetOk("boot_disk"); ok {
-		disksCount++
-	}
-	if expectedDisks := disksCount + attachedDisksCount + scratchDisksCount; len(instance.Disks) != expectedDisks {
-		return fmt.Errorf("Expected %d disks, API returned %d", expectedDisks, len(instance.Disks))
-	}
-
 	attachedDiskSources := make(map[string]int, attachedDisksCount)
 	for i := 0; i < attachedDisksCount; i++ {
-		attachedDiskSources[d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string)] = i
+		source, err := ParseDiskFieldValue(d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string), d, config)
+		if err != nil {
+			return err
+		}
+		attachedDiskSources[source.RelativeLink()] = i
 	}
 
-	dIndex := 0
 	sIndex := 0
 	attachedDisks := make([]map[string]interface{}, attachedDisksCount)
-	scratchDisks := make([]map[string]interface{}, 0, scratchDisksCount)
+	scratchDisks := []map[string]interface{}{}
+	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
-		if _, ok := d.GetOk("boot_disk"); ok && disk.Boot {
-			// This disk is a boot disk and there is a boot disk set in the config, therefore
-			// this is the boot disk set in the config.
+		if disk.Boot {
 			d.Set("boot_disk", flattenBootDisk(d, disk))
-		} else if _, ok := d.GetOk("scratch_disk"); ok && disk.Type == "SCRATCH" {
-			// This disk is a scratch disk and there are scratch disks set in the config, therefore
-			// this is a scratch disk set in the config.
+		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
-		} else if _, ok := attachedDiskSources[disk.Source]; !ok {
-			di := map[string]interface{}{
-				"disk":                    d.Get(fmt.Sprintf("disk.%d.disk", dIndex)),
-				"image":                   d.Get(fmt.Sprintf("disk.%d.image", dIndex)),
-				"type":                    d.Get(fmt.Sprintf("disk.%d.type", dIndex)),
-				"scratch":                 d.Get(fmt.Sprintf("disk.%d.scratch", dIndex)),
-				"auto_delete":             d.Get(fmt.Sprintf("disk.%d.auto_delete", dIndex)),
-				"size":                    d.Get(fmt.Sprintf("disk.%d.size", dIndex)),
-				"device_name":             d.Get(fmt.Sprintf("disk.%d.device_name", dIndex)),
-				"disk_encryption_key_raw": d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)),
-			}
-			if d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)) != "" {
-				sha, err := hash256(d.Get(fmt.Sprintf("disk.%d.disk_encryption_key_raw", dIndex)).(string))
-				if err != nil {
-					return err
-				}
-				di["disk_encryption_key_sha256"] = sha
-			}
-			dIndex++
 		} else {
-			adIndex := attachedDiskSources[disk.Source]
+			source, err := ParseDiskFieldValue(disk.Source, d, config)
+			if err != nil {
+				return err
+			}
+			adIndex, inConfig := attachedDiskSources[source.RelativeLink()]
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
 			}
 			if key := disk.DiskEncryptionKey; key != nil {
-				di["disk_encryption_key_raw"] = d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
+				if inConfig {
+					di["disk_encryption_key_raw"] = d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
+				}
 				di["disk_encryption_key_sha256"] = key.Sha256
 			}
-			attachedDisks[adIndex] = di
+			if inConfig {
+				attachedDisks[adIndex] = di
+			} else {
+				extraAttachedDisks = append(extraAttachedDisks, di)
+			}
 		}
 	}
+	attachedDisks = append(attachedDisks, extraAttachedDisks...)
 
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
@@ -1317,13 +1296,11 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.source"); ok {
-		diskName := v.(string)
-		diskData, err := config.clientCompute.Disks.Get(
-			project, zone.Name, diskName).Do()
+		source, err := ParseDiskFieldValue(v.(string), d, config)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading disk '%s': %s", diskName, err)
+			return nil, err
 		}
-		disk.Source = diskData.SelfLink
+		disk.Source = source.RelativeLink()
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
@@ -1357,11 +1334,10 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 }
 
 func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
-	sourceUrl := strings.Split(disk.Source, "/")
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
-		"source":      sourceUrl[len(sourceUrl)-1],
+		"source":      disk.Source,
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),

@@ -283,6 +283,16 @@ func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+// Port range '80' and '80-80' is equivalent.
+// `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
+// `new` can be either a single port or a port range.
+func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if old == new+"-"+new {
+		return true
+	}
+	return false
+}
+
 // expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
 func expandLabels(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "labels")
@@ -308,14 +318,23 @@ func convertStringMap(v map[string]interface{}) map[string]string {
 }
 
 func convertStringArr(ifaceArr []interface{}) []string {
+	return convertAndMapStringArr(ifaceArr, func(s string) string { return s })
+}
+
+func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []string {
 	var arr []string
 	for _, v := range ifaceArr {
 		if v == nil {
 			continue
 		}
-		arr = append(arr, v.(string))
+		arr = append(arr, f(v.(string)))
 	}
 	return arr
+}
+
+func extractLastResourceFromUri(uri string) string {
+	rUris := strings.Split(uri, "/")
+	return rUris[len(rUris)-1]
 }
 
 func convertStringArrToInterface(strs []string) []interface{} {

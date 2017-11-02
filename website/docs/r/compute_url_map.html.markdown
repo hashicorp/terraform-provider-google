@@ -157,6 +157,6 @@ exported:
 
 * `fingerprint` - The unique fingerprint for this resource.
 
-* `id` - The GCE assigned ID of the resource.
+* `map_id` - The GCE assigned ID of the resource.
 
 * `self_link` - The URI of the created resource.

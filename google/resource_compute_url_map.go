@@ -63,7 +63,7 @@ func resourceComputeUrlMap() *schema.Resource {
 				},
 			},
 
-			"id": &schema.Schema{
+			"map_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -315,7 +315,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(name)
 	d.Set("self_link", urlMap.SelfLink)
-	d.Set("id", strconv.FormatUint(urlMap.Id, 10))
+	d.Set("map_id", strconv.FormatUint(urlMap.Id, 10))
 	d.Set("fingerprint", urlMap.Fingerprint)
 
 	hostRuleMap := make(map[string]*compute.HostRule)

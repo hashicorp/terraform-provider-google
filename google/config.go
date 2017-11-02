@@ -18,11 +18,13 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
@@ -46,7 +48,9 @@ type Config struct {
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
+	clientDataproc               *dataproc.Service
 	clientDns                    *dns.Service
+	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
 	clientResourceManager        *cloudresourcemanager.Service
@@ -155,6 +159,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientDns.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating Google Cloud KMS Client...")
+	c.clientKms, err = cloudkms.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientKms.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Stackdriver Logging client...")
 	c.clientLogging, err = cloudlogging.New(client)
 	if err != nil {
@@ -250,6 +261,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientSpanner.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
+	c.clientDataproc, err = dataproc.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDataproc.UserAgent = userAgent
 
 	return nil
 }

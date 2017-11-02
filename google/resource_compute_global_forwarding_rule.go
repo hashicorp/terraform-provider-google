@@ -23,6 +23,10 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 		Update: resourceComputeGlobalForwardingRuleUpdate,
 		Delete: resourceComputeGlobalForwardingRuleDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -69,9 +73,10 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 			},
 
 			"port_range": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: portRangeDiffSuppress,
 			},
 
 			"ip_version": &schema.Schema{
@@ -273,6 +278,10 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		}
 	}
 
+	d.Set("name", frule.Name)
+	d.Set("description", frule.Description)
+	d.Set("target", frule.Target)
+	d.Set("port_range", frule.PortRange)
 	d.Set("ip_address", frule.IPAddress)
 	d.Set("ip_protocol", frule.IPProtocol)
 	d.Set("ip_version", frule.IpVersion)

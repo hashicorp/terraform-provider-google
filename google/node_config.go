@@ -14,54 +14,12 @@ var schemaNodeConfig = &schema.Schema{
 	MaxItems: 1,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"machine_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-
 			"disk_size_gb": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(10),
-			},
-
-			"local_ssd_count": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntAtLeast(0),
-			},
-
-			"oauth_scopes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					StateFunc: func(v interface{}) string {
-						return canonicalizeServiceScope(v.(string))
-					},
-				},
-			},
-
-			"service_account": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-
-			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     schema.TypeString,
 			},
 
 			"image_type": {
@@ -78,11 +36,46 @@ var schemaNodeConfig = &schema.Schema{
 				Elem:     schema.TypeString,
 			},
 
-			"tags": {
-				Type:     schema.TypeList,
+			"local_ssd_count": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+
+			"machine_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"metadata": {
+				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
+			},
+
+			"min_cpu_platform": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"oauth_scopes": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+					StateFunc: func(v interface{}) string {
+						return canonicalizeServiceScope(v.(string))
+					},
+				},
+				Set: stringScopeHashcode,
 			},
 
 			"preemptible": {
@@ -90,6 +83,20 @@ var schemaNodeConfig = &schema.Schema{
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
+			},
+
+			"service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	},
@@ -113,11 +120,11 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.LocalSsdCount = int64(v.(int))
 	}
 
-	if v, ok := nodeConfig["oauth_scopes"]; ok {
-		scopesList := v.([]interface{})
-		scopes := []string{}
-		for _, v := range scopesList {
-			scopes = append(scopes, canonicalizeServiceScope(v.(string)))
+	if scopes, ok := nodeConfig["oauth_scopes"]; ok {
+		scopesSet := scopes.(*schema.Set)
+		scopes := make([]string, scopesSet.Len())
+		for i, scope := range scopesSet.List() {
+			scopes[i] = canonicalizeServiceScope(scope.(string))
 		}
 
 		nc.OauthScopes = scopes
@@ -158,6 +165,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	// Preemptible Is Optional+Default, so it always has a value
 	nc.Preemptible = nodeConfig["preemptible"].(bool)
 
+	if v, ok := nodeConfig["min_cpu_platform"]; ok {
+		nc.MinCpuPlatform = v.(string)
+	}
+
 	return nc
 }
 
@@ -169,19 +180,20 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	}
 
 	config = append(config, map[string]interface{}{
-		"machine_type":    c.MachineType,
-		"disk_size_gb":    c.DiskSizeGb,
-		"local_ssd_count": c.LocalSsdCount,
-		"service_account": c.ServiceAccount,
-		"metadata":        c.Metadata,
-		"image_type":      c.ImageType,
-		"labels":          c.Labels,
-		"tags":            c.Tags,
-		"preemptible":     c.Preemptible,
+		"machine_type":     c.MachineType,
+		"disk_size_gb":     c.DiskSizeGb,
+		"local_ssd_count":  c.LocalSsdCount,
+		"service_account":  c.ServiceAccount,
+		"metadata":         c.Metadata,
+		"image_type":       c.ImageType,
+		"labels":           c.Labels,
+		"tags":             c.Tags,
+		"preemptible":      c.Preemptible,
+		"min_cpu_platform": c.MinCpuPlatform,
 	})
 
 	if len(c.OauthScopes) > 0 {
-		config[0]["oauth_scopes"] = c.OauthScopes
+		config[0]["oauth_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(c.OauthScopes))
 	}
 
 	return config
