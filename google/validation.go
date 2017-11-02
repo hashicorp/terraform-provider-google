@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 	"net"
 	"regexp"
+	"strconv"
 )
 
 const (
@@ -60,4 +61,21 @@ func validateRFC1918Network(min, max int) schema.SchemaValidateFunc {
 
 		return
 	}
+}
+
+func validateRFC3339Time(v interface{}, k string) (warnings []string, errors []error) {
+	time := v.(string)
+	if len(time) != 5 || time[2] != ':' {
+		errors = append(errors, fmt.Errorf("%q (%q) must be in the format HH:mm (RFC3399)", k, time))
+		return
+	}
+	if hour, err := strconv.ParseUint(time[:2], 10, 0); err != nil || hour > 23 {
+		errors = append(errors, fmt.Errorf("%q (%q) does not contain a valid hour (00-23)", k, time))
+		return
+	}
+	if min, err := strconv.ParseUint(time[3:], 10, 0); err != nil || min > 59 {
+		errors = append(errors, fmt.Errorf("%q (%q) does not contain a valid minute (00-59)", k, time))
+		return
+	}
+	return
 }

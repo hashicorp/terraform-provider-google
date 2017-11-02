@@ -172,6 +172,36 @@ func resourceContainerCluster() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
 			},
 
+			"maintenance_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"daily_maintenance_window": {
+							Type:     schema.TypeList,
+							Required: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ForceNew:     true,
+										ValidateFunc: validateRFC3339Time,
+									},
+									"duration": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"master_auth": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -326,6 +356,19 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
+
+	if v, ok := d.GetOk("maintenance_policy"); ok {
+		maintenancePolicy := v.([]interface{})[0].(map[string]interface{})
+		dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
+		startTime := dailyMaintenanceWindow["start_time"].(string)
+		cluster.MaintenancePolicy = &container.MaintenancePolicy{
+			Window: &container.MaintenanceWindow{
+				DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
+					StartTime: startTime,
+				},
+			},
+		}
+	}
 
 	if v, ok := d.GetOk("master_auth"); ok {
 		masterAuths := v.([]interface{})
@@ -493,6 +536,20 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("additional_zones", locations)
 
 	d.Set("endpoint", cluster.Endpoint)
+
+	if cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil && cluster.MaintenancePolicy.Window.DailyMaintenanceWindow != nil {
+		maintenancePolicy := []map[string]interface{}{
+			{
+				"daily_maintenance_window": []map[string]interface{}{
+					{
+						"start_time": cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime,
+						"duration":   cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration,
+					},
+				},
+			},
+		}
+		d.Set("maintenance_policy", maintenancePolicy)
+	}
 
 	masterAuth := []map[string]interface{}{
 		{

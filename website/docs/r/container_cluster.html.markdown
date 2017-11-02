@@ -102,6 +102,9 @@ output "cluster_ca_certificate" {
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
 
+* `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is 
+    documented below. 
+
 * `master_auth` - (Optional) The authentication information for accessing the
     Kubernetes master. Structure is documented below.
 
@@ -163,6 +166,20 @@ addons_config {
   }
   horizontal_pod_autoscaling {
     disabled = true
+  }
+}
+```
+
+The `maintenance_policy` block supports:
+
+* `daily_maintenance_window` - (Required) Time window specified for daily maintenance operations.
+    Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”, 
+    where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
+
+```
+maintenance_policy {
+  daily_maintenance_window {
+    start_time = "03:00"
   }
 }
 ```
@@ -242,6 +259,10 @@ exported:
 
 * `instance_group_urls` - List of instance group URLs which have been assigned
     to the cluster.
+
+* `maintenance_policy.daily_maintenance_window.duration` - Duration of the time window, automatically chosen to be
+    smallest possible in the given scenario.  
+    Duration will be in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "PTnHnMnS".
 
 * `master_auth.0.client_certificate` - Base64 encoded public certificate
     used by clients to authenticate to the cluster endpoint.

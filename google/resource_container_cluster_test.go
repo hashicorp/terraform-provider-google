@@ -576,6 +576,25 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMaintenanceWindow("03:00"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.primary"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -684,6 +703,11 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", httpLoadBalancingDisabled})
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", horizontalPodAutoscalingDisabled})
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.kubernetes_dashboard.0.disabled", kubernetesDashboardDisabled})
+
+		if cluster.MaintenancePolicy != nil {
+			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.start_time", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime})
+			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.duration", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration})
+		}
 
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
@@ -1440,4 +1464,19 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 
 }
 `, testId, testId)
+}
+
+func testAccContainerCluster_withMaintenanceWindow(startTime string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_window" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+	
+	maintenance_policy {
+		daily_maintenance_window {
+			start_time = "%s"
+		}
+	}
+}`, acctest.RandString(10), startTime)
 }
