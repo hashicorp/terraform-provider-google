@@ -25,13 +25,13 @@ resource "google_storage_bucket" "image-store" {
 
 resource "google_storage_bucket_object" "image" {
   name   = "image1"
-  bucket = "${google_storage_bucket.name}"
+  bucket = "${google_storage_bucket.image-store.name}"
   source = "image1.jpg"
 }
 
 resource "google_storage_object_acl" "image-store-acl" {
-  bucket = "${google_storage_bucket.image_store.name}"
-  object = "${google_storage_bucket_object.image_store.name}"
+  bucket = "${google_storage_bucket.image-store.name}"
+  object = "${google_storage_bucket_object.image.name}"
 
   role_entity = [
     "OWNER:user-my.email@gmail.com",
