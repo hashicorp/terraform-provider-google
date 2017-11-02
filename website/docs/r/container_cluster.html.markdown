@@ -234,12 +234,11 @@ exported:
     to authenticate to the cluster endpoint.
 
 * `master_auth.0.cluster_ca_certificate` - Base64 encoded public certificate
-    that is the root of trust for the cluster.     
+    that is the root of trust for the cluster.
 
 * `master_version` - The current version of the master in the cluster. This may
     be different than the `min_master_version` set in the config if the master
     has been updated by GKE.
-
 
 <a id="timeouts"></a>
 ## Timeouts
