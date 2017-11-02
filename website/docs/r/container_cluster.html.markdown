@@ -227,17 +227,14 @@ exported:
 * `instance_group_urls` - List of instance group URLs which have been assigned
     to the cluster.
 
-* `master_auth` is an array of access credentials where the first key (`0`) is always
-  populated.
+* `master_auth.0.client_certificate` - Base64 encoded public certificate
+    used by clients to authenticate to the cluster endpoint.
 
-  * `master_auth.0.client_certificate` - Base64 encoded public certificate
-      used by clients to authenticate to the cluster endpoint.
+* `master_auth.0.client_key` - Base64 encoded private key used by clients
+    to authenticate to the cluster endpoint.
 
-  * `master_auth.0.client_key` - Base64 encoded private key used by clients
-      to authenticate to the cluster endpoint.
-
-  * `master_auth.0.cluster_ca_certificate` - Base64 encoded public certificate
-      that is the root of trust for the cluster.     
+* `master_auth.0.cluster_ca_certificate` - Base64 encoded public certificate
+    that is the root of trust for the cluster.     
 
 * `master_version` - The current version of the master in the cluster. This may
     be different than the `min_master_version` set in the config if the master
