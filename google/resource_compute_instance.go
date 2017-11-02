@@ -9,8 +9,10 @@ import (
 
 	"regexp"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -204,7 +206,6 @@ func resourceComputeInstance() *schema.Resource {
 			"attached_disk": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true, // TODO(danawillow): Remove this, support attaching/detaching
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": &schema.Schema{
@@ -223,7 +224,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:      schema.TypeString,
 							Optional:  true,
 							Sensitive: true,
-							ForceNew:  true,
 						},
 
 						"disk_encryption_key_sha256": &schema.Schema{
@@ -623,27 +623,13 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	attachedDisksCount := d.Get("attached_disk.#").(int)
 
 	for i := 0; i < attachedDisksCount; i++ {
-		prefix := fmt.Sprintf("attached_disk.%d", i)
-		source, err := ParseDiskFieldValue(d.Get(prefix+".source").(string), d, config)
+		diskConfig := d.Get(fmt.Sprintf("attached_disk.%d", i)).(map[string]interface{})
+		disk, err := expandAttachedDisk(diskConfig, d, config)
 		if err != nil {
 			return err
 		}
-		disk := computeBeta.AttachedDisk{
-			Source:     source.RelativeLink(),
-			AutoDelete: false, // Don't allow autodelete; let terraform handle disk deletion
-		}
 
-		if v, ok := d.GetOk(prefix + ".device_name"); ok {
-			disk.DeviceName = v.(string)
-		}
-
-		if v, ok := d.GetOk(prefix + ".disk_encryption_key_raw"); ok {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-				RawKey: v.(string),
-			}
-		}
-
-		disks = append(disks, &disk)
+		disks = append(disks, disk)
 	}
 
 	// Build up the list of networkInterfaces
@@ -1164,12 +1150,131 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 			}
 		}
+		d.SetPartial("network_interface")
+	}
+
+	if d.HasChange("attached_disk") {
+		o, n := d.GetChange("attached_disk")
+
+		// Keep track of disks currently in the instance. Because the google_compute_disk resource
+		// can detach disks, it's possible that there are fewer disks currently attached than there
+		// were at the time we ran terraform plan.
+		currDisks := map[string]struct{}{}
+		for _, disk := range instance.Disks {
+			if !disk.Boot && disk.Type != "SCRATCH" {
+				currDisks[disk.DeviceName] = struct{}{}
+			}
+		}
+
+		// Keep track of disks currently in state.
+		// Since changing any field within the disk needs to detach+reattach it,
+		// keep track of the hash of the full disk.
+		oDisks := map[uint64]string{}
+		for _, disk := range o.([]interface{}) {
+			diskConfig := disk.(map[string]interface{})
+			computeDisk, err := expandAttachedDisk(diskConfig, d, config)
+			if err != nil {
+				return err
+			}
+			hash, err := hashstructure.Hash(*computeDisk, nil)
+			if err != nil {
+				return err
+			}
+			if _, ok := currDisks[computeDisk.DeviceName]; ok {
+				oDisks[hash] = computeDisk.DeviceName
+			}
+		}
+
+		// Keep track of new config's disks.
+		// Since changing any field within the disk needs to detach+reattach it,
+		// keep track of the hash of the full disk.
+		// If a disk with a certain hash is only in the new config, it should be attached.
+		nDisks := map[uint64]struct{}{}
+		var attach []*compute.AttachedDisk
+		for _, disk := range n.([]interface{}) {
+			diskConfig := disk.(map[string]interface{})
+			computeDisk, err := expandAttachedDisk(diskConfig, d, config)
+			if err != nil {
+				return err
+			}
+			hash, err := hashstructure.Hash(*computeDisk, nil)
+			if err != nil {
+				return err
+			}
+			nDisks[hash] = struct{}{}
+
+			if _, ok := oDisks[hash]; !ok {
+				computeDiskV1 := &compute.AttachedDisk{}
+				err = Convert(computeDisk, computeDiskV1)
+				if err != nil {
+					return err
+				}
+				attach = append(attach, computeDiskV1)
+			}
+		}
+
+		// If a source is only in the old config, it should be detached.
+		// Detach the old disks.
+		for hash, deviceName := range oDisks {
+			if _, ok := nDisks[hash]; !ok {
+				op, err := config.clientCompute.Instances.DetachDisk(project, zone, instance.Name, deviceName).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error detaching disk: %s", err)
+				}
+
+				opErr := computeOperationWait(config.clientCompute, op, project, "detaching disk")
+				if opErr != nil {
+					return opErr
+				}
+				log.Printf("[DEBUG] Successfully detached disk %s", deviceName)
+			}
+		}
+
+		// Attach the new disks
+		for _, disk := range attach {
+			op, err := config.clientCompute.Instances.AttachDisk(project, zone, instance.Name, disk).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error attaching disk : {{err}}", err)
+			}
+
+			opErr := computeOperationWait(config.clientCompute, op, project, "attaching disk")
+			if opErr != nil {
+				return opErr
+			}
+			log.Printf("[DEBUG] Successfully attached disk %s", disk.Source)
+		}
+
+		d.SetPartial("attached_disk")
 	}
 
 	// We made it, disable partial mode
 	d.Partial(false)
 
 	return resourceComputeInstanceRead(d, meta)
+}
+
+func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
+	config := meta.(*Config)
+
+	source, err := ParseDiskFieldValue(diskConfig["source"].(string), d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	disk := &computeBeta.AttachedDisk{
+		Source: source.RelativeLink(),
+	}
+
+	if v, ok := diskConfig["device_name"]; ok {
+		disk.DeviceName = v.(string)
+	}
+
+	if v, ok := diskConfig["disk_encryption_key_raw"]; ok {
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			RawKey: v.(string),
+		}
+	}
+	return disk, nil
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
