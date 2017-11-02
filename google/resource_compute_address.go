@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v1"
 )
 
 var (
@@ -46,10 +47,11 @@ func resourceComputeAddress() *schema.Resource {
 			},
 
 			"region": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: linkDiffSuppress,
 			},
 
 			"self_link": &schema.Schema{
