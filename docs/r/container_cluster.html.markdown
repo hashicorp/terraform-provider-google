@@ -41,11 +41,11 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
-    
+
     labels {
       foo = "bar"
     }
-    
+
     tags = ["foo", "bar"]
   }
 }
@@ -104,6 +104,10 @@ output "cluster_ca_certificate" {
 
 * `master_auth` - (Optional) The authentication information for accessing the
     Kubernetes master. Structure is documented below.
+
+* `master_authorized_networks_config` - (Optional) The desired configuration options
+    for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
+    external access (except the cluster node IPs, which GKE automatically whitelists).
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -171,6 +175,18 @@ The `master_auth` block supports:
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
+The `master_authorized_networks_config` block supports:
+
+* `cidr_blocks` - (Optional) Defines up to 10 external networks that can access
+    Kubernetes master through HTTPS.
+
+The `master_authorized_networks_config.cidr_blocks` block supports:
+
+* `cidr_block` - (Optional) External network that can access Kubernetes master through HTTPS.
+    Must be specified in CIDR notation.
+
+* `display_name` - (Optional) Field for users to identify CIDR blocks.
+
 The `node_config` block supports:
 
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
@@ -214,7 +230,7 @@ The `node_config` block supports:
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
 
-* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify 
+* `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
 ## Attributes Reference
