@@ -85,6 +85,29 @@ var schemaNodePool = map[string]*schema.Schema{
 		Deprecated: "Use node_count instead",
 	},
 
+	"management": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"auto_repair": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Computed: true,
+				},
+
+				"auto_upgrade": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		},
+	},
+
 	"name": &schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
@@ -301,6 +324,19 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "management"); ok {
+		managementConfig := v.([]interface{})[0].(map[string]interface{})
+		np.Management = &container.NodeManagement{}
+
+		if v, ok := managementConfig["auto_repair"]; ok {
+			np.Management.AutoRepair = v.(bool)
+		}
+
+		if v, ok := managementConfig["auto_upgrade"]; ok {
+			np.Management.AutoUpgrade = v.(bool)
+		}
+	}
+
 	return np, nil
 }
 
@@ -331,6 +367,15 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 			map[string]interface{}{
 				"min_node_count": np.Autoscaling.MinNodeCount,
 				"max_node_count": np.Autoscaling.MaxNodeCount,
+			},
+		}
+	}
+
+	if np.Management != nil {
+		nodePool["management"] = []map[string]interface{}{
+			{
+				"auto_repair":  np.Management.AutoRepair,
+				"auto_upgrade": np.Management.AutoUpgrade,
 			},
 		}
 	}
@@ -409,6 +454,37 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 
 		if prefix == "" {
 			d.SetPartial("node_count")
+		}
+	}
+
+	if d.HasChange(prefix + "management") {
+
+		management := &container.NodeManagement{}
+		if v, ok := d.GetOk(prefix + "management"); ok {
+			managementConfig := v.([]interface{})[0].(map[string]interface{})
+			management.AutoRepair = managementConfig["auto_repair"].(bool)
+			management.AutoUpgrade = managementConfig["auto_upgrade"].(bool)
+		}
+		req := &container.SetNodePoolManagementRequest{
+			Management: management,
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
+			project, zone, clusterName, npName, req).Do()
+
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool management", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] Updated management in Node Pool %s", d.Id())
+
+		if prefix == "" {
+			d.SetPartial("management")
 		}
 	}
 
