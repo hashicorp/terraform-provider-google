@@ -936,7 +936,6 @@ func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworks
 				"display_name": v.DisplayName,
 			})
 		}
-		// now does this adhere to the schema?
 		result["cidr_blocks"] = cidrBlocks
 	}
 	return []map[string]interface{}{result}

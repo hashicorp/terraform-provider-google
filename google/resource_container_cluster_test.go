@@ -137,8 +137,8 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"8.8.8.8/32"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
-					resource.TestCheckNoResourceAttr("google_container_cluster.with_master_authorized_networks",
-						"master_authorized_networks_config.0.cidr_blocks"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
+						"master_authorized_networks_config.0.cidr_blocks.#", "1"),
 				),
 			},
 		},
@@ -943,7 +943,7 @@ resource "google_container_cluster" "with_master_authorized_networks" {
 
 	master_authorized_networks_config {
 		%s
-    }
+	}
 }`, clusterName, cidrBlocks)
 }
 
