@@ -49,6 +49,19 @@ resource "google_container_cluster" "primary" {
     tags = ["foo", "bar"]
   }
 }
+
+# The following outputs allow authentication and connectivity to the Google Container Cluster.
+output "client_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
+}
+
+output "client_key" {
+  value = "${google_container_cluster.primary.master_auth.0.client_key}"
+}
+
+output "cluster_ca_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
+}
 ```
 
 ## Argument Reference
@@ -217,30 +230,13 @@ exported:
 * `master_auth` is an array of access credentials where the first key (`0`) is always
   populated.
 
-  The following example adds the `client_certificate`, `client_key` and
-  `cluster_ca_certificate` values to the output:
-
-  ```
-  output "client_certificate" {
-    value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
-  }
-
-  output "client_key" {
-    value = "${google_container_cluster.primary.master_auth.0.client_key}"
-  }
-
-  output "cluster_ca_certificate" {
-    value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
-  }
-  ```  
-
-  * `master_auth.<key>.client_certificate` - Base64 encoded public certificate
+  * `master_auth.0.client_certificate` - Base64 encoded public certificate
       used by clients to authenticate to the cluster endpoint.
 
-  * `master_auth.<key>.client_key` - Base64 encoded private key used by clients
+  * `master_auth.0.client_key` - Base64 encoded private key used by clients
       to authenticate to the cluster endpoint.
 
-  * `master_auth.<key>.cluster_ca_certificate` - Base64 encoded public certificate
+  * `master_auth.0.cluster_ca_certificate` - Base64 encoded public certificate
       that is the root of trust for the cluster.     
 
 * `master_version` - The current version of the master in the cluster. This may
