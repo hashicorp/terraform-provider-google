@@ -65,6 +65,16 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 				"create_timeout": "4",
 			},
 		},
+		"remove empty initialize_params": {
+			StateVersion: 5,
+			Attributes: map[string]string{
+				"boot_disk.0.initialize_params.#":      "1",
+				"boot_disk.0.initialize_params.0.size": "0",
+			},
+			Expected: map[string]string{
+				"boot_disk.0.initialize_params.#": "0",
+			},
+		},
 	}
 
 	for tn, tc := range cases {
