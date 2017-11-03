@@ -22,6 +22,8 @@ const emptyTFDefinition = `
 `
 
 func TestExtractInitTimeout(t *testing.T) {
+	t.Parallel()
+
 	actual, err := extractInitTimeout("500s")
 	expected := 500
 	if err != nil {
@@ -33,6 +35,8 @@ func TestExtractInitTimeout(t *testing.T) {
 }
 
 func TestExtractInitTimeout_nonSeconds(t *testing.T) {
+	t.Parallel()
+
 	actual, err := extractInitTimeout("5m")
 	expected := 300
 	if err != nil {
@@ -44,6 +48,8 @@ func TestExtractInitTimeout_nonSeconds(t *testing.T) {
 }
 
 func TestExtractInitTimeout_empty(t *testing.T) {
+	t.Parallel()
+
 	_, err := extractInitTimeout("")
 	expected := "time: invalid duration"
 	if err != nil && err.Error() != expected {
@@ -53,6 +59,8 @@ func TestExtractInitTimeout_empty(t *testing.T) {
 }
 
 func TestAccDataprocCluster_missingZoneGlobalRegion1(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -67,6 +75,8 @@ func TestAccDataprocCluster_missingZoneGlobalRegion1(t *testing.T) {
 }
 
 func TestAccDataprocCluster_missingZoneGlobalRegion2(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -81,6 +91,8 @@ func TestAccDataprocCluster_missingZoneGlobalRegion2(t *testing.T) {
 }
 
 func TestAccDataprocCluster_basic(t *testing.T) {
+	t.Parallel()
+
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -123,6 +135,8 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 }
 
 func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
+	t.Parallel()
+
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -147,6 +161,8 @@ func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
 }
 
 func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	resource.Test(t, resource.TestCase{
@@ -171,6 +187,8 @@ func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 }
 
 func TestAccDataprocCluster_updatable(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 
@@ -199,6 +217,8 @@ func TestAccDataprocCluster_updatable(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	clusterName := fmt.Sprintf("dproc-cluster-test-%s", rnd)
@@ -229,6 +249,8 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withInitAction(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	bucketName := fmt.Sprintf("dproc-cluster-test-%s-init-bucket", rnd)
@@ -252,6 +274,8 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	resource.Test(t, resource.TestCase{
@@ -271,17 +295,22 @@ func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
+	t.Parallel()
 
-	saEmail := os.Getenv("GOOGLE_SERVICE_ACCOUNT")
-	var cluster dataproc.Cluster
+	sa := "a" + acctest.RandString(10)
+	project := os.Getenv("GOOGLE_PROJECT")
+	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, project)
 	rnd := acctest.RandString(10)
+
+	var cluster dataproc.Cluster
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckWithServiceAccount(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withServiceAcc(saEmail, rnd),
+				Config: testAccDataprocCluster_withServiceAcc(sa, rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(
 						"google_dataproc_cluster.with_service_account", &cluster),
@@ -299,6 +328,8 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withImageVersion(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	resource.Test(t, resource.TestCase{
@@ -318,6 +349,8 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withLabels(t *testing.T) {
+	t.Parallel()
+
 	rnd := acctest.RandString(10)
 	var cluster dataproc.Cluster
 	resource.Test(t, resource.TestCase{
@@ -346,6 +379,8 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
+	t.Parallel()
+
 	var c1, c2 dataproc.Cluster
 	rnd := acctest.RandString(10)
 	netName := fmt.Sprintf(`dproc-cluster-test-%s-net`, rnd)
@@ -499,14 +534,6 @@ func testAccCheckDataprocClusterInitActionSucceeded(bucket, object string) resou
 
 		return nil
 	}
-}
-
-func testAccPreCheckWithServiceAccount(t *testing.T) {
-	testAccPreCheck(t)
-	if v := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); v == "" {
-		t.Skipf("GOOGLE_SERVICE_ACCOUNT must be set for the dataproc acceptance test testing service account functionality")
-	}
-
 }
 
 func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Cluster) resource.TestCheckFunc {
@@ -841,8 +868,17 @@ resource "google_dataproc_cluster" "with_image_version" {
 }`, rnd)
 }
 
-func testAccDataprocCluster_withServiceAcc(saEmail string, rnd string) string {
+func testAccDataprocCluster_withServiceAcc(sa string, rnd string) string {
 	return fmt.Sprintf(`
+resource "google_service_account" "service_account" {
+	account_id = "%s"
+}
+
+resource "google_project_iam_member" "service_account" {
+	role = "roles/dataproc.worker"
+	member = "serviceAccount:${google_service_account.service_account.email}"
+}
+
 resource "google_dataproc_cluster" "with_service_account" {
 	name   = "dproc-cluster-test-%s"
 	region = "us-central1"
@@ -863,7 +899,7 @@ resource "google_dataproc_cluster" "with_service_account" {
 		}
 
 		gce_cluster_config {
-			service_account = "%s"
+			service_account = "${google_service_account.service_account.email}"
 			service_account_scopes = [
 				#	User supplied scopes
 				"https://www.googleapis.com/auth/monitoring",
@@ -878,7 +914,9 @@ resource "google_dataproc_cluster" "with_service_account" {
 		}
 	}
 
-}`, rnd, saEmail)
+	depends_on = ["google_project_iam_member.service_account"]
+
+}`, sa, rnd)
 }
 
 func testAccDataprocCluster_withNetworkRefs(rnd, netName string) string {
