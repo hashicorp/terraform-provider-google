@@ -18,6 +18,7 @@ IMPROVEMENTS:
 * storage: Add labels to `google_storage_bucket` [GH-652]
 
 BUG FIXES:
+* compute: Increase timeout for deleting networks [GH-662]
 * container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
 
 ## 1.1.1 (October 24, 2017)
