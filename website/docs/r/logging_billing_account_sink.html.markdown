@@ -57,7 +57,7 @@ The following arguments are supported:
     The writer associated with the sink must have access to write to the above resource.
 
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
-    See (Advanced Log Filters)[https://cloud.google.com/logging/docs/view/advanced_filters] for information on how to
+    See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
 
 ## Attributes Reference
