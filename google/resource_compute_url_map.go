@@ -15,6 +15,10 @@ func resourceComputeUrlMap() *schema.Resource {
 		Update: resourceComputeUrlMapUpdate,
 		Delete: resourceComputeUrlMapDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeUrlMapImportState,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"default_service": &schema.Schema{
 				Type:     schema.TypeString,
@@ -317,6 +321,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("self_link", urlMap.SelfLink)
 	d.Set("map_id", strconv.FormatUint(urlMap.Id, 10))
 	d.Set("fingerprint", urlMap.Fingerprint)
+	d.Set("default_service", urlMap.DefaultService)
 
 	hostRuleMap := make(map[string]*compute.HostRule)
 	for _, v := range urlMap.HostRules {
@@ -674,6 +679,11 @@ func resourceComputeUrlMapDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	return nil
+}
+
+func resourceComputeUrlMapImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("name", d.Id())
+	return []*schema.ResourceData{d}, nil
 }
 
 func validateHostRules(v interface{}, k string) (ws []string, es []error) {

@@ -23,6 +23,10 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 		Delete: resourceComputeTargetHttpsProxyDelete,
 		Update: resourceComputeTargetHttpsProxyUpdate,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -180,6 +184,9 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 	d.Set("ssl_certificates", proxy.SslCertificates)
 	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 	d.Set("self_link", proxy.SelfLink)
+	d.Set("description", proxy.Description)
+	d.Set("url_map", proxy.UrlMap)
+	d.Set("name", proxy.Name)
 
 	return nil
 }

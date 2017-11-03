@@ -136,3 +136,12 @@ resource "google_compute_ssl_certificate" "foobar" {
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 `, acctest.RandString(10))
+
+var testAccComputeSslCertificate_import = fmt.Sprintf(`
+resource "google_compute_ssl_certificate" "foobar" {
+	name = "sslcert-test-%s"
+	description = "very descriptive"
+	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
+	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+}
+`, acctest.RandString(10))

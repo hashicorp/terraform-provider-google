@@ -15,6 +15,10 @@ func resourceComputeSslCertificate() *schema.Resource {
 		Read:   resourceComputeSslCertificateRead,
 		Delete: resourceComputeSslCertificateDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"certificate": &schema.Schema{
 				Type:      schema.TypeString,
@@ -141,6 +145,9 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 
 	d.Set("self_link", cert.SelfLink)
 	d.Set("certificate_id", strconv.FormatUint(cert.Id, 10))
+	d.Set("description", cert.Description)
+	d.Set("name", cert.Name)
+	d.Set("certificate", cert.Certificate)
 
 	return nil
 }
