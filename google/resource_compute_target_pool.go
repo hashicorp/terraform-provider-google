@@ -10,6 +10,8 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
+
 func resourceComputeTargetPool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeTargetPoolCreate,
@@ -63,9 +65,15 @@ func resourceComputeTargetPool() *schema.Resource {
 					oldParts := strings.Split(old, "/")
 
 					// instances can also be specified in the config as a URL
-					r := regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
-					if parts := r.FindStringSubmatch(new); parts != nil {
-						if parts[2] == oldParts[0] && parts[3] == oldParts[1] {
+					if parts := instancesSelfLinkPattern.FindStringSubmatch(new); len(oldParts) == 2 && len(parts) == 4 {
+						// parts[0] = full match
+						// parts[1] = project
+						// parts[2] = zone
+						// parts[3] = instance name
+
+						oZone, oName := oldParts[0], oldParts[1]
+						nZone, nName := parts[2], parts[3]
+						if oZone == nZone && oName == nName {
 							return true
 						}
 					}
