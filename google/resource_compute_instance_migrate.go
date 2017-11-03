@@ -505,6 +505,9 @@ func migrateStateV5toV6(is *terraform.InstanceState) (*terraform.InstanceState, 
 			is.Attributes["boot_disk.0.initialize_params.0.type"] == "" &&
 			is.Attributes["boot_disk.0.initialize_params.0.image"] == "" {
 			is.Attributes["boot_disk.0.initialize_params.#"] = "0"
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.size")
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.type")
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.image")
 		}
 	}
 	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
