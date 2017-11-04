@@ -3,11 +3,14 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
+
+var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
 
 func resourceComputeTargetPool() *schema.Resource {
 	return &schema.Resource{
@@ -57,6 +60,25 @@ func resourceComputeTargetPool() *schema.Resource {
 				Computed: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// instances are stored in state as "zone/name"
+					oldParts := strings.Split(old, "/")
+
+					// instances can also be specified in the config as a URL
+					if parts := instancesSelfLinkPattern.FindStringSubmatch(new); len(oldParts) == 2 && len(parts) == 4 {
+						// parts[0] = full match
+						// parts[1] = project
+						// parts[2] = zone
+						// parts[3] = instance name
+
+						oZone, oName := oldParts[0], oldParts[1]
+						nZone, nName := parts[2], parts[3]
+						if oZone == nZone && oName == nName {
+							return true
+						}
+					}
+					return false
+				},
 			},
 
 			"project": {

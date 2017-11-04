@@ -79,12 +79,28 @@ resource "google_compute_http_health_check" "foobar" {
 	host = "example.com"
 }
 
+resource "google_compute_instance" "foobar" {
+	name         = "inst-tp-test-%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
 resource "google_compute_target_pool" "foobar" {
 	description = "Resource created for Terraform acceptance testing"
-	instances = ["us-central1-a/foo", "us-central1-b/bar"]
+	instances = ["${google_compute_instance.foobar.self_link}", "us-central1-b/bar"]
 	name = "tpool-test-%s"
 	session_affinity = "CLIENT_IP_PROTO"
 	health_checks = [
 		"${google_compute_http_health_check.foobar.name}"
 	]
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
