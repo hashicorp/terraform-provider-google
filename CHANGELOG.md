@@ -20,6 +20,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Increase timeout for deleting networks [GH-662]
 * compute: Fix disk migration bug with empty `initialize_params` block [GH-664]
+* compute: Update `google_compute_target_pool` to no longer have a plan/apply loop with instance URLs [GH-666]
 * container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
 
 ## 1.1.1 (October 24, 2017)
