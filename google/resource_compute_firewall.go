@@ -163,17 +163,19 @@ func resourceComputeFirewall() *schema.Resource {
 			},
 
 			"source_service_accounts": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: true,
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ForceNew:      true,
+				ConflictsWith: []string{"source_tags", "target_tags"},
 			},
 
 			"target_service_accounts": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: true,
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ForceNew:      true,
+				ConflictsWith: []string{"source_tags", "target_tags"},
 			},
 		},
 	}
