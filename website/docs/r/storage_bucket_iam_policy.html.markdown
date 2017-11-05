@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_storage_bucket_iam_policy"
-sidebar_current: "docs-google--storage-bucket-iam-policy"
+sidebar_current: "docs-google-storage-bucket-iam-policy"
 description: |-
  Allows management of an IAM policy for a Google Storage Bucket.
 ---
