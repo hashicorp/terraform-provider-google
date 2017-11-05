@@ -92,7 +92,6 @@ var schemaNodePool = map[string]*schema.Schema{
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-
 				"auto_repair": {
 					Type:     schema.TypeBool,
 					Optional: true,
@@ -371,13 +370,11 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		}
 	}
 
-	if np.Management != nil {
-		nodePool["management"] = []map[string]interface{}{
-			{
-				"auto_repair":  np.Management.AutoRepair,
-				"auto_upgrade": np.Management.AutoUpgrade,
-			},
-		}
+	nodePool["management"] = []map[string]interface{}{
+		{
+			"auto_repair":  np.Management.AutoRepair,
+			"auto_upgrade": np.Management.AutoUpgrade,
+		},
 	}
 
 	return nodePool, nil
@@ -458,12 +455,12 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	if d.HasChange(prefix + "management") {
-
 		management := &container.NodeManagement{}
 		if v, ok := d.GetOk(prefix + "management"); ok {
 			managementConfig := v.([]interface{})[0].(map[string]interface{})
 			management.AutoRepair = managementConfig["auto_repair"].(bool)
 			management.AutoUpgrade = managementConfig["auto_upgrade"].(bool)
+			management.ForceSendFields = []string{"AutoRepair", "AutoUpgrade"}
 		}
 		req := &container.SetNodePoolManagementRequest{
 			Management: management,
@@ -481,7 +478,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 			return waitErr
 		}
 
-		log.Printf("[INFO] Updated management in Node Pool %s", d.Id())
+		log.Printf("[INFO] Updated management in Node Pool %s", npName)
 
 		if prefix == "" {
 			d.SetPartial("management")

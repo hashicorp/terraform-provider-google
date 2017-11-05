@@ -92,6 +92,46 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withManagement(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_basic(
+					fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10)),
+					fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10)),
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np", "management.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np", "management.0.auto_repair", "false"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np", "management.0.auto_repair", "false"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_withManagement,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches(
+						"google_container_node_pool.np_with_management"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np_with_management", "management.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np_with_management", "management.0.auto_repair", "true"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np_with_management", "management.0.auto_repair", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 	t.Parallel()
 
@@ -232,6 +272,8 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 
 		nodepoolTests := []nodepoolTestField{
 			{"initial_node_count", strconv.FormatInt(nodepool.InitialNodeCount, 10)},
+			{"management.0.auto_repair", nodepool.Management.AutoRepair},
+			{"management.0.auto_upgrade", nodepool.Management.AutoUpgrade},
 			{"node_config.0.machine_type", nodepool.Config.MachineType},
 			{"node_config.0.disk_size_gb", strconv.FormatInt(nodepool.Config.DiskSizeGb, 10)},
 			{"node_config.0.local_ssd_count", strconv.FormatInt(nodepool.Config.LocalSsdCount, 10)},
@@ -544,6 +586,28 @@ resource "google_container_node_pool" "np_with_node_config_scope_alias" {
 	zone = "us-central1-a"
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 1
+	node_config {
+		machine_type = "g1-small"
+		disk_size_gb = 10
+		oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+
+var testAccContainerNodePool_withManagement = fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+}
+resource "google_container_node_pool" "np_with_management" {
+	name = "tf-nodepool-test-%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+	management {
+		auto_repair = true
+		auto_upgrade = true
+	}
 	node_config {
 		machine_type = "g1-small"
 		disk_size_gb = 10
