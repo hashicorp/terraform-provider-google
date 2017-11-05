@@ -6,7 +6,7 @@ description: |-
  Allows management of an IAM policy for a Google Storage Bucket Object.
 ---
 
-# google\_storage\-_object\_iam\_policy
+# google\_storage\_object\_iam\_policy
 
 Allows creation and management of an IAM policy for an existing Google Storage Bucket Object.
 
@@ -19,7 +19,7 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_object" "object" {
   display_name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
+  bucket = "${google_storage_bucket.bucket.name}"
 }
 
 resource "google_storage_object_iam_policy" "object" {
@@ -49,10 +49,6 @@ The following arguments are supported:
     merged with any existing policy applied to the project.
 
     Changing this updates the policy.
-
-    Deleting this removes the policy, but leaves the original object policy
-    intact. If there are overlapping `binding` entries between the original
-    object policy and the data source policy, they will be removed.
 
 ## Attributes Reference
 

@@ -62,7 +62,7 @@ func resourceStorageObjectIAMPolicyCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	d.SetId(d.Get("bucket").(string) + "-" + d.Get("object").(string) + "-iam-policy")
+	d.SetId(d.Get("bucket").(string) + "/" + d.Get("object").(string) + "/iam-policy")
 
 	return resourceStorageObjectIAMPolicyRead(d, meta)
 }

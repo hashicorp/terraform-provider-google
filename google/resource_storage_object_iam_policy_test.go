@@ -13,7 +13,7 @@ import (
 )
 
 func testObjectIamName() string {
-	return fmt.Sprintf("%s-%d", "tf-test-iam-Object", acctest.RandInt())
+	return fmt.Sprintf("%s-%d", "tf-test-iam-object", acctest.RandInt())
 }
 
 func TestAccGoogleStorageObjectIAMPolicy_basic(t *testing.T) {
@@ -140,7 +140,7 @@ func testAccGoogleStorageObjectIAMPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_storage_Object_iam_policy" {
+		if rs.Type != "google_storage_object_iam_policy" {
 			continue
 		}
 
@@ -180,8 +180,8 @@ resource "google_storage_bucket" "bucket" {
 data "google_iam_policy" "test" {
   %s
 }
-resource "google_storage_Object_iam_policy" "test" {
-  Object = "${google_storage_Object.Object.name}"
+resource "google_storage_object_iam_policy" "test" {
+  Object = "${google_storage_object.Object.name}"
   policy_data = "${data.google_iam_policy.test.policy_data}"
 }
 `, objectName, bucketName, bindingBuffer.String())
