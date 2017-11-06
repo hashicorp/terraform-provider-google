@@ -512,7 +512,6 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 		project, region = getProjectAndRegionFromSubnetworkLink(iface.Subnetwork)
 
 		flattened[i] = map[string]interface{}{
-			"name":               iface.Name,
 			"address":            iface.NetworkIP,
 			"network_ip":         iface.NetworkIP,
 			"network":            iface.Network,
@@ -520,6 +519,13 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 			"subnetwork_project": project,
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
+		}
+		// Instance template interfaces never have names, so they're absent
+		// in the instance template network_interface schema. We want to use the
+		// same flattening code for both resource types, so we avoid trying to
+		// set the name field when it's not set at the GCE end.
+		if iface.Name != "" {
+			flattened[i]["name"] = iface.Name
 		}
 		if internalIP == "" {
 			internalIP = iface.NetworkIP

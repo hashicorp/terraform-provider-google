@@ -187,12 +187,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-
 						"network": &schema.Schema{
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -203,15 +197,15 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 
 						"address": &schema.Schema{
 							Type:     schema.TypeString,
+							Computed: true, // Computed because it is set if network_ip is set.
 							Optional: true,
-							Computed: true,
 							ForceNew: true,
 						},
 
 						"network_ip": &schema.Schema{
 							Type:       schema.TypeString,
+							Computed:   true, // Computed because it is set if address is set.
 							Optional:   true,
-							Computed:   true,
 							ForceNew:   true,
 							Deprecated: "Please use address",
 						},
@@ -239,15 +233,16 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
-										Computed: true,
 										Optional: true,
 										Computed: true,
 									},
-
+									// Instance templates will never have an
+									// 'assigned NAT IP', but we need this in
+									// the schema to allow us to share flatten
+									// code with an instance, which could.
 									"assigned_nat_ip": &schema.Schema{
-										Type:       schema.TypeString,
-										Computed:   true,
-										Deprecated: "Please use nat_ip",
+										Type:     schema.TypeString,
+										Computed: true,
 									},
 								},
 							},
