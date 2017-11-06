@@ -16,6 +16,7 @@ IMPROVEMENTS:
 * container: Add support for Kubernetes alpha features [GH-646]
 * container: Add support for master authorized networks in `google_container_cluster` [GH-626]
 * project: Make `google_service_account` resource importable [GH-606]
+* project: Project is optional and default to the provider value in `google_project_iam_policy` [GH-691]
 * pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
 * storage: Add labels to `google_storage_bucket` [GH-652]
 
