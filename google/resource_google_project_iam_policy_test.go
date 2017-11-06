@@ -231,12 +231,6 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			resource.TestStep{
-				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleDefaultProjectExistingPolicy(),
-				),
-			},
-			resource.TestStep{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
@@ -256,6 +250,25 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
+				),
+			},
+		},
+	})
+}
+
+// Test that an IAM policy can be applied to a project when no project is set in the resource
+func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create a new project
+			resource.TestStep{
+				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccGoogleDefaultProjectExistingPolicy(),
 				),
 			},
 		},
@@ -658,6 +671,9 @@ func testAccGoogleProjectExistingPolicy(pid string) resource.TestCheckFunc {
 
 func testAccGoogleProjectDefaultAssociatePolicyBasic() string {
 	return fmt.Sprintf(`
+resource "google_project_iam_policy" "acceptance" {
+    policy_data = "${data.google_iam_policy.admin.policy_data}"
+}
 data "google_iam_policy" "admin" {
   binding {
     role = "roles/storage.objectViewer"
