@@ -22,7 +22,6 @@ var (
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
 	AddressBaseApiVersion    = v1
 	AddressVersionedFeatures = []Feature{
-		{Version: v0beta, Item: "address"},
 		{Version: v0beta, Item: "address_type", DefaultValue: addressTypeExternal},
 		{Version: v0beta, Item: "subnetwork"},
 	}
@@ -247,10 +246,6 @@ func resourceComputeAddressImportState(d *schema.ResourceData, meta interface{})
 	}
 
 	d.SetId(addressId.canonicalId())
-
-	if err := resourceComputeAddressRead(d, meta); err != nil {
-		return nil, err
-	}
 
 	return []*schema.ResourceData{d}, nil
 }
