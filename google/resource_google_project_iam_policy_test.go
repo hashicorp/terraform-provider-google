@@ -231,6 +231,12 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			resource.TestStep{
+				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccGoogleDefaultProjectExistingPolicy(),
+				),
+			},
+			resource.TestStep{
 				Config: testAccGoogleProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccGoogleProjectExistingPolicy(pid),
@@ -617,6 +623,23 @@ func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Bin
 	return db
 }
 
+// Confirm that the provider project has an IAM policy with at least 1 binding if no project set
+func testAccGoogleDefaultProjectExistingPolicy() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		c := testAccProvider.Meta().(*Config)
+		pid := c.Project
+		var err error
+		originalPolicy, err = getProjectIamPolicy(pid, c)
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
+		}
+		if len(originalPolicy.Bindings) == 0 {
+			return fmt.Errorf("Refuse to run test against project with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a project.")
+		}
+		return nil
+	}
+}
+
 // Confirm that a project has an IAM policy with at least 1 binding
 func testAccGoogleProjectExistingPolicy(pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -631,6 +654,26 @@ func testAccGoogleProjectExistingPolicy(pid string) resource.TestCheckFunc {
 		}
 		return nil
 	}
+}
+
+func testAccGoogleProjectDefaultAssociatePolicyBasic() string {
+	return fmt.Sprintf(`
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "user:evanbrown@google.com",
+    ]
+  }
+  binding {
+    role = "roles/compute.instanceAdmin"
+    members = [
+      "user:evanbrown@google.com",
+      "user:evandbrown@gmail.com",
+    ]
+  }
+}
+`)
 }
 
 func testAccGoogleProjectAssociatePolicyBasic(pid, name, org string) string {
