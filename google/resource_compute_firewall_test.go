@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -167,6 +168,36 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
+	t.Parallel()
+
+	var firewall computeBeta.Firewall
+	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+
+	sourceSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	targetSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	project := os.Getenv("GOOGLE_PROJECT")
+	sourceSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sourceSa, project)
+	targetSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", targetSa, project)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeBetaFirewallServiceAccounts(sourceSaEmail, targetSaEmail, &firewall),
+					testAccCheckComputeFirewallBetaApiVersion(&firewall),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -285,6 +316,19 @@ func testAccCheckComputeBetaFirewallEgress(firewall *computeBeta.Firewall) resou
 	return func(s *terraform.State) error {
 		if firewall.Direction != "EGRESS" {
 			return fmt.Errorf("firewall not EGRESS")
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaFirewallServiceAccounts(sourceSa, targetSa string, firewall *computeBeta.Firewall) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(firewall.SourceServiceAccounts) != 1 || firewall.SourceServiceAccounts[0] != sourceSa {
+			return fmt.Errorf("Expected sourceServiceAccount of %s, got %v", sourceSa, firewall.SourceServiceAccounts)
+		}
+		if len(firewall.TargetServiceAccounts) != 1 || firewall.TargetServiceAccounts[0] != targetSa {
+			return fmt.Errorf("Expected targetServiceAccount of %s, got %v", targetSa, firewall.TargetServiceAccounts)
 		}
 
 		return nil
@@ -425,4 +469,32 @@ func testAccComputeFirewall_egress(network, firewall string) string {
 			ports    = [22]
 		}
 	}`, network, firewall)
+}
+
+func testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, network, firewall string) string {
+	return fmt.Sprintf(`
+	resource "google_service_account" "source" {
+		account_id = "%s"
+	}
+
+	resource "google_service_account" "target" {
+		account_id = "%s"
+	}
+
+	resource "google_compute_network" "foobar" {
+		name = "%s"
+	}
+
+	resource "google_compute_firewall" "foobar" {
+		name = "firewall-test-%s"
+		description = "Resource created for Terraform acceptance testing"
+		network = "${google_compute_network.foobar.name}"
+
+		allow {
+			protocol = "icmp"
+		}
+
+		source_service_accounts = ["${google_service_account.source.email}"]
+		target_service_accounts = ["${google_service_account.target.email}"]
+	}`, sourceSa, targetSa, network, firewall)
 }

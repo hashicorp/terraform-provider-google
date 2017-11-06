@@ -21,6 +21,8 @@ var FirewallVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "direction"},
 	Feature{Version: v0beta, Item: "destination_ranges"},
 	Feature{Version: v0beta, Item: "priority", DefaultValue: COMPUTE_FIREWALL_PRIORITY_DEFAULT},
+	Feature{Version: v0beta, Item: "source_service_accounts"},
+	Feature{Version: v0beta, Item: "target_service_accounts"},
 }
 
 func resourceComputeFirewall() *schema.Resource {
@@ -159,6 +161,22 @@ func resourceComputeFirewall() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+
+			"source_service_accounts": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ForceNew:      true,
+				ConflictsWith: []string{"source_tags", "target_tags"},
+			},
+
+			"target_service_accounts": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ForceNew:      true,
+				ConflictsWith: []string{"source_tags", "target_tags"},
+			},
 		},
 	}
 }
@@ -191,7 +209,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	firewall, err := resourceFirewall(d, meta, computeApiVersion)
+	firewall, err := resourceFirewall(d, meta)
 	if err != nil {
 		return err
 	}
@@ -314,6 +332,8 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("allow", flattenAllowed(firewall.Allowed))
 	d.Set("deny", flattenDenied(firewall.Denied))
 	d.Set("priority", int(firewall.Priority))
+	d.Set("source_service_accounts", firewall.SourceServiceAccounts)
+	d.Set("target_service_accounts", firewall.TargetServiceAccounts)
 	return nil
 }
 
@@ -328,7 +348,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 
 	d.Partial(true)
 
-	firewall, err := resourceFirewall(d, meta, computeApiVersion)
+	firewall, err := resourceFirewall(d, meta)
 	if err != nil {
 		return err
 	}
@@ -402,7 +422,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersion ComputeApiVersion) (*computeBeta.Firewall, error) {
+func resourceFirewall(d *schema.ResourceData, meta interface{}) (*computeBeta.Firewall, error) {
 	config := meta.(*Config)
 
 	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
@@ -473,16 +493,18 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}, computeApiVersio
 
 	// Build the firewall parameter
 	return &computeBeta.Firewall{
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Direction:         d.Get("direction").(string),
-		Network:           network.RelativeLink(),
-		Allowed:           allowed,
-		Denied:            denied,
-		SourceRanges:      sourceRanges,
-		SourceTags:        sourceTags,
-		DestinationRanges: destinationRanges,
-		TargetTags:        targetTags,
-		Priority:          int64(d.Get("priority").(int)),
+		Name:                  d.Get("name").(string),
+		Description:           d.Get("description").(string),
+		Direction:             d.Get("direction").(string),
+		Network:               network.RelativeLink(),
+		Allowed:               allowed,
+		Denied:                denied,
+		SourceRanges:          sourceRanges,
+		SourceTags:            sourceTags,
+		DestinationRanges:     destinationRanges,
+		TargetTags:            targetTags,
+		Priority:              int64(d.Get("priority").(int)),
+		SourceServiceAccounts: convertStringSet(d.Get("source_service_accounts").(*schema.Set)),
+		TargetServiceAccounts: convertStringSet(d.Get("target_service_accounts").(*schema.Set)),
 	}, nil
 }
