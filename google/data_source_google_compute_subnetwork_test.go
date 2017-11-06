@@ -48,6 +48,7 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			"ip_cidr_range",
 			"network",
 			"private_ip_google_access",
+			"secondary_ip_range",
 		}
 
 		for _, attr_to_check := range subnetwork_attrs_to_test {
@@ -77,6 +78,10 @@ resource "google_compute_subnetwork" "foobar" {
 	ip_cidr_range = "10.0.0.0/24"
 	network  = "${google_compute_network.foobar.self_link}"
 	private_ip_google_access = true
+	secondary_ip_range {
+		range_name = "tf-test-secondary-range"
+		ip_cidr_range = "192.168.1.0/24"
+	}
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {

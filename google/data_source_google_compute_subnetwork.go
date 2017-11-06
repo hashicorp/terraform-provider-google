@@ -33,6 +33,22 @@ func dataSourceGoogleComputeSubnetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"secondary_ip_range": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"range_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ip_cidr_range": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"network": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -43,11 +59,13 @@ func dataSourceGoogleComputeSubnetwork() *schema.Resource {
 			},
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 		},
@@ -84,6 +102,10 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	d.Set("description", subnetwork.Description)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
 	d.Set("network", subnetwork.Network)
+	d.Set("project", project)
+	d.Set("region", region)
+	// Flattening code defined in resource_compute_subnetwork.go
+	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
 
 	//Subnet id creation is defined in resource_compute_subnetwork.go
 	subnetwork.Region = region
