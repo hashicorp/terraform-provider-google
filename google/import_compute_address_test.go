@@ -30,6 +30,9 @@ func TestAccComputeAddress_importBasic(t *testing.T) {
 	})
 }
 
+/* Disabled pending support for importing beta resources. See:
+   https://github.com/terraform-providers/terraform-provider-google/issues/694
+
 func TestAccComputeAddress_importInternal(t *testing.T) {
 	t.Parallel()
 
@@ -62,3 +65,5 @@ func TestAccComputeAddress_importInternal(t *testing.T) {
 		},
 	})
 }
+
+*/
