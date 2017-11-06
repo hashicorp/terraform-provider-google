@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
 * compute: Add IAP support for backend services [GH-471]
 * compute: Allow attaching and detaching disks from instances [GH-636]
+* compute: Add support for source/target service accounts to `google_compute_firewall` [GH-681]
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * container: Add support for Kubernetes alpha features [GH-646]
 * container: Add support for master authorized networks in `google_container_cluster` [GH-626]
