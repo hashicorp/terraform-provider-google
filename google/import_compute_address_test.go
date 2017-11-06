@@ -33,8 +33,6 @@ func TestAccComputeAddress_importBasic(t *testing.T) {
 func TestAccComputeAddress_importInternal(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_compute_address.internal_with_subnet"
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -45,7 +43,19 @@ func TestAccComputeAddress_importInternal(t *testing.T) {
 			},
 
 			resource.TestStep{
-				ResourceName:      resourceName,
+				ResourceName:      "google_compute_address.internal",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
