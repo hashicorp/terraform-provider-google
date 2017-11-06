@@ -45,9 +45,9 @@ The following keys can be used to configure the provider.
     * `GOOGLE_CLOUD_KEYFILE_JSON`
     * `GCLOUD_KEYFILE_JSON`
 
-    The [`GOOGLE_APPLICATION_CREDENTIALS`](https://developers.google.com/identity/protocols/application-default-credentials#howtheywork)
-    environment variable can also contain the path of a file to obtain credentials
-    from.
+  The [`GOOGLE_APPLICATION_CREDENTIALS`](https://developers.google.com/identity/protocols/application-default-credentials#howtheywork)
+  environment variable can also contain the path of a file to obtain credentials
+  from.
 
   If no credentials are specified, the provider will fall back to using the
   [Google Application Default
