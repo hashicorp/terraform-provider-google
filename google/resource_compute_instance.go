@@ -330,10 +330,12 @@ func resourceComputeInstance() *schema.Resource {
 										Computed: true,
 									},
 
+									// It's unclear why this field exists, as
+									// nat_ip can be both optional and computed.
+									// Consider deprecating it.
 									"assigned_nat_ip": &schema.Schema{
-										Type:       schema.TypeString,
-										Computed:   true,
-										Deprecated: "Please use nat_ip",
+										Type:     schema.TypeString,
+										Computed: true,
 									},
 								},
 							},

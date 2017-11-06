@@ -241,6 +241,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
+										Computed: true,
 									},
 
 									"assigned_nat_ip": &schema.Schema{
