@@ -15,6 +15,9 @@ func resourceLoggingProjectSink() *schema.Resource {
 		Delete: resourceLoggingProjectSinkDelete,
 		Update: resourceLoggingProjectSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 	schm.Schema["project"] = &schema.Schema{
 		Type:     schema.TypeString,
