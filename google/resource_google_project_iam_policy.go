@@ -22,7 +22,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
@@ -54,7 +54,10 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 
 func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
 	if err != nil {
@@ -104,7 +107,10 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Reading google_project_iam_policy")
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	p, err := getProjectIamPolicy(pid, config)
 	if err != nil {
@@ -138,7 +144,10 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_project_iam_policy")
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
@@ -202,7 +211,10 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Deleting google_project_iam_policy")
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	// Get the existing IAM policy from the API
 	ep, err := getProjectIamPolicy(pid, config)
