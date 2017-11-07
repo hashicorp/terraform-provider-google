@@ -15,6 +15,10 @@ in the config will be removed.
 For a list of services available, visit the
 [API library page](https://console.cloud.google.com/apis/library) or run `gcloud service-management list`.
 
+~> **Note:** This resource attempts to be the authoritative source on which APIs are enabled, which can
+	lead to conflicts when certain APIs or actions enable other APIs. To just ensure that a specific
+	API is enabled, use the [google_project_service](google_project_service.html) resource.
+
 ## Example Usage
 
 ```hcl
