@@ -17,6 +17,7 @@ IMPROVEMENTS:
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * container: Add support for Kubernetes alpha features [GH-646]
 * container: Add support for master authorized networks in `google_container_cluster` [GH-626]
+* container: Add support for maintenance window on `google_container_cluster` [GH-670]
 * logging: Make `google_logging_project_sink` resource importable [GH-688]
 * project: Make `google_service_account` resource importable [GH-606]
 * project: Project is optional and default to the provider value in `google_project_iam_policy` [GH-691]
