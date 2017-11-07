@@ -2,11 +2,12 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 	"testing"
 )
 
 func TestValidateGCPName(t *testing.T) {
-	x := []GCPNameTestCase{
+	x := []StringValidationTestCase{
 		// No errors
 		{TestName: "basic", Value: "foobar"},
 		{TestName: "with numbers", Value: "foobar123"},
@@ -22,7 +23,7 @@ func TestValidateGCPName(t *testing.T) {
 		{TestName: "too long", Value: "foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoob", ExpectError: true},
 	}
 
-	es := testGCPNames(x)
+	es := testStringValidationCases(x, validateGCPName)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate GCP names: %v", es)
 	}
@@ -53,7 +54,27 @@ func TestValidateRFC1918Network(t *testing.T) {
 	}
 }
 
-type GCPNameTestCase struct {
+func TestValidateRFC3339Time(t *testing.T) {
+	cases := []StringValidationTestCase{
+		// No errors
+		{TestName: "midnight", Value: "00:00"},
+		{TestName: "one minute before midnight", Value: "23:59"},
+
+		// With errors
+		{TestName: "single-digit hour", Value: "3:00", ExpectError: true},
+		{TestName: "hour out of range", Value: "24:00", ExpectError: true},
+		{TestName: "minute out of range", Value: "03:60", ExpectError: true},
+		{TestName: "missing colon", Value: "0100", ExpectError: true},
+		{TestName: "not numbers", Value: "ab:cd", ExpectError: true},
+	}
+
+	es := testStringValidationCases(cases, validateRFC3339Time)
+	if len(es) > 0 {
+		t.Errorf("Failed to validate RFC3339 times: %v", es)
+	}
+}
+
+type StringValidationTestCase struct {
 	TestName    string
 	Value       string
 	ExpectError bool
@@ -67,17 +88,17 @@ type RFC1918NetworkTestCase struct {
 	ExpectError bool
 }
 
-func testGCPNames(cases []GCPNameTestCase) []error {
+func testStringValidationCases(cases []StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
 	es := make([]error, 0)
 	for _, c := range cases {
-		es = append(es, testGCPName(c)...)
+		es = append(es, testStringValidation(c, validationFunc)...)
 	}
 
 	return es
 }
 
-func testGCPName(testCase GCPNameTestCase) []error {
-	_, es := validateGCPName(testCase.Value, testCase.TestName)
+func testStringValidation(testCase StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
+	_, es := validationFunc(testCase.Value, testCase.TestName)
 	if testCase.ExpectError {
 		if len(es) > 0 {
 			return nil
