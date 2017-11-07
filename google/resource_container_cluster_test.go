@@ -595,10 +595,10 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-var setFields map[string]struct{} = map[string]struct{}{
-	"additional_zones":                       struct{}{},
-	"node_config.0.oauth_scopes":             struct{}{},
-	"node_pool.0.node_config.0.oauth_scopes": struct{}{},
+var setFields = []string{
+	"additional_zones",
+	"node_config.0.oauth_scopes",
+	"node_pool.[0-9]*.node_config.0.oauth_scopes",
 }
 
 func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
@@ -756,8 +756,10 @@ func getResourceAttributes(n string, s *terraform.State) (map[string]string, err
 
 func checkMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
-		if _, ok := setFields[attr]; ok {
-			return checkSetMatch(attributes, attr, gcpList)
+		for _, setField := range setFields {
+			if match, _ := regexp.MatchString(setField, attr); match {
+				return checkSetMatch(attributes, attr, gcpList)
+			}
 		}
 		return checkListMatch(attributes, attr, gcpList)
 	}
