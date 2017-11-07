@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource:** `google_service_account_key` [GH-472]
 * **New Resource:** `google_kms_key_ring` [GH-518]
 * **New Resource:** `google_dataproc_cluster` [GH-252]
+* **New Resource:** `google_project_service` [GH-668]
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
