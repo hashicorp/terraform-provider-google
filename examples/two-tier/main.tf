@@ -17,7 +17,7 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_compute_target_pool" "default" {
   name          = "tf-www-target-pool"
-  instances     = ["${google_compute_instance.www.*.self_link}"]
+  instances     = ["${formatlist("%s/%s", var.region_zone, google_compute_instance.www.*.name)}"]
   health_checks = ["${google_compute_http_health_check.default.name}"]
 }
 
