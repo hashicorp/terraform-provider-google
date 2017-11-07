@@ -113,11 +113,15 @@ func testAccCheckGoogleKmsCryptoKeyExists(resourceName string) resource.TestChec
 			return fmt.Errorf("Resource not found: %s", resourceName)
 		}
 
+		keyRingId, err := parseKmsKeyRingId(rs.Primary.Attributes["key_ring"], config)
+
+		if err != nil {
+			return err
+		}
+
 		cryptoKeyId := &kmsCryptoKeyId{
-			Project:  rs.Primary.Attributes["project"],
-			Location: rs.Primary.Attributes["location"],
-			KeyRing:  rs.Primary.Attributes["key_ring"],
-			Name:     rs.Primary.Attributes["name"],
+			KeyRingId: *keyRingId,
+			Name:      rs.Primary.Attributes["name"],
 		}
 
 		listCryptoKeysResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.List(cryptoKeyId.parentId()).Do()
@@ -204,10 +208,8 @@ resource "google_kms_key_ring" "key_ring" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	project  = "${google_project_services.acceptance.project}"
 	name     = "%s"
-	location = "us-central1"
-  key_ring = "${google_kms_key_ring.key_ring.name}"
+    key_ring = "${google_kms_key_ring.key_ring.id}"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }

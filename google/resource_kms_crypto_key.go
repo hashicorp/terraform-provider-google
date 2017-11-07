@@ -24,19 +24,9 @@ func resourceKmsCryptoKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"location": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"key_ring": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
-			},
-			"project": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
 				ForceNew: true,
 			},
 		},
@@ -44,42 +34,39 @@ func resourceKmsCryptoKey() *schema.Resource {
 }
 
 type kmsCryptoKeyId struct {
-	Project  string
-	Location string
-	KeyRing  string
-	Name     string
+	KeyRingId kmsKeyRingId
+	Name      string
 }
 
 // TODO: Add the info about rotation frequency and start time.
 
 func (s *kmsCryptoKeyId) cryptoKeyId() string {
-	return fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", s.Project, s.Location, s.KeyRing, s.Name)
+	return fmt.Sprintf("%s/cryptoKeys/%s", s.KeyRingId.keyRingId(), s.Name)
 }
 
 func (s *kmsCryptoKeyId) parentId() string {
-	return fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", s.Project, s.Location, s.KeyRing)
+	return s.KeyRingId.keyRingId()
 }
 
 func (s *kmsCryptoKeyId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s/%s", s.Project, s.Location, s.KeyRing, s.Name)
+	return fmt.Sprintf("%s/%s", s.KeyRingId.terraformId(), s.Name)
 }
 
 func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	keyRingId, err := parseKmsKeyRingId(d.Get("key_ring").(string), config)
+
 	if err != nil {
 		return err
 	}
 
 	cryptoKeyId := &kmsCryptoKeyId{
-		Project:  project,
-		Location: d.Get("location").(string),
-		KeyRing:  d.Get("key_ring").(string),
-		Name:     d.Get("name").(string),
+		KeyRingId: *keyRingId,
+		Name:      d.Get("name").(string),
 	}
 
-	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Create(cryptoKeyId.parentId(), &cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}).CryptoKeyId(cryptoKeyId.Name).Do()
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Create(cryptoKeyId.KeyRingId.keyRingId(), &cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}).CryptoKeyId(cryptoKeyId.Name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error creating CryptoKey: %s", err)
@@ -167,10 +154,12 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &kmsCryptoKeyId{
-			Project:  parts[0],
-			Location: parts[1],
-			KeyRing:  parts[2],
-			Name:     parts[3],
+			KeyRingId: kmsKeyRingId{
+				Project:  parts[0],
+				Location: parts[1],
+				Name:     parts[2],
+			},
+			Name: parts[3],
 		}, nil
 	}
 
@@ -180,10 +169,12 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 		}
 
 		return &kmsCryptoKeyId{
-			Project:  config.Project,
-			Location: parts[0],
-			KeyRing:  parts[1],
-			Name:     parts[2],
+			KeyRingId: kmsKeyRingId{
+				Project:  config.Project,
+				Location: parts[0],
+				Name:     parts[1],
+			},
+			Name: parts[2],
 		}, nil
 	}
 
@@ -198,13 +189,7 @@ func resourceKmsCryptoKeyImportState(d *schema.ResourceData, meta interface{}) (
 		return nil, err
 	}
 
-	d.Set("name", cryptoKeyId.Name)
-	d.Set("location", cryptoKeyId.Location)
-	d.Set("key_ring", cryptoKeyId.KeyRing)
-
-	if config.Project != cryptoKeyId.Project {
-		d.Set("project", cryptoKeyId.Project)
-	}
+	d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId())
 
 	if d.Get("purpose") == "" {
 		d.Set("purpose", "ENCRYPT_DECRYPT")
