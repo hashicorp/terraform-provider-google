@@ -111,9 +111,31 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
+	versionsClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
+
+	versionsResponse, err := versionsClient.List(cryptoKeyId.cryptoKeyId()).Do()
+
+	if err != nil {
+		return err
+	}
+
+	for _, version := range versionsResponse.CryptoKeyVersions {
+		request := &cloudkms.DestroyCryptoKeyVersionRequest{}
+		_, err = versionsClient.Destroy(version.Name, request).Do()
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 /*
-	Because KMS CryptoKey resources cannot be deleted on GCP, we are only going to remove it from state.
-	Re-creation of this resource through Terraform will produce an error.
+	Because KMS CryptoKey resources cannot be deleted on GCP, we are only going to remove it from state
+    and destroy all its versions, rendering the key useless for encryption and decryption of data.
+    Re-creation of this resource through Terraform will produce an error.
 */
 
 func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -127,6 +149,12 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[WARNING] KMS CryptoKey resources cannot be deleted from GCP. This CryptoKey %s will be removed from Terraform state, but will still be present on the server.", cryptoKeyId.cryptoKeyId())
 
 	d.SetId("")
+
+	err = clearCryptoKeyVersions(cryptoKeyId, config)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

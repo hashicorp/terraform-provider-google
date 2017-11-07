@@ -77,6 +77,7 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 
 	projectId := "terraform-" + acctest.RandString(10)
 	projectOrg := os.Getenv("GOOGLE_ORG")
+	location := os.Getenv("GOOGLE_REGION")
 	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -93,9 +94,10 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount),
+				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName),
 				),
 			},
 		},
@@ -136,7 +138,7 @@ func testAccCheckGoogleKmsCryptoKeyExists(resourceName string) resource.TestChec
 }
 
 /*
-	KMS KeyRings cannot be deleted. This ensures that the KeyRing resource was removed from state,
+	KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource was removed from state,
 	even though the server-side resource was not removed.
 */
 func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) resource.TestCheckFunc {
@@ -145,6 +147,30 @@ func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) reso
 
 		if ok {
 			return fmt.Errorf("Resource was not removed from state: %s", resourceName)
+		}
+
+		return nil
+	}
+}
+
+/*
+	KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource's CryptoKeyVersion
+    sub-resources were scheduled to be destroyed, rendering the key itself inoperable.
+*/
+
+func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyId string) resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyId)
+
+		response, _ := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
+
+		versions := response.CryptoKeyVersions
+
+		for _, v := range versions {
+			if v.State != "DESTROY_SCHEDULED" && v.State != "DESTROYED" {
+				return fmt.Errorf("CryptoKey %s should have no versions, but version %s has state %s", cryptoKeyId, v.Name, v.State)
+			}
 		}
 
 		return nil
@@ -186,7 +212,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
-func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount string) string {
+func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
 	name 			= "%s"
@@ -201,5 +227,11 @@ resource "google_project_services" "acceptance" {
 		"cloudkms.googleapis.com"
 	]
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount)
+
+resource "google_kms_key_ring" "key_ring" {
+	project  = "${google_project_services.acceptance.project}"
+	name     = "%s"
+	location = "us-central1"
+}
+	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
 }
