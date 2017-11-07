@@ -28,6 +28,7 @@ import (
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
+	"google.golang.org/api/monitoring/v3"
 	"google.golang.org/api/pubsub/v1"
 	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
@@ -63,6 +64,7 @@ type Config struct {
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
+	clientMonitoring             *monitoring.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -268,6 +270,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Stackdriver Monitoring Client...")
+	c.clientMonitoring, err = monitoring.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientMonitoring.UserAgent = userAgent
 
 	return nil
 }

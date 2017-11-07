@@ -49,16 +49,17 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
-			"google_client_config":             dataSourceGoogleClientConfig(),
-			"google_compute_lb_ip_ranges":      dataSourceGoogleComputeLbIpRanges(),
-			"google_compute_network":           dataSourceGoogleComputeNetwork(),
-			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
-			"google_compute_zones":             dataSourceGoogleComputeZones(),
-			"google_compute_instance_group":    dataSourceGoogleComputeInstanceGroup(),
-			"google_container_engine_versions": dataSourceGoogleContainerEngineVersions(),
-			"google_iam_policy":                dataSourceGoogleIamPolicy(),
-			"google_storage_object_signed_url": dataSourceGoogleSignedUrl(),
+			"google_dns_managed_zone":             dataSourceDnsManagedZone(),
+			"google_client_config":                dataSourceGoogleClientConfig(),
+			"google_compute_lb_ip_ranges":         dataSourceGoogleComputeLbIpRanges(),
+			"google_compute_network":              dataSourceGoogleComputeNetwork(),
+			"google_compute_subnetwork":           dataSourceGoogleComputeSubnetwork(),
+			"google_compute_zones":                dataSourceGoogleComputeZones(),
+			"google_compute_instance_group":       dataSourceGoogleComputeInstanceGroup(),
+			"google_container_engine_versions":    dataSourceGoogleContainerEngineVersions(),
+			"google_iam_policy":                   dataSourceGoogleIamPolicy(),
+			"google_storage_object_signed_url":    dataSourceGoogleSignedUrl(),
+			"google_stackdriver_uptime_check_ips": dataSourceStackdriverUptimeCheckIps(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
