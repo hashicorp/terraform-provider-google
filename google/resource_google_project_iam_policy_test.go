@@ -260,6 +260,7 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 	t.Parallel()
 
+	config := testAccProvider.Meta().(*Config)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -268,7 +269,15 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 			resource.TestStep{
 				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleDefaultProjectExistingPolicy(),
+					testAccGoogleProjectExistingPolicy(config.Project),
+				),
+			},
+			// Apply an IAM policy from a data source. The application
+			// merges policies, so we validate the expected state.
+			resource.TestStep{
+				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", config.Project),
 				),
 			},
 		},
@@ -634,23 +643,6 @@ func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Bin
 		sort.Strings(db[i].Members)
 	}
 	return db
-}
-
-// Confirm that the provider project has an IAM policy with at least 1 binding if no project set
-func testAccGoogleDefaultProjectExistingPolicy() resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		c := testAccProvider.Meta().(*Config)
-		pid := c.Project
-		var err error
-		originalPolicy, err = getProjectIamPolicy(pid, c)
-		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
-		}
-		if len(originalPolicy.Bindings) == 0 {
-			return fmt.Errorf("Refuse to run test against project with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a project.")
-		}
-		return nil
-	}
 }
 
 // Confirm that a project has an IAM policy with at least 1 binding
