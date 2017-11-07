@@ -264,7 +264,7 @@ func testProjectServicesMatch(services []string, pid string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		apiServices, err := getApiServices(pid, config)
+		apiServices, err := getApiServices(pid, config, ignoreProjectServices)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
