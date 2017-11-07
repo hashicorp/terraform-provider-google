@@ -588,7 +588,7 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 				Config: testAccContainerCluster_withMaintenanceWindow("03:00"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
-						"google_container_cluster.primary"),
+						"google_container_cluster.with_maintenance_window"),
 				),
 			},
 		},

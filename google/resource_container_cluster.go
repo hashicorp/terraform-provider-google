@@ -182,6 +182,7 @@ func resourceContainerCluster() *schema.Resource {
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
 							Required: true,
+							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
