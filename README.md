@@ -34,6 +34,11 @@ Using the provider
 
 See the [Google Provider documentation](https://www.terraform.io/docs/providers/google/index.html) to get started using the Google provider.
 
+Upgrading the provider
+----------------------
+
+To upgrade to the latest stable version of the Google provider run `terraform init -upgrade`. See the [Terraform website](https://www.terraform.io/docs/configuration/providers.html#provider-versions) for more information.
+
 Developing the Provider
 ---------------------------
 
