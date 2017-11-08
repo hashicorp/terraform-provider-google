@@ -14,6 +14,7 @@ IMPROVEMENTS:
 * compute: Add support for source/target service accounts to `google_compute_firewall` [GH-681]
 * compute: Add `secondary_ip_range` support to `google_compute_subnetwork` data source [GH-687]
 * compute: Add support for internal address (beta feature) in `google_compute_address` [GH-594]
+* compute: Add support to `google_compute_target_pool` for health checks self_link [GH-702]
 * container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
 * container: Add support for Kubernetes alpha features [GH-646]
 * container: Add support for master authorized networks in `google_container_cluster` [GH-626]
