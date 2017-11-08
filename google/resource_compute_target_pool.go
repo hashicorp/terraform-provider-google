@@ -51,7 +51,11 @@ func resourceComputeTargetPool() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
 			},
 
 			"instances": {
@@ -111,17 +115,17 @@ func resourceComputeTargetPool() *schema.Resource {
 }
 
 // Healthchecks need to exist before being referred to from the target pool.
-func convertHealthChecks(config *Config, project string, names []string) ([]string, error) {
-	urls := make([]string, len(names))
-	for i, name := range names {
-		// Look up the healthcheck
-		res, err := config.clientCompute.HttpHealthChecks.Get(project, name).Do()
-		if err != nil {
-			return nil, fmt.Errorf("Error reading HealthCheck: %s", err)
-		}
-		urls[i] = res.SelfLink
+func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
+	if healthChecks == nil || len(healthChecks) == 0 {
+		return []string{}, nil
 	}
-	return urls, nil
+
+	hc, err := ParseHttpHealthCheckFieldValue(healthChecks[0].(string), d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return []string{hc.RelativeLink()}, nil
 }
 
 // Instances do not need to exist yet, so we simply generate URLs.
@@ -158,8 +162,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	hchkUrls, err := convertHealthChecks(
-		config, project, convertStringArr(d.Get("health_checks").([]interface{})))
+	hchkUrls, err := convertHealthChecks(d.Get("health_checks").([]interface{}), d, config)
 	if err != nil {
 		return err
 	}
@@ -247,13 +250,11 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("health_checks") {
 
 		from_, to_ := d.GetChange("health_checks")
-		from := convertStringArr(from_.([]interface{}))
-		to := convertStringArr(to_.([]interface{}))
-		fromUrls, err := convertHealthChecks(config, project, from)
+		fromUrls, err := convertHealthChecks(from_.([]interface{}), d, config)
 		if err != nil {
 			return err
 		}
-		toUrls, err := convertHealthChecks(config, project, to)
+		toUrls, err := convertHealthChecks(to_.([]interface{}), d, config)
 		if err != nil {
 			return err
 		}
@@ -376,16 +377,6 @@ func convertInstancesFromUrls(urls []string) []string {
 	return result
 }
 
-func convertHealthChecksFromUrls(urls []string) []string {
-	result := make([]string, 0, len(urls))
-	for _, url := range urls {
-		urlArray := strings.Split(url, "/")
-		healthCheck := fmt.Sprintf("%s", urlArray[len(urlArray)-1])
-		result = append(result, healthCheck)
-	}
-	return result
-}
-
 func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -410,11 +401,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("backup_pool", tpool.BackupPool)
 	d.Set("description", tpool.Description)
 	d.Set("failover_ratio", tpool.FailoverRatio)
-	if tpool.HealthChecks != nil {
-		d.Set("health_checks", convertHealthChecksFromUrls(tpool.HealthChecks))
-	} else {
-		d.Set("health_checks", nil)
-	}
+	d.Set("health_checks", tpool.HealthChecks)
 	if tpool.Instances != nil {
 		d.Set("instances", convertInstancesFromUrls(tpool.Instances))
 	} else {
