@@ -29,6 +29,7 @@ BUG FIXES:
 * compute: Fix disk migration bug with empty `initialize_params` block [GH-664]
 * compute: Update `google_compute_target_pool` to no longer have a plan/apply loop with instance URLs [GH-666]
 * container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
+* dns: `google_dns_record_set` can now manage NS records [GH-359]
 * project: Set valid default `public_key_type` for `google_service_account_key` [GH-686]
 
 ## 1.1.1 (October 24, 2017)
