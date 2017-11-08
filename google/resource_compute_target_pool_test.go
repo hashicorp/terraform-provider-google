@@ -91,7 +91,7 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 
 		hcLink := healthCheckRes.Primary.Attributes["self_link"]
 		if targetPoolRes.Primary.Attributes["health_checks.0"] != hcLink {
-			return fmt.Errorf("Health check not set up. Expected '%s'", hcLink)
+			return fmt.Errorf("Health check not set up. Expected %q", hcLink)
 		}
 
 		return nil
