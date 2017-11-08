@@ -157,6 +157,17 @@ func testAccGoogleStorageBucketIAMPolicyDestroy(s *terraform.State) error {
 func testGoogleStorageBucketsIAMPolicyBasic(bucketName string, policy *storagev1.Policy) string {
 	var bindingBuffer bytes.Buffer
 
+	// Generate binding for google_iam_policy based on policy.Bindings
+	// Example:
+	// data "google_iam_policy" "admin" {
+	// 	binding {
+	//  role = "roles/editor"
+	//  members = [
+	//    "user:jane@example.com",
+	//  ]
+	//}
+}
+
 	for _, binding := range policy.Bindings {
 		bindingBuffer.WriteString("binding {\n")
 		bindingBuffer.WriteString(fmt.Sprintf("role = \"%s\"\n", binding.Role))
