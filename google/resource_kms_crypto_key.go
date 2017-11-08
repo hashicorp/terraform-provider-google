@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,6 +30,11 @@ func resourceKmsCryptoKey() *schema.Resource {
 			"key_ring": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"rotation_period": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
 			},
 		},
@@ -68,10 +74,24 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		Name:      d.Get("name").(string),
 	}
 
-	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Create(cryptoKeyId.KeyRingId.keyRingId(), &cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}).CryptoKeyId(cryptoKeyId.Name).Do()
+	key := cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}
+
+	if d.Get("rotation_period") != "" {
+		rotationPeriod := d.Get("rotation_period").(string)
+		nextRotation, err := kmsCryptoKeyNextRotation(time.Now(), rotationPeriod)
+
+		if err != nil {
+			return fmt.Errorf("Error setting CryptoKey rotation period: %s", err.Error())
+		}
+
+		key.NextRotationTime = nextRotation
+		key.RotationPeriod = rotationPeriod
+	}
+
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Create(cryptoKeyId.KeyRingId.keyRingId(), &key).CryptoKeyId(cryptoKeyId.Name).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error creating CryptoKey: %s", err)
+		return fmt.Errorf("Error creating CryptoKey: %s", err.Error())
 	}
 
 	log.Printf("[DEBUG] Created CryptoKey %s", cryptoKey.Name)
@@ -148,10 +168,39 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
+func validateKmsCryptoKeyRotationPeriod(period string) error {
+	pattern := regexp.MustCompile("^([0-9.]*\\d)s$")
+	match := pattern.FindStringSubmatch(period)
+
+	if len(match) == 0 {
+		return fmt.Errorf("Invalid period format: %s", period)
+	}
+
+	number := match[1]
+	seconds, err := strconv.ParseFloat(number, 64)
+
+	if err == nil && seconds < 86400.0 {
+		return fmt.Errorf("Rotation period must be greater than one day")
+	}
+
+	parts := strings.Split(number, ".")
+
+	if err == nil && len(parts) > 1 && len(parts[1]) > 9 {
+		return fmt.Errorf("Rotation period cannot have more than 9 fractional digits")
+	}
+
+	return nil
+}
+
 func kmsCryptoKeyNextRotation(now time.Time, period string) (string, error) {
 	var result string
+	var duration time.Duration
 
-	duration, err := time.ParseDuration(period)
+	err := validateKmsCryptoKeyRotationPeriod(period)
+
+	if err == nil {
+		duration, err = time.ParseDuration(period)
+	}
 
 	if err == nil {
 		result = now.UTC().Add(duration).Format(time.RFC3339Nano)

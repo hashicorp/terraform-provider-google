@@ -70,11 +70,11 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 
 func TestCryptoKeyNextRotationCalculation(t *testing.T) {
 	now := time.Now().UTC()
-	period, _ := time.ParseDuration("1000s")
+	period, _ := time.ParseDuration("1000000s")
 
 	expected := now.Add(period).Format(time.RFC3339Nano)
 
-	timestamp, err := kmsCryptoKeyNextRotation(now, "1000s")
+	timestamp, err := kmsCryptoKeyNextRotation(now, "1000000s")
 
 	if err != nil {
 		t.Fatalf("unexpected failure parsing time %s and duration 1000s: %s", now, err.Error())
@@ -82,6 +82,22 @@ func TestCryptoKeyNextRotationCalculation(t *testing.T) {
 
 	if expected != timestamp {
 		t.Fatalf("expected %s to equal %s", timestamp, expected)
+	}
+}
+
+func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
+	now := time.Now().UTC()
+
+	_, err := kmsCryptoKeyNextRotation(now, "86399s")
+
+	if err == nil {
+		t.Fatalf("Periods of less than a day should be invalid")
+	}
+
+	_, err = kmsCryptoKeyNextRotation(now, "100000.0000000001s")
+
+	if err == nil {
+		t.Fatalf("Numbers with more than 9 fractional digits are invalid")
 	}
 }
 
@@ -109,6 +125,44 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyExists("google_kms_crypto_key.crypto_key"),
+				),
+			},
+			resource.TestStep{
+				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
+	skipIfEnvNotSet(t,
+		[]string{
+			"GOOGLE_ORG",
+			"GOOGLE_BILLING_ACCOUNT",
+		}...,
+	)
+
+	projectId := "terraform-" + acctest.RandString(10)
+	projectOrg := os.Getenv("GOOGLE_ORG")
+	location := os.Getenv("GOOGLE_REGION")
+	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyExists("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyHasRotationParams("google_kms_crypto_key.crypto_key"),
 				),
 			},
 			resource.TestStep{
@@ -156,6 +210,38 @@ func testAccCheckGoogleKmsCryptoKeyExists(resourceName string) resource.TestChec
 		}
 
 		return fmt.Errorf("CryptoKey not found: %s", cryptoKeyId.cryptoKeyId())
+	}
+}
+
+func testAccCheckGoogleKmsCryptoKeyHasRotationParams(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		keyRingId, err := parseKmsKeyRingId(rs.Primary.Attributes["key_ring"], config)
+
+		if err != nil {
+			return err
+		}
+
+		cryptoKeyId := &kmsCryptoKeyId{
+			KeyRingId: *keyRingId,
+			Name:      rs.Primary.Attributes["name"],
+		}
+
+		getCryptoKeyResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(cryptoKeyId.cryptoKeyId()).Do()
+
+		if err != nil {
+			return err
+		}
+
+		_, err = time.Parse(time.RFC3339Nano, getCryptoKeyResponse.NextRotationTime)
+
+		return err
 	}
 }
 
@@ -232,6 +318,36 @@ resource "google_kms_crypto_key" "crypto_key" {
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
+func testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+	name			= "%s"
+	project_id		= "%s"
+	org_id			= "%s"
+	billing_account	= "%s"
+}
+
+resource "google_project_services" "acceptance" {
+	project  = "${google_project.acceptance.project_id}"
+	services = [
+	    "cloudkms.googleapis.com"
+	]
+}
+
+resource "google_kms_key_ring" "key_ring" {
+	project  = "${google_project.acceptance.project_id}"
+	name     = "%s"
+	location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+	name     = "%s"
+    key_ring = "${google_kms_key_ring.key_ring.id}"
+    rotation_period = "100000s"
+}
+	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+}
+
 func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -249,7 +365,7 @@ resource "google_project_services" "acceptance" {
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project.acceptance.project_id}"
 	name     = "%s"
 	location = "us-central1"
 }
