@@ -83,6 +83,9 @@ The required `settings` block supports:
 * `authorized_gae_applications` - (Optional) A list of Google App Engine (GAE)
     project names that are allowed to access this instance.
 
+* `availability_type` - (Optional) This specifies whether a PostgreSQL instance
+    should be set up for high availability (`REGIONAL`) or single zone (`ZONAL`).
+
 * `crash_safe_replication` - (Optional) Specific to read instances, indicates
     when crash-safe replication flags are enabled.
 
