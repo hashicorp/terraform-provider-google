@@ -25,6 +25,10 @@ func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceDat
 	return parseGlobalFieldValue("sslCertificates", sslCertificate, "project", d, config, false)
 }
 
+func ParseHttpHealthCheckFieldValue(healthCheck string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("httpHealthChecks", healthCheck, "project", d, config, false)
+}
+
 func ParseDiskFieldValue(disk string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
 	return parseZonalFieldValue("disks", disk, "project", "zone", d, config, false)
 }
