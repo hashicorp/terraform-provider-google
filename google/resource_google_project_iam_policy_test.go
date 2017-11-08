@@ -260,7 +260,6 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 	t.Parallel()
 
-	config := testAccProvider.Meta().(*Config)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -269,7 +268,7 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 			resource.TestStep{
 				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(config.Project),
+					testAccGoogleProjectExistingPolicy(getTestProjectFromEnv()),
 				),
 			},
 			// Apply an IAM policy from a data source. The application
@@ -277,7 +276,7 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 			resource.TestStep{
 				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", config.Project),
+					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", getTestProjectFromEnv()),
 				),
 			},
 		},
