@@ -109,9 +109,13 @@ func resourceGoogleProjectIamRoleUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("deleted") {
 		if d.Get("deleted").(bool) {
-			return resourceGoogleProjectIamRoleDelete(d, meta)
+			if err := resourceGoogleProjectIamRoleDelete(d, meta); err != nil {
+				return err
+			}
 		} else {
-			return resourceGoogleProjectIamRoleUndelete(d, meta)
+			if err := resourceGoogleProjectIamRoleUndelete(d, meta); err != nil {
+				return err
+			}
 		}
 		d.SetPartial("deleted")
 	}
@@ -127,6 +131,10 @@ func resourceGoogleProjectIamRoleUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return fmt.Errorf("Error updating the project role %s: %s", d.Get("title").(string), err)
 		}
+		d.SetPartial("title")
+		d.SetPartial("description")
+		d.SetPartial("stage")
+		d.SetPartial("permissions")
 	}
 
 	d.Partial(false)
