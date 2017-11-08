@@ -42,6 +42,34 @@ func TestAccGoogleProjectIamRole_basic(t *testing.T) {
 	})
 }
 
+func TestAccGoogleProjectIamRole_undelete(t *testing.T) {
+	t.Parallel()
+
+	roleId := "tfIamRole" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleProjectIamRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleProjectIamRole_basic(roleId),
+				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", false),
+			},
+			// Soft-delete
+			{
+				Config: testAccCheckGoogleProjectIamRole_deleted(roleId),
+				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", true),
+			},
+			// Undelete
+			{
+				Config: testAccCheckGoogleProjectIamRole_basic(roleId),
+				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", false),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectIamRoleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -105,6 +133,32 @@ func testAccCheckGoogleProjectIamRole(n, title, description, stage string, permi
 	}
 }
 
+func testAccCheckGoogleProjectIamRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		role, err := config.clientIAM.Projects.Roles.Get(rs.Primary.ID).Do()
+
+		if err != nil {
+			return err
+		}
+
+		if deleted != role.Deleted {
+			return fmt.Errorf("Incorrect deletion status. Expected %t, got %t", deleted, role.Deleted)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckGoogleProjectIamRole_basic(roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project_iam_role" "foo" {
@@ -112,6 +166,18 @@ resource "google_project_iam_role" "foo" {
   title = "My Custom Role"
   description = "foo"
   permissions = ["iam.roles.list"]
+}
+`, roleId)
+}
+
+func testAccCheckGoogleProjectIamRole_deleted(roleId string) string {
+	return fmt.Sprintf(`
+resource "google_project_iam_role" "foo" {
+  role_id = "%s"
+  title = "My Custom Role"
+  description = "foo"
+  permissions = ["iam.roles.list"]
+  deleted = true
 }
 `, roleId)
 }
