@@ -413,7 +413,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.CrashSafeReplicationEnabled = v.(bool)
 	}
 
-	settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
+	settings.StorageAutoResize = _settings["disk_autoresize"].(*bool)
 
 	if v, ok := _settings["disk_size"]; ok && v.(int) > 0 {
 		settings.DataDiskSizeGb = int64(v.(int))
@@ -718,7 +718,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		settings := &sqladmin.Settings{
 			Tier:              _settings["tier"].(string),
 			SettingsVersion:   instance.Settings.SettingsVersion,
-			StorageAutoResize: _settings["disk_autoresize"].(bool),
+			StorageAutoResize: _settings["disk_autoresize"].(*bool),
 			ForceSendFields:   []string{"StorageAutoResize"},
 		}
 

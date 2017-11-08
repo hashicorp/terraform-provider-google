@@ -549,7 +549,7 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			return fmt.Errorf("Error settings.crash_safe_replication mismatch, (%s, %s)", server, local)
 		}
 
-		server = strconv.FormatBool(instance.Settings.StorageAutoResize)
+		server = strconv.FormatBool(*instance.Settings.StorageAutoResize)
 		local = attributes["settings.0.disk_autoresize"]
 		if server != local && len(server) > 0 && len(local) > 0 {
 			return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)

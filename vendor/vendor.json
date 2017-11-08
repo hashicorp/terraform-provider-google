@@ -1113,10 +1113,10 @@
 			"revisionTime": "2017-07-05T20:32:08Z"
 		},
 		{
-			"checksumSHA1": "moKPpECJZQR/mANGD26E7Pbxn4I=",
+			"checksumSHA1": "7VocuDGA5eFIOX/CEy/1i5WrLVw=",
 			"path": "google.golang.org/api/sqladmin/v1beta4",
-			"revision": "3cc2e591b550923a2c5f0ab5a803feda924d5823",
-			"revisionTime": "2016-11-27T23:54:21Z"
+			"revision": "76b09a3314405551b1f19de9944347fcda3f80ae",
+			"revisionTime": "2017-11-08T00:03:15Z"
 		},
 		{
 			"checksumSHA1": "Zd7ojgrWPn3j7fLx9HB6/Oub8lE=",
