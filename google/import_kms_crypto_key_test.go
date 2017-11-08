@@ -19,8 +19,7 @@ func TestAccGoogleKmsCryptoKey_importBasic(t *testing.T) {
 
 	resourceName := "google_kms_crypto_key.crypto_key"
 
-	//projectId := "terraform-" + acctest.RandString(10)
-	projectId := "god-00100"
+	projectId := "terraform-" + acctest.RandString(10)
 	projectOrg := os.Getenv("GOOGLE_ORG")
 	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
