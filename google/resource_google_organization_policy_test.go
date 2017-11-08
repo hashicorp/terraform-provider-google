@@ -15,7 +15,7 @@ var DENIED_ORG_POLICIES = []string{
 	"placesios.googleapis.com",
 }
 
-func TestAccGoogleOrganizationPolicy_boolean_enforced(t *testing.T) {
+func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
@@ -27,58 +27,32 @@ func TestAccGoogleOrganizationPolicy_boolean_enforced(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleOrganizationPolicy_boolean(org, true),
-				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", true),
-			},
-		},
-	})
-
-}
-
-func TestAccGoogleOrganizationPolicy_boolean_notEnforced(t *testing.T) {
-	t.Parallel()
-
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccGoogleOrganizationPolicy_boolean(org, false),
-				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", false),
-			},
-		},
-	})
-}
-
-func TestAccGoogleOrganizationPolicy_boolean_update(t *testing.T) {
-	t.Parallel()
-
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
-		Steps: []resource.TestStep{
-			{
+				// Test creation of an enforced boolean policy
 				Config: testAccGoogleOrganizationPolicy_boolean(org, true),
 				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", true),
 			},
 			{
+				// Test update from enforced to not
 				Config: testAccGoogleOrganizationPolicy_boolean(org, false),
 				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", false),
 			},
 			{
+				Config:  " ",
+				Destroy: true,
+			},
+			{
+				// Test creation of a not enforced boolean policy
+				Config: testAccGoogleOrganizationPolicy_boolean(org, false),
+				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", false),
+			},
+			{
+				// Test update from not enforced to enforced
 				Config: testAccGoogleOrganizationPolicy_boolean(org, true),
 				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", true),
 			},
 		},
 	})
+
 }
 
 func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
