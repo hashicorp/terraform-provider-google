@@ -77,6 +77,14 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		},
 	}
 
+	// we need to replace NS record sets in the same call. That means
+	// we need to list all the current NS record sets attached to the
+	// zone and add them to the change as deletions. We can't just add
+	// new NS record sets, or we'll get an error about the NS record set
+	// already existing; see terraform-providers/terraform-provider-google#95.
+	// We also can't just remove the NS recordsets on creation, as at
+	// least one is required. So the solution is to "update in place" by
+	// putting the addition and the removal in the same API call.
 	if d.Get("type").(string) == "NS" {
 		log.Printf("[DEBUG] DNS record list request for %q", zone)
 		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
