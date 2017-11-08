@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
-	"os"
 )
 
 func TestCryptoKeyIdParsing(t *testing.T) {
@@ -64,6 +65,23 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 		if cryptoKeyId.cryptoKeyId() != tc.ExpectedCryptoKeyId {
 			t.Fatalf("bad: %s, expected CryptoKey ID to be `%s` but is `%s`", tn, tc.ExpectedCryptoKeyId, cryptoKeyId.cryptoKeyId())
 		}
+	}
+}
+
+func TestCryptoKeyNextRotationCalculation(t *testing.T) {
+	now := time.Now().UTC()
+	period, _ := time.ParseDuration("1000s")
+
+	expected := now.Add(period).Format(time.RFC3339Nano)
+
+	timestamp, err := kmsCryptoKeyNextRotation(now, "1000s")
+
+	if err != nil {
+		t.Fatalf("unexpected failure parsing time %s and duration 1000s: %s", now, err.Error())
+	}
+
+	if expected != timestamp {
+		t.Fatalf("expected %s to equal %s", timestamp, expected)
 	}
 }
 

@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudkms/v1"
 	"log"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudkms/v1"
 )
 
 func resourceKmsCryptoKey() *schema.Resource {
@@ -144,6 +146,18 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func kmsCryptoKeyNextRotation(now time.Time, period string) (string, error) {
+	var result string
+
+	duration, err := time.ParseDuration(period)
+
+	if err == nil {
+		result = now.UTC().Add(duration).Format(time.RFC3339Nano)
+	}
+
+	return result, err
 }
 
 func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
