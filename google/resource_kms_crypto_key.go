@@ -155,9 +155,9 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	log.Printf("[WARNING] KMS CryptoKey resources cannot be deleted from GCP. This CryptoKey %s will be removed from Terraform state, but will still be present on the server.", cryptoKeyId.cryptoKeyId())
-
-	d.SetId("")
+	log.Printf(`
+[WARNING] KMS CryptoKey resources cannot be deleted from GCP. The CryptoKey %s will be removed from Terraform state,
+and all its CryptoKeyVersions will be destroyed, but it will still be present on the server.`, cryptoKeyId.cryptoKeyId())
 
 	err = clearCryptoKeyVersions(cryptoKeyId, config)
 
@@ -165,6 +165,7 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	d.SetId("")
 	return nil
 }
 
