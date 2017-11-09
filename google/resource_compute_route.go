@@ -51,9 +51,10 @@ func resourceComputeRoute() *schema.Resource {
 			},
 
 			"next_hop_instance": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"next_hop_instance_zone": &schema.Schema{
@@ -210,7 +211,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("network", route.Network)
 	d.Set("priority", route.Priority)
 	d.Set("next_hop_gateway", route.NextHopGateway)
-	d.Set("next_hop_instance", nextHopInstanceFieldValue.Name)
+	d.Set("next_hop_instance", nextHopInstanceFieldValue.RelativeLink())
 	d.Set("next_hop_instance_zone", nextHopInstanceFieldValue.Zone)
 	d.Set("next_hop_ip", route.NextHopIp)
 	d.Set("next_hop_vpn_tunnel", route.NextHopVpnTunnel)
