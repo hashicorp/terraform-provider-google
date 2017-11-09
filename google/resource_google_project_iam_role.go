@@ -31,6 +31,7 @@ func resourceGoogleProjectIamRole() *schema.Resource {
 			"permissions": {
 				Type:     schema.TypeSet,
 				Required: true,
+				MinItems: 1,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
@@ -63,6 +64,10 @@ func resourceGoogleProjectIamRoleCreate(d *schema.ResourceData, meta interface{}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
+	}
+
+	if d.Get("deleted").(bool) {
+		return fmt.Errorf("Cannot create a project with a deleted state. `deleted` field should be false.")
 	}
 
 	role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{

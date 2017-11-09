@@ -11,16 +11,16 @@ description: |-
 Allows management of a customized Cloud IAM role. For more information see
 [the official documentation](https://cloud.google.com/iam/docs/understanding-custom-roles)
 and
-[API](https://cloud.google.com/iam/reference/rest/v1/organizations.roles).
+[API](https://cloud.google.com/iam/reference/rest/v1/projects.roles).
 
 ## Example Usage
 
 This snippet creates a customized IAM role.
 
 ```hcl
-resource "google_project_iam_role" "myCustomRole" {
-  role_id = "myCustomRole"
-  title = "My Custom Role"
+resource "google_project_iam_role" "my-custom-role" {
+  role_id     = "myCustomRole"
+  title       = "My Custom Role"
   description = "A description"
   permissions = ["iam.roles.list", "iam.roles.create", "iam.roles.delete"]
 }
@@ -52,5 +52,5 @@ The following arguments are supported:
 Customized IAM role can be imported using their URI, e.g.
 
 ```
-$ terraform import google_project_iam_role.myCustomRole projects/my-project/roles/myCustomRole
+$ terraform import google_project_iam_role.my-custom-role projects/my-project/roles/myCustomRole
 ```

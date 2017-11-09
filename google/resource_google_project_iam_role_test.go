@@ -162,8 +162,8 @@ func testAccCheckGoogleProjectIamRoleDeletionStatus(n string, deleted bool) reso
 func testAccCheckGoogleProjectIamRole_basic(roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project_iam_role" "foo" {
-  role_id = "%s"
-  title = "My Custom Role"
+  role_id     = "%s"
+  title       = "My Custom Role"
   description = "foo"
   permissions = ["iam.roles.list"]
 }
@@ -173,11 +173,11 @@ resource "google_project_iam_role" "foo" {
 func testAccCheckGoogleProjectIamRole_deleted(roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project_iam_role" "foo" {
-  role_id = "%s"
-  title = "My Custom Role"
+  role_id     = "%s"
+  title       = "My Custom Role"
   description = "foo"
   permissions = ["iam.roles.list"]
-  deleted = true
+  deleted     = true
 }
 `, roleId)
 }
@@ -185,11 +185,11 @@ resource "google_project_iam_role" "foo" {
 func testAccCheckGoogleProjectIamRole_update(roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project_iam_role" "foo" {
-  role_id = "%s"
-  title = "My Custom Role Updated"
+  role_id     = "%s"
+  title       = "My Custom Role Updated"
   description = "bar"
   permissions = ["iam.roles.list", "iam.roles.create", "iam.roles.delete"]
-  stage = "BETA"
+  stage       = "BETA"
 }
 `, roleId)
 }
