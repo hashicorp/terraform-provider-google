@@ -162,11 +162,11 @@ func testGoogleStorageBucketsIAMPolicyBasic(bucketName string, policy *storagev1
 	// data "google_iam_policy" "admin" {
 	// 	binding {
 	//  role = "roles/editor"
-	//  members = [
-	//    "user:jane@example.com",
-	//  ]
+	//    members = [
+	//      "user:jane@example.com",
+	//    ]
+	//  }
 	//}
-}
 
 	for _, binding := range policy.Bindings {
 		bindingBuffer.WriteString("binding {\n")
