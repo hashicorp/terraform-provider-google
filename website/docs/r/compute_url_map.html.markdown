@@ -160,3 +160,14 @@ exported:
 * `map_id` - The GCE assigned ID of the resource.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+URL Map can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_url_map.html.foobar foobar
+```
+
+
+Currently `host_rule`, `path_matcher` and `test` importing is not yet supported.

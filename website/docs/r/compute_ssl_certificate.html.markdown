@@ -90,3 +90,11 @@ exported:
 
 [1]: /docs/providers/google/r/compute_target_https_proxy.html
 [2]: /docs/configuration/resources.html#lifecycle
+
+## Import
+
+SSL certificate can be imported using the `name`, e.g.
+
+```
+$ terraform import compute_ssl_certificate.html.foobar foobar
+```
