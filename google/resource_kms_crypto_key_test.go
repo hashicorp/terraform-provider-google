@@ -271,10 +271,10 @@ func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) reso
     sub-resources were scheduled to be destroyed, rendering the key itself inoperable.
 */
 
-func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyId string) resource.TestCheckFunc {
+func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName string) resource.TestCheckFunc {
 	return func(_ *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyId)
+		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyName)
 
 		response, _ := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
 
@@ -282,7 +282,7 @@ func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRin
 
 		for _, v := range versions {
 			if v.State != "DESTROY_SCHEDULED" && v.State != "DESTROYED" {
-				return fmt.Errorf("CryptoKey %s should have no versions, but version %s has state %s", cryptoKeyId, v.Name, v.State)
+				return fmt.Errorf("CryptoKey %s should have no versions, but version %s has state %s", cryptoKeyName, v.Name, v.State)
 			}
 		}
 
