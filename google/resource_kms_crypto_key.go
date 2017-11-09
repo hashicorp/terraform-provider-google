@@ -256,10 +256,6 @@ func resourceKmsCryptoKeyImportState(d *schema.ResourceData, meta interface{}) (
 	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
 	d.Set("name", cryptoKeyId.Name)
 
-	if d.Get("purpose") == "" {
-		d.Set("purpose", "ENCRYPT_DECRYPT")
-	}
-
 	d.SetId(cryptoKeyId.terraformId())
 
 	return []*schema.ResourceData{d}, nil
