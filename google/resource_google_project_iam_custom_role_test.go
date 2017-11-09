@@ -10,29 +10,29 @@ import (
 	"testing"
 )
 
-func TestAccGoogleProjectIamRole_basic(t *testing.T) {
+func TestAccGoogleProjectIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleProjectIamRole_basic(roleId),
-				Check: testAccCheckGoogleProjectIamRole(
-					"google_project_iam_role.foo",
+				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
+				Check: testAccCheckGoogleProjectIamCustomRole(
+					"google_project_iam_custom_role.foo",
 					"My Custom Role",
 					"foo",
 					"GA",
 					[]string{"iam.roles.list"}),
 			},
 			{
-				Config: testAccCheckGoogleProjectIamRole_update(roleId),
-				Check: testAccCheckGoogleProjectIamRole(
-					"google_project_iam_role.foo",
+				Config: testAccCheckGoogleProjectIamCustomRole_update(roleId),
+				Check: testAccCheckGoogleProjectIamCustomRole(
+					"google_project_iam_custom_role.foo",
 					"My Custom Role Updated",
 					"bar",
 					"BETA",
@@ -42,39 +42,39 @@ func TestAccGoogleProjectIamRole_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleProjectIamRole_undelete(t *testing.T) {
+func TestAccGoogleProjectIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleProjectIamRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", false),
+				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
 			},
 			// Soft-delete
 			{
-				Config: testAccCheckGoogleProjectIamRole_deleted(roleId),
-				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", true),
+				Config: testAccCheckGoogleProjectIamCustomRole_deleted(roleId),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", true),
 			},
 			// Undelete
 			{
-				Config: testAccCheckGoogleProjectIamRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamRoleDeletionStatus("google_project_iam_role.foo", false),
+				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
 			},
 		},
 	})
 }
 
-func testAccCheckGoogleProjectIamRoleDestroy(s *terraform.State) error {
+func testAccCheckGoogleProjectIamCustomRoleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_project_iam_role" {
+		if rs.Type != "google_project_iam_custom_role" {
 			continue
 		}
 
@@ -85,7 +85,7 @@ func testAccCheckGoogleProjectIamRoleDestroy(s *terraform.State) error {
 		}
 
 		if !role.Deleted {
-			return fmt.Errorf("Iam role still exists")
+			return fmt.Errorf("Iam custom role still exists")
 		}
 
 	}
@@ -93,7 +93,7 @@ func testAccCheckGoogleProjectIamRoleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckGoogleProjectIamRole(n, title, description, stage string, permissions []string) resource.TestCheckFunc {
+func testAccCheckGoogleProjectIamCustomRole(n, title, description, stage string, permissions []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -133,7 +133,7 @@ func testAccCheckGoogleProjectIamRole(n, title, description, stage string, permi
 	}
 }
 
-func testAccCheckGoogleProjectIamRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
+func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -159,9 +159,9 @@ func testAccCheckGoogleProjectIamRoleDeletionStatus(n string, deleted bool) reso
 	}
 }
 
-func testAccCheckGoogleProjectIamRole_basic(roleId string) string {
+func testAccCheckGoogleProjectIamCustomRole_basic(roleId string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_role" "foo" {
+resource "google_project_iam_custom_role" "foo" {
   role_id     = "%s"
   title       = "My Custom Role"
   description = "foo"
@@ -170,9 +170,9 @@ resource "google_project_iam_role" "foo" {
 `, roleId)
 }
 
-func testAccCheckGoogleProjectIamRole_deleted(roleId string) string {
+func testAccCheckGoogleProjectIamCustomRole_deleted(roleId string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_role" "foo" {
+resource "google_project_iam_custom_role" "foo" {
   role_id     = "%s"
   title       = "My Custom Role"
   description = "foo"
@@ -182,9 +182,9 @@ resource "google_project_iam_role" "foo" {
 `, roleId)
 }
 
-func testAccCheckGoogleProjectIamRole_update(roleId string) string {
+func testAccCheckGoogleProjectIamCustomRole_update(roleId string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_role" "foo" {
+resource "google_project_iam_custom_role" "foo" {
   role_id     = "%s"
   title       = "My Custom Role Updated"
   description = "bar"

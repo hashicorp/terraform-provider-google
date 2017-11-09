@@ -1,14 +1,14 @@
 ---
 layout: "google"
-page_title: "Google: google_project_iam_role"
-sidebar_current: "docs-google-project-iam-role"
+page_title: "Google: google_project_iam_custom_role"
+sidebar_current: "docs-google-project-iam-custom-role"
 description: |-
- Allows management of a customized Cloud IAM role.
+ Allows management of a customized Cloud IAM project role.
 ---
 
-# google\_project\_iam\_role
+# google\_project\_iam\_custom\_role
 
-Allows management of a customized Cloud IAM role. For more information see
+Allows management of a customized Cloud IAM project role. For more information see
 [the official documentation](https://cloud.google.com/iam/docs/understanding-custom-roles)
 and
 [API](https://cloud.google.com/iam/reference/rest/v1/projects.roles).
@@ -18,7 +18,7 @@ and
 This snippet creates a customized IAM role.
 
 ```hcl
-resource "google_project_iam_role" "my-custom-role" {
+resource "google_project_iam_custom_role" "my-custom-role" {
   role_id     = "myCustomRole"
   title       = "My Custom Role"
   description = "A description"
@@ -49,8 +49,8 @@ The following arguments are supported:
 
 ## Import
 
-Customized IAM role can be imported using their URI, e.g.
+Customized IAM project role can be imported using their URI, e.g.
 
 ```
-$ terraform import google_project_iam_role.my-custom-role projects/my-project/roles/myCustomRole
+$ terraform import google_project_iam_custom_role.my-custom-role projects/my-project/roles/myCustomRole
 ```

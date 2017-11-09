@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAccGoogleProjectIamRole_import(t *testing.T) {
+func TestAccGoogleProjectIamCustomRole_import(t *testing.T) {
 	t.Parallel()
 
 	roleId := "tfIamRole" + acctest.RandString(10)
@@ -14,13 +14,13 @@ func TestAccGoogleProjectIamRole_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleProjectIamRole_update(roleId),
+				Config: testAccCheckGoogleProjectIamCustomRole_update(roleId),
 			},
 			{
-				ResourceName:      "google_project_iam_role.foo",
+				ResourceName:      "google_project_iam_custom_role.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
