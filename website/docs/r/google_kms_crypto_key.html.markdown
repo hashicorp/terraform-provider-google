@@ -22,9 +22,15 @@ from state and delete all CryptoKeyVersions, rendering the key unusable, but **w
 ## Example Usage
 
 ```hcl
+resource "google_kms_key_ring" "my_key_ring" {
+  name     = "my-key-ring"
+  project  = "my-project"
+  location = "us-central1"
+}
+
 resource "google_kms_crypto_key" "my_crypto_key" {
   name            = "my-crypto-key"
-  key_ring        = "my_project/us-central1/my-key-ring"
+  key_ring        = "${google_kms_key_ring.my_key_ring.id}"
   rotation_period = "100000s"
 }
 ```
