@@ -1,37 +1,37 @@
-## 1.2.0 (Unreleased)
+## 1.2.0 (November 09, 2017)
 
 FEATURES:
 
-* **New Resource:** `google_service_account_key` [GH-472]
-* **New Resource:** `google_kms_key_ring` [GH-518]
-* **New Resource:** `google_dataproc_cluster` [GH-252]
-* **New Resource:** `google_project_service` [GH-668]
+* **New Resource:** `google_service_account_key` ([#472](https://github.com/terraform-providers/terraform-provider-google/issues/472))
+* **New Resource:** `google_kms_key_ring` ([#518](https://github.com/terraform-providers/terraform-provider-google/issues/518))
+* **New Resource:** `google_dataproc_cluster` ([#252](https://github.com/terraform-providers/terraform-provider-google/issues/252))
+* **New Resource:** `google_project_service` ([#668](https://github.com/terraform-providers/terraform-provider-google/issues/668))
 
 IMPROVEMENTS:
-* compute: Add import support for `google_compute_global_forwarding_rule` [GH-653]
-* compute: Add IAP support for backend services [GH-471]
-* compute: Allow attaching and detaching disks from instances [GH-636]
-* compute: Add support for source/target service accounts to `google_compute_firewall` [GH-681]
-* compute: Add `secondary_ip_range` support to `google_compute_subnetwork` data source [GH-687]
-* compute: Add support for internal address (beta feature) in `google_compute_address` [GH-594]
-* compute: Add support to `google_compute_target_pool` for health checks self_link [GH-702]
-* container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` [GH-622]
-* container: Add support for Kubernetes alpha features [GH-646]
-* container: Add support for master authorized networks in `google_container_cluster` [GH-626]
-* container: Add support for maintenance window on `google_container_cluster` [GH-670]
-* logging: Make `google_logging_project_sink` resource importable [GH-688]
-* project: Make `google_service_account` resource importable [GH-606]
-* project: Project is optional and default to the provider value in `google_project_iam_policy` [GH-691]
-* pubsub: Create a `google_pubsub_subscription` for a topic in a different project [GH-640]
-* storage: Add labels to `google_storage_bucket` [GH-652]
+* compute: Add import support for `google_compute_global_forwarding_rule` ([#653](https://github.com/terraform-providers/terraform-provider-google/issues/653))
+* compute: Add IAP support for backend services ([#471](https://github.com/terraform-providers/terraform-provider-google/issues/471))
+* compute: Allow attaching and detaching disks from instances ([#636](https://github.com/terraform-providers/terraform-provider-google/issues/636))
+* compute: Add support for source/target service accounts to `google_compute_firewall` ([#681](https://github.com/terraform-providers/terraform-provider-google/issues/681))
+* compute: Add `secondary_ip_range` support to `google_compute_subnetwork` data source ([#687](https://github.com/terraform-providers/terraform-provider-google/issues/687))
+* compute: Add support for internal address (beta feature) in `google_compute_address` ([#594](https://github.com/terraform-providers/terraform-provider-google/issues/594))
+* compute: Add support to `google_compute_target_pool` for health checks self_link ([#702](https://github.com/terraform-providers/terraform-provider-google/issues/702))
+* container: Add support for CPU Platform in `google_container_node_pool` and `google_container_cluster` ([#622](https://github.com/terraform-providers/terraform-provider-google/issues/622))
+* container: Add support for Kubernetes alpha features ([#646](https://github.com/terraform-providers/terraform-provider-google/issues/646))
+* container: Add support for master authorized networks in `google_container_cluster` ([#626](https://github.com/terraform-providers/terraform-provider-google/issues/626))
+* container: Add support for maintenance window on `google_container_cluster` ([#670](https://github.com/terraform-providers/terraform-provider-google/issues/670))
+* logging: Make `google_logging_project_sink` resource importable ([#688](https://github.com/terraform-providers/terraform-provider-google/issues/688))
+* project: Make `google_service_account` resource importable ([#606](https://github.com/terraform-providers/terraform-provider-google/issues/606))
+* project: Project is optional and default to the provider value in `google_project_iam_policy` ([#691](https://github.com/terraform-providers/terraform-provider-google/issues/691))
+* pubsub: Create a `google_pubsub_subscription` for a topic in a different project ([#640](https://github.com/terraform-providers/terraform-provider-google/issues/640))
+* storage: Add labels to `google_storage_bucket` ([#652](https://github.com/terraform-providers/terraform-provider-google/issues/652))
 
 BUG FIXES:
-* compute: Increase timeout for deleting networks [GH-662]
-* compute: Fix disk migration bug with empty `initialize_params` block [GH-664]
-* compute: Update `google_compute_target_pool` to no longer have a plan/apply loop with instance URLs [GH-666]
-* container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically [GH-506]
-* dns: `google_dns_record_set` can now manage NS records [GH-359]
-* project: Set valid default `public_key_type` for `google_service_account_key` [GH-686]
+* compute: Increase timeout for deleting networks ([#662](https://github.com/terraform-providers/terraform-provider-google/issues/662))
+* compute: Fix disk migration bug with empty `initialize_params` block ([#664](https://github.com/terraform-providers/terraform-provider-google/issues/664))
+* compute: Update `google_compute_target_pool` to no longer have a plan/apply loop with instance URLs ([#666](https://github.com/terraform-providers/terraform-provider-google/issues/666))
+* container: `google_container_cluster.node_config.oauth_scopes` no longer need to be set alphabetically ([#506](https://github.com/terraform-providers/terraform-provider-google/issues/506))
+* dns: `google_dns_record_set` can now manage NS records ([#359](https://github.com/terraform-providers/terraform-provider-google/issues/359))
+* project: Set valid default `public_key_type` for `google_service_account_key` ([#686](https://github.com/terraform-providers/terraform-provider-google/issues/686))
 
 ## 1.1.1 (October 24, 2017)
 
