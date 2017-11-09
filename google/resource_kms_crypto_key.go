@@ -229,7 +229,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 
 	if cryptoKeyIdWithoutProjectRegex.MatchString(id) {
 		if config.Project == "" {
-			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{cryptoKeyName}` id format.")
+			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{keyRingName}/{cryptoKeyName}` id format.")
 		}
 
 		return &kmsCryptoKeyId{
@@ -242,7 +242,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{KeyringName}/{cryptoKeyName}.`")
+	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}.`")
 }
 
 func resourceKmsCryptoKeyImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
