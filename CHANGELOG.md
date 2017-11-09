@@ -1,4 +1,11 @@
 ## 1.2.1 (Unreleased)
+
+IMPROVEMENTS:
+* compute: Add import support for `google_compute_ssl_certificates` [GH-678]
+* compute: Add import support for `google_compute_target_http_proxy` [GH-678]
+* compute: Add import support for `google_compute_target_https_proxy` [GH-678]
+* compute: Add partial import support for `google_compute_url_map` [GH-678]
+
 ## 1.2.0 (November 09, 2017)
 
 FEATURES:
