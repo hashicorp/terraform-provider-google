@@ -1,0 +1,12 @@
+diff --git a/google/provider.go b/google/provider.go
+index 2448388..d3ec987 100644
+--- a/google/provider.go
++++ b/google/provider.go
+@@ -118,6 +118,7 @@ func Provider() terraform.ResourceProvider {
+ 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
+ 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
+ 			"google_kms_key_ring":                          resourceKmsKeyRing(),
++			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
+ 			"google_sourcerepo_repository":                 resourceSourceRepoRepository(),
+ 			"google_spanner_instance":                      resourceSpannerInstance(),
+ 			"google_spanner_database":                      resourceSpannerDatabase(),
