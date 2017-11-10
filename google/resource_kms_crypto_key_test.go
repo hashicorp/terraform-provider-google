@@ -123,9 +123,8 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
@@ -163,9 +162,8 @@ func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
 	rotationPeriod := "100000s"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod),
