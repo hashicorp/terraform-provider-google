@@ -92,17 +92,15 @@ func TestCryptoKeyNextRotationCalculation(t *testing.T) {
 func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 	t.Parallel()
 
-	now := time.Now().UTC()
+	_, errs := validateKmsCryptoKeyRotationPeriod("86399s", "rotation_period")
 
-	_, err := kmsCryptoKeyNextRotation(now, "86399s")
-
-	if err == nil {
+	if len(errs) == 0 {
 		t.Fatalf("Periods of less than a day should be invalid")
 	}
 
-	_, err = kmsCryptoKeyNextRotation(now, "100000.0000000001s")
+	_, errs = validateKmsCryptoKeyRotationPeriod("100000.0000000001s", "rotation_period")
 
-	if err == nil {
+	if len(errs) == 0 {
 		t.Fatalf("Numbers with more than 9 fractional digits are invalid")
 	}
 }

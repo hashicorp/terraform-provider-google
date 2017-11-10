@@ -33,9 +33,10 @@ func resourceKmsCryptoKey() *schema.Resource {
 				ForceNew: true,
 			},
 			"rotation_period": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
 			},
 		},
 	}
@@ -172,45 +173,45 @@ and all its CryptoKeyVersions will be destroyed, but it will still be present on
 	return nil
 }
 
-func validateKmsCryptoKeyRotationPeriod(period string) error {
+func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []string, errors []error) {
+	period := value.(string)
 	pattern := regexp.MustCompile("^([0-9.]*\\d)s$")
 	match := pattern.FindStringSubmatch(period)
 
 	if len(match) == 0 {
-		return fmt.Errorf("Invalid period format: %s", period)
+		errors = append(errors, fmt.Errorf("Invalid period format: %s", period))
 	}
 
 	number := match[1]
 	seconds, err := strconv.ParseFloat(number, 64)
 
-	if err == nil && seconds < 86400.0 {
-		return fmt.Errorf("Rotation period must be greater than one day")
+	if err != nil {
+		errors = append(errors, err)
+	} else {
+		if seconds < 86400.0 {
+			errors = append(errors, fmt.Errorf("Rotation period must be greater than one day"))
+		}
+
+		parts := strings.Split(number, ".")
+
+		if len(parts) > 1 && len(parts[1]) > 9 {
+			errors = append(errors, fmt.Errorf("Rotation period cannot have more than 9 fractional digits"))
+		}
 	}
 
-	parts := strings.Split(number, ".")
-
-	if err == nil && len(parts) > 1 && len(parts[1]) > 9 {
-		return fmt.Errorf("Rotation period cannot have more than 9 fractional digits")
-	}
-
-	return nil
+	return
 }
 
-func kmsCryptoKeyNextRotation(now time.Time, period string) (string, error) {
-	var result string
+func kmsCryptoKeyNextRotation(now time.Time, period string) (result string, err error) {
 	var duration time.Duration
 
-	err := validateKmsCryptoKeyRotationPeriod(period)
-
-	if err == nil {
-		duration, err = time.ParseDuration(period)
-	}
+	duration, err = time.ParseDuration(period)
 
 	if err == nil {
 		result = now.UTC().Add(duration).Format(time.RFC3339Nano)
 	}
 
-	return result, err
+	return
 }
 
 func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
