@@ -254,7 +254,11 @@ func testAccCheckGoogleKmsCryptoKeyHasRotationParams(rotationPeriod, resourceNam
 
 		_, err = time.Parse(time.RFC3339Nano, getCryptoKeyResponse.NextRotationTime)
 
-		return err
+		if err != nil {
+			return fmt.Errorf("Failed to parse NextRotationTime timestamp: %s", err)
+		}
+
+		return nil
 	}
 }
 
@@ -284,7 +288,11 @@ func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRin
 		config := testAccProvider.Meta().(*Config)
 		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyName)
 
-		response, _ := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
+		response, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
+
+		if err != nil {
+			return fmt.Errorf("Unexpected failure to list versions: %s", err)
+		}
 
 		versions := response.CryptoKeyVersions
 
