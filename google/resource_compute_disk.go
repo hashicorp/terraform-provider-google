@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -27,6 +28,12 @@ func resourceComputeDisk() *schema.Resource {
 		Delete: resourceComputeDiskDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -199,7 +206,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	// It probably maybe worked, so store the ID now
 	d.SetId(disk.Name)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Disk")
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Creating Disk", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -225,7 +232,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.SetPartial("size")
 
-		err = computeOperationWait(config.clientCompute, op, project, "Resizing Disk")
+		err = computeOperationWaitTime(config.clientCompute, op, project, "Resizing Disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -243,7 +250,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.SetPartial("labels")
 
-		err = computeOperationWait(config.clientCompute, op, project, "Setting labels on disk")
+		err = computeOperationWaitTime(config.clientCompute, op, project, "Setting labels on disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -378,7 +385,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting disk: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting Disk")
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Disk", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}

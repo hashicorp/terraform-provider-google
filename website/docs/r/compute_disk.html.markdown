@@ -78,6 +78,15 @@ exported:
 
 * `label_fingerprint` - The fingerprint of the assigned labels.
 
+## Timeouts
+
+`google_compute_disk` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - (Default `5 minutes`) Used for creating disks.
+- `update` - (Default `5 minutes`) Used for resizing a disk and setting labels on disks.
+- `delete` - (Default `5 minutes`) Used for destroying disks (not including time to detach the disk from instances).
+
 ## Import
 
 Disks can be imported using the `name`, e.g.

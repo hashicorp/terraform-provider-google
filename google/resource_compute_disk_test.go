@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -31,6 +32,21 @@ func TestAccComputeDisk_basic(t *testing.T) {
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_timeout(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config:      testAccComputeDisk_timeout,
+				ExpectError: regexp.MustCompile("timeout"),
 			},
 		},
 	})
@@ -297,6 +313,18 @@ resource "google_compute_disk" "foobar" {
 	}
 }`, diskName)
 }
+
+var testAccComputeDisk_timeout = fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name  = "%s"
+	image = "debian-8-jessie-v20160803"
+	type  = "pd-ssd"
+	zone  = "us-central1-a"
+
+	timeouts {
+		Create = "1s"
+	}
+}`, acctest.RandString(10))
 
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
