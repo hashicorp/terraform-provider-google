@@ -46,14 +46,19 @@ The following arguments are supported:
 
 * `service_account_id` - (Required) The Service account id of the Key Pair.
 
-* `key_algorithm` - (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format. Valid values are listed at [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountPrivateKeyType) (only used on create)
+* `key_algorithm` - (Optional) The algorithm used to generate the key. KEY_ALG_RSA_2048 is the default algorithm.
+Valid values are listed at
+[ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountKeyAlgorithm)
+(only used on create)
 
 * `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
 
 * `private_key_type` (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format.
 
 * `pgp_key` – (Optional) An optional PGP key to encrypt the resulting private
-key material. Only used when creating or importing a new key pair
+key material. Only used when creating or importing a new key pair. May either be
+a base64-encoded public key or a `keybase:keybaseusername` string for looking up
+in Vault.
 
 ~> **NOTE:** a PGP key is not required, however it is strongly encouraged.
 Without a PGP key, the private key material will be stored in state unencrypted.
