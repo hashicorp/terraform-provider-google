@@ -46,7 +46,10 @@ The following arguments are supported:
 
 * `service_account_id` - (Required) The Service account id of the Key Pair.
 
-* `key_algorithm` - (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format. Valid values are listed at [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountPrivateKeyType) (only used on create)
+* `key_algorithm` - (Optional) The algorithm used to generate the key. KEY_ALG_RSA_2048 is the default algorithm.
+Valid values are listed at
+[ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountKeyAlgorithm)
+(only used on create)
 
 * `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
 
