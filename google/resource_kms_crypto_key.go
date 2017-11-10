@@ -103,6 +103,7 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	var cryptoKeyResponse *cloudkms.CryptoKey
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
@@ -111,11 +112,13 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS CryptoKey %s", cryptoKeyId.cryptoKeyId())
 
-	_, err = config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(cryptoKeyId.cryptoKeyId()).Do()
+	cryptoKeyResponse, err = config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(cryptoKeyId.cryptoKeyId()).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
+
+	d.Set("rotation_period", cryptoKeyResponse.RotationPeriod)
 
 	return nil
 }
