@@ -7,6 +7,9 @@ IMPROVEMENTS:
 * compute: Add partial import support for `google_compute_url_map` [GH-678]
 * compute: Add configurable timeouts for disks [GH-717]
 
+BUG FIXES:
+* compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
+
 ## 1.2.0 (November 09, 2017)
 
 FEATURES:
