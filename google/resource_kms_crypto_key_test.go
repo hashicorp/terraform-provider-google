@@ -22,7 +22,7 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 		ExpectedCryptoKeyId string
 		Config              *Config
 	}{
-		"id is in project/location/keyRingName/CryptoKeyName format": {
+		"id is in project/location/keyRingName/cryptoKeyName format": {
 			ImportId:            "test-project/us-central1/test-key-ring/test-key-name",
 			ExpectedError:       false,
 			ExpectedTerraformId: "test-project/us-central1/test-key-ring/test-key-name",
@@ -32,14 +32,14 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 			ImportId:      "test-project/us-central1/test-key-ring/can-you-believe-that-this-cryptokey-name-is-this-extravagantly-long",
 			ExpectedError: true,
 		},
-		"id is in location/keyRingName/CryptoKeyName format": {
+		"id is in location/keyRingName/cryptoKeyName format": {
 			ImportId:            "us-central1/test-key-ring/test-key-name",
 			ExpectedError:       false,
 			ExpectedTerraformId: "test-project/us-central1/test-key-ring/test-key-name",
 			ExpectedCryptoKeyId: "projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key-name",
 			Config:              &Config{Project: "test-project"},
 		},
-		"id is in location/keyRingName/CryptoKeyName format without project in config": {
+		"id is in location/keyRingName/cryptoKeyName format without project in config": {
 			ImportId:      "us-central1/test-key-ring/test-key-name",
 			ExpectedError: true,
 			Config:        &Config{Project: ""},
