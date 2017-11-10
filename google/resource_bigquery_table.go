@@ -112,6 +112,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"use_legacy_sql": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default: true,
 						},
 					},
 				},
