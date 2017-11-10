@@ -1,5 +1,8 @@
 ## 1.2.1 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_project_custom_iam_role` [GH-709]
+
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_ssl_certificates` [GH-678]
 * compute: Add import support for `google_compute_target_http_proxy` [GH-678]
