@@ -13,6 +13,8 @@ import (
 )
 
 func TestCryptoKeyIdParsing(t *testing.T) {
+	t.Parallel()
+
 	cases := map[string]struct {
 		ImportId            string
 		ExpectedError       bool
@@ -69,6 +71,8 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 }
 
 func TestCryptoKeyNextRotationCalculation(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now().UTC()
 	period, _ := time.ParseDuration("1000000s")
 
@@ -86,6 +90,8 @@ func TestCryptoKeyNextRotationCalculation(t *testing.T) {
 }
 
 func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now().UTC()
 
 	_, err := kmsCryptoKeyNextRotation(now, "86399s")
@@ -102,6 +108,8 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 }
 
 func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
@@ -139,6 +147,8 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 }
 
 func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",

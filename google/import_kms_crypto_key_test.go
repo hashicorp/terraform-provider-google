@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccGoogleKmsCryptoKey_importBasic(t *testing.T) {
+	t.Parallel()
+
 	skipIfEnvNotSet(t,
 		[]string{
 			"GOOGLE_ORG",
