@@ -98,7 +98,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				},
 			},
 
-			// Labels: [Experimental] The labels associated with this dataset. You
+			// Labels: [Expewrimental] The labels associated with this dataset. You
 			// can use these to organize and group your datasets. You can set this
 			// property when inserting or updating a dataset.
 			"labels": &schema.Schema{
