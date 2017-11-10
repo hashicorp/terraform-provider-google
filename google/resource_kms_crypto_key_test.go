@@ -132,6 +132,7 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 					testAccCheckGoogleKmsCryptoKeyExists("google_kms_crypto_key.crypto_key"),
 				),
 			},
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{
 				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
@@ -172,6 +173,7 @@ func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
 					testAccCheckGoogleKmsCryptoKeyHasRotationParams(rotationPeriod, "google_kms_crypto_key.crypto_key"),
 				),
 			},
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{
 				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
