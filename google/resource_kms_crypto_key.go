@@ -18,7 +18,7 @@ func resourceKmsCryptoKey() *schema.Resource {
 		Read:   resourceKmsCryptoKeyRead,
 		Delete: resourceKmsCryptoKeyDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceKmsCryptoKeyImportState,
+			State: schema.ImportStatePassthrough,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -104,7 +104,6 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	var cryptoKeyResponse *cloudkms.CryptoKey
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
@@ -113,13 +112,14 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS CryptoKey %s", cryptoKeyId.cryptoKeyId())
 
-	cryptoKeyResponse, err = config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(cryptoKeyId.cryptoKeyId()).Do()
-
 	if err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
+	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
+	d.Set("name", cryptoKeyId.Name)
+	d.Set("rotation_period", d.Get("rotation_period"))
 
-	d.Set("rotation_period", cryptoKeyResponse.RotationPeriod)
+	d.SetId(cryptoKeyId.terraformId())
 
 	return nil
 }
@@ -247,20 +247,4 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 	}
 
 	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}.`")
-}
-
-func resourceKmsCryptoKeyImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-
-	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
-	if err != nil {
-		return nil, err
-	}
-
-	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
-	d.Set("name", cryptoKeyId.Name)
-
-	d.SetId(cryptoKeyId.terraformId())
-
-	return []*schema.ResourceData{d}, nil
 }
