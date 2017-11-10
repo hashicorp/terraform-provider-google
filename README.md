@@ -6,6 +6,14 @@ Terraform Provider for Google Cloud Platform
 - Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
 <img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
 
+Maintainers
+-----------
+
+This provider plugin is maintained by:
+
+* The [Google Cloud Graphite Team](https://cloudplatform.googleblog.com/2017/03/partnering-on-open-source-Google-and-HashiCorp-engineers-on-managing-GCP-infrastructure.html) at Google
+* The Terraform team at [HashiCorp](https://www.hashicorp.com/)
+
 Requirements
 ------------
 
