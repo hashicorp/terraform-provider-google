@@ -358,7 +358,7 @@ resource "google_project_services" "acceptance" {
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project.acceptance.project_id}"
+	project  = "${google_project_services.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
@@ -389,7 +389,7 @@ resource "google_project_services" "acceptance" {
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project.acceptance.project_id}"
+	project  = "${google_project_services.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
