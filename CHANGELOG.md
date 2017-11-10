@@ -5,6 +5,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_target_http_proxy` [GH-678]
 * compute: Add import support for `google_compute_target_https_proxy` [GH-678]
 * compute: Add partial import support for `google_compute_url_map` [GH-678]
+* compute: Add configurable timeouts for disks [GH-717]
 
 ## 1.2.0 (November 09, 2017)
 
