@@ -93,3 +93,11 @@ func TestIpCidrRangeDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestRfc3339TimeDiffSuppress(t *testing.T) {
+	old := "2:00"
+	new := "02:00"
+	if rfc3339TimeDiffSuppress("time", old, new, nil) == false {
+		t.Fatalf("Expected diff of '%s' => '%s' to be suppressed", old, new)
+	}
+}

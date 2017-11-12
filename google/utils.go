@@ -293,6 +293,15 @@ func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00
+// Assume `new` will have already been validated to ensure leading zero
+func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if len(old) == 4 && "0"+old == new {
+		return true
+	}
+	return false
+}
+
 // expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
 func expandLabels(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "labels")
