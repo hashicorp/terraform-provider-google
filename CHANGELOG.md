@@ -13,6 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
+* sql: Fix perpetual diff with `authorized_networks` field in `google_sql_database_instance` [GH-733]
 
 ## 1.2.0 (November 09, 2017)
 
