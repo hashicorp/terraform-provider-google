@@ -376,7 +376,11 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 }
 
 func retry(retryFunc func() error) error {
-	return resource.Retry(1*time.Minute, func() *resource.RetryError {
+	return retryTime(retryFunc, 1)
+}
+
+func retryTime(retryFunc func() error, minutes int) error {
+	return resource.Retry(time.Duration(minutes)*time.Minute, func() *resource.RetryError {
 		err := retryFunc()
 		if err == nil {
 			return nil
