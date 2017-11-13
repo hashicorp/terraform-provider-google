@@ -93,3 +93,46 @@ func TestIpCidrRangeDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestRfc3339TimeDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New          string
+		ExpectDiffSupress bool
+	}{
+		"same time, format changed to have leading zero": {
+			Old:               "2:00",
+			New:               "02:00",
+			ExpectDiffSupress: true,
+		},
+		"same time, format changed not to have leading zero": {
+			Old:               "02:00",
+			New:               "2:00",
+			ExpectDiffSupress: true,
+		},
+		"different time, both without leading zero": {
+			Old:               "2:00",
+			New:               "3:00",
+			ExpectDiffSupress: false,
+		},
+		"different time, old with leading zero, new without": {
+			Old:               "02:00",
+			New:               "3:00",
+			ExpectDiffSupress: false,
+		},
+		"different time, new with leading zero, oldwithout": {
+			Old:               "2:00",
+			New:               "03:00",
+			ExpectDiffSupress: false,
+		},
+		"different time, both with leading zero": {
+			Old:               "02:00",
+			New:               "03:00",
+			ExpectDiffSupress: false,
+		},
+	}
+	for tn, tc := range cases {
+		if rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSupress {
+			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSupress)
+		}
+	}
+}

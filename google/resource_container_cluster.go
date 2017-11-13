@@ -187,10 +187,11 @@ func resourceContainerCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"start_time": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ForceNew:     true,
-										ValidateFunc: validateRFC3339Time,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										ValidateFunc:     validateRFC3339Time,
+										DiffSuppressFunc: rfc3339TimeDiffSuppress,
 									},
 									"duration": {
 										Type:     schema.TypeString,
