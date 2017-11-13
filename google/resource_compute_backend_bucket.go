@@ -15,6 +15,10 @@ func resourceComputeBackendBucket() *schema.Resource {
 		Update: resourceComputeBackendBucketUpdate,
 		Delete: resourceComputeBackendBucketDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
@@ -111,6 +115,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("Backend Bucket %q", d.Get("name").(string)))
 	}
 
+	d.Set("name", bucket.Name)
 	d.Set("bucket_name", bucket.BucketName)
 	d.Set("description", bucket.Description)
 	d.Set("enable_cdn", bucket.EnableCdn)
