@@ -293,10 +293,10 @@ func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00
-// Assume `new` will have already been validated to ensure leading zero
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
+// Assume either value could be in either format.
 func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if len(old) == 4 && "0"+old == new {
+	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
 		return true
 	}
 	return false
