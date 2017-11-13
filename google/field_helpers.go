@@ -11,6 +11,8 @@ const (
 	zonalLinkTemplate           = "projects/%s/zones/%s/%s/%s"
 	zonalLinkBasePattern        = "projects/(.+)/zones/(.+)/%s/(.+)"
 	zonalPartialLinkBasePattern = "zones/(.+)/%s/(.+)"
+	organizationLinkTemplate    = "organizations/%s/%s/%s"
+	organizationBasePattern     = "organizations/(.+)/%s/(.+)"
 )
 
 // ------------------------------------------------------------
@@ -31,6 +33,10 @@ func ParseHttpHealthCheckFieldValue(healthCheck string, d TerraformResourceData,
 
 func ParseDiskFieldValue(disk string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
 	return parseZonalFieldValue("disks", disk, "project", "zone", d, config, false)
+}
+
+func ParseOrganizationCustomRoleName(role string) (*OrganizationFieldValue, error) {
+	return parseOrganizationFieldValue("roles", role, false)
 }
 
 // ------------------------------------------------------------
@@ -175,4 +181,42 @@ func getProjectFromSchema(projectSchemaField string, d TerraformResourceData, co
 		return "", fmt.Errorf("project: required field is not set")
 	}
 	return res.(string), nil
+}
+
+type OrganizationFieldValue struct {
+	OrgId string
+	Name  string
+
+	resourceType string
+}
+
+func (f OrganizationFieldValue) RelativeLink() string {
+	if len(f.Name) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(organizationLinkTemplate, f.OrgId, f.resourceType, f.Name)
+}
+
+// Parses an organization field with the following formats:
+// - organizations/{my_organizations}/{resource_type}/{resource_name}
+func parseOrganizationFieldValue(resourceType, fieldValue string, isEmptyValid bool) (*OrganizationFieldValue, error) {
+	if len(fieldValue) == 0 {
+		if isEmptyValid {
+			return &OrganizationFieldValue{resourceType: resourceType}, nil
+		}
+		return nil, fmt.Errorf("The organization field for resource %s cannot be empty", resourceType)
+	}
+
+	r := regexp.MustCompile(fmt.Sprintf(organizationBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &OrganizationFieldValue{
+			OrgId: parts[1],
+			Name:  parts[2],
+
+			resourceType: resourceType,
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(organizationLinkTemplate, "{org_id}", resourceType, "{name}"))
 }
