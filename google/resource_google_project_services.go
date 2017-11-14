@@ -186,7 +186,7 @@ func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]s
 
 func enableService(s, pid string, config *Config) error {
 	esr := newEnableServiceRequest(pid)
-	err := retry(func() error {
+	err := retryTime(func() error {
 		sop, err := config.clientServiceMan.Services.Enable(s, esr).Do()
 		if err != nil {
 			return err
@@ -196,7 +196,7 @@ func enableService(s, pid string, config *Config) error {
 			return waitErr
 		}
 		return nil
-	})
+	}, 10)
 	if err != nil {
 		return fmt.Errorf("Error enabling service %q for project %q: %v", s, pid, err)
 	}
@@ -205,7 +205,7 @@ func enableService(s, pid string, config *Config) error {
 
 func disableService(s, pid string, config *Config) error {
 	dsr := newDisableServiceRequest(pid)
-	err := retry(func() error {
+	err := retryTime(func() error {
 		sop, err := config.clientServiceMan.Services.Disable(s, dsr).Do()
 		if err != nil {
 			return err
@@ -216,7 +216,7 @@ func disableService(s, pid string, config *Config) error {
 			return waitErr
 		}
 		return nil
-	})
+	}, 10)
 	if err != nil {
 		return fmt.Errorf("Error disabling service %q for project %q: %v", s, pid, err)
 	}
