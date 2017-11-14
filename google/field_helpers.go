@@ -46,6 +46,10 @@ func ParseOrganizationCustomRoleName(role string) (*OrganizationFieldValue, erro
 	return parseOrganizationFieldValue("roles", role, false)
 }
 
+func ParseAcceleratorFieldValue(accelerator string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("acceleratorTypes", accelerator, "project", "zone", d, config, false)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------

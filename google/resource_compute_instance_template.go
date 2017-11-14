@@ -478,6 +478,35 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 	return disks, nil
 }
 
+// We don't share this code with compute instances because instances want a
+// partial URL, but instance templates want the bare accelerator name (despite
+// the docs saying otherwise).
+//
+// Using a partial URL on an instance template results in:
+// Invalid value for field 'resource.properties.guestAccelerators[0].acceleratorType':
+// 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'.
+// Accelerator type 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'
+// must be a valid resource name (not an url).
+func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Config) []*compute.AcceleratorConfig {
+	configs, ok := d.GetOk("guest_accelerator")
+	if !ok {
+		return nil
+	}
+	accels := configs.([]interface{})
+	guestAccelerators := make([]*compute.AcceleratorConfig, len(accels))
+	for i, raw := range accels {
+		data := raw.(map[string]interface{})
+		guestAccelerators[i] = &compute.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			// We can't use ParseAcceleratorFieldValue here because an instance
+			// template does not have a zone we can use.
+			AcceleratorType: data["type"].(string),
+		}
+	}
+
+	return guestAccelerators
+}
+
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -545,7 +574,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	instanceProperties.ServiceAccounts = expandServiceAccounts(d.Get("service_account").([]interface{}))
 
-	instanceProperties.GuestAccelerators = expandGuestAccelerators("", d.Get("guest_accelerator").([]interface{}))
+	instanceProperties.GuestAccelerators = expandInstanceTemplateGuestAccelerators(d, config)
 
 	instanceProperties.Tags = resourceInstanceTags(d)
 	if _, ok := d.GetOk("labels"); ok {

@@ -639,6 +639,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error creating network interfaces: %s", err)
 	}
 
+	accels, err := expandInstanceGuestAccelerators(d, config)
+	if err != nil {
+		return fmt.Errorf("Error creating guest accelerators: %s", err)
+	}
+
 	// Create the instance information
 	instance := &compute.Instance{
 		CanIpForward:      d.Get("can_ip_forward").(bool),
@@ -651,7 +656,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Tags:              resourceInstanceTags(d),
 		Labels:            expandLabels(d),
 		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
-		GuestAccelerators: expandGuestAccelerators(zone.Name, d.Get("guest_accelerator").([]interface{})),
+		GuestAccelerators: accels,
 		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
 		Scheduling:        scheduling,
 	}
@@ -1128,6 +1133,30 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		}
 	}
 	return disk, nil
+}
+
+// See comment on expandInstanceTemplateGuestAccelerators regarding why this
+// code is duplicated.
+func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*compute.AcceleratorConfig, error) {
+	configs, ok := d.GetOk("guest_accelerator")
+	if !ok {
+		return nil, nil
+	}
+	accels := configs.([]interface{})
+	guestAccelerators := make([]*compute.AcceleratorConfig, len(accels))
+	for i, raw := range accels {
+		data := raw.(map[string]interface{})
+		at, err := ParseAcceleratorFieldValue(data["type"].(string), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
+		}
+		guestAccelerators[i] = &compute.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			AcceleratorType:  at.RelativeLink(),
+		}
+	}
+
+	return guestAccelerators, nil
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
