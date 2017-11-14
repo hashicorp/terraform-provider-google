@@ -12,6 +12,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_backend_bucket` [GH-736]
 * compute: Add configurable timeouts for disks [GH-717]
 * container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` [GH-726]
+* kms: Adds support for creating KMS CryptoKeys resources [GH-692]
 
 BUG FIXES:
 * compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
