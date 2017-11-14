@@ -2,6 +2,7 @@
 
 FEATURES:
 * **New Resource:** `google_project_custom_iam_role` [GH-709]
+* **New Resource:** `google_organization_custom_iam_role` [GH-735]
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_ssl_certificates` [GH-678]
