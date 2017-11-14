@@ -205,7 +205,7 @@ func enableService(s, pid string, config *Config) error {
 
 func disableService(s, pid string, config *Config) error {
 	dsr := newDisableServiceRequest(pid)
-	err := retry(func() error {
+	err := retryTime(func() error {
 		sop, err := config.clientServiceMan.Services.Disable(s, dsr).Do()
 		if err != nil {
 			return err
