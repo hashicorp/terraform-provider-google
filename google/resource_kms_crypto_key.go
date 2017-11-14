@@ -215,8 +215,8 @@ func kmsCryptoKeyNextRotation(now time.Time, period string) (result string, err 
 func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 	parts := strings.Split(id, "/")
 
-	cryptoKeyIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})+/([a-zA-Z0-9_-]{1,63})$")
-	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})+/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &kmsCryptoKeyId{
