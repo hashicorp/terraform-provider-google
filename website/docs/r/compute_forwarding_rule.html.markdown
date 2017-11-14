@@ -58,7 +58,7 @@ The following arguments are supported:
     balancing. Packets addressed to these ports will be forwarded to the backends
     configured with this forwarding rule. Required for internal load balancing.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `region` - (Optional) The Region in which the created address should reside.

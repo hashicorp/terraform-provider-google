@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `enable_cdn` - (Optional) Whether or not to enable the Cloud CDN on the backend bucket.
 
-* `project` - (Optional) The project in which the resource belongs. If it is not provided, the
+* `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the
     provider project is used.
 
 ## Attributes Reference

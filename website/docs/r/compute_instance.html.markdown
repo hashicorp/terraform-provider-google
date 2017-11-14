@@ -97,7 +97,7 @@ The following arguments are supported:
     startup-script metadata key on the created instance and thus the two
     mechanisms are not allowed to be used simultaneously.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `scheduling` - (Optional) The scheduling strategy to use. More details about

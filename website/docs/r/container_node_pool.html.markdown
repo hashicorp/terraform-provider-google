@@ -74,7 +74,7 @@ resource "google_container_cluster" "primary" {
 
 * `node_count` - (Optional) The number of nodes per instance group.
 
-* `project` - (Optional) The project in which to create the node pool. If blank,
+* `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
 The `autoscaling` block supports:

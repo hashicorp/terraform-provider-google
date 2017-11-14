@@ -103,7 +103,7 @@ The following arguments are supported:
     See (Advanced Log Filters)[https://cloud.google.com/logging/docs/view/advanced_filters] for information on how to
     write a filter.
 
-* `project` - (Optional) The project to create the sink in. If omitted, the project associated with the provider is
+* `project` - (Optional) The ID of the project to create the sink in. If omitted, the project associated with the provider is
     used.
 
 * `unique_writer_identity` - (Optional) Whether or not to create a unique identity associated with this sink. If `false`

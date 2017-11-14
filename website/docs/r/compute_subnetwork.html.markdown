@@ -8,9 +8,9 @@ description: |-
 
 # google\_compute\_subnetwork
 
-Manages a subnetwork within GCE. For more information see 
+Manages a subnetwork within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/vpc/#vpc_networks_and_subnets)
-and 
+and
 [API](https://cloud.google.com/compute/docs/reference/latest/subnetworks).
 
 ## Example Usage
@@ -46,7 +46,7 @@ The following arguments are supported:
 
 * `description` - (Optional) Description of this subnetwork.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `region` - (Optional) The region this subnetwork will be created in. If
@@ -64,7 +64,7 @@ The `secondary_ip_range` block supports:
 
 * `range_name` - (Required) The name associated with this subnetwork secondary range, used when adding an alias IP range to a VM instance.
 
-* `ip_cidr_range` - (Required) The range of IP addresses belonging to this subnetwork secondary range. Ranges must be unique and non-overlapping with all primary and secondary IP ranges within a network. 
+* `ip_cidr_range` - (Required) The range of IP addresses belonging to this subnetwork secondary range. Ranges must be unique and non-overlapping with all primary and secondary IP ranges within a network.
 
 ## Attributes Reference
 

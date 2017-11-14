@@ -34,7 +34,7 @@ resource "google_dns_record_set" "dns" {
 
 * `name` - (Required) A unique name for the resource.
 
-* `project` - (Optional) ID of the project for the Google Cloud DNS zone.
+* `project` - (Optional) The ID of the project for the Google Cloud DNS zone.
 
 ## Attributes Reference
 

@@ -50,11 +50,11 @@ The following arguments are supported:
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     to encrypt this snapshot.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the snapshot.
- 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

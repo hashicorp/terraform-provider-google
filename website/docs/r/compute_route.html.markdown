@@ -68,7 +68,7 @@ The following arguments are supported:
 * `next_hop_vpn_tunnel` - (Optional) The name of the VPN to route to if this
     route is matched.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `tags` - (Optional) The tags that this route applies to.

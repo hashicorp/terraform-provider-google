@@ -46,7 +46,7 @@ The following arguments are supported:
 * `num_nodes` - (Optional, Computed) The number of nodes allocated to this instance.
    Defaults to `1`. This can be updated after creation.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `labels` - (Optional) A mapping (key/value pairs) of labels to assign to the instance.

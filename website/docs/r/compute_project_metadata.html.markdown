@@ -13,8 +13,8 @@ Manages metadata common to all instances for a project in GCE. For more informat
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/projects/setCommonInstanceMetadata).
 
-~> **Note:**  If you want to manage only single key/value pairs within the project metadata 
-rather than the entire set, then use 
+~> **Note:**  If you want to manage only single key/value pairs within the project metadata
+rather than the entire set, then use
 [google_compute_project_metadata_item](compute_project_metadata_item.html).
 
 ## Example Usage
@@ -38,7 +38,7 @@ The following arguments are supported:
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 ## Attributes Reference

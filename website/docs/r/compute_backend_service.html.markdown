@@ -87,7 +87,7 @@ The following arguments are supported:
 * `port_name` - (Optional) The name of a service that has been added to an
     instance group in this backend. See [related docs](https://cloud.google.com/compute/docs/instance-groups/#specifying_service_endpoints) for details. Defaults to http.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `protocol` - (Optional) The protocol for incoming requests. Defaults to

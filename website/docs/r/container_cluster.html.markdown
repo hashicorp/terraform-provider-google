@@ -133,7 +133,7 @@ output "cluster_ca_certificate" {
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `subnetwork` - (Optional) The name of the Google Compute Engine subnetwork in

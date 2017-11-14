@@ -84,7 +84,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
 - - -
 
-* `project` - (Optional) The project in which the `cluster` will exist. If it
+* `project` - (Optional) The ID of the project in which the `cluster` will exist. If it
 	is not provided, the provider project is used.
 
 * `region` - (Optional) The region in which the cluster and associated nodes will be created in.

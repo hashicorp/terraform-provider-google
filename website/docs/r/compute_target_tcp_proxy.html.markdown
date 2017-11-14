@@ -59,7 +59,7 @@ The following arguments are supported:
 * `description` - (Optional) A description of this resource. Changing this
     forces a new resource to be created.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 ## Attributes Reference

@@ -50,7 +50,7 @@ The following arguments are supported:
     one of: the image's `self_link`, of a full name and version, e.g.
     `debian-8-jessie-v20170523`
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it

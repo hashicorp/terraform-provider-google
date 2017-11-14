@@ -9,7 +9,7 @@ description: |-
 # google\_compute\_region\_backend\_service
 
 A Region Backend Service defines a regionally-scoped group of virtual machines that will serve traffic for load balancing.
-For more information see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/internal/) 
+For more information see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/internal/)
 and [API](https://cloud.google.com/compute/docs/reference/latest/backendServices).
 
 ## Example Usage
@@ -80,7 +80,7 @@ The following arguments are supported:
 
 * `description` - (Optional) The textual description for the backend service.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `protocol` - (Optional) The protocol for incoming requests. Defaults to

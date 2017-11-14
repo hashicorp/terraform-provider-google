@@ -109,7 +109,7 @@ The following arguments are supported:
 
 * `path_matcher` - (Optional) A list of paths to match. Structure is documented below.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `test` - (Optional) The test to perform.  Multiple blocks of this type are permitted. Structure is documented below.

@@ -152,7 +152,7 @@ The following arguments are supported:
     this template. This can be specified multiple times for multiple networks.
     Structure is documented below.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `region` - (Optional) An instance template is a global resource that is not
@@ -219,7 +219,7 @@ The `network_interface` block supports:
     to. The subnetwork must exist in the same `region` this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
-* `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
+* `subnetwork_project` - (Optional) The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this

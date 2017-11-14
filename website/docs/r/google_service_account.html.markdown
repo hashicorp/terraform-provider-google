@@ -47,7 +47,7 @@ The following arguments are supported:
 * `display_name` - (Optional) The display name for the service account.
     Can be updated without creating a new resource.
 
-* `project` - (Optional) The project that the service account will be created in.
+* `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
 
 * `policy_data` - (DEPRECATED, Optional) The `google_iam_policy` data source that represents
