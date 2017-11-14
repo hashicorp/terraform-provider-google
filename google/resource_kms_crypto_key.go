@@ -47,8 +47,6 @@ type kmsCryptoKeyId struct {
 	Name      string
 }
 
-// TODO: Add the info about rotation frequency and start time.
-
 func (s *kmsCryptoKeyId) cryptoKeyId() string {
 	return fmt.Sprintf("%s/cryptoKeys/%s", s.KeyRingId.keyRingId(), s.Name)
 }
@@ -147,8 +145,8 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 
 /*
 	Because KMS CryptoKey resources cannot be deleted on GCP, we are only going to remove it from state
-    and destroy all its versions, rendering the key useless for encryption and decryption of data.
-    Re-creation of this resource through Terraform will produce an error.
+	and destroy all its versions, rendering the key useless for encryption and decryption of data.
+	Re-creation of this resource through Terraform will produce an error.
 */
 
 func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
