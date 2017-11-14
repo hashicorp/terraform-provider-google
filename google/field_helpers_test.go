@@ -195,18 +195,18 @@ func TestParseOrganizationFieldValue(t *testing.T) {
 		ExpectedError        bool
 		IsEmptyValid         bool
 	}{
-		"valid format": {
+		"role is valid": {
 			FieldValue:           "organizations/123/roles/custom",
 			ExpectedRelativeLink: "organizations/123/roles/custom",
 			ExpectedName:         "custom",
 			ExpectedOrgId:        "123",
 		},
-		"network is empty and it is valid": {
+		"role is empty and it is valid": {
 			FieldValue:           "",
 			IsEmptyValid:         true,
 			ExpectedRelativeLink: "",
 		},
-		"network is empty and it is not valid": {
+		"role is empty and it is not valid": {
 			FieldValue:    "",
 			IsEmptyValid:  false,
 			ExpectedError: true,
