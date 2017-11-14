@@ -8,6 +8,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_target_http_proxy` [GH-678]
 * compute: Add import support for `google_compute_target_https_proxy` [GH-678]
 * compute: Add partial import support for `google_compute_url_map` [GH-678]
+* compute: Add import support for `google_compute_backend_bucket` [GH-736]
 * compute: Add configurable timeouts for disks [GH-717]
 * container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` [GH-726]
 
