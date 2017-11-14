@@ -184,3 +184,46 @@ func TestParseZonalFieldValue(t *testing.T) {
 		}
 	}
 }
+
+func TestParseOrganizationFieldValue(t *testing.T) {
+	const resourceType = "roles"
+	cases := map[string]struct {
+		FieldValue           string
+		ExpectedRelativeLink string
+		ExpectedName         string
+		ExpectedOrgId        string
+		ExpectedError        bool
+		IsEmptyValid         bool
+	}{
+		"role is valid": {
+			FieldValue:           "organizations/123/roles/custom",
+			ExpectedRelativeLink: "organizations/123/roles/custom",
+			ExpectedName:         "custom",
+			ExpectedOrgId:        "123",
+		},
+		"role is empty and it is valid": {
+			FieldValue:           "",
+			IsEmptyValid:         true,
+			ExpectedRelativeLink: "",
+		},
+		"role is empty and it is not valid": {
+			FieldValue:    "",
+			IsEmptyValid:  false,
+			ExpectedError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		v, err := parseOrganizationFieldValue(resourceType, tc.FieldValue, tc.IsEmptyValid)
+
+		if err != nil {
+			if !tc.ExpectedError {
+				t.Errorf("bad: %s, did not expect an error. Error: %s", tn, err)
+			}
+		} else {
+			if v.RelativeLink() != tc.ExpectedRelativeLink {
+				t.Errorf("bad: %s, expected relative link to be '%s' but got '%s'", tn, tc.ExpectedRelativeLink, v.RelativeLink())
+			}
+		}
+	}
+}
