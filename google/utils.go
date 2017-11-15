@@ -124,25 +124,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-// getNetworkLink takes a "network" field and if the value:
-// - is a resource URL, returns the string unchanged
-// - is the network name only, then looks up the resource URL using the google client
-func getNetworkLink(config *Config, project, network string) (string, error) {
-	if network == "" {
-		return "", nil
-	}
-
-	if strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		return network, nil
-	}
-
-	networkData, err := config.clientCompute.Networks.Get(project, network).Do()
-	if err != nil {
-		return "", fmt.Errorf("Error reading network: %s", err)
-	}
-	return networkData.SelfLink, nil
-}
-
 // getSubnetworkLink takes the "subnetwork" field and if the value is:
 // - a resource URL, returns the string unchanged
 // - a subnetwork name, looks up the resource URL using the google client.
@@ -567,7 +548,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
 		}
 
-		networkLink, err := getNetworkLink(config, project, network)
+		nf, err := ParseNetworkFieldValue(network, d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
 		}
@@ -580,7 +561,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 
 		ifaces[i] = &compute.NetworkInterface{
 			NetworkIP:     data["network_ip"].(string),
-			Network:       networkLink,
+			Network:       nf.RelativeLink(),
 			Subnetwork:    subnetLink,
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
