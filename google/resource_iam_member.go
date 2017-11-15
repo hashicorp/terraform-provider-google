@@ -1,0 +1,156 @@
+package google
+
+import (
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudresourcemanager/v1"
+	"log"
+)
+
+var IamMemberBaseSchema = map[string]*schema.Schema{
+	"role": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"member": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"etag": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+}
+
+func resourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+	return &schema.Resource{
+		Create: resourceIamMemberCreate(newUpdaterFunc),
+		Read:   resourceIamMemberRead(newUpdaterFunc),
+		Delete: resourceIamMemberDelete(newUpdaterFunc),
+
+		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
+	}
+}
+
+func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding {
+	return &cloudresourcemanager.Binding{
+		Members: []string{d.Get("member").(string)},
+		Role:    d.Get("role").(string),
+	}
+}
+
+func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
+	return func(d *schema.ResourceData, meta interface{}) error {
+		config := meta.(*Config)
+		updater, err := newUpdaterFunc(d, config)
+		if err != nil {
+			return err
+		}
+
+		p := getResourceIamMember(d)
+		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
+			// Merge the bindings together
+			ep.Bindings = mergeBindings(append(ep.Bindings, p))
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		d.SetId(updater.GetResourceId() + "/" + p.Role + "/" + p.Members[0])
+		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
+	}
+}
+
+func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
+	return func(d *schema.ResourceData, meta interface{}) error {
+		config := meta.(*Config)
+		updater, err := newUpdaterFunc(d, config)
+		if err != nil {
+			return err
+		}
+
+		eMember := getResourceIamMember(d)
+		p, err := updater.GetResourceIamPolicy()
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
+
+		var binding *cloudresourcemanager.Binding
+		for _, b := range p.Bindings {
+			if b.Role != eMember.Role {
+				continue
+			}
+			binding = b
+			break
+		}
+		if binding == nil {
+			log.Printf("[DEBUG]: Binding for role %q does not exist in policy of %s, removing member %q from state.", eMember.Role, updater.DescribeResource(), eMember.Members[0])
+			d.SetId("")
+			return nil
+		}
+		var member string
+		for _, m := range binding.Members {
+			if m == eMember.Members[0] {
+				member = m
+			}
+		}
+		if member == "" {
+			log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of %s, removing from state.", eMember.Members[0], eMember.Role, updater.DescribeResource())
+			d.SetId("")
+			return nil
+		}
+		d.Set("etag", p.Etag)
+		d.Set("member", member)
+		d.Set("role", binding.Role)
+		return nil
+	}
+}
+
+func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
+	return func(d *schema.ResourceData, meta interface{}) error {
+		config := meta.(*Config)
+		updater, err := newUpdaterFunc(d, config)
+		if err != nil {
+			return err
+		}
+
+		member := getResourceIamMember(d)
+		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+			bindingToRemove := -1
+			for pos, b := range p.Bindings {
+				if b.Role != member.Role {
+					continue
+				}
+				bindingToRemove = pos
+				break
+			}
+			if bindingToRemove < 0 {
+				log.Printf("[DEBUG]: Binding for role %q does not exist in policy of project %q, so member %q can't be on it.", member.Role, updater.GetResourceId(), member.Members[0])
+				return nil
+			}
+			binding := p.Bindings[bindingToRemove]
+			memberToRemove := -1
+			for pos, m := range binding.Members {
+				if m != member.Members[0] {
+					continue
+				}
+				memberToRemove = pos
+				break
+			}
+			if memberToRemove < 0 {
+				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of project %q.", member.Members[0], member.Role, updater.GetResourceId())
+				return nil
+			}
+			binding.Members = append(binding.Members[:memberToRemove], binding.Members[memberToRemove+1:]...)
+			p.Bindings[bindingToRemove] = binding
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
+	}
+}
