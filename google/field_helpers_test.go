@@ -251,7 +251,7 @@ func TestParseRegionalFieldValue(t *testing.T) {
 		},
 		"subnetwork is a partial relative self link": {
 			FieldValue:           "regions/us-central1/subnetworks/my-subnetwork",
-			Config:               &Config{Project: "default-project"},
+			Config:               &Config{Project: "default-project", Region: "default-region"},
 			ExpectedRelativeLink: "projects/default-project/regions/us-central1/subnetworks/my-subnetwork",
 		},
 		"subnetwork is the name only": {
@@ -267,7 +267,7 @@ func TestParseRegionalFieldValue(t *testing.T) {
 			ProjectSchemaValue:   "schema-project",
 			RegionSchemaField:    "region",
 			RegionSchemaValue:    "us-east1",
-			Config:               &Config{Project: "default-project"},
+			Config:               &Config{Project: "default-project", Region: "default-region"},
 			ExpectedRelativeLink: "projects/schema-project/regions/us-east1/subnetworks/my-subnetwork",
 		},
 		"subnetwork is the name only and has a project set in schema but the field is not specified.": {
@@ -275,19 +275,19 @@ func TestParseRegionalFieldValue(t *testing.T) {
 			ProjectSchemaValue:   "schema-project",
 			RegionSchemaField:    "region",
 			RegionSchemaValue:    "us-east1",
-			Config:               &Config{Project: "default-project"},
+			Config:               &Config{Project: "default-project", Region: "default-region"},
 			ExpectedRelativeLink: "projects/default-project/regions/us-east1/subnetworks/my-subnetwork",
 		},
 		"subnetwork is the name only and no region field is specified": {
-			FieldValue:    "my-subnetwork",
-			Config:        &Config{Project: "default-project"},
-			ExpectedError: true,
+			FieldValue:           "my-subnetwork",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/default-region/subnetworks/my-subnetwork",
 		},
 		"subnetwork is the name only and no value for region field is specified": {
-			FieldValue:        "my-subnetwork",
-			RegionSchemaField: "region",
-			Config:            &Config{Project: "default-project"},
-			ExpectedError:     true,
+			FieldValue:           "my-subnetwork",
+			RegionSchemaField:    "region",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/default-region/subnetworks/my-subnetwork",
 		},
 		"subnetwork is empty and it is valid": {
 			FieldValue:           "",
