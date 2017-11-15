@@ -14,10 +14,6 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 		Update: resourceGoogleOrganizationPolicyUpdate,
 		Delete: resourceGoogleOrganizationPolicyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceGoogleOrganizationPolicyImportState,
-		},
-
 		Schema: map[string]*schema.Schema{
 			"org_id": {
 				Type:     schema.TypeString,
@@ -171,18 +167,6 @@ func resourceGoogleOrganizationPolicyDelete(d *schema.ResourceData, meta interfa
 	}
 
 	return nil
-}
-
-func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), ":")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid id format. Expecting {org_id}:{constraint}, got '%s' instead.", d.Id())
-	}
-
-	d.Set("org_id", parts[0])
-	d.Set("constraint", parts[1])
-
-	return []*schema.ResourceData{d}, nil
 }
 
 func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
