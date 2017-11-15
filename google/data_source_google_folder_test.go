@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -11,13 +10,9 @@ import (
 )
 
 func TestAccDataSourceGoogleFolder(t *testing.T) {
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-		}...,
-	)
+	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
-	parent := fmt.Sprintf("organizations/%s", os.Getenv("GOOGLE_ORG"))
+	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -27,7 +22,7 @@ func TestAccDataSourceGoogleFolder(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDataSourceGoogleFolderConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleFolderCheck("data.google_folder.my_folder", "google_folder.foobar"),
+					testAccDataSourceGoogleFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
 				),
 			},
 		},
@@ -71,7 +66,7 @@ resource "google_folder" "foobar" {
   display_name = "%s"
 }
 
-data "google_folder" "my_folder" {
+data "google_active_folder" "my_folder" {
   parent = "${google_folder.foobar.parent}"
   display_name = "${google_folder.foobar.display_name}"
 }
