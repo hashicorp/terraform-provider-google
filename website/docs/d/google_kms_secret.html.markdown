@@ -36,7 +36,7 @@ resource "google_kms_crypto_key" "my_crypto_key" {
 }
 ```
 
-Next, use the [Cloud SDK](https://cloud.google.com/sdk/) to encrypt some
+Next, use the [Cloud SDK](https://cloud.google.com/sdk/gcloud/reference/kms/encrypt) to encrypt some
 sensitive information:
 
 ```bash
