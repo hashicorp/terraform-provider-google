@@ -8,9 +8,9 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func dataSourceGoogleFolder() *schema.Resource {
+func dataSourceGoogleActiveFolder() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleFolderRead,
+		Read: dataSourceGoogleActiveFolderRead,
 
 		Schema: map[string]*schema.Schema{
 			"parent": &schema.Schema{
@@ -29,7 +29,7 @@ func dataSourceGoogleFolder() *schema.Resource {
 	}
 }
 
-func dataSourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	parent := d.Get("parent").(string)

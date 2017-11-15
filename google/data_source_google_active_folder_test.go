@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccDataSourceGoogleFolder(t *testing.T) {
+func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	parent := fmt.Sprintf("organizations/%s", org)
@@ -20,16 +20,16 @@ func TestAccDataSourceGoogleFolder(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDataSourceGoogleFolderConfig(parent, displayName),
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
+					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceGoogleFolderCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
+func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
 		if !ok {
@@ -59,7 +59,7 @@ func testAccDataSourceGoogleFolderCheck(data_source_name string, resource_name s
 	}
 }
 
-func testAccDataSourceGoogleFolderConfig(parent string, displayName string) string {
+func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
   parent = "%s"
