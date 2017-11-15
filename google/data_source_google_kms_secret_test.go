@@ -65,12 +65,12 @@ func TestAccGoogleKmsSecret_basic(t *testing.T) {
 	})
 }
 
-func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, resourceName, plaintext string) (string, *kmsCryptoKeyId, error) {
+func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResourceName, plaintext string) (string, *kmsCryptoKeyId, error) {
 	config := testAccProvider.Meta().(*Config)
 
-	rs, ok := s.RootModule().Resources[resourceName]
+	rs, ok := s.RootModule().Resources[cryptoKeyResourceName]
 	if !ok {
-		return "", nil, fmt.Errorf("Resource not found: %s", resourceName)
+		return "", nil, fmt.Errorf("Resource not found: %s", cryptoKeyResourceName)
 	}
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["id"], config)
