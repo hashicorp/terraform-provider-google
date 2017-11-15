@@ -341,40 +341,18 @@ func resourceContainerCluster() *schema.Resource {
 			"ip_allocation_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"use_ip_aliases": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
-							Default:  nil,
-							ForceNew: true,
-						},
 						"cluster_secondary_range_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 							ForceNew: true,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-								if new == "" {
-									return true
-								}
-								return ipCidrRangeDiffSuppress(k, old, new, d)
-							},
 						},
 						"services_secondary_range_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 							ForceNew: true,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-								if new == "" {
-									return true
-								}
-								return ipCidrRangeDiffSuppress(k, old, new, d)
-							},
 						},
 					},
 				},
@@ -515,47 +493,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodePools = nodePools
 	}
 
-	if v, ok := d.GetOk("ip_allocation_policy"); ok {
-		cluster.IpAllocationPolicy, err = expandIPAllocationPolicy(v)
-		if err != nil {
-			return err
-		}
-
-		region := getRegionFromZone(zoneName)
-
-		subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, cluster.Subnetwork).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", cluster.Subnetwork))
-		}
-
-		clusterRangeExists := false
-		servicesRangeExists := false
-
-		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
-			switch secondaryRange.RangeName {
-			case cluster.IpAllocationPolicy.ClusterSecondaryRangeName:
-				clusterRangeExists = true
-			case cluster.IpAllocationPolicy.ServicesSecondaryRangeName:
-				servicesRangeExists = true
-			}
-		}
-
-		missingRanges := []string{}
-		if !clusterRangeExists {
-			missingRanges = append(missingRanges, fmt.Sprintf("cluster_secondary_range_name=%s",
-				cluster.IpAllocationPolicy.ClusterSecondaryRangeName))
-		}
-		if !servicesRangeExists {
-			missingRanges = append(missingRanges, fmt.Sprintf("services_secondary_range_name=%s",
-				cluster.IpAllocationPolicy.ServicesSecondaryRangeName))
-		}
-
-		if len(missingRanges) > 0 {
-			return fmt.Errorf("The specified secondary ranges are missing on the cluster's subnetwork: [%s]",
-				strings.Join(missingRanges, ", "))
-		}
-	}
-
 	req := &container.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -672,7 +609,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("node_pool", nps)
 
-	if cluster.IpAllocationPolicy != nil {
+	if cluster.IpAllocationPolicy != nil && cluster.IpAllocationPolicy.UseIpAliases {
 		d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy))
 	}
 
@@ -1099,7 +1036,6 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 func flattenIPAllocationPolicy(c *container.IPAllocationPolicy) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"use_ip_aliases":                c.UseIpAliases,
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
 			"services_secondary_range_name": c.ServicesSecondaryRangeName,
 		},

@@ -610,7 +610,6 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 						"services": "10.2.0.0/20",
 					},
 					map[string]string{
-						"use_ip_aliases":                "true",
 						"cluster_secondary_range_name":  "pods",
 						"services_secondary_range_name": "services",
 					},
@@ -626,9 +625,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 						"pods":     "10.1.0.0/16",
 						"services": "10.2.0.0/20",
 					},
-					map[string]string{
-						"use_ip_aliases": "true",
-					},
+					map[string]string{},
 				),
 				ExpectError: regexp.MustCompile("clusters using IP aliases must specify secondary ranges"),
 			},
@@ -638,7 +635,6 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 						"pods": "10.1.0.0/16",
 					},
 					map[string]string{
-						"use_ip_aliases":                "true",
 						"cluster_secondary_range_name":  "pods",
 						"services_secondary_range_name": "services",
 					},
