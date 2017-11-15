@@ -60,7 +60,7 @@ func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Successfully decrypted ciphertext: %s", ciphertext)
 
-	d.Set("plaintext", fmt.Sprintf("%s", plaintext))
+	d.Set("plaintext", string(plaintext[:]))
 	d.SetId(time.Now().UTC().String())
 
 	return nil
