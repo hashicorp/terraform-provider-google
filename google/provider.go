@@ -118,6 +118,7 @@ func Provider() terraform.ResourceProvider {
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_iam_policy":                     ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater),
+			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
