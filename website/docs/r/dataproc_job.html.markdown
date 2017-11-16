@@ -64,11 +64,11 @@ resource "google_dataproc_job" "pyspark" {
 
 # Check out current state of the jobs
 output "spark_status" {
-    value = "${google_dataproc_job.spark.status.state}"
+    value = "${google_dataproc_job.spark.status.0.state}"
 }
 
 output "pyspark_status" {
-    value = "${google_dataproc_job.pyspark.status.state}"
+    value = "${google_dataproc_job.pyspark.status.0.state}"
 }
 ```
 
