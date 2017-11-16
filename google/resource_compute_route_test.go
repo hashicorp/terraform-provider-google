@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -57,6 +58,7 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 
 	instanceName := "tf" + acctest.RandString(10)
 	zone := "us-central1-b"
+	instanceNameRegexp := regexp.MustCompile(fmt.Sprintf("projects/(.+)/zones/%s/instances/%s$", zone, instanceName))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -68,8 +70,8 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
-					resource.TestCheckResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceName),
-					resource.TestCheckResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceName),
+					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
+					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
 				),
 			},
 		},
