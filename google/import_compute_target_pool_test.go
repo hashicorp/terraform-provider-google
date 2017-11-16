@@ -9,7 +9,7 @@ import (
 func TestAccComputeTargetPool_importBasic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_compute_target_pool.foobar"
+	resourceName := "google_compute_target_pool.foo"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
