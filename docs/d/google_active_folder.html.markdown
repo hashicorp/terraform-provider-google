@@ -8,19 +8,14 @@ description: |-
 
 # google\_active\_folder
 
-Get a folder within GCP by `display_name` and `parent`.
+Get an active folder within GCP by `display_name` and `parent`.
 
 ## Example Usage
 
 ```tf
-resource "google_folder" "new-folder" {
-  display_name = "new-folder"
-  parent = "folders/some-folder-id"
-}
-
-data "google_active_folder" "new-folder" {
-  display_name = "${google_folder.new-folder.display_name}"
-  parent = "${google_folder.new-folder.parent}"
+data "google_active_folder" "department1" {
+  display_name = "Department 1"
+  parent = "organizations/1234567"
 }
 ```
 
