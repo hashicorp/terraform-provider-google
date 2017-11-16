@@ -12,18 +12,25 @@ import (
 func TestAccDnsRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
+	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	recordName := acctest.RandomWithPrefix("record-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+				Config: testAccDnsRecordSet_basic(zoneName, recordName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s.hashicorptest.com./A", zoneName, recordName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -32,28 +39,29 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 func TestAccDnsRecordSet_modify(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
+	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	recordName := acctest.RandomWithPrefix("record-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+				Config: testAccDnsRecordSet_basic(zoneName, recordName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
 			resource.TestStep{
-				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 300),
+				Config: testAccDnsRecordSet_basic(zoneName, recordName, "127.0.0.11", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
 			resource.TestStep{
-				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 600),
+				Config: testAccDnsRecordSet_basic(zoneName, recordName, "127.0.0.11", 600),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
@@ -66,21 +74,22 @@ func TestAccDnsRecordSet_modify(t *testing.T) {
 func TestAccDnsRecordSet_changeType(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
+	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	recordName := acctest.RandomWithPrefix("record-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+				Config: testAccDnsRecordSet_basic(zoneName, recordName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
 			resource.TestStep{
-				Config: testAccDnsRecordSet_bigChange(zoneName, 600),
+				Config: testAccDnsRecordSet_bigChange(zoneName, recordName, 600),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
@@ -91,7 +100,7 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_ns(t *testing.T) {
-	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
+	zoneName := acctest.RandomWithPrefix("dnszone-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -176,7 +185,7 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 	}
 }
 
-func testAccDnsRecordSet_basic(zoneName string, addr2 string, ttl int) string {
+func testAccDnsRecordSet_basic(zoneName, recordName, addr2 string, ttl int) string {
 	return fmt.Sprintf(`
 	resource "google_dns_managed_zone" "parent-zone" {
 		name = "%s"
@@ -185,12 +194,12 @@ func testAccDnsRecordSet_basic(zoneName string, addr2 string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "test-record.hashicorptest.com."
+		name = "%s.${google_dns_managed_zone.parent-zone.dns_name}"
 		type = "A"
 		rrdatas = ["127.0.0.1", "%s"]
 		ttl = %d
 	}
-	`, zoneName, addr2, ttl)
+	`, zoneName, recordName, addr2, ttl)
 }
 
 func testAccDnsRecordSet_ns(name string, ttl int) string {
@@ -202,7 +211,7 @@ func testAccDnsRecordSet_ns(name string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "hashicorptest.com."
+		name = "${google_dns_managed_zone.parent-zone.dns_name}"
 		type = "NS"
 		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
 		ttl = %d
@@ -227,7 +236,7 @@ func testAccDnsRecordSet_nestedNS(name string, ttl int) string {
 	`, name, ttl)
 }
 
-func testAccDnsRecordSet_bigChange(zoneName string, ttl int) string {
+func testAccDnsRecordSet_bigChange(zoneName, recordName string, ttl int) string {
 	return fmt.Sprintf(`
 	resource "google_dns_managed_zone" "parent-zone" {
 		name = "%s"
@@ -236,10 +245,10 @@ func testAccDnsRecordSet_bigChange(zoneName string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "test-record.hashicorptest.com."
+		name = "%s.${google_dns_managed_zone.parent-zone.dns_name}"
 		type = "CNAME"
 		rrdatas = ["www.terraform.io."]
 		ttl = %d
 	}
-	`, zoneName, ttl)
+	`, zoneName, recordName, ttl)
 }

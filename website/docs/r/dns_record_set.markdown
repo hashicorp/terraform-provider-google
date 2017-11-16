@@ -8,7 +8,8 @@ description: |-
 
 # google\_dns\_record\_set
 
-Manages a set of DNS records within Google Cloud DNS.
+Manages a set of DNS records within Google Cloud DNS. For more information see [the official documentation](https://cloud.google.com/dns/records/) and
+[API](https://cloud.google.com/dns/api/v1/resourceRecordSets).
 
 ~> **Note:** The Google Cloud DNS API requires NS records be present at all
 times. To accommodate this, when creating NS records, the default records
@@ -98,3 +99,11 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+DNS record set can be imported using the zone `name`, record `name` and record `type`, e.g.
+
+```
+$ terraform import google_dns_record_set.frontend prod-zone/frontend.prod.mydomain.com./A
+```
