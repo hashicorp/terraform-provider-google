@@ -104,7 +104,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		Type:         schema.TypeInt,
 		Optional:     true,
 		Computed:     true,
-		ValidateFunc: validation.IntAtLeast(1),
+		ValidateFunc: validation.IntAtLeast(0),
 	},
 }
 
@@ -280,9 +280,6 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 			return nil, fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %s", name)
 		}
 		nodeCount = nc.(int)
-	}
-	if nodeCount == 0 {
-		return nil, fmt.Errorf("Node pool %s cannot be set with 0 node count", name)
 	}
 
 	np := &container.NodePool{
