@@ -400,3 +400,11 @@ func retryTime(retryFunc func() error, minutes int) error {
 		return resource.NonRetryableError(err)
 	})
 }
+
+func extractFirstMapConfig(m []interface{}) map[string]interface{} {
+	if len(m) == 0 {
+		return map[string]interface{}{}
+	}
+
+	return m[0].(map[string]interface{})
+}
