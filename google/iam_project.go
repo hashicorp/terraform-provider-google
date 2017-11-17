@@ -42,7 +42,7 @@ func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy
 	return p, nil
 }
 
-func (u *ProjectIamUpdater) SetProjectIamPolicy(policy *cloudresourcemanager.Policy) error {
+func (u *ProjectIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	_, err := u.Config.clientResourceManager.Projects.SetIamPolicy(u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
 		Policy:     policy,
 		UpdateMask: "bindings",

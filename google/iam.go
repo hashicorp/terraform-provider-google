@@ -10,7 +10,7 @@ import (
 
 type ResourceIamUpdater interface {
 	GetResourceIamPolicy() (*cloudresourcemanager.Policy, error)
-	SetProjectIamPolicy(policy *cloudresourcemanager.Policy) error
+	SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error
 	GetMutexKey() string
 	GetResourceId() string
 	DescribeResource() string
@@ -39,7 +39,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 		}
 
 		log.Printf("[DEBUG]: Setting policy for %s to %+v\n", updater.DescribeResource(), p)
-		err = updater.SetProjectIamPolicy(p)
+		err = updater.SetResourceIamPolicy(p)
 		if err == nil {
 			break
 		}
