@@ -8,11 +8,26 @@ import (
 	"time"
 )
 
+// The ResourceIamUpdater interface is implemented for each GCP resource supporting IAM policy.
+//
+// Implementations should keep track of the resource identifier.
 type ResourceIamUpdater interface {
+	// Fetch the existing IAM policy attached to a resource.
 	GetResourceIamPolicy() (*cloudresourcemanager.Policy, error)
+
+	// Replaces the existing IAM Policy attached to a resource.
 	SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error
+
+	// A mutex guards against concurrent to call to the SetResourceIamPolicy method.
+	// The mutex key should be made of the resource type and resource id.
+	// For example: `iam-project-{id}`.
 	GetMutexKey() string
+
+	// Returns the unique resource identifier.
 	GetResourceId() string
+
+	// Textual description of this resource to be used in error message.
+	// The description should include the unique resource identifier.
 	DescribeResource() string
 }
 
