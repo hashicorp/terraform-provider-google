@@ -178,6 +178,8 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	t.Parallel()
 
+	skipIfEnvNotSet(t, "GOOGLE_XPN_HOST_PROJECT")
+
 	var instanceTemplate compute.InstanceTemplate
 	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
 

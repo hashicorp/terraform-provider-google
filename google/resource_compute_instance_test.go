@@ -587,6 +587,8 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 	t.Parallel()
 
+	skipIfEnvNotSet(t, "GOOGLE_XPN_HOST_PROJECT")
+
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
