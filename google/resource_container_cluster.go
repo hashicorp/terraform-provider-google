@@ -295,10 +295,10 @@ func resourceContainerCluster() *schema.Resource {
 			"node_config": schemaNodeConfig,
 
 			"node_pool": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
+				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: schemaNodePool,
 				},
