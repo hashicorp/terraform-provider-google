@@ -341,6 +341,7 @@ func resourceContainerCluster() *schema.Resource {
 			"ip_allocation_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -493,6 +494,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodePools = nodePools
 	}
 
+	if v, ok := d.GetOk("ip_allocation_policy"); ok {
+		cluster.IpAllocationPolicy, err = expandIPAllocationPolicy(v)
+		if err != nil {
+			return err
+		}
+	}
+
 	req := &container.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -609,8 +617,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("node_pool", nps)
 
-	if cluster.IpAllocationPolicy != nil && cluster.IpAllocationPolicy.UseIpAliases {
-		d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy))
+	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
+		return err
 	}
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
@@ -952,21 +960,21 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPolicy, error) {
 	ap := &container.IPAllocationPolicy{}
 	if len(configured.([]interface{})) > 0 {
-		config := configured.([]interface{})[0].(map[string]interface{})
+		if config, ok := configured.([]interface{})[0].(map[string]interface{}); ok {
+			ap.UseIpAliases = true
+			if v, ok := config["cluster_secondary_range_name"]; ok {
+				ap.ClusterSecondaryRangeName = v.(string)
+			}
 
-		ap.UseIpAliases = true
-		if v, ok := config["cluster_secondary_range_name"]; ok {
-			ap.ClusterSecondaryRangeName = v.(string)
-		}
+			if v, ok := config["services_secondary_range_name"]; ok {
+				ap.ServicesSecondaryRangeName = v.(string)
+			}
 
-		if v, ok := config["services_secondary_range_name"]; ok {
-			ap.ServicesSecondaryRangeName = v.(string)
-		}
+			if ap.UseIpAliases &&
+				(ap.ClusterSecondaryRangeName == "" || ap.ServicesSecondaryRangeName == "") {
 
-		if ap.UseIpAliases &&
-			(ap.ClusterSecondaryRangeName == "" || ap.ServicesSecondaryRangeName == "") {
-
-			return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
+				return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
+			}
 		}
 	}
 

@@ -598,6 +598,7 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 	t.Parallel()
 
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -605,6 +606,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
 					map[string]string{
 						"pods":     "10.1.0.0/16",
 						"services": "10.2.0.0/20",
@@ -617,10 +619,15 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_ip_allocation_policy"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
+						"ip_allocation_policy.0.cluster_secondary_range_name", "pods"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
+						"ip_allocation_policy.0.services_secondary_range_name", "services"),
 				),
 			},
 			{
 				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
 					map[string]string{
 						"pods":     "10.1.0.0/16",
 						"services": "10.2.0.0/20",
@@ -631,6 +638,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
 					map[string]string{
 						"pods": "10.1.0.0/16",
 					},
@@ -639,7 +647,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 						"services_secondary_range_name": "services",
 					},
 				),
-				ExpectError: regexp.MustCompile("secondary ranges are missing on the cluster's subnetwork"),
+				ExpectError: regexp.MustCompile("services secondary range \"pods\" not found in subnet"),
 			},
 		},
 	})
@@ -757,6 +765,11 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		if cluster.MaintenancePolicy != nil {
 			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.start_time", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime})
 			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.duration", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration})
+		}
+
+		if cluster.IpAllocationPolicy != nil && cluster.IpAllocationPolicy.UseIpAliases {
+			clusterTests = append(clusterTests, clusterTestField{"ip_allocation_policy.0.cluster_secondary_range_name", cluster.IpAllocationPolicy.ClusterSecondaryRangeName})
+			clusterTests = append(clusterTests, clusterTestField{"ip_allocation_policy.0.services_secondary_range_name", cluster.IpAllocationPolicy.ServicesSecondaryRangeName})
 		}
 
 		for i, np := range cluster.NodePools {
@@ -1531,7 +1544,7 @@ resource "google_container_cluster" "with_maintenance_window" {
 }`, acctest.RandString(10), startTime)
 }
 
-func testAccContainerCluster_withIPAllocationPolicy(ranges, policy map[string]string) string {
+func testAccContainerCluster_withIPAllocationPolicy(cluster string, ranges, policy map[string]string) string {
 
 	var secondaryRanges bytes.Buffer
 	for rangeName, cidr := range ranges {
@@ -1564,7 +1577,7 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 }
 
 resource "google_container_cluster" "with_ip_allocation_policy" {
-	name = "with-ip-allocation-policy"
+	name = "%s"
 	zone = "us-central1-a"
 
 	network = "${google_compute_network.container_network.name}"
@@ -1574,5 +1587,5 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 	ip_allocation_policy {
 	    %s
 	}
-}`, acctest.RandString(10), secondaryRanges.String(), ipAllocationPolicy.String())
+}`, acctest.RandString(10), secondaryRanges.String(), cluster, ipAllocationPolicy.String())
 }

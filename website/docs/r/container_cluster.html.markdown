@@ -191,12 +191,12 @@ The `ip_allocation_policy` block supports:
 * `cluster_secondary_range_name` - (Optional) The name of the secondary range to be
     used as for the cluster CIDR block. The secondary range will be used for pod IP
     addresses. This must be an existing secondary range associated with the cluster
-    subnetwork. This field is only applicable with `use_ip_aliases`.
+    subnetwork.
 
 * `services_secondary_range_name` - (Optional) The name of the secondary range to be
     used as for the services CIDR block.  The secondary range will be used for service
     ClusterIPs. This must be an existing secondary range associated with the cluster
-    subnetwork. This field is only applicable with `use_ip_aliases`.
+    subnetwork.
 
 The `master_auth` block supports:
 
