@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	"regexp"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
-	"regexp"
 )
 
 type jobTestField struct {
@@ -18,6 +19,8 @@ type jobTestField struct {
 }
 
 func TestAccDataprocJob_failForMissingJobConfig(t *testing.T) {
+	t.Parallel()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -32,6 +35,8 @@ func TestAccDataprocJob_failForMissingJobConfig(t *testing.T) {
 }
 
 func TestAccDataprocJob_updatable(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	jobId := fmt.Sprintf("dproc-update-job-id-%s", rnd)
@@ -59,6 +64,8 @@ func TestAccDataprocJob_updatable(t *testing.T) {
 }
 
 func TestAccDataprocJob_PySpark(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	jobId := fmt.Sprintf("dproc-custom-job-id-%s", rnd)
@@ -95,6 +102,8 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 }
 
 func TestAccDataprocJob_Spark(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -125,6 +134,8 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 }
 
 func TestAccDataprocJob_Hadoop(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -155,6 +166,8 @@ func TestAccDataprocJob_Hadoop(t *testing.T) {
 }
 
 func TestAccDataprocJob_Hive(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -185,6 +198,8 @@ func TestAccDataprocJob_Hive(t *testing.T) {
 }
 
 func TestAccDataprocJob_Pig(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -215,6 +230,8 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 }
 
 func TestAccDataprocJob_SparkSql(t *testing.T) {
+	t.Parallel()
+
 	var job dataproc.Job
 	rnd := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
