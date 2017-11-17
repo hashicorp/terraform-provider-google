@@ -281,9 +281,6 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 		nodeCount = nc.(int)
 	}
-	if nodeCount == 0 {
-		return nil, fmt.Errorf("Node pool %s cannot be set with 0 node count", name)
-	}
 
 	np := &container.NodePool{
 		Name:             name,
