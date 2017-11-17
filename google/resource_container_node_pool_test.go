@@ -95,16 +95,21 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 func TestAccContainerNodePool_withManagement(t *testing.T) {
 	t.Parallel()
 
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	nodePool := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	management := `
+	management {
+		auto_repair = "true"
+		auto_upgrade = "true"
+	}`
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccContainerNodePool_basic(
-					fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10)),
-					fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10)),
-				),
+				Config: testAccContainerNodePool_withManagement(cluster, nodePool, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
 					resource.TestCheckResourceAttr(
@@ -116,7 +121,7 @@ func TestAccContainerNodePool_withManagement(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccContainerNodePool_withManagement,
+				Config: testAccContainerNodePool_withManagement(cluster, nodePool, management),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches(
 						"google_container_node_pool.np_with_management"),
@@ -458,6 +463,30 @@ resource "google_container_node_pool" "np" {
 }`, cluster, nodePool)
 }
 
+func testAccContainerNodePool_withManagement(cluster, nodePool, management string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name               = "%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+}
+
+resource "google_container_node_pool" "np_with_management" {
+	name               = "%s"
+	zone               = "us-central1-a"
+	cluster            = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+
+	%s
+
+	node_config {
+		machine_type = "g1-small"
+		disk_size_gb = 10
+		oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
+	}
+}`, cluster, nodePool, management)
+}
+
 func nodepoolCheckMatch(attributes map[string]string, attr string, gcp interface{}) string {
 	if gcpList, ok := gcp.([]string); ok {
 		if _, ok := nodepoolSetFields[attr]; ok {
@@ -586,28 +615,6 @@ resource "google_container_node_pool" "np_with_node_config_scope_alias" {
 	zone = "us-central1-a"
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 1
-	node_config {
-		machine_type = "g1-small"
-		disk_size_gb = 10
-		oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
-	}
-}`, acctest.RandString(10), acctest.RandString(10))
-
-var testAccContainerNodePool_withManagement = fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-	name = "tf-cluster-nodepool-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-}
-resource "google_container_node_pool" "np_with_management" {
-	name = "tf-nodepool-test-%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
-	initial_node_count = 1
-	management {
-		auto_repair = true
-		auto_upgrade = true
-	}
 	node_config {
 		machine_type = "g1-small"
 		disk_size_gb = 10
