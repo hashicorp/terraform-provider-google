@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource:** `google_organization_custom_iam_role` [GH-735]
 * **New Data Source:** `google_active_folder` [GH-738]
 * **New Data Source:** `google_compute_address` [GH-748]
+* **New Data Source:** `google_compute_global_address` [GH-759]
 
 IMPROVEMENTS:
 * compute: Add import support for `google_compute_ssl_certificates` [GH-678]
