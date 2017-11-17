@@ -104,3 +104,10 @@ exported:
 * `etag` - (Computed) The etag of the organization policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other. 
 
 * `update_time` - (Computed) The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".
+
+## Import
+
+Organization Policies can be imported using the `org_id` and the `contraint`, e.g.
+
+```
+$ terraform import google_folder_organization_policy.services_policy 123456789:constraints/serviceuser.services

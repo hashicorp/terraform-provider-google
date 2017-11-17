@@ -22,6 +22,7 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 			"org_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"constraint": {
 				Type:             schema.TypeString,
