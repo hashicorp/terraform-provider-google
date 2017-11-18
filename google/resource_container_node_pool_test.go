@@ -111,13 +111,13 @@ func TestAccContainerNodePool_withManagement(t *testing.T) {
 			resource.TestStep{
 				Config: testAccContainerNodePool_withManagement(cluster, nodePool, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerNodePoolMatches("google_container_node_pool.np"),
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np_with_management"),
 					resource.TestCheckResourceAttr(
-						"google_container_node_pool.np", "management.#", "1"),
+						"google_container_node_pool.np_with_management", "management.#", "1"),
 					resource.TestCheckResourceAttr(
-						"google_container_node_pool.np", "management.0.auto_repair", "false"),
+						"google_container_node_pool.np_with_management", "management.0.auto_repair", "false"),
 					resource.TestCheckResourceAttr(
-						"google_container_node_pool.np", "management.0.auto_repair", "false"),
+						"google_container_node_pool.np_with_management", "management.0.auto_repair", "false"),
 				),
 			},
 			resource.TestStep{

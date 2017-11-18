@@ -95,13 +95,13 @@ var schemaNodePool = map[string]*schema.Schema{
 				"auto_repair": {
 					Type:     schema.TypeBool,
 					Optional: true,
-					Computed: true,
+					Default:  false,
 				},
 
 				"auto_upgrade": {
 					Type:     schema.TypeBool,
 					Optional: true,
-					Computed: true,
+					Default:  false,
 				},
 			},
 		},
