@@ -72,7 +72,6 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 						"google_container_cluster.primary"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "true"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
-					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.network_policy.0.disabled", "true"),
 				),
 			},
 			{
@@ -83,7 +82,6 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.horizontal_pod_autoscaling.0.disabled", "true"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.http_load_balancing.0.disabled", "false"),
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.kubernetes_dashboard.0.disabled", "true"),
-					resource.TestCheckResourceAttr("google_container_cluster.primary", "addons_config.0.network_policy.0.disabled", "false"),
 				),
 			},
 		},
@@ -748,14 +746,9 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		if cluster.AddonsConfig != nil && cluster.AddonsConfig.KubernetesDashboard != nil {
 			kubernetesDashboardDisabled = cluster.AddonsConfig.KubernetesDashboard.Disabled
 		}
-		networkPolicyDisabled := false
-		if cluster.AddonsConfig != nil && cluster.AddonsConfig.NetworkPolicyConfig != nil {
-			networkPolicyDisabled = cluster.AddonsConfig.NetworkPolicyConfig.Disabled
-		}
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.http_load_balancing.0.disabled", httpLoadBalancingDisabled})
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.horizontal_pod_autoscaling.0.disabled", horizontalPodAutoscalingDisabled})
 		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.kubernetes_dashboard.0.disabled", kubernetesDashboardDisabled})
-		clusterTests = append(clusterTests, clusterTestField{"addons_config.0.network_policy.0.disabled", networkPolicyDisabled})
 
 		for i, np := range cluster.NodePools {
 			prefix := fmt.Sprintf("node_pool.%d.", i)
@@ -962,7 +955,6 @@ resource "google_container_cluster" "primary" {
 	addons_config {
 		http_load_balancing { disabled = true }
 		kubernetes_dashboard { disabled = true }
-		network_policy { disabled = true }
 	}
 }`, clusterName)
 }
@@ -978,7 +970,6 @@ resource "google_container_cluster" "primary" {
 		http_load_balancing { disabled = false }
 		kubernetes_dashboard { disabled = true }
 		horizontal_pod_autoscaling { disabled = true }
-		network_policy { disabled = false }
 	}
 }`, clusterName)
 }
@@ -1004,7 +995,7 @@ var testAccContainerCluster_withNetworkPolicyEnabled = fmt.Sprintf(`
 		network_policy {
 			enabled = true
 			provider = "CALICO"
-		}
+		}	
 	}`, acctest.RandString(10))
 
 var testAccContainerCluster_updateNetworkPolicyEnabled = fmt.Sprintf(`
@@ -1013,8 +1004,9 @@ var testAccContainerCluster_updateNetworkPolicyEnabled = fmt.Sprintf(`
 			zone = "us-central1-a"
 			initial_node_count = 1
 		
-			// commented to disable it
+			// remove network_policy is equal than enabled=false
 			//network_policy { 
+			//	enabled = "false"
 			//}
 		}`, acctest.RandString(10))
 

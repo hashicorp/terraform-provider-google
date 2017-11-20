@@ -128,22 +128,6 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
-						"network_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"disabled": {
-										Type:     schema.TypeBool,
-										Default:  true,
-										Optional: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -935,13 +919,6 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
-	if v, ok := config["network_policy"]; ok && len(v.([]interface{})) > 0 {
-		addon := v.([]interface{})[0].(map[string]interface{})
-		ac.NetworkPolicyConfig = &container.NetworkPolicyConfig{
-			Disabled:        addon["disabled"].(bool),
-			ForceSendFields: []string{"Disabled"},
-		}
-	}
 	return ac
 }
 
@@ -1013,13 +990,6 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		}
 	}
 
-	if c.NetworkPolicyConfig != nil {
-		result["network_policy"] = []map[string]interface{}{
-			{
-				"disabled": c.NetworkPolicyConfig.Disabled,
-			},
-		}
-	}
 	return []map[string]interface{}{result}
 }
 
