@@ -918,7 +918,6 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ForceSendFields: []string{"Disabled"},
 		}
 	}
-
 	return ac
 }
 
