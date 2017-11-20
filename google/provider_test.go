@@ -33,6 +33,14 @@ var regionEnvVars = []string{
 	"CLOUDSDK_COMPUTE_REGION",
 }
 
+var orgEnvVars = []string{
+	"GOOGLE_ORG",
+}
+
+var billingAccountEnvVars = []string{
+	"GOOGLE_BILLING_ACCOUNT",
+}
+
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
@@ -109,6 +117,16 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 // getTestProjectFromEnv returns the current configured project from environment variables.
 func getTestProjectFromEnv() string {
 	return multiEnvSearch(projectEnvVars)
+}
+
+func getTestOrgFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, orgEnvVars...)
+	return multiEnvSearch(orgEnvVars)
+}
+
+func getTestBillingAccountFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, billingAccountEnvVars...)
+	return multiEnvSearch(billingAccountEnvVars)
 }
 
 func multiEnvSearch(ks []string) string {

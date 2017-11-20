@@ -13,7 +13,7 @@ import (
 func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -46,6 +46,7 @@ func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 func TestAccGoogleOrganizationIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

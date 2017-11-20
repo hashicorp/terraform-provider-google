@@ -2,16 +2,13 @@ package google
 
 import (
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
 	"testing"
 )
 
 func TestAccGoogleOrganizationPolicy_import(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

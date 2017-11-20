@@ -11,6 +11,7 @@ import (
 func TestAccGoogleProject_importBasic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	resourceName := "google_project.acceptance"
 	projectId := "terraform-" + acctest.RandString(10)
 	conf := testAccGoogleProject_import(projectId, org, pname)

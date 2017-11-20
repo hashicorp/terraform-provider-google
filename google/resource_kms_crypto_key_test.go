@@ -108,17 +108,10 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
+	projectOrg := getTestOrgFromEnv(t)
 	location := os.Getenv("GOOGLE_REGION")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -147,17 +140,10 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
+	projectOrg := getTestOrgFromEnv(t)
 	location := os.Getenv("GOOGLE_REGION")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	rotationPeriod := "100000s"

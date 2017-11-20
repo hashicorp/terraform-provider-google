@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -15,10 +14,8 @@ import (
 func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	policy := &resourceManagerV2Beta1.Policy{
@@ -48,10 +45,8 @@ func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
 func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	policy1 := &resourceManagerV2Beta1.Policy{
