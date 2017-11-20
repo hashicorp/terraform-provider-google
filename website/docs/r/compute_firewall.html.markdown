@@ -65,17 +65,17 @@ The following arguments are supported:
 
 - - -
 
-* `deny` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Can be specified multiple times for each deny
+* `deny` - (Optional) Can be specified multiple times for each deny
     rule. Each deny block supports fields documented below. Can be specified
     instead of allow.
 
-* `direction` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Direction of traffic to which this firewall applies;
+* `direction` - (Optional) Direction of traffic to which this firewall applies;
     One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
 
-* `destination_ranges` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of destination CIDR ranges that this
+* `destination_ranges` - (Optional) A list of destination CIDR ranges that this
    firewall applies to. Can't be used for `INGRESS`.
 
-* `source_service_accounts` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of service accounts such that
+* `source_service_accounts` - (Optional) A list of service accounts such that
     the firewall will apply only to traffic originating from an instance with a service account in this list. Source service accounts
     cannot be used to control traffic to an instance's external IP address because service accounts are associated with an instance, not
     an IP address. `source_ranges` can be set at the same time as `source_service_accounts`. If both are set, the firewall will apply to
@@ -83,7 +83,7 @@ The following arguments are supported:
     `source_service_accounts`. The connection does not need to match both properties for the firewall to apply. `source_service_accounts`
     cannot be used at the same time as `source_tags` or `target_tags`.
 
-* `target_service_accounts` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A list of service accounts indicating
+* `target_service_accounts` - (Optional) A list of service accounts indicating
     sets of instances located in the network that may make network connections as specified in `allow`. `target_service_accounts` cannot
     be used at the same time as `source_tags` or `target_tags`. If neither `target_service_accounts` nor `target_tags` are specified, the
     firewall rule applies to all instances on the specified network.
