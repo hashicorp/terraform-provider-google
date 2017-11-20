@@ -323,31 +323,6 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withNodeConfigNotSorted(t *testing.T) {
-	// Make an update with non sorted oauth_scopes
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withNodeConfigNotsorted,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerCluster(
-						"google_container_cluster.with_node_config_not_sorted"),
-				),
-			},
-			{
-				Config: testAccContainerCluster_withNodeConfigNotsorted,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerCluster(
-						"google_container_cluster.with_node_config_not_sorted"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	t.Parallel()
 
@@ -1165,40 +1140,6 @@ resource "google_container_cluster" "with_version" {
 	}
 }`, clusterName)
 }
-
-var testAccContainerCluster_withNodeConfigNotsorted = fmt.Sprintf(`
-resource "google_container_cluster" "with_node_config_not_sorted" {
-	name = "cluster-test-%s"
-	zone = "us-central1-f"
-	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
-	node_config {
-		machine_type = "n1-standard-1"
-		disk_size_gb = 15
-		local_ssd_count = 1
-		oauth_scopes = [
-			"https://www.googleapis.com/auth/compute",
-			"https://www.googleapis.com/auth/devstorage.read_only",
-			"https://www.googleapis.com/auth/logging.write",
-			"monitoring"
-		]
-		service_account = "default"
-		metadata {
-			foo = "bar"
-		}
-		image_type = "COS"
-		labels {
-			foo = "bar"
-		}
-		tags = ["foo", "bar"]
-		preemptible = true
-	}
-}`, acctest.RandString(10))
 
 var testAccContainerCluster_withNodeConfig = fmt.Sprintf(`
 resource "google_container_cluster" "with_node_config" {
