@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 	"testing"
 
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -14,11 +13,9 @@ import (
 func TestAccGoogleFolder_rename(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
 	newFolderDisplayName := "tf-test-renamed-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 	folder := resourceManagerV2Beta1.Folder{}
 
@@ -49,11 +46,9 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 func TestAccGoogleFolder_moveParent(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folder1DisplayName := "tf-test-" + acctest.RandString(10)
 	folder2DisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 	folder1 := resourceManagerV2Beta1.Folder{}
 	folder2 := resourceManagerV2Beta1.Folder{}

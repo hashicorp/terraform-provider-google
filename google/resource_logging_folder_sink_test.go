@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -15,12 +14,10 @@ import (
 func TestAccLoggingFolderSink_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
 
 	var sink logging.LogSink
 
@@ -43,12 +40,10 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
 
 	var sink logging.LogSink
 
@@ -71,13 +66,12 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 func TestAccLoggingFolderSink_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
-	parent := "organizations/" + os.Getenv("GOOGLE_ORG")
+	parent := "organizations/" + org
 
 	var sinkBefore, sinkAfter logging.LogSink
 

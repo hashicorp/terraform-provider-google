@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"sort"
 	"testing"
@@ -19,6 +18,7 @@ import (
 func TestAccGoogleProjectServices_basic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services1 := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services2 := []string{"cloudresourcemanager.googleapis.com"}
@@ -61,6 +61,7 @@ func TestAccGoogleProjectServices_basic(t *testing.T) {
 func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{"cloudresourcemanager.googleapis.com"}
 	oobService := "iam.googleapis.com"
@@ -97,6 +98,7 @@ func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	oobServices := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services := []string{"iam.googleapis.com"}
@@ -136,14 +138,8 @@ func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{
 		"dataproc.googleapis.com",
@@ -177,14 +173,8 @@ func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
 func TestAccGoogleProjectServices_manyServices(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{
 		"bigquery-json.googleapis.com",

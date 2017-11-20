@@ -3,17 +3,14 @@ package google
 import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
 	"testing"
 )
 
 func TestAccGoogleFolder_import(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	resource.Test(t, resource.TestCase{

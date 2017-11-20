@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -18,9 +17,7 @@ var DENIED_ORG_POLICIES = []string{
 func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -58,9 +55,7 @@ func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -77,10 +72,8 @@ func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	project := getTestProjectFromEnv()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -97,9 +90,7 @@ func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -116,9 +107,7 @@ func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

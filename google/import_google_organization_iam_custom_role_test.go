@@ -9,7 +9,7 @@ import (
 func TestAccGoogleOrganizationIamCustomRole_import(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	roleId := "tfIamRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

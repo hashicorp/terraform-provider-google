@@ -13,6 +13,7 @@ import (
 func TestAccGoogleProjectIamMember_basic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -43,6 +44,7 @@ func TestAccGoogleProjectIamMember_basic(t *testing.T) {
 func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -83,6 +85,7 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
