@@ -3,7 +3,7 @@ package google
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	container "google.golang.org/api/container/v1"
+	"google.golang.org/api/container/v1"
 )
 
 var schemaNodeConfig = &schema.Schema{
