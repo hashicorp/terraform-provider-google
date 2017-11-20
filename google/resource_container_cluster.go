@@ -988,7 +988,6 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			},
 		}
 	}
-
 	return []map[string]interface{}{result}
 }
 
