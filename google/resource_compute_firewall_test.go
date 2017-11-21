@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -177,7 +176,7 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 
 	sourceSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	targetSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
-	project := os.Getenv("GOOGLE_PROJECT")
+	project := getTestProjectFromEnv()
 	sourceSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sourceSa, project)
 	targetSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", targetSa, project)
 

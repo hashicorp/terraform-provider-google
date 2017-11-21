@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/terraform"

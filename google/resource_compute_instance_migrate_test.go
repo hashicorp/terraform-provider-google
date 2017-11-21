@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -864,23 +864,10 @@ func getInitializedConfig(t *testing.T) *Config {
 	// Check that all required environment variables are set
 	testAccPreCheck(t)
 
-	project := multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
-	creds := multiEnvSearch([]string{
-		"GOOGLE_CREDENTIALS",
-		"GOOGLE_CLOUD_KEYFILE_JSON",
-		"GCLOUD_KEYFILE_JSON",
-		"GOOGLE_USE_DEFAULT_CREDENTIALS",
-	})
-	region := multiEnvSearch([]string{
-		"GOOGLE_REGION",
-		"GCLOUD_REGION",
-		"CLOUDSDK_COMPUTE_REGION",
-	})
-
 	config := &Config{
-		Project:     project,
-		Credentials: creds,
-		Region:      region,
+		Project:     getTestProjectFromEnv(),
+		Credentials: getTestCredsFromEnv(),
+		Region:      getTestRegionFromEnv(),
 	}
 	err := config.loadAndValidate()
 	if err != nil {

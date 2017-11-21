@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"os"
-
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
@@ -46,7 +44,7 @@ func TestAccGoogleServiceAccount_importWithProject(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleServiceAccount_importWithProject(os.Getenv("GOOGLE_PROJECT"), "terraform-"+acctest.RandString(10)),
+				Config: testAccGoogleServiceAccount_importWithProject(getTestProjectFromEnv(), "terraform-"+acctest.RandString(10)),
 			},
 
 			resource.TestStep{

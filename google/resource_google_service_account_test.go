@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 // Test that a service account resource can be created, updated, and destroyed
@@ -18,7 +17,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 	uniqueId := ""
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
-	project := os.Getenv("GOOGLE_PROJECT")
+	project := getTestProjectFromEnv()
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -162,7 +161,7 @@ func testAccGoogleServiceAccountWithProject(project, account, name string) strin
 	return fmt.Sprintf(t, project, account, name)
 }
 
-func testAccGoogleServiceAccountPolicy(account, name string) string {
+func testAccGoogleServiceAccountPolicy(account, project string) string {
 
 	t := `resource "google_service_account" "acceptance" {
     account_id = "%v"
@@ -179,5 +178,5 @@ data "google_iam_policy" "service_account" {
   }
 }`
 
-	return fmt.Sprintf(t, account, name, account, getTestProjectFromEnv())
+	return fmt.Sprintf(t, account, account, account, project)
 }

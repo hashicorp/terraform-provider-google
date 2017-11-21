@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )

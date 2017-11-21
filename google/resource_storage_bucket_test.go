@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"google.golang.org/api/googleapi"
-	storage "google.golang.org/api/storage/v1"
+	"google.golang.org/api/storage/v1"
 )
 
 func TestAccStorageBucket_basic(t *testing.T) {
