@@ -63,6 +63,9 @@ resource "google_container_cluster" "primary" {
 * `initial_node_count` - (Deprecated, Optional) The initial node count for the pool.
     Use `node_count` instead.
 
+* `management` - (Optional) Node management configuration, wherein auto-repair and
+    auto-upgrade is configured. Structure is documented below.
+
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
@@ -70,7 +73,7 @@ resource "google_container_cluster" "primary" {
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) The node configuration of the pool. See
-    [google_container_cluster](container_cluster.html for schema.
+    [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group.
 
@@ -83,6 +86,12 @@ The `autoscaling` block supports:
     <= `max_node_count`.
 
 * `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
+
+The `management` block supports:
+
+* `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
+
+* `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
 
 ## Import
 
