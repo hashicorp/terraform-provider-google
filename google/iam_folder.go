@@ -66,11 +66,11 @@ func (u *FolderIamUpdater) GetResourceId() string {
 }
 
 func (u *FolderIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-project-%s", u.folderId)
+	return fmt.Sprintf("iam-folder-%s", u.folderId)
 }
 
 func (u *FolderIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("project %q", u.folderId)
+	return fmt.Sprintf("folder %q", u.folderId)
 }
 
 func canonicalFolderId(folder string) string {
@@ -86,7 +86,7 @@ func v1PolicyToV2Beta(in *cloudresourcemanager.Policy) (*resourceManagerV2Beta1.
 	out := &resourceManagerV2Beta1.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 oolicy to a v2beta policy: %s", err)
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a v2beta policy: %s", err)
 	}
 	return out, nil
 }
@@ -95,7 +95,7 @@ func v2BetaPolicyToV1(in *resourceManagerV2Beta1.Policy) (*cloudresourcemanager.
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v2beta oolicy to a v1 policy: %s", err)
+		return nil, fmt.Errorf("Cannot convert a v2beta policy to a v1 policy: %s", err)
 	}
 	return out, nil
 }
