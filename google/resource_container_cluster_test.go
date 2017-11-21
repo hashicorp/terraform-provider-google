@@ -110,13 +110,15 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNetworkPolicyEnabled,
+				Config: testAccContainerCluster_withNetworkPolicyEnabled(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_network_policy_enabled"),
@@ -125,7 +127,7 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccContainerCluster_updateNetworkPolicyEnabled,
+				Config: testAccContainerCluster_removeNetworkPolicy(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_network_policy_enabled"),
@@ -694,11 +696,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 				clusterTestField{"network_policy.0.enabled", cluster.NetworkPolicy.Enabled},
 				clusterTestField{"network_policy.0.provider", cluster.NetworkPolicy.Provider},
 			)
-		} else {
-			clusterTests = append(clusterTests,
-				clusterTestField{"network_policy.#", "1"},
-			)
-		}
+		} 
 		// Remove Zone from additional_zones since that's what the resource writes in state
 		additionalZones := []string{}
 		for _, location := range cluster.Locations {
@@ -951,7 +949,7 @@ resource "google_container_cluster" "primary" {
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
 
@@ -961,29 +959,33 @@ resource "google_container_cluster" "with_master_auth" {
 	}
 }`, acctest.RandString(10))
 
-var testAccContainerCluster_withNetworkPolicyEnabled = fmt.Sprintf(`
-	resource "google_container_cluster" "with_network_policy_enabled" {
-		name = "cluster-test-%s"
-		zone = "us-central1-a"
-		initial_node_count = 1
-	
-		network_policy {
-			enabled = true
-			provider = "CALICO"
-		}	
-	}`, acctest.RandString(10))
+func testAccContainerCluster_withNetworkPolicyEnabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_network_policy_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
 
-var testAccContainerCluster_updateNetworkPolicyEnabled = fmt.Sprintf(`
-		resource "google_container_cluster" "with_network_policy_enabled" {
-			name = "cluster-test-%s"
-			zone = "us-central1-a"
-			initial_node_count = 1
-		
-			// remove network_policy is equal than enabled=false
-			//network_policy { 
-			//	enabled = "false"
-			//}
-		}`, acctest.RandString(10))
+	network_policy {
+		enabled = true
+		provider = "CALICO"
+	}	
+}`, clusterName)
+}
+
+func testAccContainerCluster_removeNetworkPolicy(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_network_policy_enabled" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	// remove network_policy is equal than enabled=false
+	//network_policy { 
+	//	enabled = "false"
+	//}
+}`, clusterName)
+}
 
 func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName string, cidrs []string) string {
 
