@@ -264,7 +264,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -272,7 +271,7 @@ func resourceContainerCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							ForceNew: true,
 							Optional: true,
-							Default:  true,
+							Default:  false,
 						},
 						"provider": {
 							Type:         schema.TypeString,
@@ -956,13 +955,14 @@ func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
 }
 
 func flattenNetworkPolicy(c *container.NetworkPolicy) []map[string]interface{} {
-	if c == nil {
-		c = &container.NetworkPolicy{}
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled":  c.Enabled,
+			"provider": c.Provider,
+		})
 	}
-	result := make(map[string]interface{})
-	result["enabled"] = c.Enabled
-	result["provider"] = c.Provider
-	return []map[string]interface{}{result}
+	return result
 }
 
 func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interface{} {
