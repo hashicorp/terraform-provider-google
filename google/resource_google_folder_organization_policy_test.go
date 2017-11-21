@@ -13,8 +13,7 @@ import (
 func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -51,8 +50,7 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -69,9 +67,8 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	project := getTestProjectFromEnv()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -88,8 +85,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -106,8 +102,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
