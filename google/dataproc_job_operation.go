@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"net/http"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
-	"net/http"
 )
 
 type DataprocJobOperationWaiter struct {
@@ -18,7 +19,6 @@ type DataprocJobOperationWaiter struct {
 }
 
 func (w *DataprocJobOperationWaiter) ConfForDelete() *resource.StateChangeConf {
-
 	return &resource.StateChangeConf{
 		Pending: []string{"EXISTS"},
 		Target:  []string{"DELETED"},
@@ -27,10 +27,8 @@ func (w *DataprocJobOperationWaiter) ConfForDelete() *resource.StateChangeConf {
 }
 
 func (w *DataprocJobOperationWaiter) Conf() *resource.StateChangeConf {
-
 	// For more info on each of the states please see
 	// https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.jobs#JobStatus
-
 	return &resource.StateChangeConf{
 		Pending: []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"},
 		Target:  []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"},

@@ -23,7 +23,6 @@ func resourceDataprocJob() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -72,7 +71,6 @@ func resourceDataprocJob() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
 						"cluster_name": {
 							Type:        schema.TypeString,
 							Description: "The name of the cluster where the job will be submitted",
@@ -94,7 +92,6 @@ func resourceDataprocJob() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
 						"state": {
 							Type:        schema.TypeString,
 							Description: "Output-only. A state message specifying the overall job state",
@@ -169,7 +166,6 @@ func resourceDataprocJob() *schema.Resource {
 }
 
 func resourceDataprocJobUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	// The only updatable value is currently 'force_delete' which is a local
 	// only value therefore we don't need to make any GCP calls to update this.
 
@@ -352,28 +348,23 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 // ---- PySpark Job ----
 
-func loggingConfig() *schema.Schema {
-
-	return &schema.Schema{
-		Type:        schema.TypeList,
-		Description: "The runtime logging config of the job",
-		Optional:    true,
-		Computed:    true,
-		MaxItems:    1,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-
-				"driver_log_levels": {
-					Type:        schema.TypeMap,
-					Description: "Optional. The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'.",
-					Optional:    true,
-					ForceNew:    true,
-					Elem:        &schema.Schema{Type: schema.TypeString},
-				},
+var loggingConfig = &schema.Schema{
+	Type:        schema.TypeList,
+	Description: "The runtime logging config of the job",
+	Optional:    true,
+	Computed:    true,
+	MaxItems:    1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"driver_log_levels": {
+				Type:        schema.TypeMap,
+				Description: "Optional. The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'.",
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
-	}
-
+	},
 }
 
 var pySparkSchema = &schema.Schema{
@@ -384,7 +375,6 @@ var pySparkSchema = &schema.Schema{
 	ConflictsWith: []string{"spark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			"main_python_file_uri": {
 				Type:        schema.TypeString,
 				Description: "Required. The HCFS URI of the main Python file to use as the driver. Must be a .py file",
@@ -440,7 +430,7 @@ var pySparkSchema = &schema.Schema{
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_config": loggingConfig(),
+			"logging_config": loggingConfig,
 		},
 	},
 }
@@ -461,7 +451,6 @@ func flattenPySparkJob(job *dataproc.PySparkJob) []map[string]interface{} {
 }
 
 func expandPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
-
 	job := &dataproc.PySparkJob{}
 	if v, ok := config["main_python_file_uri"]; ok {
 		job.MainPythonFileUri = v.(string)
@@ -503,7 +492,6 @@ var sparkSchema = &schema.Schema{
 	ConflictsWith: []string{"pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			// main driver: can be only one of the class | jar_file
 			"main_class": {
 				Type:          schema.TypeString,
@@ -554,7 +542,7 @@ var sparkSchema = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_config": loggingConfig(),
+			"logging_config": loggingConfig,
 		},
 	},
 }
@@ -575,7 +563,6 @@ func flattenSparkJob(job *dataproc.SparkJob) []map[string]interface{} {
 }
 
 func expandSparkJob(config map[string]interface{}) *dataproc.SparkJob {
-
 	job := &dataproc.SparkJob{}
 	if v, ok := config["main_class"]; ok {
 		job.MainClass = v.(string)
@@ -618,7 +605,6 @@ var hadoopSchema = &schema.Schema{
 	ConflictsWith: []string{"spark_config", "pyspark_config", "hive_config", "pig_config", "sparksql_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			// main driver: can be only one of the main_class | main_jar_file_uri
 			"main_class": {
 				Type:          schema.TypeString,
@@ -669,7 +655,7 @@ var hadoopSchema = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_config": loggingConfig(),
+			"logging_config": loggingConfig,
 		},
 	},
 }
@@ -690,7 +676,6 @@ func flattenHadoopJob(job *dataproc.HadoopJob) []map[string]interface{} {
 }
 
 func expandHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
-
 	job := &dataproc.HadoopJob{}
 	if v, ok := config["main_class"]; ok {
 		job.MainClass = v.(string)
@@ -733,7 +718,6 @@ var hiveSchema = &schema.Schema{
 	ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "pig_config", "sparksql_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			// main query: can be only one of query_list | query_file_uri
 			"query_list": {
 				Type:          schema.TypeList,
@@ -781,7 +765,6 @@ var hiveSchema = &schema.Schema{
 }
 
 func flattenHiveJob(job *dataproc.HiveJob) []map[string]interface{} {
-
 	queries := []string{}
 	if job.QueryList != nil {
 		queries = job.QueryList.Queries
@@ -799,7 +782,6 @@ func flattenHiveJob(job *dataproc.HiveJob) []map[string]interface{} {
 }
 
 func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
-
 	job := &dataproc.HiveJob{}
 	if v, ok := config["query_file_uri"]; ok {
 		job.QueryFileUri = v.(string)
@@ -823,7 +805,6 @@ func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 	}
 
 	return job
-
 }
 
 // ---- Pig Job ----
@@ -836,7 +817,6 @@ var pigSchema = &schema.Schema{
 	ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "sparksql_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			// main query: can be only one of query_list | query_file_uri
 			"query_list": {
 				Type:          schema.TypeList,
@@ -880,13 +860,12 @@ var pigSchema = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_config": loggingConfig(),
+			"logging_config": loggingConfig,
 		},
 	},
 }
 
 func flattenPigJob(job *dataproc.PigJob) []map[string]interface{} {
-
 	queries := []string{}
 	if job.QueryList != nil {
 		queries = job.QueryList.Queries
@@ -904,7 +883,6 @@ func flattenPigJob(job *dataproc.PigJob) []map[string]interface{} {
 }
 
 func expandPigJob(config map[string]interface{}) *dataproc.PigJob {
-
 	job := &dataproc.PigJob{}
 	if v, ok := config["query_file_uri"]; ok {
 		job.QueryFileUri = v.(string)
@@ -941,7 +919,6 @@ var sparkSqlSchema = &schema.Schema{
 	ConflictsWith: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config"},
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-
 			// main query: can be only one of query_list | query_file_uri
 			"query_list": {
 				Type:          schema.TypeList,
@@ -979,13 +956,12 @@ var sparkSqlSchema = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"logging_config": loggingConfig(),
+			"logging_config": loggingConfig,
 		},
 	},
 }
 
 func flattenSparkSqlJob(job *dataproc.SparkSqlJob) []map[string]interface{} {
-
 	queries := []string{}
 	if job.QueryList != nil {
 		queries = job.QueryList.Queries
@@ -1002,7 +978,6 @@ func flattenSparkSqlJob(job *dataproc.SparkSqlJob) []map[string]interface{} {
 }
 
 func expandSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
-
 	job := &dataproc.SparkSqlJob{}
 	if v, ok := config["query_file_uri"]; ok {
 		job.QueryFileUri = v.(string)

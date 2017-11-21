@@ -35,7 +35,6 @@ func TestConvertAndMapStringArr(t *testing.T) {
 }
 
 func TestConvertStringMap(t *testing.T) {
-
 	input := make(map[string]interface{}, 3)
 	input["one"] = "1"
 	input["two"] = "2"

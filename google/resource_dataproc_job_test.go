@@ -327,7 +327,6 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 }
 
 func testAccCheckDataprocJobExists(n string, job *dataproc.Job) resource.TestCheckFunc {
-
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -480,7 +479,6 @@ resource "google_dataproc_cluster" "basic" {
 
 func testAccDataprocJob_updatable(rnd, jobId, del string) string {
 	return fmt.Sprintf(
-
 		singleNodeClusterConfig+`
 
 resource "google_dataproc_job" "updatable" {
@@ -504,7 +502,6 @@ resource "google_dataproc_job" "updatable" {
 
 func testAccDataprocJob_pySpark(rnd string) string {
 	return fmt.Sprintf(
-
 		singleNodeClusterConfig+`
 
 resource "google_dataproc_job" "pyspark" {
@@ -568,7 +565,6 @@ func testAccDataprocJob_spark(rnd string) string {
 }
 
 func testAccDataprocJob_hadoop(rnd string) string {
-
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 
@@ -595,7 +591,6 @@ func testAccDataprocJob_hadoop(rnd string) string {
 }
 
 func testAccDataprocJob_hive(rnd string) string {
-
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 
@@ -621,7 +616,6 @@ func testAccDataprocJob_hive(rnd string) string {
 }
 
 func testAccDataprocJob_pig(rnd string) string {
-
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 
@@ -648,7 +642,6 @@ func testAccDataprocJob_pig(rnd string) string {
 }
 
 func testAccDataprocJob_sparksql(rnd string) string {
-
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 

@@ -77,7 +77,6 @@ output "pyspark_status" {
 * `placement.cluster_name` - (Required) The name of the cluster where the job 
    will be submitted.
 
-
 * `xxx_config` - (Required) Exactly one of the specific job types to run on the
    cluster should be specified. If you want to submit multiple jobs, this will
    currently require the definition of multiple `google_dataproc_job` resources
@@ -151,7 +150,6 @@ are generally applicable:
 
 The `spark_config` block supports:
 
-
 ```hcl
 
 # Submit a spark job to the cluster
@@ -196,7 +194,6 @@ resource "google_dataproc_job" "spark" {
 
 
 The `hadoop_config` block supports:
-
 
 ```hcl
 
@@ -353,7 +350,6 @@ exported:
 * `driver_controls_files_uri` - If present, the location of miscellaneous control files which may be used as part of job setup and handling. If not present, control files may be placed in the same location as driver_output_uri.
 
 
-<a id="timeouts"></a>
 ## Timeouts
 
 `google_dataproc_cluster` provides the following
