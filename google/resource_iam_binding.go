@@ -99,7 +99,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 func resourceIamBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		updater, err := NewProjectIamUpdater(d, config)
+		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func resourceIamBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.U
 func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		updater, err := NewProjectIamUpdater(d, config)
+		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
 		}
