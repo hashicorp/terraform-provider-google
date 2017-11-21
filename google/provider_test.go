@@ -110,9 +110,19 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 	return "", fmt.Errorf("%q: required field is not set", "project")
 }
 
-// getTestProjectFromEnv returns the current configured project from environment variables.
+// testAccPreCheck ensures at least one of the project env variables is set.
 func getTestProjectFromEnv() string {
 	return multiEnvSearch(projectEnvVars)
+}
+
+// testAccPreCheck ensures at least one of the credentials env variables is set.
+func getTestCredsFromEnv() string {
+	return multiEnvSearch(credsEnvVars)
+}
+
+// testAccPreCheck ensures at least one of the region env variables is set.
+func getTestRegionFromEnv() string {
+	return multiEnvSearch(regionEnvVars)
 }
 
 func getTestOrgFromEnv(t *testing.T) string {

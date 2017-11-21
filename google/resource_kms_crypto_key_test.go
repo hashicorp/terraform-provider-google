@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -110,7 +109,7 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 
 	projectId := "terraform-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
-	location := os.Getenv("GOOGLE_REGION")
+	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -142,7 +141,7 @@ func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
 
 	projectId := "terraform-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
-	location := os.Getenv("GOOGLE_REGION")
+	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))

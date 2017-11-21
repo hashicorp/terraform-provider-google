@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -298,8 +297,7 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	t.Parallel()
 
 	sa := "a" + acctest.RandString(10)
-	project := os.Getenv("GOOGLE_PROJECT")
-	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, project)
+	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, getTestProjectFromEnv())
 	rnd := acctest.RandString(10)
 
 	var cluster dataproc.Cluster
