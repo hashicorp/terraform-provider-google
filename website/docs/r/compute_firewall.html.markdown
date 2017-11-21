@@ -42,10 +42,14 @@ The following arguments are supported:
 
 * `network` - (Required) The name or self_link of the network to attach this firewall to.
 
+- - -
+
 * `allow` - (Required) Can be specified multiple times for each allow
     rule. Each allow block supports fields documented below.
-
-- - -
+    
+* `deny` - (Optional) Can be specified multiple times for each deny
+    rule. Each deny block supports fields documented below. Can be specified
+    instead of allow.
 
 * `description` - (Optional) Textual description field.
 
@@ -62,12 +66,6 @@ The following arguments are supported:
 * `source_tags` - (Optional) A list of source tags for this firewall. Can't be used for `EGRESS`.
 
 * `target_tags` - (Optional) A list of target tags for this firewall.
-
-- - -
-
-* `deny` - (Optional) Can be specified multiple times for each deny
-    rule. Each deny block supports fields documented below. Can be specified
-    instead of allow.
 
 * `direction` - (Optional) Direction of traffic to which this firewall applies;
     One of `INGRESS` or `EGRESS`. Defaults to `INGRESS`.
@@ -90,14 +88,16 @@ The following arguments are supported:
 
 The `allow` block supports:
 
-* `protocol` - (Required) The name of the protocol to allow.
+* `protocol` - (Required) The name of the protocol to allow. This value can either be one of the following well
+    known protocol strings (tcp, udp, icmp, esp, ah, sctp), or the IP protocol number, or `all`.
 
 * `ports` - (Optional) List of ports and/or port ranges to allow. This can
     only be specified if the protocol is TCP or UDP.
 
 The `deny` block supports:
 
-* `protocol` - (Required) The name of the protocol to allow.
+* `protocol` - (Required) The name of the protocol to allow. This value can either be one of the following well
+    known protocol strings (tcp, udp, icmp, esp, ah, sctp), or the IP protocol number, or `all`.
 
 * `ports` - (Optional) List of ports and/or port ranges to allow. This can
     only be specified if the protocol is TCP or UDP.
