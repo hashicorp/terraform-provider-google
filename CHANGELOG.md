@@ -24,6 +24,7 @@ IMPROVEMENTS:
 * kms: Adds support for creating KMS CryptoKeys resources [GH-692]
 
 BUG FIXES:
+* bigquery: Set UseLegacySql to true for compatibility with the BigQuery API [GH-724]
 * compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
 * project: Fix timeout issue with project services [GH-737]
 * sql: Fix perpetual diff with `authorized_networks` field in `google_sql_database_instance` [GH-733]
