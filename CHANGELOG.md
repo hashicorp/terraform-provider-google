@@ -3,6 +3,8 @@
 FEATURES:
 * **New Resource:** `google_project_custom_iam_role` [GH-709]
 * **New Resource:** `google_organization_custom_iam_role` [GH-735]
+* **New Resource:** `google_organization_iam_binding` [GH-775]
+* **New Resource:** `google_organization_iam_member` [GH-775]
 * **New Resource:** `google_dataproc_job` [GH-253]
 * **New Data Source:** `google_active_folder` [GH-738]
 * **New Data Source:** `google_compute_address` [GH-748]
