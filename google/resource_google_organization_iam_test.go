@@ -42,7 +42,7 @@ func TestAccGoogleOrganizationIam(t *testing.T) {
 				}),
 			},
 			{
-				// Test Iam Member creation (no update for member, no need to test
+				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccGoogleOrganizationIamMember_basic(account, org),
 				Check: testAccCheckGoogleOrganizationIamMemberExists("foo", "roles/browser",
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
@@ -164,7 +164,7 @@ resource "google_organization_iam_binding" "foo" {
   role    = "${google_organization_iam_custom_role.test-role.id}"
   members = [
     "serviceAccount:${google_service_account.test-account.email}",
-	"serviceAccount:${google_service_account.test-account-2.email}"
+    "serviceAccount:${google_service_account.test-account-2.email}"
   ]
 }
 `, account, role, org, account, org)
