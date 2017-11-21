@@ -34,6 +34,20 @@ func TestConvertAndMapStringArr(t *testing.T) {
 	}
 }
 
+func TestConvertStringMap(t *testing.T) {
+	input := make(map[string]interface{}, 3)
+	input["one"] = "1"
+	input["two"] = "2"
+	input["three"] = "3"
+
+	expected := map[string]string{"one": "1", "two": "2", "three": "3"}
+	actual := convertStringMap(input)
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("%s did not match expected value: %s", actual, expected)
+	}
+}
+
 func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
 	actual := extractLastResourceFromUri("http://something.com/one/two/three")
 	expected := "three"
