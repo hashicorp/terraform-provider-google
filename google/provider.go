@@ -133,7 +133,7 @@ func Provider() terraform.ResourceProvider {
 			"google_project":                               resourceGoogleProject(),
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
 			"google_project_iam_binding":                   ResourceIamBinding(IamProjectSchema, NewProjectIamUpdater),
-			"google_project_iam_member":                    resourceIamMember(IamProjectSchema, NewProjectIamUpdater),
+			"google_project_iam_member":                    ResourceIamMember(IamProjectSchema, NewProjectIamUpdater),
 			"google_project_service":                       resourceGoogleProjectService(),
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_services":                      resourceGoogleProjectServices(),

@@ -23,7 +23,7 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 	},
 }
 
-func resourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIamMemberCreate(newUpdaterFunc),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
