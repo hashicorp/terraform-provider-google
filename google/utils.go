@@ -193,6 +193,26 @@ func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, 
 	return "", nil
 }
 
+func getSubnetworkLinkWithRegionAndProject(d *schema.ResourceData, config *Config, region string, project string) (string, error) {
+	if v, ok := d.GetOk("subnetwork"); ok {
+		subnetwork := v.(string)
+		r := regexp.MustCompile(SubnetworkLinkRegex)
+		if r.MatchString(subnetwork) {
+			return subnetwork, nil
+		}
+
+		subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
+		if err != nil {
+			return "", fmt.Errorf(
+				"Error referencing subnetwork '%s' in region '%s': %s",
+				subnetwork, region, err)
+		}
+
+		return subnet.SelfLink, nil
+	}
+	return "", nil
+}
+
 // getNetworkName reads the "network" field from the given resource data and if the value:
 // - is a resource URL, extracts the network name from the URL and returns it
 // - is the network name only (i.e not prefixed with http://www.googleapis.com/compute/...), is returned unchanged
