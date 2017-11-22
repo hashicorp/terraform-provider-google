@@ -6,9 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
+
+var InstanceTemplateBaseApiVersion = v1
+var InstanceTemplateVersionedFeatures = []Feature{}
 
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -404,7 +408,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 	}
 }
 
-func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk, error) {
+func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.AttachedDisk, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -412,12 +416,12 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 
 	disksCount := d.Get("disk.#").(int)
 
-	disks := make([]*compute.AttachedDisk, 0, disksCount)
+	disks := make([]*computeBeta.AttachedDisk, 0, disksCount)
 	for i := 0; i < disksCount; i++ {
 		prefix := fmt.Sprintf("disk.%d", i)
 
 		// Build the disk
-		var disk compute.AttachedDisk
+		var disk computeBeta.AttachedDisk
 		disk.Type = "PERSISTENT"
 		disk.Mode = "READ_WRITE"
 		disk.Interface = "SCSI"
@@ -435,7 +439,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
 		} else {
-			disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 
 			if v, ok := d.GetOk(prefix + ".disk_name"); ok {
 				disk.InitializeParams.DiskName = v.(string)
@@ -487,16 +491,16 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 // 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'.
 // Accelerator type 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'
 // must be a valid resource name (not an url).
-func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Config) []*compute.AcceleratorConfig {
+func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Config) []*computeBeta.AcceleratorConfig {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*compute.AcceleratorConfig, len(accels))
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
 	for i, raw := range accels {
 		data := raw.(map[string]interface{})
-		guestAccelerators[i] = &compute.AcceleratorConfig{
+		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			// We can't use ParseAcceleratorFieldValue here because an instance
 			// template does not have a zone we can use.
@@ -515,7 +519,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &compute.InstanceProperties{}
+	instanceProperties := &computeBeta.InstanceProperties{}
 
 	instanceProperties.CanIpForward = d.Get("can_ip_forward").(bool)
 	instanceProperties.Description = d.Get("instance_description").(string)
@@ -537,7 +541,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 	instanceProperties.NetworkInterfaces = networks
 
-	instanceProperties.Scheduling = &compute.Scheduling{}
+	instanceProperties.Scheduling = &computeBeta.Scheduling{}
 	instanceProperties.Scheduling.OnHostMaintenance = "MIGRATE"
 
 	forceSendFieldsScheduling := make([]string, 0, 3)
@@ -589,22 +593,31 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	} else {
 		itName = resource.UniqueId()
 	}
-	instanceTemplate := compute.InstanceTemplate{
+	instanceTemplate := &computeBeta.InstanceTemplate{
 		Description: d.Get("description").(string),
 		Properties:  instanceProperties,
 		Name:        itName,
 	}
 
-	op, err := config.clientCompute.InstanceTemplates.Insert(
-		project, &instanceTemplate).Do()
+	var op interface{}
+	switch getComputeApiVersion(d, InstanceTemplateBaseApiVersion, InstanceGroupManagerVersionedFeatures) {
+	case v1:
+		instanceTemplateV1 := &compute.InstanceTemplate{}
+		if err := Convert(instanceTemplate, instanceTemplateV1); err != nil {
+			return err
+		}
+		op, err = config.clientCompute.InstanceTemplates.Insert(project, instanceTemplateV1).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
+	}
 	if err != nil {
-		return fmt.Errorf("Error creating instance: %s", err)
+		return fmt.Errorf("Error creating instance template: %s", err)
 	}
 
 	// Store the ID now
 	d.SetId(instanceTemplate.Name)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Instance Template")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Instance Template")
 	if err != nil {
 		return err
 	}
@@ -612,7 +625,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*compute.AttachedDisk, d *schema.ResourceData) []map[string]interface{} {
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(disks))
 	for i, disk := range disks {
 		diskMap := make(map[string]interface{})
@@ -647,10 +660,22 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	instanceTemplate, err := config.clientCompute.InstanceTemplates.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
+	instanceTemplate := &computeBeta.InstanceTemplate{}
+	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
+	case v1:
+		instanceTemplateV1, err := config.clientCompute.InstanceTemplates.Get(project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
+		}
+		if err := Convert(instanceTemplateV1, instanceTemplate); err != nil {
+			return err
+		}
+	case v0beta:
+		var err error
+		instanceTemplate, err = config.clientComputeBeta.InstanceTemplates.Get(project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
+		}
 	}
 
 	// Set the metadata fingerprint if there is one.

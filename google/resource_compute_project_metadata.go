@@ -8,6 +8,9 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+var ProjectMetadataBaseApiVersion = v1
+var ProjectMetadataVersionedFeatures = []Feature{}
+
 func resourceComputeProjectMetadata() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeProjectMetadataCreate,
@@ -88,6 +91,18 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
+// This function differs from flattenMetadata only in that it takes
+// compute.metadata rather than computeBeta.metadata as an argument. It should
+// be removed in favour of flattenMetadata if/when this resource gets beta
+// support.
+func flattenCommonInstanceMetadata(metadata *compute.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -103,7 +118,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
 	}
 
-	md := flattenMetadata(project.CommonInstanceMetadata)
+	md := flattenCommonInstanceMetadata(project.CommonInstanceMetadata)
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 	// Remove all keys not explicitly mentioned in the terraform config
 	for k := range md {

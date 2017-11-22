@@ -366,11 +366,11 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 	return m[0].(map[string]interface{})
 }
 
-func expandAliasIpRanges(ranges []interface{}) []*compute.AliasIpRange {
-	ipRanges := make([]*compute.AliasIpRange, 0, len(ranges))
+func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
+	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
 	for _, raw := range ranges {
 		data := raw.(map[string]interface{})
-		ipRanges = append(ipRanges, &compute.AliasIpRange{
+		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
 			IpCidrRange:         data["ip_cidr_range"].(string),
 			SubnetworkRangeName: data["subnetwork_range_name"].(string),
 		})
@@ -378,7 +378,7 @@ func expandAliasIpRanges(ranges []interface{}) []*compute.AliasIpRange {
 	return ipRanges
 }
 
-func flattenAliasIpRange(ranges []*compute.AliasIpRange) []map[string]interface{} {
+func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
 	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
 	for _, ipRange := range ranges {
 		rangesSchema = append(rangesSchema, map[string]interface{}{
@@ -389,17 +389,17 @@ func flattenAliasIpRange(ranges []*compute.AliasIpRange) []map[string]interface{
 	return rangesSchema
 }
 
-func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error) {
-	m := &compute.Metadata{}
+func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
+	m := &computeBeta.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
 		mdMap["startup-script"] = v
 	}
 	if len(mdMap) > 0 {
-		m.Items = make([]*compute.MetadataItems, 0, len(mdMap))
+		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
 		for key, val := range mdMap {
 			v := val.(string)
-			m.Items = append(m.Items, &compute.MetadataItems{
+			m.Items = append(m.Items, &computeBeta.MetadataItems{
 				Key:   key,
 				Value: &v,
 			})
@@ -413,7 +413,7 @@ func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error)
 	return m, nil
 }
 
-func flattenMetadata(metadata *compute.Metadata) map[string]string {
+func flattenMetadata(metadata *computeBeta.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value
@@ -421,12 +421,12 @@ func flattenMetadata(metadata *compute.Metadata) map[string]string {
 	return metadataMap
 }
 
-func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
+func resourceInstanceTags(d *schema.ResourceData) *computeBeta.Tags {
 	// Calculate the tags
-	var tags *compute.Tags
+	var tags *computeBeta.Tags
 	if v := d.Get("tags"); v != nil {
 		vs := v.(*schema.Set)
-		tags = new(compute.Tags)
+		tags = new(computeBeta.Tags)
 		tags.Items = make([]string, vs.Len())
 		for i, v := range vs.List() {
 			tags.Items[i] = v.(string)
@@ -438,7 +438,7 @@ func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
 	return tags
 }
 
-func flattenScheduling(scheduling *compute.Scheduling) []map[string]interface{} {
+func flattenScheduling(scheduling *computeBeta.Scheduling) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 	schedulingMap := map[string]interface{}{
 		"on_host_maintenance": scheduling.OnHostMaintenance,
@@ -466,7 +466,7 @@ func getProjectFromSubnetworkLink(subnetwork string) string {
 	return project
 }
 
-func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]interface{}, string) {
+func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[string]interface{}, string) {
 	flattened := make([]map[string]interface{}, len(accessConfigs))
 	natIP := ""
 	for i, ac := range accessConfigs {
@@ -481,7 +481,7 @@ func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]i
 	return flattened, natIP
 }
 
-func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string, string, string) {
+func flattenNetworkInterfaces(networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string) {
 	flattened := make([]map[string]interface{}, len(networkInterfaces))
 	var region, internalIP, externalIP string
 
@@ -515,11 +515,11 @@ func flattenNetworkInterfaces(networkInterfaces []*compute.NetworkInterface) ([]
 	return flattened, region, internalIP, externalIP
 }
 
-func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
-	acs := make([]*compute.AccessConfig, len(configs))
+func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
+	acs := make([]*computeBeta.AccessConfig, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
-		acs[i] = &compute.AccessConfig{
+		acs[i] = &computeBeta.AccessConfig{
 			Type:  "ONE_TO_ONE_NAT",
 			NatIP: data["nat_ip"].(string),
 		}
@@ -527,7 +527,7 @@ func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
 	return acs
 }
 
-func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute.NetworkInterface, error) {
+func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -538,7 +538,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 	}
 
 	configs := d.Get("network_interface").([]interface{})
-	ifaces := make([]*compute.NetworkInterface, len(configs))
+	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
@@ -559,7 +559,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
 		}
 
-		ifaces[i] = &compute.NetworkInterface{
+		ifaces[i] = &computeBeta.NetworkInterface{
 			NetworkIP:     data["network_ip"].(string),
 			Network:       nf.RelativeLink(),
 			Subnetwork:    subnetLink,
@@ -576,7 +576,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 	return ifaces, nil
 }
 
-func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
+func flattenServiceAccounts(serviceAccounts []*computeBeta.ServiceAccount) []map[string]interface{} {
 	result := make([]map[string]interface{}, len(serviceAccounts))
 	for i, serviceAccount := range serviceAccounts {
 		result[i] = map[string]interface{}{
@@ -587,12 +587,12 @@ func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[str
 	return result
 }
 
-func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
-	accounts := make([]*compute.ServiceAccount, len(configs))
+func expandServiceAccounts(configs []interface{}) []*computeBeta.ServiceAccount {
+	accounts := make([]*computeBeta.ServiceAccount, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
-		accounts[i] = &compute.ServiceAccount{
+		accounts[i] = &computeBeta.ServiceAccount{
 			Email:  data["email"].(string),
 			Scopes: canonicalizeServiceScopes(convertStringSet(data["scopes"].(*schema.Set))),
 		}
@@ -604,7 +604,7 @@ func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
 	return accounts
 }
 
-func flattenGuestAccelerators(accelerators []*compute.AcceleratorConfig) []map[string]interface{} {
+func flattenGuestAccelerators(accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
 	acceleratorsSchema := make([]map[string]interface{}, len(accelerators))
 	for i, accelerator := range accelerators {
 		acceleratorsSchema[i] = map[string]interface{}{

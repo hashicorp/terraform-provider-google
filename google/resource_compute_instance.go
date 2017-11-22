@@ -11,9 +11,13 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/mitchellh/hashstructure"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
+
+var InstanceBaseApiVersion = v1
+var InstanceVersionedFeatures = []Feature{}
 
 func resourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
@@ -538,15 +542,27 @@ func resourceComputeInstance() *schema.Resource {
 	}
 }
 
-func getInstance(config *Config, d *schema.ResourceData) (*compute.Instance, error) {
+func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 	zone := d.Get("zone").(string)
-	instance, err := config.clientCompute.Instances.Get(project, zone, d.Id()).Do()
-	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+	instance := &computeBeta.Instance{}
+	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
+	case v1:
+		instanceV1, err := config.clientCompute.Instances.Get(project, zone, d.Id()).Do()
+		if err != nil {
+			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+		}
+		if err := Convert(instanceV1, instance); err != nil {
+			return nil, err
+		}
+	case v0beta:
+		instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+		if err != nil {
+			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
+		}
 	}
 	return instance, nil
 }
@@ -580,7 +596,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Build up the list of disks
 
-	disks := []*compute.AttachedDisk{}
+	disks := []*computeBeta.AttachedDisk{}
 	bootDisk, err := expandBootDisk(d, config, zone, project)
 	if err != nil {
 		return err
@@ -608,7 +624,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	prefix := "scheduling.0"
-	scheduling := &compute.Scheduling{}
+	scheduling := &computeBeta.Scheduling{}
 
 	if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
 		scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
@@ -645,7 +661,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Create the instance information
-	instance := &compute.Instance{
+	instance := &computeBeta.Instance{
 		CanIpForward:      d.Get("can_ip_forward").(bool),
 		Description:       d.Get("description").(string),
 		Disks:             disks,
@@ -662,7 +678,17 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.clientCompute.Instances.Insert(project, zone.Name, instance).Do()
+	var op interface{}
+	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
+	case v1:
+		instanceV1 := &compute.Instance{}
+		if err := Convert(instance, instanceV1); err != nil {
+			return err
+		}
+		op, err = config.clientCompute.Instances.Insert(project, zone.Name, instanceV1).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
+	}
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -857,7 +883,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			md := instance.Metadata
 
-			MetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
+			BetaMetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
 
 			if err != nil {
 				return fmt.Errorf("Error updating metadata: %s", err)
@@ -889,8 +915,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("tags") {
 		tags := resourceInstanceTags(d)
+		tagsV1 := &compute.Tags{}
+		if err := Convert(tags, tagsV1); err != nil {
+			return err
+		}
 		op, err := config.clientCompute.Instances.SetTags(
-			project, zone, d.Id(), tags).Do()
+			project, zone, d.Id(), tagsV1).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
@@ -1111,7 +1141,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	return resourceComputeInstanceRead(d, meta)
 }
 
-func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
+func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
 	config := meta.(*Config)
 
 	source, err := ParseDiskFieldValue(diskConfig["source"].(string), d, config)
@@ -1119,7 +1149,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		return nil, err
 	}
 
-	disk := &compute.AttachedDisk{
+	disk := &computeBeta.AttachedDisk{
 		Source: source.RelativeLink(),
 	}
 
@@ -1128,7 +1158,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 	}
 
 	if v, ok := diskConfig["disk_encryption_key_raw"]; ok {
-		disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
 			RawKey: v.(string),
 		}
 	}
@@ -1137,20 +1167,20 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 
 // See comment on expandInstanceTemplateGuestAccelerators regarding why this
 // code is duplicated.
-func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*compute.AcceleratorConfig, error) {
+func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*computeBeta.AcceleratorConfig, error) {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil, nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*compute.AcceleratorConfig, len(accels))
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
 	for i, raw := range accels {
 		data := raw.(map[string]interface{})
 		at, err := ParseAcceleratorFieldValue(data["type"].(string), d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
 		}
-		guestAccelerators[i] = &compute.AcceleratorConfig{
+		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			AcceleratorType:  at.RelativeLink(),
 		}
@@ -1184,8 +1214,8 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*compute.AttachedDisk, error) {
-	disk := &compute.AttachedDisk{
+func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*computeBeta.AttachedDisk, error) {
+	disk := &computeBeta.AttachedDisk{
 		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
 		Boot:       true,
 	}
@@ -1195,7 +1225,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
-		disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
 			RawKey: v.(string),
 		}
 	}
@@ -1209,7 +1239,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+		disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
 			disk.InitializeParams.DiskSizeGb = int64(v.(int))
@@ -1238,7 +1268,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -1260,20 +1290,20 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk) []map[s
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*compute.AttachedDisk, error) {
+func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
 	diskType, err := readDiskType(config, zone, project, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
 
 	n := d.Get("scratch_disk.#").(int)
-	scratchDisks := make([]*compute.AttachedDisk, 0, n)
+	scratchDisks := make([]*computeBeta.AttachedDisk, 0, n)
 	for i := 0; i < n; i++ {
-		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
+		scratchDisks = append(scratchDisks, &computeBeta.AttachedDisk{
 			AutoDelete: true,
 			Type:       "SCRATCH",
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
-			InitializeParams: &compute.AttachedDiskInitializeParams{
+			InitializeParams: &computeBeta.AttachedDiskInitializeParams{
 				DiskType: diskType.SelfLink,
 			},
 		})
@@ -1282,7 +1312,7 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zo
 	return scratchDisks, nil
 }
 
-func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
+func flattenScratchDisk(disk *computeBeta.AttachedDisk) map[string]interface{} {
 	result := map[string]interface{}{
 		"interface": disk.Interface,
 	}
