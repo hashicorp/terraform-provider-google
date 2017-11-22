@@ -62,7 +62,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 
 	// Build the address parameter
 	addr := &compute.Address{
-		Name: d.Get("name").(string),
+		Name:      d.Get("name").(string),
 		IpVersion: d.Get("ip_version").(string),
 	}
 
