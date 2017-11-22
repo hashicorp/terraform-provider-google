@@ -696,7 +696,7 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 				clusterTestField{"network_policy.0.enabled", cluster.NetworkPolicy.Enabled},
 				clusterTestField{"network_policy.0.provider", cluster.NetworkPolicy.Provider},
 			)
-		} 
+		}
 		// Remove Zone from additional_zones since that's what the resource writes in state
 		additionalZones := []string{}
 		for _, location := range cluster.Locations {
@@ -949,7 +949,7 @@ resource "google_container_cluster" "primary" {
 
 var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
-	name = "%s"
+	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
 

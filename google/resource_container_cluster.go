@@ -269,13 +269,11 @@ func resourceContainerCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
-							ForceNew: true,
 							Optional: true,
 							Default:  false,
 						},
 						"provider": {
 							Type:         schema.TypeString,
-							ForceNew:     true,
 							Default:      "PROVIDER_UNSPECIFIED",
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "CALICO"}, false),
