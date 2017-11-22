@@ -62,7 +62,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 
 	// Build the address parameter
 	addr := &compute.Address{
-		Name:      d.Get("name").(string),
+		Name: d.Get("name").(string),
 		IpVersion: d.Get("ip_version").(string),
 	}
 
@@ -96,7 +96,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("name", addr.Name)
-	//d.Set("ip_version", addr.IpVersion)
+	d.Set("ip_version", addr.IpVersion)
 	d.Set("address", addr.Address)
 	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 
