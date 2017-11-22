@@ -10,7 +10,6 @@ var schemaNodeConfig = &schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
 	Computed: true,
-	ForceNew: true,
 	MaxItems: 1,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -18,7 +17,6 @@ var schemaNodeConfig = &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(10),
 			},
 
@@ -26,13 +24,11 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     schema.TypeString,
 			},
 
@@ -40,7 +36,6 @@ var schemaNodeConfig = &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 
@@ -48,27 +43,23 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     schema.TypeString,
 			},
 
 			"min_cpu_platform": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"oauth_scopes": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					StateFunc: func(v interface{}) string {
@@ -81,7 +72,6 @@ var schemaNodeConfig = &schema.Schema{
 			"preemptible": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Default:  false,
 			},
 
@@ -89,17 +79,26 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"tags": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	},
+}
+
+func addForceNew(s *schema.Schema) *schema.Schema {
+	newSchema := *s
+	newSchema.ForceNew = true
+	if el, ok := newSchema.Elem.(*schema.Resource); ok {
+		for k, v := range el.Schema {
+			el.Schema[k] = addForceNew(v)
+		}
+	}
+	return &newSchema
 }
 
 func expandNodeConfig(v interface{}) *container.NodeConfig {

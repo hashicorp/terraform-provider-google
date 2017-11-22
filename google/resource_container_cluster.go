@@ -298,9 +298,27 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true, // TODO(danawillow): Add ability to add/remove nodePools
 				Elem: &schema.Resource{
-					Schema: schemaNodePool,
+					Schema: mergeSchemas(
+						schemaNodePool,
+						map[string]*schema.Schema{
+							"initial_node_count": &schema.Schema{
+								Type:       schema.TypeInt,
+								Optional:   true,
+								Computed:   true,
+								Deprecated: "Use node_count instead",
+							},
+							"name": &schema.Schema{
+								Type:     schema.TypeString,
+								Optional: true,
+								Computed: true,
+							},
+							"name_prefix": &schema.Schema{
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"node_config": schemaNodeConfig,
+						}),
 				},
 			},
 
@@ -612,6 +630,72 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
+	// Add/remove node pools first in case any other changes affect all nodes
+	if d.HasChange("node_pool") {
+		o, n := d.GetChange("node_pool")
+
+		getNpNames := func(config interface{}) *schema.Set {
+			names := []interface{}{}
+			for _, np := range config.([]interface{}) {
+				npConfig := np.(map[string]interface{})
+				names = append(names, npConfig["name"])
+			}
+			return schema.NewSet(schema.HashString, names)
+		}
+
+		oNps := getNpNames(o)
+		nNps := getNpNames(n)
+
+		// Delete all the node pools that were previously there but no longer are
+		for _, np := range oNps.Difference(nNps).List() {
+			npName := np.(string)
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(project, zoneName, clusterName, npName).Do()
+			if err != nil {
+				return fmt.Errorf("Error deleting NodePool: %s", err)
+			}
+
+			// Wait until it's deleted
+			waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE NodePool", timeoutInMinutes, 2)
+			if waitErr != nil {
+				return waitErr
+			}
+			log.Printf("[INFO] Node pool %q has been removed from GKE cluster %q", npName, clusterName)
+		}
+
+		// Add the new node pools and update existing ones
+		for i, np := range n.([]interface{}) {
+			name := np.(map[string]interface{})["name"].(string)
+			prefix := fmt.Sprintf("node_pool.%d.", i)
+
+			if !oNps.Contains(name) {
+				nodePool, err := expandNodePool(d, prefix)
+				if err != nil {
+					return err
+				}
+
+				req := &container.CreateNodePoolRequest{
+					NodePool: nodePool,
+				}
+				op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zoneName, clusterName, req).Do()
+				if err != nil {
+					return fmt.Errorf("Error creating NodePool: %s", err)
+				}
+
+				waitErr := containerOperationWait(config, op, project, zoneName, "creating GKE NodePool", timeoutInMinutes, 3)
+				if waitErr != nil {
+					return waitErr
+				}
+				log.Printf("[INFO] Node pool %q has been added to GKE cluster %q", nodePool.Name, clusterName)
+			} else {
+				if err := nodePoolUpdate(d, meta, clusterName, prefix, timeoutInMinutes); err != nil {
+					return err
+				}
+			}
+		}
+
+		d.SetPartial("node_pool")
+	}
+
 	if d.HasChange("master_authorized_networks_config") {
 		c := d.Get("master_authorized_networks_config")
 		req := &container.UpdateClusterRequest{
@@ -800,15 +884,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			desiredMonitoringService)
 
 		d.SetPartial("monitoring_service")
-	}
-
-	if n, ok := d.GetOk("node_pool.#"); ok {
-		for i := 0; i < n.(int); i++ {
-			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
-				return err
-			}
-		}
-		d.SetPartial("node_pool")
 	}
 
 	if d.HasChange("logging_service") {

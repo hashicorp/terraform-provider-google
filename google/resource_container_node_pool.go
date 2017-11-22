@@ -51,6 +51,28 @@ func resourceContainerNodePool() *schema.Resource {
 					Required: true,
 					ForceNew: true,
 				},
+
+				// The following fields are specified separately because they are ForceNew
+				// in resource_container_node_pool but not in resource_container_cluster.
+				"initial_node_count": &schema.Schema{
+					Type:       schema.TypeInt,
+					Optional:   true,
+					ForceNew:   true,
+					Computed:   true,
+					Deprecated: "Use node_count instead",
+				},
+				"name": &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+				"name_prefix": &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+				},
+				"node_config": addForceNew(schemaNodeConfig),
 			}),
 	}
 }
@@ -77,14 +99,6 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"initial_node_count": &schema.Schema{
-		Type:       schema.TypeInt,
-		Optional:   true,
-		ForceNew:   true,
-		Computed:   true,
-		Deprecated: "Use node_count instead",
-	},
-
 	"management": {
 		Type:     schema.TypeList,
 		Optional: true,
@@ -106,21 +120,6 @@ var schemaNodePool = map[string]*schema.Schema{
 			},
 		},
 	},
-
-	"name": &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
-	},
-
-	"name_prefix": &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		ForceNew: true,
-	},
-
-	"node_config": schemaNodeConfig,
 
 	"node_count": {
 		Type:         schema.TypeInt,
