@@ -122,6 +122,8 @@ func Provider() terraform.ResourceProvider {
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_kms_key_ring":                          resourceKmsKeyRing(),
+			"google_kms_key_ring_iam_binding":              ResourceIamBinding(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater),
+			"google_kms_key_ring_iam_member":               ResourceIamMember(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater),
 			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
 			"google_sourcerepo_repository":                 resourceSourceRepoRepository(),
 			"google_spanner_instance":                      resourceSpannerInstance(),
