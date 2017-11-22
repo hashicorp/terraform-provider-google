@@ -96,7 +96,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("name", addr.Name)
-	d.Set("ip_version", addr.IpVersion)
+	//d.Set("ip_version", addr.IpVersion)
 	d.Set("address", addr.Address)
 	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 
