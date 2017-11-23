@@ -13,25 +13,28 @@ import (
 func TestAccGoogleKmsCryptoKeyIamBinding(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
+	orgId := getTestOrgFromEnv(t)
+	projectId := acctest.RandomWithPrefix("tf-test")
+	billingAccount := getTestBillingAccountFromEnv(t)
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
-				Config: testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccGoogleKmsCryptoKeyIamBinding_update(projectId, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccGoogleKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
@@ -44,18 +47,21 @@ func TestAccGoogleKmsCryptoKeyIamBinding(t *testing.T) {
 func TestAccGoogleKmsCryptoKeyIamMember(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
+	orgId := getTestOrgFromEnv(t)
+	projectId := acctest.RandomWithPrefix("tf-test")
+	billingAccount := getTestBillingAccountFromEnv(t)
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleKmsCryptoKeyIamMember_basic(projectId, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccGoogleKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamMemberExists("foo", roleId,
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				),
@@ -137,16 +143,32 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 
 // We are using a custom role since iam_binding is authoritative on the member list and
 // we want to avoid removing members from an existing role to prevent unwanted side effects.
-func testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
+resource "google_project" "test_project" {
+  name            = "Test project"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_services" "test_project" {
+  project = "${google_project.test_project.project_id}"
+
+  services = [
+     "cloudkms.googleapis.com",
+     "iam.googleapis.com",
+  ]
+}
+
 resource "google_service_account" "test_account" {
-  project      = "%s"
+  project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
   display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "%s"
+  project      = "${google_project_services.test_project.project}"
   location = "us-central1"
   name     = "%s"
 }
@@ -161,25 +183,41 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
   role          = "%s"
   members       = ["serviceAccount:${google_service_account.test_account.email}"]
 }
-`, projectId, account, projectId, keyRingName, cryptoKeyName, roleId)
+`, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
 
-func testAccGoogleKmsCryptoKeyIamBinding_update(projectId, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccGoogleKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
+resource "google_project" "test_project" {
+  name            = "Test project"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_services" "test_project" {
+  project = "${google_project.test_project.project_id}"
+
+  services = [
+     "cloudkms.googleapis.com",
+     "iam.googleapis.com",
+  ]
+}
+
 resource "google_service_account" "test_account" {
-  project      = "%s"
+  project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
   display_name = "Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
-  project      = "%s"
+  project      = "${google_project_services.test_project.project}"
   account_id   = "%s-2"
   display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "%s"
+  project  = "${google_project_services.test_project.project}"
   location = "us-central1"
   name     = "%s"
 }
@@ -197,23 +235,38 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
     "serviceAccount:${google_service_account.test_account_2.email}"
   ]
 }
-`, projectId, account, projectId, account, projectId, keyRingName, cryptoKeyName, roleId)
+`, projectId, orgId, billingAccount, account, account, keyRingName, cryptoKeyName, roleId)
 }
 
-func testAccGoogleKmsCryptoKeyIamMember_basic(projectId, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccGoogleKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
+resource "google_project" "test_project" {
+  name            = "Test project"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_services" "test_project" {
+  project = "${google_project.test_project.project_id}"
+
+  services = [
+     "cloudkms.googleapis.com",
+     "iam.googleapis.com",
+  ]
+}
+
 resource "google_service_account" "test_account" {
-  project      = "%s"
+  project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
   display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "%s"
+  project  = "${google_project_services.test_project.project}"
   location = "us-central1"
   name     = "%s"
 }
-
 resource "google_kms_crypto_key" "crypto_key" {
   key_ring = "${google_kms_key_ring.key_ring.id}"
   name     = "%s"
@@ -224,5 +277,5 @@ resource "google_kms_crypto_key_iam_member" "foo" {
   role          = "%s"
   member        = "serviceAccount:${google_service_account.test_account.email}"
 }
-`, projectId, account, projectId, keyRingName, cryptoKeyName, roleId)
+`, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
