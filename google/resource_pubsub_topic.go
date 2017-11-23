@@ -28,6 +28,7 @@ func resourcePubsubTopic() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -59,6 +60,11 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	name := d.Id()
 	call := config.clientPubsub.Projects.Topics.Get(name)
 	res, err := call.Do()
@@ -67,6 +73,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", GetResourceNameFromSelfLink(res.Name))
+	d.Set("project", project)
 
 	return nil
 }

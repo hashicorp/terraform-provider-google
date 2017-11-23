@@ -89,6 +89,7 @@ func resourceSpannerInstance() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -169,6 +170,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
 	d.Set("state", instance.State)
+	d.Set("project", id.Project)
 
 	return nil
 }

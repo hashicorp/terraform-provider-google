@@ -26,6 +26,7 @@ func resourceDataprocJob() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -277,6 +278,7 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("placement", flattenJobPlacement(job.Placement))
 	d.Set("status", flattenJobStatus(job.Status))
 	d.Set("reference", flattenJobReference(job.Reference))
+	d.Set("project", project)
 
 	if job.PysparkJob != nil {
 		d.Set("pyspark_config", flattenPySparkJob(job.PysparkJob))

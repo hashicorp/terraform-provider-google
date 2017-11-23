@@ -30,6 +30,7 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -183,11 +184,7 @@ func setRuntimeConfigVariableToResourceData(d *schema.ResourceData, project stri
 	}
 	d.Set("name", name)
 	d.Set("parent", parent)
-
-	if varProject != project {
-		d.Set("project", varProject)
-	}
-
+	d.Set("project", varProject)
 	d.Set("value", variable.Value)
 	d.Set("text", variable.Text)
 	d.Set("update_time", variable.UpdateTime)

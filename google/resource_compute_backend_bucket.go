@@ -46,6 +46,7 @@ func resourceComputeBackendBucket() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -119,6 +120,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("bucket_name", bucket.BucketName)
 	d.Set("description", bucket.Description)
 	d.Set("enable_cdn", bucket.EnableCdn)
+	d.Set("project", project)
 	d.Set("self_link", bucket.SelfLink)
 
 	return nil

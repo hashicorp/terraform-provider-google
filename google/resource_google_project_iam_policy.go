@@ -22,6 +22,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
@@ -137,6 +138,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG]: Setting etag=%s", p.Etag)
 	d.Set("etag", p.Etag)
 	d.Set("policy_data", string(pBytes))
+	d.Set("project", pid)
 	return nil
 }
 

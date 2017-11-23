@@ -71,6 +71,7 @@ func resourceComputeDisk() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -313,6 +314,7 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("snapshot", disk.SourceSnapshot)
 	d.Set("labels", disk.Labels)
 	d.Set("label_fingerprint", disk.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }

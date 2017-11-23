@@ -68,6 +68,7 @@ func resourceBigtableInstance() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -160,6 +161,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
 	}
 
+	d.Set("project", project)
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
 

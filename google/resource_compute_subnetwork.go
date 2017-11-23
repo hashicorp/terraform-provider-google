@@ -54,12 +54,14 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -175,6 +177,8 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
 	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
+	d.Set("project", project)
+	d.Set("region", region)
 	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
 
 	return nil

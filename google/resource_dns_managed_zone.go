@@ -49,6 +49,7 @@ func resourceDnsManagedZone() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -105,6 +106,7 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", zone.Name)
 	d.Set("dns_name", zone.DnsName)
 	d.Set("description", zone.Description)
+	d.Set("project", project)
 
 	return nil
 }

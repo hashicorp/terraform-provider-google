@@ -49,6 +49,7 @@ func resourceDnsRecordSet() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -157,6 +158,7 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("ttl", resp.Rrsets[0].Ttl)
 	d.Set("rrdatas", resp.Rrsets[0].Rrdatas)
+	d.Set("project", project)
 
 	return nil
 }

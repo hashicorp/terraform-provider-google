@@ -43,6 +43,7 @@ func resourcePubsubSubscription() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -123,6 +124,11 @@ func getComputedTopicName(project string, topic string) string {
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	name := d.Id()
 	subscription, err := config.clientPubsub.Projects.Subscriptions.Get(name).Do()
 	if err != nil {
@@ -134,6 +140,7 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("ack_deadline_seconds", subscription.AckDeadlineSeconds)
 	d.Set("path", subscription.Name)
 	d.Set("push_config", flattenPubsubSubscriptionPushConfig(subscription.PushConfig))
+	d.Set("project", project)
 
 	return nil
 }

@@ -85,12 +85,14 @@ func resourceComputeVpnTunnel() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -220,6 +222,8 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("remote_traffic_selector", remoteTrafficSelectors)
 
 	d.Set("detailed_status", vpnTunnel.DetailedStatus)
+	d.Set("project", project)
+	d.Set("region", region)
 	d.Set("self_link", vpnTunnel.SelfLink)
 
 	d.SetId(name)

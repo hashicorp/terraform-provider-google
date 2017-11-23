@@ -73,6 +73,7 @@ func resourceComputeSslCertificate() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -148,6 +149,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", cert.Description)
 	d.Set("name", cert.Name)
 	d.Set("certificate", cert.Certificate)
+	d.Set("project", project)
 
 	return nil
 }

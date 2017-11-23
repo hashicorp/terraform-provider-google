@@ -65,6 +65,7 @@ func resourceStorageBucket() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -366,6 +367,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
@@ -384,6 +390,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("cors", flattenCors(res.Cors))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("labels", res.Labels)
+	d.Set("project", project)
 	d.SetId(res.Id)
 	return nil
 }

@@ -44,6 +44,7 @@ func resourceComputeImage() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -204,6 +205,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("self_link", image.SelfLink)
 	d.Set("labels", image.Labels)
 	d.Set("label_fingerprint", image.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }

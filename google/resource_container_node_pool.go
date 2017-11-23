@@ -39,6 +39,7 @@ func resourceContainerNodePool() *schema.Resource {
 				"project": &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
+					Computed: true,
 					ForceNew: true,
 				},
 				"zone": &schema.Schema{
@@ -197,6 +198,8 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	for k, v := range npMap {
 		d.Set(k, v)
 	}
+
+	d.Set("project", project)
 
 	return nil
 }

@@ -132,6 +132,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -236,7 +237,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("iap", flattenIap(service.Iap))
-
+	d.Set("project", project)
 	d.Set("health_checks", service.HealthChecks)
 
 	return nil

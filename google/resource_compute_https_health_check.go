@@ -56,6 +56,7 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -220,6 +221,7 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 	d.Set("port", hchk.Port)
 	d.Set("timeout_sec", hchk.TimeoutSec)
 	d.Set("unhealthy_threshold", hchk.UnhealthyThreshold)
+	d.Set("project", project)
 	d.Set("self_link", hchk.SelfLink)
 
 	return nil
