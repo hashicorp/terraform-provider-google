@@ -83,7 +83,7 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccContainerNodePool_withNodeConfig,
+				Config: testAccContainerNodePool_withNodeConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np_with_node_config"),
 				),
@@ -146,7 +146,7 @@ func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccContainerNodePool_withNodeConfigScopeAlias,
+				Config: testAccContainerNodePool_withNodeConfigScopeAlias(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np_with_node_config_scope_alias"),
 				),
@@ -571,7 +571,8 @@ func nodepoolMatchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("NodePool has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
-var testAccContainerNodePool_withNodeConfig = fmt.Sprintf(`
+func testAccContainerNodePool_withNodeConfig() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
@@ -599,8 +600,10 @@ resource "google_container_node_pool" "np_with_node_config" {
 		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
 
-var testAccContainerNodePool_withNodeConfigScopeAlias = fmt.Sprintf(`
+func testAccContainerNodePool_withNodeConfigScopeAlias() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
@@ -621,3 +624,4 @@ resource "google_container_node_pool" "np_with_node_config_scope_alias" {
 		oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}

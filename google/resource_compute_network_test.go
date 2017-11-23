@@ -21,7 +21,7 @@ func TestAccComputeNetwork_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeNetwork_basic,
+				Config: testAccComputeNetwork_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						"google_compute_network.foobar", &network),
@@ -42,7 +42,7 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeNetwork_auto_subnet,
+				Config: testAccComputeNetwork_auto_subnet(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						"google_compute_network.bar", &network),
@@ -65,7 +65,7 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeNetwork_custom_subnet,
+				Config: testAccComputeNetwork_custom_subnet(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						"google_compute_network.baz", &network),
@@ -168,19 +168,25 @@ func testAccCheckComputeNetworkIsCustomSubnet(n string, network *compute.Network
 	}
 }
 
-var testAccComputeNetwork_basic = fmt.Sprintf(`
+func testAccComputeNetwork_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "network-test-%s"
 }`, acctest.RandString(10))
+}
 
-var testAccComputeNetwork_auto_subnet = fmt.Sprintf(`
+func testAccComputeNetwork_auto_subnet() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
 	name = "network-test-%s"
 	auto_create_subnetworks = true
 }`, acctest.RandString(10))
+}
 
-var testAccComputeNetwork_custom_subnet = fmt.Sprintf(`
+func testAccComputeNetwork_custom_subnet() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "baz" {
 	name = "network-test-%s"
 	auto_create_subnetworks = false
 }`, acctest.RandString(10))
+}

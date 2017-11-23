@@ -18,7 +18,7 @@ func TestAccComputeInstanceTemplate_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_basic,
+				Config: testAccComputeInstanceTemplate_basic(),
 			},
 
 			resource.TestStep{
@@ -41,7 +41,7 @@ func TestAccComputeInstanceTemplate_importIp(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_ip,
+				Config: testAccComputeInstanceTemplate_ip(),
 			},
 
 			resource.TestStep{
@@ -64,7 +64,7 @@ func TestAccComputeInstanceTemplate_importDisks(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_disks,
+				Config: testAccComputeInstanceTemplate_disks(),
 			},
 
 			resource.TestStep{
@@ -111,7 +111,7 @@ func TestAccComputeInstanceTemplate_importSubnetCustom(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_subnet_custom,
+				Config: testAccComputeInstanceTemplate_subnet_custom(),
 			},
 
 			resource.TestStep{

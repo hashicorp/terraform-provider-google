@@ -17,7 +17,7 @@ func TestAccComputeGlobalAddress_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeGlobalAddress_basic,
+				Config: testAccComputeGlobalAddress_basic(),
 			},
 
 			resource.TestStep{

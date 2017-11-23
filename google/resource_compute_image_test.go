@@ -84,7 +84,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeImage_basedondisk,
+				Config: testAccComputeImage_basedondisk(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"google_compute_image.foobar", &image),
@@ -248,7 +248,8 @@ resource "google_compute_image" "foobar" {
 }`, name)
 }
 
-var testAccComputeImage_basedondisk = fmt.Sprintf(`
+func testAccComputeImage_basedondisk() string {
+	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "disk-test-%s"
 	zone = "us-central1-a"
@@ -258,3 +259,4 @@ resource "google_compute_image" "foobar" {
 	name = "image-test-%s"
 	source_disk = "${google_compute_disk.foobar.self_link}"
 }`, acctest.RandString(10), acctest.RandString(10))
+}

@@ -17,7 +17,7 @@ func TestAccDnsManagedZone_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDnsManagedZone_basic,
+				Config: testAccDnsManagedZone_basic(),
 			},
 
 			resource.TestStep{

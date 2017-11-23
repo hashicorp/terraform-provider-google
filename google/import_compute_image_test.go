@@ -37,7 +37,7 @@ func TestAccComputeImage_importFromSourceDisk(t *testing.T) {
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeImage_basedondisk,
+				Config: testAccComputeImage_basedondisk(),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_image.foobar",
