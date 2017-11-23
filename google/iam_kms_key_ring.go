@@ -34,6 +34,22 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	}, nil
 }
 
+func resourceManagerToKmsPolicy(p *cloudresourcemanager.Policy) (policy *cloudkms.Policy, err error) {
+	policy = &cloudkms.Policy{}
+
+	err = Convert(p, policy)
+
+	return
+}
+
+func kmsToResourceManagerPolicy(p *cloudkms.Policy) (policy *cloudresourcemanager.Policy, err error) {
+	policy = &cloudresourcemanager.Policy{}
+
+	err = Convert(p, policy)
+
+	return
+}
+
 func (u *KmsKeyRingIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientKms.Projects.Locations.KeyRings.GetIamPolicy(u.resourceId).Do()
 
@@ -41,9 +57,7 @@ func (u *KmsKeyRingIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Pol
 		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
 	}
 
-	cloudResourcePolicy := &cloudresourcemanager.Policy{}
-
-	err = Convert(p, cloudResourcePolicy)
+	cloudResourcePolicy, err := kmsToResourceManagerPolicy(p)
 
 	if err != nil {
 		return nil, fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)
@@ -53,8 +67,7 @@ func (u *KmsKeyRingIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Pol
 }
 
 func (u *KmsKeyRingIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	kmsPolicy := &cloudkms.Policy{}
-	err := Convert(policy, kmsPolicy)
+	kmsPolicy, err := resourceManagerToKmsPolicy(policy)
 
 	if err != nil {
 		return fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)

@@ -41,9 +41,7 @@ func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
 	}
 
-	cloudResourcePolicy := &cloudresourcemanager.Policy{}
-
-	err = Convert(p, cloudResourcePolicy)
+	cloudResourcePolicy, err := kmsToResourceManagerPolicy(p)
 
 	if err != nil {
 		return nil, fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)
@@ -53,8 +51,7 @@ func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 }
 
 func (u *KmsCryptoKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	kmsPolicy := &cloudkms.Policy{}
-	err := Convert(policy, kmsPolicy)
+	kmsPolicy, err := resourceManagerToKmsPolicy(policy)
 
 	if err != nil {
 		return fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)
