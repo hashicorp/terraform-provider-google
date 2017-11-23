@@ -10,19 +10,12 @@ import (
 	"testing"
 )
 
-// Bindings and members are tested serially to avoid concurrent updates of the org's IAM policy.
-// When concurrent changes happen, the behavior is to abort and ask the user to retry allowing
-// them to see the new diff instead of blindly overriding the policy stored in GCP. This desired
-// behavior however induces flakiness in our acceptance tests, hence the need for running them
-// serially.
-func TestAccGoogleKmsKeyRingIam(t *testing.T) {
+func TestAccGoogleKmsKeyRingIamBinding(t *testing.T) {
 	t.Parallel()
 
 	projectId := getTestProjectFromEnv()
-	//projectId := "mytestproject12345"
 	account := acctest.RandomWithPrefix("tf-test")
-	roleIdForBinding := "roles/cloudkms.cryptoKeyDecrypter"
-	roleIdForMembership := "roles/cloudkms.cryptoKeyEncrypter"
+	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -30,23 +23,38 @@ func TestAccGoogleKmsKeyRingIam(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
-				Config: testAccGoogleKmsKeyRingIamBinding_basic(projectId, account, keyRingName, roleIdForBinding),
-				Check: testAccCheckGoogleKmsKeyRingIamBindingExists("foo", roleIdForBinding, []string{
+				Config: testAccGoogleKmsKeyRingIamBinding_basic(projectId, account, keyRingName, roleId),
+				Check: testAccCheckGoogleKmsKeyRingIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccGoogleKmsKeyRingIamBinding_update(projectId, account, keyRingName, roleIdForBinding),
-				Check: testAccCheckGoogleKmsKeyRingIamBindingExists("foo", roleIdForBinding, []string{
+				Config: testAccGoogleKmsKeyRingIamBinding_update(projectId, account, keyRingName, roleId),
+				Check: testAccCheckGoogleKmsKeyRingIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
+		},
+	})
+}
+
+func TestAccGoogleKmsKeyRingIamMember(t *testing.T) {
+	t.Parallel()
+
+	projectId := getTestProjectFromEnv()
+	account := acctest.RandomWithPrefix("tf-test")
+	roleId := "roles/cloudkms.cryptoKeyEncrypter"
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleKmsKeyRingIamMember_basic(projectId, account, keyRingName, roleIdForMembership),
-				Check: testAccCheckGoogleKmsKeyRingIamMemberExists("foo", roleIdForMembership,
+				Config: testAccGoogleKmsKeyRingIamMember_basic(projectId, account, keyRingName, roleId),
+				Check: testAccCheckGoogleKmsKeyRingIamMemberExists("foo", roleId,
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				),
 			},
