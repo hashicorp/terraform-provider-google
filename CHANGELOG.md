@@ -1,6 +1,10 @@
 ## 1.2.1 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_kms_key_ring_iam_binding` [GH-781]
+* **New Resource:** `google_kms_key_ring_iam_member` [GH-781]
+* **New Resource:** `google_kms_crypto_key_iam_binding` [GH-781]
+* **New Resource:** `google_kms_crypto_key_iam_member` [GH-781]
 * **New Resource:** `google_project_custom_iam_role` [GH-709]
 * **New Resource:** `google_organization_custom_iam_role` [GH-735]
 * **New Resource:** `google_organization_iam_binding` [GH-775]
