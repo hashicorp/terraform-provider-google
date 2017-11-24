@@ -48,6 +48,8 @@ func TestAccGoogleStorageObject_basic(t *testing.T) {
 }
 
 func TestAccGoogleStorageObject_recreate(t *testing.T) {
+	t.Parallel()
+
 	bucketName := testBucketName()
 
 	writeFile := func(name string, data []byte) string {
