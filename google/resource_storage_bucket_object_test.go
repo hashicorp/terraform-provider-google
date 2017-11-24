@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"google.golang.org/api/storage/v1"
+	"os"
 )
 
 var tf, err = ioutil.TempFile("", "tf-gce-test")
@@ -41,6 +42,51 @@ func TestAccGoogleStorageObject_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName),
 				Check:  testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
+			},
+		},
+	})
+}
+
+func TestAccGoogleStorageObject_recreate(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+
+	writeFile := func(name string, data []byte) string {
+		h := md5.New()
+		h.Write(data)
+		data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+		ioutil.WriteFile(name, data, 0644)
+		return data_md5
+	}
+	data_md5 := writeFile(tf.Name(), []byte("data data data"))
+	updated_data_md5 := writeFile(tf.Name()+".update", []byte("datum"))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			if err != nil {
+				panic(err)
+			}
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageBucketsObjectBasic(bucketName),
+				Check:  testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
+			},
+			resource.TestStep{
+				PreConfig: func() {
+					updateName := tf.Name() + ".update"
+					err := os.Rename(updateName, tf.Name())
+					if err != nil {
+						t.Errorf("Failed to rename %s to %s", updateName, tf.Name())
+					}
+				},
+				Config: testGoogleStorageBucketsObjectBasic(bucketName),
+				Check:  testAccCheckGoogleStorageObject(bucketName, objectName, updated_data_md5),
 			},
 		},
 	})
