@@ -1,6 +1,7 @@
 ## 1.2.1 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_folder_organization_policy` [GH-747]
 * **New Resource:** `google_kms_key_ring_iam_binding` [GH-781]
 * **New Resource:** `google_kms_key_ring_iam_member` [GH-781]
 * **New Resource:** `google_kms_crypto_key_iam_binding` [GH-781]
