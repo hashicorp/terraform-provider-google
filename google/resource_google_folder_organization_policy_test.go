@@ -13,6 +13,8 @@ import (
 func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
+	folder := acctest.RandomWithPrefix("tf-test")
+
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,12 +23,12 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, true),
+				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, true),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", true),
 			},
 			{
 				// Test update from enforced to not
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, false),
+				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, false),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", false),
 			},
 			{
@@ -35,12 +37,12 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 			},
 			{
 				// Test creation of a not enforced boolean policy
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, false),
+				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, false),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", false),
 			},
 			{
 				// Test update from not enforced to enforced
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, true),
+				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, true),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", true),
 			},
 		},
@@ -50,6 +52,8 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
+	folder := acctest.RandomWithPrefix("tf-test")
+
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -57,7 +61,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org),
+				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAll("list", "ALLOW"),
 			},
 		},
@@ -67,6 +71,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
+	folder := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	project := getTestProjectFromEnv()
 	resource.Test(t, resource.TestCase{
@@ -75,7 +80,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowSome(org, project),
+				Config: testAccGoogleFolderOrganizationPolicy_list_allowSome(org, folder, project),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAllowedValues("list", []string{project}),
 			},
 		},
@@ -85,6 +90,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
+	folder := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -92,7 +98,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org),
+				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
@@ -102,6 +108,7 @@ func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 func TestAccGoogleFolderOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
+	folder := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -109,11 +116,11 @@ func TestAccGoogleFolderOrganizationPolicy_list_update(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org),
+				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAll("list", "ALLOW"),
 			},
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org),
+				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
@@ -172,7 +179,7 @@ func testAccCheckGoogleFolderOrganizationListPolicyAll(n, policyType string) res
 		}
 
 		if policy.ListPolicy.AllValues != policyType {
-			return fmt.Errorf("Expected the list policy to '%s' all values, got '%s'", policyType, policy.ListPolicy.AllValues)
+			return fmt.Errorf("The list policy should %s all values", policyType)
 		}
 
 		return nil
@@ -227,7 +234,7 @@ func getGoogleFolderOrganizationPolicyTestResource(s *terraform.State, n string)
 	}).Do()
 }
 
-func testAccGoogleFolderOrganizationPolicy_boolean(org string, enforced bool) string {
+func testAccGoogleFolderOrganizationPolicy_boolean(org, folder string, enforced bool) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
@@ -235,59 +242,17 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "bool" {
-	folder     = "${google_folder.orgpolicy.name}"
-	constraint = "constraints/compute.disableSerialPortAccess"
+  folder     = "${google_folder.orgpolicy.name}"
+  constraint = "constraints/compute.disableSerialPortAccess"
 
-	boolean_policy {
-		enforced = %t
-	}
-}
-`, acctest.RandomWithPrefix("tf-test"), "organizations/"+org, enforced)
-}
-
-func testAccGoogleFolderOrganizationPolicy_list_allowAll(org string) string {
-	return fmt.Sprintf(`
-resource "google_folder" "orgpolicy" {
-  display_name = "%s"
-  parent       = "%s"
-}
-
-resource "google_folder_organization_policy" "list" {
-	folder     = "${google_folder.orgpolicy.name}"
-	constraint = "constraints/serviceuser.services"
-
-	list_policy {
-		allow {
-			all = true
-		}
-	}
-}
-`, acctest.RandomWithPrefix("tf-test"), "organizations/"+org)
-}
-
-func testAccGoogleFolderOrganizationPolicy_list_allowSome(org, project string) string {
-	return fmt.Sprintf(`
-resource "google_folder" "orgpolicy" {
-  display_name = "%s"
-  parent       = "%s"
-}
-
-resource "google_folder_organization_policy" "list" {
-	folder     = "${google_folder.orgpolicy.name}"
-	constraint = "constraints/compute.trustedImageProjects"
-
-	list_policy {
-		allow {
-			values = [
-				"%s",
-			]
-		}
+  boolean_policy {
+    enforced = %t
   }
 }
-`, acctest.RandomWithPrefix("tf-test"), "organizations/"+org, project)
+`, folder, "organizations/"+org, enforced)
 }
 
-func testAccGoogleFolderOrganizationPolicy_list_denySome(org string) string {
+func testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
@@ -295,17 +260,57 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-	folder     = "${google_folder.orgpolicy.name}"
- 	constraint = "serviceuser.services"
+  folder     = "${google_folder.orgpolicy.name}"
+  constraint = "constraints/serviceuser.services"
 
-  	list_policy {
-		deny {
-			values = [
-				"maps-ios-backend.googleapis.com",
-				"placesios.googleapis.com",
-			]
-		}
-	}
+  list_policy {
+    allow {
+      all = true
+    }
+  }
 }
-`, acctest.RandomWithPrefix("tf-test"), "organizations/"+org)
+`, folder, "organizations/"+org)
+}
+
+func testAccGoogleFolderOrganizationPolicy_list_allowSome(org, folder, project string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "orgpolicy" {
+  display_name = "%s"
+  parent       = "%s"
+}
+
+resource "google_folder_organization_policy" "list" {
+  folder     = "${google_folder.orgpolicy.name}"
+  constraint = "constraints/compute.trustedImageProjects"
+
+  list_policy {
+    allow {
+      values = ["%s"]
+    }
+  }
+}
+`, folder, "organizations/"+org, project)
+}
+
+func testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "orgpolicy" {
+  display_name = "%s"
+  parent       = "%s"
+}
+
+resource "google_folder_organization_policy" "list" {
+  folder     = "${google_folder.orgpolicy.name}"
+  constraint = "serviceuser.services"
+
+  list_policy {
+    deny {
+      values = [
+        "maps-ios-backend.googleapis.com",
+        "placesios.googleapis.com",
+      ]
+    }
+  }
+}
+`, folder, "organizations/"+org)
 }
