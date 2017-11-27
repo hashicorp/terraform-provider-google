@@ -27,6 +27,7 @@ IMPROVEMENTS:
 * container: Allow node pools with size 0 [GH-752]
 * container: Add support for `google_container_node_pool` management [GH-669]
 * container: Add container cluster network policy [GH-630]
+* container: add support for ip aliasing in `google_container_cluster` [GH-654]
 * kms: Adds support for creating KMS CryptoKeys resources [GH-692]
 
 BUG FIXES:
