@@ -25,6 +25,7 @@ IMPROVEMENTS:
 * container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` [GH-726]
 * container: Allow node pools with size 0 [GH-752]
 * container: Add support for `google_container_node_pool` management [GH-669]
+* container: Add container cluster network policy [GH-630]
 * kms: Adds support for creating KMS CryptoKeys resources [GH-692]
 
 BUG FIXES:
