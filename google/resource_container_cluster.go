@@ -292,6 +292,28 @@ func resourceContainerCluster() *schema.Resource {
 				StateFunc: StoreResourceName,
 			},
 
+			"network_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"provider": {
+							Type:         schema.TypeString,
+							Default:      "PROVIDER_UNSPECIFIED",
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "CALICO"}, false),
+						},
+					},
+				},
+			},
+
 			"node_config": schemaNodeConfig,
 
 			"node_pool": {
@@ -443,6 +465,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.Network = network
 	}
 
+	if v, ok := d.GetOk("network_policy"); ok && len(v.([]interface{})) > 0 {
+		cluster.NetworkPolicy = expandNetworkPolicy(v)
+	}
+
 	if v, ok := d.GetOk("subnetwork"); ok {
 		cluster.Subnetwork = v.(string)
 	}
@@ -525,6 +551,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", cluster.Name)
+
+	d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy))
+
 	d.Set("zone", cluster.Zone)
 
 	locations := []string{}
@@ -802,6 +831,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("monitoring_service")
 	}
 
+	if d.HasChange("network_policy") {
+		np, _ := d.GetOk("network_policy")
+
+		req := &container.SetNetworkPolicyRequest{
+			NetworkPolicy: expandNetworkPolicy(np),
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster network policy", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+		log.Printf("[INFO] Network policy for GKE cluster %s has been updated", d.Id())
+
+		d.SetPartial("network_policy")
+
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
 			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
@@ -941,6 +993,31 @@ func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.Mas
 				})
 			}
 		}
+	}
+	return result
+}
+
+func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
+	result := &container.NetworkPolicy{}
+	if configured != nil && len(configured.([]interface{})) > 0 {
+		config := configured.([]interface{})[0].(map[string]interface{})
+		if enabled, ok := config["enabled"]; ok && enabled.(bool) {
+			result.Enabled = true
+			if provider, ok := config["provider"]; ok {
+				result.Provider = provider.(string)
+			}
+		}
+	}
+	return result
+}
+
+func flattenNetworkPolicy(c *container.NetworkPolicy) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled":  c.Enabled,
+			"provider": c.Provider,
+		})
 	}
 	return result
 }

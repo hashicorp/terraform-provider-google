@@ -126,6 +126,10 @@ output "cluster_ca_certificate" {
 * `network` - (Optional) The name or self_link of the Google Compute Engine
     network to which the cluster is connected.
 
+* `network_policy` - (Optional) Configuration options for the
+    [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
+    feature. Structure is documented below.
+
 * `node_config` -  (Optional) Parameters used in creating the cluster's nodes.
     Structure is documented below.
 
@@ -203,6 +207,12 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
     Must be specified in CIDR notation.
 
 * `display_name` - (Optional) Field for users to identify CIDR blocks.
+
+The `network_policy` block supports:
+
+* `provider` - (Optional) The selected network policy provider. Defaults to PROVIDER_UNSPECIFIED.
+
+* `enabled` - (Optional) Whether network policy is enabled on the cluster. Defaults to false.
 
 The `node_config` block supports:
 
