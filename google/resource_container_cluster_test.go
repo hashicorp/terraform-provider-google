@@ -976,14 +976,9 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 func testAccContainerCluster_removeNetworkPolicy(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_network_policy_enabled" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
-
-	// remove network_policy is equal than enabled=false
-	//network_policy { 
-	//	enabled = "false"
-	//}
 }`, clusterName)
 }
 
