@@ -627,6 +627,64 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
+					map[string]string{
+						"pods":     "10.1.0.0/16",
+						"services": "10.2.0.0/20",
+					},
+					map[string]string{
+						"cluster_secondary_range_name":  "pods",
+						"services_secondary_range_name": "services",
+					},
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_ip_allocation_policy"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
+						"ip_allocation_policy.0.cluster_secondary_range_name", "pods"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
+						"ip_allocation_policy.0.services_secondary_range_name", "services"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
+					map[string]string{
+						"pods":     "10.1.0.0/16",
+						"services": "10.2.0.0/20",
+					},
+					map[string]string{},
+				),
+				ExpectError: regexp.MustCompile("clusters using IP aliases must specify secondary ranges"),
+			},
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
+					map[string]string{
+						"pods": "10.1.0.0/16",
+					},
+					map[string]string{
+						"cluster_secondary_range_name":  "pods",
+						"services_secondary_range_name": "services",
+					},
+				),
+				ExpectError: regexp.MustCompile("services secondary range \"pods\" not found in subnet"),
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -745,6 +803,11 @@ func testAccCheckContainerCluster(n string) resource.TestCheckFunc {
 		if cluster.MaintenancePolicy != nil {
 			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.start_time", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime})
 			clusterTests = append(clusterTests, clusterTestField{"maintenance_policy.0.daily_maintenance_window.0.duration", cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration})
+		}
+
+		if cluster.IpAllocationPolicy != nil && cluster.IpAllocationPolicy.UseIpAliases {
+			clusterTests = append(clusterTests, clusterTestField{"ip_allocation_policy.0.cluster_secondary_range_name", cluster.IpAllocationPolicy.ClusterSecondaryRangeName})
+			clusterTests = append(clusterTests, clusterTestField{"ip_allocation_policy.0.services_secondary_range_name", cluster.IpAllocationPolicy.ServicesSecondaryRangeName})
 		}
 
 		for i, np := range cluster.NodePools {
@@ -1533,11 +1596,57 @@ resource "google_container_cluster" "with_maintenance_window" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
-	
+
 	maintenance_policy {
 		daily_maintenance_window {
 			start_time = "%s"
 		}
 	}
 }`, acctest.RandString(10), startTime)
+}
+
+func testAccContainerCluster_withIPAllocationPolicy(cluster string, ranges, policy map[string]string) string {
+
+	var secondaryRanges bytes.Buffer
+	for rangeName, cidr := range ranges {
+		secondaryRanges.WriteString(fmt.Sprintf(`
+	secondary_ip_range {
+	    range_name    = "%s"
+	    ip_cidr_range = "%s"
+	}`, rangeName, cidr))
+	}
+
+	var ipAllocationPolicy bytes.Buffer
+	for key, value := range policy {
+		ipAllocationPolicy.WriteString(fmt.Sprintf(`
+		%s = "%s"`, key, value))
+	}
+
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+	name = "container-net-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+	name          = "${google_compute_network.container_network.name}"
+	network       = "${google_compute_network.container_network.name}"
+	ip_cidr_range = "10.0.0.0/24"
+	region        = "us-central1"
+
+	%s
+}
+
+resource "google_container_cluster" "with_ip_allocation_policy" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	network = "${google_compute_network.container_network.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+
+	initial_node_count = 1
+	ip_allocation_policy {
+	    %s
+	}
+}`, acctest.RandString(10), secondaryRanges.String(), cluster, ipAllocationPolicy.String())
 }
