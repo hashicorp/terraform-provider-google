@@ -940,18 +940,18 @@ resource "google_compute_instance_template" "foobar" {
 	}
 
   	network_interface {
-   		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 
 		// Note that unlike compute instances, instance templates seem to be
 		// only able to specify the netmask here. Trying a full CIDR string
 		// results in: 
 		// Invalid value for field 'resource.properties.networkInterfaces[0].aliasIpRanges[0].ipCidrRange':
 		// '172.16.0.0/24'. Alias IP CIDR range must be a valid netmask starting with '/' (e.g. '/24')
-    	alias_ip_range {
-    		subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
-    		ip_cidr_range = "/24"
-    	}
- 	}
+		alias_ip_range {
+			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+			ip_cidr_range = "/24"
+		}
+	}
 }`, i, i, i)
 }
 
