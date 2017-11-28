@@ -58,7 +58,8 @@ func TestAccGoogleStorageObject_recreate(t *testing.T) {
 	}
 	testFile := getNewTmpTestFile(t, "tf-test")
 	data_md5 := writeFile(testFile.Name(), []byte("data data data"))
-	updated_data_md5 := writeFile(testFile.Name()+".update", []byte("datum"))
+	updatedName := testFile.Name() + ".update"
+	updated_data_md5 := writeFile(updatedName, []byte("datum"))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -71,10 +72,9 @@ func TestAccGoogleStorageObject_recreate(t *testing.T) {
 			},
 			resource.TestStep{
 				PreConfig: func() {
-					updateName := testFile.Name() + ".update"
-					err := os.Rename(updateName, testFile.Name())
+					err := os.Rename(updatedName, testFile.Name())
 					if err != nil {
-						t.Errorf("Failed to rename %s to %s", updateName, testFile.Name())
+						t.Errorf("Failed to rename %s to %s", updatedName, testFile.Name())
 					}
 				},
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
