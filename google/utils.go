@@ -389,38 +389,6 @@ func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interf
 	return rangesSchema
 }
 
-func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
-	m := &computeBeta.Metadata{}
-	mdMap := d.Get("metadata").(map[string]interface{})
-	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
-		mdMap["startup-script"] = v
-	}
-	if len(mdMap) > 0 {
-		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
-		for key, val := range mdMap {
-			v := val.(string)
-			m.Items = append(m.Items, &computeBeta.MetadataItems{
-				Key:   key,
-				Value: &v,
-			})
-		}
-
-		// Set the fingerprint. If the metadata has never been set before
-		// then this will just be blank.
-		m.Fingerprint = d.Get("metadata_fingerprint").(string)
-	}
-
-	return m, nil
-}
-
-func flattenMetadata(metadata *computeBeta.Metadata) map[string]string {
-	metadataMap := make(map[string]string)
-	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
-	}
-	return metadataMap
-}
-
 func resourceInstanceTags(d *schema.ResourceData) *computeBeta.Tags {
 	// Calculate the tags
 	var tags *computeBeta.Tags

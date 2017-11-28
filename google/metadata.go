@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -148,4 +149,48 @@ func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
 	}
 
 	return metadata
+}
+
+func flattenMetadata(metadata *computeBeta.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+// This function differs from flattenMetadata only in that it takes
+// compute.metadata rather than computeBeta.metadata as an argument. It should
+// be removed in favour of flattenMetadata if/when this resource gets beta
+// support.
+func flattenCommonInstanceMetadata(metadata *compute.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
+	m := &computeBeta.Metadata{}
+	mdMap := d.Get("metadata").(map[string]interface{})
+	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
+		mdMap["startup-script"] = v
+	}
+	if len(mdMap) > 0 {
+		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
+		for key, val := range mdMap {
+			v := val.(string)
+			m.Items = append(m.Items, &computeBeta.MetadataItems{
+				Key:   key,
+				Value: &v,
+			})
+		}
+
+		// Set the fingerprint. If the metadata has never been set before
+		// then this will just be blank.
+		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+	}
+
+	return m, nil
 }

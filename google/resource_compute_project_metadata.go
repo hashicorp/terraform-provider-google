@@ -91,18 +91,6 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
-// This function differs from flattenMetadata only in that it takes
-// compute.metadata rather than computeBeta.metadata as an argument. It should
-// be removed in favour of flattenMetadata if/when this resource gets beta
-// support.
-func flattenCommonInstanceMetadata(metadata *compute.Metadata) map[string]string {
-	metadataMap := make(map[string]string)
-	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
-	}
-	return metadataMap
-}
-
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
