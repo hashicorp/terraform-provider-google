@@ -30,6 +30,10 @@ func ParseSubnetworkFieldValue(subnetwork string, d TerraformResourceData, confi
 	return parseRegionalFieldValue("subnetworks", subnetwork, "project", "region", d, config, true)
 }
 
+func ParseSubnetworkFieldValueWithProjectField(subnetwork, projectField string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
+	return parseRegionalFieldValue("subnetworks", subnetwork, projectField, "region", d, config, true)
+}
+
 func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
 	return parseGlobalFieldValue("sslCertificates", sslCertificate, "project", d, config, false)
 }

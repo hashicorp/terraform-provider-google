@@ -750,7 +750,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
-	networkInterfaces, _, internalIP, externalIP := flattenNetworkInterfaces(instance.NetworkInterfaces)
+	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
+	if err != nil {
+		return err
+	}
 	d.Set("network_interface", networkInterfaces)
 
 	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
