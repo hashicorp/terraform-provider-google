@@ -18,7 +18,7 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeTargetPool_basic,
+				Config: testAccComputeTargetPool_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetPoolExists(
 						"google_compute_target_pool.foo"),
@@ -98,7 +98,8 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 	}
 }
 
-var testAccComputeTargetPool_basic = fmt.Sprintf(`
+func testAccComputeTargetPool_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_http_health_check" "foobar" {
 	name = "healthcheck-test-%s"
 	host = "example.com"
@@ -137,3 +138,4 @@ resource "google_compute_target_pool" "bar" {
 		"${google_compute_http_health_check.foobar.self_link}"
 	]
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}

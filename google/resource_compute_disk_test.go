@@ -45,7 +45,7 @@ func TestAccComputeDisk_timeout(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config:      testAccComputeDisk_timeout,
+				Config:      testAccComputeDisk_timeout(),
 				ExpectError: regexp.MustCompile("timeout"),
 			},
 		},
@@ -316,7 +316,8 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-var testAccComputeDisk_timeout = fmt.Sprintf(`
+func testAccComputeDisk_timeout() string {
+	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
 	image = "debian-8-jessie-v20160803"
@@ -327,6 +328,7 @@ resource "google_compute_disk" "foobar" {
 		Create = "1s"
 	}
 }`, acctest.RandString(10))
+}
 
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`

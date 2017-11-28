@@ -17,7 +17,7 @@ func TestAccComputeTargetPool_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeTargetPool_basic,
+				Config: testAccComputeTargetPool_basic(),
 			},
 
 			resource.TestStep{

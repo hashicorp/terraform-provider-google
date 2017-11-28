@@ -45,7 +45,7 @@ func TestAccContainerCluster_withTimeout(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withTimeout,
+				Config: testAccContainerCluster_withTimeout(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -97,7 +97,7 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMasterAuth,
+				Config: testAccContainerCluster_withMasterAuth(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_master_auth"),
@@ -315,7 +315,7 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodeConfig,
+				Config: testAccContainerCluster_withNodeConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_config"),
@@ -334,7 +334,7 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodeConfigScopeAlias,
+				Config: testAccContainerCluster_withNodeConfigScopeAlias(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_config_scope_alias"),
@@ -353,7 +353,7 @@ func TestAccContainerCluster_network(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_networkRef,
+				Config: testAccContainerCluster_networkRef(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_net_ref_by_url"),
@@ -374,7 +374,7 @@ func TestAccContainerCluster_backend(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_backendRef,
+				Config: testAccContainerCluster_backendRef(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -544,7 +544,7 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolNamePrefix,
+				Config: testAccContainerCluster_withNodePoolNamePrefix(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_pool_name_prefix"),
@@ -563,7 +563,7 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolMultiple,
+				Config: testAccContainerCluster_withNodePoolMultiple(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_node_pool_multiple"),
@@ -582,7 +582,7 @@ func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerCluster_withNodePoolConflictingNameFields,
+				Config:      testAccContainerCluster_withNodePoolConflictingNameFields(),
 				ExpectError: regexp.MustCompile("Cannot specify both name and name_prefix for a node_pool"),
 			},
 		},
@@ -995,7 +995,8 @@ resource "google_container_cluster" "primary" {
 }`, name)
 }
 
-var testAccContainerCluster_withTimeout = fmt.Sprintf(`
+func testAccContainerCluster_withTimeout() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
@@ -1007,6 +1008,7 @@ resource "google_container_cluster" "primary" {
 		update = "30m"
 	}
 }`, acctest.RandString(10))
+}
 
 func testAccContainerCluster_withAddons(clusterName string) string {
 	return fmt.Sprintf(`
@@ -1037,7 +1039,8 @@ resource "google_container_cluster" "primary" {
 }`, clusterName)
 }
 
-var testAccContainerCluster_withMasterAuth = fmt.Sprintf(`
+func testAccContainerCluster_withMasterAuth() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
@@ -1048,6 +1051,7 @@ resource "google_container_cluster" "with_master_auth" {
 		password = "adoy.rm"
 	}
 }`, acctest.RandString(10))
+}
 
 func testAccContainerCluster_withNetworkPolicyEnabled(clusterName string) string {
 	return fmt.Sprintf(`
@@ -1228,7 +1232,8 @@ resource "google_container_cluster" "with_version" {
 }`, clusterName)
 }
 
-var testAccContainerCluster_withNodeConfig = fmt.Sprintf(`
+func testAccContainerCluster_withNodeConfig() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_config" {
 	name = "cluster-test-%s"
 	zone = "us-central1-f"
@@ -1262,8 +1267,10 @@ resource "google_container_cluster" "with_node_config" {
 		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10))
+}
 
-var testAccContainerCluster_withNodeConfigScopeAlias = fmt.Sprintf(`
+func testAccContainerCluster_withNodeConfigScopeAlias() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_config_scope_alias" {
 	name = "cluster-test-%s"
 	zone = "us-central1-f"
@@ -1280,8 +1287,10 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
 		oauth_scopes = [ "compute-rw", "storage-ro", "logging-write", "monitoring" ]
 	}
 }`, acctest.RandString(10))
+}
 
-var testAccContainerCluster_networkRef = fmt.Sprintf(`
+func testAccContainerCluster_networkRef() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
 	name = "container-net-%s"
 	auto_create_subnetworks = true
@@ -1312,8 +1321,10 @@ resource "google_container_cluster" "with_net_ref_by_name" {
 
 	network = "${google_compute_network.container_network.name}"
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
 
-var testAccContainerCluster_backendRef = fmt.Sprintf(`
+func testAccContainerCluster_backendRef() string {
+	return fmt.Sprintf(`
 resource "google_compute_backend_service" "my-backend-service" {
   name      = "terraform-test-%s"
   port_name = "http"
@@ -1358,6 +1369,7 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
 
 func testAccContainerCluster_withLogging(clusterName string) string {
 	return fmt.Sprintf(`
@@ -1501,7 +1513,8 @@ resource "google_container_cluster" "with_node_pool" {
 }`, cluster, np)
 }
 
-var testAccContainerCluster_withNodePoolNamePrefix = fmt.Sprintf(`
+func testAccContainerCluster_withNodePoolNamePrefix() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_name_prefix" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
@@ -1516,8 +1529,10 @@ resource "google_container_cluster" "with_node_pool_name_prefix" {
 		node_count  = 2
 	}
 }`, acctest.RandString(10))
+}
 
-var testAccContainerCluster_withNodePoolMultiple = fmt.Sprintf(`
+func testAccContainerCluster_withNodePoolMultiple() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_multiple" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
@@ -1537,8 +1552,10 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		node_count = 3
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
 
-var testAccContainerCluster_withNodePoolConflictingNameFields = fmt.Sprintf(`
+func testAccContainerCluster_withNodePoolConflictingNameFields() string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_multiple" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
@@ -1555,6 +1572,7 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		node_count  = 1
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
 
 func testAccContainerCluster_withNodePoolNodeConfig() string {
 	testId := acctest.RandString(10)
