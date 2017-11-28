@@ -16,6 +16,18 @@ const (
 	SubnetworkRegex = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
 
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
+
+	RFC1035NameTemplate = "[a-z](?:[-a-z0-9]{%d,%d}[a-z0-9])"
+)
+
+var (
+	// Service account name must have a length between 6 and 30.
+	// The first and last characters have different restrictions, than
+	// the middle characters. The middle characters length must be between
+	// 4 and 28 since the first and last character are excluded.
+	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
+
+	ServiceAccountLinkRegex = "projects/" + ProjectRegex + "/serviceAccounts/" + ServiceAccountNameRegex + "@" + ProjectRegex + "\\.iam\\.gserviceaccount\\.com$"
 )
 
 var rfc1918Networks = []string{
@@ -93,5 +105,5 @@ func validateRFC1035Name(min, max int) schema.SchemaValidateFunc {
 		}
 	}
 
-	return validateRegexp(fmt.Sprintf(`^[a-z]([-a-z0-9]{%d,%d}[a-z0-9])$`, min-2, max-2))
+	return validateRegexp(fmt.Sprintf("^"+RFC1035NameTemplate+"$", min-2, max-2))
 }
