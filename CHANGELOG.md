@@ -29,6 +29,7 @@ IMPROVEMENTS:
 * container: Add container cluster network policy [GH-630]
 * container: add support for ip aliasing in `google_container_cluster` [GH-654]
 * kms: Adds support for creating KMS CryptoKeys resources [GH-692]
+* project: Add validation for `account_id` in `google_service_account` [GH-793]
 * storage: Detect file changes in `google_storage_bucket_object` when using source field [GH-789]
 * all: Consistently store the project and region fields value in state. [GH-784]
 
