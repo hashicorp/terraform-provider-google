@@ -335,6 +335,7 @@ func resourceContainerCluster() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -637,6 +638,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	d.Set("project", project)
 	if cluster.AddonsConfig != nil {
 		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
 	}

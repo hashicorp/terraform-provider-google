@@ -68,6 +68,7 @@ func resourceComputeSnapshot() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -174,6 +175,7 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 
 	d.Set("labels", snapshot.Labels)
 	d.Set("label_fingerprint", snapshot.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }

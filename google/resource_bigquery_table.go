@@ -42,6 +42,7 @@ func resourceBigQueryTable() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -316,6 +317,7 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
 	}
 
+	d.Set("project", projectID)
 	d.Set("description", res.Description)
 	d.Set("expiration_time", res.ExpirationTime)
 	d.Set("friendly_name", res.FriendlyName)

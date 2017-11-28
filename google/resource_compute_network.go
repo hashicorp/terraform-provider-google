@@ -53,6 +53,7 @@ func resourceComputeNetwork() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -117,6 +118,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("self_link", network.SelfLink)
 	d.Set("name", network.Name)
 	d.Set("auto_create_subnetworks", network.AutoCreateSubnetworks)
+	d.Set("project", project)
 
 	return nil
 }

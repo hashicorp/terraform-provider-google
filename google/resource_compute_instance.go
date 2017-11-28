@@ -410,6 +410,7 @@ func resourceComputeInstance() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -786,6 +787,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	instance, err := getInstance(config, d)
 	if err != nil || instance == nil {
 		return err
@@ -956,6 +962,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
+	d.Set("project", project)
 	d.SetId(instance.Name)
 
 	return nil

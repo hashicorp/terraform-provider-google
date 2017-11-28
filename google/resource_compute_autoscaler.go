@@ -120,6 +120,7 @@ func resourceComputeAutoscaler() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -316,6 +317,7 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 
+	d.Set("project", project)
 	d.Set("self_link", scaler.SelfLink)
 	d.Set("name", scaler.Name)
 	d.Set("target", scaler.Target)

@@ -39,12 +39,14 @@ func resourceComputeVpnGateway() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -124,6 +126,8 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("name", vpnGateway.Name)
 	d.Set("description", vpnGateway.Description)
 	d.Set("network", vpnGateway.Network)
+	d.Set("project", project)
+	d.Set("region", region)
 	d.Set("self_link", vpnGateway.SelfLink)
 	d.SetId(name)
 

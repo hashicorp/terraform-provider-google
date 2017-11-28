@@ -37,6 +37,7 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"stage": {
@@ -92,6 +93,11 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	role, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, d.Id())
@@ -103,6 +109,7 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 	d.Set("permissions", role.IncludedPermissions)
 	d.Set("stage", role.Stage)
 	d.Set("deleted", role.Deleted)
+	d.Set("project", project)
 
 	return nil
 }

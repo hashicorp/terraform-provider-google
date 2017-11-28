@@ -46,6 +46,7 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -142,6 +143,7 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 	d.Set("description", proxy.Description)
 	d.Set("url_map", proxy.UrlMap)
 	d.Set("name", proxy.Name)
+	d.Set("project", project)
 
 	return nil
 }

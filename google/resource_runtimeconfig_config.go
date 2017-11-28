@@ -33,6 +33,7 @@ func resourceRuntimeconfigConfig() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -91,6 +92,7 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 
 	d.Set("name", name)
 	d.Set("description", runConfig.Description)
+	d.Set("project", project)
 
 	return nil
 }

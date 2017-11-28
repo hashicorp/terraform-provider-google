@@ -57,6 +57,7 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -203,6 +204,7 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 	d.Set("proxy_header", proxy.ProxyHeader)
 	d.Set("backend_service", proxy.Service)
 	d.Set("ssl_certificates", proxy.SslCertificates)
+	d.Set("project", project)
 	d.Set("self_link", proxy.SelfLink)
 	d.Set("proxy_id", strconv.FormatUint(proxy.Id, 10))
 

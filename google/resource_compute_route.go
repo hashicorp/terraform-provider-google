@@ -78,6 +78,7 @@ func resourceComputeRoute() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -217,6 +218,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("next_hop_vpn_tunnel", route.NextHopVpnTunnel)
 	d.Set("tags", route.Tags)
 	d.Set("next_hop_network", route.NextHopNetwork)
+	d.Set("project", project)
 	d.Set("self_link", route.SelfLink)
 
 	return nil

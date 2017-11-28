@@ -23,6 +23,7 @@ func resourceSourceRepoRepository() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -78,6 +79,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("size", repo.Size)
+	d.Set("project", project)
 
 	return nil
 }

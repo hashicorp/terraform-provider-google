@@ -27,6 +27,7 @@ func resourceComputeProjectMetadata() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -115,6 +116,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
+	d.Set("project", project)
 	d.SetId("common_metadata")
 
 	return nil
