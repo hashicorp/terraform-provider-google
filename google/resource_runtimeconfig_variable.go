@@ -72,15 +72,11 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(createdVariable.Name)
 
-	return setRuntimeConfigVariableToResourceData(d, project, *createdVariable)
+	return setRuntimeConfigVariableToResourceData(d, *createdVariable)
 }
 
 func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	fullName := d.Id()
 	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Get(fullName).Do()
@@ -88,7 +84,7 @@ func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	return setRuntimeConfigVariableToResourceData(d, project, *createdVariable)
+	return setRuntimeConfigVariableToResourceData(d, *createdVariable)
 }
 
 func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -112,7 +108,7 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	return setRuntimeConfigVariableToResourceData(d, project, *createdVariable)
+	return setRuntimeConfigVariableToResourceData(d, *createdVariable)
 }
 
 func resourceRuntimeconfigVariableDelete(d *schema.ResourceData, meta interface{}) error {
@@ -177,7 +173,7 @@ func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project st
 }
 
 // setRuntimeConfigVariableToResourceData stores a provided runtimeconfig.Variable struct inside a schema.ResourceData.
-func setRuntimeConfigVariableToResourceData(d *schema.ResourceData, project string, variable runtimeconfig.Variable) error {
+func setRuntimeConfigVariableToResourceData(d *schema.ResourceData, variable runtimeconfig.Variable) error {
 	varProject, parent, name, err := resourceRuntimeconfigVariableParseFullName(variable.Name)
 	if err != nil {
 		return err
