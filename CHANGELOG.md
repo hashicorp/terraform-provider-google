@@ -29,6 +29,7 @@ IMPROVEMENTS:
 * container: Add container cluster network policy [GH-630]
 * container: add support for ip aliasing in `google_container_cluster` [GH-654]
 * kms: Adds support for creating KMS CryptoKeys resources [GH-692]
+* storage: Detect file changes in `google_storage_bucket_object` when using source field [GH-789]
 
 BUG FIXES:
 * bigquery: Set UseLegacySql to true for compatibility with the BigQuery API [GH-724]
