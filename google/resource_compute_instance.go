@@ -720,7 +720,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	md := flattenMetadata(instance.Metadata)
+	md := flattenMetadataBeta(instance.Metadata)
 
 	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 		d.Set("metadata_startup_script", md["startup-script"])

@@ -686,7 +686,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 		md := instanceTemplate.Properties.Metadata
 
-		_md := flattenMetadata(md)
+		_md := flattenMetadataBeta(md)
 
 		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 			if err = d.Set("metadata_startup_script", script); err != nil {

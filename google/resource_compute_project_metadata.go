@@ -106,7 +106,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
 	}
 
-	md := flattenCommonInstanceMetadata(project.CommonInstanceMetadata)
+	md := flattenMetadata(project.CommonInstanceMetadata)
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 	// Remove all keys not explicitly mentioned in the terraform config
 	for k := range md {
