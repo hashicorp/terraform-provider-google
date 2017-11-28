@@ -227,3 +227,107 @@ func TestParseOrganizationFieldValue(t *testing.T) {
 		}
 	}
 }
+
+func TestParseRegionalFieldValue(t *testing.T) {
+	const resourceType = "subnetworks"
+	cases := map[string]struct {
+		FieldValue           string
+		ExpectedRelativeLink string
+		ExpectedError        bool
+		IsEmptyValid         bool
+		ProjectSchemaField   string
+		ProjectSchemaValue   string
+		RegionSchemaField    string
+		RegionSchemaValue    string
+		Config               *Config
+	}{
+		"subnetwork is a full self link": {
+			FieldValue:           "https://www.googleapis.com/compute/v1/projects/myproject/regions/us-central1/subnetworks/my-subnetwork",
+			ExpectedRelativeLink: "projects/myproject/regions/us-central1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is a relative self link": {
+			FieldValue:           "projects/myproject/regions/us-central1/subnetworks/my-subnetwork",
+			ExpectedRelativeLink: "projects/myproject/regions/us-central1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is a partial relative self link": {
+			FieldValue:           "regions/us-central1/subnetworks/my-subnetwork",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/us-central1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only": {
+			FieldValue:           "my-subnetwork",
+			RegionSchemaField:    "region",
+			RegionSchemaValue:    "us-east1",
+			Config:               &Config{Project: "default-project"},
+			ExpectedRelativeLink: "projects/default-project/regions/us-east1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only and has a project set in schema": {
+			FieldValue:           "my-subnetwork",
+			ProjectSchemaField:   "project",
+			ProjectSchemaValue:   "schema-project",
+			RegionSchemaField:    "region",
+			RegionSchemaValue:    "us-east1",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/schema-project/regions/us-east1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only and has a project set in schema but the field is not specified.": {
+			FieldValue:           "my-subnetwork",
+			ProjectSchemaValue:   "schema-project",
+			RegionSchemaField:    "region",
+			RegionSchemaValue:    "us-east1",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/us-east1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only and no region field is specified": {
+			FieldValue:           "my-subnetwork",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/default-region/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only and no value for region field is specified": {
+			FieldValue:           "my-subnetwork",
+			RegionSchemaField:    "region",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/default-region/subnetworks/my-subnetwork",
+		},
+		"subnetwork is empty and it is valid": {
+			FieldValue:           "",
+			IsEmptyValid:         true,
+			ExpectedRelativeLink: "",
+		},
+		"subnetwork is empty and it is not valid": {
+			FieldValue:    "",
+			IsEmptyValid:  false,
+			ExpectedError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			fieldsInSchema := make(map[string]interface{})
+
+			if len(tc.ProjectSchemaValue) > 0 && len(tc.ProjectSchemaField) > 0 {
+				fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
+			}
+
+			if len(tc.RegionSchemaValue) > 0 && len(tc.RegionSchemaField) > 0 {
+				fieldsInSchema[tc.RegionSchemaField] = tc.RegionSchemaValue
+			}
+
+			d := &ResourceDataMock{
+				FieldsInSchema: fieldsInSchema,
+			}
+
+			v, err := parseRegionalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.RegionSchemaField, d, tc.Config, tc.IsEmptyValid)
+
+			if err != nil {
+				if !tc.ExpectedError {
+					t.Errorf("bad: did not expect an error. Error: %s", err)
+				}
+			} else {
+				if v.RelativeLink() != tc.ExpectedRelativeLink {
+					t.Errorf("bad: expected relative link to be '%s' but got '%s'", tc.ExpectedRelativeLink, v.RelativeLink())
+				}
+			}
+		})
+	}
+}

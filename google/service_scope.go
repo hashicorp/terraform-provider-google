@@ -1,5 +1,7 @@
 package google
 
+import "github.com/hashicorp/terraform/helper/schema"
+
 func canonicalizeServiceScope(scope string) string {
 	// This is a convenience map of short names used by the gcloud tool
 	// to the GCE auth endpoints they alias to.
@@ -35,4 +37,17 @@ func canonicalizeServiceScope(scope string) string {
 	}
 
 	return scope
+}
+
+func canonicalizeServiceScopes(scopes []string) []string {
+	cs := make([]string, len(scopes))
+	for i, scope := range scopes {
+		cs[i] = canonicalizeServiceScope(scope)
+	}
+	return cs
+}
+
+func stringScopeHashcode(v interface{}) int {
+	v = canonicalizeServiceScope(v.(string))
+	return schema.HashString(v)
 }

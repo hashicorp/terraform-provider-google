@@ -8,6 +8,9 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+var ProjectMetadataBaseApiVersion = v1
+var ProjectMetadataVersionedFeatures = []Feature{}
+
 func resourceComputeProjectMetadata() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeProjectMetadataCreate,
@@ -103,7 +106,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
 	}
 
-	md := flattenMetadata(project.CommonInstanceMetadata)
+	md := flattenCommonInstanceMetadata(project.CommonInstanceMetadata)
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 	// Remove all keys not explicitly mentioned in the terraform config
 	for k := range md {
