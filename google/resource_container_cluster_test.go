@@ -965,6 +965,7 @@ func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]
 func checkBoolMatch(attributes map[string]string, attr string, gcpBool bool) string {
 	// Handle the case where an unset value defaults to false
 	var tf bool
+	var err error
 	if attributes[attr] == "" {
 		tf = false
 	} else {

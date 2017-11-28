@@ -9,8 +9,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
+	"crypto/md5"
+	"encoding/base64"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
+	"io/ioutil"
 )
 
 func resourceStorageBucketObject() *schema.Resource {
@@ -77,7 +80,28 @@ func resourceStorageBucketObject() *schema.Resource {
 
 			"md5hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				// Makes the diff message nicer:
+				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
+				// Instead of the more confusing:
+				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
+				Default: "different hash",
+				// If `content` is used, always suppress the diff. Equivalent to Computed behavior.
+				// If `source` is used:
+				// 1. Compute the md5 hash of the local file
+				// 2. Compare the computed md5 hash with the hash stored in Cloud Storage
+				// 3. Don't suppress the diff iff they don't match
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// `old` is the md5 hash we retrieved from the server in the ReadFunc
+					if source, ok := d.GetOkExists("source"); ok {
+						if old != getFileMd5Hash(source.(string)) {
+							return false
+						}
+					}
+
+					return true
+				},
 			},
 
 			"predefined_acl": &schema.Schema{
@@ -220,4 +244,16 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func getFileMd5Hash(filename string) string {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
+		return ""
+	}
+
+	h := md5.New()
+	h.Write(data)
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
