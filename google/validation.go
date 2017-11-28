@@ -79,3 +79,19 @@ func validateRFC3339Time(v interface{}, k string) (warnings []string, errors []e
 	}
 	return
 }
+
+func validateRFC1035Name(min, max int) schema.SchemaValidateFunc {
+	if min < 2 || max < min {
+		return func(i interface{}, k string) (s []string, errors []error) {
+			if min < 2 {
+				errors = append(errors, fmt.Errorf("min must be at least 2. Got: %d", min))
+			}
+			if max < min {
+				errors = append(errors, fmt.Errorf("max must greater than min. Got [%d, %d]", min, max))
+			}
+			return
+		}
+	}
+
+	return validateRegexp(fmt.Sprintf(`^[a-z]([-a-z0-9]{%d,%d}[a-z0-9])$`, min-2, max-2))
+}

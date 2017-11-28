@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -37,7 +36,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(6, 30),
+				ValidateFunc: validateRFC1035Name(6, 30),
 			},
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
