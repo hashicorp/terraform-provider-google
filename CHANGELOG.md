@@ -23,6 +23,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_backend_bucket` [GH-736]
 * compute: Add configurable timeouts for disks [GH-717]
 * compute: Use v1 API now that all beta features are in GA for `google_compute_firewall` [GH-768] 
+* compute: Add Alias IP and Guest Accelerator support to Instance Templates [GH-639]
 * container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` [GH-726]
 * container: Allow node pools with size 0 [GH-752]
 * container: Add support for `google_container_node_pool` management [GH-669]
