@@ -222,6 +222,9 @@ The `network_interface` block supports:
 * `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
 
+* `address` - (Optional) The private IP address to assign to the instance. If
+    empty, the address will be automatically assigned.
+
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
     instance can be accessed via the Internet. Omit to ensure that the instance
     is not accessible from the Internet (this means that ssh provisioners will
@@ -229,10 +232,26 @@ The `network_interface` block supports:
     network (e.g. via tunnel or because it is running on another cloud instance
     on that network). This block can be repeated multiple times. Structure documented below.
 
+* `alias_ip_range` - (Optional) An
+    array of alias IP ranges for this network interface. Can only be specified for network
+    interfaces on subnet-mode networks. Structure documented below.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
+
+The `alias_ip_range` block supports:
+
+* `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
+    must belong to the specified subnetwork and cannot contain IP addresses reserved by
+    system or used by other network interfaces. At the time of writing only a
+    netmask (e.g. /24) may be supplied, with a CIDR format resulting in an API
+    error.
+
+* `subnetwork_range_name` - (Optional) The subnetwork secondary range name specifying
+    the secondary range from which to allocate the IP CIDR range for this alias IP
+    range. If left unspecified, the primary range of the subnetwork will be used.
 
 The `service_account` block supports:
 
@@ -254,6 +273,16 @@ The `scheduling` block supports:
 * `preemptible` - (Optional) Allows instance to be preempted. This defaults to
     false. Read more on this
     [here](https://cloud.google.com/compute/docs/instances/preemptible).
+
+---
+
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
+The `guest_accelerator` block supports:
+
+* `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
+
+* `count` (Required) - The number of the guest accelerator cards exposed to this instance.
 
 ## Attributes Reference
 
