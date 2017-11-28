@@ -20,7 +20,7 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRFC1035Name(6, 30),
+				ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
 			},
 			// Optional
 			"key_algorithm": &schema.Schema{
