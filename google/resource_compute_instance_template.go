@@ -686,7 +686,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 		md := instanceTemplate.Properties.Metadata
 
-		_md := flattenMetadata(md)
+		_md := flattenMetadataBeta(md)
 
 		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 			if err = d.Set("metadata_startup_script", script); err != nil {
@@ -737,7 +737,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _ := flattenNetworkInterfaces(instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
+		if err != nil {
+			return err
+		}
 		if err = d.Set("network_interface", networkInterfaces); err != nil {
 			return fmt.Errorf("Error setting network_interface: %s", err)
 		}

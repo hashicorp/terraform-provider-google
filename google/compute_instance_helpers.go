@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -44,16 +43,6 @@ func flattenScheduling(scheduling *computeBeta.Scheduling) []map[string]interfac
 	return result
 }
 
-func getProjectAndRegionFromSubnetworkLink(subnetwork string) (string, string) {
-	r := regexp.MustCompile(SubnetworkLinkRegex)
-	if !r.MatchString(subnetwork) {
-		return "", ""
-	}
-
-	matches := r.FindStringSubmatch(subnetwork)
-	return matches[1], matches[2]
-}
-
 func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[string]interface{}, string) {
 	flattened := make([]map[string]interface{}, len(accessConfigs))
 	natIP := ""
@@ -69,7 +58,7 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 	return flattened, natIP
 }
 
-func flattenNetworkInterfaces(networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string) {
+func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
 	flattened := make([]map[string]interface{}, len(networkInterfaces))
 	var region, internalIP, externalIP string
 
@@ -77,15 +66,18 @@ func flattenNetworkInterfaces(networkInterfaces []*computeBeta.NetworkInterface)
 		var ac []map[string]interface{}
 		ac, externalIP = flattenAccessConfigs(iface.AccessConfigs)
 
-		var project string
-		project, region = getProjectAndRegionFromSubnetworkLink(iface.Subnetwork)
+		subnet, err := ParseSubnetworkFieldValue(iface.Subnetwork, d, config)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
 			"address":            iface.NetworkIP,
 			"network_ip":         iface.NetworkIP,
 			"network":            iface.Network,
 			"subnetwork":         iface.Subnetwork,
-			"subnetwork_project": project,
+			"subnetwork_project": subnet.Project,
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
 		}
@@ -100,7 +92,7 @@ func flattenNetworkInterfaces(networkInterfaces []*computeBeta.NetworkInterface)
 			internalIP = iface.NetworkIP
 		}
 	}
-	return flattened, region, internalIP, externalIP
+	return flattened, region, internalIP, externalIP, nil
 }
 
 func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
@@ -116,15 +108,6 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 }
 
 func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-
 	configs := d.Get("network_interface").([]interface{})
 	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
 	for i, raw := range configs {
@@ -138,11 +121,11 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 
 		nf, err := ParseNetworkFieldValue(network, d, config)
 		if err != nil {
-			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
+			return nil, fmt.Errorf("cannot determine selflink for network '%s': %s", network, err)
 		}
 
-		subnetworkProject := data["subnetwork_project"].(string)
-		subnetLink, err := getSubnetworkLink(config, project, region, subnetworkProject, subnetwork)
+		subnetProjectField := fmt.Sprintf("network_interface.%d.subnetwork_project", i)
+		sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
 		}
@@ -150,7 +133,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 		ifaces[i] = &computeBeta.NetworkInterface{
 			NetworkIP:     data["network_ip"].(string),
 			Network:       nf.RelativeLink(),
-			Subnetwork:    subnetLink,
+			Subnetwork:    sf.RelativeLink(),
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
 		}

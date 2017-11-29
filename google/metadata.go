@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -111,29 +110,6 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 	}
 }
 
-// flattenComputeMetadata transforms a list of MetadataItems (as returned via the GCP client) into a simple map from key
-// to value.
-func flattenComputeMetadata(metadata []*compute.MetadataItems) map[string]string {
-	m := map[string]string{}
-
-	for _, item := range metadata {
-		// check for duplicates
-		if item.Value == nil {
-			continue
-		}
-		if val, ok := m[item.Key]; ok {
-			// warn loudly!
-			log.Printf("[WARN] Key '%s' already has value '%s' when flattening - ignoring incoming value '%s'",
-				item.Key,
-				val,
-				*item.Value)
-		}
-		m[item.Key] = *item.Value
-	}
-
-	return m
-}
-
 // expandComputeMetadata transforms a map representing computing metadata into a list of compute.MetadataItems suitable
 // for the GCP client.
 func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
@@ -151,7 +127,7 @@ func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
 	return metadata
 }
 
-func flattenMetadata(metadata *computeBeta.Metadata) map[string]string {
+func flattenMetadataBeta(metadata *computeBeta.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value
@@ -159,11 +135,11 @@ func flattenMetadata(metadata *computeBeta.Metadata) map[string]string {
 	return metadataMap
 }
 
-// This function differs from flattenMetadata only in that it takes
+// This function differs from flattenMetadataBeta only in that it takes
 // compute.metadata rather than computeBeta.metadata as an argument. It should
-// be removed in favour of flattenMetadata if/when this resource gets beta
-// support.
-func flattenCommonInstanceMetadata(metadata *compute.Metadata) map[string]string {
+// be removed in favour of flattenMetadataBeta if/when all resources using it get
+// beta support.
+func flattenMetadata(metadata *compute.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value

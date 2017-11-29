@@ -5,7 +5,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -122,33 +121,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	}
 	// Resource does not exist in this region
 	return nil, nil
-}
-
-// getSubnetworkLink takes the "subnetwork" field and if the value is:
-// - a resource URL, returns the string unchanged
-// - a subnetwork name, looks up the resource URL using the google client.
-//
-// If `subnetworkField` is a resource url, `subnetworkProjectField` cannot be set.
-// If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
-// 	as the project if set. If not, we fallback on the default project.
-func getSubnetworkLink(config *Config, defaultProject, region, subnetworkProject, subnetwork string) (string, error) {
-	if subnetwork == "" {
-		return "", nil
-	}
-
-	if regexp.MustCompile(SubnetworkLinkRegex).MatchString(subnetwork) {
-		return subnetwork, nil
-	}
-
-	project := defaultProject
-	if subnetworkProject != "" {
-		project = subnetworkProject
-	}
-	subnetworkData, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
-	if err != nil {
-		return "", fmt.Errorf("Error referencing subnetwork '%s' in region '%s': %s", subnetwork, region, err)
-	}
-	return subnetworkData.SelfLink, nil
 }
 
 // getNetworkName reads the "network" field from the given resource data and if the value:
