@@ -80,28 +80,7 @@ func resourceStorageBucketObject() *schema.Resource {
 
 			"md5hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				// Makes the diff message nicer:
-				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
-				// Instead of the more confusing:
-				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
-				Default: "different hash",
-				// If `content` is used, always suppress the diff. Equivalent to Computed behavior.
-				// If `source` is used:
-				// 1. Compute the md5 hash of the local file
-				// 2. Compare the computed md5 hash with the hash stored in Cloud Storage
-				// 3. Don't suppress the diff iff they don't match
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					// `old` is the md5 hash we retrieved from the server in the ReadFunc
-					if source, ok := d.GetOkExists("source"); ok {
-						if old != getFileMd5Hash(source.(string)) {
-							return false
-						}
-					}
-
-					return true
-				},
+				Computed: true,
 			},
 
 			"predefined_acl": &schema.Schema{
@@ -116,6 +95,38 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"content"},
+			},
+
+			// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
+			"detect_md5hash": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Makes the diff message nicer:
+				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
+				// Instead of the more confusing:
+				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
+				Default: "different hash",
+				// 1. Compute the md5 hash of the local file
+				// 2. Compare the computed md5 hash with the hash stored in Cloud Storage
+				// 3. Don't suppress the diff iff they don't match
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					localMd5Hash := ""
+					if source, ok := d.GetOkExists("source"); ok {
+						localMd5Hash = getFileMd5Hash(source.(string))
+					}
+
+					if content, ok := d.GetOkExists("content"); ok {
+						localMd5Hash = getContentMd5Hash([]byte(content.(string)))
+					}
+
+					// `old` is the md5 hash we retrieved from the server in the ReadFunc
+					if old != localMd5Hash {
+						return false
+					}
+
+					return true
+				},
 			},
 
 			"storage_class": &schema.Schema{
@@ -207,6 +218,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("md5hash", res.Md5Hash)
+	d.Set("detect_md5hash", res.Md5Hash)
 	d.Set("crc32c", res.Crc32c)
 	d.Set("cache_control", res.CacheControl)
 	d.Set("content_disposition", res.ContentDisposition)
@@ -253,7 +265,11 @@ func getFileMd5Hash(filename string) string {
 		return ""
 	}
 
+	return getContentMd5Hash(data)
+}
+
+func getContentMd5Hash(content []byte) string {
 	h := md5.New()
-	h.Write(data)
+	h.Write(content)
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
