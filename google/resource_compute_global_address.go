@@ -30,7 +30,7 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
 
 			"project": &schema.Schema{
