@@ -80,9 +80,9 @@ output "cluster_ca_certificate" {
     all specified zones.
 
 * `addons_config` - (Optional) The configuration for addons supported by Google
-    Container Engine. Structure is documented below.
+    Kubernetes Engine. Structure is documented below.
 
-* `cluster_ipv4_cidr` - (Optional) The IP address range of the container pods in
+* `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
 
 * `description` - (Optional) Description of the cluster.
@@ -313,7 +313,7 @@ exported:
 
 ## Import
 
-Container clusters can be imported using the `zone`, and `name`, e.g.
+GKE clusters can be imported using the `zone`, and `name`, e.g.
 
 ```
 $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
