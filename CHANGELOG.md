@@ -37,6 +37,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: Set UseLegacySql to true for compatibility with the BigQuery API [GH-724]
 * compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
+* compute: Restore the `ipv4_range` field to `google_compute_network` to support legacy VPCs [GH-805]
 * project: Fix timeout issue with project services [GH-737]
 * sql: Fix perpetual diff with `authorized_networks` field in `google_sql_database_instance` [GH-733]
 * sql: give disk_autoresize a default in `google_sql_database_instance` [GH-806]
