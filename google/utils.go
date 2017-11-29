@@ -123,17 +123,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-// getNetworkName reads the "network" field from the given resource data and if the value:
-// - is a resource URL, extracts the network name from the URL and returns it
-// - is the network name only (i.e not prefixed with http://www.googleapis.com/compute/...), is returned unchanged
-func getNetworkName(d *schema.ResourceData, field string) (string, error) {
-	if v, ok := d.GetOk(field); ok {
-		network := v.(string)
-		return getNetworkNameFromSelfLink(network)
-	}
-	return "", nil
-}
-
 func getNetworkNameFromSelfLink(network string) (string, error) {
 	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
 		return network, nil
