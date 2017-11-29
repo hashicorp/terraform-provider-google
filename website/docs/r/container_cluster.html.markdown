@@ -3,12 +3,12 @@ layout: "google"
 page_title: "Google: google_container_cluster"
 sidebar_current: "docs-google-container-cluster"
 description: |-
-  Creates a GKE cluster.
+  Creates a Google Kubernetes Engine (GKE) cluster.
 ---
 
 # google\_container\_cluster
 
-Creates a GKE cluster. For more information see
+Creates a Google Kubernetes Engine (GKE) cluster. For more information see
 [the official documentation](https://cloud.google.com/container-engine/docs/clusters)
 and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
@@ -50,7 +50,7 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-# The following outputs allow authentication and connectivity to the Google Container Cluster.
+# The following outputs allow authentication and connectivity to the GKE Cluster.
 output "client_certificate" {
   value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
 }
@@ -79,8 +79,8 @@ output "cluster_ca_certificate" {
     configured, the number of nodes specified in `initial_node_count` is created in
     all specified zones.
 
-* `addons_config` - (Optional) The configuration for addons supported by Google
-    Kubernetes Engine. Structure is documented below.
+* `addons_config` - (Optional) The configuration for addons supported by GKE.
+    Structure is documented below.
 
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
