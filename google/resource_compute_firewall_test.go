@@ -362,6 +362,8 @@ func testAccComputeFirewall_basic(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
@@ -380,6 +382,8 @@ func testAccComputeFirewall_update(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
@@ -399,6 +403,8 @@ func testAccComputeFirewall_priority(network, firewall string, priority int) str
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
@@ -418,6 +424,8 @@ func testAccComputeFirewall_noSource(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
@@ -436,6 +444,8 @@ func testAccComputeFirewall_denied(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
@@ -455,6 +465,8 @@ func testAccComputeFirewall_egress(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {

@@ -88,7 +88,8 @@ func testAccComputeVpnGateway_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "gateway-test-%s"
-	auto_create_subnetworks = true
+	auto_create_subnetworks = false
+	ipv4_range = "10.0.0.0/16"
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
