@@ -479,12 +479,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.MonitoringService = v.(string)
 	}
 
-	if _, ok := d.GetOk("network"); ok {
-		network, err := getNetworkName(d, "network")
+	if v, ok := d.GetOk("network"); ok {
+		network, err := ParseNetworkFieldValue(v.(string), d, config)
 		if err != nil {
 			return err
 		}
-		cluster.Network = network
+		cluster.Network = network.Name
 	}
 
 	if v, ok := d.GetOk("network_policy"); ok && len(v.([]interface{})) > 0 {
