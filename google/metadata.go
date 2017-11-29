@@ -135,9 +135,9 @@ func flattenMetadataBeta(metadata *computeBeta.Metadata) map[string]string {
 	return metadataMap
 }
 
-// This function differs from flattenMetadata only in that it takes
+// This function differs from flattenMetadataBeta only in that it takes
 // compute.metadata rather than computeBeta.metadata as an argument. It should
-// be removed in favour of flattenMetadata if/when all resources using it get
+// be removed in favour of flattenMetadataBeta if/when all resources using it get
 // beta support.
 func flattenMetadata(metadata *compute.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
