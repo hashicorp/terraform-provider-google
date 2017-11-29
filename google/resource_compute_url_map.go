@@ -325,111 +325,61 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("fingerprint", urlMap.Fingerprint)
 	d.Set("default_service", urlMap.DefaultService)
 
-	hostRuleMap := make(map[string]*compute.HostRule)
-	for _, v := range urlMap.HostRules {
-		hostRuleMap[v.PathMatcher] = v
-	}
-
-	/* Only read host rules into our TF state that we have defined */
-	_hostRules := d.Get("host_rule").(*schema.Set).List()
 	_newHostRules := make([]interface{}, 0)
-	for _, v := range _hostRules {
-		_hostRule := v.(map[string]interface{})
-		_pathMatcher := _hostRule["path_matcher"].(string)
+	for _, hostRule := range urlMap.HostRules {
+		_newHostRule := make(map[string]interface{})
+		_newHostRule["path_matcher"] = hostRule.PathMatcher
 
-		/* Delete local entries that are no longer found on the GCE server */
-		if hostRule, ok := hostRuleMap[_pathMatcher]; ok {
-			_newHostRule := make(map[string]interface{})
-			_newHostRule["path_matcher"] = _pathMatcher
-
-			hostsSet := make(map[string]bool)
-			for _, host := range hostRule.Hosts {
-				hostsSet[host] = true
-			}
-
-			/* Only store hosts we are keeping track of */
-			_newHosts := make([]interface{}, 0)
-			for _, vp := range _hostRule["hosts"].([]interface{}) {
-				if _, okp := hostsSet[vp.(string)]; okp {
-					_newHosts = append(_newHosts, vp)
-				}
-			}
-
-			_newHostRule["hosts"] = _newHosts
-			_newHostRule["description"] = hostRule.Description
-
-			_newHostRules = append(_newHostRules, _newHostRule)
+		_newHosts := make([]interface{}, 0)
+		for _, host := range hostRule.Hosts {
+			_newHosts = append(_newHosts, host)
 		}
+
+		_newHostRule["hosts"] = _newHosts
+		_newHostRule["description"] = hostRule.Description
+
+		_newHostRules = append(_newHostRules, _newHostRule)
 	}
 
 	d.Set("host_rule", _newHostRules)
 
-	pathMatcherMap := make(map[string]*compute.PathMatcher)
-	for _, v := range urlMap.PathMatchers {
-		pathMatcherMap[v.Name] = v
-	}
-
-	/* Only read path matchers into our TF state that we have defined */
-	_pathMatchers := d.Get("path_matcher").([]interface{})
 	_newPathMatchers := make([]interface{}, 0)
-	for _, v := range _pathMatchers {
-		_pathMatcher := v.(map[string]interface{})
-		_name := _pathMatcher["name"].(string)
+	for _, pathMatcher := range urlMap.PathMatchers {
+		_newPathMatcher := make(map[string]interface{})
+		_newPathMatcher["name"] = pathMatcher.Name
+		_newPathMatcher["default_service"] = pathMatcher.DefaultService
+		_newPathMatcher["description"] = pathMatcher.Description
 
-		if pathMatcher, ok := pathMatcherMap[_name]; ok {
-			_newPathMatcher := make(map[string]interface{})
-			_newPathMatcher["name"] = _name
-			_newPathMatcher["default_service"] = pathMatcher.DefaultService
-			_newPathMatcher["description"] = pathMatcher.Description
+		_newPathRules := make([]interface{}, len(pathMatcher.PathRules))
+		for ip, pathRule := range pathMatcher.PathRules {
+			_newPathRule := make(map[string]interface{})
+			_newPathRule["service"] = pathRule.Service
+			_paths := make([]interface{}, len(pathRule.Paths))
 
-			_newPathRules := make([]interface{}, len(pathMatcher.PathRules))
-			for ip, pathRule := range pathMatcher.PathRules {
-				_newPathRule := make(map[string]interface{})
-				_newPathRule["service"] = pathRule.Service
-				_paths := make([]interface{}, len(pathRule.Paths))
-
-				for ipp, vpp := range pathRule.Paths {
-					_paths[ipp] = vpp
-				}
-
-				_newPathRule["paths"] = _paths
-
-				_newPathRules[ip] = _newPathRule
+			for ipp, vpp := range pathRule.Paths {
+				_paths[ipp] = vpp
 			}
 
-			_newPathMatcher["path_rule"] = _newPathRules
-			_newPathMatchers = append(_newPathMatchers, _newPathMatcher)
+			_newPathRule["paths"] = _paths
+
+			_newPathRules[ip] = _newPathRule
 		}
+
+		_newPathMatcher["path_rule"] = _newPathRules
+		_newPathMatchers = append(_newPathMatchers, _newPathMatcher)
+
 	}
 
 	d.Set("path_matcher", _newPathMatchers)
 
-	testMap := make(map[string]*compute.UrlMapTest)
-	for _, v := range urlMap.Tests {
-		testMap[fmt.Sprintf("%s/%s", v.Host, v.Path)] = v
-	}
-
-	_tests := make([]interface{}, 0)
-	/* Only read tests into our TF state that we have defined */
-	if v, ok := d.GetOk("test"); ok {
-		_tests = v.([]interface{})
-	}
 	_newTests := make([]interface{}, 0)
-	for _, v := range _tests {
-		_test := v.(map[string]interface{})
-		_host := _test["host"].(string)
-		_path := _test["path"].(string)
-
-		/* Delete local entries that are no longer found on the GCE server */
-		if test, ok := testMap[fmt.Sprintf("%s/%s", _host, _path)]; ok {
-			_newTest := make(map[string]interface{})
-			_newTest["host"] = _host
-			_newTest["path"] = _path
-			_newTest["description"] = test.Description
-			_newTest["service"] = test.Service
-
-			_newTests = append(_newTests, _newTest)
-		}
+	for _, test := range urlMap.Tests {
+		_newTest := make(map[string]interface{})
+		_newTest["host"] = test.Host
+		_newTest["path"] = test.Path
+		_newTest["description"] = test.Description
+		_newTest["service"] = test.Service
+		_newTests = append(_newTests, _newTest)
 	}
 
 	d.Set("test", _newTests)

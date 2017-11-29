@@ -168,6 +168,3 @@ URL Map can be imported using the `name`, e.g.
 ```
 $ terraform import google_compute_url_map.html.foobar foobar
 ```
-
-
-Currently `host_rule`, `path_matcher` and `test` importing is not yet supported.
