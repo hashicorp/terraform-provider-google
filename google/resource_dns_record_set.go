@@ -180,15 +180,12 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	// CAN and MUST be deleted, so we need to retrieve the managed zone,
 	// check if what we're looking at is a subdomain, and only not delete
 	// if it's not actually a subdomain
-	var domain string
 	if d.Get("type").(string) == "NS" {
-		if domain == "" {
-			mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
-			if err != nil {
-				return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
-			}
-			domain = mz.DnsName
+		mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
+		if err != nil {
+			return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
 		}
+		domain := mz.DnsName
 
 		if domain == d.Get("name").(string) {
 			log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
