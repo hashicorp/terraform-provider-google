@@ -309,6 +309,27 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 
 }
 
+func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_minCpuPlatform(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, "Intel Haswell"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -570,6 +591,16 @@ func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *co
 
 		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
 			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *compute.InstanceTemplate, minCpuPlatform string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
 		}
 
 		return nil
@@ -981,5 +1012,31 @@ resource "google_compute_instance_template" "foobar" {
 		count = 1
 		type = "nvidia-tesla-k80"
 	}
+}`, i)
+}
+
+func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		# Instances with guest accelerators do not support live migration.
+		on_host_maintenance = "TERMINATE"
+	}
+
+	min_cpu_platform = "Intel Haswell"
 }`, i)
 }
