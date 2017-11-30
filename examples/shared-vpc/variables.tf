@@ -8,7 +8,6 @@ variable "region_zone" {
 
 variable "project_base_id" {
   description = "A string to use in the middle of the generated project names.  If you delete a project, its name cannot be used again, so if you run this example repeatedly, you might need to modify this."
-  default     = "ex-vpc"
 }
 
 variable "org_id" {
