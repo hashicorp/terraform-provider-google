@@ -108,6 +108,24 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 	})
 }
 
+func TestAccDnsRecordSet_nestedNS(t *testing.T) {
+	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDnsRecordSet_nestedNS(zoneName, 300),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDnsRecordSetExists(
+						"google_dns_record_set.foobar", zoneName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDnsRecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -185,6 +203,23 @@ func testAccDnsRecordSet_ns(name string, ttl int) string {
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
 		name = "hashicorptest.com."
+		type = "NS"
+		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
+		ttl = %d
+	}
+	`, name, ttl)
+}
+
+func testAccDnsRecordSet_nestedNS(name string, ttl int) string {
+	return fmt.Sprintf(`
+	resource "google_dns_managed_zone" "parent-zone" {
+		name = "%s"
+		dns_name = "hashicorptest.com."
+		description = "Test Description"
+	}
+	resource "google_dns_record_set" "foobar" {
+		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
+		name = "nested.hashicorptest.com."
 		type = "NS"
 		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
 		ttl = %d

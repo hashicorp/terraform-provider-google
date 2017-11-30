@@ -95,7 +95,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		var deletions []*dns.ResourceRecordSet
 
 		for _, record := range res.Rrsets {
-			if record.Type != "NS" {
+			if record.Type != "NS" || record.Name != d.Get("name").(string) {
 				continue
 			}
 			deletions = append(deletions, record)
@@ -164,14 +164,6 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error {
-
-	// NS records must always have a value, so we short-circuit delete
-	// this allows terraform delete to work, but may have unexpected
-	// side-effects when deleting just that record set.
-	if d.Get("type").(string) == "NS" {
-		log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
-		return nil
-	}
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -180,6 +172,29 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	zone := d.Get("managed_zone").(string)
+
+	// NS records must always have a value, so we short-circuit delete
+	// this allows terraform delete to work, but may have unexpected
+	// side-effects when deleting just that record set.
+	// Unfortunately, you can set NS records on subdomains, and those
+	// CAN and MUST be deleted, so we need to retrieve the managed zone,
+	// check if what we're looking at is a subdomain, and only not delete
+	// if it's not actually a subdomain
+	var domain string
+	if d.Get("type").(string) == "NS" {
+		if domain == "" {
+			mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
+			if err != nil {
+				return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
+			}
+			domain = mz.DnsName
+		}
+
+		if domain == d.Get("name").(string) {
+			log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
+			return nil
+		}
+	}
 
 	// Build the change
 	chg := &dns.Change{
