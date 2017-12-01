@@ -525,12 +525,13 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &computeBeta.InstanceProperties{}
+	instanceProperties := &computeBeta.InstanceProperties{
+		CanIpForward:   d.Get("can_ip_forward").(bool),
+		Description:    d.Get("instance_description").(string),
+		MachineType:    d.Get("machine_type").(string),
+		MinCpuPlatform: d.Get("min_cpu_platform").(string),
+	}
 
-	instanceProperties.CanIpForward = d.Get("can_ip_forward").(bool)
-	instanceProperties.Description = d.Get("instance_description").(string)
-	instanceProperties.MachineType = d.Get("machine_type").(string)
-	instanceProperties.MinCpuPlatform = d.Get("min_cpu_platform").(string)
 	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
