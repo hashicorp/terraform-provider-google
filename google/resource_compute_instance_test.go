@@ -2,10 +2,10 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -586,11 +586,11 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_XPN_HOST_PROJECT")
-
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
+	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -598,10 +598,11 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_subnet_xpn(instanceName, xpn_host),
+				Config: testAccComputeInstance_subnet_xpn(org, billingId, projectName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExistsInProject(
+						"google_compute_instance.foobar", fmt.Sprintf("%s-service", projectName),
+						&instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -871,6 +872,35 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientCompute.Instances.Get(
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance not found")
+		}
+
+		*instance = *found
+
+		return nil
+	}
 }
 
 func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) resource.TestCheckFunc {
@@ -1990,11 +2020,46 @@ resource "google_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
-func testAccComputeInstance_subnet_xpn(instance, xpn_host string) string {
+func testAccComputeInstance_subnet_xpn(org, billingId, projectName, instance string) string {
 	return fmt.Sprintf(`
+
+resource "google_project" "host_project" {
+	name = "Test Project XPN Host"
+	project_id = "%s-host"
+	org_id = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "host_project" {
+	project = "${google_project.host_project.project_id}"
+	service = "compute.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_host_project" "host_project" {
+	project = "${google_project_service.host_project.project}"
+}
+
+resource "google_project" "service_project" {
+	name = "Test Project XPN Service"
+	project_id = "%s-service"
+	org_id = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "service_project" {
+	project = "${google_project.service_project.project_id}"
+	service = "compute.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_service_project" "service_project" {
+	host_project = "${google_compute_shared_vpc_host_project.host_project.project}"
+	service_project = "${google_project_service.service_project.project}"
+}
+
+
 resource "google_compute_network" "inst-test-network" {
 	name    = "inst-test-network-%s"
-	project = "%s"
+	project = "${google_compute_shared_vpc_host_project.host_project.project}"
 
 	auto_create_subnetworks = false
 }
@@ -2004,13 +2069,14 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-central1"
 	network       = "${google_compute_network.inst-test-network.self_link}"
-	project       = "%s"
+	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
 }
 
 resource "google_compute_instance" "foobar" {
 	name         = "%s"
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
+	project       = "${google_compute_shared_vpc_service_project.service_project.service_project}"
 
 	boot_disk {
 		initialize_params{
@@ -2025,7 +2091,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 }
-`, acctest.RandString(10), xpn_host, acctest.RandString(10), xpn_host, instance)
+`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_address_auto(instance string) string {
