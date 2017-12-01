@@ -12,6 +12,8 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
+
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
 
@@ -323,7 +325,7 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_minCpuPlatform(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, "Intel Haswell"),
+					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, DEFAULT_MIN_CPU_TEST_VALUE),
 				),
 			},
 		},
@@ -1037,6 +1039,6 @@ resource "google_compute_instance_template" "foobar" {
 		on_host_maintenance = "TERMINATE"
 	}
 
-	min_cpu_platform = "Intel Haswell"
-}`, i)
+	min_cpu_platform = "%s"
+}`, i, DEFAULT_MIN_CPU_TEST_VALUE)
 }
