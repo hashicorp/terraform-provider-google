@@ -2,49 +2,57 @@
 
 provider "google" {
   region = "${var.region}"
+  credentials = "${file("${var.credentials_file_path}")}"
+}
 
-  # This is a redefinition of the name of the host project - providers cannot
-  # depend on resources they provide, so we need to specify it twice.
-  project = "host-project-${var.project_base_id}"
+provider "random" {}
 
-  # The lack of 'credentials' here is unusual but intentional - this example
-  # uses Application Default Credentials (see README).
+resource "random_id" "host_project_name" {
+  byte_length = 8
+}
+
+resource "random_id" "service_project_1_name" {
+  byte_length = 8
+}
+
+resource "random_id" "service_project_2_name" {
+  byte_length = 8
+}
+
+resource "random_id" "standalone_project_name" {
+  byte_length = 8
 }
 
 # The project which owns the VPC.
 resource "google_project" "host_project" {
   name            = "Host Project"
-  project_id      = "host-project-${var.project_base_id}"
+  project_id      = "tf-vpc-${random_id.host_project_name.hex}"
   org_id          = "${var.org_id}"
   billing_account = "${var.billing_account_id}"
-  skip_delete     = "true"
 }
 
 # One project which will use the VPC.
 resource "google_project" "service_project_1" {
   name            = "Service Project 1"
-  project_id      = "service-project-${var.project_base_id}-1"
+  project_id      = "tf-vpc-${random_id.service_project_1_name.hex}"
   org_id          = "${var.org_id}"
   billing_account = "${var.billing_account_id}"
-  skip_delete     = "true"
 }
 
 # The other project which will use the VPC.
 resource "google_project" "service_project_2" {
   name            = "Service Project 2"
-  project_id      = "service-project-${var.project_base_id}-2"
+  project_id      = "tf-vpc-${random_id.service_project_2_name.hex}"
   org_id          = "${var.org_id}"
   billing_account = "${var.billing_account_id}"
-  skip_delete     = "true"
 }
 
 # A project which will not use the VPC, for the sake of demonstration.
 resource "google_project" "standalone_project" {
   name            = "Standalone Project"
-  project_id      = "standalone-${var.project_base_id}"
+  project_id      = "tf-vpc-${random_id.standalone_project_name.hex}"
   org_id          = "${var.org_id}"
   billing_account = "${var.billing_account_id}"
-  skip_delete     = "true"
 }
 
 # Compute service needs to be enabled for all four new projects.
@@ -110,6 +118,7 @@ resource "google_compute_network" "shared_network" {
 resource "google_compute_firewall" "shared_network" {
   name    = "allow-ssh-and-icmp"
   network = "${google_compute_network.shared_network.self_link}"
+  project = "${google_compute_network.shared_network.project}"
 
   allow {
     protocol = "icmp"
