@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
+
 BUG FIXES:
 
 * `dns`: Fix bug that broke NS records on subdomains [GH-807]
