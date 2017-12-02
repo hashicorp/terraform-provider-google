@@ -26,7 +26,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateTag(&instanceTemplate, "foo"),
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
@@ -51,7 +51,7 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_preemptible(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
 					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
 				),
@@ -74,7 +74,7 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_ip(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
 				),
 			},
@@ -97,7 +97,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_networkIP(networkIP),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetworkIP(
 						"google_compute_instance_template.foobar", networkIP, &instanceTemplate),
@@ -121,7 +121,7 @@ func TestAccComputeInstanceTemplate_address(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_address(address),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
 					testAccCheckComputeInstanceTemplateAddress(
 						"google_compute_instance_template.foobar", address, &instanceTemplate),
@@ -145,7 +145,7 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_disks(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "terraform-test-foobar", false, false),
 				),
@@ -169,7 +169,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_subnet_auto(network),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetworkName(&instanceTemplate, network),
 				),
 			},
@@ -191,7 +191,7 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_subnet_custom(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
 				),
 			},
@@ -215,7 +215,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExistsInProject(
+					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", fmt.Sprintf("%s-service", projectName),
 						&instanceTemplate),
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
@@ -239,7 +239,7 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 				Config: testAccComputeInstanceTemplate_startup_script(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+						"google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateStartupScript(&instanceTemplate, "echo 'Hello'"),
 				),
 			},
@@ -259,7 +259,7 @@ func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_primaryAliasIpRange(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "", "/24"),
 				),
 			},
@@ -280,7 +280,7 @@ func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_secondaryAliasIpRange(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "inst-test-secondary", "/24"),
 				),
 			},
@@ -301,7 +301,7 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
 				),
 			},
@@ -328,7 +328,7 @@ func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateExists(n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -343,35 +343,6 @@ func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTem
 
 		found, err := config.clientCompute.InstanceTemplates.Get(
 			p, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Instance template not found")
-		}
-
-		*instanceTemplate = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInstanceTemplateExists(n string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientCompute.InstanceTemplates.Get(
-			config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}

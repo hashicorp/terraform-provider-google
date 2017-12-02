@@ -28,7 +28,7 @@ func TestAccComputeDisk_basic(t *testing.T) {
 				Config: testAccComputeDisk_basic(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", &disk),
+						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
@@ -66,7 +66,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 				Config: testAccComputeDisk_basic(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", &disk),
+						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "50"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
@@ -76,7 +76,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 				Config: testAccComputeDisk_updated(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", &disk),
+						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "100"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
 					testAccCheckComputeDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
@@ -107,14 +107,14 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, org, billingId, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExistsInProject(
+					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", projectName, &disk),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, org, billingId, "name"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExistsInProject(
+					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", projectName, &disk),
 				),
 			},
@@ -137,7 +137,7 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", &disk),
+						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
 					testAccCheckEncryptionKey(
 						"google_compute_disk.foobar", &disk),
 				),
@@ -162,7 +162,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", &disk),
+						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
 				),
 			},
 			// this needs to be a second step so we refresh and see the instance
@@ -173,7 +173,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", &disk),
+						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
 					testAccCheckComputeDiskInstances(
 						"google_compute_disk.foo", &disk),
 				),
@@ -200,7 +200,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeDiskExistsInProject(n, p string, disk *compute.Disk) resource.TestCheckFunc {
+func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -215,35 +215,6 @@ func testAccCheckComputeDiskExistsInProject(n, p string, disk *compute.Disk) res
 
 		found, err := config.clientCompute.Disks.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Disk not found")
-		}
-
-		*disk = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientCompute.Disks.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
