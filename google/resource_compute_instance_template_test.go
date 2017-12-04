@@ -325,7 +325,7 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_minCpuPlatform(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", getTestProjectFromEnv(), &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, DEFAULT_MIN_CPU_TEST_VALUE),
 				),
 			},
