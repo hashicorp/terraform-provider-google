@@ -1,46 +1,58 @@
-## 1.3.0 (Unreleased)
+## 1.3.1 (Unreleased)
 
 FEATURES:
-* **New Resource:** `google_folder_organization_policy` [GH-747]
-* **New Resource:** `google_kms_key_ring_iam_binding` [GH-781]
-* **New Resource:** `google_kms_key_ring_iam_member` [GH-781]
-* **New Resource:** `google_kms_crypto_key_iam_binding` [GH-781]
-* **New Resource:** `google_kms_crypto_key_iam_member` [GH-781]
-* **New Resource:** `google_project_custom_iam_role` [GH-709]
-* **New Resource:** `google_organization_custom_iam_role` [GH-735]
-* **New Resource:** `google_organization_iam_binding` [GH-775]
-* **New Resource:** `google_organization_iam_member` [GH-775]
-* **New Resource:** `google_dataproc_job` [GH-253]
-* **New Data Source:** `google_active_folder` [GH-738]
-* **New Data Source:** `google_compute_address` [GH-748]
-* **New Data Source:** `google_compute_global_address` [GH-759]
 
 IMPROVEMENTS:
-* compute: Add import support for `google_compute_ssl_certificates` [GH-678]
-* compute: Add import support for `google_compute_target_http_proxy` [GH-678]
-* compute: Add import support for `google_compute_target_https_proxy` [GH-678]
-* compute: Add partial import support for `google_compute_url_map` [GH-678]
-* compute: Add import support for `google_compute_backend_bucket` [GH-736]
-* compute: Add configurable timeouts for disks [GH-717]
-* compute: Use v1 API now that all beta features are in GA for `google_compute_firewall` [GH-768] 
-* compute: Add Alias IP and Guest Accelerator support to Instance Templates [GH-639]
-* container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` [GH-726]
-* container: Allow node pools with size 0 [GH-752]
-* container: Add support for `google_container_node_pool` management [GH-669]
-* container: Add container cluster network policy [GH-630]
-* container: add support for ip aliasing in `google_container_cluster` [GH-654]
-* kms: Adds support for creating KMS CryptoKeys resources [GH-692]
-* project: Add validation for `account_id` in `google_service_account` [GH-793]
-* storage: Detect file changes in `google_storage_bucket_object` when using source field [GH-789]
-* all: Consistently store the project and region fields value in state. [GH-784]
+
+* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
 
 BUG FIXES:
-* bigquery: Set UseLegacySql to true for compatibility with the BigQuery API [GH-724]
-* compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` [GH-716]
-* compute: Restore the `ipv4_range` field to `google_compute_network` to support legacy VPCs [GH-805]
-* project: Fix timeout issue with project services [GH-737]
-* sql: Fix perpetual diff with `authorized_networks` field in `google_sql_database_instance` [GH-733]
-* sql: give disk_autoresize a default in `google_sql_database_instance` [GH-806]
+
+* dns: Fix bug that broke NS records on subdomains [GH-807]
+
+## 1.3.0 (November 30, 2017)
+
+FEATURES:
+* **New Resource:** `google_folder_organization_policy` ([#747](https://github.com/terraform-providers/terraform-provider-google/issues/747))
+* **New Resource:** `google_kms_key_ring_iam_binding` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
+* **New Resource:** `google_kms_key_ring_iam_member` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
+* **New Resource:** `google_kms_crypto_key_iam_binding` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
+* **New Resource:** `google_kms_crypto_key_iam_member` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
+* **New Resource:** `google_project_custom_iam_role` ([#709](https://github.com/terraform-providers/terraform-provider-google/issues/709))
+* **New Resource:** `google_organization_custom_iam_role` ([#735](https://github.com/terraform-providers/terraform-provider-google/issues/735))
+* **New Resource:** `google_organization_iam_binding` ([#775](https://github.com/terraform-providers/terraform-provider-google/issues/775))
+* **New Resource:** `google_organization_iam_member` ([#775](https://github.com/terraform-providers/terraform-provider-google/issues/775))
+* **New Resource:** `google_dataproc_job` ([#253](https://github.com/terraform-providers/terraform-provider-google/issues/253))
+* **New Data Source:** `google_active_folder` ([#738](https://github.com/terraform-providers/terraform-provider-google/issues/738))
+* **New Data Source:** `google_compute_address` ([#748](https://github.com/terraform-providers/terraform-provider-google/issues/748))
+* **New Data Source:** `google_compute_global_address` ([#759](https://github.com/terraform-providers/terraform-provider-google/issues/759))
+
+IMPROVEMENTS:
+* compute: Add import support for `google_compute_ssl_certificates` ([#678](https://github.com/terraform-providers/terraform-provider-google/issues/678))
+* compute: Add import support for `google_compute_target_http_proxy` ([#678](https://github.com/terraform-providers/terraform-provider-google/issues/678))
+* compute: Add import support for `google_compute_target_https_proxy` ([#678](https://github.com/terraform-providers/terraform-provider-google/issues/678))
+* compute: Add partial import support for `google_compute_url_map` ([#678](https://github.com/terraform-providers/terraform-provider-google/issues/678))
+* compute: Add import support for `google_compute_backend_bucket` ([#736](https://github.com/terraform-providers/terraform-provider-google/issues/736))
+* compute: Add configurable timeouts for disks ([#717](https://github.com/terraform-providers/terraform-provider-google/issues/717))
+* compute: Use v1 API now that all beta features are in GA for `google_compute_firewall` [[#768](https://github.com/terraform-providers/terraform-provider-google/issues/768)] 
+* compute: Add Alias IP and Guest Accelerator support to Instance Templates ([#639](https://github.com/terraform-providers/terraform-provider-google/issues/639))
+* container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` ([#726](https://github.com/terraform-providers/terraform-provider-google/issues/726))
+* container: Allow node pools with size 0 ([#752](https://github.com/terraform-providers/terraform-provider-google/issues/752))
+* container: Add support for `google_container_node_pool` management ([#669](https://github.com/terraform-providers/terraform-provider-google/issues/669))
+* container: Add container cluster network policy ([#630](https://github.com/terraform-providers/terraform-provider-google/issues/630))
+* container: add support for ip aliasing in `google_container_cluster` ([#654](https://github.com/terraform-providers/terraform-provider-google/issues/654))
+* kms: Adds support for creating KMS CryptoKeys resources ([#692](https://github.com/terraform-providers/terraform-provider-google/issues/692))
+* project: Add validation for `account_id` in `google_service_account` ([#793](https://github.com/terraform-providers/terraform-provider-google/issues/793))
+* storage: Detect file changes in `google_storage_bucket_object` when using source field ([#789](https://github.com/terraform-providers/terraform-provider-google/issues/789))
+* all: Consistently store the project and region fields value in state. ([#784](https://github.com/terraform-providers/terraform-provider-google/issues/784))
+
+BUG FIXES:
+* bigquery: Set UseLegacySql to true for compatibility with the BigQuery API ([#724](https://github.com/terraform-providers/terraform-provider-google/issues/724))
+* compute: Fix perpetual diff with `next_hop_instance` field in `google_compute_route` ([#716](https://github.com/terraform-providers/terraform-provider-google/issues/716))
+* compute: Restore the `ipv4_range` field to `google_compute_network` to support legacy VPCs ([#805](https://github.com/terraform-providers/terraform-provider-google/issues/805))
+* project: Fix timeout issue with project services ([#737](https://github.com/terraform-providers/terraform-provider-google/issues/737))
+* sql: Fix perpetual diff with `authorized_networks` field in `google_sql_database_instance` ([#733](https://github.com/terraform-providers/terraform-provider-google/issues/733))
+* sql: give disk_autoresize a default in `google_sql_database_instance` ([#806](https://github.com/terraform-providers/terraform-provider-google/issues/806))
 
 ## 1.2.0 (November 09, 2017)
 

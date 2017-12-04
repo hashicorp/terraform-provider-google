@@ -384,6 +384,12 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				},
 			},
 
+			"min_cpu_platform": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -519,11 +525,13 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &computeBeta.InstanceProperties{}
+	instanceProperties := &computeBeta.InstanceProperties{
+		CanIpForward:   d.Get("can_ip_forward").(bool),
+		Description:    d.Get("instance_description").(string),
+		MachineType:    d.Get("machine_type").(string),
+		MinCpuPlatform: d.Get("min_cpu_platform").(string),
+	}
 
-	instanceProperties.CanIpForward = d.Get("can_ip_forward").(bool)
-	instanceProperties.Description = d.Get("instance_description").(string)
-	instanceProperties.MachineType = d.Get("machine_type").(string)
 	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
@@ -724,6 +732,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 	if err = d.Set("machine_type", instanceTemplate.Properties.MachineType); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
+	}
+	if err = d.Set("min_cpu_platform", instanceTemplate.Properties.MinCpuPlatform); err != nil {
+		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
 	}
 
 	if err = d.Set("can_ip_forward", instanceTemplate.Properties.CanIpForward); err != nil {
