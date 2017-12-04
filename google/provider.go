@@ -46,6 +46,16 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_REGION",
 				}, nil),
 			},
+
+			"zone": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ZONE",
+					"GCLOUD_ZONE",
+					"CLOUDSDK_COMPUTE_ZONE",
+				}, nil),
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -167,6 +177,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Credentials: credentials,
 		Project:     d.Get("project").(string),
 		Region:      d.Get("region").(string),
+		Zone:        d.Get("zone").(string),
 	}
 
 	if err := config.loadAndValidate(); err != nil {

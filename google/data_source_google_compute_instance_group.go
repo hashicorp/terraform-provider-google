@@ -17,7 +17,7 @@ func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"project": {
@@ -74,7 +74,11 @@ func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
 }
 
 func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
-	zone := d.Get("zone").(string)
+
+	zone, err := getZone(d, meta.(*Config))
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 
 	d.SetId(fmt.Sprintf("%s/%s", zone, name))

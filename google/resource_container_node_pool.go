@@ -44,7 +44,7 @@ func resourceContainerNodePool() *schema.Resource {
 				},
 				"zone": &schema.Schema{
 					Type:     schema.TypeString,
-					Required: true,
+					Optional: true,
 					ForceNew: true,
 				},
 				"cluster": &schema.Schema{
@@ -148,7 +148,10 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		NodePool: nodePool,
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	cluster := d.Get("cluster").(string)
 
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, req).Do()
@@ -180,7 +183,10 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
@@ -225,7 +231,10 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 	cluster := d.Get("cluster").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
@@ -257,7 +266,10 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 		return false, err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return false, err
+	}
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
@@ -391,7 +403,10 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	npName := d.Get(prefix + "name").(string)
 
 	if d.HasChange(prefix + "autoscaling") {

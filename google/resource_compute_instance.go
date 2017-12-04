@@ -240,7 +240,7 @@ func resourceComputeInstance() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -547,7 +547,10 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	if err != nil {
 		return nil, err
 	}
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
 	instance := &computeBeta.Instance{}
 	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
 	case v1:
@@ -576,12 +579,16 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Get the zone
-	log.Printf("[DEBUG] Loading zone: %s", d.Get("zone").(string))
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Loading zone: %s", z)
 	zone, err := config.clientCompute.Zones.Get(
-		project, d.Get("zone").(string)).Do()
+		project, z).Do()
 	if err != nil {
 		return fmt.Errorf(
-			"Error loading zone '%s': %s", d.Get("zone").(string), err)
+			"Error loading zone '%s': %s", z, err)
 	}
 
 	// Get the machine type
@@ -856,7 +863,10 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	instance, err := getInstance(config, d)
 	if err != nil {
@@ -1200,7 +1210,10 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
 	op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
 	if err != nil {

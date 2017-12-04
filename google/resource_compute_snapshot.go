@@ -26,7 +26,7 @@ func resourceComputeSnapshot() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -117,8 +117,13 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		snapshot.SourceDiskEncryptionKey.RawKey = v.(string)
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	op, err := config.clientCompute.Disks.CreateSnapshot(
-		project, d.Get("zone").(string), source_disk, snapshot).Do()
+		project, zone, source_disk, snapshot).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating snapshot: %s", err)
 	}

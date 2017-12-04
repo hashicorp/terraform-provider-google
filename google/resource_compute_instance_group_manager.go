@@ -47,7 +47,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -178,6 +178,11 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	// Build the parameter
 	manager := &computeBeta.InstanceGroupManager{
 		Name:                d.Get("name").(string),
@@ -204,7 +209,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 
 		managerV1.ForceSendFields = manager.ForceSendFields
 		op, err = config.clientCompute.InstanceGroupManagers.Insert(
-			project, d.Get("zone").(string), managerV1).Do()
+			project, zone, managerV1).Do()
 	case v0beta:
 		managerV0beta := &computeBeta.InstanceGroupManager{}
 		err = Convert(manager, managerV0beta)
@@ -214,7 +219,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 
 		managerV0beta.ForceSendFields = manager.ForceSendFields
 		op, err = config.clientComputeBeta.InstanceGroupManagers.Insert(
-			project, d.Get("zone").(string), managerV0beta).Do()
+			project, zone, managerV0beta).Do()
 	}
 
 	if err != nil {
@@ -268,12 +273,14 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 		var v1Manager *compute.InstanceGroupManager
 		var e error
-		if zone, ok := d.GetOk("zone"); ok {
-			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone.(string), d.Id()).Do()
+		if zone, err := getZone(d, config); zone != "" && err == nil {
+			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
 				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
+		} else if err != nil {
+			return err
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
 			// by searching in the region of the project.
@@ -307,12 +314,14 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 		var v0betaManager *computeBeta.InstanceGroupManager
 		var e error
-		if zone, ok := d.GetOk("zone"); ok {
-			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone.(string), d.Id()).Do()
+		if zone, err := getZone(d, config); zone != "" && err == nil {
+			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
 				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
+		} else if err != nil {
+			return err
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
 			// by searching in the region of the project.
@@ -367,6 +376,11 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	// If target_pools changes then update
@@ -389,7 +403,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientCompute.InstanceGroupManagers.SetTargetPools(
-				project, d.Get("zone").(string), d.Id(), setTargetPoolsV1).Do()
+				project, zone, d.Id(), setTargetPoolsV1).Do()
 		case v0beta:
 			setTargetPoolsV0beta := &computeBeta.InstanceGroupManagersSetTargetPoolsRequest{}
 			err = Convert(setTargetPools, setTargetPoolsV0beta)
@@ -398,7 +412,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientComputeBeta.InstanceGroupManagers.SetTargetPools(
-				project, d.Get("zone").(string), d.Id(), setTargetPoolsV0beta).Do()
+				project, zone, d.Id(), setTargetPoolsV0beta).Do()
 		}
 
 		if err != nil {
@@ -431,7 +445,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientCompute.InstanceGroupManagers.SetInstanceTemplate(
-				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV1).Do()
+				project, zone, d.Id(), setInstanceTemplateV1).Do()
 		case v0beta:
 			setInstanceTemplateV0beta := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{}
 			err = Convert(setInstanceTemplate, setInstanceTemplateV0beta)
@@ -440,7 +454,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientComputeBeta.InstanceGroupManagers.SetInstanceTemplate(
-				project, d.Get("zone").(string), d.Id(), setInstanceTemplateV0beta).Do()
+				project, zone, d.Id(), setInstanceTemplateV0beta).Do()
 		}
 
 		if err != nil {
@@ -458,7 +472,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			switch computeApiVersion {
 			case v1:
 				managedInstancesV1, err := config.clientCompute.InstanceGroupManagers.ListManagedInstances(
-					project, d.Get("zone").(string), d.Id()).Do()
+					project, zone, d.Id()).Do()
 				if err != nil {
 					return fmt.Errorf("Error getting instance group managers instances: %s", err)
 				}
@@ -469,7 +483,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 			case v0beta:
 				managedInstancesV0beta, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(
-					project, d.Get("zone").(string), d.Id()).Do()
+					project, zone, d.Id()).Do()
 				if err != nil {
 					return fmt.Errorf("Error getting instance group managers instances: %s", err)
 				}
@@ -500,7 +514,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 
 				op, err = config.clientCompute.InstanceGroupManagers.RecreateInstances(
-					project, d.Get("zone").(string), d.Id(), recreateInstancesV1).Do()
+					project, zone, d.Id(), recreateInstancesV1).Do()
 				if err != nil {
 					return fmt.Errorf("Error restarting instance group managers instances: %s", err)
 				}
@@ -512,7 +526,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 				}
 
 				op, err = config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(
-					project, d.Get("zone").(string), d.Id(), recreateInstancesV0beta).Do()
+					project, zone, d.Id(), recreateInstancesV0beta).Do()
 				if err != nil {
 					return fmt.Errorf("Error restarting instance group managers instances: %s", err)
 				}
@@ -548,7 +562,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientCompute.InstanceGroups.SetNamedPorts(
-				project, d.Get("zone").(string), d.Id(), setNamedPortsV1).Do()
+				project, zone, d.Id(), setNamedPortsV1).Do()
 		case v0beta:
 			setNamedPortsV0beta := &computeBeta.InstanceGroupsSetNamedPortsRequest{}
 			err = Convert(setNamedPorts, setNamedPortsV0beta)
@@ -557,7 +571,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			}
 
 			op, err = config.clientComputeBeta.InstanceGroups.SetNamedPorts(
-				project, d.Get("zone").(string), d.Id(), setNamedPortsV0beta).Do()
+				project, zone, d.Id(), setNamedPortsV0beta).Do()
 		}
 
 		if err != nil {
@@ -579,10 +593,10 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			op, err = config.clientCompute.InstanceGroupManagers.Resize(
-				project, d.Get("zone").(string), d.Id(), targetSize).Do()
+				project, zone, d.Id(), targetSize).Do()
 		case v0beta:
 			op, err = config.clientComputeBeta.InstanceGroupManagers.Resize(
-				project, d.Get("zone").(string), d.Id(), targetSize).Do()
+				project, zone, d.Id(), targetSize).Do()
 		}
 
 		if err != nil {
@@ -606,7 +620,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		op, err := config.clientComputeBeta.InstanceGroupManagers.SetAutoHealingPolicies(
-			project, d.Get("zone").(string), d.Id(), setAutoHealingPoliciesRequest).Do()
+			project, zone, d.Id(), setAutoHealingPoliciesRequest).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error updating AutoHealingPolicies: %s", err)
@@ -635,7 +649,10 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	var op interface{}
 	switch computeApiVersion {
@@ -675,7 +692,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 		switch computeApiVersion {
 		case v1:
 			instanceGroup, err := config.clientCompute.InstanceGroups.Get(
-				project, d.Get("zone").(string), d.Id()).Do()
+				project, zone, d.Id()).Do()
 			if err != nil {
 				return fmt.Errorf("Error getting instance group size: %s", err)
 			}
@@ -683,7 +700,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			instanceGroupSize = instanceGroup.Size
 		case v0beta:
 			instanceGroup, err := config.clientComputeBeta.InstanceGroups.Get(
-				project, d.Get("zone").(string), d.Id()).Do()
+				project, zone, d.Id()).Do()
 			if err != nil {
 				return fmt.Errorf("Error getting instance group size: %s", err)
 			}
