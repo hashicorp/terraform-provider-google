@@ -142,7 +142,7 @@ The `path_rule` block supports:
 
 The `test` block supports:
 
-* `service` - (Required) The backend service or backend bucket that should be matched by this test.
+* `service` - (Required) The backend service or backend bucket link that should be matched by this test.
 
 * `host` - (Required) The host component of the URL being tested.
 
