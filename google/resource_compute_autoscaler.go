@@ -302,8 +302,6 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 		if e != nil {
 			return handleNotFoundError(e, d, fmt.Sprintf("Autoscaler %q", d.Id()))
 		}
-	} else if err != nil {
-		return err
 	} else {
 		// If the resource was imported, the only info we have is the ID. Try to find the resource
 		// by searching in the region of the project.

@@ -293,8 +293,6 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
 		}
-	} else if err != nil {
-		return err
 	} else {
 		// If the resource was imported, the only info we have is the ID. Try to find the resource
 		// by searching in the region of the project.

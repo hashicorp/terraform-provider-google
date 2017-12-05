@@ -320,8 +320,6 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			if e != nil {
 				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
-		} else if err != nil {
-			return err
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
 			// by searching in the region of the project.
