@@ -68,7 +68,7 @@ func resourceContainerCluster() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -393,7 +393,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 
 	cluster := &container.Cluster{
@@ -561,7 +564,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	var cluster *container.Cluster
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
@@ -671,7 +677,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
@@ -935,7 +944,10 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 

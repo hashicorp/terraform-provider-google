@@ -43,6 +43,7 @@ type Config struct {
 	Credentials string
 	Project     string
 	Region      string
+	Zone        string
 
 	clientBilling                *cloudbilling.Service
 	clientCompute                *compute.Service

@@ -32,7 +32,7 @@ func resourceBigtableInstance() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -111,6 +111,11 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		instanceType = bigtable.PRODUCTION
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	instanceConf := &bigtable.InstanceConf{
 		InstanceId:   name,
 		DisplayName:  displayName.(string),
@@ -118,7 +123,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		NumNodes:     numNodes,
 		InstanceType: instanceType,
 		StorageType:  storageType,
-		Zone:         d.Get("zone").(string),
+		Zone:         zone,
 	}
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
