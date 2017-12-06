@@ -287,7 +287,7 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var disk *compute.Disk
-	if zone, err := getZone(d, config); zone != "" && err == nil {
+	if zone, _ := getZone(d, config); zone != "" {
 		disk, err = config.clientCompute.Disks.Get(
 			project, zone, d.Id()).Do()
 		if err != nil {

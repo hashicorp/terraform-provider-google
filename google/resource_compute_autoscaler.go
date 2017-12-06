@@ -297,7 +297,7 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 
 	var scaler *compute.Autoscaler
 	var e error
-	if zone, err := getZone(d, config); err == nil && zone != "" {
+	if zone, _ := getZone(d, config); zone != "" {
 		scaler, e = config.clientCompute.Autoscalers.Get(project, zone, d.Id()).Do()
 		if e != nil {
 			return handleNotFoundError(e, d, fmt.Sprintf("Autoscaler %q", d.Id()))

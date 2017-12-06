@@ -273,14 +273,12 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 		var v1Manager *compute.InstanceGroupManager
 		var e error
-		if zone, err := getZone(d, config); zone != "" && err == nil {
+		if zone, _ := getZone(d, config); zone != "" {
 			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
 				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
-		} else if err != nil {
-			return err
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
 			// by searching in the region of the project.
@@ -314,7 +312,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 		var v0betaManager *computeBeta.InstanceGroupManager
 		var e error
-		if zone, err := getZone(d, config); zone != "" && err == nil {
+		if zone, _ := getZone(d, config); zone != "" {
 			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
