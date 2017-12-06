@@ -63,7 +63,7 @@ func testSweepDatabases(region string) error {
 		if !testDbInstance {
 			continue
 		}
-		if !d.State == "RUNNABLE" {
+		if d.State != "RUNNABLE" {
 			continue
 		}
 		running[d.Name] = struct{}{}
