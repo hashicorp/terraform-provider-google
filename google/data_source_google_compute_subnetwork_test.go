@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -16,7 +17,7 @@ func TestAccDataSourceGoogleSubnetwork(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: TestAccDataSourceGoogleSubnetworkConfig,
+				Config: testAccDataSourceGoogleSubnetwork(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork", "google_compute_subnetwork.foobar"),
 				),
@@ -66,10 +67,11 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 	}
 }
 
-var TestAccDataSourceGoogleSubnetworkConfig = `
+func testAccDataSourceGoogleSubnetwork() string {
+	return fmt.Sprintf(`
 
 resource "google_compute_network" "foobar" {
-	name = "network-test"
+	name = "%s"
 	description = "my-description"
 }
 resource "google_compute_subnetwork" "foobar" {
@@ -87,4 +89,5 @@ resource "google_compute_subnetwork" "foobar" {
 data "google_compute_subnetwork" "my_subnetwork" {
 	name = "${google_compute_subnetwork.foobar.name}"
 }
-`
+`, acctest.RandomWithPrefix("network-test"))
+}
