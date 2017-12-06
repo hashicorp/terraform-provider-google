@@ -10,8 +10,6 @@ import (
 	"testing"
 )
 
-const DEFAULT_STORAGE_BUCKET_TEST_ROLE = "roles/storage.objectViewer"
-
 func TestAccGoogleStorageBucketIamBinding(t *testing.T) {
 	t.Parallel()
 
@@ -25,14 +23,14 @@ func TestAccGoogleStorageBucketIamBinding(t *testing.T) {
 			{
 				// Test IAM Binding creation
 				Config: testAccGoogleStorageBucketIamBinding_basic(bucket, account),
-				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Binding update
 				Config: testAccGoogleStorageBucketIamBinding_update(bucket, account),
-				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -54,7 +52,7 @@ func TestAccGoogleStorageBucketIamMember(t *testing.T) {
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccGoogleStorageBucketIamMember_basic(bucket, account),
-				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.admin", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
@@ -100,12 +98,12 @@ resource "google_service_account" "test-account-1" {
 
 resource "google_storage_bucket_iam_binding" "foo" {
   bucket = "${google_storage_bucket.bucket.name}"
-  role = "%s"
+  role = "roles/storage.objectViewer"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
   ]
 }
-`, bucket, account, DEFAULT_STORAGE_BUCKET_TEST_ROLE)
+`, bucket, account)
 }
 
 func testAccGoogleStorageBucketIamBinding_update(bucket, account string) string {
@@ -126,13 +124,13 @@ resource "google_service_account" "test-account-2" {
 
 resource "google_storage_bucket_iam_binding" "foo" {
   bucket = "${google_storage_bucket.bucket.name}"
-  role = "%s"
+  role = "roles/storage.objectViewer"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
     "serviceAccount:${google_service_account.test-account-2.email}",
   ]
 }
-`, bucket, account, account, DEFAULT_STORAGE_BUCKET_TEST_ROLE)
+`, bucket, account, account)
 }
 
 func testAccGoogleStorageBucketIamMember_basic(bucket, account string) string {
@@ -148,8 +146,8 @@ resource "google_service_account" "test-account-1" {
 
 resource "google_storage_bucket_iam_member" "foo" {
   bucket = "${google_storage_bucket.bucket.name}"
-  role = "%s"
+  role = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.test-account-1.email}"
 }
-`, bucket, account, DEFAULT_STORAGE_BUCKET_TEST_ROLE)
+`, bucket, account)
 }
