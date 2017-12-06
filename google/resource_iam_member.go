@@ -145,7 +145,7 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 			}
 			binding.Members = append(binding.Members[:memberToRemove], binding.Members[memberToRemove+1:]...)
 			if len(binding.Members) == 0 {
-				// If there is no member left for the role, remove the binding all together
+				// If there is no member left for the role, remove the binding altogether
 				p.Bindings = append(p.Bindings[:bindingToRemove], p.Bindings[bindingToRemove+1:]...)
 			} else {
 				p.Bindings[bindingToRemove] = binding
