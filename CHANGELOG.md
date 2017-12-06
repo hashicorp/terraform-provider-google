@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 * compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
+* all: Add support for `zone` at the provider level, as a default for all zonal resources.  ([#816](https://github.com/terraform-providers/terraform-provider-google/issues/816))
 
 BUG FIXES:
 
