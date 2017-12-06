@@ -1,6 +1,7 @@
 package google
 
 import (
+	"github.com/hashicorp/terraform/helper/schema"
 	"reflect"
 	"strings"
 	"testing"
@@ -148,5 +149,53 @@ func TestRfc3339TimeDiffSuppress(t *testing.T) {
 		if rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSupress {
 			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSupress)
 		}
+	}
+}
+
+func TestGetZone(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+		"zone": "foo",
+	})
+	var config Config
+	if err := d.Set("zone", "foo"); err != nil {
+		t.Fatalf("Cannot set zone: %s", err)
+	}
+	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
+		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
+	}
+	config.Zone = "bar"
+	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
+		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
+	}
+	d.Set("zone", "")
+	if zone, err := getZone(d, &config); err != nil || zone != "bar" {
+		t.Fatalf("Zone '%s' != 'bar', %s", zone, err)
+	}
+	config.Zone = ""
+	if zone, err := getZone(d, &config); err == nil || zone != "" {
+		t.Fatalf("Zone '%s' != '', err=%s", zone, err)
+	}
+}
+
+func TestGetRegion(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+		"zone": "foo",
+	})
+	var config Config
+	barRegionName := getRegionFromZone("bar")
+	fooRegionName := getRegionFromZone("foo")
+
+	if region, err := getRegion(d, &config); err != nil || region != fooRegionName {
+		t.Fatalf("Zone '%s' != '%s', %s", region, fooRegionName, err)
+	}
+
+	config.Zone = "bar"
+	d.Set("zone", "")
+	if region, err := getRegion(d, &config); err != nil || region != barRegionName {
+		t.Fatalf("Zone '%s' != '%s', %s", region, barRegionName, err)
+	}
+	config.Region = "something-else"
+	if region, err := getRegion(d, &config); err != nil || region != config.Region {
+		t.Fatalf("Zone '%s' != '%s', %s", region, config.Region, err)
 	}
 }
