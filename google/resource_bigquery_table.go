@@ -300,24 +300,22 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 	return resourceBigQueryTableRead(d, meta)
 }
 
-func resourceBigQueryTableParseID(id string) (string, string, string) {
-	parts := strings.FieldsFunc(id, func(r rune) bool { return r == ':' || r == '.' })
-	return parts[0], parts[1], parts[2] // projectID, datasetID, tableID
-}
-
 func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	log.Printf("[INFO] Reading BigQuery table: %s", d.Id())
 
-	projectID, datasetID, tableID := resourceBigQueryTableParseID(d.Id())
-
-	res, err := config.clientBigQuery.Tables.Get(projectID, datasetID, tableID).Do()
+	id, err := parseBigQueryTableId(d.Id())
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
+		return err
 	}
 
-	d.Set("project", projectID)
+	res, err := config.clientBigQuery.Tables.Get(id.Project, id.DatasetId, id.TableId).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", id.TableId))
+	}
+
+	d.Set("project", id.Project)
 	d.Set("description", res.Description)
 	d.Set("expiration_time", res.ExpirationTime)
 	d.Set("friendly_name", res.FriendlyName)
@@ -367,9 +365,12 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[INFO] Updating BigQuery table: %s", d.Id())
 
-	projectID, datasetID, tableID := resourceBigQueryTableParseID(d.Id())
+	id, err := parseBigQueryTableId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if _, err = config.clientBigQuery.Tables.Update(projectID, datasetID, tableID, table).Do(); err != nil {
+	if _, err = config.clientBigQuery.Tables.Update(id.Project, id.DatasetId, id.TableId, table).Do(); err != nil {
 		return err
 	}
 
@@ -381,9 +382,12 @@ func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[INFO] Deleting BigQuery table: %s", d.Id())
 
-	projectID, datasetID, tableID := resourceBigQueryTableParseID(d.Id())
+	id, err := parseBigQueryTableId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if err := config.clientBigQuery.Tables.Delete(projectID, datasetID, tableID).Do(); err != nil {
+	if err := config.clientBigQuery.Tables.Delete(id.Project, id.DatasetId, id.TableId).Do(); err != nil {
 		return err
 	}
 
@@ -449,4 +453,22 @@ func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
 	result["use_legacy_sql"] = vd.UseLegacySql
 
 	return []map[string]interface{}{result}
+}
+
+type bigQueryTableId struct {
+	Project, DatasetId, TableId string
+}
+
+func parseBigQueryTableId(id string) (*bigQueryTableId, error) {
+	parts := strings.FieldsFunc(id, func(r rune) bool { return r == ':' || r == '.' })
+
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid BigQuery table specifier. Expecting {project}:{dataset-id}.{table-id}, got %s", id)
+	}
+
+	return &bigQueryTableId{
+		Project:   parts[0],
+		DatasetId: parts[1],
+		TableId:   parts[2],
+	}, nil
 }
