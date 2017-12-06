@@ -164,8 +164,13 @@ func Provider() terraform.ResourceProvider {
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
-			"google_storage_bucket_object":                 resourceStorageBucketObject(),
-			"google_storage_object_acl":                    resourceStorageObjectAcl(),
+			// Legacy roles such as roles/storage.legacyBucketReader are automatically added
+			// when creating a bucket. For this reason, it is better not to add the authoritative
+			// google_storage_bucket_iam_policy resource.
+			"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_object":      resourceStorageBucketObject(),
+			"google_storage_object_acl":         resourceStorageObjectAcl(),
 		},
 
 		ConfigureFunc: providerConfigure,
