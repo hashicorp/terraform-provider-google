@@ -154,6 +154,8 @@ func Provider() terraform.ResourceProvider {
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
+			"google_storage_bucket_iam_policy":             resourceStorageBucketIAMPolicy(),
+			"google_storage_object_iam_policy":             resourceStorageObjectIAMPolicy(),
 			"google_storage_bucket_object":                 resourceStorageBucketObject(),
 			"google_storage_object_acl":                    resourceStorageObjectAcl(),
 		},
