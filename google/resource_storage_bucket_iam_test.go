@@ -12,7 +12,7 @@ import (
 
 const DEFAULT_STORAGE_BUCKET_TEST_ROLE = "roles/storage.objectViewer"
 
-func TestAccGoogleStorageIamBinding(t *testing.T) {
+func TestAccGoogleStorageBucketIamBinding(t *testing.T) {
 	t.Parallel()
 
 	bucket := acctest.RandomWithPrefix("tf-test")
@@ -24,15 +24,15 @@ func TestAccGoogleStorageIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
-				Config: testAccGoogleStorageIamBinding_basic(bucket, account),
-				Check: testAccCheckGoogleStorageIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Config: testAccGoogleStorageBucketIamBinding_basic(bucket, account),
+				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Binding update
-				Config: testAccGoogleStorageIamBinding_update(bucket, account),
-				Check: testAccCheckGoogleStorageIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Config: testAccGoogleStorageBucketIamBinding_update(bucket, account),
+				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -41,7 +41,7 @@ func TestAccGoogleStorageIamBinding(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageIamMember(t *testing.T) {
+func TestAccGoogleStorageBucketIamMember(t *testing.T) {
 	t.Parallel()
 
 	bucket := acctest.RandomWithPrefix("tf-test")
@@ -53,8 +53,8 @@ func TestAccGoogleStorageIamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleStorageIamMember_basic(bucket, account),
-				Check: testAccCheckGoogleStorageIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
+				Config: testAccGoogleStorageBucketIamMember_basic(bucket, account),
+				Check: testAccCheckGoogleStorageBucketIam(bucket, DEFAULT_STORAGE_BUCKET_TEST_ROLE, []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
@@ -62,7 +62,7 @@ func TestAccGoogleStorageIamMember(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleStorageIam(bucket, role string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleStorageBucketIam(bucket, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		p, err := config.clientStorage.Buckets.GetIamPolicy(bucket).Do()
@@ -87,7 +87,7 @@ func testAccCheckGoogleStorageIam(bucket, role string, members []string) resourc
 	}
 }
 
-func testAccGoogleStorageIamBinding_basic(bucket, account string) string {
+func testAccGoogleStorageBucketIamBinding_basic(bucket, account string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
@@ -108,7 +108,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 `, bucket, account, DEFAULT_STORAGE_BUCKET_TEST_ROLE)
 }
 
-func testAccGoogleStorageIamBinding_update(bucket, account string) string {
+func testAccGoogleStorageBucketIamBinding_update(bucket, account string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
@@ -135,7 +135,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 `, bucket, account, account, DEFAULT_STORAGE_BUCKET_TEST_ROLE)
 }
 
-func testAccGoogleStorageIamMember_basic(bucket, account string) string {
+func testAccGoogleStorageBucketIamMember_basic(bucket, account string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
