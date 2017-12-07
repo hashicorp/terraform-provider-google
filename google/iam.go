@@ -1,10 +1,12 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -33,6 +35,83 @@ type ResourceIamUpdater interface {
 
 type newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
 type iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
+
+// This method parses identifiers specific to the resource (d.GetId()) into the ResourceData
+// object, so that it can be given to the resource's Read method.  Externally, this is wrapped
+// into schema.StateFunc functions - one each for a _member, a _binding, and a _policy.  Any
+// GCP resource supporting IAM policy might support one, two, or all of these.  Any GCP resource
+// for which an implementation of this interface exists could support any of the three.
+
+type resourceIdParserFunc func(d *schema.ResourceData, config *Config) error
+
+func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+}
+
+func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		s := strings.Split(d.Id(), " ")
+		if len(s) != 2 {
+			d.SetId("")
+			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
+		}
+		id, role := s[0], s[1]
+		d.SetId(id)
+		d.Set("role", role)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		// It is possible to return multiple bindings, since we can learn about all the bindings
+		// for this resource here.  Unfortunately, `terraform import` has some messy behavior here -
+		// there's no way to know at this point which resource is being imported, so it's not possible
+		// to order this list in a useful way.  In the event of a complex set of bindings, the user
+		// will have a terribly confusing set of imported resources and no way to know what matches
+		// up to what.  And since the only users who will do a terraform import on their IAM bindings
+		// are users who aren't too familiar with Google Cloud IAM (because a "create" for bindings or
+		// members is idempotent), it's reasonable to expect that the user will be very alarmed by the
+		// plan that terraform will output which mentions destroying a dozen-plus IAM bindings.  With
+		// that in mind, we return only the binding that matters.
+		return []*schema.ResourceData{d}, nil
+	}
+}
+
+func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		s := strings.Split(d.Id(), " ")
+		if len(s) != 3 {
+			d.SetId("")
+			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
+		}
+		id, role, member := s[0], s[1], s[2]
+		d.SetId(id)
+		d.Set("role", role)
+		d.Set("member", member)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+}
 
 func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
 	mutexKey := updater.GetMutexKey()

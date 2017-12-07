@@ -31,6 +31,11 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 	}, nil
 }
 
+func ProjectIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("project", d.Id())
+	return nil
+}
+
 func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientResourceManager.Projects.GetIamPolicy(u.resourceId,
 		&cloudresourcemanager.GetIamPolicyRequest{}).Do()

@@ -31,9 +31,16 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 		Read:   resourceIamBindingRead(newUpdaterFunc),
 		Update: resourceIamBindingUpdate(newUpdaterFunc),
 		Delete: resourceIamBindingDelete(newUpdaterFunc),
-
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 	}
+}
+
+func ResourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamBinding(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamBindingImport(resourceIdParser),
+	}
+	return r
 }
 
 func resourceIamBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {

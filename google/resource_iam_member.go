@@ -33,6 +33,14 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 	}
 }
 
+func ResourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamMember(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamMemberImport(resourceIdParser),
+	}
+	return r
+}
+
 func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding {
 	return &cloudresourcemanager.Binding{
 		Members: []string{d.Get("member").(string)},

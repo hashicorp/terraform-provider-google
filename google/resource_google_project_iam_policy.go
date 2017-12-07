@@ -17,6 +17,9 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		Read:   resourceGoogleProjectIamPolicyRead,
 		Update: resourceGoogleProjectIamPolicyUpdate,
 		Delete: resourceGoogleProjectIamPolicyDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{

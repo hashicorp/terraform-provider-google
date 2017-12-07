@@ -32,6 +32,14 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 	}
 }
 
+func ResourceIamPolicyWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamPolicy(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamPolicyImport(resourceIdParser),
+	}
+	return r
+}
+
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
