@@ -1,6 +1,8 @@
 ## 1.3.1 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_storage_bucket_iam_binding` [GH-822]
+* **New Resource:** `google_storage_bucket_iam_member` [GH-822]
 
 IMPROVEMENTS:
 
