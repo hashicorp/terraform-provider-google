@@ -1,4 +1,4 @@
-## 1.3.1 (Unreleased)
+## 1.4.0 (Unreleased)
 
 FEATURES:
 * **New Resource:** `google_storage_bucket_iam_binding` [GH-822]
