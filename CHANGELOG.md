@@ -7,13 +7,13 @@ FEATURES:
 
 IMPROVEMENTS:
 
-* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
 * all: Add support for `zone` at the provider level, as a default for all zonal resources.  ([#816](https://github.com/terraform-providers/terraform-provider-google/issues/816))
+* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
 * compute: Add example for Shared VPC (aka cross-project networking, or XPN). [GH-810]
 
 BUG FIXES:
 
-* Fix bug that disallowed using file paths for credentials [GH-832]
+* all: Fix bug that disallowed using file paths for credentials [GH-832]
 * dns: Fix bug that broke NS records on subdomains [GH-807]
 * bigquery: Fix bug causing a crash if the import id was invalid [GH-828]
 
