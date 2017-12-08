@@ -13,6 +13,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 * dns: Fix bug that broke NS records on subdomains [GH-807]
+* bigquery: Fix bug causing a crash if the import id was invalid [GH-828]
 
 ## 1.3.0 (November 30, 2017)
 
