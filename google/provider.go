@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -198,6 +199,10 @@ func validateCredentials(v interface{}, k string) (warnings []string, errors []e
 		return
 	}
 	creds := v.(string)
+	// if this is a path and we can stat it, assume it's ok
+	if _, err := os.Stat(creds); err == nil {
+		return
+	}
 	var account accountFile
 	if err := json.Unmarshal([]byte(creds), &account); err != nil {
 		errors = append(errors,

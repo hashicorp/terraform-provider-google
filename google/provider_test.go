@@ -88,6 +88,30 @@ func TestProvider_getRegionFromZone(t *testing.T) {
 	}
 }
 
+func TestProvider_loadCredentialsFromFile(t *testing.T) {
+	ws, es := validateCredentials(testFakeCredentialsPath, "")
+	if len(ws) != 0 {
+		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
+	}
+	if len(es) != 0 {
+		t.Errorf("Expected %d errors, got %v", len(es), es)
+	}
+}
+
+func TestProvider_loadCredentialsFromJSON(t *testing.T) {
+	contents, err := ioutil.ReadFile(testFakeCredentialsPath)
+	if err != nil {
+		t.Fatalf("Unexpected error: %s", err)
+	}
+	ws, es := validateCredentials(string(contents), "")
+	if len(ws) != 0 {
+		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
+	}
+	if len(es) != 0 {
+		t.Errorf("Expected %d errors, got %v", len(es), es)
+	}
+}
+
 // getTestRegion has the same logic as the provider's getRegion, to be used in tests.
 func getTestRegion(is *terraform.InstanceState, config *Config) (string, error) {
 	if res, ok := is.Attributes["region"]; ok {
