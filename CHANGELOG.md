@@ -13,6 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+* Fix bug that disallowed using file paths for credentials [GH-832]
 * dns: Fix bug that broke NS records on subdomains [GH-807]
 * bigquery: Fix bug causing a crash if the import id was invalid [GH-828]
 
