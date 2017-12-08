@@ -1,6 +1,7 @@
 ## 1.4.0 (Unreleased)
 
 FEATURES:
+* **New Data Source:** `google_compute_image` [GH-128]
 * **New Resource:** `google_storage_bucket_iam_binding` [GH-822]
 * **New Resource:** `google_storage_bucket_iam_member` [GH-822]
 
