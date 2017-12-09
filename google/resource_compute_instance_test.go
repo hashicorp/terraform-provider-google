@@ -28,7 +28,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasInstanceId(&instance, "google_compute_instance.foobar"),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
@@ -56,7 +56,7 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 				Config: testAccComputeInstance_basic2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
@@ -81,7 +81,7 @@ func TestAccComputeInstance_basic3(t *testing.T) {
 				Config: testAccComputeInstance_basic3(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
@@ -106,7 +106,7 @@ func TestAccComputeInstance_basic4(t *testing.T) {
 				Config: testAccComputeInstance_basic4(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
@@ -131,7 +131,7 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 				Config: testAccComputeInstance_basic5(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceTag(&instance, "foo"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
@@ -157,7 +157,7 @@ func TestAccComputeInstance_IP(t *testing.T) {
 				Config: testAccComputeInstance_ip(ipName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
 				),
 			},
@@ -178,7 +178,7 @@ func TestAccComputeInstance_GenerateIP(t *testing.T) {
 				Config: testAccComputeInstance_generateIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
 					testAccCheckComputeInstanceHasAssignedIP,
 				),
@@ -218,7 +218,7 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 				Config: testAccComputeInstance_disks_encryption(bootEncryptionKey, diskNameToEncryptionKey, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDiskEncryptionKey("google_compute_instance.foobar", &instance, bootEncryptionKeyHash, diskNameToEncryptionKey),
 				),
 			},
@@ -242,7 +242,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -266,7 +266,7 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk_sourceUrl(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -291,7 +291,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -300,7 +300,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_addAttachedDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 					testAccCheckComputeInstanceDisk(&instance, diskName2, false, false),
 				),
@@ -310,7 +310,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_detachDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -319,7 +319,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_updateAttachedDiskEncryptionKey(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -343,7 +343,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_source(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceBootDisk(&instance, diskName),
 				),
 			},
@@ -367,7 +367,7 @@ func TestAccComputeInstance_bootDisk_sourceUrl(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_sourceUrl(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceBootDisk(&instance, diskName),
 				),
 			},
@@ -391,7 +391,7 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_type(instanceName, diskType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceBootDiskType(instanceName, diskType),
 				),
 			},
@@ -414,7 +414,7 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 				Config: testAccComputeInstance_scratchDisk(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.scratch", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.scratch", &instance),
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
 				),
 			},
@@ -437,14 +437,14 @@ func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeInstance_forceNewAndChangeMetadata(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(
 						&instance, "qux", "true"),
 				),
@@ -468,14 +468,14 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeInstance_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(
 						&instance, "bar", "baz"),
 					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
@@ -502,7 +502,7 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 				Config: testAccComputeInstance_service_account(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceServiceAccount(&instance,
 						"https://www.googleapis.com/auth/compute.readonly"),
 					testAccCheckComputeInstanceServiceAccount(&instance,
@@ -530,7 +530,7 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 				Config: testAccComputeInstance_scheduling(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 				),
 			},
 		},
@@ -552,7 +552,7 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 				Config: testAccComputeInstance_subnet_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -575,7 +575,7 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 				Config: testAccComputeInstance_subnet_custom(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -600,7 +600,7 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_subnet_xpn(org, billingId, projectName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
+					testAccCheckComputeInstanceExistsInProject(
 						"google_compute_instance.foobar", fmt.Sprintf("%s-service", projectName),
 						&instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
@@ -625,7 +625,7 @@ func TestAccComputeInstance_address_auto(t *testing.T) {
 				Config: testAccComputeInstance_address_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAnyAddress(&instance),
 				),
 			},
@@ -648,7 +648,7 @@ func TestAccComputeInstance_address_custom(t *testing.T) {
 				Config: testAccComputeInstance_address_custom(instanceName, address),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAddress(&instance, address),
 				),
 			},
@@ -674,7 +674,7 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 				Config: testAccComputeInstance_private_image_family(diskName, imageName, familyName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+						"google_compute_instance.foobar", &instance),
 				),
 			},
 		},
@@ -695,7 +695,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceUpdateMachineType("google_compute_instance.foobar"),
 				),
 				ExpectNonEmptyPlan: true,
@@ -720,7 +720,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_multiNic(instanceName, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasMultiNic(&instance),
 				),
 			},
@@ -742,7 +742,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_guestAccelerator(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
 				),
 			},
@@ -765,7 +765,7 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_minCpuPlatform(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
 				),
 			},
@@ -787,7 +787,7 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_primaryAliasIpRange(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "/24"),
 				),
 			},
@@ -809,7 +809,7 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_secondaryAliasIpRange(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("google_compute_instance.foobar", getTestProjectFromEnv(), &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
 				),
 			},
@@ -874,7 +874,11 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceExists(n, p string, instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) resource.TestCheckFunc {
+	return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance)
+}
+
+func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
