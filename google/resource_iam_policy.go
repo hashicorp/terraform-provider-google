@@ -21,6 +21,20 @@ var IamPolicyBaseSchema = map[string]*schema.Schema{
 	},
 }
 
+func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+}
+
 func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: ResourceIamPolicyCreate(newUpdaterFunc),
