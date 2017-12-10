@@ -174,6 +174,13 @@ func resourceDataprocCluster() *schema.Resource {
 										},
 										Set: stringScopeHashcode,
 									},
+
+									"internal_ip_only": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Default:  false,
+									},
 								},
 							},
 						},
@@ -479,6 +486,9 @@ func expandGceClusterConfig(cfg map[string]interface{}) *dataproc.GceClusterConf
 		}
 		conf.ServiceAccountScopes = scopes
 	}
+	if v, ok := cfg["internal_ip_only"]; ok {
+		conf.InternalIpOnly = v.(bool)
+	}
 	return conf
 }
 
@@ -720,9 +730,10 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
 
 	gceConfig := map[string]interface{}{
-		"tags":            gcc.Tags,
-		"service_account": gcc.ServiceAccount,
-		"zone":            extractLastResourceFromUri(gcc.ZoneUri),
+		"tags":             gcc.Tags,
+		"service_account":  gcc.ServiceAccount,
+		"zone":             extractLastResourceFromUri(gcc.ZoneUri),
+		"internal_ip_only": gcc.InternalIpOnly,
 	}
 
 	if gcc.NetworkUri != "" {
