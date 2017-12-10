@@ -196,6 +196,11 @@ The **cluster_config.gce_cluster_config** block supports:
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.
 
+* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses, 
+   and will have ephemeral external IP addresses assigned to each instance. If set to true, all 
+   instances in the cluster will only have internal IP addresses. Note: Private Google Access 
+   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster 
+   will be launched in.
 - - -
 
 The **cluster_config.master_config** block supports:
