@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,7 +27,7 @@ func TestAccComputeDisk_basic(t *testing.T) {
 				Config: testAccComputeDisk_basic(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foobar", &disk),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
@@ -66,7 +65,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 				Config: testAccComputeDisk_basic(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foobar", &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "50"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
@@ -76,7 +75,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 				Config: testAccComputeDisk_updated(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foobar", &disk),
 					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "100"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
 					testAccCheckComputeDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
@@ -93,9 +92,7 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	org := getTestOrgFromEnv(t)
-	billingId := getTestBillingAccountFromEnv(t)
-	projectName := fmt.Sprintf("tf-disktest-%d", time.Now().Unix())
+	projectName := getTestProjectFromEnv()
 
 	var disk compute.Disk
 
@@ -105,17 +102,17 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, org, billingId, "self_link"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.seconddisk", projectName, &disk),
+						"google_compute_disk.seconddisk", &disk),
 				),
 			},
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, org, billingId, "name"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.seconddisk", projectName, &disk),
+						"google_compute_disk.seconddisk", &disk),
 				),
 			},
 		},
@@ -137,7 +134,7 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foobar", &disk),
 					testAccCheckEncryptionKey(
 						"google_compute_disk.foobar", &disk),
 				),
@@ -162,7 +159,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foo", &disk),
 				),
 			},
 			// this needs to be a second step so we refresh and see the instance
@@ -173,7 +170,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
+						"google_compute_disk.foo", &disk),
 					testAccCheckComputeDiskInstances(
 						"google_compute_disk.foo", &disk),
 				),
@@ -200,8 +197,9 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.TestCheckFunc {
+func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
@@ -345,34 +343,22 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, org, billingId, ref_selector string) string {
+func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
-resource "google_project" "project" {
-	name = "Test Project"
-	project_id = "%s"
-	org_id = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_service" "project" {
-	project = "${google_project.project.project_id}"
-    service = "compute.googleapis.com"
-}
-
 resource "google_compute_disk" "foobar" {
 	name = "d1-%s"
 	image = "debian-8-jessie-v20160803"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
-	project = "${google_project_service.project.project}"
+	project = "%s"
 }
 
 resource "google_compute_snapshot" "snapdisk" {
 	name = "%s"
 	source_disk = "${google_compute_disk.foobar.name}"
 	zone = "us-central1-a"
-	project = "${google_project_service.project.project}"
+	project = "%s"
 }
 
 resource "google_compute_disk" "seconddisk" {
@@ -380,8 +366,8 @@ resource "google_compute_disk" "seconddisk" {
 	snapshot = "${google_compute_snapshot.snapdisk.%s}"
 	type = "pd-ssd"
 	zone = "us-central1-a"
-	project = "${google_project_service.project.project}"
-}`, projectName, org, billingId, firstDiskName, snapshotName, diskName, ref_selector)
+	project = "%s"
+}`, firstDiskName, projectName, snapshotName, projectName, diskName, ref_selector, projectName)
 }
 
 func testAccComputeDisk_encryption(diskName string) string {
