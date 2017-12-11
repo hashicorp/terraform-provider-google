@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -90,12 +89,10 @@ func TestAccComputeDisk_update(t *testing.T) {
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_XPN_HOST_PROJECT")
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
+	projectName := getTestProjectFromEnv()
 
 	var disk compute.Disk
 
@@ -105,14 +102,14 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "self_link"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", &disk),
 				),
 			},
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "name"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", &disk),
@@ -202,6 +199,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 
 func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
@@ -214,7 +212,7 @@ func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCh
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Disks.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -345,29 +343,31 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host string, ref_selector string) string {
+func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_disk" "foobar" {
-			name = "%s"
-			image = "debian-8-jessie-v20160803"
-			size = 50
-			type = "pd-ssd"
-			zone = "us-central1-a"
-			project = "%s"
-		}
-
-resource "google_compute_snapshot" "snapdisk" {
-  name = "%s"
-  source_disk = "${google_compute_disk.foobar.name}"
-  zone = "us-central1-a"
+resource "google_compute_disk" "foobar" {
+	name = "d1-%s"
+	image = "debian-8-jessie-v20160803"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
 	project = "%s"
 }
-resource "google_compute_disk" "seconddisk" {
+
+resource "google_compute_snapshot" "snapdisk" {
 	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	project = "%s"
+}
+
+resource "google_compute_disk" "seconddisk" {
+	name = "d2-%s"
 	snapshot = "${google_compute_snapshot.snapdisk.%s}"
 	type = "pd-ssd"
 	zone = "us-central1-a"
-}`, firstDiskName, xpn_host, snapshotName, xpn_host, diskName, ref_selector)
+	project = "%s"
+}`, firstDiskName, projectName, snapshotName, projectName, diskName, ref_selector, projectName)
 }
 
 func testAccComputeDisk_encryption(diskName string) string {
