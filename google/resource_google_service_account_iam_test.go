@@ -21,9 +21,14 @@ func TestAccGoogleServiceAccountIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleServiceAccountIamBinding_basic(account),
-				Check: testAccCheckGoogleServiceAccountIam("google_service_account.test_account", "roles/viewer", []string{
+				Check: testAccCheckGoogleServiceAccountIam(account, "roles/viewer", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
+			},
+			{
+				ResourceName:  "google_service_account_iam_binding.foo",
+				ImportStateId: fmt.Sprintf("%s %s", getServiceAccountCanonicalId(account), "roles/viewer"),
+				ImportState:   true,
 			},
 		},
 	})
@@ -33,6 +38,7 @@ func TestAccGoogleServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := acctest.RandomWithPrefix("tf-test")
+	identity := fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -40,9 +46,12 @@ func TestAccGoogleServiceAccountIamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleServiceAccountIamMember_basic(account),
-				Check: testAccCheckGoogleServiceAccountIam("google_service_account.test_account", "roles/editor", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
-				}),
+				Check:  testAccCheckGoogleServiceAccountIam(account, "roles/editor", []string{identity}),
+			},
+			{
+				ResourceName:  "google_service_account_iam_member.foo",
+				ImportStateId: fmt.Sprintf("%s %s %s", getServiceAccountCanonicalId(account), "roles/editor", identity),
+				ImportState:   true,
 			},
 		},
 	})
@@ -59,27 +68,23 @@ func TestAccGoogleServiceAccountIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleServiceAccountIamPolicy_basic(account),
-				Check: testAccCheckGoogleServiceAccountIam("google_service_account.test_account", "roles/owner", []string{
+				Check: testAccCheckGoogleServiceAccountIam(account, "roles/owner", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
+			},
+			{
+				ResourceName:  "google_service_account_iam_policy.foo",
+				ImportStateId: getServiceAccountCanonicalId(account),
+				ImportState:   true,
 			},
 		},
 	})
 }
 
-func testAccCheckGoogleServiceAccountIam(n, role string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleServiceAccountIam(account, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
 		config := testAccProvider.Meta().(*Config)
-		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(rs.Primary.ID).Do()
+		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(getServiceAccountCanonicalId(account)).Do()
 		if err != nil {
 			return err
 		}
@@ -99,6 +104,10 @@ func testAccCheckGoogleServiceAccountIam(n, role string, members []string) resou
 
 		return fmt.Errorf("No binding for role %q", role)
 	}
+}
+
+func getServiceAccountCanonicalId(account string) string {
+	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), account, getTestProjectFromEnv())
 }
 
 func testAccGoogleServiceAccountIamBinding_basic(account string) string {

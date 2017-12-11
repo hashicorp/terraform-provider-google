@@ -28,6 +28,11 @@ func NewServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (Resour
 	}, nil
 }
 
+func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("service_account_id", d.Id())
+	return nil
+}
+
 func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).Do()
 
