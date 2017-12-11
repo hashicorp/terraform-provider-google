@@ -4,10 +4,12 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
+	"errors"
 	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"time"
 )
 
 var RegionInstanceGroupManagerBaseApiVersion = v1
@@ -110,6 +112,12 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Optional: true,
 			},
 
+			"wait_for_instances": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"auto_healing_policies": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -182,7 +190,38 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	return resourceComputeRegionInstanceGroupManagerRead(d, meta)
+	c1 := make(chan error, 1)
+	c2 := make(chan bool, 1)
+	go func() {
+		for {
+			select {
+			case <-c2:
+				return
+			default:
+				err = resourceComputeRegionInstanceGroupManagerRead(d, meta)
+				if _, ok := err.(notFinishedCreatingError); ok {
+					time.Sleep(5 * time.Second)
+					continue
+				} else {
+					c1 <- err
+				}
+			}
+		}
+	}()
+	select {
+	case err := <-c1:
+		return err
+	case <-time.After(5 * time.Minute):
+		c2 <- true
+		return errors.New("Timed out trying to wait for instances to come up.")
+	}
+	return nil
+}
+
+type notFinishedCreatingError struct{}
+
+func (e notFinishedCreatingError) Error() string {
+	return "Not yet finished creating instances."
 }
 
 func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
@@ -226,6 +265,10 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
+
+	if d.Get("wait_for_instances").(bool) && (manager.CurrentActions.Creating+manager.CurrentActions.CreatingWithoutRetries) > 0 {
+		return notFinishedCreatingError{}
+	}
 
 	return nil
 }
@@ -447,7 +490,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	}
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting RegionInstanceGroupManager")
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, 15, "Deleting RegionInstanceGroupManager")
 
 	d.SetId("")
 	return nil
