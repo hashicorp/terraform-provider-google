@@ -1,21 +1,21 @@
-## 1.4.0 (Unreleased)
+## 1.4.0 (December 11, 2017)
 
 FEATURES:
-* **New Data Source:** `google_compute_image` [GH-128]
-* **New Resource:** `google_storage_bucket_iam_binding` [GH-822]
-* **New Resource:** `google_storage_bucket_iam_member` [GH-822]
+* **New Data Source:** `google_compute_image` ([#128](https://github.com/terraform-providers/terraform-provider-google/issues/128))
+* **New Resource:** `google_storage_bucket_iam_binding` ([#822](https://github.com/terraform-providers/terraform-provider-google/issues/822))
+* **New Resource:** `google_storage_bucket_iam_member` ([#822](https://github.com/terraform-providers/terraform-provider-google/issues/822))
 
 IMPROVEMENTS:
 
 * all: Add support for `zone` at the provider level, as a default for all zonal resources.  ([#816](https://github.com/terraform-providers/terraform-provider-google/issues/816))
-* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` [GH-808]
-* compute: Add example for Shared VPC (aka cross-project networking, or XPN). [GH-810]
+* compute: Add support for `min_cpu_platform` to `google_compute_instance_template` ([#808](https://github.com/terraform-providers/terraform-provider-google/issues/808))
+* compute: Add example for Shared VPC (aka cross-project networking, or XPN). ([#810](https://github.com/terraform-providers/terraform-provider-google/issues/810))
 
 BUG FIXES:
 
-* all: Fix bug that disallowed using file paths for credentials [GH-832]
-* dns: Fix bug that broke NS records on subdomains [GH-807]
-* bigquery: Fix bug causing a crash if the import id was invalid [GH-828]
+* all: Fix bug that disallowed using file paths for credentials ([#832](https://github.com/terraform-providers/terraform-provider-google/issues/832))
+* dns: Fix bug that broke NS records on subdomains ([#807](https://github.com/terraform-providers/terraform-provider-google/issues/807))
+* bigquery: Fix bug causing a crash if the import id was invalid ([#828](https://github.com/terraform-providers/terraform-provider-google/issues/828))
 
 ## 1.3.0 (November 30, 2017)
 
