@@ -1,4 +1,8 @@
 ## 1.4.1 (Unreleased)
+
+IMPROVEMENTS:
+* iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
+
 ## 1.4.0 (December 11, 2017)
 
 FEATURES:
