@@ -107,6 +107,9 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					// Default behaviour is for Dataproc to autogen or autodiscover a config bucket
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.bucket"),
 
+					// Default behavior is for Dataproc to not use only internal IP addresses
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.gce_cluster_config.internal_ip_only", "false"),
+
 					// Expect 1 master instances with computed values
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.#", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.num_instances", "1"),
