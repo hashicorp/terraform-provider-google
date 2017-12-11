@@ -77,6 +77,56 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_routing_mode(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+
+	routingMode := "GLOBAL"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeNetwork_routing_mode(routingMode),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.acc_network_routing_mode", &network),
+					testAccCheckComputeNetworkHasRoutingMode(
+						"google_compute_network.acc_network_routing_mode", &network, routingMode),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+
+	expectedRoutingMode := "REGIONAL"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeNetwork_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.foobar", &network),
+					testAccCheckComputeNetworkHasRoutingMode(
+						"google_compute_network.foobar", &network, expectedRoutingMode),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -168,6 +218,35 @@ func testAccCheckComputeNetworkIsCustomSubnet(n string, network *compute.Network
 	}
 }
 
+func testAccCheckComputeNetworkHasRoutingMode(n string, network *compute.Network, routingMode string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.Attributes["routing_mode"] == "" {
+			return fmt.Errorf("Routing mode not found on resource")
+		}
+
+		found, err := config.clientCompute.Networks.Get(
+			config.Project, network.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		foundRoutingMode := found.RoutingConfig.RoutingMode
+
+		if routingMode != foundRoutingMode {
+			return fmt.Errorf("Expected routing mode %s to match actual routing mode %s", routingMode, foundRoutingMode)
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeNetwork_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
@@ -189,4 +268,12 @@ resource "google_compute_network" "baz" {
 	name = "network-test-%s"
 	auto_create_subnetworks = false
 }`, acctest.RandString(10))
+}
+
+func testAccComputeNetwork_routing_mode(routingMode string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "acc_network_routing_mode" {
+	name         = "network-test-%s"
+	routing_mode = "%s"
+}`, acctest.RandString(10), routingMode)
 }

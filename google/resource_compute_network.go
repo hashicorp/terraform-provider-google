@@ -37,6 +37,13 @@ func resourceComputeNetwork() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"routing_mode": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
 			"gateway_ipv4": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -93,6 +100,13 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		Description:           d.Get("description").(string),
 	}
 
+	if v, ok := d.GetOk("routing_mode"); ok {
+		routingConfig := &compute.NetworkRoutingConfig{
+			RoutingMode: v.(string),
+		}
+		network.RoutingConfig = routingConfig
+	}
+
 	if v, ok := d.GetOk("ipv4_range"); ok {
 		log.Printf("[DEBUG] Setting IPv4Range (%#v) for legacy network mode", v.(string))
 		network.IPv4Range = v.(string)
@@ -133,6 +147,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
 	}
 
+	routingConfig := network.RoutingConfig
+
+	d.Set("routing_mode", routingConfig.RoutingMode)
 	d.Set("gateway_ipv4", network.GatewayIPv4)
 	d.Set("ipv4_range", network.IPv4Range)
 	d.Set("self_link", network.SelfLink)
