@@ -349,17 +349,18 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 // converts an existing Resource schema to a Datasource schema.
 // All schema elements are copied, but certain attributes are ignored or changed:
 // - all attributes have Computed = true
-// - all attributes have ForceNew = false
+// - all attributes have ForceNew, Required = false
 // - Validation funcs and attributes (e.g. MaxItems) are not copied
 func datasourceSchemaFromResourceSchema(rs map[string]*schema.Schema) map[string]*schema.Schema {
 	ds := make(map[string]*schema.Schema, len(rs))
 	for k, v := range rs {
-		log.Printf("datasourceSchemaFromResourceSchema: %s", k)
+		log.Printf("[DEBUG] datasourceSchemaFromResourceSchema: %s", k)
 
 		dv := &schema.Schema{
 			Computed:    true,
-			Description: v.Description,
 			ForceNew:    false,
+			Required:    false,
+			Description: v.Description,
 			Type:        v.Type,
 		}
 

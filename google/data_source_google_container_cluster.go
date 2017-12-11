@@ -12,8 +12,6 @@ func dataSourceGoogleContainerCluster() *schema.Resource {
 	fixDatasourceSchemaFlags(dsSchema, true, "name", "zone")
 	fixDatasourceSchemaFlags(dsSchema, false, "project")
 
-	dsSchema["project"].Optional = true
-
 	return &schema.Resource{
 		Read:   datasourceContainerClusterRead,
 		Schema: dsSchema,
