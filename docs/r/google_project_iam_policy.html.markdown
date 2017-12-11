@@ -38,7 +38,7 @@ data "google_iam_policy" "admin" {
 The following arguments are supported:
 
 * `project` - (Required) The project ID.
-    Changing this forces a new project to be created.
+    Changing this forces a new resource to be created.
 
 * `policy_data` - (Required) The `google_iam_policy` data source that represents
     the IAM policy that will be applied to the project. The policy will be
@@ -73,3 +73,11 @@ exported:
 
 * `restore_policy` - (DEPRECATED) (Computed) The IAM policy that will be restored when a
     non-authoritative policy resource is deleted.
+
+## Import
+
+IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `project_id` e.g.
+
+```
+$ terraform import google_project_iam_policy.my_project your-project-id
+```

@@ -45,3 +45,10 @@ exported:
 
 * `etag` - (Computed) The etag of the crypto key's IAM policy.
 
+## Import
+
+IAM binding imports use space-delimited identifiers; first the resource in question and then the role.  These bindings can be imported using the `crypto_key_id` and role, e.g.
+
+```
+$ terraform import google_kms_crypto_key_binding.my_binding "your-project-id/location-name/key-name roles/viewer"
+```
