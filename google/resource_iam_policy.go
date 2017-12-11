@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"encoding/json"
+	"errors"
 	"fmt"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
