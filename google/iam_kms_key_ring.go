@@ -34,6 +34,11 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	}, nil
 }
 
+func KeyRingIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("key_ring_id", d.Id())
+	return nil
+}
+
 func resourceManagerToKmsPolicy(p *cloudresourcemanager.Policy) (policy *cloudkms.Policy, err error) {
 	policy = &cloudkms.Policy{}
 

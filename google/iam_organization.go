@@ -26,6 +26,11 @@ func NewOrganizationIamUpdater(d *schema.ResourceData, config *Config) (Resource
 	}, nil
 }
 
+func OrgIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("org_id", d.Id())
+	return nil
+}
+
 func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientResourceManager.Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 	if err != nil {

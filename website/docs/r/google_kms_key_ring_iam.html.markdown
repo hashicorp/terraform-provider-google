@@ -90,3 +90,23 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `etag` - (Computed) The etag of the key ring's IAM policy.
+
+## Import
+
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `key_ring_id`, role, and account e.g.
+
+```
+$ terraform import google_kms_key_ring_iam_member.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer foo@example.com"
+```
+
+IAM binging imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `key_ring_id`, role, and account e.g.
+
+```
+$ terraform import google_kms_key_ring_iam_binding.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `key_ring_id`, role, and account e.g.
+
+```
+$ terraform import google_kms_key_ring_iam_policy.key_ring_iam your-project-id/location-name/key-ring-name
+```

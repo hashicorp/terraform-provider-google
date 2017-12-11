@@ -50,3 +50,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `etag` - (Computed) The etag of the project's IAM policy.
+
+## Import
+
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `project_id`, role, and account e.g.
+
+```
+$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer foo@example.com"
+```

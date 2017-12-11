@@ -1,9 +1,12 @@
 package google
 
 import (
+	"errors"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
+	"strings"
 )
 
 var IamMemberBaseSchema = map[string]*schema.Schema{
@@ -23,6 +26,29 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 	},
 }
 
+func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		s := strings.Split(d.Id(), " ")
+		if len(s) != 3 {
+			d.SetId("")
+			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role username'.", s)
+		}
+		id, role, member := s[0], s[1], s[2]
+		d.SetId(id)
+		d.Set("role", role)
+		d.Set("member", member)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+}
+
 func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIamMemberCreate(newUpdaterFunc),
@@ -31,6 +57,14 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 
 		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
 	}
+}
+
+func ResourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamMember(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamMemberImport(resourceIdParser),
+	}
+	return r
 }
 
 func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding {
