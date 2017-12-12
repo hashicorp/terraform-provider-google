@@ -136,6 +136,29 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
+
+					// Testing behavior for Dataproc to use only internal IP addresses
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.gce_cluster_config.internal_ip_only", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
 	t.Parallel()
 
@@ -647,6 +670,66 @@ func testAccDataprocCluster_basic(rnd string) string {
 resource "google_dataproc_cluster" "basic" {
 	name                  = "dproc-cluster-test-%s"
 	region                = "us-central1"
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "dataproc_network" {
+	name = "dataproc-internalip-network"
+	auto_create_subnetworks = false
+}
+
+#
+# Create a subnet with Private IP Access enabled to test
+# deploying a Dataproc cluster with Internal IP Only enabled.
+#
+resource "google_compute_subnetwork" "dataproc_subnetwork" {
+	name                     = "dataproc-internalip-subnetwork"
+	ip_cidr_range            = "10.0.0.0/16"
+	network                  = "${google_compute_network.dataproc_network.self_link}"
+	region                   = "us-central1"
+	private_ip_google_access = true
+  }
+
+#
+# The default network within GCP already comes pre configured with
+# certain firewall rules open to allow internal communication. As we
+# are creating a new one here for this test, we need to additionally
+# open up similar rules to allow the nodes to talk to each other
+# internally as part of their configuration or this will just hang.
+#
+resource "google_compute_firewall" "dataproc_network_firewall" {
+	name = "dproc-cluster-test-allow-internal"
+	description = "Firewall rules for dataproc Terraform acceptance testing"
+	network = "${google_compute_network.dataproc_network.name}"
+
+	allow {
+		protocol = "icmp"
+	}
+
+	allow {
+		protocol = "tcp"
+		ports    = ["0-65535"]
+	}
+
+	allow {
+		protocol = "udp"
+		ports    = ["0-65535"]
+	}
+}
+resource "google_dataproc_cluster" "basic" {
+	name                  = "dproc-cluster-test-%s"
+	region                = "us-central1"
+	depends_on            = ["google_compute_firewall.dataproc_network_firewall","google_compute_subnetwork.dataproc_subnetwork"]
+
+	cluster_config {
+		gce_cluster_config {
+			subnetwork       = "${google_compute_subnetwork.dataproc_subnetwork.name}"
+			internal_ip_only = true
+		}
+	}
 }
 `, rnd)
 }
