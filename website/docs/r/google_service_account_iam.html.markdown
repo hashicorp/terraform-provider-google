@@ -92,20 +92,12 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the member. This member resource can be imported using the `service_account_id`, role, and member e.g.
-
-```
-$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor foo@example.com"
-```
-
-IAM binding imports use space-delimited identifiers; the resource in question and the role. This binding resource can be imported using the `service_account_id` and role e.g.
-
-```
-$ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor"
-```
-
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `service_account_id` e.g.
+Service account IAM resources can be imported using the project, service account email, role and member.
 
 ```
 $ terraform import google_service_account_iam_policy.admin-account-iam projects/{your-project-id}/serviceAccounts/{your-service-account-email}
+
+$ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor"
+
+$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor foo@example.com"
 ```
