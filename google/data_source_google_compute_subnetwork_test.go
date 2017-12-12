@@ -47,7 +47,6 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			"name",
 			"description",
 			"ip_cidr_range",
-			"network",
 			"private_ip_google_access",
 			"secondary_ip_range",
 		}
@@ -61,6 +60,10 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 					rs_attr[attr_to_check],
 				)
 			}
+		}
+
+		if v1RsNetwork := ConvertSelfLinkToV1(rs_attr["network"]); ds_attr["network"] != v1RsNetwork {
+			return fmt.Errorf("network is %s; want %s", ds_attr["network"], v1RsNetwork)
 		}
 
 		return nil
