@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
+* compute: Add support for routing mode in compute network. [GH-838]
 
 ## 1.4.0 (December 11, 2017)
 
