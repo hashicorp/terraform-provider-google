@@ -90,7 +90,6 @@ func dataSourceGoogleComputeRegionInstanceGroup() *schema.Resource {
 func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	var project, region, name string
-	// add self_link parsing here.
 	if self_link, ok := d.GetOk("self_link"); ok {
 		parsed, err := url.Parse(self_link.(string))
 		if err != nil {
