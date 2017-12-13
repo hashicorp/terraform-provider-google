@@ -112,6 +112,9 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Optional: true,
 			},
 
+			// If true, the resource will report ready only after no instances are being created.
+			// This will not block future reads if instances are being recreated, and it respects
+			// the "createNoRetry" parameter that's available for this resource.
 			"wait_for_instances": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -190,13 +193,18 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		return err
 	}
 
+	// Channel 1 returns the error from the read - in the ideal case it will return 'nil' eventually,
+	// but it can return an error other than the notFinishedCreatingError as well.
 	c1 := make(chan error, 1)
+	// Channel 2 returns 'true' if the timeout has passed (to clean up the goroutine here).
 	c2 := make(chan bool, 1)
 	go func() {
 		for {
 			select {
+			// Timeout has passed.
 			case <-c2:
 				return
+			// Timeout has not passed.
 			default:
 				err = resourceComputeRegionInstanceGroupManagerRead(d, meta)
 				if _, ok := err.(notFinishedCreatingError); ok {
@@ -209,13 +217,14 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		}
 	}()
 	select {
+	// We receive a response before the timeout.
 	case err := <-c1:
 		return err
+	// We timeout before we receive a response.
 	case <-time.After(5 * time.Minute):
 		c2 <- true
 		return errors.New("Timed out trying to wait for instances to come up.")
 	}
-	return nil
 }
 
 type notFinishedCreatingError struct{}
