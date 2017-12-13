@@ -23,7 +23,7 @@ func dataSourceGoogleComputeRegionInstanceGroup() *schema.Resource {
 				Computed: true,
 			},
 
-			"items": {
+			"instances": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -130,12 +130,12 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			// The resource doesn't have any instances, which is okay.
-			d.Set("items", nil)
+			d.Set("instances", nil)
 		} else {
 			return fmt.Errorf("Error reading RegionInstanceGroup Members: %s", err)
 		}
 	} else {
-		d.Set("items", flattenInstancesWithNamedPorts(members.Items))
+		d.Set("instances", flattenInstancesWithNamedPorts(members.Items))
 	}
 	d.Set("kind", instanceGroup.Kind)
 	d.SetId(strconv.FormatUint(instanceGroup.Id, 16))
