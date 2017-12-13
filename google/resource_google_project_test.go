@@ -86,6 +86,11 @@ func TestAccGoogleProject_createBilling(t *testing.T) {
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -105,6 +110,11 @@ func TestAccGoogleProject_createLabels(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
