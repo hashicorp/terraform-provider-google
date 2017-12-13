@@ -110,12 +110,13 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS CryptoKey %s", cryptoKeyId.cryptoKeyId())
 
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(cryptoKeyId.cryptoKeyId()).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
 	d.Set("name", cryptoKeyId.Name)
-	d.Set("rotation_period", d.Get("rotation_period"))
+	d.Set("rotation_period", cryptoKey.RotationPeriod)
 
 	d.SetId(cryptoKeyId.terraformId())
 
