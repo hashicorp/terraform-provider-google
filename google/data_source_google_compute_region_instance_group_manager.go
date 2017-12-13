@@ -98,7 +98,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 		}
 		s := strings.Split(parsed.Path, "/")
 		project, region, name = s[4], s[6], s[8]
-		// https://www.googleapis.com/compute/beta/projects/nmckinley-graphite/regions/us-central1/instanceGroups/foobarbaz
+		// e.g. https://www.googleapis.com/compute/beta/projects/project_name/regions/region_name/instanceGroups/foobarbaz
 
 	} else {
 		var err error
