@@ -87,7 +87,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	tempLocation := d.Get("temp_gcs_location").(string)
 	zone := d.Get("zone").(string)
 	maxWorkers := d.Get("max_workers").(int)
-	params := expandStringMap(d.Get("parameters").(map[string]interface{}))
+	params := expandDataflowParamsStringMap(d.Get("parameters").(map[string]interface{}))
 
 	env := dataflow.RuntimeEnvironment{
 		TempLocation: tempLocation,
@@ -158,7 +158,7 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func expandStringMap(m map[string]interface{}) map[string]string {
+func expandDataflowParamsStringMap(m map[string]interface{}) map[string]string {
 	result := make(map[string]string)
 	for k, v := range m {
 		result[k] = v.(string)
