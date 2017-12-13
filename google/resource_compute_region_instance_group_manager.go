@@ -1,10 +1,11 @@
 package google
 
 import (
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"log"
 
-	"errors"
 	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -192,54 +193,18 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-
-	// Channel 1 returns the error from the read - in the ideal case it will return 'nil' eventually,
-	// but it can return an error other than the notFinishedCreatingError as well.
-	c1 := make(chan error, 1)
-	// Channel 2 returns 'true' if the timeout has passed (to clean up the goroutine here).
-	c2 := make(chan bool, 1)
-	go func() {
-		for {
-			select {
-			// Timeout has passed.
-			case <-c2:
-				return
-			// Timeout has not passed.
-			default:
-				err = resourceComputeRegionInstanceGroupManagerRead(d, meta)
-				if _, ok := err.(notFinishedCreatingError); ok {
-					time.Sleep(5 * time.Second)
-					continue
-				} else {
-					c1 <- err
-				}
-			}
-		}
-	}()
-	select {
-	// We receive a response before the timeout.
-	case err := <-c1:
-		return err
-	// We timeout before we receive a response.
-	case <-time.After(5 * time.Minute):
-		c2 <- true
-		return errors.New("Timed out trying to wait for instances to come up.")
-	}
+	return resourceComputeRegionInstanceGroupManagerRead(d, config)
 }
 
-type notFinishedCreatingError struct{}
+type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBeta.InstanceGroupManager, error)
 
-func (e notFinishedCreatingError) Error() string {
-	return "Not yet finished creating instances."
-}
-
-func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	region := d.Get("region").(string)
@@ -251,7 +216,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 
 		err = Convert(v1Manager, manager)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	case v0beta:
 		manager, err = config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
@@ -259,6 +224,35 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 
 	if err != nil {
 		handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", d.Get("name").(string)))
+	}
+	return manager, nil
+}
+
+func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		m, err := f(d, meta)
+		if err != nil {
+			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
+			return nil, "error", err
+		}
+		if creatingCount := m.CurrentActions.Creating + m.CurrentActions.CreatingWithoutRetries; creatingCount > 0 {
+			return creatingCount, "creating", nil
+		} else {
+			return creatingCount, "created", nil
+		}
+	}
+}
+
+func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	manager, err := getManager(d, meta)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
@@ -275,8 +269,16 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 
-	if d.Get("wait_for_instances").(bool) && (manager.CurrentActions.Creating+manager.CurrentActions.CreatingWithoutRetries) > 0 {
-		return notFinishedCreatingError{}
+	if d.Get("wait_for_instances").(bool) {
+		conf := resource.StateChangeConf{
+			Pending: []string{"creating", "error"},
+			Target:  []string{"created"},
+			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
+			Timeout: 5 * time.Minute,
+		}
+		_, err := conf.WaitForState()
+		// If err is nil, success.
+		return err
 	}
 
 	return nil
