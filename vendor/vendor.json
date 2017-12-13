@@ -1,6 +1,6 @@
 {
 	"comment": "",
-	"ignore": "appengine test github.com/hashicorp/nomad/ github.com/hashicorp/terraform/backend",
+	"ignore": "test",
 	"package": [
 		{
 			"checksumSHA1": "f9nDlS20AiWQXvF0nvPkIjLNo+c=",
@@ -1072,6 +1072,12 @@
 			"path": "google.golang.org/api/container/v1",
 			"revision": "7afc123cf726cd2f253faa3e144d2ab65477b18f",
 			"revisionTime": "2017-10-21T00:03:56Z"
+		},
+		{
+			"checksumSHA1": "pxXDGWhDrfcAOCQCjgxLfZA4NOw=",
+			"path": "google.golang.org/api/dataflow/v1b3",
+			"revision": "ea28708ab465bb536c27f29a34011f3d5b5bb052",
+			"revisionTime": "2017-12-13T00:03:45Z"
 		},
 		{
 			"checksumSHA1": "4spHGEYR8VWzwlBGD+xSwi8ZRkw=",
