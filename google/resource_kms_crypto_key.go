@@ -178,7 +178,9 @@ func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []strin
 	match := pattern.FindStringSubmatch(period)
 
 	if len(match) == 0 {
-		errors = append(errors, fmt.Errorf("Invalid period format: %s", period))
+		errors = append(errors, fmt.Errorf("Invalid rotation period format: %s", period))
+		// Cannot continue to validate because we cannot extract a number.
+		return
 	}
 
 	number := match[1]
