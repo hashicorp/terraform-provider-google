@@ -1,5 +1,8 @@
 ## 1.4.1 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_compute_region_instance_group` [GH-851]
+
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
 * compute: Add support for routing mode in compute network. [GH-838]
