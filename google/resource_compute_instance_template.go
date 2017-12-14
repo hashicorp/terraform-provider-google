@@ -505,6 +505,9 @@ func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Co
 	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
 	for i, raw := range accels {
 		data := raw.(map[string]interface{})
+		if data["count"].(int) == 0 {
+			continue
+		}
 		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			// We can't use ParseAcceleratorFieldValue here because an instance

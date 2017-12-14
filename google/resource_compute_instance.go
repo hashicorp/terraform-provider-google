@@ -1219,6 +1219,9 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
 	for i, raw := range accels {
 		data := raw.(map[string]interface{})
+		if data["count"].(int) == 0 {
+			continue
+		}
 		at, err := ParseAcceleratorFieldValue(data["type"].(string), d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
