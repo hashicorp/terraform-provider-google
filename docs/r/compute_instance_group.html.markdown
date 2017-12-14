@@ -97,6 +97,15 @@ exported:
 
 * `size` - The number of instances in the group.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is `6 minutes`
+- `update` - Default is `6 minutes`
+- `delete` - Default is `6 minutes`
+
 ## Import
 
 Instance group can be imported using the `zone` and `name`, e.g.
