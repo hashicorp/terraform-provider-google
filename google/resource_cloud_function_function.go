@@ -8,6 +8,7 @@ import (
 )
 
 const DEFAULT_FUNCTION_TIMEOUT_IN_SEC = 60
+
 //Min is 1 second, max is 9 minutes 540 sec
 const FUNCTION_TIMEOUT_MAX = 540
 const FUNCTION_TIMEOUT_MIN = 1
@@ -62,8 +63,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew: 	  true,
-				Default: 	  DEFAULT_FUNCTION_TIMEOUT_IN_SEC,
+				ForceNew:     true,
+				Default:      DEFAULT_FUNCTION_TIMEOUT_IN_SEC,
 				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
 			},
 
