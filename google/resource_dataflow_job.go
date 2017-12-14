@@ -2,12 +2,30 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/dataflow/v1b3"
+	"google.golang.org/api/googleapi"
 )
+
+var dataflowTerminalStatesMap = map[string]bool{
+	"JOB_STATE_UNKNOWN":    false,
+	"JOB_STATE_STOPPED":    false,
+	"JOB_STATE_RUNNING":    false,
+	"JOB_STATE_DONE":       true,
+	"JOB_STATE_FAILED":     true,
+	"JOB_STATE_CANCELLED":  true,
+	"JOB_STATE_UPDATED":    true,
+	"JOB_STATE_DRAINING":   true,
+	"JOB_STATE_DRAINED":    true,
+	"JOB_STATE_PENDING":    false,
+	"JOB_STATE_CANCELLING": true,
+}
 
 func resourceDataflowJob() *schema.Resource {
 	return &schema.Resource{
@@ -127,7 +145,13 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
-	d.Set("state", job.CurrentState)
+	if dataflowTerminalStatesMap[job.CurrentState] {
+		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
+		d.SetId("")
+		return nil
+	} else {
+		d.Set("state", job.CurrentState)
+	}
 
 	return nil
 }
@@ -145,15 +169,23 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	for ; !dataflowTerminalStatesMap[d.Get("state").(string)]; resourceDataflowJobRead(d, meta) {
+		job := &dataflow.Job{
+			RequestedState: requestedState,
+		}
 
-	job := &dataflow.Job{
-		RequestedState: requestedState,
+		_, err = config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
+		if gerr, ok := err.(*googleapi.Error); !ok {
+			// If we have an error and it's not a google-specific error, we should go ahead and return.
+			return err
+		} else if ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
+			time.Sleep(5 * time.Second)
+			continue
+		} else {
+			return err
+		}
 	}
-
-	_, err = config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
-	if err != nil {
-		return err
-	}
+	d.SetId("")
 
 	return nil
 }

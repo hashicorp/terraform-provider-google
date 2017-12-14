@@ -34,9 +34,13 @@ func testAccCheckDataflowJobDestroy(s *terraform.State) error {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		job, _ := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
+		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if job != nil {
-			return fmt.Errorf("Job still present")
+			if !dataflowTerminalStatesMap[job.CurrentState] {
+				return fmt.Errorf("Job still present")
+			}
+		} else if err != nil {
+			return err
 		}
 	}
 
