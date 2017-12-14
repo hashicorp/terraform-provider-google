@@ -10,6 +10,7 @@ import (
 func TestAccGoogleProjectServices_importBasic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	resourceName := "google_project_services.acceptance"
 	projectId := "terraform-" + acctest.RandString(10)
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com", "servicemanagement.googleapis.com"}

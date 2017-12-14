@@ -32,7 +32,7 @@ func resourceBigtableInstance() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -68,6 +68,7 @@ func resourceBigtableInstance() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -110,6 +111,11 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		instanceType = bigtable.PRODUCTION
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	instanceConf := &bigtable.InstanceConf{
 		InstanceId:   name,
 		DisplayName:  displayName.(string),
@@ -117,7 +123,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		NumNodes:     numNodes,
 		InstanceType: instanceType,
 		StorageType:  storageType,
-		Zone:         d.Get("zone").(string),
+		Zone:         zone,
 	}
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
@@ -160,6 +166,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
 	}
 
+	d.Set("project", project)
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
 

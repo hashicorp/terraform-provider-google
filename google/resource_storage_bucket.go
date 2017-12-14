@@ -65,6 +65,7 @@ func resourceStorageBucket() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -366,6 +367,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
@@ -383,7 +389,9 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
+	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+	d.Set("project", project)
 	d.SetId(res.Id)
 	return nil
 }
@@ -507,6 +515,40 @@ func flattenBucketVersioning(bucketVersioning *storage.BucketVersioning) []map[s
 	return versionings
 }
 
+func flattenBucketLifecycle(lifecycle *storage.BucketLifecycle) []map[string]interface{} {
+	if lifecycle == nil || lifecycle.Rule == nil {
+		return []map[string]interface{}{}
+	}
+
+	rules := make([]map[string]interface{}, 0, len(lifecycle.Rule))
+
+	for _, rule := range lifecycle.Rule {
+		rules = append(rules, map[string]interface{}{
+			"action":    schema.NewSet(resourceGCSBucketLifecycleRuleActionHash, []interface{}{flattenBucketLifecycleRuleAction(rule.Action)}),
+			"condition": schema.NewSet(resourceGCSBucketLifecycleRuleConditionHash, []interface{}{flattenBucketLifecycleRuleCondition(rule.Condition)}),
+		})
+	}
+
+	return rules
+}
+
+func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction) map[string]interface{} {
+	return map[string]interface{}{
+		"type":          action.Type,
+		"storage_class": action.StorageClass,
+	}
+}
+
+func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
+	return map[string]interface{}{
+		"age":                   int(condition.Age),
+		"created_before":        condition.CreatedBefore,
+		"is_live":               *condition.IsLive,
+		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
+		"num_newer_versions":    int(condition.NumNewerVersions),
+	}
+}
+
 func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket) error {
 	if v, ok := d.GetOk("lifecycle_rule"); ok {
 		lifecycle_rules := v.([]interface{})
@@ -576,6 +618,10 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 			}
 
 			sb.Lifecycle.Rule = append(sb.Lifecycle.Rule, target_lifecycle_rule)
+		}
+	} else {
+		sb.Lifecycle = &storage.BucketLifecycle{
+			ForceSendFields: []string{"Rule"},
 		}
 	}
 

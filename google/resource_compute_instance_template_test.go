@@ -2,15 +2,17 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
 )
+
+const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
 
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
@@ -23,7 +25,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_basic,
+				Config: testAccComputeInstanceTemplate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
@@ -48,7 +50,7 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_preemptible,
+				Config: testAccComputeInstanceTemplate_preemptible(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
@@ -71,7 +73,7 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_ip,
+				Config: testAccComputeInstanceTemplate_ip(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
@@ -106,6 +108,30 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
+func TestAccComputeInstanceTemplate_address(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	address := "10.128.0.2"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_address(address),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						"google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
+					testAccCheckComputeInstanceTemplateAddress(
+						"google_compute_instance_template.foobar", address, &instanceTemplate),
+				),
+			},
+		},
+	})
+}
 
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 	t.Parallel()
@@ -118,7 +144,7 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_disks,
+				Config: testAccComputeInstanceTemplate_disks(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
@@ -164,7 +190,7 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_subnet_custom,
+				Config: testAccComputeInstanceTemplate_subnet_custom(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
@@ -179,7 +205,9 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
+	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -187,10 +215,11 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_subnet_xpn(xpn_host),
+				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateExistsInProject(
+						"google_compute_instance_template.foobar", fmt.Sprintf("%s-service", projectName),
+						&instanceTemplate),
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
 				),
 			},
@@ -209,11 +238,95 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_startup_script,
+				Config: testAccComputeInstanceTemplate_startup_script(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateStartupScript(&instanceTemplate, "echo 'Hello'"),
+				),
+			},
+		},
+	})
+}
+func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_primaryAliasIpRange(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "", "/24"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_secondaryAliasIpRange(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "inst-test-secondary", "/24"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
+				),
+			},
+		},
+	})
+
+}
+
+func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_minCpuPlatform(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, DEFAULT_MIN_CPU_TEST_VALUE),
 				),
 			},
 		},
@@ -239,6 +352,10 @@ func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 }
 
 func testAccCheckComputeInstanceTemplateExists(n string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+	return testAccCheckComputeInstanceTemplateExistsInProject(n, getTestProjectFromEnv(), instanceTemplate)
+}
+
+func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -252,7 +369,7 @@ func testAccCheckComputeInstanceTemplateExists(n string, instanceTemplate *compu
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.InstanceTemplates.Get(
-			config.Project, rs.Primary.ID).Do()
+			p, rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -431,6 +548,17 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
+func testAccCheckComputeInstanceTemplateAddress(n, address string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
+		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
+		if err != nil {
+			return err
+		}
+		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", address)(s)
+	}
+}
+
 func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := instanceTemplate.Properties.Labels[key]
@@ -444,7 +572,50 @@ func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.
 	}
 }
 
-var testAccComputeInstanceTemplate_basic = fmt.Sprintf(`
+func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *compute.InstanceTemplate, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, networkInterface := range instanceTemplate.Properties.NetworkInterfaces {
+			for _, aliasIpRange := range networkInterface.AliasIpRanges {
+				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || ipCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+					return nil
+				}
+			}
+		}
+
+		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *compute.InstanceTemplate, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instanceTemplate.Properties.GuestAccelerators) != 1 {
+			return fmt.Errorf("Expected only one guest accelerator")
+		}
+
+		if !strings.HasSuffix(instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType)
+		}
+
+		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *compute.InstanceTemplate, minCpuPlatform string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
+		}
+
+		return nil
+	}
+}
+
+func testAccComputeInstanceTemplate_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
@@ -478,8 +649,10 @@ resource "google_compute_instance_template" "foobar" {
         my_label = "foobar"
     }
 }`, acctest.RandString(10))
+}
 
-var testAccComputeInstanceTemplate_preemptible = fmt.Sprintf(`
+func testAccComputeInstanceTemplate_preemptible() string {
+	return fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
@@ -509,8 +682,10 @@ resource "google_compute_instance_template" "foobar" {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
 }`, acctest.RandString(10))
+}
 
-var testAccComputeInstanceTemplate_ip = fmt.Sprintf(`
+func testAccComputeInstanceTemplate_ip() string {
+	return fmt.Sprintf(`
 resource "google_compute_address" "foo" {
 	name = "instancet-test-%s"
 }
@@ -535,6 +710,7 @@ resource "google_compute_instance_template" "foobar" {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
 
 func testAccComputeInstanceTemplate_networkIP(networkIP string) string {
 	return fmt.Sprintf(`
@@ -558,7 +734,30 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10), networkIP)
 }
 
-var testAccComputeInstanceTemplate_disks = fmt.Sprintf(`
+func testAccComputeInstanceTemplate_address(address string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	tags = ["foo", "bar"]
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+	}
+
+	network_interface {
+		network    = "default"
+		address    = "%s"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), address)
+}
+
+func testAccComputeInstanceTemplate_disks() string {
+	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "instancet-test-%s"
 	image = "debian-8-jessie-v20160803"
@@ -592,6 +791,7 @@ resource "google_compute_instance_template" "foobar" {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
 
 func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 	return fmt.Sprintf(`
@@ -621,7 +821,8 @@ func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 	}`, network, acctest.RandString(10))
 }
 
-var testAccComputeInstanceTemplate_subnet_custom = fmt.Sprintf(`
+func testAccComputeInstanceTemplate_subnet_custom() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "network" {
 	name = "network-%s"
 	auto_create_subnetworks = false
@@ -654,13 +855,47 @@ resource "google_compute_instance_template" "foobar" {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
 
-func testAccComputeInstanceTemplate_subnet_xpn(xpn_host string) string {
+func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName string) string {
 	return fmt.Sprintf(`
+	resource "google_project" "host_project" {
+		name = "Test Project XPN Host"
+		project_id = "%s-host"
+		org_id = "%s"
+		billing_account = "%s"
+	}
+
+	resource "google_project_service" "host_project" {
+		project = "${google_project.host_project.project_id}"
+		service = "compute.googleapis.com"
+	}
+
+	resource "google_compute_shared_vpc_host_project" "host_project" {
+		project = "${google_project_service.host_project.project}"
+	}
+	
+	resource "google_project" "service_project" {
+		name = "Test Project XPN Service"
+		project_id = "%s-service"
+		org_id = "%s"
+		billing_account = "%s"
+	}
+
+	resource "google_project_service" "service_project" {
+		project = "${google_project.service_project.project_id}"
+		service = "compute.googleapis.com"
+	}
+
+	resource "google_compute_shared_vpc_service_project" "service_project" {
+		host_project = "${google_compute_shared_vpc_host_project.host_project.project}"
+		service_project = "${google_project_service.service_project.project}"
+	}
+
 	resource "google_compute_network" "network" {
 		name = "network-%s"
 		auto_create_subnetworks = false
-		project = "%s"
+		project = "${google_compute_shared_vpc_host_project.host_project.project}"
 	}
 
 	resource "google_compute_subnetwork" "subnetwork" {
@@ -668,7 +903,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(xpn_host string) string {
 		ip_cidr_range = "10.0.0.0/24"
 		region = "us-central1"
 		network = "${google_compute_network.network.self_link}"
-		project = "%s"
+		project = "${google_compute_shared_vpc_host_project.host_project.project}"
 	}
 
 	resource "google_compute_instance_template" "foobar" {
@@ -691,10 +926,12 @@ func testAccComputeInstanceTemplate_subnet_xpn(xpn_host string) string {
 		metadata {
 			foo = "bar"
 		}
-	}`, acctest.RandString(10), xpn_host, acctest.RandString(10), xpn_host, acctest.RandString(10))
+		project = "${google_compute_shared_vpc_service_project.service_project.service_project}"
+	}`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
-var testAccComputeInstanceTemplate_startup_script = fmt.Sprintf(`
+func testAccComputeInstanceTemplate_startup_script() string {
+	return fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
@@ -716,3 +953,131 @@ resource "google_compute_instance_template" "foobar" {
 
 	metadata_startup_script = "echo 'Hello'"
 }`, acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_primaryAliasIpRange(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+	network_interface{
+		network = "default"
+		alias_ip_range {
+			ip_cidr_range = "/24"
+		}
+	}
+}`, i)
+}
+
+func testAccComputeInstanceTemplate_secondaryAliasIpRange(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "inst-test-network" {
+	name = "inst-test-network-%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "inst-test-subnetwork-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-east1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+	secondary_ip_range {
+		range_name = "inst-test-secondary"
+		ip_cidr_range = "172.16.0.0/20"
+	}
+}
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+  	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+
+		// Note that unlike compute instances, instance templates seem to be
+		// only able to specify the netmask here. Trying a full CIDR string
+		// results in: 
+		// Invalid value for field 'resource.properties.networkInterfaces[0].aliasIpRanges[0].ipCidrRange':
+		// '172.16.0.0/24'. Alias IP CIDR range must be a valid netmask starting with '/' (e.g. '/24')
+		alias_ip_range {
+			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+			ip_cidr_range = "/24"
+		}
+	}
+}`, i, i, i)
+}
+
+func testAccComputeInstanceTemplate_guestAccelerator(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		# Instances with guest accelerators do not support live migration.
+		on_host_maintenance = "TERMINATE"
+	}
+
+	guest_accelerator {
+		count = 1
+		type = "nvidia-tesla-k80"
+	}
+}`, i)
+}
+
+func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instance-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+		auto_delete = true
+		disk_size_gb = 10
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		# Instances with guest accelerators do not support live migration.
+		on_host_maintenance = "TERMINATE"
+	}
+
+	min_cpu_platform = "%s"
+}`, i, DEFAULT_MIN_CPU_TEST_VALUE)
+}

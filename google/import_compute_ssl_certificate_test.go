@@ -14,7 +14,7 @@ func TestAccComputeSslCertificate_import(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSslCertificate_import,
+				Config: testAccComputeSslCertificate_import(),
 			},
 			resource.TestStep{
 				ResourceName:            "google_compute_ssl_certificate.foobar",

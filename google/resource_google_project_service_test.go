@@ -13,6 +13,7 @@ import (
 func TestAccGoogleProjectService_basic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	resource.Test(t, resource.TestCase{

@@ -22,7 +22,7 @@ func TestAccDataSourceGoogleComputeInstanceGroup_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig,
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -39,7 +39,7 @@ func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort,
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -174,7 +174,8 @@ func testAccCheckDataSourceGoogleComputeInstanceGroup(dataSourceName string) res
 	}
 }
 
-var testAccCheckDataSourceGoogleComputeInstanceGroupConfig = fmt.Sprintf(`
+func testAccCheckDataSourceGoogleComputeInstanceGroupConfig() string {
+	return fmt.Sprintf(`
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
   machine_type = "n1-standard-1"
@@ -209,8 +210,10 @@ data "google_compute_instance_group" "test" {
   zone = "${google_compute_instance_group.test.zone}"
 }
 `, acctest.RandString(10), acctest.RandString(10))
+}
 
-var testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort = fmt.Sprintf(`
+func testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort() string {
+	return fmt.Sprintf(`
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
   machine_type = "n1-standard-1"
@@ -255,3 +258,4 @@ data "google_compute_instance_group" "test" {
   zone = "${google_compute_instance_group.test.zone}"
 }
 `, acctest.RandString(10), acctest.RandString(10))
+}

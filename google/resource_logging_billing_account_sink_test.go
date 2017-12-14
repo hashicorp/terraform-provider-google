@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -14,11 +13,9 @@ import (
 func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT")
-
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	billingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	billingAccount := getTestBillingAccountFromEnv(t)
 
 	var sink logging.LogSink
 
@@ -41,12 +38,10 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT")
-
 	sinkName := "tf-test-sink-" + acctest.RandString(10)
 	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
 	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	billingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	billingAccount := getTestBillingAccountFromEnv(t)
 
 	var sinkBefore, sinkAfter logging.LogSink
 

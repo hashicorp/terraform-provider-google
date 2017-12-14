@@ -113,7 +113,7 @@ func testAccCheckProjectMetadataItem_hasMetadata(key, value string) resource.Tes
 			return err
 		}
 
-		metadata := flattenComputeMetadata(project.CommonInstanceMetadata.Items)
+		metadata := flattenMetadata(project.CommonInstanceMetadata)
 
 		val, ok := metadata[key]
 		if !ok {
@@ -134,7 +134,7 @@ func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
 		return err
 	}
 
-	metadata := flattenComputeMetadata(project.CommonInstanceMetadata.Items)
+	metadata := flattenMetadata(project.CommonInstanceMetadata)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_project_metadata_item" {

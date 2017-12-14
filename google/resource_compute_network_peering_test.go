@@ -21,7 +21,7 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 		CheckDestroy: testAccComputeNetworkPeeringDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeNetworkPeering_basic,
+				Config: testAccComputeNetworkPeering_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.foo", &peering),
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering),
@@ -97,7 +97,8 @@ func testAccCheckComputeNetworkPeeringAutoCreateRoutes(v bool, peering *compute.
 	}
 }
 
-var testAccComputeNetworkPeering_basic = fmt.Sprintf(`
+func testAccComputeNetworkPeering_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "network1" {
 	name = "network-test-1-%s"
 	auto_create_subnetworks = false
@@ -121,3 +122,4 @@ resource "google_compute_network_peering" "bar" {
 	peer_network = "${google_compute_network.network1.self_link}"
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}

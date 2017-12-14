@@ -33,9 +33,10 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRFC1035Name(6, 30),
 			},
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,

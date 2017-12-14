@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_kms_key_ring"
-sidebar_current: "docs-google-kms-key-ring"
+sidebar_current: "docs-google-kms-key-ring-x"
 description: |-
  Allows creation of a Google Cloud Platform KMS KeyRing.
 ---

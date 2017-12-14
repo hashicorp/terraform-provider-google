@@ -50,6 +50,7 @@ func resourceSqlUser() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -141,6 +142,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("host", user.Host)
 	d.Set("instance", user.Instance)
 	d.Set("name", user.Name)
+	d.Set("project", project)
 	return nil
 }
 

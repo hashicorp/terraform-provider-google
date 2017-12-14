@@ -7,12 +7,11 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 func TestAccComputeSharedVpc_basic(t *testing.T) {
-	skipIfEnvNotSet(t, "GOOGLE_ORG", "GOOGLE_BILLING_ACCOUNT")
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 
 	hostProject := "xpn-host-" + acctest.RandString(10)
 	serviceProject := "xpn-service-" + acctest.RandString(10)

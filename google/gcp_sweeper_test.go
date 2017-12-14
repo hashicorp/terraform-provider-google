@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -15,14 +14,14 @@ func TestMain(m *testing.M) {
 // sharedConfigForRegion returns a common config setup needed for the sweeper
 // functions for a given region
 func sharedConfigForRegion(region string) (*Config, error) {
-	project := os.Getenv("GOOGLE_PROJECT")
+	project := getTestProjectFromEnv()
 	if project == "" {
-		return nil, fmt.Errorf("empty GOOGLE_PROJECT")
+		return nil, fmt.Errorf("set project using any of these env variables %v", projectEnvVars)
 	}
 
-	creds := os.Getenv("GOOGLE_CREDENTIALS")
+	creds := getTestCredsFromEnv()
 	if creds == "" {
-		return nil, fmt.Errorf("empty GOOGLE_CREDENTIALS")
+		return nil, fmt.Errorf("set credentials using any of these env variables %v", credsEnvVars)
 	}
 
 	conf := &Config{

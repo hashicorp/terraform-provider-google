@@ -32,6 +32,7 @@ func resourceKmsKeyRing() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -86,6 +87,11 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
 	if err != nil {
 		return err
@@ -98,6 +104,8 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
+
+	d.Set("project", project)
 
 	return nil
 }

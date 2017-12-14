@@ -4,12 +4,12 @@ provider "google" {
   region      = "${var.region}"
   project     = "${var.project_name}"
   credentials = "${file("${var.credentials_file_path}")}"
+  zone        = "${var.region_zone}"
 }
 
 resource "google_compute_instance" "www" {
   name         = "tf-www-compute"
   machine_type = "f1-micro"
-  zone         = "${var.region_zone}"
   tags         = ["http-tag"]
 
   boot_disk {
@@ -36,7 +36,6 @@ resource "google_compute_instance" "www" {
 resource "google_compute_instance" "www-video" {
   name         = "tf-www-video-compute"
   machine_type = "f1-micro"
-  zone         = "${var.region_zone}"
   tags         = ["http-tag"]
 
   boot_disk {
@@ -66,7 +65,6 @@ resource "google_compute_global_address" "external-address" {
 
 resource "google_compute_instance_group" "www-resources" {
   name = "tf-www-resources"
-  zone = "${var.region_zone}"
 
   instances = ["${google_compute_instance.www.self_link}"]
 
@@ -78,7 +76,6 @@ resource "google_compute_instance_group" "www-resources" {
 
 resource "google_compute_instance_group" "video-resources" {
   name = "tf-video-resources"
-  zone = "${var.region_zone}"
 
   instances = ["${google_compute_instance.www-video.self_link}"]
 

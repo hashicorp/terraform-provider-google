@@ -33,7 +33,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -79,6 +79,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -121,7 +122,10 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 
 	// Build the parameter
@@ -194,7 +198,10 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 
 	// retrieve instance group
@@ -232,6 +239,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	// Set computed fields
 	d.Set("network", instanceGroup.Network)
 	d.Set("size", instanceGroup.Size)
+	d.Set("project", project)
 	d.Set("self_link", instanceGroup.SelfLink)
 
 	return nil
@@ -244,7 +252,10 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 
 	d.Partial(true)
@@ -345,7 +356,10 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 	op, err := config.clientCompute.InstanceGroups.Delete(project, zone, name).Do()
 	if err != nil {

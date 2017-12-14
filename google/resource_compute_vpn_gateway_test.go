@@ -20,7 +20,7 @@ func TestAccComputeVpnGateway_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeVpnGatewayDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeVpnGateway_basic,
+				Config: testAccComputeVpnGateway_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeVpnGatewayExists(
 						"google_compute_vpn_gateway.foobar"),
@@ -84,10 +84,12 @@ func testAccCheckComputeVpnGatewayExists(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccComputeVpnGateway_basic = fmt.Sprintf(`
+func testAccComputeVpnGateway_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "gateway-test-%s"
-	auto_create_subnetworks = true
+	auto_create_subnetworks = false
+	ipv4_range = "10.0.0.0/16"
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
@@ -100,3 +102,4 @@ resource "google_compute_vpn_gateway" "baz" {
 	network = "${google_compute_network.foobar.name}"
 	region = "us-central1"
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}

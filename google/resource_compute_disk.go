@@ -45,7 +45,7 @@ func resourceComputeDisk() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -71,6 +71,7 @@ func resourceComputeDisk() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -129,12 +130,16 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Get the zone
-	log.Printf("[DEBUG] Loading zone: %s", d.Get("zone").(string))
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Loading zone: %s", z)
 	zone, err := config.clientCompute.Zones.Get(
-		project, d.Get("zone").(string)).Do()
+		project, z).Do()
 	if err != nil {
 		return fmt.Errorf(
-			"Error loading zone '%s': %s", d.Get("zone").(string), err)
+			"Error loading zone '%s': %s", z, err)
 	}
 
 	// Build the disk parameter
@@ -198,7 +203,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	op, err := config.clientCompute.Disks.Insert(
-		project, d.Get("zone").(string), disk).Do()
+		project, z, disk).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating disk: %s", err)
 	}
@@ -220,13 +225,17 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	d.Partial(true)
 	if d.HasChange("size") {
 		rb := &compute.DisksResizeRequest{
 			SizeGb: int64(d.Get("size").(int)),
 		}
 		op, err := config.clientCompute.Disks.Resize(
-			project, d.Get("zone").(string), d.Id(), rb).Do()
+			project, z, d.Id(), rb).Do()
 		if err != nil {
 			return fmt.Errorf("Error resizing disk: %s", err)
 		}
@@ -244,7 +253,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 			LabelFingerprint: d.Get("label_fingerprint").(string),
 		}
 		op, err := config.clientCompute.Disks.SetLabels(
-			project, d.Get("zone").(string), d.Id(), &zslr).Do()
+			project, z, d.Id(), &zslr).Do()
 		if err != nil {
 			return fmt.Errorf("Error when setting labels: %s", err)
 		}
@@ -278,9 +287,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var disk *compute.Disk
-	if zone, ok := d.GetOk("zone"); ok {
+	if zone, _ := getZone(d, config); zone != "" {
 		disk, err = config.clientCompute.Disks.Get(
-			project, zone.(string), d.Id()).Do()
+			project, zone, d.Id()).Do()
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
 		}
@@ -313,6 +322,7 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("snapshot", disk.SourceSnapshot)
 	d.Set("labels", disk.Labels)
 	d.Set("label_fingerprint", disk.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }
@@ -321,6 +331,10 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	z, err := getZone(d, config)
 	if err != nil {
 		return err
 	}
@@ -374,7 +388,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 	// Delete the disk
 	op, err := config.clientCompute.Disks.Delete(
-		project, d.Get("zone").(string), d.Id()).Do()
+		project, z, d.Id()).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			log.Printf("[WARN] Removing Disk %q because it's gone", d.Get("name").(string))

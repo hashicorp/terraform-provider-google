@@ -48,6 +48,7 @@ func resourceBigQueryDataset() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -227,6 +228,7 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery dataset %q", datasetID))
 	}
 
+	d.Set("project", projectID)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
 	d.Set("self_link", res.SelfLink)

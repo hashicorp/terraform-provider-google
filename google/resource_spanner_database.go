@@ -60,6 +60,7 @@ func resourceSpannerDatabase() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -131,6 +132,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("state", db.State)
+	d.Set("project", id.Project)
 	return nil
 }
 

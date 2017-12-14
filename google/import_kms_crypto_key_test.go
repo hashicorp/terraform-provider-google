@@ -6,24 +6,16 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
 )
 
 func TestAccGoogleKmsCryptoKey_importBasic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
 	resourceName := "google_kms_crypto_key.crypto_key"
 
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 

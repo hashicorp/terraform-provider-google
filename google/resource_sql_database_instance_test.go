@@ -49,6 +49,8 @@ func testSweepDatabases(region string) error {
 		return nil
 	}
 
+	running := map[string]struct{}{}
+
 	for _, d := range found.Items {
 		var testDbInstance bool
 		for _, testName := range []string{"tf-lw-", "sqldatabasetest"} {
@@ -61,7 +63,18 @@ func testSweepDatabases(region string) error {
 		if !testDbInstance {
 			continue
 		}
+		if d.State != "RUNNABLE" {
+			continue
+		}
+		running[d.Name] = struct{}{}
+	}
 
+	for _, d := range found.Items {
+		// don't delete replicas, we'll take care of that
+		// when deleting the database they replicate
+		if d.ReplicaConfiguration != nil {
+			continue
+		}
 		log.Printf("Destroying SQL Instance (%s)", d.Name)
 
 		// replicas need to be stopped and destroyed before destroying a master
@@ -69,6 +82,12 @@ func testSweepDatabases(region string) error {
 		// and we call destroy on them before destroying the master
 		var ordering []string
 		for _, replicaName := range d.ReplicaNames {
+			// don't try to stop replicas that aren't running
+			if _, ok := running[replicaName]; !ok {
+				ordering = append(ordering, replicaName)
+				continue
+			}
+
 			// need to stop replication before being able to destroy a database
 			op, err := config.clientSqlAdmin.Instances.StopReplica(config.Project, replicaName).Do()
 

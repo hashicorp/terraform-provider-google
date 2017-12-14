@@ -117,6 +117,7 @@ func resourceComputeUrlMap() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -318,6 +319,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(name)
+	d.Set("project", project)
 	d.Set("self_link", urlMap.SelfLink)
 	d.Set("map_id", strconv.FormatUint(urlMap.Id, 10))
 	d.Set("fingerprint", urlMap.Fingerprint)

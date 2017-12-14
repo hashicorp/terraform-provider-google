@@ -89,6 +89,7 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -288,6 +289,7 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	d.Set("self_link", ConvertSelfLinkToV1(frule.SelfLink))
 	d.Set("labels", frule.Labels)
 	d.Set("label_fingerprint", frule.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }

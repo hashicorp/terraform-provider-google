@@ -3,12 +3,12 @@ layout: "google"
 page_title: "Google: google_container_cluster"
 sidebar_current: "docs-google-container-cluster"
 description: |-
-  Creates a GKE cluster.
+  Creates a Google Kubernetes Engine (GKE) cluster.
 ---
 
 # google\_container\_cluster
 
-Creates a GKE cluster. For more information see
+Creates a Google Kubernetes Engine (GKE) cluster. For more information see
 [the official documentation](https://cloud.google.com/container-engine/docs/clusters)
 and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
@@ -50,7 +50,7 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-# The following outputs allow authentication and connectivity to the Google Container Cluster.
+# The following outputs allow authentication and connectivity to the GKE Cluster.
 output "client_certificate" {
   value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
 }
@@ -79,10 +79,10 @@ output "cluster_ca_certificate" {
     configured, the number of nodes specified in `initial_node_count` is created in
     all specified zones.
 
-* `addons_config` - (Optional) The configuration for addons supported by Google
-    Container Engine. Structure is documented below.
+* `addons_config` - (Optional) The configuration for addons supported by GKE.
+    Structure is documented below.
 
-* `cluster_ipv4_cidr` - (Optional) The IP address range of the container pods in
+* `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
 
 * `description` - (Optional) Description of the cluster.
@@ -98,12 +98,14 @@ output "cluster_ca_certificate" {
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
+* `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
+
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
     `none`. Defaults to `logging.googleapis.com`
 
-* `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is 
-    documented below. 
+* `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
+    documented below.
 
 * `master_auth` - (Optional) The authentication information for accessing the
     Kubernetes master. Structure is documented below.
@@ -125,6 +127,10 @@ output "cluster_ca_certificate" {
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
     network to which the cluster is connected.
+
+* `network_policy` - (Optional) Configuration options for the
+    [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
+    feature. Structure is documented below.
 
 * `node_config` -  (Optional) Parameters used in creating the cluster's nodes.
     Structure is documented below.
@@ -173,7 +179,7 @@ addons_config {
 The `maintenance_policy` block supports:
 
 * `daily_maintenance_window` - (Required) Time window specified for daily maintenance operations.
-    Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”, 
+    Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
 ```
@@ -183,6 +189,18 @@ maintenance_policy {
   }
 }
 ```
+
+The `ip_allocation_policy` block supports:
+
+* `cluster_secondary_range_name` - (Optional) The name of the secondary range to be
+    used as for the cluster CIDR block. The secondary range will be used for pod IP
+    addresses. This must be an existing secondary range associated with the cluster
+    subnetwork.
+
+* `services_secondary_range_name` - (Optional) The name of the secondary range to be
+    used as for the services CIDR block.  The secondary range will be used for service
+    ClusterIPs. This must be an existing secondary range associated with the cluster
+    subnetwork.
 
 The `master_auth` block supports:
 
@@ -203,6 +221,12 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
     Must be specified in CIDR notation.
 
 * `display_name` - (Optional) Field for users to identify CIDR blocks.
+
+The `network_policy` block supports:
+
+* `provider` - (Optional) The selected network policy provider. Defaults to PROVIDER_UNSPECIFIED.
+
+* `enabled` - (Optional) Whether network policy is enabled on the cluster. Defaults to false.
 
 The `node_config` block supports:
 
@@ -261,7 +285,7 @@ exported:
     to the cluster.
 
 * `maintenance_policy.0.daily_maintenance_window.0.duration` - Duration of the time window, automatically chosen to be
-    smallest possible in the given scenario.  
+    smallest possible in the given scenario.
     Duration will be in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "PTnHnMnS".
 
 * `master_auth.0.client_certificate` - Base64 encoded public certificate
@@ -289,7 +313,7 @@ exported:
 
 ## Import
 
-Container clusters can be imported using the `zone`, and `name`, e.g.
+GKE clusters can be imported using the `zone`, and `name`, e.g.
 
 ```
 $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster

@@ -13,7 +13,7 @@ import (
 func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -39,6 +39,11 @@ func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 					"BETA",
 					[]string{"resourcemanager.projects.list", "resourcemanager.organizations.get"}),
 			},
+			{
+				ResourceName:      "google_organization_iam_custom_role.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -46,6 +51,7 @@ func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 func TestAccGoogleOrganizationIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	roleId := "tfIamCustomRole" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{

@@ -7,7 +7,15 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
+)
+
+var (
+	SubnetworkBaseApiVersion    = v1
+	SubnetworkVersionedFeatures = []Feature{
+		{Version: v0beta, Item: "secondary_ip_range"},
+	}
 )
 
 func resourceComputeSubnetwork() *schema.Resource {
@@ -46,6 +54,11 @@ func resourceComputeSubnetwork() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"gateway_address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -54,12 +67,14 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -71,19 +86,16 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"secondary_ip_range": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"range_name": &schema.Schema{
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     true,
 							ValidateFunc: validateGCPName,
 						},
 						"ip_cidr_range": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -149,6 +161,11 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
+	if computeApiVersion == v0beta {
+		return resourceComputeSubnetworkReadV0Beta(d, meta)
+	}
+
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -175,12 +192,50 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
 	d.Set("gateway_address", subnetwork.GatewayAddress)
 	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
+	d.Set("project", project)
+	d.Set("region", region)
 	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
 
 	return nil
 }
 
+func resourceComputeSubnetworkReadV0Beta(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	name := d.Get("name").(string)
+
+	subnetwork, err := config.clientComputeBeta.Subnetworks.Get(project, region, name).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
+	}
+
+	d.Set("name", subnetwork.Name)
+	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
+	d.Set("network", subnetwork.Network)
+	d.Set("description", subnetwork.Description)
+	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
+	d.Set("gateway_address", subnetwork.GatewayAddress)
+	d.Set("secondary_ip_range", flattenSecondaryRangesV0Beta(subnetwork.SecondaryIpRanges))
+	d.Set("project", project)
+	d.Set("region", region)
+	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
+	d.Set("fingerprint", subnetwork.Fingerprint)
+
+	return nil
+}
+
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -215,6 +270,26 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		d.SetPartial("private_ip_google_access")
+	}
+
+	if d.HasChange("secondary_ip_range") && computeApiVersion == v0beta {
+		v0BetaSubnetwork := &computeBeta.Subnetwork{
+			SecondaryIpRanges: expandSecondaryRangesV0Beta(d.Get("secondary_ip_range").([]interface{})),
+			Fingerprint:       d.Get("fingerprint").(string),
+		}
+
+		op, err := config.clientComputeBeta.Subnetworks.Patch(
+			project, region, d.Get("name").(string), v0BetaSubnetwork).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating subnetwork SecondaryIpRanges: %s", err)
+		}
+
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Subnetwork SecondaryIpRanges")
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("secondary_ip_range")
 	}
 
 	d.Partial(false)
@@ -294,7 +369,34 @@ func expandSecondaryRanges(configured []interface{}) []*compute.SubnetworkSecond
 	return secondaryRanges
 }
 
+func expandSecondaryRangesV0Beta(configured []interface{}) []*computeBeta.SubnetworkSecondaryRange {
+	secondaryRanges := make([]*computeBeta.SubnetworkSecondaryRange, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		secondaryRange := computeBeta.SubnetworkSecondaryRange{
+			RangeName:   data["range_name"].(string),
+			IpCidrRange: data["ip_cidr_range"].(string),
+		}
+
+		secondaryRanges = append(secondaryRanges, &secondaryRange)
+	}
+	return secondaryRanges
+}
+
 func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange) []map[string]interface{} {
+	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
+	for _, secondaryRange := range secondaryRanges {
+		data := map[string]interface{}{
+			"range_name":    secondaryRange.RangeName,
+			"ip_cidr_range": secondaryRange.IpCidrRange,
+		}
+
+		secondaryRangesSchema = append(secondaryRangesSchema, data)
+	}
+	return secondaryRangesSchema
+}
+
+func flattenSecondaryRangesV0Beta(secondaryRanges []*computeBeta.SubnetworkSecondaryRange) []map[string]interface{} {
 	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
 	for _, secondaryRange := range secondaryRanges {
 		data := map[string]interface{}{

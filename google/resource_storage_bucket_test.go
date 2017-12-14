@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"google.golang.org/api/googleapi"
-	storage "google.golang.org/api/storage/v1"
+	"google.golang.org/api/storage/v1"
 )
 
 func TestAccStorageBucket_basic(t *testing.T) {
@@ -35,6 +35,12 @@ func TestAccStorageBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -132,6 +138,12 @@ func TestAccStorageBucket_lifecycleRules(t *testing.T) {
 						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.1.condition.%d.age", hash_step0_lc1_condition), "10"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
 		},
 	})
 }
@@ -176,6 +188,12 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "US-CENTRAL1"),
 				),
 			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
 		},
 	})
 }
@@ -209,8 +227,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "US"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
-					resource.TestCheckNoResourceAttr(
-						"google_storage_bucket.bucket", "lifecycle_rule.#"),
 				),
 			},
 			resource.TestStep{
@@ -222,8 +238,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
-					resource.TestCheckNoResourceAttr(
-						"google_storage_bucket.bucket", "lifecycle_rule.#"),
 				),
 			},
 			resource.TestStep{
@@ -352,6 +366,12 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "versioning.0.enabled", "true"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})

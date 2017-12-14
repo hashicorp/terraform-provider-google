@@ -17,9 +17,10 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required
 			"service_account_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
 			},
 			// Optional
 			"key_algorithm": &schema.Schema{

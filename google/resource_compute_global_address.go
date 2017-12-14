@@ -30,12 +30,13 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
 
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -98,6 +99,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("name", addr.Name)
 	d.Set("ip_version", addr.IpVersion)
 	d.Set("address", addr.Address)
+	d.Set("project", project)
 	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 
 	return nil

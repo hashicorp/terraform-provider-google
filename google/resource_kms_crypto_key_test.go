@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -108,17 +107,10 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	location := os.Getenv("GOOGLE_REGION")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	location := getTestRegionFromEnv()
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -147,17 +139,10 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	location := os.Getenv("GOOGLE_REGION")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	location := getTestRegionFromEnv()
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	rotationPeriod := "100000s"
@@ -334,8 +319,9 @@ resource "google_kms_key_ring" "key_ring" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name     = "%s"
-	key_ring = "${google_kms_key_ring.key_ring.id}"
+	name            = "%s"
+	key_ring        = "${google_kms_key_ring.key_ring.id}"
+	rotation_period = "1000000s"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }

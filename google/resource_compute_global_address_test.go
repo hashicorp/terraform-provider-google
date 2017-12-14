@@ -22,7 +22,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeGlobalAddress_basic,
+				Config: testAccComputeGlobalAddress_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
@@ -46,7 +46,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeGlobalAddress_ipv6,
+				Config: testAccComputeGlobalAddress_ipv6(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
 						"google_compute_global_address.foobar", &addr),
@@ -130,13 +130,17 @@ func testAccCheckComputeGlobalAddressIpVersion(n, version string) resource.TestC
 	}
 }
 
-var testAccComputeGlobalAddress_basic = fmt.Sprintf(`
+func testAccComputeGlobalAddress_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
 	name = "address-test-%s"
 }`, acctest.RandString(10))
+}
 
-var testAccComputeGlobalAddress_ipv6 = fmt.Sprintf(`
+func testAccComputeGlobalAddress_ipv6() string {
+	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
 	name = "address-test-%s"
 	ip_version = "IPV6"
 }`, acctest.RandString(10))
+}

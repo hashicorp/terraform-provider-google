@@ -31,6 +31,7 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -72,7 +73,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
 
-	md := flattenComputeMetadata(project.CommonInstanceMetadata.Items)
+	md := flattenMetadata(project.CommonInstanceMetadata)
 	val, ok := md[d.Id()]
 	if !ok {
 		// Resource no longer exists
@@ -80,6 +81,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
+	d.Set("project", projectID)
 	d.Set("key", d.Id())
 	d.Set("value", val)
 
@@ -134,7 +136,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
 
-		md := flattenComputeMetadata(project.CommonInstanceMetadata.Items)
+		md := flattenMetadata(project.CommonInstanceMetadata)
 
 		val, ok := md[key]
 

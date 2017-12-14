@@ -2,15 +2,14 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -589,7 +588,9 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
+	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -597,10 +598,11 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_subnet_xpn(instanceName, xpn_host),
+				Config: testAccComputeInstance_subnet_xpn(org, billingId, projectName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExistsInProject(
+						"google_compute_instance.foobar", fmt.Sprintf("%s-service", projectName),
+						&instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -729,7 +731,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 	t.Parallel()
 
-	var instance computeBeta.Instance
+	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -740,7 +742,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_guestAccelerator(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
 				),
 			},
@@ -752,7 +754,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 	t.Parallel()
 
-	var instance computeBeta.Instance
+	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -763,7 +765,7 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeInstance_minCpuPlatform(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
 				),
 			},
@@ -873,6 +875,10 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 }
 
 func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) resource.TestCheckFunc {
+	return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance)
+}
+
+func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -886,36 +892,7 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Instance not found")
-		}
-
-		*instance = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeBetaInstanceExists(n string, instance *computeBeta.Instance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientComputeBeta.Instances.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -1224,7 +1201,7 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 	}
 }
 
-func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.GuestAccelerators) != 1 {
 			return fmt.Errorf("Expected only one guest accelerator")
@@ -1242,7 +1219,7 @@ func testAccCheckComputeInstanceHasGuestAccelerator(instance *computeBeta.Instan
 	}
 }
 
-func testAccCheckComputeInstanceHasMinCpuPlatform(instance *computeBeta.Instance, minCpuPlatform string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.MinCpuPlatform != minCpuPlatform {
 			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
@@ -2018,11 +1995,46 @@ resource "google_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
-func testAccComputeInstance_subnet_xpn(instance, xpn_host string) string {
+func testAccComputeInstance_subnet_xpn(org, billingId, projectName, instance string) string {
 	return fmt.Sprintf(`
+
+resource "google_project" "host_project" {
+	name = "Test Project XPN Host"
+	project_id = "%s-host"
+	org_id = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "host_project" {
+	project = "${google_project.host_project.project_id}"
+	service = "compute.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_host_project" "host_project" {
+	project = "${google_project_service.host_project.project}"
+}
+
+resource "google_project" "service_project" {
+	name = "Test Project XPN Service"
+	project_id = "%s-service"
+	org_id = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "service_project" {
+	project = "${google_project.service_project.project_id}"
+	service = "compute.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_service_project" "service_project" {
+	host_project = "${google_compute_shared_vpc_host_project.host_project.project}"
+	service_project = "${google_project_service.service_project.project}"
+}
+
+
 resource "google_compute_network" "inst-test-network" {
 	name    = "inst-test-network-%s"
-	project = "%s"
+	project = "${google_compute_shared_vpc_host_project.host_project.project}"
 
 	auto_create_subnetworks = false
 }
@@ -2032,13 +2044,14 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-central1"
 	network       = "${google_compute_network.inst-test-network.self_link}"
-	project       = "%s"
+	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
 }
 
 resource "google_compute_instance" "foobar" {
 	name         = "%s"
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
+	project       = "${google_compute_shared_vpc_service_project.service_project.service_project}"
 
 	boot_disk {
 		initialize_params{
@@ -2053,7 +2066,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 }
-`, acctest.RandString(10), xpn_host, acctest.RandString(10), xpn_host, instance)
+`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_address_auto(instance string) string {

@@ -74,6 +74,38 @@ func TestValidateRFC3339Time(t *testing.T) {
 	}
 }
 
+func TestValidateRFC1035Name(t *testing.T) {
+	cases := []struct {
+		TestName    string
+		Value       string
+		Min, Max    int
+		ExpectError bool
+	}{
+		{TestName: "valid", Min: 6, Max: 30, Value: "a-valid-name0"},
+		{TestName: "valid lower bound", Min: 12, Max: 30, Value: "a-valid-name"},
+		{TestName: "valid upper bound", Min: 6, Max: 12, Value: "a-valid-name"},
+		{TestName: "valid with numbers", Min: 6, Max: 30, Value: "valid000-name"},
+		{TestName: "must start with a letter", Min: 6, Max: 10, Value: "0invalid", ExpectError: true},
+		{TestName: "cannot end with a dash", Min: 6, Max: 10, Value: "invalid-", ExpectError: true},
+		{TestName: "too short", Min: 6, Max: 10, Value: "short", ExpectError: true},
+		{TestName: "too long", Min: 6, Max: 10, Value: "toolooooong", ExpectError: true},
+		{TestName: "min too small", Min: 1, Max: 10, Value: "", ExpectError: true},
+		{TestName: "min < max", Min: 6, Max: 5, Value: "", ExpectError: true},
+	}
+
+	for _, c := range cases {
+		errors := testStringValidation(StringValidationTestCase{
+			TestName:    c.TestName,
+			Value:       c.Value,
+			ExpectError: c.ExpectError,
+		}, validateRFC1035Name(c.Min, c.Max))
+
+		if len(errors) > 0 {
+			t.Errorf("%s failed; %v", c.TestName, errors)
+		}
+	}
+}
+
 type StringValidationTestCase struct {
 	TestName    string
 	Value       string

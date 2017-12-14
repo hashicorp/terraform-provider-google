@@ -35,6 +35,7 @@ func resourceSqlDatabase() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -129,6 +130,7 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(instance_name + ":" + database_name)
 	d.Set("charset", db.Charset)
 	d.Set("collation", db.Collation)
+	d.Set("project", project)
 
 	return nil
 }

@@ -1,8 +1,8 @@
 # An example of how to connect two GCE networks with a VPN
 provider "google" {
-  account_file = "${file("~/gce/account.json")}"
-  project      = "${var.project}"
-  region       = "${var.region1}"
+  credentials = "${file("~/gce/account.json")}"
+  project     = "${var.project}"
+  region      = "${var.region1}"
 }
 
 # Create the two networks we want to join. They must have separate, internal

@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -18,9 +17,7 @@ var DENIED_ORG_POLICIES = []string{
 func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -50,6 +47,11 @@ func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 				Config: testAccGoogleOrganizationPolicy_boolean(org, true),
 				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", true),
 			},
+			{
+				ResourceName:      "google_organization_policy.bool",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 
@@ -58,9 +60,7 @@ func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -70,6 +70,11 @@ func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 				Config: testAccGoogleOrganizationPolicy_list_allowAll(org),
 				Check:  testAccCheckGoogleOrganizationListPolicyAll("list", "ALLOW"),
 			},
+			{
+				ResourceName:      "google_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -77,10 +82,8 @@ func TestAccGoogleOrganizationPolicy_list_allowAll(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	project := getTestProjectFromEnv()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -90,6 +93,11 @@ func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 				Config: testAccGoogleOrganizationPolicy_list_allowSome(org, project),
 				Check:  testAccCheckGoogleOrganizationListPolicyAllowedValues("list", []string{project}),
 			},
+			{
+				ResourceName:      "google_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -97,9 +105,7 @@ func TestAccGoogleOrganizationPolicy_list_allowSome(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -109,6 +115,11 @@ func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 				Config: testAccGoogleOrganizationPolicy_list_denySome(org),
 				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
+			{
+				ResourceName:      "google_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -116,9 +127,7 @@ func TestAccGoogleOrganizationPolicy_list_denySome(t *testing.T) {
 func TestAccGoogleOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-	org := os.Getenv("GOOGLE_ORG")
-
+	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -131,6 +140,11 @@ func TestAccGoogleOrganizationPolicy_list_update(t *testing.T) {
 			{
 				Config: testAccGoogleOrganizationPolicy_list_denySome(org),
 				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
+			},
+			{
+				ResourceName:      "google_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -17,7 +17,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDataSourceDnsManagedZone_basic,
+				Config: testAccDataSourceDnsManagedZone_basic(),
 				Check:  testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.qa", "google_dns_managed_zone.foo"),
 			},
 		},
@@ -57,7 +57,8 @@ func testAccDataSourceDnsManagedZoneCheck(dsName, rsName string) resource.TestCh
 	}
 }
 
-var testAccDataSourceDnsManagedZone_basic = fmt.Sprintf(`
+func testAccDataSourceDnsManagedZone_basic() string {
+	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
 	name		= "qa-zone-%s"
 	dns_name	= "qa.test.com."
@@ -68,3 +69,4 @@ data "google_dns_managed_zone" "qa" {
 	name	= "${google_dns_managed_zone.foo.name}"
 }
 `, acctest.RandString(10))
+}

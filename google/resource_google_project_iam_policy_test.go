@@ -224,6 +224,7 @@ func TestSubtractIamPolicy(t *testing.T) {
 func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -287,6 +288,7 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 func TestAccGoogleProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

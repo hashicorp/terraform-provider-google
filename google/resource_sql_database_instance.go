@@ -121,9 +121,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"disk_autoresize": &schema.Schema{
 							Type:             schema.TypeBool,
 							Optional:         true,
+							Default:          true,
 							DiffSuppressFunc: suppressFirstGen,
-							// Set computed instead of default because this property is for second-gen only.
-							Computed: true,
 						},
 						"disk_size": &schema.Schema{
 							Type:     schema.TypeInt,
@@ -265,6 +264,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -686,7 +686,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
-
+	d.Set("project", project)
 	d.Set("self_link", instance.SelfLink)
 	d.SetId(instance.Name)
 

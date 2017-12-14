@@ -22,6 +22,7 @@ func resourceGoogleProjectService() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -63,6 +64,8 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
+	d.Set("project", project)
 
 	for _, s := range services {
 		if s == id.service {

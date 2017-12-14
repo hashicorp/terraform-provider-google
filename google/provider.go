@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -46,12 +47,24 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_REGION",
 				}, nil),
 			},
+
+			"zone": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ZONE",
+					"GCLOUD_ZONE",
+					"CLOUDSDK_COMPUTE_ZONE",
+				}, nil),
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_dns_managed_zone":          dataSourceDnsManagedZone(),
 			"google_client_config":             dataSourceGoogleClientConfig(),
 			"google_compute_address":           dataSourceGoogleComputeAddress(),
+			"google_compute_image":             dataSourceGoogleComputeImage(),
+			"google_compute_global_address":    dataSourceGoogleComputeGlobalAddress(),
 			"google_compute_lb_ip_ranges":      dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":           dataSourceGoogleComputeNetwork(),
 			"google_compute_subnetwork":        dataSourceGoogleComputeSubnetwork(),
@@ -113,27 +126,36 @@ func Provider() terraform.ResourceProvider {
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
+			"google_dataproc_job":                          resourceDataprocJob(),
 			"google_dns_managed_zone":                      resourceDnsManagedZone(),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_folder":                                resourceGoogleFolder(),
-			"google_folder_iam_policy":                     resourceGoogleFolderIamPolicy(),
+			"google_folder_iam_policy":                     ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_kms_key_ring":                          resourceKmsKeyRing(),
+			"google_kms_key_ring_iam_binding":              ResourceIamBindingWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
+			"google_kms_key_ring_iam_member":               ResourceIamMemberWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
+			"google_kms_key_ring_iam_policy":               ResourceIamPolicyWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
 			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
+			"google_kms_crypto_key_iam_binding":            ResourceIamBindingWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_kms_crypto_key_iam_member":             ResourceIamMemberWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_sourcerepo_repository":                 resourceSourceRepoRepository(),
 			"google_spanner_instance":                      resourceSpannerInstance(),
 			"google_spanner_database":                      resourceSpannerDatabase(),
 			"google_sql_database":                          resourceSqlDatabase(),
 			"google_sql_database_instance":                 resourceSqlDatabaseInstance(),
 			"google_sql_user":                              resourceSqlUser(),
+			"google_organization_iam_binding":              ResourceIamBindingWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_custom_role":          resourceGoogleOrganizationIamCustomRole(),
+			"google_organization_iam_member":               ResourceIamMemberWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_policy":                   resourceGoogleOrganizationPolicy(),
 			"google_project":                               resourceGoogleProject(),
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
-			"google_project_iam_binding":                   resourceGoogleProjectIamBinding(),
-			"google_project_iam_member":                    resourceGoogleProjectIamMember(),
+			"google_project_iam_binding":                   ResourceIamBindingWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
+			"google_project_iam_member":                    ResourceIamMemberWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
 			"google_project_service":                       resourceGoogleProjectService(),
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_services":                      resourceGoogleProjectServices(),
@@ -145,8 +167,13 @@ func Provider() terraform.ResourceProvider {
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
-			"google_storage_bucket_object":                 resourceStorageBucketObject(),
-			"google_storage_object_acl":                    resourceStorageObjectAcl(),
+			// Legacy roles such as roles/storage.legacyBucketReader are automatically added
+			// when creating a bucket. For this reason, it is better not to add the authoritative
+			// google_storage_bucket_iam_policy resource.
+			"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_object":      resourceStorageBucketObject(),
+			"google_storage_object_acl":         resourceStorageObjectAcl(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -159,6 +186,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Credentials: credentials,
 		Project:     d.Get("project").(string),
 		Region:      d.Get("region").(string),
+		Zone:        d.Get("zone").(string),
 	}
 
 	if err := config.loadAndValidate(); err != nil {
@@ -173,6 +201,10 @@ func validateCredentials(v interface{}, k string) (warnings []string, errors []e
 		return
 	}
 	creds := v.(string)
+	// if this is a path and we can stat it, assume it's ok
+	if _, err := os.Stat(creds); err == nil {
+		return
+	}
 	var account accountFile
 	if err := json.Unmarshal([]byte(creds), &account); err != nil {
 		errors = append(errors,

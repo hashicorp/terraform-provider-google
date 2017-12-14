@@ -13,17 +13,8 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-const COMPUTE_FIREWALL_PRIORITY_DEFAULT = 1000
-
 var FirewallBaseApiVersion = v1
-var FirewallVersionedFeatures = []Feature{
-	Feature{Version: v0beta, Item: "deny"},
-	Feature{Version: v0beta, Item: "direction"},
-	Feature{Version: v0beta, Item: "destination_ranges"},
-	Feature{Version: v0beta, Item: "priority", DefaultValue: COMPUTE_FIREWALL_PRIORITY_DEFAULT},
-	Feature{Version: v0beta, Item: "source_service_accounts"},
-	Feature{Version: v0beta, Item: "target_service_accounts"},
-}
+var FirewallVersionedFeatures = []Feature{}
 
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -55,7 +46,7 @@ func resourceComputeFirewall() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      COMPUTE_FIREWALL_PRIORITY_DEFAULT,
+				Default:      1000,
 				ValidateFunc: validation.IntBetween(0, 65535),
 			},
 
@@ -251,7 +242,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceComputeFirewallRead(d, meta)
 }
 
-func flattenAllowed(allowed []*computeBeta.FirewallAllowed) []map[string]interface{} {
+func flattenFirewallAllowed(allowed []*computeBeta.FirewallAllowed) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(allowed))
 	for _, allow := range allowed {
 		allowMap := make(map[string]interface{})
@@ -263,7 +254,7 @@ func flattenAllowed(allowed []*computeBeta.FirewallAllowed) []map[string]interfa
 	return result
 }
 
-func flattenDenied(denied []*computeBeta.FirewallDenied) []map[string]interface{} {
+func flattenFirewallDenied(denied []*computeBeta.FirewallDenied) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(denied))
 	for _, deny := range denied {
 		denyMap := make(map[string]interface{})
@@ -296,10 +287,6 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		// During firewall conversion from v1 to v0beta, the value for Priority is read as 0 (as it doesn't exist in
-		// v1). Unfortunately this is a valid value, but not the same as the default. To avoid this, we explicitly set
-		// the default value here.
-		firewall.Priority = COMPUTE_FIREWALL_PRIORITY_DEFAULT
 	case v0beta:
 		firewallV0Beta, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
 		if err != nil {
@@ -329,8 +316,8 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("source_tags", firewall.SourceTags)
 	d.Set("destination_ranges", firewall.DestinationRanges)
 	d.Set("target_tags", firewall.TargetTags)
-	d.Set("allow", flattenAllowed(firewall.Allowed))
-	d.Set("deny", flattenDenied(firewall.Denied))
+	d.Set("allow", flattenFirewallAllowed(firewall.Allowed))
+	d.Set("deny", flattenFirewallDenied(firewall.Denied))
 	d.Set("priority", int(firewall.Priority))
 	d.Set("source_service_accounts", firewall.SourceServiceAccounts)
 	d.Set("target_service_accounts", firewall.TargetServiceAccounts)

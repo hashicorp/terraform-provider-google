@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	version "github.com/hashicorp/go-version"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -68,7 +68,7 @@ func resourceContainerCluster() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -292,6 +292,28 @@ func resourceContainerCluster() *schema.Resource {
 				StateFunc: StoreResourceName,
 			},
 
+			"network_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"provider": {
+							Type:         schema.TypeString,
+							Default:      "PROVIDER_UNSPECIFIED",
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "CALICO"}, false),
+						},
+					},
+				},
+			},
+
 			"node_config": schemaNodeConfig,
 
 			"node_pool": {
@@ -313,6 +335,7 @@ func resourceContainerCluster() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -337,6 +360,27 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"ip_allocation_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cluster_secondary_range_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"services_secondary_range_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -349,7 +393,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 
 	cluster := &container.Cluster{
@@ -435,12 +482,16 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.MonitoringService = v.(string)
 	}
 
-	if _, ok := d.GetOk("network"); ok {
-		network, err := getNetworkName(d, "network")
+	if v, ok := d.GetOk("network"); ok {
+		network, err := ParseNetworkFieldValue(v.(string), d, config)
 		if err != nil {
 			return err
 		}
-		cluster.Network = network
+		cluster.Network = network.Name
+	}
+
+	if v, ok := d.GetOk("network_policy"); ok && len(v.([]interface{})) > 0 {
+		cluster.NetworkPolicy = expandNetworkPolicy(v)
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
@@ -471,6 +522,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			nodePools = append(nodePools, nodePool)
 		}
 		cluster.NodePools = nodePools
+	}
+
+	if v, ok := d.GetOk("ip_allocation_policy"); ok {
+		cluster.IpAllocationPolicy, err = expandIPAllocationPolicy(v)
+		if err != nil {
+			return err
+		}
 	}
 
 	req := &container.CreateClusterRequest{
@@ -506,7 +564,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	var cluster *container.Cluster
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
@@ -525,6 +586,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", cluster.Name)
+
+	d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy))
+
 	d.Set("zone", cluster.Zone)
 
 	locations := []string{}
@@ -580,6 +644,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	d.Set("project", project)
 	if cluster.AddonsConfig != nil {
 		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
 	}
@@ -588,6 +653,12 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	d.Set("node_pool", nps)
+
+	if cluster.IpAllocationPolicy != nil {
+		if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
+			return err
+		}
+	}
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
 		return err
@@ -606,7 +677,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
@@ -802,6 +876,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("monitoring_service")
 	}
 
+	if d.HasChange("network_policy") {
+		np, _ := d.GetOk("network_policy")
+
+		req := &container.SetNetworkPolicyRequest{
+			NetworkPolicy: expandNetworkPolicy(np),
+		}
+		op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster network policy", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+		log.Printf("[INFO] Network policy for GKE cluster %s has been updated", d.Id())
+
+		d.SetPartial("network_policy")
+
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
 			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
@@ -847,7 +944,10 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
@@ -925,6 +1025,30 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 	return ac
 }
 
+func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPolicy, error) {
+	ap := &container.IPAllocationPolicy{}
+	if len(configured.([]interface{})) > 0 {
+		if config, ok := configured.([]interface{})[0].(map[string]interface{}); ok {
+			ap.UseIpAliases = true
+			if v, ok := config["cluster_secondary_range_name"]; ok {
+				ap.ClusterSecondaryRangeName = v.(string)
+			}
+
+			if v, ok := config["services_secondary_range_name"]; ok {
+				ap.ServicesSecondaryRangeName = v.(string)
+			}
+
+			if ap.UseIpAliases &&
+				(ap.ClusterSecondaryRangeName == "" || ap.ServicesSecondaryRangeName == "") {
+
+				return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
+			}
+		}
+	}
+
+	return ap, nil
+}
+
 func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.MasterAuthorizedNetworksConfig {
 	result := &container.MasterAuthorizedNetworksConfig{}
 	if len(configured.([]interface{})) > 0 {
@@ -941,6 +1065,31 @@ func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.Mas
 				})
 			}
 		}
+	}
+	return result
+}
+
+func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
+	result := &container.NetworkPolicy{}
+	if configured != nil && len(configured.([]interface{})) > 0 {
+		config := configured.([]interface{})[0].(map[string]interface{})
+		if enabled, ok := config["enabled"]; ok && enabled.(bool) {
+			result.Enabled = true
+			if provider, ok := config["provider"]; ok {
+				result.Provider = provider.(string)
+			}
+		}
+	}
+	return result
+}
+
+func flattenNetworkPolicy(c *container.NetworkPolicy) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled":  c.Enabled,
+			"provider": c.Provider,
+		})
 	}
 	return result
 }
@@ -983,6 +1132,15 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 	}
 
 	return nodePools, nil
+}
+
+func flattenIPAllocationPolicy(c *container.IPAllocationPolicy) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
+			"services_secondary_range_name": c.ServicesSecondaryRangeName,
+		},
+	}
 }
 
 func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworksConfig) []map[string]interface{} {

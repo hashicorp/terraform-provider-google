@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform-test-" + acctest.RandString(10)

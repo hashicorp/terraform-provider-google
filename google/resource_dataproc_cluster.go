@@ -62,6 +62,7 @@ func resourceDataprocCluster() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -648,6 +649,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("name", cluster.ClusterName)
+	d.Set("project", project)
 	d.Set("region", region)
 	d.Set("labels", cluster.Labels)
 

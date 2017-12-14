@@ -17,7 +17,7 @@ func TestAccComputeNetwork_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_basic,
+				Config: testAccComputeNetwork_basic(),
 			}, {
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -39,7 +39,7 @@ func TestAccComputeNetwork_importAuto_subnet(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_auto_subnet,
+				Config: testAccComputeNetwork_auto_subnet(),
 			}, {
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -60,7 +60,7 @@ func TestAccComputeNetwork_importCustom_subnet(t *testing.T) {
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_custom_subnet,
+				Config: testAccComputeNetwork_custom_subnet(),
 			}, {
 				ResourceName:      resourceName,
 				ImportState:       true,

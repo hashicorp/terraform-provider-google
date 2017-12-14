@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -21,7 +21,6 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		StateVersion int
 		Attributes   map[string]string
 		Expected     map[string]string
-		Meta         interface{}
 	}{
 		"v0.4.2 and earlier": {
 			StateVersion: 0,
@@ -77,8 +76,9 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		},
 	}
 
+	config := getInitializedConfig(t)
 	for tn, tc := range cases {
-		runInstanceMigrateTest(t, "i-abc123", tn, tc.StateVersion, tc.Attributes, tc.Expected, tc.Meta)
+		runInstanceMigrateTest(t, "i-abc123", tn, tc.StateVersion, tc.Attributes, tc.Expected, config)
 	}
 }
 
@@ -810,7 +810,7 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 		ID:         id,
 		Attributes: attributes,
 	}
-	is, err = resourceComputeInstanceMigrateState(version, is, meta)
+	is, err := resourceComputeInstanceMigrateState(version, is, meta)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -864,23 +864,10 @@ func getInitializedConfig(t *testing.T) *Config {
 	// Check that all required environment variables are set
 	testAccPreCheck(t)
 
-	project := multiEnvSearch([]string{"GOOGLE_PROJECT", "GCLOUD_PROJECT", "CLOUDSDK_CORE_PROJECT"})
-	creds := multiEnvSearch([]string{
-		"GOOGLE_CREDENTIALS",
-		"GOOGLE_CLOUD_KEYFILE_JSON",
-		"GCLOUD_KEYFILE_JSON",
-		"GOOGLE_USE_DEFAULT_CREDENTIALS",
-	})
-	region := multiEnvSearch([]string{
-		"GOOGLE_REGION",
-		"GCLOUD_REGION",
-		"CLOUDSDK_COMPUTE_REGION",
-	})
-
 	config := &Config{
-		Project:     project,
-		Credentials: creds,
-		Region:      region,
+		Project:     getTestProjectFromEnv(),
+		Credentials: getTestCredsFromEnv(),
+		Region:      getTestRegionFromEnv(),
 	}
 	err := config.loadAndValidate()
 	if err != nil {

@@ -16,10 +16,6 @@ import (
 )
 
 var (
-	org = multiEnvSearch([]string{
-		"GOOGLE_ORG",
-	})
-
 	pname          = "Terraform Acceptance Tests"
 	originalPolicy *cloudresourcemanager.Policy
 )
@@ -54,12 +50,7 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 func TestAccGoogleProject_create(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-		}...,
-	)
-
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -81,14 +72,8 @@ func TestAccGoogleProject_create(t *testing.T) {
 func TestAccGoogleProject_createBilling(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -101,6 +86,11 @@ func TestAccGoogleProject_createBilling(t *testing.T) {
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -109,6 +99,7 @@ func TestAccGoogleProject_createBilling(t *testing.T) {
 func TestAccGoogleProject_createLabels(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -120,6 +111,11 @@ func TestAccGoogleProject_createLabels(t *testing.T) {
 					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -129,15 +125,10 @@ func TestAccGoogleProject_createLabels(t *testing.T) {
 func TestAccGoogleProject_updateBilling(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-			"GOOGLE_BILLING_ACCOUNT_2",
-		}...,
-	)
+	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -181,6 +172,7 @@ func TestAccGoogleProject_updateBilling(t *testing.T) {
 func TestAccGoogleProject_merge(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -210,6 +202,7 @@ func TestAccGoogleProject_merge(t *testing.T) {
 func TestAccGoogleProject_updateLabels(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
