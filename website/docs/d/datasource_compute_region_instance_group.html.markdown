@@ -1,9 +1,9 @@
 ---
 layout: "google"
-page_title: "Google: google_compute_instance_group"
-sidebar_current: "docs-google-datasource-compute-instance-group"
+page_title: "Google: google_compute_region_instance_group"
+sidebar_current: "docs-google-datasource-compute-region-instance-group"
 description: |-
-  Get a Compute Region Instance Group within GCE.
+  Get the instances inside a Compute Region Instance Group within GCE.
 ---
 
 # google\_compute\_region\_instance\_group
