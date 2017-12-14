@@ -26,6 +26,11 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"base_instance_name": &schema.Schema{
@@ -274,7 +279,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 			Pending: []string{"creating", "error"},
 			Target:  []string{"created"},
 			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
-			Timeout: 5 * time.Minute,
+			Timeout: d.Timeout(schema.TimeoutCreate),
 		}
 		_, err := conf.WaitForState()
 		// If err is nil, success.
@@ -501,7 +506,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	}
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWaitTime(config.clientCompute, op, project, 15, "Deleting RegionInstanceGroupManager")
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutDelete).Minutes()), "Deleting RegionInstanceGroupManager")
 
 	d.SetId("")
 	return nil

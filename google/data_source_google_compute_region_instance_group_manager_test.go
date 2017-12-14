@@ -18,7 +18,7 @@ func TestAccDataSourceRegionInstanceGroupManager(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", "foobarbaz"),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", getTestProjectFromEnv()),
-					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "items.#", "10")),
+					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "instances.#", "10")),
 			},
 		},
 	})
