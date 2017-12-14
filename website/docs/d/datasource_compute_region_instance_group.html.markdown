@@ -12,9 +12,28 @@ Get a Compute Region Instance Group within GCE.
 For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroups).
 
 ```
-data "google_compute_region_instance_group" "all" {
+data "google_compute_region_instance_group" "group" {
 	name = "instance-group-name"
 }
+```
+
+The most common use of this datasource will be to fetch information about the instances inside regional managed instance groups, for instance:
+
+```
+resource "google_compute_region_instance_group_manager" "foo" {
+	name = "some_name"
+    ...
+	base_instance_name = "foo"
+    ...
+	instance_template = "${google_compute_instance_template.foo.self_link}"
+	target_pools = ["${google_compute_target_pool.foo.self_link}"]
+    ...
+}
+
+data "google_compute_region_instance_group" "data_source" {
+	self_link = "${google_compute_region_instance_group_manager.foo.instance_group}"
+}
+
 ```
 
 ## Argument Reference
@@ -30,7 +49,7 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `region` - (Optional) The region in which the resource belonds.  If `self_link`
+* `region` - (Optional) The region in which the resource belongs.  If `self_link`
     is provided, this value is ignored.  If neither `self_link` nor `region` are
     provided, the provider region is used.
 
