@@ -39,6 +39,11 @@ func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 					"BETA",
 					[]string{"resourcemanager.projects.list", "resourcemanager.organizations.get"}),
 			},
+			{
+				ResourceName:      "google_organization_iam_custom_role.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -39,6 +39,11 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 					testAccCheckGoogleFolderParent(&folder, parent),
 					testAccCheckGoogleFolderDisplayName(&folder, newFolderDisplayName),
 				)},
+			resource.TestStep{
+				ResourceName:      "google_folder.folder1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
