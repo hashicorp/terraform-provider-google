@@ -1,6 +1,9 @@
 ## 1.4.1 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_service_account_iam_binding` [GH-840]
+* **New Resource:** `google_service_account_iam_member` [GH-840]
+* **New Resource:** `google_service_account_iam_policy` [GH-840]
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
 
 IMPROVEMENTS:
