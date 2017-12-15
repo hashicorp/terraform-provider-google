@@ -19,7 +19,7 @@ To set policy with a [boolean constraint](https://cloud.google.com/resource-mana
 
 ```hcl
 resource "google_folder_organization_policy" "serial_port_policy" {
-  org_id     = "123456789"
+  folder     = "123456789"
   constraint = "compute.disableSerialPortAccess"
 
   boolean_policy {
@@ -33,7 +33,7 @@ To set a policy with a [list contraint](https://cloud.google.com/resource-manage
 
 ```hcl
 resource "google_folder_organization_policy" "services_policy" {
-  org_id     = "123456789"
+  folder     = "123456789"
   constraint = "serviceuser.services"
 
   list_policy {
@@ -49,7 +49,7 @@ Or to deny some services, use the following instead:
 
 ```hcl
 resource "google_folder_organization_policy" "services_policy" {
-  org_id     = "123456789"
+  folder     = "123456789"
   constraint = "serviceuser.services"
 
   list_policy {
