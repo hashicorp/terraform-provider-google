@@ -82,20 +82,28 @@ func TestAccComputeNetwork_routing_mode(t *testing.T) {
 
 	var network compute.Network
 
-	routingMode := "GLOBAL"
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeNetwork_routing_mode(routingMode),
+				Config: testAccComputeNetwork_routing_mode("GLOBAL"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						"google_compute_network.acc_network_routing_mode", &network),
 					testAccCheckComputeNetworkHasRoutingMode(
-						"google_compute_network.acc_network_routing_mode", &network, routingMode),
+						"google_compute_network.acc_network_routing_mode", &network, "GLOBAL"),
+				),
+			},
+			// Test updating the routing field (only updateable field).
+			resource.TestStep{
+				Config: testAccComputeNetwork_routing_mode("REGIONAL"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						"google_compute_network.acc_network_routing_mode", &network),
+					testAccCheckComputeNetworkHasRoutingMode(
+						"google_compute_network.acc_network_routing_mode", &network, "REGIONAL"),
 				),
 			},
 		},

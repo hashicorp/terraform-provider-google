@@ -12,6 +12,7 @@ func resourceComputeNetwork() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkCreate,
 		Read:   resourceComputeNetworkRead,
+		Update: resourceComputeNetworkUpdate,
 		Delete: resourceComputeNetworkDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -41,7 +42,6 @@ func resourceComputeNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"gateway_ipv4": &schema.Schema{
@@ -154,10 +154,37 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("ipv4_range", network.IPv4Range)
 	d.Set("self_link", network.SelfLink)
 	d.Set("name", network.Name)
+	d.Set("description", network.Description)
 	d.Set("auto_create_subnetworks", network.AutoCreateSubnetworks)
 	d.Set("project", project)
 
 	return nil
+}
+
+func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	op, err := config.clientCompute.Networks.Patch(project, d.Id(), &compute.Network{
+		RoutingConfig: &compute.NetworkRoutingConfig{
+			RoutingMode: d.Get("routing_mode").(string),
+		},
+	}).Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating network: %s", err)
+	}
+
+	err = computeSharedOperationWait(config.clientCompute, op, project, "UpdateNetwork")
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeNetworkRead(d, meta)
 }
 
 func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) error {

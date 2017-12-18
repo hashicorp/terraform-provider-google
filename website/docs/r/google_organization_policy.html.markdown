@@ -18,7 +18,7 @@ documentation](https://cloud.google.com/resource-manager/docs/organization-polic
 To set policy with a [boolean constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-boolean-constraints):
 
 ```hcl
-resource "google_folder_organization_policy" "serial_port_policy" {
+resource "google_organization_policy" "serial_port_policy" {
   org_id     = "123456789"
   constraint = "compute.disableSerialPortAccess"
 
@@ -32,7 +32,7 @@ resource "google_folder_organization_policy" "serial_port_policy" {
 To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
-resource "google_folder_organization_policy" "services_policy" {
+resource "google_organization_policy" "services_policy" {
   org_id     = "123456789"
   constraint = "serviceuser.services"
 
@@ -48,7 +48,7 @@ resource "google_folder_organization_policy" "services_policy" {
 Or to deny some services, use the following instead:
 
 ```hcl
-resource "google_folder_organization_policy" "services_policy" {
+resource "google_organization_policy" "services_policy" {
   org_id     = "123456789"
   constraint = "serviceuser.services"
 
@@ -110,4 +110,4 @@ exported:
 Organization Policies can be imported using the `org_id` and the `contraint`, e.g.
 
 ```
-$ terraform import google_folder_organization_policy.services_policy 123456789:constraints/serviceuser.services
+$ terraform import google_organization_policy.services_policy 123456789:constraints/serviceuser.services
