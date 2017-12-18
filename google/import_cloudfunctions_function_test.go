@@ -13,7 +13,6 @@ func TestAccCloudFunctionsFunction_importBasic(t *testing.T) {
 
 	resourceName := "google_cloudfunctions_function.test"
 	name := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,7 +20,7 @@ func TestAccCloudFunctionsFunction_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction(datasetID, tableID),
+				Config: testAccCloudFunctionsFunction(name),
 			},
 
 			{
