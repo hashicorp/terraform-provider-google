@@ -18,6 +18,7 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -64,6 +65,7 @@ type Config struct {
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
+	clientCloudFunctions         *cloudfunctions.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -243,6 +245,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientBigQuery.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client...")
+	c.clientCloudFunctions, err = cloudfunctions.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientCloudFunctions.UserAgent = userAgent
 
 	c.bigtableClientFactory = &BigtableClientFactory{
 		UserAgent:   userAgent,
