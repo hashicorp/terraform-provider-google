@@ -26,6 +26,9 @@ func resourceComputeInstance() *schema.Resource {
 		Read:   resourceComputeInstanceRead,
 		Update: resourceComputeInstanceUpdate,
 		Delete: resourceComputeInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeInstanceImportState,
+		},
 
 		SchemaVersion: 6,
 		MigrateState:  resourceComputeInstanceMigrateState,
@@ -738,12 +741,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	md := flattenMetadataBeta(instance.Metadata)
 
-	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
-		d.Set("metadata_startup_script", md["startup-script"])
-		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-		delete(md, "startup-script")
-	}
+	d.Set("metadata_startup_script", md["startup-script"])
+	// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+	// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+	delete(md, "startup-script")
 
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 
@@ -794,6 +795,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
 		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
+		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
 	}
 
 	if len(instance.Labels) > 0 {
@@ -859,6 +861,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.Set("project", project)
+	d.Set("name", instance.Name)
 	d.SetId(instance.Name)
 
 	return nil
@@ -1237,6 +1240,20 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
+	}
+
+	d.Set("project", parts[0])
+	d.Set("zone", parts[1])
+	d.SetId(parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*computeBeta.AttachedDisk, error) {
