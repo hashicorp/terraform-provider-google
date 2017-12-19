@@ -272,3 +272,13 @@ exported:
 * `disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+
+## Import
+
+~> **Note:** The fields `boot_disk.0.initialize_params`, `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+
+Instances can be imported using the `project`, `zone` and `name`, e.g.
+
+```
+$ terraform import google_compute_instance.default gcp-project/us-central1-a/test
+```
