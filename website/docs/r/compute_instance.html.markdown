@@ -275,7 +275,7 @@ exported:
 
 ## Import
 
-~> **Note:** The fields `boot_disk.0.initialize_params`, `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. You will need to update your state manually for this field after importing the resource.
+~> **Note:** The fields `boot_disk.0.initialize_params`, `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
 
 Instances can be imported using the `project`, `zone` and `name`, e.g.
 
