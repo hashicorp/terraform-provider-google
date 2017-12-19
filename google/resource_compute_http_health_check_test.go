@@ -33,6 +33,11 @@ func TestAccComputeHttpHealthCheck_basic(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_http_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
