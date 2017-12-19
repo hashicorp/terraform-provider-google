@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource:** `google_service_account_iam_member` [GH-840]
 * **New Resource:** `google_service_account_iam_policy` [GH-840]
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
+* **New Data Source:** `google_kms_secret` [GH-741]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
