@@ -10,21 +10,13 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudkms/v1"
 	"log"
-	"os"
 )
 
 func TestAccGoogleKmsSecret_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 
 	projectId := "terraform-" + acctest.RandString(10)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
