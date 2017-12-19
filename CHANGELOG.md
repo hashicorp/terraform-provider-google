@@ -12,6 +12,7 @@ IMPROVEMENTS:
 * compute: Add support for routing mode in compute network. [GH-838]
 * compute: Add configurable create/update/delete timeouts to `google_compute_instance` [GH-856]
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
+* compute: Add import support for `google_compute_instance` [GH-873]
 
 BUG FIXES:
 * storage: Fix bug blocking the update of a storage object if its content is dynamic/interpolated. [GH-848]
