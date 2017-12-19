@@ -34,6 +34,11 @@ func TestAccComputeFirewall_basic(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -83,15 +88,22 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
-		Steps: []resource.TestStep{{
-			Config: testAccComputeFirewall_priority(networkName, firewallName, 1001),
-			Check: resource.ComposeTestCheckFunc(
-				testAccCheckComputeFirewallExists(
-					"google_compute_firewall.foobar", &firewall),
-				testAccCheckComputeFirewallHasPriority(&firewall, 1001),
-				testAccCheckComputeFirewallApiVersion(&firewall),
-			),
-		}},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewall_priority(networkName, firewallName, 1001),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeFirewallExists(
+						"google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallHasPriority(&firewall, 1001),
+					testAccCheckComputeFirewallApiVersion(&firewall),
+				),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
 	})
 }
 
@@ -114,6 +126,11 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 						"google_compute_firewall.foobar", &firewall),
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -139,6 +156,11 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -162,6 +184,11 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 					testAccCheckComputeFirewallEgress(&firewall),
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -192,6 +219,11 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 					testAccCheckComputeFirewallServiceAccounts(sourceSaEmail, targetSaEmail, &firewall),
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

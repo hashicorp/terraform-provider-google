@@ -29,6 +29,11 @@ func TestAccComputeBackendBucket_basic(t *testing.T) {
 						"google_compute_backend_bucket.foobar", &svc),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 
