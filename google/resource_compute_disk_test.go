@@ -32,6 +32,11 @@ func TestAccComputeDisk_basic(t *testing.T) {
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

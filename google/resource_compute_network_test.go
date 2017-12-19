@@ -27,6 +27,11 @@ func TestAccComputeNetwork_basic(t *testing.T) {
 						"google_compute_network.foobar", &network),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_network.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -50,6 +55,11 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 						"google_compute_network.bar", &network),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_network.bar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -72,6 +82,11 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 					testAccCheckComputeNetworkIsCustomSubnet(
 						"google_compute_network.baz", &network),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_network.baz",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
