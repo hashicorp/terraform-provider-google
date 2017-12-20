@@ -65,7 +65,7 @@ func resourceComputeDisk() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				DiffSuppressFunc: diskImageDiffSuppress,
 			},
 
 			"project": &schema.Schema{
@@ -406,4 +406,23 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId("")
 	return nil
+}
+
+func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	parts := strings.Split(old, "/")
+
+	if parts[len(parts)-1] == new {
+		return true
+	}
+
+	// Handle the "latest" image short hand case:
+	// "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213" => "debian-cloud/debian-8"
+	newParts := strings.Split(new, "/")
+	if len(newParts) == 2 {
+		if strings.Contains(old, newParts[0]) && strings.Contains(old, newParts[1]) {
+			return true
+		}
+	}
+
+	return false
 }

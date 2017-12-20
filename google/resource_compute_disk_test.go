@@ -12,6 +12,45 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+func TestDiskImageDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"new is a matching short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"new is a matching latest short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"new is a different self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		"new is a different short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		"new is a different latest short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func TestAccComputeDisk_basic(t *testing.T) {
 	t.Parallel()
 
