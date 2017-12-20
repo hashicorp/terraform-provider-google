@@ -40,7 +40,7 @@ resource "google_kms_key_ring_iam_policy" "key_ring" {
 ## google\_kms\_key\_ring\_iam\_binding
 
 ```hcl
-resource "google_kms_key_ring_binding" "key_ring" {
+resource "google_kms_key_ring_iam_binding" "key_ring" {
   key_ring_id = "your-key-ring-id"
   role        = "roles/editor"
 
