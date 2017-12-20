@@ -677,7 +677,7 @@ resource "google_dataproc_cluster" "basic" {
 func testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "dataproc_network" {
-	name = "dataproc-internalip-network"
+	name = "dataproc-internalip-network-%s"
 	auto_create_subnetworks = false
 }
 
@@ -686,7 +686,7 @@ resource "google_compute_network" "dataproc_network" {
 # deploying a Dataproc cluster with Internal IP Only enabled.
 #
 resource "google_compute_subnetwork" "dataproc_subnetwork" {
-	name                     = "dataproc-internalip-subnetwork"
+	name                     = "dataproc-internalip-subnetwork-%s"
 	ip_cidr_range            = "10.0.0.0/16"
 	network                  = "${google_compute_network.dataproc_network.self_link}"
 	region                   = "us-central1"
@@ -730,7 +730,7 @@ resource "google_dataproc_cluster" "basic" {
 		}
 	}
 }
-`, rnd)
+`, rnd, rnd, rnd)
 }
 
 func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {
