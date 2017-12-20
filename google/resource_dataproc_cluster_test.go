@@ -676,6 +676,10 @@ resource "google_dataproc_cluster" "basic" {
 
 func testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd string) string {
 	return fmt.Sprintf(`
+variable subnetwork_cidr {
+	default = "10.0.0.0/16"
+}
+
 resource "google_compute_network" "dataproc_network" {
 	name = "dataproc-internalip-network-%s"
 	auto_create_subnetworks = false
@@ -687,7 +691,7 @@ resource "google_compute_network" "dataproc_network" {
 #
 resource "google_compute_subnetwork" "dataproc_subnetwork" {
 	name                     = "dataproc-internalip-subnetwork-%s"
-	ip_cidr_range            = "10.0.0.0/16"
+	ip_cidr_range            = "${var.subnetwork_cidr}"
 	network                  = "${google_compute_network.dataproc_network.self_link}"
 	region                   = "us-central1"
 	private_ip_google_access = true
@@ -718,6 +722,8 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 		protocol = "udp"
 		ports    = ["0-65535"]
 	}
+
+	source_ranges = ["${var.subnetwork_cidr}"]
 }
 resource "google_dataproc_cluster" "basic" {
 	name                  = "dproc-cluster-test-%s"
