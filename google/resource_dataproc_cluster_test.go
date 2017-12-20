@@ -722,8 +722,7 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 resource "google_dataproc_cluster" "basic" {
 	name                  = "dproc-cluster-test-%s"
 	region                = "us-central1"
-	depends_on            = ["google_compute_firewall.dataproc_network_firewall","google_compute_subnetwork.dataproc_subnetwork"]
-
+	
 	cluster_config {
 		gce_cluster_config {
 			subnetwork       = "${google_compute_subnetwork.dataproc_subnetwork.name}"
