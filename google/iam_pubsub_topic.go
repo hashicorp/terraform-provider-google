@@ -77,11 +77,11 @@ func (u *PubsubTopicIamUpdater) GetResourceId() string {
 }
 
 func (u *PubsubTopicIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-folder-%s", u.topic)
+	return fmt.Sprintf("iam-pubsub-topic-%s", u.topic)
 }
 
 func (u *PubsubTopicIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("folder %q", u.topic)
+	return fmt.Sprintf("pubsub topic %q", u.topic)
 }
 
 // v1 and v2beta policy are identical
