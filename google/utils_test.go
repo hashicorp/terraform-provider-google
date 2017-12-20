@@ -1,10 +1,11 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func TestConvertStringArr(t *testing.T) {
@@ -197,5 +198,225 @@ func TestGetRegion(t *testing.T) {
 	config.Region = "something-else"
 	if region, err := getRegion(d, &config); err != nil || region != config.Region {
 		t.Fatalf("Zone '%s' != '%s', %s", region, config.Region, err)
+	}
+}
+
+func TestDatasourceSchemaFromResourceSchema(t *testing.T) {
+	type args struct {
+		rs map[string]*schema.Schema
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]*schema.Schema
+	}{
+		{
+			name: "string",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:        schema.TypeString,
+						Required:    true,
+						ForceNew:    true,
+						Description: "foo of schema",
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:        schema.TypeString,
+					Required:    false,
+					ForceNew:    false,
+					Computed:    true,
+					Elem:        nil,
+					Description: "foo of schema",
+				},
+			},
+		},
+		{
+			name: "map",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:        schema.TypeMap,
+						Required:    true,
+						ForceNew:    true,
+						Description: "map of strings",
+						Elem:        schema.TypeString,
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:        schema.TypeMap,
+					Required:    false,
+					ForceNew:    false,
+					Computed:    true,
+					Description: "map of strings",
+					Elem:        schema.TypeString,
+				},
+			},
+		},
+		{
+			name: "list_of_strings",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeList,
+						Required: true,
+						ForceNew: true,
+						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeList,
+					Required: false,
+					ForceNew: false,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "list_subresource",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeList,
+						Required: true,
+						ForceNew: true,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"subresource": {
+									Type:     schema.TypeList,
+									Optional: true,
+									Computed: true,
+									MaxItems: 1,
+									Elem: &schema.Resource{
+										Schema: map[string]*schema.Schema{
+											"disabled": {
+												Type:     schema.TypeBool,
+												Optional: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeList,
+					Required: false,
+					ForceNew: false,
+					Optional: false,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"subresource": {
+								Type:     schema.TypeList,
+								Optional: false,
+								Computed: true,
+								MaxItems: 0,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"disabled": {
+											Type:     schema.TypeBool,
+											Optional: false,
+											Computed: true,
+										},
+									},
+								},
+							},
+						},
+					},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "set_of_strings",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeSet,
+						Required: true,
+						ForceNew: true,
+						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeSet,
+					Required: false,
+					ForceNew: false,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "set_subresource",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeSet,
+						Required: true,
+						ForceNew: true,
+						MaxItems: 1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"subresource": {
+									Type:     schema.TypeInt,
+									Optional: true,
+									Computed: true,
+									MaxItems: 1,
+									Elem:     &schema.Schema{Type: schema.TypeInt},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeSet,
+					Required: false,
+					ForceNew: false,
+					Optional: false,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"subresource": {
+								Type:     schema.TypeInt,
+								Optional: false,
+								Computed: true,
+								MaxItems: 0,
+								Elem:     &schema.Schema{Type: schema.TypeInt},
+							},
+						},
+					},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := datasourceSchemaFromResourceSchema(tt.args.rs); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("datasourceSchemaFromResourceSchema() = %#v, want %#v", got, tt.want)
+			}
+		})
 	}
 }
