@@ -4,6 +4,9 @@ FEATURES:
 * **New Resource:** `google_service_account_iam_binding` [GH-840]
 * **New Resource:** `google_service_account_iam_member` [GH-840]
 * **New Resource:** `google_service_account_iam_policy` [GH-840]
+* **New Resource:** `google_pubsub_topic_iam_binding` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_member` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_policy` [GH-875]
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
 * **New Data Source:** `google_kms_secret` [GH-741]
 
