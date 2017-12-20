@@ -8,7 +8,7 @@ description: |-
 
 # google\_container\_cluster
 
-Get info about a cluster within GCE from its name and zone.
+Get info about a cluster within GKE from its name and zone.
 
 ## Example Usage
 

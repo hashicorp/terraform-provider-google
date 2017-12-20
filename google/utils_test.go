@@ -420,7 +420,3 @@ func TestDatasourceSchemaFromResourceSchema(t *testing.T) {
 		})
 	}
 }
-
-func dummyCustomSetFunc(v interface{}) int {
-	return schema.HashString(v)
-}

@@ -8,9 +8,11 @@ func dataSourceGoogleContainerCluster() *schema.Resource {
 	// Generate datasource schema from resource
 	dsSchema := datasourceSchemaFromResourceSchema(resourceContainerCluster().Schema)
 
-	// Fixup the schema flags of the Required and Optional input attributes
-	fixDatasourceSchemaFlags(dsSchema, true, "name", "zone")
-	fixDatasourceSchemaFlags(dsSchema, false, "project")
+	// Set 'Required' schema elements
+	addRequiredFieldsToSchema(dsSchema, "name", "zone")
+
+	// Set 'Optional' schema elements
+	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   datasourceContainerClusterRead,
