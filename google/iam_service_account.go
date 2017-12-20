@@ -77,18 +77,20 @@ func (u *ServiceAccountIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("service account '%s'", u.serviceAccountId)
 }
 
-func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (policy *iam.Policy, err error) {
-	policy = &iam.Policy{}
-
-	err = Convert(p, policy)
-
-	return
+func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, error) {
+	out := &iam.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a iam policy: %s", err)
+	}
+	return out, nil
 }
 
-func iamToResourceManagerPolicy(p *iam.Policy) (policy *cloudresourcemanager.Policy, err error) {
-	policy = &cloudresourcemanager.Policy{}
-
-	err = Convert(p, policy)
-
-	return
+func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, error) {
+	out := &cloudresourcemanager.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a iam policy to a v1 policy: %s", err)
+	}
+	return out, nil
 }

@@ -75,7 +75,7 @@ func resourceManagerToStoragePolicy(p *cloudresourcemanager.Policy) (*storage.Po
 	out := &storage.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 policy to a pubsub policy: %s", err)
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a storage policy: %s", err)
 	}
 	return out, nil
 }
@@ -84,7 +84,7 @@ func storageToResourceManagerPolicy(p *storage.Policy) (*cloudresourcemanager.Po
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a pubsub policy to a v1 policy: %s", err)
+		return nil, fmt.Errorf("Cannot convert a storage policy to a v1 policy: %s", err)
 	}
 	return out, nil
 }
