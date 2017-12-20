@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_pubsub_topic"
-sidebar_current: "docs-google-pubsub-topic"
+sidebar_current: "docs-google-pubsub-topic-x"
 description: |-
   Creates a topic in Google's pubsub  queueing system
 ---

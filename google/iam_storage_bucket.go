@@ -71,14 +71,20 @@ func (u *StorageBucketIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Storage Bucket %q", u.bucket)
 }
 
-func resourceManagerToStoragePolicy(p *cloudresourcemanager.Policy) (policy *storage.Policy, err error) {
-	policy = &storage.Policy{}
-	err = Convert(p, policy)
-	return
+func resourceManagerToStoragePolicy(p *cloudresourcemanager.Policy) (*storage.Policy, error) {
+	out := &storage.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a storage policy: %s", err)
+	}
+	return out, nil
 }
 
-func storageToResourceManagerPolicy(p *storage.Policy) (policy *cloudresourcemanager.Policy, err error) {
-	policy = &cloudresourcemanager.Policy{}
-	err = Convert(p, policy)
-	return
+func storageToResourceManagerPolicy(p *storage.Policy) (*cloudresourcemanager.Policy, error) {
+	out := &cloudresourcemanager.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a storage policy to a v1 policy: %s", err)
+	}
+	return out, nil
 }
