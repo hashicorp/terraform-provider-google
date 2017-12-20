@@ -2,16 +2,40 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"reflect"
-	"testing"
 )
 
 var DENIED_ORG_POLICIES = []string{
 	"maps-ios-backend.googleapis.com",
 	"placesios.googleapis.com",
+}
+
+func TestAccGoogleOrganizationPolicy_file(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test creation of an enforced boolean policy
+				Config: testAccGoogleOrganizationPolicy_boolean_file(org),
+				Check:  testAccCheckGoogleOrganizationBooleanPolicy("bool", true),
+			},
+			{
+				Config: testAccGoogleOrganizationPolicy_list_file(org),
+				Check:  testAccCheckGoogleOrganizationListPolicyAll("list", "ALLOW"),
+			},
+		},
+	})
+
 }
 
 func TestAccGoogleOrganizationPolicy_boolean(t *testing.T) {
@@ -255,6 +279,28 @@ func getGoogleOrganizationPolicyTestResource(s *terraform.State, n string) (*clo
 	return config.clientResourceManager.Organizations.GetOrgPolicy("organizations/"+rs.Primary.Attributes["org_id"], &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: rs.Primary.Attributes["constraint"],
 	}).Do()
+}
+
+func testAccGoogleOrganizationPolicy_boolean_file(org string) string {
+	return fmt.Sprintf(`
+resource "google_organization_policy" "bool" {
+	org_id = "%s"
+	constraint = "constraints/compute.disableSerialPortAccess"
+
+	boolean_policy_source = "test-fixtures/google_organization_policy_bool.json"
+}
+`, org)
+}
+
+func testAccGoogleOrganizationPolicy_list_file(org string) string {
+	return fmt.Sprintf(`
+resource "google_organization_policy" "list" {
+	org_id = "%s"
+	constraint = "constraints/serviceuser.services"
+
+	list_policy_source = "test-fixtures/google_organization_policy_list.json"
+}
+`, org)
 }
 
 func testAccGoogleOrganizationPolicy_boolean(org string, enforced bool) string {

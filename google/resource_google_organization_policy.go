@@ -2,9 +2,14 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudresourcemanager/v1"
+	"io/ioutil"
+	"log"
 	"strings"
+
+	"google.golang.org/api/cloudresourcemanager/v1"
+	"gopkg.in/yaml.v2"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 var schemaOrganizationPolicy = map[string]*schema.Schema{
@@ -14,11 +19,16 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		ForceNew:         true,
 		DiffSuppressFunc: linkDiffSuppress,
 	},
+	"boolean_policy_source": {
+		Type:          schema.TypeString,
+		Optional:      true,
+		ConflictsWith: []string{"list_policy", "boolean_policy", "list_policy_source"},
+	},
 	"boolean_policy": {
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"list_policy"},
+		ConflictsWith: []string{"list_policy", "boolean_policy_source", "list_policy_source"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
@@ -28,11 +38,16 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 			},
 		},
 	},
+	"list_policy_source": {
+		Type:          schema.TypeString,
+		Optional:      true,
+		ConflictsWith: []string{"list_policy", "boolean_policy", "boolean_policy_source"},
+	},
 	"list_policy": {
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"boolean_policy"},
+		ConflictsWith: []string{"boolean_policy", "boolean_policy_source", "list_policy_source"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
@@ -98,6 +113,56 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 	"update_time": {
 		Type:     schema.TypeString,
 		Computed: true,
+	},
+	// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
+	"detect_policy_change": &schema.Schema{
+		Type: schema.TypeString,
+		// This field is not Computed because it needs to trigger a diff.
+		Optional: true,
+		ForceNew: true,
+		// Makes the diff message nicer:
+		Default: "different policy",
+		DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+			localPolicy := ""
+			var err error
+
+			if source, ok := d.GetOkExists("boolean_policy_source"); ok {
+				filepolicy, err := getFilePolicy(source.(string))
+				if err != nil {
+					localPolicy, err = getYAMLPolicy(filepolicy)
+				}
+			}
+
+			if content, ok := d.GetOkExists("boolean_policy"); ok {
+				localPolicy, err = getYAMLPolicy(content)
+			}
+
+			if source, ok := d.GetOkExists("list_policy_source"); ok {
+				filepolicy, err := getFilePolicy(source.(string))
+				if err != nil {
+					localPolicy, err = getYAMLPolicy(filepolicy)
+				}
+			}
+
+			if content, ok := d.GetOkExists("list_policy"); ok {
+				localPolicy, err = getYAMLPolicy(content)
+			}
+
+			if err != nil {
+				return false
+			}
+
+			oldpolicy, err := getYAMLPolicy(old)
+			if err != nil {
+				return false
+			}
+
+			if oldpolicy != localPolicy {
+				return false
+			}
+
+			return true
+		},
 	},
 }
 
@@ -194,16 +259,35 @@ func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta in
 func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	org := "organizations/" + d.Get("org_id").(string)
+	var err error
+	var booleanPolicy *cloudresourcemanager.BooleanPolicy
+	var listPolicy *cloudresourcemanager.ListPolicy
 
-	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))
+	if source, ok := d.GetOkExists("list_policy_source"); ok {
+		filePolicy, err := getFilePolicy(source.(string))
+		if err != nil {
+			listPolicy, err = expandListOrganizationPolicy(filePolicy)
+		}
+	} else {
+		listPolicy, err = expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))
+	}
 	if err != nil {
 		return err
+	}
+
+	if source, ok := d.GetOkExists("boolean_policy_source"); ok {
+		filePolicy, err := getFilePolicy(source.(string))
+		if err != nil {
+			booleanPolicy = expandBooleanOrganizationPolicy(filePolicy)
+		}
+	} else {
+		booleanPolicy = expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{}))
 	}
 
 	_, err = config.clientResourceManager.Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
 		Policy: &cloudresourcemanager.OrgPolicy{
 			Constraint:    canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-			BooleanPolicy: expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
+			BooleanPolicy: booleanPolicy,
 			ListPolicy:    listPolicy,
 			Version:       int64(d.Get("version").(int)),
 			Etag:          d.Get("etag").(string),
@@ -321,4 +405,31 @@ func canonicalOrgPolicyConstraint(constraint string) string {
 		return constraint
 	}
 	return "constraints/" + constraint
+}
+
+// Returns an expanded list from a file
+func getFilePolicy(filename string) ([]interface{}, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("[WARN] Failed to read source file %q.", filename)
+		return nil, err
+	}
+	var h interface{}
+	err = yaml.Unmarshal(data, h)
+	if err != nil {
+		return nil, err
+	}
+
+	var retval []interface{}
+	retval = append(retval, h)
+	return retval, nil
+}
+
+// Returns a YAML string from an expanded list
+func getYAMLPolicy(content interface{}) (string, error) {
+	bytes, err := yaml.Marshal(content)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes[:]), nil
 }
