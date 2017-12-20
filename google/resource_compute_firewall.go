@@ -105,6 +105,7 @@ func resourceComputeFirewall() *schema.Resource {
 			"direction": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS"}, false),
 				ForceNew:     true,
 			},
@@ -302,14 +303,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
 	d.Set("name", firewall.Name)
 	d.Set("network", ConvertSelfLinkToV1(firewall.Network))
-
-	// Unlike most other Beta properties, direction will always have a value even when
-	// a zero is sent by the client. We'll never revert back to v1 without conditionally reading it.
-	// This if statement blocks Beta import for this resource.
-	if _, ok := d.GetOk("direction"); ok {
-		d.Set("direction", firewall.Direction)
-	}
-
+	d.Set("direction", firewall.Direction)
 	d.Set("description", firewall.Description)
 	d.Set("project", project)
 	d.Set("source_ranges", firewall.SourceRanges)
