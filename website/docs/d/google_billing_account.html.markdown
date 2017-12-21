@@ -32,6 +32,7 @@ The following arguments are supported:
 
 * `name` (Optional) - The resource name of the billing account in the form `billingAccounts/{billing_account_id}`.
 * `display_name` (Optional) - The display name of the billing account.
+* `open` (Optional) - `true` if the billing account is open, `false` if the billing account is closed.
 
 ~> **NOTE:** One of `name` or `display_name` must be specified.
 
@@ -40,5 +41,4 @@ The following arguments are supported:
 The following additional attributes are exported:
 
 * `id` - The billing account ID.
-* `open` - `true` if the billing account is open, `false` if the billing account is closed.
 * `project_ids` - The IDs of any projects associated with the billing account.

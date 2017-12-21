@@ -30,6 +30,7 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 			},
 			"open": {
 				Type:     schema.TypeBool,
+				Optional: true,
 				Computed: true,
 			},
 			"project_ids": {
@@ -46,6 +47,8 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	open, openOk := d.GetOkExists("open")
+
 	var billingAccount *cloudbilling.BillingAccount
 	if v, ok := d.GetOk("name"); ok {
 		resp, err := config.clientBilling.BillingAccounts.Get(v.(string)).Do()
@@ -55,6 +58,10 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 			}
 
 			return fmt.Errorf("Error reading billing account: %s", err)
+		}
+
+		if openOk && resp.Open != open.(bool) {
+			return fmt.Errorf("Billing account not found: %s", v)
 		}
 
 		billingAccount = resp
@@ -68,6 +75,9 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 
 			for _, ba := range resp.BillingAccounts {
 				if ba.DisplayName == v.(string) {
+					if openOk && ba.Open != open.(bool) {
+						continue
+					}
 					if billingAccount != nil {
 						return fmt.Errorf("More than one matching billing account found")
 					}

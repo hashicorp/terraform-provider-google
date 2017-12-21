@@ -30,6 +30,22 @@ func TestAccDataSourceGoogleBillingAccount_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceGoogleBillingAccount_byNameClosed(t *testing.T) {
+	billingId := getTestBillingAccountFromEnv(t)
+	name := "billingAccounts/" + billingId
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckGoogleBillingAccount_byNameClosed(name),
+				ExpectError: regexp.MustCompile("Billing account not found: " + name),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceGoogleBillingAccount_byDisplayName(t *testing.T) {
 	name := acctest.RandString(16)
 
@@ -49,6 +65,14 @@ func testAccCheckGoogleBillingAccount_byName(name string) string {
 	return fmt.Sprintf(`
 data "google_billing_account" "acct" {
   name = "%s"
+}`, name)
+}
+
+func testAccCheckGoogleBillingAccount_byNameClosed(name string) string {
+	return fmt.Sprintf(`
+data "google_billing_account" "acct" {
+  name = "%s"
+  open = false
 }`, name)
 }
 
