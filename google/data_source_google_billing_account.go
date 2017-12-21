@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -87,12 +86,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	projectIds := flattenBillingProjects(resp.ProjectBillingInfo)
 
-	parts := strings.Split(billingAccount.Name, "/")
-	if len(parts) != 2 {
-		return fmt.Errorf("Invalid billing account name. Expecting billingAccounts/{billing_account_id}")
-	}
-
-	d.SetId(parts[1])
+	d.SetId(GetResourceNameFromSelfLink(billingAccount.Name))
 	d.Set("name", billingAccount.Name)
 	d.Set("display_name", billingAccount.DisplayName)
 	d.Set("open", billingAccount.Open)
