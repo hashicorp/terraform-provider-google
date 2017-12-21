@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -18,13 +19,16 @@ func dataSourceGoogleOrganization() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"name"},
+				ConflictsWith: []string{"organization"},
 			},
-			"name": {
+			"organization": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Computed:      true,
 				ConflictsWith: []string{"domain"},
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"directory_customer_id": {
 				Type:     schema.TypeString,
@@ -63,8 +67,8 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		}
 
 		organization = resp.Organizations[0]
-	} else if v, ok := d.GetOk("name"); ok {
-		resp, err := config.clientResourceManager.Organizations.Get(v.(string)).Do()
+	} else if v, ok := d.GetOk("organization"); ok {
+		resp, err := config.clientResourceManager.Organizations.Get(canonicalOrganizationName(v.(string))).Do()
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 				return fmt.Errorf("Organization not found: %s", v)
@@ -75,7 +79,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 
 		organization = resp
 	} else {
-		return fmt.Errorf("one of domain or name must be set")
+		return fmt.Errorf("one of domain or organization must be set")
 	}
 
 	d.SetId(GetResourceNameFromSelfLink(organization.Name))
@@ -88,4 +92,12 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func canonicalOrganizationName(ba string) string {
+	if strings.HasPrefix(ba, "organizations/") {
+		return ba
+	}
+
+	return "organizations/" + ba
 }
