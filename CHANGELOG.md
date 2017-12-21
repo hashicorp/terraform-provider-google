@@ -4,15 +4,24 @@ FEATURES:
 * **New Resource:** `google_service_account_iam_binding` [GH-840]
 * **New Resource:** `google_service_account_iam_member` [GH-840]
 * **New Resource:** `google_service_account_iam_policy` [GH-840]
+* **New Resource:** `google_pubsub_topic_iam_binding` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_member` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_policy` [GH-875]
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
+* **New Data Source:** `google_container_cluster` [GH-740]
+* **New Data Source:** `google_kms_secret` [GH-741]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
 * compute: Add support for routing mode in compute network. [GH-838]
 * compute: Add configurable create/update/delete timeouts to `google_compute_instance` [GH-856]
+* compute: Add configurable create/update/delete timeouts to `google_compute_subnetwork` [GH-871]
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
+* compute: Add import support for `google_compute_instance` [GH-873]
+* compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
 
 BUG FIXES:
+* compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
 * storage: Fix bug blocking the update of a storage object if its content is dynamic/interpolated. [GH-848]
 * storage: Fix bug preventing the removal of lifecycle rules for a `google_storage_bucket`. [GH-850]
 

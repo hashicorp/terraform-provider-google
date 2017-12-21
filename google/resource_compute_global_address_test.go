@@ -31,6 +31,11 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_global_address.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -52,6 +57,11 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 						"google_compute_global_address.foobar", &addr),
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_global_address.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

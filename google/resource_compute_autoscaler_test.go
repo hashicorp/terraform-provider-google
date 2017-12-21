@@ -32,6 +32,12 @@ func TestAccComputeAutoscaler_basic(t *testing.T) {
 						"google_compute_autoscaler.foobar", &ascaler),
 				),
 			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

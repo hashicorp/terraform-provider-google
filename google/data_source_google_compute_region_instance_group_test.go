@@ -7,14 +7,14 @@ import (
 	"testing"
 )
 
-func TestAccDataSourceRegionInstanceGroupManager(t *testing.T) {
+func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	t.Parallel()
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceRegionInstanceGroupManagerConfig("foobarbaz"),
+				Config: testAccDataSourceRegionInstanceGroup_basic("foobarbaz"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", "foobarbaz"),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", getTestProjectFromEnv()),
@@ -24,7 +24,7 @@ func TestAccDataSourceRegionInstanceGroupManager(t *testing.T) {
 	})
 }
 
-func testAccDataSourceRegionInstanceGroupManagerConfig(instanceManagerName string) string {
+func testAccDataSourceRegionInstanceGroup_basic(instanceManagerName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "autohealing" {
 	name = "%s"

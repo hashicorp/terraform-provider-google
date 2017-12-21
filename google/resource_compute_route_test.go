@@ -28,6 +28,11 @@ func TestAccComputeRoute_basic(t *testing.T) {
 						"google_compute_route.foobar", &route),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -48,6 +53,11 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -73,6 +83,11 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
 					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
