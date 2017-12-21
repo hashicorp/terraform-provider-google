@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -81,12 +80,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		organization = resp
 	}
 
-	parts := strings.Split(organization.Name, "/")
-	if len(parts) != 2 {
-		return fmt.Errorf("Invalid organization name. Expecting organizations/{organization_id}")
-	}
-
-	d.SetId(parts[1])
+	d.SetId(GetResourceNameFromSelfLink(organization.Name))
 	d.Set("name", organization.Name)
 	d.Set("domain", organization.DisplayName)
 	d.Set("create_time", organization.CreationTime)
