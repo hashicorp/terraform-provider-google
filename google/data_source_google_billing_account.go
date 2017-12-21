@@ -59,18 +59,24 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 
 		billingAccount = resp
 	} else if v, ok := d.GetOk("display_name"); ok {
-		resp, err := config.clientBilling.BillingAccounts.List().Do()
-		if err != nil {
-			return fmt.Errorf("Error reading billing account: %s", err)
-		}
-
-		for _, ba := range resp.BillingAccounts {
-			if ba.DisplayName == v.(string) {
-				if billingAccount != nil {
-					return fmt.Errorf("More than one matching billing account found")
-				}
-				billingAccount = ba
+		token := ""
+		for paginate := true; paginate; {
+			resp, err := config.clientBilling.BillingAccounts.List().PageToken(token).Do()
+			if err != nil {
+				return fmt.Errorf("Error reading billing accounts: %s", err)
 			}
+
+			for _, ba := range resp.BillingAccounts {
+				if ba.DisplayName == v.(string) {
+					if billingAccount != nil {
+						return fmt.Errorf("More than one matching billing account found")
+					}
+					billingAccount = ba
+				}
+			}
+
+			token = resp.NextPageToken
+			paginate = token != ""
 		}
 
 		if billingAccount == nil {
