@@ -15,14 +15,18 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 		Read: dataSourceBillingAccountRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"display_name"},
 			},
 			"display_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
 			},
 			"open": {
 				Type:     schema.TypeBool,
@@ -42,32 +46,26 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	name, nameOk := d.GetOk("name")
-	displayName, displayNameOk := d.GetOk("display_name")
-	if nameOk == displayNameOk {
-		return fmt.Errorf("One of ['name', 'display_name'] must be set to read billing accounts")
-	}
-
 	var billingAccount *cloudbilling.BillingAccount
-	if nameOk {
-		resp, err := config.clientBilling.BillingAccounts.Get(name.(string)).Do()
+	if v, ok := d.GetOk("name"); ok {
+		resp, err := config.clientBilling.BillingAccounts.Get(v.(string)).Do()
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-				return fmt.Errorf("Billing account not found: %s", name)
+				return fmt.Errorf("Billing account not found: %s", v)
 			}
 
 			return fmt.Errorf("Error reading billing account: %s", err)
 		}
 
 		billingAccount = resp
-	} else {
+	} else if v, ok := d.GetOk("display_name"); ok {
 		resp, err := config.clientBilling.BillingAccounts.List().Do()
 		if err != nil {
 			return fmt.Errorf("Error reading billing account: %s", err)
 		}
 
 		for _, ba := range resp.BillingAccounts {
-			if ba.DisplayName == displayName.(string) {
+			if ba.DisplayName == v.(string) {
 				if billingAccount != nil {
 					return fmt.Errorf("More than one matching billing account found")
 				}
@@ -76,8 +74,10 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if billingAccount == nil {
-			return fmt.Errorf("Billing account not found: %s", displayName)
+			return fmt.Errorf("Billing account not found: %s", v)
 		}
+	} else {
+		return fmt.Errorf("one of name or display_name must be set")
 	}
 
 	resp, err := config.clientBilling.BillingAccounts.Projects.List(billingAccount.Name).Do()
