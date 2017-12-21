@@ -95,7 +95,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Billing account not found: %s", v)
 		}
 	} else {
-		return fmt.Errorf("one of name or display_name must be set")
+		return fmt.Errorf("one of billing_account or display_name must be set")
 	}
 
 	resp, err := config.clientBilling.BillingAccounts.Projects.List(billingAccount.Name).Do()
