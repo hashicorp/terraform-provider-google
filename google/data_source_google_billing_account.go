@@ -17,14 +17,12 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
 				Computed:      true,
 				ConflictsWith: []string{"display_name"},
 			},
 			"display_name": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
 			},
