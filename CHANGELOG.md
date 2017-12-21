@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
 * compute: Add support for routing mode in compute network. [GH-838]
 * compute: Add configurable create/update/delete timeouts to `google_compute_instance` [GH-856]
+* compute: Add configurable create/update/delete timeouts to `google_compute_subnetwork` [GH-871]
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
 * compute: Add import support for `google_compute_instance` [GH-873]
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
