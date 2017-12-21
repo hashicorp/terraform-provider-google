@@ -408,21 +408,93 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// We cannot suppress the diff for the case when family name is not part of the image name since we can't
+// make a network call in a DiffSuppressFunc.
 func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
+	// 'old' is read from the API.
+	// It always has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
+	matches := resolveImageLink.FindStringSubmatch(old)
+	if matches == nil {
+		// Image read from the API doesn't have the expected format. In practice, it should never happen
+		return false
+	}
+	oldProject := matches[1]
+	oldName := matches[2]
 
-	if parts[len(parts)-1] == new {
+	// Partial or full self link family
+	if resolveImageProjectFamily.MatchString(new) {
+		// Value matches pattern "projects/{project}/global/images/family/{family-name}$"
+		matches := resolveImageProjectFamily.FindStringSubmatch(new)
+		newProject := matches[1]
+		newFamilyName := matches[2]
+
+		return diskImageProjectNameEquals(oldProject, oldName, newProject, newFamilyName)
+	}
+
+	// Partial or full self link image
+	if resolveImageProjectImage.MatchString(new) {
+		// Value matches pattern "projects/{project}/global/images/{image-name}$"
+		// or "projects/{project}/global/images/{image-name-latest}$"
+		matches := resolveImageProjectImage.FindStringSubmatch(new)
+		newProject := matches[1]
+		newImageName := matches[2]
+
+		return diskImageProjectNameEquals(oldProject, oldName, newProject, newImageName)
+	}
+
+	// Partial link without project family
+	if resolveImageGlobalFamily.MatchString(new) {
+		// Value is "global/images/family/{family-name}"
+		matches := resolveImageGlobalFamily.FindStringSubmatch(new)
+		familyName := matches[1]
+
+		return strings.Contains(oldName, familyName)
+	}
+
+	// Partial link without project image
+	if resolveImageGlobalImage.MatchString(new) {
+		// Value is "global/images/family/{image-name}" or "global/images/family/{image-name-latest}"
+		matches := resolveImageGlobalImage.FindStringSubmatch(new)
+		imageName := matches[1]
+
+		return strings.Contains(oldName, imageName)
+	}
+
+	// Family shorthand
+	if resolveImageFamilyFamily.MatchString(new) {
+		// Value is "family/{family-name}"
+		matches := resolveImageFamilyFamily.FindStringSubmatch(new)
+		familyName := matches[1]
+
+		return strings.Contains(oldName, familyName)
+	}
+
+	// Shorthand for image
+	if resolveImageProjectImageShorthand.MatchString(new) {
+		// Value is "{project}/{image-name}" or "{project}/{image-name-latest}"
+		matches := resolveImageProjectImageShorthand.FindStringSubmatch(new)
+		newProject := matches[1]
+		newName := matches[2]
+
+		return diskImageProjectNameEquals(oldProject, oldName, newProject, newName)
+	}
+
+	// Image or family only
+	if strings.Contains(oldName, new) {
+		// Value is "{image-name}" or "{family-name}" or "{image-name-latest}"
 		return true
 	}
 
-	// Handle the "latest" image short hand case:
-	// "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213" => "debian-cloud/debian-8"
-	newParts := strings.Split(new, "/")
-	if len(newParts) == 2 {
-		if strings.Contains(old, newParts[0]) && strings.Contains(old, newParts[1]) {
-			return true
-		}
+	return false
+}
+
+func diskImageProjectNameEquals(project1, name1, project2, name2 string) bool {
+	// Convert short project name to full name
+	// For instance, centos => centos-cloud
+	fullProjectName, ok := imageMap[project2]
+	if ok {
+		project2 = fullProjectName
 	}
 
-	return false
+	return project1 == project2 && strings.Contains(name1, name2)
 }
