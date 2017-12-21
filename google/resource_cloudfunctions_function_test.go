@@ -88,7 +88,8 @@ func testAccCloudFunctionsFunction(functionName string) string {
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
   source        = "gs://test-cloudfunctions-sk/index.zip"
-  trigger_http  = ""
+  trigger_http  = true
+  entry_point   = "helloGET"
 }
 `, functionName)
 }

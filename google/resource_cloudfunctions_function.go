@@ -6,6 +6,7 @@ import (
 	"google.golang.org/api/cloudfunctions/v1"
 
 	"fmt"
+	"time"
 )
 
 const DEFAULT_FUNCTION_TIMEOUT_IN_SEC = 60
@@ -19,6 +20,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 		Create: resourceCloudFunctionsCreate,
 		Read:   resourceCloudFunctionsRead,
 		Delete: resourceCloudFunctionsDestroy,
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+				d.Set("name", d.Id())
+				return []*schema.ResourceData{d}, nil
+			},
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Read:   schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -29,8 +42,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"entry_point": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"memory": {
@@ -110,10 +124,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"trigger_http": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeBool},
 			},
 
 			"trigger_topic": {
@@ -149,15 +163,37 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	funcName := d.Get("name").(string)
 
-	trigger := &cloudfunctions.HttpsTrigger{
-		Url: "",
+	triggerHttpVar := d.Get("trigger_http").(bool)
+	triggerTopicVar := d.Get("trigger_topic").(string)
+	triggerBucketVar := d.Get("trigger_bucket").(string)
+
+	if triggerHttpVar == false && len(triggerTopicVar) == 0 && len(triggerBucketVar) == 0 {
+		return fmt.Errorf("One of aguments [trigger_topic, trigger_bucket, trigger_http] is required: You must specify a trigger when deploying a new function.")
+	}
+
+	var triggerHttp *cloudfunctions.HttpsTrigger
+	triggerHttp = nil
+	if triggerHttpVar == true {
+		triggerHttp = &cloudfunctions.HttpsTrigger{
+			Url: "",
+		}
+	}
+
+	var triggerTopicOrBucket *cloudfunctions.EventTrigger
+	triggerTopicOrBucket = nil
+	if len(triggerTopicVar) != 0 {
+		triggerTopicOrBucket = &cloudfunctions.EventTrigger{}
+	}
+	if len(triggerBucketVar) != 0 {
+		triggerTopicOrBucket = &cloudfunctions.EventTrigger{}
 	}
 
 	function := &cloudfunctions.CloudFunction{
 		AvailableMemoryMb: 128,
 		Description:       "Testing Function",
 		EntryPoint:        "helloGET",
-		HttpsTrigger:      trigger,
+		HttpsTrigger:      triggerHttp,
+		EventTrigger:      triggerTopicOrBucket,
 		Name:              createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
 		SourceArchiveUrl:  "gs://test-cloudfunctions-sk/index.zip",
 	}
@@ -173,6 +209,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 	}
+
+	d.SetId(function.Name)
 
 	return resourceCloudFunctionsRead(d, meta)
 }
