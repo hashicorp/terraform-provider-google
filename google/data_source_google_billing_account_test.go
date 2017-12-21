@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccDataSourceGoogleBillingAccount_byName(t *testing.T) {
+func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
@@ -30,7 +30,27 @@ func TestAccDataSourceGoogleBillingAccount_byName(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceGoogleBillingAccount_byNameClosed(t *testing.T) {
+func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
+	billingId := getTestBillingAccountFromEnv(t)
+	name := "billingAccounts/" + billingId
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleBillingAccount_byName(billingId),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_billing_account.acct", "id", billingId),
+					resource.TestCheckResourceAttr("data.google_billing_account.acct", "name", name),
+					resource.TestCheckResourceAttr("data.google_billing_account.acct", "open", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
@@ -64,14 +84,14 @@ func TestAccDataSourceGoogleBillingAccount_byDisplayName(t *testing.T) {
 func testAccCheckGoogleBillingAccount_byName(name string) string {
 	return fmt.Sprintf(`
 data "google_billing_account" "acct" {
-  name = "%s"
+  billing_account = "%s"
 }`, name)
 }
 
 func testAccCheckGoogleBillingAccount_byNameClosed(name string) string {
 	return fmt.Sprintf(`
 data "google_billing_account" "acct" {
-  name = "%s"
+  billing_account = "%s"
   open = false
 }`, name)
 }

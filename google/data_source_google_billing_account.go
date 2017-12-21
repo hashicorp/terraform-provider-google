@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -14,21 +15,24 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceBillingAccountRead,
 		Schema: map[string]*schema.Schema{
-			"name": {
+			"billing_account": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Computed:      true,
 				ConflictsWith: []string{"display_name"},
 			},
 			"display_name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"name"},
+				ConflictsWith: []string{"billing_account"},
 			},
 			"open": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"project_ids": {
@@ -48,8 +52,8 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	open, openOk := d.GetOkExists("open")
 
 	var billingAccount *cloudbilling.BillingAccount
-	if v, ok := d.GetOk("name"); ok {
-		resp, err := config.clientBilling.BillingAccounts.Get(v.(string)).Do()
+	if v, ok := d.GetOk("billing_account"); ok {
+		resp, err := config.clientBilling.BillingAccounts.Get(canonicalBillingAccountName(v.(string))).Do()
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 				return fmt.Errorf("Billing account not found: %s", v)
@@ -107,6 +111,14 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("project_ids", projectIds)
 
 	return nil
+}
+
+func canonicalBillingAccountName(ba string) string {
+	if strings.HasPrefix(ba, "billingAccounts/") {
+		return ba
+	}
+
+	return "billingAccounts/" + ba
 }
 
 func flattenBillingProjects(billingProjects []*cloudbilling.ProjectBillingInfo) []string {
