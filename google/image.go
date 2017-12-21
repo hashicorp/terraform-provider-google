@@ -15,8 +15,8 @@ const (
 )
 
 var (
-	resolveImageProjectImage           = regexp.MustCompile(fmt.Sprintf("^projects/(%s)/global/images/(%s)$", resolveImageProjectRegex, resolveImageImageRegex))
-	resolveImageProjectFamily          = regexp.MustCompile(fmt.Sprintf("^projects/(%s)/global/images/family/(%s)$", resolveImageProjectRegex, resolveImageFamilyRegex))
+	resolveImageProjectImage           = regexp.MustCompile(fmt.Sprintf("projects/(%s)/global/images/(%s)$", resolveImageProjectRegex, resolveImageImageRegex))
+	resolveImageProjectFamily          = regexp.MustCompile(fmt.Sprintf("projects/(%s)/global/images/family/(%s)$", resolveImageProjectRegex, resolveImageFamilyRegex))
 	resolveImageGlobalImage            = regexp.MustCompile(fmt.Sprintf("^global/images/(%s)$", resolveImageImageRegex))
 	resolveImageGlobalFamily           = regexp.MustCompile(fmt.Sprintf("^global/images/family/(%s)$", resolveImageFamilyRegex))
 	resolveImageFamilyFamily           = regexp.MustCompile(fmt.Sprintf("^family/(%s)$", resolveImageFamilyRegex))
@@ -24,8 +24,21 @@ var (
 	resolveImageProjectFamilyShorthand = regexp.MustCompile(fmt.Sprintf("^(%s)/(%s)$", resolveImageProjectRegex, resolveImageFamilyRegex))
 	resolveImageFamily                 = regexp.MustCompile(fmt.Sprintf("^(%s)$", resolveImageFamilyRegex))
 	resolveImageImage                  = regexp.MustCompile(fmt.Sprintf("^(%s)$", resolveImageImageRegex))
-	resolveImageLink                   = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)", resolveImageProjectRegex, resolveImageImageRegex))
+	resolveImageLink                   = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)", resolveImageProjectRegex, resolveImageImageRegex))
 )
+
+// built-in projects to look for images/families containing the string
+// on the left in
+var imageMap = map[string]string{
+	"centos":   "centos-cloud",
+	"coreos":   "coreos-cloud",
+	"debian":   "debian-cloud",
+	"opensuse": "opensuse-cloud",
+	"rhel":     "rhel-cloud",
+	"sles":     "suse-cloud",
+	"ubuntu":   "ubuntu-os-cloud",
+	"windows":  "windows-cloud",
+}
 
 func resolveImageImageExists(c *Config, project, name string) (bool, error) {
 	if _, err := c.clientCompute.Images.Get(project, name).Do(); err == nil {
@@ -68,18 +81,6 @@ func sanityTestRegexMatches(expected int, got []string, regexType, name string) 
 //    If not, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
 //    If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}
 func resolveImage(c *Config, project, name string) (string, error) {
-	// built-in projects to look for images/families containing the string
-	// on the left in
-	imageMap := map[string]string{
-		"centos":   "centos-cloud",
-		"coreos":   "coreos-cloud",
-		"debian":   "debian-cloud",
-		"opensuse": "opensuse-cloud",
-		"rhel":     "rhel-cloud",
-		"sles":     "suse-cloud",
-		"ubuntu":   "ubuntu-os-cloud",
-		"windows":  "windows-cloud",
-	}
 	var builtInProject string
 	for k, v := range imageMap {
 		if strings.Contains(name, k) {
