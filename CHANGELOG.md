@@ -21,6 +21,7 @@ IMPROVEMENTS:
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
 * compute: Add import support for `google_compute_instance` [GH-873]
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
+* dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
