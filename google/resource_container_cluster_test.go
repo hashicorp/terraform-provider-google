@@ -610,6 +610,7 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
+	clusterName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -617,7 +618,14 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMaintenanceWindow("03:00"),
+				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, "03:00"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_maintenance_window"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.with_maintenance_window"),
@@ -1609,19 +1617,25 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 `, testId, testId)
 }
 
-func testAccContainerCluster_withMaintenanceWindow(startTime string) string {
+func testAccContainerCluster_withMaintenanceWindow(clusterName string, startTime string) string {
+	maintenancePolicy := ""
+	if len(startTime) > 0 {
+		maintenancePolicy = fmt.Sprintf(`
+	maintenance_policy {
+		daily_maintenance_window {
+			start_time = "%s"
+		}
+	}`, startTime)
+	}
+
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_maintenance_window" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
 
-	maintenance_policy {
-		daily_maintenance_window {
-			start_time = "%s"
-		}
-	}
-}`, acctest.RandString(10), startTime)
+	%s
+}`, clusterName, maintenancePolicy)
 }
 
 func testAccContainerCluster_withIPAllocationPolicy(cluster string, ranges, policy map[string]string) string {

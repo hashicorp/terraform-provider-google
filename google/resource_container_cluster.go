@@ -175,21 +175,21 @@ func resourceContainerCluster() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"start_time": {
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
+										ForceNew:         false,
 										ValidateFunc:     validateRFC3339Time,
 										DiffSuppressFunc: rfc3339TimeDiffSuppress,
 									},
@@ -797,6 +797,45 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			d.SetPartial("addons_config")
 		}
+	}
+
+	if d.HasChange("maintenance_policy") {
+		var req *container.SetMaintenancePolicyRequest
+		if mp, ok := d.GetOk("maintenance_policy"); ok {
+			maintenancePolicy := mp.([]interface{})[0].(map[string]interface{})
+			dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
+			startTime := dailyMaintenanceWindow["start_time"].(string)
+
+			req = &container.SetMaintenancePolicyRequest{
+				MaintenancePolicy: &container.MaintenancePolicy{
+					Window: &container.MaintenanceWindow{
+						DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
+							StartTime: startTime,
+						},
+					},
+				},
+			}
+		} else {
+			req = &container.SetMaintenancePolicyRequest{
+				NullFields: []string{"MaintenancePolicy"},
+			}
+		}
+
+		op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
+
+		d.SetPartial("maintenance_policy")
 	}
 
 	if d.HasChange("additional_zones") {
