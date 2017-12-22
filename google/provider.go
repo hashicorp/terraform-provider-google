@@ -60,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"google_billing_account":               dataSourceGoogleBillingAccount(),
 			"google_dns_managed_zone":              dataSourceDnsManagedZone(),
 			"google_client_config":                 dataSourceGoogleClientConfig(),
 			"google_compute_address":               dataSourceGoogleComputeAddress(),
