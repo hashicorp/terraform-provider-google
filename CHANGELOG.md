@@ -10,6 +10,7 @@ FEATURES:
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
 * **New Data Source:** `google_container_cluster` [GH-740]
 * **New Data Source:** `google_kms_secret` [GH-741]
+* **New Data Source:** `google_billing_account`[GH-889]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
