@@ -10,6 +10,8 @@ FEATURES:
 * **New Data Source:** `google_compute_region_instance_group` [GH-851]
 * **New Data Source:** `google_container_cluster` [GH-740]
 * **New Data Source:** `google_kms_secret` [GH-741]
+* **New Data Source:** `google_billing_account`[GH-889]
+* **New Data Source:** `google_organization` [GH-887]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
@@ -19,6 +21,7 @@ IMPROVEMENTS:
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
 * compute: Add import support for `google_compute_instance` [GH-873]
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
+* dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]

@@ -1,8 +1,6 @@
 package google
 
 import (
-	"log"
-
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -15,8 +13,6 @@ import (
 func datasourceSchemaFromResourceSchema(rs map[string]*schema.Schema) map[string]*schema.Schema {
 	ds := make(map[string]*schema.Schema, len(rs))
 	for k, v := range rs {
-		log.Printf("[DEBUG] datasourceSchemaFromResourceSchema: %s", k)
-
 		dv := &schema.Schema{
 			Computed:    true,
 			ForceNew:    false,
