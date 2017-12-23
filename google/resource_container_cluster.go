@@ -175,21 +175,18 @@ func resourceContainerCluster() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
 							Required: true,
-							ForceNew: false,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"start_time": {
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         false,
 										ValidateFunc:     validateRFC3339Time,
 										DiffSuppressFunc: rfc3339TimeDiffSuppress,
 									},
