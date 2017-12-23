@@ -12,7 +12,7 @@ import (
 func TestAccDnsRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
-	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -38,7 +38,7 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 func TestAccDnsRecordSet_modify(t *testing.T) {
 	t.Parallel()
 
-	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -72,7 +72,7 @@ func TestAccDnsRecordSet_modify(t *testing.T) {
 func TestAccDnsRecordSet_changeType(t *testing.T) {
 	t.Parallel()
 
-	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -97,7 +97,9 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_ns(t *testing.T) {
-	zoneName := acctest.RandomWithPrefix("dnszone-test")
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -121,6 +123,8 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_nestedNS(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -188,7 +192,7 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 	}
 }
 
-func testAccDnsRecordSet_basic(zoneName, addr2 string, ttl int) string {
+func testAccDnsRecordSet_basic(zoneName string, addr2 string, ttl int) string {
 	return fmt.Sprintf(`
 	resource "google_dns_managed_zone" "parent-zone" {
 		name = "%s"
@@ -197,7 +201,7 @@ func testAccDnsRecordSet_basic(zoneName, addr2 string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "test-record.${google_dns_managed_zone.parent-zone.dns_name}"
+		name = "test-record.hashicorptest.com."
 		type = "A"
 		rrdatas = ["127.0.0.1", "%s"]
 		ttl = %d
@@ -214,7 +218,7 @@ func testAccDnsRecordSet_ns(name string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "${google_dns_managed_zone.parent-zone.dns_name}"
+		name = "hashicorptest.com."
 		type = "NS"
 		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
 		ttl = %d
@@ -248,7 +252,7 @@ func testAccDnsRecordSet_bigChange(zoneName string, ttl int) string {
 	}
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
-		name = "test-record.${google_dns_managed_zone.parent-zone.dns_name}"
+		name = "test-record.hashicorptest.com."
 		type = "CNAME"
 		rrdatas = ["www.terraform.io."]
 		ttl = %d
