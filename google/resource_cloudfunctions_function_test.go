@@ -8,10 +8,13 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"google.golang.org/api/cloudfunctions/v1"
 )
 
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
 
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -24,27 +27,34 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 				Config: testAccCloudFunctionsFunction(functionName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function"),
+						"google_cloudfunctions_function.function", &function),
+					testAccCloudFunctionsFunctionName(functionName, &function),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_cloudfunctions_function.function",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
 func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_cloudfunctions_function" {
 			continue
 		}
 
-		config := testAccProvider.Meta().(*Config)
 		name := rs.Primary.Attributes["name"]
 		project := rs.Primary.Attributes["project"]
 		region := rs.Primary.Attributes["region"]
-		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Delete(
+		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(
 			createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
 		if err == nil {
-			return fmt.Errorf("CloudFunction still exists")
+			return fmt.Errorf("CloudFunctions still exists")
 		}
 
 	}
@@ -52,7 +62,7 @@ func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCloudFunctionsFunctionExists(n string) resource.TestCheckFunc {
+func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -66,17 +76,33 @@ func testAccCloudFunctionsFunctionExists(n string) resource.TestCheckFunc {
 		name := rs.Primary.Attributes["name"]
 		project := rs.Primary.Attributes["project"]
 		region := rs.Primary.Attributes["region"]
-		getOpt, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(
+		found, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(
 			createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
 		if err != nil {
 			return fmt.Errorf("CloudFunctions Function not present")
 		}
-		nameFromGet, err := getCloudFunctionName(getOpt.Name)
+		nameFromGet, err := getCloudFunctionName(found.Name)
 		if err != nil {
 			return err
 		}
 		if !strings.HasSuffix(nameFromGet, rs.Primary.Attributes["name"]) {
 			return fmt.Errorf("CloudFunctions Function name does not match expected value")
+		}
+
+		*function = *found
+
+		return nil
+	}
+}
+
+func testAccCloudFunctionsFunctionName(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		expected, err := getCloudFunctionName(function.Name)
+		if err != nil {
+			return err
+		}
+		if n != expected {
+			return fmt.Errorf("Expected function name %s, got %s", expected, n)
 		}
 
 		return nil
@@ -87,8 +113,10 @@ func testAccCloudFunctionsFunction(functionName string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
+  memory		= 128
   source        = "gs://test-cloudfunctions-sk/index.zip"
   trigger_http  = true
+  timeout		= 360
   entry_point   = "helloGET"
 }
 `, functionName)
