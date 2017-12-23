@@ -611,6 +611,7 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandString(10)
+	resourceName := "google_container_cluster.with_maintenance_window"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -620,15 +621,15 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 			{
 				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, "03:00"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerCluster(
-						"google_container_cluster.with_maintenance_window"),
+					testAccCheckContainerCluster(resourceName),
 				),
 			},
 			{
 				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerCluster(
-						"google_container_cluster.with_maintenance_window"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					testAccCheckContainerCluster(resourceName),
 				),
 			},
 		},
