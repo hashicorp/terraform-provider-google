@@ -7,9 +7,7 @@ import (
 
 	"fmt"
 	"log"
-	"strconv"
 	"time"
-	"strings"
 )
 
 const DEFAULT_FUNCTION_TIMEOUT_IN_SEC = 60
@@ -27,6 +25,12 @@ var FUNCTION_ALLOWED_MEMORY = map[int]bool{
 	512:  true,
 	1024: true,
 	2048: true,
+}
+
+//For now CloudFunctions are allowed only in us-central1
+//Please see https://cloud.google.com/about/locations/
+var FUNCTION_ALLOWED_REGION = map[string]bool{
+	"us-central1": true,
 }
 
 func resourceCloudFunctionsFunction() *schema.Resource {
@@ -178,6 +182,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	if FUNCTION_ALLOWED_REGION[region] != true {
+		return fmt.Errorf("Invalid region. Now allowed only us-central1. Allowed regions are listed at https://cloud.google.com/about/locations/")
+	}
+
 	funcName := d.Get("name").(string)
 
 	var memory int
@@ -311,7 +319,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", name)
 	d.Set("entry_point", getOpt.EntryPoint)
 	d.Set("memory", getOpt.AvailableMemoryMb)
-	timeout, err := strconv.Atoi(strings.Replace(getOpt.Timeout, "s", "", -1))
+	timeout, err := readTimeout(getOpt.Timeout)
 	if err != nil {
 		return err
 	}

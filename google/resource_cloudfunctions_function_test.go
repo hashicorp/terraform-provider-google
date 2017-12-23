@@ -29,6 +29,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
 					testAccCloudFunctionsFunctionName(functionName, &function),
+					testAccCloudFunctionsFunctionTimeout(360, &function),
 				),
 			},
 			resource.TestStep{
@@ -103,6 +104,20 @@ func testAccCloudFunctionsFunctionName(n string, function *cloudfunctions.CloudF
 		}
 		if n != expected {
 			return fmt.Errorf("Expected function name %s, got %s", expected, n)
+		}
+
+		return nil
+	}
+}
+
+func testAccCloudFunctionsFunctionTimeout(n int, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		expected, err := readTimeout(function.Timeout)
+		if err != nil {
+			return err
+		}
+		if n != expected {
+			return fmt.Errorf("Expected timeout to be %v, got %v", expected, n)
 		}
 
 		return nil

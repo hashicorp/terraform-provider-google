@@ -5,6 +5,8 @@ import (
 	"google.golang.org/api/cloudfunctions/v1"
 	"log"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -116,4 +118,14 @@ func splitCloudFunctionFullPath(fullPath string) ([]string, error) {
 		return nil, fmt.Errorf("%s is not valid CloudFunction full name", fullPath)
 	}
 	return namePattern.FindStringSubmatch(fullPath), nil
+}
+
+//Function would read timeout value from GCloud
+//Arguments:
+//  timeout: Timeout in string
+//Return:
+//  timeout int
+func readTimeout(s string) (int, error) {
+	sRemoved := strings.Replace(s, "s", "", -1)
+	return strconv.Atoi(sRemoved)
 }
