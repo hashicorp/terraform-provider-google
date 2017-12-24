@@ -137,24 +137,27 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"trigger_bucket": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ConflictsWith: []string{"trigger_http", "trigger_topic"},
 			},
 
 			"trigger_http": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeBool},
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          &schema.Schema{Type: schema.TypeBool},
+				ConflictsWith: []string{"trigger_bucket", "trigger_topic"},
 			},
 
 			"trigger_topic": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
 			},
 
 			"project": {
@@ -183,7 +186,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if FUNCTION_ALLOWED_REGION[region] != true {
-		return fmt.Errorf("Invalid region. Now allowed only us-central1. Allowed regions are listed at https://cloud.google.com/about/locations/")
+		return fmt.Errorf("Invalid region. Now allowed only us-central1. See https://cloud.google.com/about/locations/")
 	}
 
 	funcName := d.Get("name").(string)
@@ -208,8 +211,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var triggerHttp *cloudfunctions.HttpsTrigger
-	triggerHttp = nil
-	var triggerTopicOrBucket *cloudfunctions.EventTrigger
 	if v, ok := d.GetOk("trigger_http"); ok {
 		if v.(bool) == true {
 			triggerHttp = &cloudfunctions.HttpsTrigger{
@@ -217,7 +218,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 	}
-	triggerTopicOrBucket = nil
+	var triggerTopicOrBucket *cloudfunctions.EventTrigger
 	if v, ok := d.GetOk("trigger_topic"); ok {
 		//Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
 		triggerTopicOrBucket = &cloudfunctions.EventTrigger{
@@ -226,27 +227,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if v, ok := d.GetOk("trigger_bucket"); ok {
-		if triggerTopicOrBucket != nil {
-			//It was previously initialized by trigger_topic - can't do both
-			return fmt.Errorf("One of aguments only [trigger_bucket, trigger_http] must be used.")
-		}
 		//Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
 		triggerTopicOrBucket = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.storage/eventTypes/object.change",
 			Resource:  v.(string),
 		}
-	}
-
-	if triggerHttp == nil && triggerTopicOrBucket == nil {
-		//It's bad when no trigger is specified
-		return fmt.Errorf(
-			"One of aguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
-				"You must specify a trigger when deploying a new function.")
-	}
-	if triggerHttp != nil && triggerTopicOrBucket != nil {
-		//Also bad when too many triggers specified
-		return fmt.Errorf(
-			"Only one of aguments [trigger_topic, trigger_bucket, trigger_http] is allowed.")
 	}
 
 	function := &cloudfunctions.CloudFunction{

@@ -32,7 +32,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					testAccCloudFunctionsFunctionTimeout(360, &function),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_cloudfunctions_function.function",
 				ImportState:       true,
 				ImportStateVerify: true,
