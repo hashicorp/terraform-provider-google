@@ -37,6 +37,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudFunctionsCreate,
 		Read:   resourceCloudFunctionsRead,
+		Update: resourceCloudFunctionsUpdate,
 		Delete: resourceCloudFunctionsDestroy,
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -103,30 +104,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
 			},
 
-			"update_labels": {
-				Type:     schema.TypeList,
+			"labels": {
+				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"value": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-					},
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 
 			"source": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"stage_bucket": {
@@ -191,63 +180,60 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	funcName := d.Get("name").(string)
 
-	var memory int
+	function := &cloudfunctions.CloudFunction{
+		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
+	}
+
 	if v, ok := d.GetOk("memory"); ok {
-		memory = v.(int)
+		memory := v.(int)
 		if FUNCTION_ALLOWED_MEMORY[memory] != true {
 			return fmt.Errorf("Allowed values for memory are: 128MB, 256MB, 512MB, 1024MB, and 2048MB. "+
 				"Got %d", memory)
 		}
+		function.AvailableMemoryMb = int64(memory)
 	}
 
-	var description string
 	if v, ok := d.GetOk("description"); ok {
-		description = v.(string)
+		function.Description = v.(string)
 	}
 
-	var entryPoint string
 	if v, ok := d.GetOk("entry_point"); ok {
-		entryPoint = v.(string)
+		function.EntryPoint = v.(string)
 	}
 
-	var timeout int
+	if v, ok := d.GetOk("source"); ok {
+		function.SourceArchiveUrl = v.(string)
+	}
+
 	if v, ok := d.GetOk("timeout"); ok {
-		timeout = v.(int)
+		function.Timeout = fmt.Sprintf("%vs", v.(int))
 	}
 
-	var triggerHttp *cloudfunctions.HttpsTrigger
 	if v, ok := d.GetOk("trigger_http"); ok {
 		if v.(bool) == true {
-			triggerHttp = &cloudfunctions.HttpsTrigger{
+			function.HttpsTrigger = &cloudfunctions.HttpsTrigger{
 				Url: "",
 			}
 		}
 	}
-	var triggerTopicOrBucket *cloudfunctions.EventTrigger
+
 	if v, ok := d.GetOk("trigger_topic"); ok {
 		//Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
-		triggerTopicOrBucket = &cloudfunctions.EventTrigger{
+		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.pubsub/eventTypes/topic.publish",
 			Resource:  v.(string),
 		}
 	}
 	if v, ok := d.GetOk("trigger_bucket"); ok {
 		//Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
-		triggerTopicOrBucket = &cloudfunctions.EventTrigger{
+		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.storage/eventTypes/object.change",
 			Resource:  v.(string),
 		}
 	}
 
-	function := &cloudfunctions.CloudFunction{
-		AvailableMemoryMb: int64(memory),
-		Description:  	   description,
-		EntryPoint:        entryPoint,
-		HttpsTrigger:      triggerHttp,
-		EventTrigger:      triggerTopicOrBucket,
-		Timeout:           fmt.Sprintf("%vs", timeout),
-		Name:              createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
-		SourceArchiveUrl:  "gs://test-cloudfunctions-sk/index.zip",
+	if _, ok := d.GetOk("labels"); ok {
+		function.Labels = expandLabels(d)
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
@@ -331,6 +317,46 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	service := config.clientCloudFunctions
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	d.Partial(true)
+
+	if d.HasChange("labels") {
+		function := cloudfunctions.CloudFunction{
+			Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, d.Get("name").(string)),
+		}
+
+		updateOp, err := service.Projects.Locations.Functions.Patch(d.Get("name").(string), &function).
+			UpdateMask("labels").Do()
+
+		if err != nil {
+			return fmt.Errorf("Error when setting labels: %s", err)
+		}
+		d.SetPartial("labels")
+
+		if updateOp.Done == false {
+			_, err := getCloudFunctionsOperationsResults(updateOp.Name, service)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	d.Partial(false)
+
+	return resourceCloudFunctionsRead(d, meta)
 }
 
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {

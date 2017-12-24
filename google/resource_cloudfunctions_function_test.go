@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	FUNCTION_TRIGGER_HTTP  = iota
+	FUNCTION_TRIGGER_HTTP = iota
 	FUNCTION_TRIGGER_TOPIC
 	FUNCTION_TRIGGER_BUCKET
 )
@@ -41,7 +41,6 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					testAccCloudFunctionsFunctionTimeout(360, &function),
 					testAccCloudFunctionsFunctionEntryPoint("helloGET", &function),
-
 				),
 			},
 			{
@@ -190,7 +189,6 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 		return nil
 	}
 }
-
 
 func testAccCloudFunctionsFunction(functionName string) string {
 	return fmt.Sprintf(`
