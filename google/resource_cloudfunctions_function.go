@@ -109,13 +109,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"stage_bucket": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
 			"trigger_bucket": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -151,6 +144,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 }
 
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
+	//TODO: Not Set stage_bucket
+
 	config := meta.(*Config)
 
 	service := config.clientCloudFunctions
@@ -247,6 +242,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
+	//TODO: Not Set source, trigger_bucket, trigger_topic
 	config := meta.(*Config)
 
 	service := config.clientCloudFunctions
@@ -284,28 +280,33 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	d.Set("name", name)
 	d.Set("description", getOpt.Description)
 	d.Set("entry_point", getOpt.EntryPoint)
 	d.Set("memory", getOpt.AvailableMemoryMb)
+	d.Set("region", funcRegion)
 	timeout, err := readTimeout(getOpt.Timeout)
 	if err != nil {
 		return err
 	}
 	d.Set("timeout", timeout)
-	d.Set("region", funcRegion)
-	d.Set("project", funcProject)
+	d.Set("labels", getOpt.Labels)
 	if getOpt.SourceArchiveUrl != "" {
 		d.Set("source", getOpt.SourceArchiveUrl) //TODO: Make other options of source here
 	}
+
 	if getOpt.HttpsTrigger != nil {
 		d.Set("trigger_http", true)
 	}
 	if getOpt.EventTrigger != nil {
 		switch getOpt.EventTrigger.EventType {
-		//TODO: Get other event triggers: Read https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
+		//From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
+		case "providers/cloud.pubsub/eventTypes/topic.publish":
+			d.Set("trigger_topic", getOpt.EventTrigger.Resource)
+		case "providers/cloud.storage/eventTypes/object.change":
+			d.Set("trigger_bucket", getOpt.EventTrigger.Resource)
 		}
 	}
+	d.Set("project", funcProject)
 
 	return nil
 }

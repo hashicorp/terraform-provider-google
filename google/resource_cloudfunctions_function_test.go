@@ -41,6 +41,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					testAccCloudFunctionsFunctionTimeout(360, &function),
 					testAccCloudFunctionsFunctionEntryPoint("helloGET", &function),
+					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
 			{
@@ -190,6 +191,20 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 	}
 }
 
+func testAccCloudFunctionsFunctionHasLabel(key, value string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		val, ok := function.Labels[key]
+		if !ok {
+			return fmt.Errorf("Label with key %s not found", key)
+		}
+
+		if val != value {
+			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+		}
+		return nil
+	}
+}
+
 func testAccCloudFunctionsFunction(functionName string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
@@ -200,6 +215,9 @@ resource "google_cloudfunctions_function" "function" {
   trigger_http  = true
   timeout		= 360
   entry_point   = "helloGET"
+  labels {
+	my-label = "my-label-value"
+  }
 }
 `, functionName)
 }
