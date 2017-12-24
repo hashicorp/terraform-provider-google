@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -30,6 +29,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"google_cloudfunctions_function.function", &function),
 					testAccCloudFunctionsFunctionName(functionName, &function),
 					testAccCloudFunctionsFunctionTimeout(360, &function),
+					testAccCloudFunctionsFunctionDescription("test function", &function),
 				),
 			},
 			{
@@ -82,13 +82,6 @@ func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.Clou
 		if err != nil {
 			return fmt.Errorf("CloudFunctions Function not present")
 		}
-		nameFromGet, err := getCloudFunctionName(found.Name)
-		if err != nil {
-			return err
-		}
-		if !strings.HasSuffix(nameFromGet, rs.Primary.Attributes["name"]) {
-			return fmt.Errorf("CloudFunctions Function name does not match expected value")
-		}
 
 		*function = *found
 
@@ -103,7 +96,7 @@ func testAccCloudFunctionsFunctionName(n string, function *cloudfunctions.CloudF
 			return err
 		}
 		if n != expected {
-			return fmt.Errorf("Expected function name %s, got %s", expected, n)
+			return fmt.Errorf("Expected function name %s, got %s", n, expected)
 		}
 
 		return nil
@@ -117,7 +110,17 @@ func testAccCloudFunctionsFunctionTimeout(n int, function *cloudfunctions.CloudF
 			return err
 		}
 		if n != expected {
-			return fmt.Errorf("Expected timeout to be %v, got %v", expected, n)
+			return fmt.Errorf("Expected timeout to be %v, got %v", n, expected)
+		}
+
+		return nil
+	}
+}
+
+func testAccCloudFunctionsFunctionDescription(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if n != function.Description {
+			return fmt.Errorf("Expected description to be %v, got %v", n, function.Description)
 		}
 
 		return nil
@@ -128,6 +131,7 @@ func testAccCloudFunctionsFunction(functionName string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
+  description   = "test function"
   memory		= 128
   source        = "gs://test-cloudfunctions-sk/index.zip"
   trigger_http  = true

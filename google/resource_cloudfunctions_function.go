@@ -58,6 +58,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"entry_point": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -83,13 +90,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"remove_labels": {
 				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"retry": {
-				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -200,6 +200,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	var description string
+	if v, ok := d.GetOk("description"); ok {
+		description = v.(string)
+	}
+
 	var entryPoint string
 	if v, ok := d.GetOk("entry_point"); ok {
 		entryPoint = v.(string)
@@ -236,6 +241,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	function := &cloudfunctions.CloudFunction{
 		AvailableMemoryMb: int64(memory),
+		Description:  	   description,
 		EntryPoint:        entryPoint,
 		HttpsTrigger:      triggerHttp,
 		EventTrigger:      triggerTopicOrBucket,
@@ -302,6 +308,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("name", name)
+	d.Set("description", getOpt.Description)
 	d.Set("entry_point", getOpt.EntryPoint)
 	d.Set("memory", getOpt.AvailableMemoryMb)
 	timeout, err := readTimeout(getOpt.Timeout)
