@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -62,7 +63,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -76,7 +76,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"memory": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 				Default:  FUNCTION_DEFAULT_MEMORY,
 			},
@@ -89,17 +88,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"remove_labels": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				Default:      DEFAULT_FUNCTION_TIMEOUT_IN_SEC,
 				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
 			},
@@ -334,18 +325,70 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	d.Partial(true)
 
-	if d.HasChange("labels") {
-		function := cloudfunctions.CloudFunction{
-			Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, d.Get("name").(string)),
-		}
+	function := cloudfunctions.CloudFunction{
+		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, d.Get("name").(string)),
+	}
 
-		updateOp, err := service.Projects.Locations.Functions.Patch(d.Get("name").(string), &function).
+	if d.HasChange("labels") {
+		function.Labels = expandLabels(d)
+
+		updateOp, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
 			UpdateMask("labels").Do()
 
 		if err != nil {
-			return fmt.Errorf("Error when setting labels: %s", err)
+			return fmt.Errorf("Error when updating labels: %s", err)
 		}
+
 		d.SetPartial("labels")
+		if updateOp.Done == false {
+			_, err := getCloudFunctionsOperationsResults(updateOp.Name, service)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	configUpdate := false
+	var updateMaskArr []string
+	var partialArr []string
+	if d.HasChange("memory") {
+		memory := d.Get("memory").(int)
+
+		if FUNCTION_ALLOWED_MEMORY[memory] != true {
+			return fmt.Errorf("Allowed values for memory are: 128MB, 256MB, 512MB, 1024MB, and 2048MB. "+
+				"Got %d", memory)
+		}
+		function.AvailableMemoryMb = int64(memory)
+		updateMaskArr = append(updateMaskArr, "availableMemoryMb")
+		partialArr = append(partialArr, "memory")
+		configUpdate = true
+	}
+
+	if d.HasChange("description") {
+		function.Description = d.Get("description").(string)
+		updateMaskArr = append(updateMaskArr, "description")
+		partialArr = append(partialArr, "description")
+		configUpdate = true
+	}
+
+	if d.HasChange("timeout") {
+		function.Description = fmt.Sprintf("%vs", d.Get("timeout").(int))
+		updateMaskArr = append(updateMaskArr, "timeout")
+		partialArr = append(partialArr, "timeout")
+		configUpdate = true
+	}
+
+	if configUpdate {
+		log.Printf("[DEBUG] Send Patch CloudFunction Configuration request: %#v", function)
+		updateMask := strings.Join(updateMaskArr, ",")
+		updateOp, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
+			UpdateMask(updateMask).Do()
+
+		if err != nil {
+			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
+		}
+		for i := range partialArr {
+			d.SetPartial(partialArr[i])
+		}
 
 		if updateOp.Done == false {
 			_, err := getCloudFunctionsOperationsResults(updateOp.Name, service)
@@ -353,6 +396,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 				return err
 			}
 		}
+
 	}
 	d.Partial(false)
 
