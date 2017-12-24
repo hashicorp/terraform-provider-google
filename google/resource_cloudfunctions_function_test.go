@@ -30,17 +30,17 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction(functionName),
+				Config: testAccCloudFunctionsFunction_basic(functionName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
 					testAccCloudFunctionsFunctionName(functionName, &function),
-					testAccCloudFunctionsFunctionDescription("test function", &function),
-					testAccCloudFunctionsFunctionMemory(128, &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "description", "test function"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "128"),
 					testAccCloudFunctionsFunctionSource("gs://test-cloudfunctions-sk/index.zip", &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
-					testAccCloudFunctionsFunctionTimeout(360, &function),
-					testAccCloudFunctionsFunctionEntryPoint("helloGET", &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "timeout", "61"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "entry_point", "helloGET"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
@@ -48,6 +48,41 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 				ResourceName:      "google_cloudfunctions_function.function",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_update(t *testing.T) {
+	t.Parallel()
+
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var function cloudfunctions.CloudFunction
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_basic(functionName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						"google_cloudfunctions_function.function", &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "128"),
+					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
+				),
+			},
+			{
+				Config: testAccCloudFunctionsFunction_updated(functionName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						"google_cloudfunctions_function.function", &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "256"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "description", "test function updated"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "timeout", "91"),
+					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
+					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
+				),
 			},
 		},
 	})
@@ -114,28 +149,6 @@ func testAccCloudFunctionsFunctionName(n string, function *cloudfunctions.CloudF
 	}
 }
 
-func testAccCloudFunctionsFunctionTimeout(n int, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		expected, err := readTimeout(function.Timeout)
-		if err != nil {
-			return err
-		}
-		if n != expected {
-			return fmt.Errorf("Expected timeout to be %v, got %v", n, expected)
-		}
-		return nil
-	}
-}
-
-func testAccCloudFunctionsFunctionDescription(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if n != function.Description {
-			return fmt.Errorf("Expected description to be %v, got %v", n, function.Description)
-		}
-		return nil
-	}
-}
-
 func testAccCloudFunctionsFunctionSource(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if n != function.SourceArchiveUrl {
@@ -145,23 +158,6 @@ func testAccCloudFunctionsFunctionSource(n string, function *cloudfunctions.Clou
 	}
 }
 
-func testAccCloudFunctionsFunctionEntryPoint(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if n != function.EntryPoint {
-			return fmt.Errorf("Expected entry_point to be %v, got %v", n, function.EntryPoint)
-		}
-		return nil
-	}
-}
-
-func testAccCloudFunctionsFunctionMemory(n int, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if int64(n) != function.AvailableMemoryMb {
-			return fmt.Errorf("Expected memory to be %v, got %v", n, function.AvailableMemoryMb)
-		}
-		return nil
-	}
-}
 func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		switch n {
@@ -205,7 +201,7 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string, function *cloudfun
 	}
 }
 
-func testAccCloudFunctionsFunction(functionName string) string {
+func testAccCloudFunctionsFunction_basic(functionName string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
@@ -213,11 +209,28 @@ resource "google_cloudfunctions_function" "function" {
   memory		= 128
   source        = "gs://test-cloudfunctions-sk/index.zip"
   trigger_http  = true
-  timeout		= 360
+  timeout		= 61
   entry_point   = "helloGET"
   labels {
 	my-label = "my-label-value"
   }
 }
 `, functionName)
+}
+
+func testAccCloudFunctionsFunction_updated(functionName string) string {
+	return fmt.Sprintf(`
+resource "google_cloudfunctions_function" "function" {
+  name          = "%s"
+  description   = "test function updated"
+  memory		= 256
+  source        = "gs://test-cloudfunctions-sk/index.zip"
+  trigger_http  = true
+  timeout		= 91
+  entry_point   = "helloGET"
+  labels {
+	my-label = "my-updated-label-value"
+	a-new-label = "a-new-label-value"
+  }
+}`, functionName)
 }

@@ -20,7 +20,7 @@ func TestAccCloudFunctionsFunction_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction(name),
+				Config: testAccCloudFunctionsFunction_basic(name),
 			},
 
 			{

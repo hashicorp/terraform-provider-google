@@ -372,7 +372,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("timeout") {
-		function.Description = fmt.Sprintf("%vs", d.Get("timeout").(int))
+		function.Timeout = fmt.Sprintf("%vs", d.Get("timeout").(int))
 		updateMaskArr = append(updateMaskArr, "timeout")
 		partialArr = append(partialArr, "timeout")
 		configUpdate = true
