@@ -212,6 +212,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
   bucket = "${google_storage_bucket.bucket.name}"
+  # archive_file can't be used, so using zipped function
   source = "test-fixtures/index.zip"
 }
 
@@ -240,6 +241,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
   bucket = "${google_storage_bucket.bucket.name}"
+  # archive_file can't be used, so using zipped function
   source = "test-fixtures/index.zip"
 }
 
