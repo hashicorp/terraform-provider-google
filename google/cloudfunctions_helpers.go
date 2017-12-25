@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
-	"google.golang.org/api/cloudfunctions/v1"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"google.golang.org/api/cloudfunctions/v1"
 )
 
 const (

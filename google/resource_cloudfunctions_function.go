@@ -102,11 +102,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"source": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+			"storage_bucket": {
+				Type:     	   schema.TypeString,
+				Required: 	   true,
+				ForceNew: 	   true,
+				Elem:     	   &schema.Schema{Type: schema.TypeString},
+			},
+
+			"storage_object": {
+				Type:     	   schema.TypeString,
+				Required: 	   true,
+				ForceNew: 	   true,
+				Elem:     	   &schema.Schema{Type: schema.TypeString},
 			},
 
 			"trigger_bucket": {
@@ -144,8 +151,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 }
 
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
-	//TODO: Not Set stage_bucket
-
 	config := meta.(*Config)
 
 	service := config.clientCloudFunctions
@@ -169,6 +174,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	function := &cloudfunctions.CloudFunction{
 		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
 	}
+
+
+	storageBucket := d.Get("storage_bucket").(string)
+	storageObj := d.Get("storage_object").(string)
+	function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", storageBucket, storageObj)
 
 	if v, ok := d.GetOk("memory"); ok {
 		memory := v.(int)
@@ -195,7 +205,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.Timeout = fmt.Sprintf("%vs", v.(int))
 	}
 
-	if v, ok := d.GetOk("trigger_http"); ok {
+	v, triggHttpOk := d.GetOk("trigger_http")
+	if triggHttpOk {
 		if v.(bool) == true {
 			function.HttpsTrigger = &cloudfunctions.HttpsTrigger{
 				Url: "",
@@ -203,19 +214,27 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	if v, ok := d.GetOk("trigger_topic"); ok {
+	v, triggTopicOk := d.GetOk("trigger_topic")
+	if triggTopicOk {
 		//Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.pubsub/eventTypes/topic.publish",
 			Resource:  v.(string),
 		}
 	}
-	if v, ok := d.GetOk("trigger_bucket"); ok {
+
+	v, triggBucketOk := d.GetOk("trigger_bucket")
+	if triggBucketOk {
 		//Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.storage/eventTypes/object.change",
 			Resource:  v.(string),
 		}
+	}
+
+	if !triggHttpOk && !triggTopicOk && !triggBucketOk {
+		return fmt.Errorf("One of aguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
+				"You must specify a trigger when deploying a new function.")
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -242,7 +261,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
-	//TODO: Not Set source, trigger_bucket, trigger_topic
 	config := meta.(*Config)
 
 	service := config.clientCloudFunctions
@@ -291,7 +309,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("timeout", timeout)
 	d.Set("labels", getOpt.Labels)
 	if getOpt.SourceArchiveUrl != "" {
-		d.Set("source", getOpt.SourceArchiveUrl) //TODO: Make other options of source here
+		sourceArr := strings.Split(getOpt.SourceArchiveUrl, "/")
+		d.Set("storage_bucket", sourceArr[2])
+		d.Set("storage_object", sourceArr[3])
 	}
 
 	if getOpt.HttpsTrigger != nil {

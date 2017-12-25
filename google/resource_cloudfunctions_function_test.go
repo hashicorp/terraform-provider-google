@@ -23,6 +23,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	var function cloudfunctions.CloudFunction
 
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,14 +31,14 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_basic(functionName),
+				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
 					testAccCloudFunctionsFunctionName(functionName, &function),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "description", "test function"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "128"),
-					testAccCloudFunctionsFunctionSource("gs://test-cloudfunctions-sk/index.zip", &function),
+					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "timeout", "61"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "entry_point", "helloGET"),
@@ -57,6 +58,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	t.Parallel()
 
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	var function cloudfunctions.CloudFunction
 
 	resource.Test(t, resource.TestCase{
@@ -64,7 +66,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_basic(functionName),
+				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
@@ -73,7 +75,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCloudFunctionsFunction_updated(functionName),
+				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
@@ -201,30 +203,52 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string, function *cloudfun
 	}
 }
 
-func testAccCloudFunctionsFunction_basic(functionName string) string {
+func testAccCloudFunctionsFunction_basic(functionName string, bucketName string) string {
 	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "test-fixtures/index.zip"
+}
+
 resource "google_cloudfunctions_function" "function" {
-  name          = "%s"
-  description   = "test function"
-  memory		= 128
-  source        = "gs://test-cloudfunctions-sk/index.zip"
-  trigger_http  = true
-  timeout		= 61
-  entry_point   = "helloGET"
+  name           = "%s"
+  description    = "test function"
+  memory		 = 128
+  storage_bucket = "${google_storage_bucket.bucket.name}"
+  storage_object = "${google_storage_bucket_object.archive.name}"
+  trigger_http   = true
+  timeout		 = 61
+  entry_point    = "helloGET"
   labels {
 	my-label = "my-label-value"
   }
 }
-`, functionName)
+`, bucketName, functionName)
 }
 
-func testAccCloudFunctionsFunction_updated(functionName string) string {
+func testAccCloudFunctionsFunction_updated(functionName string, bucketName string) string {
 	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "test-fixtures/index.zip"
+}
+
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
   description   = "test function updated"
   memory		= 256
-  source        = "gs://test-cloudfunctions-sk/index.zip"
+  storage_bucket = "${google_storage_bucket.bucket.name}"
+  storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_http  = true
   timeout		= 91
   entry_point   = "helloGET"
@@ -232,5 +256,5 @@ resource "google_cloudfunctions_function" "function" {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
   }
-}`, functionName)
+}`, bucketName, functionName)
 }
