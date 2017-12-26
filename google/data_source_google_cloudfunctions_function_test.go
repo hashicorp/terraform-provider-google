@@ -123,5 +123,5 @@ data "google_cloudfunctions_function" "function_pubsub" {
 	name = "${google_cloudfunctions_function.function_pubsub.name}"
 }
 `, bucketName, zipFilePath, functionName, functionName,
-	topicName, functionName)
+		topicName, functionName)
 }

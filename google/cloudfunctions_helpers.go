@@ -2,15 +2,9 @@ package google
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
-
-	"google.golang.org/api/cloudfunctions/v1"
-	//"github.com/hashicorp/terraform/helper/resource"
-	//"bytes"
 )
 
 const (
@@ -34,40 +28,6 @@ func createCloudFunctionsPathString(funcType int, projectName string, region str
 		path = fmt.Sprintf("%s/functions/%s", path, funcName)
 	}
 	return
-}
-
-//Function would get result for long running operations
-//Function might timeout from loop if no result returned in 40 seconds.
-//Arguments:
-//  opName: string which you get from Create,Delete or other operations to check for result
-//  service: Pointer to cloudfunctions API service to use
-//Returns:
-//  res: result.Done from Operations Result status
-//  error: error if any occurred
-func getCloudFunctionsOperationsResults(opName string, service *cloudfunctions.Service) (bool, error) {
-	var err error
-
-	attempt := 0
-	res, err := service.Operations.Get(opName).Do()
-	for res.Done == false && attempt < 20 {
-		attempt++
-		time.Sleep(2000 * time.Millisecond)
-		res, err = service.Operations.Get(opName).Do()
-		if err != nil {
-			return res.Done, err
-		}
-		if res.Error != nil {
-			log.Print(res.Error.Details)
-		}
-	}
-	if res.Done == false && attempt == 20 {
-		log.Println("getOperationsResults is not done in 20 attempts...")
-	}
-	if res.Error != nil {
-		err = fmt.Errorf(res.Error.Message)
-	}
-
-	return res.Done, err
 }
 
 //Function would extract short function name from long used in Google cloud

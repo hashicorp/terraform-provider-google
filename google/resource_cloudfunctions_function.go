@@ -246,16 +246,14 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
-	createOpt, err := service.Projects.Locations.Functions.Create(
+	op, err := service.Projects.Locations.Functions.Create(
 		createCloudFunctionsPathString(CLOUDFUNCTIONS_REGION_ONLY, project, region, ""), function).Do()
 	if err != nil {
 		return err
 	}
-	if createOpt.Done == false {
-		_, err := getCloudFunctionsOperationsResults(createOpt.Name, service)
-		if err != nil {
-			return err
-		}
+	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function")
+	if err != nil {
+		return err
 	}
 
 	//Name of function should be unique
@@ -363,7 +361,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("labels") {
 		function.Labels = expandLabels(d)
 
-		updateOp, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
+		op, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
 			UpdateMask("labels").Do()
 
 		if err != nil {
@@ -371,11 +369,9 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.SetPartial("labels")
-		if updateOp.Done == false {
-			_, err := getCloudFunctionsOperationsResults(updateOp.Name, service)
-			if err != nil {
-				return err
-			}
+		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function Labels")
+		if err != nil {
+			return err
 		}
 	}
 	configUpdate := false
@@ -411,7 +407,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if configUpdate {
 		log.Printf("[DEBUG] Send Patch CloudFunction Configuration request: %#v", function)
 		updateMask := strings.Join(updateMaskArr, ",")
-		updateOp, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
+		op, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
 			UpdateMask(updateMask).Do()
 
 		if err != nil {
@@ -421,13 +417,10 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 			d.SetPartial(partialArr[i])
 		}
 
-		if updateOp.Done == false {
-			_, err := getCloudFunctionsOperationsResults(updateOp.Name, service)
-			if err != nil {
-				return err
-			}
+		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function")
+		if err != nil {
+			return err
 		}
-
 	}
 	d.Partial(false)
 
@@ -455,16 +448,14 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading cloud function name %s.", name, err)
 	}
 
-	deleteOpt, err := service.Projects.Locations.Functions.Delete(
+	op, err := service.Projects.Locations.Functions.Delete(
 		createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
 	if err != nil {
 		return err
 	}
-	if deleteOpt.Done == false {
-		_, err := getCloudFunctionsOperationsResults(deleteOpt.Name, service)
-		if err != nil {
-			return err
-		}
+	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Deleting CloudFunctions Function")
+	if err != nil {
+		return err
 	}
 
 	return nil
