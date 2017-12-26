@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"archive/zip"
+	"bytes"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudfunctions/v1"
+	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -17,6 +21,9 @@ const (
 	FUNCTION_TRIGGER_BUCKET
 )
 
+const testHTTPTriggerPath = "./test-fixtures/cloudfunctions/http_trigger.js"
+const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
+
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
@@ -24,6 +31,12 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.FailNow()
+	}
+	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -31,17 +44,21 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName),
+				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
 					testAccCloudFunctionsFunctionName(functionName, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "description", "test function"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "128"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"description", "test function"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"memory", "128"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "timeout", "61"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "entry_point", "helloGET"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"timeout", "61"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"entry_point", "helloGET"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
@@ -57,34 +74,90 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	t.Parallel()
 
+	var function cloudfunctions.CloudFunction
+
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	var function cloudfunctions.CloudFunction
+	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.FailNow()
+	}
+	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName),
+				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "128"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"memory", "128"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
 			{
-				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName),
+				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "memory", "256"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "description", "test function updated"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function", "timeout", "91"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"memory", "256"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"description", "test function updated"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"timeout", "91"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
 				),
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
+	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
+
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
+	zipFilePath, err := createZIParchiveForIndexJs(testPubSubTriggerPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.FailNow()
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_pubsub(functionName, bucketName, subscription, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						"google_cloudfunctions_function.function", &function),
+					testAccCloudFunctionsFunctionName(functionName, &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"memory", "128"),
+					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
+					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_TOPIC, &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"timeout", "61"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"entry_point", "helloPubSub"),
+				),
+			},
+			{
+				ResourceName:      "google_cloudfunctions_function.function",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -189,7 +262,8 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 	}
 }
 
-func testAccCloudFunctionsFunctionHasLabel(key, value string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+func testAccCloudFunctionsFunctionHasLabel(key, value string,
+	function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		val, ok := function.Labels[key]
 		if !ok {
@@ -203,7 +277,47 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string, function *cloudfun
 	}
 }
 
-func testAccCloudFunctionsFunction_basic(functionName string, bucketName string) string {
+func createZIParchiveForIndexJs(sourcePath string) (string, error) {
+	source, err := ioutil.ReadFile(sourcePath)
+	if err != nil {
+		return "", err
+	}
+	// Create a buffer to write our archive to.
+	buf := new(bytes.Buffer)
+
+	// Create a new zip archive.
+	w := zip.NewWriter(buf)
+
+	f, err := w.Create("index.js")
+	if err != nil {
+		return "", err
+	}
+	_, err = f.Write(source)
+	if err != nil {
+		return "", err
+	}
+
+	// Make sure to check the error on Close.
+	err = w.Close()
+	if err != nil {
+		return "", err
+	}
+	//Create temp file to write zip to
+	tmpfile, err := ioutil.TempFile("", "zip")
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := tmpfile.Write(buf.Bytes()); err != nil {
+		return "", err
+	}
+	if err := tmpfile.Close(); err != nil {
+		return "", err
+	}
+	return tmpfile.Name(), nil
+}
+
+func testAccCloudFunctionsFunction_basic(functionName string, bucketName string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -212,8 +326,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
   bucket = "${google_storage_bucket.bucket.name}"
-  # archive_file can't be used, so using zipped function
-  source = "test-fixtures/index.zip"
+  source = "%s"
 }
 
 resource "google_cloudfunctions_function" "function" {
@@ -229,10 +342,10 @@ resource "google_cloudfunctions_function" "function" {
 	my-label = "my-label-value"
   }
 }
-`, bucketName, functionName)
+`, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_updated(functionName string, bucketName string) string {
+func testAccCloudFunctionsFunction_updated(functionName string, bucketName string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -241,8 +354,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
   bucket = "${google_storage_bucket.bucket.name}"
-  # archive_file can't be used, so using zipped function
-  source = "test-fixtures/index.zip"
+  source = "%s"
 }
 
 resource "google_cloudfunctions_function" "function" {
@@ -258,5 +370,33 @@ resource "google_cloudfunctions_function" "function" {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
   }
-}`, bucketName, functionName)
+}`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,
+	subscription string, zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_pubsub_topic" "sub" {
+	name = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name           = "%s"
+  memory		 = 128
+  storage_bucket = "${google_storage_bucket.bucket.name}"
+  storage_object = "${google_storage_bucket_object.archive.name}"
+  trigger_topic  = "${google_pubsub_topic.sub.name}"
+  timeout		 = 61
+  entry_point    = "helloPubSub"
+}`, bucketName, zipFilePath, subscription, functionName)
 }

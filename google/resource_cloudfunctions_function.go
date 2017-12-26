@@ -103,17 +103,17 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"storage_bucket": {
-				Type:     	   schema.TypeString,
-				Required: 	   true,
-				ForceNew: 	   true,
-				Elem:     	   &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"storage_object": {
-				Type:     	   schema.TypeString,
-				Required: 	   true,
-				ForceNew: 	   true,
-				Elem:     	   &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"trigger_bucket": {
@@ -175,7 +175,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
 	}
 
-
 	storageBucket := d.Get("storage_bucket").(string)
 	storageObj := d.Get("storage_object").(string)
 	function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", storageBucket, storageObj)
@@ -218,8 +217,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	if triggTopicOk {
 		//Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
 		function.EventTrigger = &cloudfunctions.EventTrigger{
+			//Other events are not supported
 			EventType: "providers/cloud.pubsub/eventTypes/topic.publish",
-			Resource:  v.(string),
+			//Must be like projects/PROJECT_ID/topics/NAME
+			//Topic must be in same project as function
+			Resource: fmt.Sprintf("projects/%s/topics/%s", project, v.(string)),
 		}
 	}
 
@@ -228,13 +230,15 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		//Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.storage/eventTypes/object.change",
-			Resource:  v.(string),
+			//Must be like projects/PROJECT_ID/buckets/NAME
+			//Bucket must be in same project as function
+			Resource: fmt.Sprintf("projects/%s/buckets/%s", project, v.(string)),
 		}
 	}
 
 	if !triggHttpOk && !triggTopicOk && !triggBucketOk {
 		return fmt.Errorf("One of aguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
-				"You must specify a trigger when deploying a new function.")
+			"You must specify a trigger when deploying a new function.")
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -321,9 +325,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		switch getOpt.EventTrigger.EventType {
 		//From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
 		case "providers/cloud.pubsub/eventTypes/topic.publish":
-			d.Set("trigger_topic", getOpt.EventTrigger.Resource)
+			d.Set("trigger_topic", extractLastResourceFromUri(getOpt.EventTrigger.Resource))
 		case "providers/cloud.storage/eventTypes/object.change":
-			d.Set("trigger_bucket", getOpt.EventTrigger.Resource)
+			d.Set("trigger_bucket", extractLastResourceFromUri(getOpt.EventTrigger.Resource))
 		}
 	}
 	d.Set("project", funcProject)
@@ -348,6 +352,12 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	function := cloudfunctions.CloudFunction{
 		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, d.Get("name").(string)),
+	}
+
+	_, err = service.Projects.Locations.Functions.Get(function.Name).Do()
+
+	if err != nil {
+		return fmt.Errorf("Function %s doesn't exists.", d.Get("name").(string))
 	}
 
 	if d.HasChange("labels") {
