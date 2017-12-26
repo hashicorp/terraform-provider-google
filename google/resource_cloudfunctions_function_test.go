@@ -23,6 +23,7 @@ const (
 
 const testHTTPTriggerPath = "./test-fixtures/cloudfunctions/http_trigger.js"
 const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
+const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
@@ -152,6 +153,49 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 						"timeout", "61"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
 						"entry_point", "helloPubSub"),
+				),
+			},
+			{
+				ResourceName:      "google_cloudfunctions_function.function",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
+	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
+
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	zipFilePath, err := createZIParchiveForIndexJs(testBucketTriggerPath)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.FailNow()
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						"google_cloudfunctions_function.function", &function),
+					testAccCloudFunctionsFunctionName(functionName, &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"memory", "128"),
+					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
+					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_BUCKET, &function),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"timeout", "61"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"entry_point", "helloGCS"),
 				),
 			},
 			{
@@ -399,4 +443,28 @@ resource "google_cloudfunctions_function" "function" {
   timeout		 = 61
   entry_point    = "helloPubSub"
 }`, bucketName, zipFilePath, subscription, functionName)
+}
+
+func testAccCloudFunctionsFunction_bucket(functionName string, bucketName string,
+	zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name           = "%s"
+  memory		 = 128
+  storage_bucket = "${google_storage_bucket.bucket.name}"
+  storage_object = "${google_storage_bucket_object.archive.name}"
+  trigger_bucket  = "${google_storage_bucket.bucket.name}"
+  timeout		 = 61
+  entry_point    = "helloGCS"
+}`, bucketName, zipFilePath, functionName)
 }
