@@ -60,6 +60,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"timeout", "61"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
 						"entry_point", "helloGET"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"trigger_http", "true"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
@@ -126,7 +128,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
+	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 	zipFilePath, err := createZIParchiveForIndexJs(testPubSubTriggerPath)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -140,7 +142,8 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_pubsub(functionName, bucketName, subscription, zipFilePath),
+				Config: testAccCloudFunctionsFunction_pubsub(functionName, bucketName,
+					topicName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						"google_cloudfunctions_function.function", &function),
@@ -153,6 +156,8 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 						"timeout", "61"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
 						"entry_point", "helloPubSub"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"trigger_topic", topicName),
 				),
 			},
 			{
@@ -196,6 +201,8 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 						"timeout", "61"),
 					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
 						"entry_point", "helloGCS"),
+					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						"trigger_bucket", bucketName),
 				),
 			},
 			{
@@ -418,7 +425,7 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,
-	subscription string, zipFilePath string) string {
+	topic string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -442,7 +449,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_topic  = "${google_pubsub_topic.sub.name}"
   timeout		 = 61
   entry_point    = "helloPubSub"
-}`, bucketName, zipFilePath, subscription, functionName)
+}`, bucketName, zipFilePath, topic, functionName)
 }
 
 func testAccCloudFunctionsFunction_bucket(functionName string, bucketName string,

@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"google.golang.org/api/cloudfunctions/v1"
+	//"github.com/hashicorp/terraform/helper/resource"
+	//"bytes"
 )
 
 const (
