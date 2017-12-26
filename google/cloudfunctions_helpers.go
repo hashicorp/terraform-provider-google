@@ -63,6 +63,9 @@ func getCloudFunctionsOperationsResults(opName string, service *cloudfunctions.S
 	if res.Done == false && attempt == 20 {
 		log.Println("getOperationsResults is not done in 20 attempts...")
 	}
+	if res.Error != nil {
+		err = fmt.Errorf(res.Error.Message)
+	}
 
 	return res.Done, err
 }
