@@ -175,21 +175,18 @@ func resourceContainerCluster() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
 							Required: true,
-							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"start_time": {
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										ValidateFunc:     validateRFC3339Time,
 										DiffSuppressFunc: rfc3339TimeDiffSuppress,
 									},
@@ -407,16 +404,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	if v, ok := d.GetOk("maintenance_policy"); ok {
-		maintenancePolicy := v.([]interface{})[0].(map[string]interface{})
-		dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
-		startTime := dailyMaintenanceWindow["start_time"].(string)
-		cluster.MaintenancePolicy = &container.MaintenancePolicy{
-			Window: &container.MaintenanceWindow{
-				DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
-					StartTime: startTime,
-				},
-			},
-		}
+		cluster.MaintenancePolicy = expandMaintenancePolicy(v)
 	}
 
 	if v, ok := d.GetOk("master_auth"); ok {
@@ -603,18 +591,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("endpoint", cluster.Endpoint)
 
-	if cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil && cluster.MaintenancePolicy.Window.DailyMaintenanceWindow != nil {
-		maintenancePolicy := []map[string]interface{}{
-			{
-				"daily_maintenance_window": []map[string]interface{}{
-					{
-						"start_time": cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime,
-						"duration":   cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration,
-					},
-				},
-			},
-		}
-		d.Set("maintenance_policy", maintenancePolicy)
+	if cluster.MaintenancePolicy != nil {
+		d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy))
 	}
 
 	masterAuth := []map[string]interface{}{
@@ -797,6 +775,35 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			d.SetPartial("addons_config")
 		}
+	}
+
+	if d.HasChange("maintenance_policy") {
+		var req *container.SetMaintenancePolicyRequest
+		if mp, ok := d.GetOk("maintenance_policy"); ok {
+			req = &container.SetMaintenancePolicyRequest{
+				MaintenancePolicy: expandMaintenancePolicy(mp),
+			}
+		} else {
+			req = &container.SetMaintenancePolicyRequest{
+				NullFields: []string{"MaintenancePolicy"},
+			}
+		}
+
+		op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
+
+		d.SetPartial("maintenance_policy")
 	}
 
 	if d.HasChange("additional_zones") {
@@ -1049,6 +1056,21 @@ func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPo
 	return ap, nil
 }
 
+func expandMaintenancePolicy(configured interface{}) *container.MaintenancePolicy {
+	result := &container.MaintenancePolicy{}
+	if len(configured.([]interface{})) > 0 {
+		maintenancePolicy := configured.([]interface{})[0].(map[string]interface{})
+		dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
+		startTime := dailyMaintenanceWindow["start_time"].(string)
+		result.Window = &container.MaintenanceWindow{
+			DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
+				StartTime: startTime,
+			},
+		}
+	}
+	return result
+}
+
 func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.MasterAuthorizedNetworksConfig {
 	result := &container.MasterAuthorizedNetworksConfig{}
 	if len(configured.([]interface{})) > 0 {
@@ -1139,6 +1161,19 @@ func flattenIPAllocationPolicy(c *container.IPAllocationPolicy) []map[string]int
 		{
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
 			"services_secondary_range_name": c.ServicesSecondaryRangeName,
+		},
+	}
+}
+
+func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"daily_maintenance_window": []map[string]interface{}{
+				{
+					"start_time": mp.Window.DailyMaintenanceWindow.StartTime,
+					"duration":   mp.Window.DailyMaintenanceWindow.Duration,
+				},
+			},
 		},
 	}
 }
