@@ -27,6 +27,11 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_target_ssl_proxy.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
