@@ -26,6 +26,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
+* compute: Read IAP settings properly in `google_compute_backend_service` [GH-907]
 * storage: Fix bug blocking the update of a storage object if its content is dynamic/interpolated. [GH-848]
 * storage: Fix bug preventing the removal of lifecycle rules for a `google_storage_bucket`. [GH-850]
 
