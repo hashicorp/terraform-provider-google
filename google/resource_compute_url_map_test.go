@@ -27,6 +27,12 @@ func TestAccComputeUrlMap_basic(t *testing.T) {
 						"google_compute_url_map.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_compute_url_map.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"host_rule", "path_matcher", "test"},
+			},
 		},
 	})
 }
