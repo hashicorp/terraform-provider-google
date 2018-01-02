@@ -177,6 +177,11 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "terraform-test-foobar", false, false),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
