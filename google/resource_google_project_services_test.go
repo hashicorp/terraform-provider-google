@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/servicemanagement/v1"
 )
 
 // Test that services can be enabled and disabled on a project
@@ -279,13 +278,5 @@ func testStringsToString(s []string) string {
 	}
 	r := b.String()
 	log.Printf("[DEBUG]: Converted list of strings to %s", r)
-	return b.String()
-}
-
-func testManagedServicesToString(svcs []*servicemanagement.ManagedService) string {
-	var b bytes.Buffer
-	for _, s := range svcs {
-		b.WriteString(s.ServiceName)
-	}
 	return b.String()
 }

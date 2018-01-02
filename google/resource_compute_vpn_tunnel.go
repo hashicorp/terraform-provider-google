@@ -362,17 +362,3 @@ func getVpnTunnelLink(config *Config, project string, region string, tunnel stri
 	return tunnel, nil
 
 }
-
-func getVpnTunnelName(vpntunnel string) (string, error) {
-
-	if strings.HasPrefix(vpntunnel, "https://www.googleapis.com/compute/") {
-		// extract the VPN tunnel name from SelfLink URL
-		vpntunnelName := vpntunnel[strings.LastIndex(vpntunnel, "/")+1:]
-		if vpntunnelName == "" {
-			return "", fmt.Errorf("VPN tunnel url not valid")
-		}
-		return vpntunnelName, nil
-	}
-
-	return vpntunnel, nil
-}
