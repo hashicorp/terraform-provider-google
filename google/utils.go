@@ -298,14 +298,6 @@ func convertStringSet(set *schema.Set) []string {
 	return s
 }
 
-func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
-	sm := make(map[string]struct{})
-	for _, s := range ifaceArr {
-		sm[s.(string)] = struct{}{}
-	}
-	return sm
-}
-
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 

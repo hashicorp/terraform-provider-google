@@ -233,16 +233,6 @@ func testAccCheckComputeHealthCheckExists(n string, healthCheck *compute.HealthC
 	}
 }
 
-func testAccCheckErrorCreating(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		_, ok := s.RootModule().Resources[n]
-		if ok {
-			return fmt.Errorf("HealthCheck %s created successfully with bad config", n)
-		}
-		return nil
-	}
-}
-
 func testAccCheckComputeHealthCheckThresholds(healthy, unhealthy int64, healthCheck *compute.HealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if healthCheck.HealthyThreshold != healthy {
