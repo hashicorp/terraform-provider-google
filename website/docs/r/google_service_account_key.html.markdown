@@ -69,8 +69,6 @@ The following attributes are exported in addition to the arguments listed above:
 
 * `name` - The name used for this key pair
 
-* `fingerprint` - The MD5 public key fingerprint as specified in section 4 of RFC 4716.
-
 * `public_key` - The public key, base64 encoded
 
 * `private_key` - The private key, base64 encoded. This is only populated
@@ -81,7 +79,7 @@ encrypted with the given `pgp_key`. This is only populated when creating a new
 key and `pgp_key` is supplied
 
 * `private_key_fingerprint` - The MD5 public key fingerprint for the encrypted
-private key
+private key. This is only populated when creating a new key and `pgp_key` is supplied
 
 * `valid_after` - The key can be used after this timestamp. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 
