@@ -35,6 +35,11 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -58,6 +63,11 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -79,6 +89,11 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -105,6 +120,11 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 						"google_compute_instance_template.foobar", networkIP, &instanceTemplate),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -128,6 +148,11 @@ func TestAccComputeInstanceTemplate_address(t *testing.T) {
 					testAccCheckComputeInstanceTemplateAddress(
 						"google_compute_instance_template.foobar", address, &instanceTemplate),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -175,6 +200,11 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 					testAccCheckComputeInstanceTemplateNetworkName(&instanceTemplate, network),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -196,6 +226,11 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -265,6 +300,11 @@ func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "", "/24"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -285,6 +325,11 @@ func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "inst-test-secondary", "/24"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -307,6 +352,11 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 
@@ -328,6 +378,11 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, DEFAULT_MIN_CPU_TEST_VALUE),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

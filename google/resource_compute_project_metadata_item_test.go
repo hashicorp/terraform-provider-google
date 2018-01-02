@@ -22,10 +22,15 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic(key, "myValue"),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, "myValue"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectMetadataItem_hasMetadata(key, "myValue"),
 				),
+			},
+			{
+				ResourceName:      "google_compute_project_metadata_item.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -67,10 +72,15 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectMetadataItem_basic(key, ""),
+				Config: testAccProjectMetadataItem_basicWithResourceName("foobar", key, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectMetadataItem_hasMetadata(key, ""),
 				),
+			},
+			{
+				ResourceName:      "google_compute_project_metadata_item.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
