@@ -24,6 +24,11 @@ func TestAccComputeRouterPeer_basic(t *testing.T) {
 					"google_compute_router_peer.foobar"),
 			},
 			resource.TestStep{
+				ResourceName:      "google_compute_router_peer.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: testAccComputeRouterPeerKeepRouter(testId),
 				Check: testAccCheckComputeRouterPeerDelete(
 					"google_compute_router_peer.foobar"),
