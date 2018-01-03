@@ -60,7 +60,7 @@ The following keys can be used to configure the provider.
   login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login),
   the provider will use your identity.
 
-* `project` - (Required) The ID of the project to apply any resources to.  This
+* `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed
   in order of precedence):
 
@@ -68,13 +68,21 @@ The following keys can be used to configure the provider.
     * `GCLOUD_PROJECT`
     * `CLOUDSDK_CORE_PROJECT`
 
-* `region` - (Required) The region to operate under. This can also be specified
-  using any of the following environment variables (listed in order of
+* `region` - (Required) The region to operate under, if not specified by a given resource.
+  This can also be specified using any of the following environment variables (listed in order of
   precedence):
 
     * `GOOGLE_REGION`
     * `GCLOUD_REGION`
     * `CLOUDSDK_COMPUTE_REGION`
+    
+* `zone` - (Optional) The zone to operate under, if not specified by a given resource.
+  This can also be specified using any of the following environment variables (listed in order of
+  precedence):
+  
+    * `GOOGLE_ZONE`
+    * `GCLOUD_ZONE`
+    * `CLOUDSDK_COMPUTE_ZONE`
 
 ## Authentication JSON File
 
