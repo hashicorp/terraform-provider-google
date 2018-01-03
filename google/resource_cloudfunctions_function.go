@@ -445,7 +445,7 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 	name := d.Get("name").(string)
 
 	if len(name) == 0 {
-		return fmt.Errorf("Error reading cloud function name %s.", name, err)
+		return fmt.Errorf("Error reading cloud function name %s.", name)
 	}
 
 	op, err := service.Projects.Locations.Functions.Delete(
