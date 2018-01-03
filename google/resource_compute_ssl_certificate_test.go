@@ -24,6 +24,12 @@ func TestAccComputeSslCertificate_basic(t *testing.T) {
 						"google_compute_ssl_certificate.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_compute_ssl_certificate.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"private_key"},
+			},
 		},
 	})
 }
@@ -137,17 +143,6 @@ func testAccComputeSslCertificate_name_prefix() string {
 resource "google_compute_ssl_certificate" "foobar" {
 	name_prefix = "sslcert-test-%s-"
 	description = "extremely descriptive"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
-}
-`, acctest.RandString(10))
-}
-
-func testAccComputeSslCertificate_import() string {
-	return fmt.Sprintf(`
-resource "google_compute_ssl_certificate" "foobar" {
-	name = "sslcert-test-%s"
-	description = "very descriptive"
 	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }

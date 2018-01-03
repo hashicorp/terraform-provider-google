@@ -28,6 +28,11 @@ func TestAccComputeTargetTcpProxy_basic(t *testing.T) {
 						"google_compute_target_tcp_proxy.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_target_tcp_proxy.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
