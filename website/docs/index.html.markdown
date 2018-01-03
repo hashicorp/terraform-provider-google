@@ -68,7 +68,7 @@ The following keys can be used to configure the provider.
     * `GCLOUD_PROJECT`
     * `CLOUDSDK_CORE_PROJECT`
 
-* `region` - (Required) The region to operate under, if not specified by a given resource.
+* `region` - (Optional) The region to operate under, if not specified by a given resource.
   This can also be specified using any of the following environment variables (listed in order of
   precedence):
 
