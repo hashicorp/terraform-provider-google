@@ -23,6 +23,7 @@ IMPROVEMENTS:
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
 * container: Don't recreate container_cluster when maintenance_window changes [GH-893]
 * dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
+* all: Make provider-wide region optional [GH-916]
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
