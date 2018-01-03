@@ -46,6 +46,7 @@ func resourceComputeDisk() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -306,12 +307,10 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		disk = resource.(*compute.Disk)
 	}
 
-	zoneUrlParts := strings.Split(disk.Zone, "/")
-	typeUrlParts := strings.Split(disk.Type, "/")
 	d.Set("name", disk.Name)
 	d.Set("self_link", disk.SelfLink)
-	d.Set("type", typeUrlParts[len(typeUrlParts)-1])
-	d.Set("zone", zoneUrlParts[len(zoneUrlParts)-1])
+	d.Set("type", GetResourceNameFromSelfLink(disk.Type))
+	d.Set("zone", GetResourceNameFromSelfLink(disk.Zone))
 	d.Set("size", disk.SizeGb)
 	d.Set("users", disk.Users)
 	if disk.DiskEncryptionKey != nil && disk.DiskEncryptionKey.Sha256 != "" {

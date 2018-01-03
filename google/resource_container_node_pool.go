@@ -45,6 +45,7 @@ func resourceContainerNodePool() *schema.Resource {
 				"zone": &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
+					Computed: true,
 					ForceNew: true,
 				},
 				"cluster": &schema.Schema{
@@ -205,6 +206,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set(k, v)
 	}
 
+	d.Set("zone", zone)
 	d.Set("project", project)
 
 	return nil
