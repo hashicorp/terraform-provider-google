@@ -687,18 +687,3 @@ func resourceComputeUrlMapImportState(d *schema.ResourceData, meta interface{}) 
 	d.Set("name", d.Id())
 	return []*schema.ResourceData{d}, nil
 }
-
-func validateHostRules(v interface{}, k string) (ws []string, es []error) {
-	pathMatchers := make(map[string]bool)
-	hostRules := v.([]interface{})
-	for _, hri := range hostRules {
-		hr := hri.(map[string]interface{})
-		pm := hr["path_matcher"].(string)
-		if pathMatchers[pm] {
-			es = append(es, fmt.Errorf("Multiple host_rule entries with the same path_matcher are not allowed. Please collapse all hosts with the same path_matcher into one host_rule"))
-			return
-		}
-		pathMatchers[pm] = true
-	}
-	return
-}

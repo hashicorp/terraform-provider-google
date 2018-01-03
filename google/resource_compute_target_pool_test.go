@@ -28,6 +28,11 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 					testAccCheckComputeTargetPoolHealthCheck("google_compute_target_pool.bar", "google_compute_http_health_check.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_target_pool.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

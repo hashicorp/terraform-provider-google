@@ -38,46 +38,16 @@ func TestAccComputeBackendService_basic(t *testing.T) {
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func TestAccComputeBackendService_withBackend(t *testing.T) {
-	t.Parallel()
-
-	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendService
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeBackendService_withBackend(
-					serviceName, igName, itName, checkName, 10),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendServiceExists(
-						"google_compute_backend_service.lipsum", &svc),
-				),
-			},
-		},
-	})
-
-	if svc.TimeoutSec != 10 {
-		t.Errorf("Expected TimeoutSec == 10, got %d", svc.TimeoutSec)
-	}
-	if svc.Protocol != "HTTP" {
-		t.Errorf("Expected Protocol to be HTTP, got %q", svc.Protocol)
-	}
-	if len(svc.Backends) != 1 {
-		t.Errorf("Expected 1 backend, got %d", len(svc.Backends))
-	}
-}
-
-func TestAccComputeBackendService_withBackendAndUpdate(t *testing.T) {
 	t.Parallel()
 
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -105,6 +75,11 @@ func TestAccComputeBackendService_withBackendAndUpdate(t *testing.T) {
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.lipsum", &svc),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -138,6 +113,11 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 					testAccCheckComputeBackendServiceExistsWithIAP(
 						"google_compute_backend_service.lipsum", &svc),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: testAccComputeBackendService_withBackend(
@@ -217,6 +197,11 @@ func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 
@@ -277,6 +262,11 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

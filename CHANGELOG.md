@@ -21,10 +21,12 @@ IMPROVEMENTS:
 * compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
 * compute: Add import support for `google_compute_instance` [GH-873]
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
+* container: Don't recreate container_cluster when maintenance_window changes [GH-893]
 * dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
+* compute: Read IAP settings properly in `google_compute_backend_service` [GH-907]
 * storage: Fix bug blocking the update of a storage object if its content is dynamic/interpolated. [GH-848]
 * storage: Fix bug preventing the removal of lifecycle rules for a `google_storage_bucket`. [GH-850]
 
