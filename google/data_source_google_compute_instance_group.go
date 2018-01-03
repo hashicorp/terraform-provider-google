@@ -18,11 +18,13 @@ func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
 			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"description": {
