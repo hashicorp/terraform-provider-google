@@ -40,7 +40,7 @@ func Provider() terraform.ResourceProvider {
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_REGION",
 					"GCLOUD_REGION",
