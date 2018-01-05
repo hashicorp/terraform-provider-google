@@ -6,6 +6,16 @@ import (
 	"google.golang.org/api/container/v1"
 )
 
+// Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
+var defaultOauthScopes = []string{
+	"https://www.googleapis.com/auth/devstorage.read_only",
+	"https://www.googleapis.com/auth/logging.write",
+	"https://www.googleapis.com/auth/monitoring",
+	"https://www.googleapis.com/auth/service.management.readonly",
+	"https://www.googleapis.com/auth/servicecontrol",
+	"https://www.googleapis.com/auth/trace.append",
+}
+
 var schemaNodeConfig = &schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
@@ -104,9 +114,15 @@ var schemaNodeConfig = &schema.Schema{
 
 func expandNodeConfig(v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
-	nodeConfig := nodeConfigs[0].(map[string]interface{})
+	nc := &container.NodeConfig{
+		// Defaults can't be set on a list in the schema, so set the default on create here.
+		OauthScopes: defaultOauthScopes,
+	}
+	if len(nodeConfigs) == 0 {
+		return nc
+	}
 
-	nc := &container.NodeConfig{}
+	nodeConfig := nodeConfigs[0].(map[string]interface{})
 
 	if v, ok := nodeConfig["machine_type"]; ok {
 		nc.MachineType = v.(string)

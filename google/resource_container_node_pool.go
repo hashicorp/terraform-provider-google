@@ -324,10 +324,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 	np := &container.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
-	}
-
-	if v, ok := d.GetOk(prefix + "node_config"); ok {
-		np.Config = expandNodeConfig(v)
+		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
 	}
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {

@@ -491,10 +491,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.AddonsConfig = expandClusterAddonsConfig(v)
 	}
 
-	if v, ok := d.GetOk("node_config"); ok {
-		cluster.NodeConfig = expandNodeConfig(v)
-	}
-
 	if v, ok := d.GetOk("enable_kubernetes_alpha"); ok {
 		cluster.EnableKubernetesAlpha = v.(bool)
 	}
@@ -511,6 +507,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			nodePools = append(nodePools, nodePool)
 		}
 		cluster.NodePools = nodePools
+	} else {
+		// Node Configs have default values that are set in the expand function,
+		// but can only be set if node pools are unspecified.
+		cluster.NodeConfig = expandNodeConfig([]interface{}{})
+	}
+
+	if v, ok := d.GetOk("node_config"); ok {
+		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
 	if v, ok := d.GetOk("ip_allocation_policy"); ok {
