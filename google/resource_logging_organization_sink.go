@@ -31,7 +31,6 @@ func resourceLoggingOrganizationSink() *schema.Resource {
 func resourceLoggingOrganizationSinkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	//	org := "organizations/" + d.Get("org_id").(string)
 	org := d.Get("org_id").(string)
 	id, sink := expandResourceLoggingSink(d, "organizations", org)
 	sink.IncludeChildren = d.Get("include_children").(bool)
