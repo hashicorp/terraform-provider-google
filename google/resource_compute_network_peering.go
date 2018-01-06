@@ -96,7 +96,7 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 
 	network, err := config.clientCompute.Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", network.Name))
+		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", networkFieldValue.Name))
 	}
 
 	peering := findPeeringFromNetwork(network, peeringName)

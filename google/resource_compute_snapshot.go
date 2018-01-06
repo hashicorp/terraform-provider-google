@@ -27,6 +27,7 @@ func resourceComputeSnapshot() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -160,6 +161,11 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	snapshot, err := config.clientCompute.Snapshots.Get(
 		project, d.Id()).Do()
 	if err != nil {
@@ -181,6 +187,7 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("labels", snapshot.Labels)
 	d.Set("label_fingerprint", snapshot.LabelFingerprint)
 	d.Set("project", project)
+	d.Set("zone", zone)
 
 	return nil
 }

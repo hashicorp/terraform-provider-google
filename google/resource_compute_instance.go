@@ -251,6 +251,7 @@ func resourceComputeInstance() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -861,6 +862,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.Set("project", project)
+	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
 	d.SetId(instance.Name)
 
