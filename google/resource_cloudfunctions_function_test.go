@@ -1,18 +1,18 @@
 package google
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
 	"archive/zip"
-	"bytes"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudfunctions/v1"
 	"io/ioutil"
-	"os"
-	"strings"
 )
 
 const (
@@ -30,6 +30,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 
 	var function cloudfunctions.CloudFunction
 
+	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
@@ -48,25 +49,27 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function", &function),
-					testAccCloudFunctionsFunctionName(functionName, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"name", functionName),
+					//testAccCloudFunctionsFunctionName(functionName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
-						"memory", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "128"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "61"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"entry_point", "helloGET"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"trigger_http", "true"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
 			{
-				ResourceName:      "google_cloudfunctions_function.function",
+				ResourceName:      funcResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,6 +82,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 
 	var function cloudfunctions.CloudFunction
 
+	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
@@ -96,9 +100,9 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function", &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
-						"memory", "128"),
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "128"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
@@ -106,12 +110,12 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function", &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
-						"memory", "256"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "256"),
+					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function updated"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "91"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
@@ -126,6 +130,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 
 	var function cloudfunctions.CloudFunction
 
+	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
@@ -146,22 +151,21 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 					topicName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function", &function),
-					testAccCloudFunctionsFunctionName(functionName, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
-						"memory", "128"),
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "128"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_TOPIC, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "61"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"entry_point", "helloPubSub"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"trigger_topic", topicName),
 				),
 			},
 			{
-				ResourceName:      "google_cloudfunctions_function.function",
+				ResourceName:      funcResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -173,6 +177,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 
 	var function cloudfunctions.CloudFunction
 
+	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIParchiveForIndexJs(testBucketTriggerPath)
@@ -191,22 +196,21 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
-						"google_cloudfunctions_function.function", &function),
-					testAccCloudFunctionsFunctionName(functionName, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
-						"memory", "128"),
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "128"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_BUCKET, &function),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "61"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"entry_point", "helloGCS"),
-					resource.TestCheckResourceAttr("google_cloudfunctions_function.function",
+					resource.TestCheckResourceAttr(funcResourceName,
 						"trigger_bucket", bucketName),
 				),
 			},
 			{
-				ResourceName:      "google_cloudfunctions_function.function",
+				ResourceName:      funcResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -225,8 +229,12 @@ func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 		name := rs.Primary.Attributes["name"]
 		project := rs.Primary.Attributes["project"]
 		region := rs.Primary.Attributes["region"]
-		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(
-			createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
+		cloudFuncId := &cloudFunctionId{
+			Project: project,
+			Region:  region,
+			Name:    name,
+		}
+		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err == nil {
 			return fmt.Errorf("CloudFunctions still exists")
 		}
@@ -250,27 +258,18 @@ func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.Clou
 		name := rs.Primary.Attributes["name"]
 		project := rs.Primary.Attributes["project"]
 		region := rs.Primary.Attributes["region"]
-		found, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(
-			createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
+		cloudFuncId := &cloudFunctionId{
+			Project: project,
+			Region:  region,
+			Name:    name,
+		}
+		found, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err != nil {
 			return fmt.Errorf("CloudFunctions Function not present")
 		}
 
 		*function = *found
 
-		return nil
-	}
-}
-
-func testAccCloudFunctionsFunctionName(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		expected, err := getCloudFunctionName(function.Name)
-		if err != nil {
-			return err
-		}
-		if n != expected {
-			return fmt.Errorf("Expected function name %s, got %s", n, expected)
-		}
 		return nil
 	}
 }
@@ -383,7 +382,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name           = "%s"
   description    = "test function"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_http   = true
@@ -411,7 +410,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name          = "%s"
   description   = "test function updated"
-  memory		= 256
+  available_memory_mb = 256
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_http  = true
@@ -443,7 +442,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function" {
   name           = "%s"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_topic  = "${google_pubsub_topic.sub.name}"
@@ -467,7 +466,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name           = "%s"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_bucket  = "${google_storage_bucket.bucket.name}"

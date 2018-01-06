@@ -12,8 +12,8 @@ import (
 func TestAccCloudFunctionsFunction_importBasic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_cloudfunctions_function.test"
-	functionName := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	resourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {

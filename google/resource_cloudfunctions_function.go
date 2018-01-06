@@ -7,6 +7,8 @@ import (
 
 	"fmt"
 	"log"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,10 +30,47 @@ var FUNCTION_ALLOWED_MEMORY = map[int]bool{
 	2048: true,
 }
 
-//For now CloudFunctions are allowed only in us-central1
-//Please see https://cloud.google.com/about/locations/
-var FUNCTION_ALLOWED_REGION = map[string]bool{
-	"us-central1": true,
+type cloudFunctionId struct {
+	Project string
+	Region  string
+	Name    string
+}
+
+func (s *cloudFunctionId) cloudFunctionId() string {
+	return fmt.Sprintf("projects/%s/locations/%s/functions/%s", s.Project, s.Region, s.Name)
+}
+
+func (s *cloudFunctionId) parentId() string {
+	return fmt.Sprintf("projects/%s/locations/%s", s.Project, s.Region)
+}
+
+func (s *cloudFunctionId) terraformId() string {
+	return fmt.Sprintf("%s/%s/%s", s.Project, s.Region, s.Name)
+}
+
+func parseCloudFunctionId(id string, config *Config) (*cloudFunctionId, error) {
+	parts := strings.Split(id, "/")
+
+	cloudFuncIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+
+	if cloudFuncIdRegex.MatchString(id) {
+		return &cloudFunctionId{
+			Project: parts[0],
+			Region:  parts[1],
+			Name:    parts[2],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid CloudFunction id format, expecting " +
+		"`{projectId}/{regionId}/{cloudFunctionName}`")
+}
+
+func joinMapKeys(mapToJoin *map[int]bool) string {
+	var keys []string
+	for key := range *mapToJoin {
+		keys = append(keys, strconv.Itoa(key))
+	}
+	return strings.Join(keys, ",")
 }
 
 func resourceCloudFunctionsFunction() *schema.Resource {
@@ -40,11 +79,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 		Read:   resourceCloudFunctionsRead,
 		Update: resourceCloudFunctionsUpdate,
 		Delete: resourceCloudFunctionsDestroy,
+
 		Importer: &schema.ResourceImporter{
-			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-				d.Set("name", d.Id())
-				return []*schema.ResourceData{d}, nil
-			},
+			State: schema.ImportStatePassthrough,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -58,34 +95,65 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+
+					if len(value) > 48 {
+						errors = append(errors, fmt.Errorf(
+							"%q cannot be longer than 48 characters", k))
+					}
+					if !regexp.MustCompile("^[a-zA-Z0-9-]+$").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q can only contain letters, numbers and hyphens", k))
+					}
+					if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q must start with a letter", k))
+					}
+					if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
+						errors = append(errors, fmt.Errorf(
+							"%q must end with a number or a letter", k))
+					}
+					return
+				},
+			},
+
+			"storage_bucket": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"storage_object": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"entry_point": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"memory": {
+			"available_memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
 				Default:  FUNCTION_DEFAULT_MEMORY,
-			},
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					availableMemoryMB := v.(int)
 
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+					if FUNCTION_ALLOWED_MEMORY[availableMemoryMB] != true {
+						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
+							joinMapKeys(&FUNCTION_ALLOWED_MEMORY), availableMemoryMB))
+					}
+					return
+				},
 			},
 
 			"timeout": {
@@ -98,29 +166,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-
-			"storage_bucket": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
-			"storage_object": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"trigger_bucket": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
-				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"trigger_http", "trigger_topic"},
 			},
 
@@ -128,7 +179,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:          schema.TypeBool,
 				Optional:      true,
 				ForceNew:      true,
-				Elem:          &schema.Schema{Type: schema.TypeBool},
 				ConflictsWith: []string{"trigger_bucket", "trigger_topic"},
 			},
 
@@ -136,15 +186,24 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
-				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
 			},
 
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
+				ForceNew: true,
+			},
+
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				//For now CloudFunctions are allowed only in us-central1
+				//Please see https://cloud.google.com/about/locations/
+				ValidateFunc: validation.StringInSlice([]string{"us-central1"}, true),
 			},
 		},
 	}
@@ -152,8 +211,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	service := config.clientCloudFunctions
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -165,27 +222,23 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if FUNCTION_ALLOWED_REGION[region] != true {
-		return fmt.Errorf("Invalid region. Now allowed only us-central1. See https://cloud.google.com/about/locations/")
+	cloudFuncId := &cloudFunctionId{
+		Project: project,
+		Region:  region,
+		Name:    d.Get("name").(string),
 	}
 
-	funcName := d.Get("name").(string)
-
 	function := &cloudfunctions.CloudFunction{
-		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, funcName),
+		Name: cloudFuncId.cloudFunctionId(),
 	}
 
 	storageBucket := d.Get("storage_bucket").(string)
 	storageObj := d.Get("storage_object").(string)
 	function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", storageBucket, storageObj)
 
-	if v, ok := d.GetOk("memory"); ok {
-		memory := v.(int)
-		if FUNCTION_ALLOWED_MEMORY[memory] != true {
-			return fmt.Errorf("Allowed values for memory are: 128MB, 256MB, 512MB, 1024MB, and 2048MB. "+
-				"Got %d", memory)
-		}
-		function.AvailableMemoryMb = int64(memory)
+	if v, ok := d.GetOk("available_memory_mb"); ok {
+		availableMemoryMb := v.(int)
+		function.AvailableMemoryMb = int64(availableMemoryMb)
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -237,7 +290,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if !triggHttpOk && !triggTopicOk && !triggBucketOk {
-		return fmt.Errorf("One of aguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
+		return fmt.Errorf("One of arguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
 			"You must specify a trigger when deploying a new function.")
 	}
 
@@ -246,8 +299,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
-	op, err := service.Projects.Locations.Functions.Create(
-		createCloudFunctionsPathString(CLOUDFUNCTIONS_REGION_ONLY, project, region, ""), function).Do()
+	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
+		cloudFuncId.parentId(), function).Do()
 	if err != nil {
 		return err
 	}
@@ -257,54 +310,31 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	//Name of function should be unique
-	d.SetId(d.Get("name").(string))
+	d.SetId(cloudFuncId.terraformId())
 
 	return resourceCloudFunctionsRead(d, meta)
 }
 
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG]: Reading google_cloudfunctions_function")
 	config := meta.(*Config)
 
-	service := config.clientCloudFunctions
-
-	project, err := getProject(d, config)
+	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	getOpt, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 	if err != nil {
 		return err
 	}
 
-	name := d.Get("name").(string)
-
-	getOpt, err := service.Projects.Locations.Functions.Get(
-		createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
-	if err != nil {
-		return err
-	}
-	nameFromGet, err := getCloudFunctionName(getOpt.Name)
-	if err != nil {
-		return err
-	}
-	if name != nameFromGet {
-		return fmt.Errorf("Name of Cloud Function is mismatched from what we get from Google Cloud %s != %s", name, nameFromGet)
-	}
-	funcRegion, err := getCloudFunctionRegion(getOpt.Name)
-	if err != nil {
-		return err
-	}
-	funcProject, err := getCloudFunctionProject(getOpt.Name)
-	if err != nil {
-		return err
-	}
-
+	d.Set("name", cloudFuncId.Name)
 	d.Set("description", getOpt.Description)
 	d.Set("entry_point", getOpt.EntryPoint)
-	d.Set("memory", getOpt.AvailableMemoryMb)
-	d.Set("region", funcRegion)
-	timeout, err := readTimeout(getOpt.Timeout)
+	d.Set("available_memory_mb", getOpt.AvailableMemoryMb)
+	sRemoved := strings.Replace(getOpt.Timeout, "s", "", -1)
+	timeout, err := strconv.Atoi(sRemoved)
 	if err != nil {
 		return err
 	}
@@ -328,20 +358,17 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 			d.Set("trigger_bucket", extractLastResourceFromUri(getOpt.EventTrigger.Resource))
 		}
 	}
-	d.Set("project", funcProject)
+	d.Set("region", cloudFuncId.Region)
+	d.Set("project", cloudFuncId.Project)
 
 	return nil
 }
 
 func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG]: Updating google_cloudfunctions_function")
 	config := meta.(*Config)
-	service := config.clientCloudFunctions
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	region, err := getRegion(d, config)
+	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
 	if err != nil {
 		return err
 	}
@@ -349,10 +376,10 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	d.Partial(true)
 
 	function := cloudfunctions.CloudFunction{
-		Name: createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, d.Get("name").(string)),
+		Name: cloudFuncId.cloudFunctionId(),
 	}
 
-	_, err = service.Projects.Locations.Functions.Get(function.Name).Do()
+	_, err = config.clientCloudFunctions.Projects.Locations.Functions.Get(function.Name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Function %s doesn't exists.", d.Get("name").(string))
@@ -361,7 +388,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("labels") {
 		function.Labels = expandLabels(d)
 
-		op, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
+		op, err := config.clientCloudFunctions.Projects.Locations.Functions.Patch(function.Name, &function).
 			UpdateMask("labels").Do()
 
 		if err != nil {
@@ -369,55 +396,45 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.SetPartial("labels")
-		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function Labels")
+		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op,
+			"Updating CloudFunctions Function Labels")
 		if err != nil {
 			return err
 		}
 	}
 	configUpdate := false
 	var updateMaskArr []string
-	var partialArr []string
-	if d.HasChange("memory") {
-		memory := d.Get("memory").(int)
-
-		if FUNCTION_ALLOWED_MEMORY[memory] != true {
-			return fmt.Errorf("Allowed values for memory are: 128MB, 256MB, 512MB, 1024MB, and 2048MB. "+
-				"Got %d", memory)
-		}
-		function.AvailableMemoryMb = int64(memory)
+	if d.HasChange("available_memory_mb") {
+		availableMemoryMb := d.Get("available_memory_mb").(int)
+		function.AvailableMemoryMb = int64(availableMemoryMb)
 		updateMaskArr = append(updateMaskArr, "availableMemoryMb")
-		partialArr = append(partialArr, "memory")
 		configUpdate = true
 	}
 
 	if d.HasChange("description") {
 		function.Description = d.Get("description").(string)
 		updateMaskArr = append(updateMaskArr, "description")
-		partialArr = append(partialArr, "description")
 		configUpdate = true
 	}
 
 	if d.HasChange("timeout") {
 		function.Timeout = fmt.Sprintf("%vs", d.Get("timeout").(int))
 		updateMaskArr = append(updateMaskArr, "timeout")
-		partialArr = append(partialArr, "timeout")
 		configUpdate = true
 	}
 
 	if configUpdate {
 		log.Printf("[DEBUG] Send Patch CloudFunction Configuration request: %#v", function)
 		updateMask := strings.Join(updateMaskArr, ",")
-		op, err := service.Projects.Locations.Functions.Patch(function.Name, &function).
+		op, err := config.clientCloudFunctions.Projects.Locations.Functions.Patch(function.Name, &function).
 			UpdateMask(updateMask).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
 		}
-		for i := range partialArr {
-			d.SetPartial(partialArr[i])
-		}
 
-		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function")
+		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op,
+			"Updating CloudFunctions Function")
 		if err != nil {
 			return err
 		}
@@ -428,28 +445,15 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG]: Destroying google_cloudfunctions_function")
 	config := meta.(*Config)
 
-	service := config.clientCloudFunctions
-
-	project, err := getProject(d, config)
+	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
-	}
-
-	name := d.Get("name").(string)
-
-	if len(name) == 0 {
-		return fmt.Errorf("Error reading cloud function name %s.", name)
-	}
-
-	op, err := service.Projects.Locations.Functions.Delete(
-		createCloudFunctionsPathString(CLOUDFUNCTIONS_FULL_NAME, project, region, name)).Do()
+	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Delete(cloudFuncId.cloudFunctionId()).Do()
 	if err != nil {
 		return err
 	}
@@ -457,6 +461,8 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+
+	d.SetId("")
 
 	return nil
 }

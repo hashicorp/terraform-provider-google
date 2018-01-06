@@ -1,17 +1,21 @@
 package google
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
-	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
+	funcDataNameHttp := "data.google_cloudfunctions_function.function_http"
+	funcDataNamePubSub := "data.google_cloudfunctions_function.function_pubsub"
+	funcDataNameBucket := "data.google_cloudfunctions_function.function_bucket"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
@@ -31,36 +35,60 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName,
 					bucketName, zipFilePath, topicName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"name", fmt.Sprintf("%s-http", functionName)),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_bucket",
-						"name", fmt.Sprintf("%s-bucket", functionName)),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_pubsub",
-						"name", fmt.Sprintf("%s-pubsub", functionName)),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"description", "test function"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"memory", "128"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"region", "us-central1"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"timeout", "61"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"storage_bucket", bucketName),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"storage_object", "index.zip"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"trigger_http", "true"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_http",
-						"entry_point", "helloGET"),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_bucket",
-						"trigger_bucket", bucketName),
-					resource.TestCheckResourceAttr("data.google_cloudfunctions_function.function_pubsub",
-						"trigger_topic", topicName),
+					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNameHttp,
+						"google_cloudfunctions_function.function_http"),
+					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNamePubSub,
+						"google_cloudfunctions_function.function_pubsub"),
+					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNameBucket,
+						"google_cloudfunctions_function.function_bucket"),
 				),
 			},
 		},
 	})
+}
+
+func testAccDataSourceGoogleCloudFunctionsFunctionCheck(dataSourceName string, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dataSourceName]
+		if !ok {
+			return fmt.Errorf("root module has no resource called %s", dataSourceName)
+		}
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		dsAttr := ds.Primary.Attributes
+		rsAttr := rs.Primary.Attributes
+
+		cloudFuncAttrToCheck := []string{
+			"name",
+			"region",
+			"description",
+			"available_memory_mb",
+			"timeout",
+			"storage_bucket",
+			"storage_object",
+			"entry_point",
+			"trigger_http",
+			"trigger_bucket",
+			"trigger_topic",
+		}
+
+		for _, attr := range cloudFuncAttrToCheck {
+			if dsAttr[attr] != rsAttr[attr] {
+				return fmt.Errorf(
+					"%s is %s; want %s",
+					attr,
+					dsAttr[attr],
+					rsAttr[attr],
+				)
+			}
+		}
+
+		return nil
+	}
 }
 
 func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName string,
@@ -79,7 +107,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function_http" {
   name           = "%s-http"
   description    = "test function"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_http   = true
@@ -89,7 +117,7 @@ resource "google_cloudfunctions_function" "function_http" {
 
 resource "google_cloudfunctions_function" "function_bucket" {
   name           = "%s-bucket"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_bucket  = "${google_storage_bucket.bucket.name}"
@@ -103,7 +131,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function_pubsub" {
   name           = "%s-pubsub"
-  memory		 = 128
+  available_memory_mb = 128
   storage_bucket = "${google_storage_bucket.bucket.name}"
   storage_object = "${google_storage_bucket_object.archive.name}"
   trigger_topic  = "${google_pubsub_topic.sub.name}"
