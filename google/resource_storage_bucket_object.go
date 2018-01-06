@@ -167,7 +167,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOk("content"); ok {
 		media = bytes.NewReader([]byte(v.(string)))
 	} else {
-		return fmt.Errorf("Error, either \"content\" or \"string\" must be specified")
+		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
 	objectsService := storage.NewObjectsService(config.clientStorage)
