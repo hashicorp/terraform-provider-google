@@ -12,11 +12,11 @@ func resourceEndpointsService() *schema.Resource {
 		Create: resourceEndpointsServiceCreate,
 		Read:   resourceEndpointsServiceRead,
 		Delete: resourceEndpointsServiceDelete,
+		Update: resourceEndpointsServiceUpdate,
 		Schema: map[string]*schema.Schema{
 			"config_text": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"config_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -102,19 +102,22 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+func getServiceConfigSource(config_text string) servicemanagement.ConfigSource {
 	configfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(d.Get("config_text").(string))),
+		FileContents: base64.StdEncoding.EncodeToString([]byte(config_text)),
 		FileType:     "OPEN_API_YAML",
 		FilePath:     "heredoc.yaml",
 	}
+	return servicemanagement.ConfigSource{
+		Files: []*servicemanagement.ConfigFile{&configfile},
+	}
+}
+
+func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
-	}
-	source := servicemanagement.ConfigSource{
-		Files: []*servicemanagement.ConfigFile{&configfile},
 	}
 	serviceName := d.Get("service_name").(string)
 	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
@@ -125,6 +128,20 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 	}
+	// Do a rollout using the update mechanism.
+	err = resourceEndpointsServiceUpdate(d, meta)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(serviceName)
+	return resourceEndpointsServiceRead(d, meta)
+}
+
+func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	serviceName := d.Get("service_name").(string)
+	source := getServiceConfigSource(d.Get("config_text").(string))
 	configService := servicemanagement.NewServicesConfigsService(config.clientServiceMan)
 	op, err := configService.Submit(serviceName, &servicemanagement.SubmitConfigSourceRequest{ConfigSource: &source}).Do()
 	if err != nil {
@@ -138,10 +155,6 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	json.Unmarshal(s, &serviceConfig)
 
 	rolloutService := servicemanagement.NewServicesRolloutsService(config.clientServiceMan)
-	d.Set("config_id", serviceConfig.ServiceConfig.Id)
-	d.Set("dns_address", serviceConfig.ServiceConfig.Name)
-	d.Set("apis", flattenServiceManagementApi(serviceConfig.ServiceConfig.Apis))
-	d.Set("endpoints", flattenServiceManagementEndpoints(serviceConfig.ServiceConfig.Endpoints))
 	rollout := servicemanagement.Rollout{
 		ServiceName: serviceName,
 		TrafficPercentStrategy: &servicemanagement.TrafficPercentStrategy{
@@ -156,7 +169,6 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	d.SetId(serviceName)
 	return resourceEndpointsServiceRead(d, meta)
 }
 
