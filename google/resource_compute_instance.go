@@ -271,7 +271,7 @@ func resourceComputeInstance() *schema.Resource {
 			"metadata": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"metadata_startup_script": &schema.Schema{
