@@ -115,7 +115,7 @@ var schemaNodeConfig = &schema.Schema{
 func expandNodeConfig(v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
 	nc := &container.NodeConfig{
-		// Defaults can't be set on a list in the schema, so set the default on create here.
+		// Defaults can't be set on a list/set in the schema, so set the default on create here.
 		OauthScopes: defaultOauthScopes,
 	}
 	if len(nodeConfigs) == 0 {
