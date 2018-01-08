@@ -1,6 +1,7 @@
 ## 1.4.1 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_logging_organization_sink` [GH-923]
 * **New Resource:** `google_service_account_iam_binding` [GH-840]
 * **New Resource:** `google_service_account_iam_member` [GH-840]
 * **New Resource:** `google_service_account_iam_policy` [GH-840]
