@@ -137,6 +137,7 @@ func Provider() terraform.ResourceProvider {
 			"google_folder_iam_policy":                     ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
+			"google_logging_organization_sink":             resourceLoggingOrganizationSink(),
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_kms_key_ring":                          resourceKmsKeyRing(),
