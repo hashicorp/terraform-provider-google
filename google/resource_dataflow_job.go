@@ -14,16 +14,12 @@ import (
 )
 
 var dataflowTerminalStatesMap = map[string]bool{
-	"JOB_STATE_UNKNOWN":    false,
-	"JOB_STATE_STOPPED":    false,
-	"JOB_STATE_RUNNING":    false,
 	"JOB_STATE_DONE":       true,
 	"JOB_STATE_FAILED":     true,
 	"JOB_STATE_CANCELLED":  true,
 	"JOB_STATE_UPDATED":    true,
 	"JOB_STATE_DRAINING":   true,
 	"JOB_STATE_DRAINED":    true,
-	"JOB_STATE_PENDING":    false,
 	"JOB_STATE_CANCELLING": true,
 }
 
@@ -100,22 +96,21 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	jobName := d.Get("name").(string)
-	gcsPath := d.Get("template_gcs_path").(string)
-	tempLocation := d.Get("temp_gcs_location").(string)
-	zone := d.Get("zone").(string)
-	maxWorkers := d.Get("max_workers").(int)
-	params := expandDataflowParamsStringMap(d.Get("parameters").(map[string]interface{}))
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	params := expandStringMap(d, "parameters")
 
 	env := dataflow.RuntimeEnvironment{
-		TempLocation: tempLocation,
+		TempLocation: d.Get("temp_gcs_location").(string),
 		Zone:         zone,
-		MaxWorkers:   int64(maxWorkers),
+		MaxWorkers:   int64(d.Get("max_workers").(int)),
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{
-		JobName:     jobName,
-		GcsPath:     gcsPath,
+		JobName:     d.Get("name").(string),
+		GcsPath:     d.Get("template_gcs_path").(string),
 		Parameters:  params,
 		Environment: &env,
 	}
@@ -124,7 +119,6 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	d.SetId(job.Id)
 
 	return resourceDataflowJobRead(d, meta)
@@ -151,6 +145,9 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	} else {
 		d.Set("state", job.CurrentState)
+		d.Set("name", job.Name)
+		d.Set("project", project)
+		d.SetId(job.Id)
 	}
 
 	return nil
@@ -188,14 +185,6 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	d.SetId("")
 
 	return nil
-}
-
-func expandDataflowParamsStringMap(m map[string]interface{}) map[string]string {
-	result := make(map[string]string)
-	for k, v := range m {
-		result[k] = v.(string)
-	}
-	return result
 }
 
 func mapOnDelete(policy string) (string, error) {

@@ -84,6 +84,8 @@ resource "google_dataflow_job" "big_data" {
 		inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
 		output    = "${google_storage_bucket.temp.url}/output"
 	}
+	zone = "us-central1-f"
+	project = "%s"
 
 	on_delete = "cancel"
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
