@@ -105,7 +105,7 @@ func resourceBigQueryDataset() *schema.Resource {
 			"labels": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			// SelfLink: [Output-only] A URL that can be used to access the resource
