@@ -762,8 +762,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	d.Set("can_ip_forward", instance.CanIpForward)
 
-	machineTypeResource := strings.Split(instance.MachineType, "/")
-	machineType := machineTypeResource[len(machineTypeResource)-1]
+	machineType := GetResourceNameFromSelfLink(instance.MachineType)
 	d.Set("machine_type", machineType)
 
 	// Set the networks

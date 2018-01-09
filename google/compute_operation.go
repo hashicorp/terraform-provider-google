@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -25,12 +24,10 @@ func (w *ComputeOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 		var err error
 
 		if w.Op.Zone != "" {
-			zoneURLParts := strings.Split(w.Op.Zone, "/")
-			zone := zoneURLParts[len(zoneURLParts)-1]
+			zone := GetResourceNameFromSelfLink(w.Op.Zone)
 			op, err = w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()
 		} else if w.Op.Region != "" {
-			regionURLParts := strings.Split(w.Op.Region, "/")
-			region := regionURLParts[len(regionURLParts)-1]
+			region := GetResourceNameFromSelfLink(w.Op.Region)
 			op, err = w.Service.RegionOperations.Get(w.Project, region, w.Op.Name).Do()
 		} else {
 			op, err = w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()

@@ -373,8 +373,7 @@ func testAccCheckInstanceGroupManagerUpdated(n string, size int64, targetPools [
 
 		tpNames := make([]string, 0, len(manager.TargetPools))
 		for _, targetPool := range manager.TargetPools {
-			targetPoolParts := strings.Split(targetPool, "/")
-			tpNames = append(tpNames, targetPoolParts[len(targetPoolParts)-1])
+			tpNames = append(tpNames, GetResourceNameFromSelfLink(targetPool))
 		}
 
 		sort.Strings(tpNames)
@@ -490,7 +489,7 @@ func testAccCheckInstanceGroupManagerTemplateTags(n string, tags []string) resou
 
 		// check that the instance template updated
 		instanceTemplate, err := config.clientCompute.InstanceTemplates.Get(
-			config.Project, resourceSplitter(manager.InstanceTemplate)).Do()
+			config.Project, GetResourceNameFromSelfLink(manager.InstanceTemplate)).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading instance template: %s", err)
 		}
@@ -995,10 +994,4 @@ resource "google_compute_autoscaler" "foobar" {
 	}
 }
 `, template, target, igm, hck, autoscaler)
-}
-
-func resourceSplitter(resource string) string {
-	splits := strings.Split(resource, "/")
-
-	return splits[len(splits)-1]
 }

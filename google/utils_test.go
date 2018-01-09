@@ -50,22 +50,6 @@ func TestConvertStringMap(t *testing.T) {
 	}
 }
 
-func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
-	actual := extractLastResourceFromUri("http://something.com/one/two/three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
-func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
-	actual := extractLastResourceFromUri("three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
 func TestIpCidrRangeDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New          string

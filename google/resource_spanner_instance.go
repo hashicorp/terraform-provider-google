@@ -165,7 +165,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %s", id.terraformId()))
 	}
 
-	d.Set("config", extractInstanceConfigFromUri(instance.Config))
+	d.Set("config", GetResourceNameFromSelfLink(instance.Config))
 	d.Set("labels", instance.Labels)
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
@@ -269,14 +269,6 @@ func buildSpannerInstanceId(d *schema.ResourceData, config *Config) (*spannerIns
 		Project:  project,
 		Instance: d.Get("name").(string),
 	}, nil
-}
-
-func extractInstanceConfigFromUri(configUri string) string {
-	return extractLastResourceFromUri(configUri)
-}
-
-func extractInstanceNameFromUri(nameUri string) string {
-	return extractLastResourceFromUri(nameUri)
 }
 
 func genSpannerInstanceName() string {

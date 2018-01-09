@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -640,8 +639,7 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []m
 		if disk.InitializeParams != nil {
 			var source_img = fmt.Sprintf("disk.%d.source_image", i)
 			if d.Get(source_img) == nil || d.Get(source_img) == "" {
-				sourceImageUrl := strings.Split(disk.InitializeParams.SourceImage, "/")
-				diskMap["source_image"] = sourceImageUrl[len(sourceImageUrl)-1]
+				diskMap["source_image"] = GetResourceNameFromSelfLink(disk.InitializeParams.SourceImage)
 			} else {
 				diskMap["source_image"] = d.Get(source_img)
 			}

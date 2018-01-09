@@ -570,7 +570,7 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 		icg.NumInstances = int64(v.(int))
 	}
 	if v, ok := cfg["machine_type"]; ok {
-		icg.MachineTypeUri = extractLastResourceFromUri(v.(string))
+		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
 	}
 
 	if dc, ok := cfg["disk_config"]; ok {
@@ -750,15 +750,22 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	gceConfig := map[string]interface{}{
 		"tags":             gcc.Tags,
 		"service_account":  gcc.ServiceAccount,
-		"zone":             extractLastResourceFromUri(gcc.ZoneUri),
+		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,
 	}
 
 	if gcc.NetworkUri != "" {
+<<<<<<< HEAD
 		gceConfig["network"] = gcc.NetworkUri
 	}
 	if gcc.SubnetworkUri != "" {
 		gceConfig["subnetwork"] = gcc.SubnetworkUri
+=======
+		gceConfig["network"] = GetResourceNameFromSelfLink(gcc.NetworkUri)
+	}
+	if gcc.SubnetworkUri != "" {
+		gceConfig["subnetwork"] = GetResourceNameFromSelfLink(gcc.SubnetworkUri)
+>>>>>>> Standardize resource name extraction from self_link/uri
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
 		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
@@ -791,7 +798,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
-		data["machine_type"] = extractLastResourceFromUri(icg.MachineTypeUri)
+		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb

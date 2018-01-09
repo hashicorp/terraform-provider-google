@@ -172,8 +172,7 @@ func isConflictError(err error) bool {
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
-	if parts[len(parts)-1] == new {
+	if GetResourceNameFromSelfLink(old) == new {
 		return true
 	}
 	return false
@@ -265,11 +264,6 @@ func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []str
 		arr = append(arr, f(v.(string)))
 	}
 	return arr
-}
-
-func extractLastResourceFromUri(uri string) string {
-	rUris := strings.Split(uri, "/")
-	return rUris[len(rUris)-1]
 }
 
 func convertStringArrToInterface(strs []string) []interface{} {
