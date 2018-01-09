@@ -121,13 +121,13 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 
 		nf, err := ParseNetworkFieldValue(network, d, config)
 		if err != nil {
-			return nil, fmt.Errorf("cannot determine selflink for network '%s': %s", network, err)
+			return nil, fmt.Errorf("cannot determine self_link for network %q: %s", network, err)
 		}
 
 		subnetProjectField := fmt.Sprintf("network_interface.%d.subnetwork_project", i)
 		sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
 		if err != nil {
-			return nil, fmt.Errorf("cannot determine selflink for subnetwork '%s': %s", subnetwork, err)
+			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 		}
 
 		ifaces[i] = &computeBeta.NetworkInterface{
