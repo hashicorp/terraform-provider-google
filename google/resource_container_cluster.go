@@ -528,6 +528,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Cluster: cluster,
 	}
 
+	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Create(
 		project, zoneName, req).Do()
 	if err != nil {
@@ -677,6 +679,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -713,6 +717,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredMasterVersion: desiredMasterVersion,
 				},
 			}
+			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 				project, zoneName, clusterName, req).Do()
 			if err != nil {
@@ -740,6 +746,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredNodeVersion: desiredNodeVersion,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -765,6 +773,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
 				},
 			}
+			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 				project, zoneName, clusterName, req).Do()
 			if err != nil {
@@ -794,7 +804,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				NullFields: []string{"MaintenancePolicy"},
 			}
 		}
-
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -824,6 +835,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredLocations: locations,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -848,6 +861,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
 		if err != nil {
 			return err
@@ -872,6 +887,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMonitoringService: desiredMonitoringService,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -895,6 +912,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetNetworkPolicyRequest{
 			NetworkPolicy: expandNetworkPolicy(np),
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -927,6 +946,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetLoggingServiceRequest{
 			LoggingService: logging,
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -965,6 +986,8 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
+	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Delete(
 		project, zoneName, clusterName).Do()
 	if err != nil {
@@ -1210,4 +1233,8 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func containerClusterMutexKey(project, zone, clusterName string) string {
+	return fmt.Sprintf("google-container-cluster/%s/%s/%s", project, zone, clusterName)
 }
