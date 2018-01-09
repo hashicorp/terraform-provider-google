@@ -33,7 +33,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
+	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.FailNow()
@@ -52,7 +52,6 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"name", functionName),
-					//testAccCloudFunctionsFunctionName(functionName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -85,7 +84,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
+	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.FailNow()
@@ -134,7 +133,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
-	zipFilePath, err := createZIParchiveForIndexJs(testPubSubTriggerPath)
+	zipFilePath, err := createZIPArchiveForIndexJs(testPubSubTriggerPath)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.FailNow()
@@ -180,7 +179,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIParchiveForIndexJs(testBucketTriggerPath)
+	zipFilePath, err := createZIPArchiveForIndexJs(testBucketTriggerPath)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.FailNow()
@@ -236,7 +235,7 @@ func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 		}
 		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err == nil {
-			return fmt.Errorf("CloudFunctions still exists")
+			return fmt.Errorf("Function still exists")
 		}
 
 	}
@@ -288,21 +287,21 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 		switch n {
 		case FUNCTION_TRIGGER_HTTP:
 			if function.HttpsTrigger == nil {
-				return fmt.Errorf("Expected trigger_http to be set")
+				return fmt.Errorf("Expected HttpsTrigger to be set")
 			}
 		case FUNCTION_TRIGGER_BUCKET:
 			if function.EventTrigger == nil {
 				return fmt.Errorf("Expected trigger_bucket to be set")
 			}
 			if strings.Index(function.EventTrigger.EventType, "cloud.storage") == -1 {
-				return fmt.Errorf("Expected trigger_bucket to be set")
+				return fmt.Errorf("Expected cloud.storage EventType, found %s", function.EventTrigger.EventType)
 			}
 		case FUNCTION_TRIGGER_TOPIC:
 			if function.EventTrigger == nil {
 				return fmt.Errorf("Expected trigger_bucket to be set")
 			}
 			if strings.Index(function.EventTrigger.EventType, "cloud.pubsub") == -1 {
-				return fmt.Errorf("Expected trigger_topic to be set")
+				return fmt.Errorf("Expected cloud.pubsub EventType, found %s", function.EventTrigger.EventType)
 			}
 		default:
 			return fmt.Errorf("testAccCloudFunctionsFunctionTrigger expects only FUNCTION_TRIGGER_HTTP, " +
@@ -327,7 +326,7 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string,
 	}
 }
 
-func createZIParchiveForIndexJs(sourcePath string) (string, error) {
+func createZIPArchiveForIndexJs(sourcePath string) (string, error) {
 	source, err := ioutil.ReadFile(sourcePath)
 	if err != nil {
 		return "", err
@@ -352,7 +351,7 @@ func createZIParchiveForIndexJs(sourcePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//Create temp file to write zip to
+	// Create temp file to write zip to
 	tmpfile, err := ioutil.TempFile("", "zip")
 	if err != nil {
 		return "", err
@@ -380,14 +379,14 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name           = "%s"
-  description    = "test function"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_http   = true
-  timeout		 = 61
-  entry_point    = "helloGET"
+  name                  = "%s"
+  description           = "test function"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_http          = true
+  timeout		        = 61
+  entry_point           = "helloGET"
   labels {
 	my-label = "my-label-value"
   }
@@ -408,14 +407,14 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name          = "%s"
-  description   = "test function updated"
-  available_memory_mb = 256
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_http  = true
-  timeout		= 91
-  entry_point   = "helloGET"
+  name                  = "%s"
+  description           = "test function updated"
+  available_memory_mb   = 256
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_http          = true
+  timeout		        = 91
+  entry_point           = "helloGET"
   labels {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
@@ -441,13 +440,13 @@ resource "google_pubsub_topic" "sub" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name           = "%s"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_topic  = "${google_pubsub_topic.sub.name}"
-  timeout		 = 61
-  entry_point    = "helloPubSub"
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_topic         = "${google_pubsub_topic.sub.name}"
+  timeout		        = 61
+  entry_point           = "helloPubSub"
 }`, bucketName, zipFilePath, topic, functionName)
 }
 
@@ -465,12 +464,12 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name           = "%s"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_bucket  = "${google_storage_bucket.bucket.name}"
-  timeout		 = 61
-  entry_point    = "helloGCS"
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_bucket        = "${google_storage_bucket.bucket.name}"
+  timeout		        = 61
+  entry_point           = "helloGCS"
 }`, bucketName, zipFilePath, functionName)
 }

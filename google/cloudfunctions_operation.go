@@ -16,10 +16,7 @@ type CloudFunctionsOperationWaiter struct {
 
 func (w *CloudFunctionsOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var op *cloudfunctions.Operation
-		var err error
-
-		op, err = w.Service.Operations.Get(w.Op.Name).Do()
+		op, err := w.Service.Operations.Get(w.Op.Name).Do()
 
 		if err != nil {
 			return nil, "", err
@@ -37,7 +34,7 @@ func (w *CloudFunctionsOperationWaiter) RefreshFunc() resource.StateRefreshFunc 
 
 func (w *CloudFunctionsOperationWaiter) Conf() *resource.StateChangeConf {
 	return &resource.StateChangeConf{
-		Pending: []string{"PENDING", "RUNNING"},
+		Pending: []string{"PENDING"},
 		Target:  []string{"DONE"},
 		Refresh: w.RefreshFunc(),
 	}

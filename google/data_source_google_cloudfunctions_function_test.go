@@ -19,10 +19,9 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
-	zipFilePath, err := createZIParchiveForIndexJs(testHTTPTriggerPath)
+	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
-		t.Errorf(err.Error())
-		t.FailNow()
+		t.Fatal(err.Error())
 	}
 	defer os.Remove(zipFilePath) // clean up
 
@@ -95,7 +94,7 @@ func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName string,
 	bucketName string, zipFilePath string, topicName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -105,50 +104,50 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function_http" {
-  name           = "%s-http"
-  description    = "test function"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_http   = true
-  timeout		 = 61
-  entry_point    = "helloGET"
+  name                  = "%s-http"
+  description           = "test function"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_http          = true
+  timeout		        = 61
+  entry_point           = "helloGET"
 }
 
 resource "google_cloudfunctions_function" "function_bucket" {
-  name           = "%s-bucket"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_bucket  = "${google_storage_bucket.bucket.name}"
-  timeout		 = 61
-  entry_point    = "helloGET"
+  name                  = "%s-bucket"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_bucket        = "${google_storage_bucket.bucket.name}"
+  timeout		        = 61
+  entry_point           = "helloGET"
 }
 
 resource "google_pubsub_topic" "sub" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_cloudfunctions_function" "function_pubsub" {
-  name           = "%s-pubsub"
-  available_memory_mb = 128
-  storage_bucket = "${google_storage_bucket.bucket.name}"
-  storage_object = "${google_storage_bucket_object.archive.name}"
-  trigger_topic  = "${google_pubsub_topic.sub.name}"
-  timeout		 = 61
-  entry_point    = "helloGET"
+  name                  = "%s-pubsub"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_topic         = "${google_pubsub_topic.sub.name}"
+  timeout		        = 61
+  entry_point           = "helloGET"
 }
 
 data "google_cloudfunctions_function" "function_http" {
-	name = "${google_cloudfunctions_function.function_http.name}"
+  name = "${google_cloudfunctions_function.function_http.name}"
 }
 
 data "google_cloudfunctions_function" "function_bucket" {
-	name = "${google_cloudfunctions_function.function_bucket.name}"
+  name = "${google_cloudfunctions_function.function_bucket.name}"
 }
 
 data "google_cloudfunctions_function" "function_pubsub" {
-	name = "${google_cloudfunctions_function.function_pubsub.name}"
+  name = "${google_cloudfunctions_function.function_pubsub.name}"
 }
 `, bucketName, zipFilePath, functionName, functionName,
 		topicName, functionName)
