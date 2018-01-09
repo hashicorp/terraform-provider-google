@@ -13,14 +13,14 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-var dataflowTerminalStatesMap = map[string]bool{
-	"JOB_STATE_DONE":       true,
-	"JOB_STATE_FAILED":     true,
-	"JOB_STATE_CANCELLED":  true,
-	"JOB_STATE_UPDATED":    true,
-	"JOB_STATE_DRAINING":   true,
-	"JOB_STATE_DRAINED":    true,
-	"JOB_STATE_CANCELLING": true,
+var dataflowTerminalStatesMap = map[string]struct{}{
+	"JOB_STATE_DONE":       {},
+	"JOB_STATE_FAILED":     {},
+	"JOB_STATE_CANCELLED":  {},
+	"JOB_STATE_UPDATED":    {},
+	"JOB_STATE_DRAINING":   {},
+	"JOB_STATE_DRAINED":    {},
+	"JOB_STATE_CANCELLING": {},
 }
 
 func resourceDataflowJob() *schema.Resource {
@@ -139,7 +139,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
-	if dataflowTerminalStatesMap[job.CurrentState] {
+	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
 		d.SetId("")
 		return nil
@@ -166,7 +166,7 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	for ; !dataflowTerminalStatesMap[d.Get("state").(string)]; resourceDataflowJobRead(d, meta) {
+	for _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok; _, ok = dataflowTerminalStatesMap[d.Get("state").(string)] {
 		job := &dataflow.Job{
 			RequestedState: requestedState,
 		}
@@ -177,8 +177,11 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 			return err
 		} else if ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
 			time.Sleep(5 * time.Second)
-			continue
 		} else {
+			return err
+		}
+		err = resourceDataflowJobRead(d, meta)
+		if err != nil {
 			return err
 		}
 	}
