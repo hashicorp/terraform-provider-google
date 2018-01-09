@@ -239,6 +239,8 @@ func TestParseRegionalFieldValue(t *testing.T) {
 		ProjectSchemaValue   string
 		RegionSchemaField    string
 		RegionSchemaValue    string
+		ZoneSchemaField      string
+		ZoneSchemaValue      string
 		Config               *Config
 	}{
 		"subnetwork is a full self link": {
@@ -278,6 +280,23 @@ func TestParseRegionalFieldValue(t *testing.T) {
 			Config:               &Config{Project: "default-project", Region: "default-region"},
 			ExpectedRelativeLink: "projects/default-project/regions/us-east1/subnetworks/my-subnetwork",
 		},
+		"subnetwork is the name only and region is extracted from the one field.": {
+			FieldValue:           "my-subnetwork",
+			ProjectSchemaValue:   "schema-project",
+			RegionSchemaField:    "region",
+			ZoneSchemaField:      "zone",
+			ZoneSchemaValue:      "us-central1-a",
+			Config:               &Config{Project: "default-project", Region: "default-region"},
+			ExpectedRelativeLink: "projects/default-project/regions/us-central1/subnetworks/my-subnetwork",
+		},
+		"subnetwork is the name only and region is extracted from the provider-level zone.": {
+			FieldValue:           "my-subnetwork",
+			ProjectSchemaValue:   "schema-project",
+			RegionSchemaField:    "region",
+			ZoneSchemaField:      "zone",
+			Config:               &Config{Project: "default-project", Zone: "us-central1-c"},
+			ExpectedRelativeLink: "projects/default-project/regions/us-central1/subnetworks/my-subnetwork",
+		},
 		"subnetwork is the name only and no region field is specified": {
 			FieldValue:           "my-subnetwork",
 			Config:               &Config{Project: "default-project", Region: "default-region"},
@@ -305,19 +324,22 @@ func TestParseRegionalFieldValue(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 			fieldsInSchema := make(map[string]interface{})
 
-			if len(tc.ProjectSchemaValue) > 0 && len(tc.ProjectSchemaField) > 0 {
+			if tc.ProjectSchemaValue != "" && tc.ProjectSchemaField != "" {
 				fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
 			}
 
-			if len(tc.RegionSchemaValue) > 0 && len(tc.RegionSchemaField) > 0 {
+			if tc.RegionSchemaValue != "" && tc.RegionSchemaField != "" {
 				fieldsInSchema[tc.RegionSchemaField] = tc.RegionSchemaValue
+			}
+			if tc.ZoneSchemaValue != "" && tc.ZoneSchemaField != "" {
+				fieldsInSchema[tc.ZoneSchemaField] = tc.ZoneSchemaValue
 			}
 
 			d := &ResourceDataMock{
 				FieldsInSchema: fieldsInSchema,
 			}
 
-			v, err := parseRegionalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.RegionSchemaField, d, tc.Config, tc.IsEmptyValid)
+			v, err := parseRegionalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.RegionSchemaField, tc.ZoneSchemaField, d, tc.Config, tc.IsEmptyValid)
 
 			if err != nil {
 				if !tc.ExpectedError {
