@@ -155,6 +155,8 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	cluster := d.Get("cluster").(string)
 
+	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, req).Do()
 
 	if err != nil {
@@ -241,6 +243,8 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	cluster := d.Get("cluster").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
+	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
 		project, zone, cluster, name).Do()
 	if err != nil {
@@ -406,6 +410,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	if err != nil {
 		return err
 	}
+	cluster := d.Get("cluster").(string)
 	npName := d.Get(prefix + "name").(string)
 
 	if d.HasChange(prefix + "autoscaling") {
@@ -429,6 +434,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.UpdateClusterRequest{
 			Update: update,
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zone, clusterName, req).Do()
 		if err != nil {
@@ -453,6 +460,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.SetNodePoolSizeRequest{
 			NodeCount: newSize,
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
 		if err != nil {
 			return err
@@ -482,6 +491,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.SetNodePoolManagementRequest{
 			Management: management,
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
 			project, zone, clusterName, npName, req).Do()
 
