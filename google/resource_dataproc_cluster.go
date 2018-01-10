@@ -755,17 +755,10 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	}
 
 	if gcc.NetworkUri != "" {
-<<<<<<< HEAD
 		gceConfig["network"] = gcc.NetworkUri
 	}
 	if gcc.SubnetworkUri != "" {
 		gceConfig["subnetwork"] = gcc.SubnetworkUri
-=======
-		gceConfig["network"] = GetResourceNameFromSelfLink(gcc.NetworkUri)
-	}
-	if gcc.SubnetworkUri != "" {
-		gceConfig["subnetwork"] = GetResourceNameFromSelfLink(gcc.SubnetworkUri)
->>>>>>> Standardize resource name extraction from self_link/uri
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
 		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
