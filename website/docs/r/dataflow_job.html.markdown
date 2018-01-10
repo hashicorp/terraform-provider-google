@@ -18,7 +18,7 @@ the official documentation for
 ```hcl
 resource "google_dataflow_job" "big_data_job" {
     name = "dataflow-job"
-	template_gcs_path = "gs://my-bucket/templates/template_file"
+    template_gcs_path = "gs://my-bucket/templates/template_file"
     temp_gcs_location = "gs://my-bucket/tmp_dir"
     parameters {
         foo = "bar"
@@ -39,7 +39,6 @@ A Dataflow job which is 'destroyed' may be "cancelled" or "drained".  If "cancel
 The following arguments are supported:
 
 * `name` - (Required) A unique name for the resource, required by Dataflow.
-    Changing this forces a new resource to be created.
 * `template_gcs_path` - (Required) The GCS path to the Dataflow job template.
 * `temp_gcs_location` - (Required) A writeable location on GCS for the Dataflow job to dump its temporary data.
 
@@ -53,4 +52,4 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-In addition to the above, the resource provides `state` - the current state of the resource, selected from the [JobState enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobState)
+* `state` - The current state of the resource, selected from the [JobState enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobState)

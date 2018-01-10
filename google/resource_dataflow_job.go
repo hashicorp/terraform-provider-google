@@ -143,12 +143,11 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
 		d.SetId("")
 		return nil
-	} else {
-		d.Set("state", job.CurrentState)
-		d.Set("name", job.Name)
-		d.Set("project", project)
-		d.SetId(job.Id)
 	}
+	d.Set("state", job.CurrentState)
+	d.Set("name", job.Name)
+	d.Set("project", project)
+	d.SetId(job.Id)
 
 	return nil
 }
