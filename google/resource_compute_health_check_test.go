@@ -168,6 +168,35 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 	})
 }
 
+func TestAccComputeHealthCheck_typeTransition(t *testing.T) {
+	t.Parallel()
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeHealthCheck_https(hckName),
+			},
+			resource.TestStep{
+				Config: testAccComputeHealthCheck_http(hckName),
+			},
+			resource.TestStep{
+				Config: testAccComputeHealthCheck_ssl(hckName),
+			},
+			resource.TestStep{
+				Config: testAccComputeHealthCheck_tcp(hckName),
+			},
+			resource.TestStep{
+				Config: testAccComputeHealthCheck_https(hckName),
+			},
+		},
+	})
+}
+
 func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	t.Parallel()
 
