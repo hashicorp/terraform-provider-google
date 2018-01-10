@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/sourcerepo/v1"
 )
@@ -29,6 +30,11 @@ func resourceSourceRepoRepository() *schema.Resource {
 
 			"size": &schema.Schema{
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"url": &schema.Schema{
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -80,6 +86,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 	d.Set("size", repo.Size)
 	d.Set("project", project)
+	d.Set("url", repo.Url)
 
 	return nil
 }

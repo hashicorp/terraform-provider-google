@@ -35,6 +35,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attribute is exported:
+The following attributes are exported:
 
 * `size` - The size of the repository.
+* `url` - The url to clone the repository.
