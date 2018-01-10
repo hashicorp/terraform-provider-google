@@ -35,8 +35,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
-		t.Errorf(err.Error())
-		t.FailNow()
+		t.Fatal(err.Error())
 	}
 	defer os.Remove(zipFilePath) // clean up
 
@@ -86,8 +85,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
-		t.Errorf(err.Error())
-		t.FailNow()
+		t.Fatal(err.Error())
 	}
 	defer os.Remove(zipFilePath) // clean up
 
@@ -135,8 +133,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 	zipFilePath, err := createZIPArchiveForIndexJs(testPubSubTriggerPath)
 	if err != nil {
-		t.Errorf(err.Error())
-		t.FailNow()
+		t.Fatal(err.Error())
 	}
 	defer os.Remove(zipFilePath) // clean up
 
@@ -181,8 +178,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIPArchiveForIndexJs(testBucketTriggerPath)
 	if err != nil {
-		t.Errorf(err.Error())
-		t.FailNow()
+		t.Fatal(err.Error())
 	}
 	defer os.Remove(zipFilePath) // clean up
 
@@ -291,14 +287,14 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 			}
 		case FUNCTION_TRIGGER_BUCKET:
 			if function.EventTrigger == nil {
-				return fmt.Errorf("Expected trigger_bucket to be set")
+				return fmt.Errorf("Expected EventTrigger to be set")
 			}
 			if strings.Index(function.EventTrigger.EventType, "cloud.storage") == -1 {
 				return fmt.Errorf("Expected cloud.storage EventType, found %s", function.EventTrigger.EventType)
 			}
 		case FUNCTION_TRIGGER_TOPIC:
 			if function.EventTrigger == nil {
-				return fmt.Errorf("Expected trigger_bucket to be set")
+				return fmt.Errorf("Expected EventTrigger to be set")
 			}
 			if strings.Index(function.EventTrigger.EventType, "cloud.pubsub") == -1 {
 				return fmt.Errorf("Expected cloud.pubsub EventType, found %s", function.EventTrigger.EventType)
@@ -385,7 +381,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_http          = true
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloGET"
   labels {
 	my-label = "my-label-value"
@@ -413,7 +409,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_http          = true
-  timeout		        = 91
+  timeout               = 91
   entry_point           = "helloGET"
   labels {
 	my-label = "my-updated-label-value"
@@ -445,7 +441,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_topic         = "${google_pubsub_topic.sub.name}"
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloPubSub"
 }`, bucketName, zipFilePath, topic, functionName)
 }
@@ -469,7 +465,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_bucket        = "${google_storage_bucket.bucket.name}"
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloGCS"
 }`, bucketName, zipFilePath, functionName)
 }

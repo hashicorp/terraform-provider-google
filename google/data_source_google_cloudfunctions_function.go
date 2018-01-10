@@ -12,7 +12,7 @@ func dataSourceGoogleCloudFunctionsFunction() *schema.Resource {
 	addRequiredFieldsToSchema(dsSchema, "name")
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "source_archive_bucket", "source_archive_object")
+	addOptionalFieldsToSchema(dsSchema, "project", "region")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleCloudFunctionsFunctionRead,
