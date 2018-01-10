@@ -51,6 +51,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 			"policy_data": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Deprecated: "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
 			},
 		},
 	}
