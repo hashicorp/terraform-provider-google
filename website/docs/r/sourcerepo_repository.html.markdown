@@ -9,7 +9,7 @@ description: |-
 # google\_sourcerepo\_repository
 
 For more information, see [the official
-documentation](https://cloud.google.com/compute/docs/source-repositories) and
+documentation](https://cloud.google.com/source-repositories/) and
 [API](https://cloud.google.com/source-repositories/docs/reference/rest/v1/projects.repos)
 
 ## Example Usage
