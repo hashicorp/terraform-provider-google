@@ -27,6 +27,7 @@ IMPROVEMENTS:
 * dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
 * all: Make provider-wide region optional [GH-916]
 * all: Infers region from zone schema before using the provider-level region [GH-938]
+* all: Upgrade terraform core to v0.11.2 [GH-940]
 
 BUG FIXES:
 * compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
