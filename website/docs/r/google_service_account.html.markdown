@@ -20,21 +20,6 @@ resource "google_service_account" "object_viewer" {
   account_id   = "object-viewer"
   display_name = "Object viewer"
 }
-
-resource "google_project_iam_policy" "my_project_policy" {
-  project     = "your-project-id"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
-}
-
-data "google_iam_policy" "admin" {
-  binding {
-    role = "roles/storage.objectViewer"
-
-    members = [
-      "serviceAccount:${google_service_account.object_viewer.email}",
-    ]
-  }
-}
 ```
 
 ## Argument Reference
@@ -54,9 +39,7 @@ The following arguments are supported:
     the IAM policy that will be applied to the service account. The policy will be
     merged with any existing policy.
 
-    This attribute has been deprecated. Use the `google_project_iam_policy` resource instead. See example above.
-
-    Changing this updates the policy.
+    This attribute has been deprecated. Use the [google_service_account_iam_* resources](google_service_account_iam.html) instead.
 
     Deleting this removes the policy declared in Terraform. Any policy bindings
     associated with the project before Terraform was used are not deleted.
