@@ -136,26 +136,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"available_memory_mb": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					availableMemoryMB := v.(int)
-
-					if FUNCTION_ALLOWED_MEMORY[availableMemoryMB] != true {
-						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
-							joinMapKeys(&FUNCTION_ALLOWED_MEMORY), availableMemoryMB))
-					}
-					return
-				},
-			},
-
-			"timeout": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
-			},
-
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -180,6 +160,28 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
+			},
+
+			"available_memory_mb": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					availableMemoryMB := v.(int)
+
+					if FUNCTION_ALLOWED_MEMORY[availableMemoryMB] != true {
+						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
+							joinMapKeys(&FUNCTION_ALLOWED_MEMORY), availableMemoryMB))
+					}
+					return
+				},
+			},
+
+			"timeout": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
 			},
 
 			"https_trigger_url": {
@@ -372,24 +374,6 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		Name: cloudFuncId.cloudFunctionId(),
 	}
 
-	if d.HasChange("labels") {
-		function.Labels = expandLabels(d)
-
-		op, err := config.clientCloudFunctions.Projects.Locations.Functions.Patch(function.Name, &function).
-			UpdateMask("labels").Do()
-
-		if err != nil {
-			return fmt.Errorf("Error when updating labels: %s", err)
-		}
-
-		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op,
-			"Updating CloudFunctions Function Labels")
-		if err != nil {
-			return err
-		}
-		d.SetPartial("labels")
-	}
-
 	var updateMaskArr []string
 	if d.HasChange("available_memory_mb") {
 		availableMemoryMb := d.Get("available_memory_mb").(int)
@@ -405,6 +389,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("timeout") {
 		function.Timeout = fmt.Sprintf("%vs", d.Get("timeout").(int))
 		updateMaskArr = append(updateMaskArr, "timeout")
+	}
+
+	if d.HasChange("labels") {
+		function.Labels = expandLabels(d)
+		updateMaskArr = append(updateMaskArr, "labels")
 	}
 
 	if len(updateMaskArr) > 0 {
