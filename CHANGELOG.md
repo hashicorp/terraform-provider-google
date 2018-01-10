@@ -1,4 +1,4 @@
-## 1.4.1 (Unreleased)
+## 1.5.0 (Unreleased)
 
 FEATURES:
 * **New Resource:** `google_cloudfunctions_function` [GH-899]
