@@ -761,9 +761,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("can_ip_forward", instance.CanIpForward)
-
-	machineType := GetResourceNameFromSelfLink(instance.MachineType)
-	d.Set("machine_type", machineType)
+	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
