@@ -14,11 +14,11 @@ import (
 )
 
 // Min is 1 second, max is 9 minutes 540 sec
-const FUNCTION_TIMEOUT_MAX = 540
-const FUNCTION_TIMEOUT_MIN = 1
-const FUNCTION_DEFAULT_TIMEOUT = 60
+const functionTimeOutMax = 540
+const functionTimeOutMin = 1
+const functionDefaultTimeout = 60
 
-var FUNCTION_ALLOWED_MEMORY = map[int]bool{
+var functionAllowedMemory = map[int]bool{
 	128:  true,
 	256:  true,
 	512:  true,
@@ -26,7 +26,7 @@ var FUNCTION_ALLOWED_MEMORY = map[int]bool{
 	2048: true,
 }
 
-const FUNCTION_DEFAULT_AVIAILABLE_MEMORY_MB = 256
+const functionDefaultAllowedMemoryMb = 256
 
 type cloudFunctionId struct {
 	Project string
@@ -136,13 +136,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"available_memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  FUNCTION_DEFAULT_AVIAILABLE_MEMORY_MB,
+				Default:  functionDefaultAllowedMemoryMb,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
 
-					if FUNCTION_ALLOWED_MEMORY[availableMemoryMB] != true {
+					if functionAllowedMemory[availableMemoryMB] != true {
 						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
-							joinMapKeys(&FUNCTION_ALLOWED_MEMORY), availableMemoryMB))
+							joinMapKeys(&functionAllowedMemory), availableMemoryMB))
 					}
 					return
 				},
@@ -151,8 +151,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      FUNCTION_DEFAULT_TIMEOUT,
-				ValidateFunc: validation.IntBetween(FUNCTION_TIMEOUT_MIN, FUNCTION_TIMEOUT_MAX),
+				Default:      functionDefaultTimeout,
+				ValidateFunc: validation.IntBetween(functionTimeOutMin, functionTimeOutMax),
 			},
 
 			"entry_point": {

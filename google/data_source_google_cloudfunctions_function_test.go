@@ -110,7 +110,7 @@ resource "google_cloudfunctions_function" "function_http" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_http          = true
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloGET"
 }
 
@@ -120,7 +120,7 @@ resource "google_cloudfunctions_function" "function_bucket" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_bucket        = "${google_storage_bucket.bucket.name}"
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloGET"
 }
 
@@ -134,7 +134,7 @@ resource "google_cloudfunctions_function" "function_pubsub" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_topic         = "${google_pubsub_topic.sub.name}"
-  timeout		        = 61
+  timeout               = 61
   entry_point           = "helloGET"
 }
 
