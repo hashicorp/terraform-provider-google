@@ -1,13 +1,16 @@
 package google
 
 import (
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"log"
 
 	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"time"
 )
 
 var RegionInstanceGroupManagerBaseApiVersion = v1
@@ -22,6 +25,11 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 		Exists: resourceComputeRegionInstanceGroupManagerExists,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -110,6 +118,15 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Optional: true,
 			},
 
+			// If true, the resource will report ready only after no instances are being created.
+			// This will not block future reads if instances are being recreated, and it respects
+			// the "createNoRetry" parameter that's available for this resource.
+			"wait_for_instances": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"auto_healing_policies": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -181,17 +198,18 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-
-	return resourceComputeRegionInstanceGroupManagerRead(d, meta)
+	return resourceComputeRegionInstanceGroupManagerRead(d, config)
 }
 
-func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBeta.InstanceGroupManager, error)
+
+func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	region := d.Get("region").(string)
@@ -203,7 +221,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 
 		err = Convert(v1Manager, manager)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	case v0beta:
 		manager, err = config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
@@ -211,6 +229,35 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 
 	if err != nil {
 		handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", d.Get("name").(string)))
+	}
+	return manager, nil
+}
+
+func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		m, err := f(d, meta)
+		if err != nil {
+			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
+			return nil, "error", err
+		}
+		if creatingCount := m.CurrentActions.Creating + m.CurrentActions.CreatingWithoutRetries; creatingCount > 0 {
+			return creatingCount, "creating", nil
+		} else {
+			return creatingCount, "created", nil
+		}
+	}
+}
+
+func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	manager, err := getManager(d, meta)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
@@ -226,6 +273,18 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
+
+	if d.Get("wait_for_instances").(bool) {
+		conf := resource.StateChangeConf{
+			Pending: []string{"creating", "error"},
+			Target:  []string{"created"},
+			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
+			Timeout: d.Timeout(schema.TimeoutCreate),
+		}
+		_, err := conf.WaitForState()
+		// If err is nil, success.
+		return err
+	}
 
 	return nil
 }
@@ -447,7 +506,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	}
 
 	// Wait for the operation to complete
-	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting RegionInstanceGroupManager")
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutDelete).Minutes()), "Deleting RegionInstanceGroupManager")
 
 	d.SetId("")
 	return nil

@@ -27,11 +27,11 @@ func ParseNetworkFieldValue(network string, d TerraformResourceData, config *Con
 }
 
 func ParseSubnetworkFieldValue(subnetwork string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
-	return parseRegionalFieldValue("subnetworks", subnetwork, "project", "region", d, config, true)
+	return parseRegionalFieldValue("subnetworks", subnetwork, "project", "region", "zone", d, config, true)
 }
 
 func ParseSubnetworkFieldValueWithProjectField(subnetwork, projectField string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
-	return parseRegionalFieldValue("subnetworks", subnetwork, projectField, "region", d, config, true)
+	return parseRegionalFieldValue("subnetworks", subnetwork, projectField, "region", "zone", d, config, true)
 }
 
 func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
@@ -260,8 +260,8 @@ func (f RegionalFieldValue) RelativeLink() string {
 // - "" (empty string). RelativeLink() returns empty if isEmptyValid is true.
 //
 // If the project is not specified, it first tries to get the project from the `projectSchemaField` and then fallback on the default project.
-// If the region is not specified, it first tries to get the region from the `regionSchemaField` and then fallback on the default region.
-func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regionSchemaField string, d TerraformResourceData, config *Config, isEmptyValid bool) (*RegionalFieldValue, error) {
+// If the region is not specified, see function documentation for `getRegionFromSchema`.
+func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config, isEmptyValid bool) (*RegionalFieldValue, error) {
 	if len(fieldValue) == 0 {
 		if isEmptyValid {
 			return &RegionalFieldValue{resourceType: resourceType}, nil
@@ -294,7 +294,7 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 		}, nil
 	}
 
-	region, err := getRegionFromSchema(regionSchemaField, d, config)
+	region, err := getRegionFromSchema(regionSchemaField, zoneSchemaField, d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -307,13 +307,24 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 	}, nil
 }
 
-func getRegionFromSchema(regionSchemaField string, d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk(regionSchemaField)
-	if ok && regionSchemaField != "" {
-		return res.(string), nil
+// Infers the region based on the following (in order of priority):
+// - `regionSchemaField` in resource schema
+// - region extracted from the `zoneSchemaField` in resource schema
+// - provider-level region
+// - region extracted from the provider-level zone
+func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config) (string, error) {
+	if v, ok := d.GetOk(regionSchemaField); ok && regionSchemaField != "" {
+		return v.(string), nil
+	}
+	if v, ok := d.GetOk(zoneSchemaField); ok && zoneSchemaField != "" {
+		return getRegionFromZone(v.(string)), nil
 	}
 	if config.Region != "" {
 		return config.Region, nil
 	}
-	return "", fmt.Errorf("%s: required field is not set", regionSchemaField)
+	if config.Zone != "" {
+		return getRegionFromZone(config.Zone), nil
+	}
+
+	return "", fmt.Errorf("Cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
 }

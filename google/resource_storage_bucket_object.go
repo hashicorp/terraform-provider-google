@@ -104,9 +104,9 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				// Makes the diff message nicer:
-				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
+				// detect_md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
 				// Instead of the more confusing:
-				// md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
+				// detect_md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
 				Default: "different hash",
 				// 1. Compute the md5 hash of the local file
 				// 2. Compare the computed md5 hash with the hash stored in Cloud Storage
@@ -119,6 +119,13 @@ func resourceStorageBucketObject() *schema.Resource {
 
 					if content, ok := d.GetOkExists("content"); ok {
 						localMd5Hash = getContentMd5Hash([]byte(content.(string)))
+					}
+
+					// If `source` or `content` is dynamically set, both field will be empty.
+					// We should not suppress the diff to avoid the following error:
+					// 'Mismatch reason: extra attributes: detect_md5hash'
+					if localMd5Hash == "" {
+						return false
 					}
 
 					// `old` is the md5 hash we retrieved from the server in the ReadFunc
@@ -160,7 +167,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOk("content"); ok {
 		media = bytes.NewReader([]byte(v.(string)))
 	} else {
-		return fmt.Errorf("Error, either \"content\" or \"string\" must be specified")
+		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
 	objectsService := storage.NewObjectsService(config.clientStorage)

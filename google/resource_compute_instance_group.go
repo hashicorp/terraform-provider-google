@@ -34,6 +34,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -240,6 +241,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("network", instanceGroup.Network)
 	d.Set("size", instanceGroup.Size)
 	d.Set("project", project)
+	d.Set("zone", zone)
 	d.Set("self_link", instanceGroup.SelfLink)
 
 	return nil

@@ -33,6 +33,7 @@ func resourceBigtableInstance() *schema.Resource {
 			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -152,6 +153,11 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
 		return fmt.Errorf("Error starting instance admin client. %s", err)
@@ -167,6 +173,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("project", project)
+	d.Set("zone", zone)
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
 

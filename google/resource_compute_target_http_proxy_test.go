@@ -30,6 +30,11 @@ func TestAccComputeTargetHttpProxy_basic(t *testing.T) {
 						"google_compute_target_http_proxy.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_target_http_proxy.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

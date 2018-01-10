@@ -33,6 +33,11 @@ func TestAccComputeHealthCheck_tcp(t *testing.T) {
 					testAccCheckComputeHealthCheckTcpPort(80, &healthCheck),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -94,6 +99,11 @@ func TestAccComputeHealthCheck_ssl(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -119,6 +129,11 @@ func TestAccComputeHealthCheck_http(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -143,6 +158,11 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 					testAccCheckComputeHealthCheckThresholds(
 						3, 3, &healthCheck),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -209,16 +229,6 @@ func testAccCheckComputeHealthCheckExists(n string, healthCheck *compute.HealthC
 
 		*healthCheck = *found
 
-		return nil
-	}
-}
-
-func testAccCheckErrorCreating(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		_, ok := s.RootModule().Resources[n]
-		if ok {
-			return fmt.Errorf("HealthCheck %s created successfully with bad config", n)
-		}
 		return nil
 	}
 }

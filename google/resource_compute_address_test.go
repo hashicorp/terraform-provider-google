@@ -92,6 +92,11 @@ func TestAccComputeAddress_basic(t *testing.T) {
 						"google_compute_address.foobar", &addr),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_address.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -115,6 +120,23 @@ func TestAccComputeAddress_internal(t *testing.T) {
 					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address_type", "INTERNAL"),
 					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address", "10.0.42.42"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

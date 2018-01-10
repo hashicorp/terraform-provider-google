@@ -107,6 +107,7 @@ func resourceComputeAutoscaler() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 

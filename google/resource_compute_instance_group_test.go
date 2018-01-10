@@ -31,6 +31,11 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 						"google_compute_instance_group.empty", &instanceGroup),
 				),
 			},
+			{
+				ResourceName:      "google_compute_instance_group.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

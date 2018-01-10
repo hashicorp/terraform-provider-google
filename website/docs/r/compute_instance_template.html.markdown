@@ -6,7 +6,6 @@ description: |-
   Manages a VM instance template resource within GCE.
 ---
 
-
 # google\_compute\_instance\_template
 
 Manages a VM instance template resource within GCE. For more information see
@@ -169,6 +168,11 @@ The following arguments are supported:
 
 * `tags` - (Optional) Tags to attach to the instance.
 
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
+* `min_cpu_platform` - (Optional) Specifies a minimum CPU platform. Applicable values are the friendly names of CPU platforms, such as
+`Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -259,7 +263,8 @@ The `service_account` block supports:
     default Google Compute Engine service account is used.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
-    short names are supported.
+    short names are supported. To allow full access to all Cloud APIs, use the
+    `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
 The `scheduling` block supports:
 
@@ -273,10 +278,6 @@ The `scheduling` block supports:
 * `preemptible` - (Optional) Allows instance to be preempted. This defaults to
     false. Read more on this
     [here](https://cloud.google.com/compute/docs/instances/preemptible).
-
----
-
-* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
 
 The `guest_accelerator` block supports:
 

@@ -1,8 +1,45 @@
-## 1.4.1 (Unreleased)
+## 1.5.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_cloudfunctions_function` [GH-899]
+* **New Resource:** `google_logging_organization_sink` [GH-923]
+* **New Resource:** `google_service_account_iam_binding` [GH-840]
+* **New Resource:** `google_service_account_iam_member` [GH-840]
+* **New Resource:** `google_service_account_iam_policy` [GH-840]
+* **New Resource:** `google_pubsub_topic_iam_binding` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_member` [GH-875]
+* **New Resource:** `google_pubsub_topic_iam_policy` [GH-875]
+* **New Data Source:** `google_compute_region_instance_group` [GH-851]
+* **New Data Source:** `google_container_cluster` [GH-740]
+* **New Data Source:** `google_kms_secret` [GH-741]
+* **New Data Source:** `google_billing_account`[GH-889]
+* **New Data Source:** `google_organization` [GH-887]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
 * compute: Add support for routing mode in compute network. [GH-838]
+* compute: Add configurable create/update/delete timeouts to `google_compute_instance` [GH-856]
+* compute: Add configurable create/update/delete timeouts to `google_compute_subnetwork` [GH-871]
+* compute: Add update support for `routing_mode` in `google_compute_network` [GH-857]
+* compute: Add import support for `google_compute_instance` [GH-873]
+* compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
+* container: Ensure operations on a cluster are applied serially [GH-937]
+* container: Don't recreate container_cluster when maintenance_window changes [GH-893]
+* dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
+* dataproc: Support `self_link` from a different project in dataproc network and subnetwork fields [GH-935]
+* sourcerepo: Export new `url` field for `google_sourcerepo_repository` [GH-943]
+* all: Make provider-wide region optional [GH-916]
+* all: Infers region from zone schema before using the provider-level region [GH-938]
+* all: Upgrade terraform core to v0.11.2 [GH-940]
+
+BUG FIXES:
+* compute: Suppress diff for equivalent value in `google_compute_disk` image field [GH-884]
+* compute: Read IAP settings properly in `google_compute_backend_service` [GH-907]
+* compute: Fix bug causing a crash when specifying unknown network in `google_compute_network_peering` [GH-918]
+* container: Set default scopes when creating GKE clusters/node pools [GH-924]
+* storage: Fix bug blocking the update of a storage object if its content is dynamic/interpolated [GH-848]
+* storage: Fix bug preventing the removal of lifecycle rules for a `google_storage_bucket` [GH-850]
+* all: Fix bug causing a perpetual diff when using provider-default zone [GH-914]
 
 ## 1.4.0 (December 11, 2017)
 

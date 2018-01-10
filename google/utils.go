@@ -26,23 +26,13 @@ func getRegionFromZone(zone string) string {
 	return ""
 }
 
-// getRegion reads the "region" field from the given resource data and falls
-// back to the provider's value if not given. If the provider's value is not
-// given, checks for "zone" in either the given resource data or provider,
-// and extracts region from zone.  If "zone" is not provided, returns an
-// error.
+// Infers the region based on the following (in order of priority):
+// - `region` field in resource schema
+// - region extracted from the `zone` field in resource schema
+// - provider-level region
+// - region extracted from the provider-level zone
 func getRegion(d *schema.ResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("region")
-	if !ok {
-		if config.Region != "" {
-			return config.Region, nil
-		}
-		if zone, err := getZone(d, config); err == nil && getRegionFromZone(zone) != "" {
-			return getRegionFromZone(zone), nil
-		}
-		return "", fmt.Errorf("Cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
-	}
-	return res.(string), nil
+	return getRegionFromSchema("region", "zone", d, config)
 }
 
 // getZone reads the "zone" value from the given resource data and falls back
@@ -296,14 +286,6 @@ func convertStringSet(set *schema.Set) []string {
 		s = append(s, v.(string))
 	}
 	return s
-}
-
-func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
-	sm := make(map[string]struct{})
-	for _, s := range ifaceArr {
-		sm[s.(string)] = struct{}{}
-	}
-	return sm
 }
 
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {

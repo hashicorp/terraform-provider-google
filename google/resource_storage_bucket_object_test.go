@@ -150,6 +150,27 @@ func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
 	})
 }
 
+func TestAccGoogleStorageObject_dynamicContent(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageBucketsObjectDynamicContent(testBucketName()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "content_type", "text/plain; charset=utf-8"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "storage_class", "STANDARD"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
 	t.Parallel()
 
@@ -265,6 +286,20 @@ resource "google_storage_bucket_object" "object" {
 	content = "%s"
 }
 `, bucketName, objectName, content)
+}
+
+func testGoogleStorageBucketsObjectDynamicContent(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "object" {
+	name = "%s"
+	bucket = "${google_storage_bucket.bucket.name}"
+	content = "${google_storage_bucket.bucket.project}"
+}
+`, bucketName, objectName)
 }
 
 func testGoogleStorageBucketsObjectBasic(bucketName, sourceFilename string) string {

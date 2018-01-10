@@ -24,6 +24,11 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 					"google_compute_router_interface.foobar"),
 			},
 			resource.TestStep{
+				ResourceName:      "google_compute_router_interface.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: testAccComputeRouterInterfaceKeepRouter(testId),
 				Check: testAccCheckComputeRouterInterfaceDelete(
 					"google_compute_router_interface.foobar"),

@@ -36,6 +36,11 @@ func TestAccComputeGlobalForwardingRule_basic(t *testing.T) {
 					testAccCheckComputeBetaGlobalForwardingRuleIpVersion("google_compute_global_forwarding_rule.foobar", ""),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_global_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -98,6 +103,11 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 						"google_compute_global_forwarding_rule.foobar", &frule),
 					testAccCheckComputeBetaGlobalForwardingRuleIpVersion("google_compute_global_forwarding_rule.foobar", "IPV6"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_global_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

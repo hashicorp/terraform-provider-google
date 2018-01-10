@@ -69,6 +69,12 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_compute_image.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"raw_disk", "create_timeout"},
+			},
 		},
 	})
 }
@@ -90,6 +96,11 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 						"google_compute_image.foobar", &image),
 					testAccCheckComputeImageHasSourceDisk(&image),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_image.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

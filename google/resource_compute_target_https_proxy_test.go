@@ -31,6 +31,11 @@ func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_target_https_proxy.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
