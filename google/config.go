@@ -67,9 +67,9 @@ type Config struct {
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
-  clientCloudFunctions         *cloudfunctions.Service
+	clientCloudFunctions         *cloudfunctions.Service
 
-	bigtableClientFactory        *BigtableClientFactory
+	bigtableClientFactory *BigtableClientFactory
 }
 
 func (c *Config) loadAndValidate() error {
