@@ -49,8 +49,8 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
 				Deprecated: "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
 			},
 		},
