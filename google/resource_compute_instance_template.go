@@ -502,18 +502,18 @@ func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Co
 		return nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
-	for i, raw := range accels {
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	for _, raw := range accels {
 		data := raw.(map[string]interface{})
 		if data["count"].(int) == 0 {
 			continue
 		}
-		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
+		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			// We can't use ParseAcceleratorFieldValue here because an instance
 			// template does not have a zone we can use.
 			AcceleratorType: data["type"].(string),
-		}
+		})
 	}
 
 	return guestAccelerators

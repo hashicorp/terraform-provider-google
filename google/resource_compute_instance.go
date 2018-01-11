@@ -1216,8 +1216,8 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 		return nil, nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
-	for i, raw := range accels {
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	for _, raw := range accels {
 		data := raw.(map[string]interface{})
 		if data["count"].(int) == 0 {
 			continue
@@ -1226,10 +1226,10 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
 		}
-		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
+		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			AcceleratorType:  at.RelativeLink(),
-		}
+		})
 	}
 
 	return guestAccelerators, nil
