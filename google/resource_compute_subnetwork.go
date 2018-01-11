@@ -43,7 +43,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateIpCidrRange,
-				// ForceNew only if it narrows the CIDR range, this is set in CustomizeDiff below.
+				// ForceNew only if it shrinks the CIDR range, this is set in CustomizeDiff below.
 			},
 
 			"name": &schema.Schema{
