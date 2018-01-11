@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/servicemanagement/v1"
 )
@@ -14,18 +15,26 @@ func resourceEndpointsService() *schema.Resource {
 		Delete: resourceEndpointsServiceDelete,
 		Update: resourceEndpointsServiceUpdate,
 		Schema: map[string]*schema.Schema{
-			"config_text": &schema.Schema{
+			"service_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"openapi_config": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"grpc_config": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"protoc_output": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"config_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-				ForceNew: true,
-			},
-			"service_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
 				ForceNew: true,
 			},
 			"project": &schema.Schema{
@@ -102,7 +111,10 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func getServiceConfigSource(config_text string) servicemanagement.ConfigSource {
+func getOpenApiConfigSource(config_text string) servicemanagement.ConfigSource {
+	// We need to provide a ConfigSource object to the API whenever submitting a
+	// new config.  A ConfigSource contains a ConfigFile which contains the b64
+	// encoded contents of the file.
 	configfile := servicemanagement.ConfigFile{
 		FileContents: base64.StdEncoding.EncodeToString([]byte(config_text)),
 		FileType:     "OPEN_API_YAML",
@@ -110,6 +122,22 @@ func getServiceConfigSource(config_text string) servicemanagement.ConfigSource {
 	}
 	return servicemanagement.ConfigSource{
 		Files: []*servicemanagement.ConfigFile{&configfile},
+	}
+}
+
+func getGrpcConfigSource(service_config, proto_config string) servicemanagement.ConfigSource {
+	yml_configfile := servicemanagement.ConfigFile{
+		FileContents: base64.StdEncoding.EncodeToString([]byte(service_config)),
+		FileType:     "SERVICE_CONFIG_YAML",
+		FilePath:     "heredoc.yaml",
+	}
+	proto_configfile := servicemanagement.ConfigFile{
+		FileContents: base64.StdEncoding.EncodeToString([]byte(proto_config)),
+		FileType:     "FILE_DESCRIPTOR_SET_PROTO",
+		FilePath:     "api_def.pb",
+	}
+	return servicemanagement.ConfigSource{
+		Files: []*servicemanagement.ConfigFile{&yml_configfile, &proto_configfile},
 	}
 }
 
@@ -139,9 +167,31 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+	// This update is not quite standard for a terraform resource.  Instead of
+	// using the go client library to send an HTTP request to update something
+	// serverside, we have to push a new configuration, wait for it to be
+	// parsed and loaded, then create and push a rollout and wait for that
+	// rollout to be completed.
+	// There's a lot of moving parts there, and all of them have knobs that can
+	// be tweaked if the user is using gcloud.  In the interest of simplicity,
+	// we currently only support full rollouts - anyone trying to do incremental
+	// rollouts or A/B testing is going to need a more precise tool than terraform.
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
-	source := getServiceConfigSource(d.Get("config_text").(string))
+	openapi_config, ok := d.GetOk("openapi_config")
+	var source servicemanagement.ConfigSource
+	if ok {
+		source = getOpenApiConfigSource(openapi_config.(string))
+	} else {
+		grpc_config, g_ok := d.GetOk("grpc_config")
+		protoc_output, p_ok := d.GetOk("protoc_output")
+		if g_ok && p_ok {
+			source = getGrpcConfigSource(grpc_config.(string), protoc_output.(string))
+		} else {
+			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output.")
+		}
+	}
+
 	configService := servicemanagement.NewServicesConfigsService(config.clientServiceMan)
 	op, err := configService.Submit(serviceName, &servicemanagement.SubmitConfigSourceRequest{ConfigSource: &source}).Do()
 	if err != nil {

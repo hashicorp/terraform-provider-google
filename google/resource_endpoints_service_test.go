@@ -14,7 +14,7 @@ func testAccEndpointsService_basic(random_name string) string {
 	return fmt.Sprintf(`resource "google_endpoints_service" "endpoints_service" {
   service_name = "%s.endpoints.%s.cloud.goog"
   project = "%s"
-  config_text = <<EOF
+  openapi_config = <<EOF
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
@@ -58,6 +58,23 @@ EOF
 }`, random_name, getTestProjectFromEnv(), getTestProjectFromEnv(), random_name, getTestProjectFromEnv())
 }
 
+func testAccEndpointsService_grpc(random_name string) string {
+	return fmt.Sprintf(`resource "google_endpoints_service" "endpoints_service" {
+  service_name = "%s.endpoints.%s.cloud.goog"
+  project = "%s"
+  grpc_config = <<EOF
+type: google.api.Service
+config_version: 3
+name: %s.endpoints.%s.cloud.goog
+usage:
+  rules:
+  - selector: endpoints.examples.bookstore.Bookstore.ListShelves
+    allow_unregistered_calls: true
+EOF
+  protoc_output = "${file("test-fixtures/test_api_descriptor.pb")}"
+}`, random_name, getTestProjectFromEnv(), getTestProjectFromEnv(), random_name, getTestProjectFromEnv())
+}
+
 func testAccCheckEndpointExistsByName(random_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -84,6 +101,22 @@ func TestAccEndpointsService_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccEndpointsService_basic(random_name),
+				Check:  testAccCheckEndpointExistsByName(random_name),
+			},
+		},
+	})
+}
+
+func TestAccEndpointsService_grpc(t *testing.T) {
+	t.Parallel()
+	random_name := "t-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccEndpointsService_grpc(random_name),
 				Check:  testAccCheckEndpointExistsByName(random_name),
 			},
 		},
