@@ -1352,7 +1352,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 		}
 	} else {
 		result["initialize_params"] = []map[string]interface{}{{
-			"type":  GetResourceNameFromSelfLink(diskDetails.Type),
+			"type": GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
 			"image": diskDetails.SourceImage,
