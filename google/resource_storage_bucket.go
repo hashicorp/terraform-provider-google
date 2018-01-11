@@ -213,6 +213,19 @@ func resourceStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"logging": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_bucket": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -270,6 +283,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("cors"); ok {
 		sb.Cors = expandCors(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("logging"); ok {
+		sb.Logging = expandBucketLogging(v.([]interface{}))
 	}
 
 	var res *storage.Bucket
@@ -342,6 +359,15 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		sb.Cors = expandCors(v.([]interface{}))
 	}
 
+	if d.HasChange("logging") {
+		if v, ok := d.GetOk("logging"); ok {
+			sb.Logging = expandBucketLogging(v.([]interface{}))
+		}
+		if sb.Logging == nil {
+			sb.NullFields = append(sb.NullFields, "Logging")
+		}
+	}
+
 	if d.HasChange("labels") {
 		sb.Labels = expandLabels(d)
 		if len(sb.Labels) == 0 {
@@ -388,6 +414,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("storage_class", res.StorageClass)
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
+	d.Set("logging", flattenBucketLogging(res.Logging))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
@@ -487,6 +514,32 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 		corsRulesSchema = append(corsRulesSchema, data)
 	}
 	return corsRulesSchema
+}
+
+func expandBucketLogging(configured interface{}) *storage.BucketLogging {
+	loggings := configured.([]interface{})
+	logging := loggings[0].(map[string]interface{})
+
+	bucketLogging := &storage.BucketLogging{
+		LogBucket: logging["log_bucket"].(string),
+	}
+
+	return bucketLogging
+}
+
+func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]interface{} {
+	loggings := make([]map[string]interface{}, 0, 1)
+
+	if bucketLogging == nil {
+		return loggings
+	}
+
+	logging := map[string]interface{}{
+		"log_bucket": bucketLogging.LogBucket,
+	}
+
+	loggings = append(loggings, logging)
+	return loggings
 }
 
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
