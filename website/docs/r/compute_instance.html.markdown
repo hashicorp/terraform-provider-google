@@ -158,6 +158,11 @@ The `attached_disk` block supports:
 * `device_name` - (Optional) Name with which the attached disk will be accessible
     under `/dev/disk/by-id/`
 
+* `mode` - (Optional) Either "READ_ONLY" or "READ_WRITE", defaults to "READ_WRITE"
+    If you have a persistent disk with data that you want to share
+    between multiple instances, detach it from any read-write instances and
+    attach it to one or more instances in read-only mode.
+
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
