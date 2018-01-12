@@ -184,7 +184,7 @@ The **cluster_config.gce_cluster_config** block supports:
 * `service_account` - (Optional) The service account to be used by the Node VMs.
 	If not specified, the "default" service account is used.
 
-* `service_scopes` - (Optional, Computed) The set of Google API scopes to be made available
+* `service_account_scopes` - (Optional, Computed) The set of Google API scopes to be made available
 	on all of the node VMs under the `service_account` specified. These can be
 	either FQDNs, or scope aliases. The following scopes are necessary to ensure
 	the correct functioning of the cluster:
