@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -496,6 +497,7 @@ func resourceComputeInstance() *schema.Resource {
 			"guest_accelerator": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -556,6 +558,9 @@ func resourceComputeInstance() *schema.Resource {
 				Deprecated: "Use timeouts block instead.",
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			suppressEmptyGuestAcceleratorDiff,
+		),
 	}
 }
 
@@ -1233,6 +1238,48 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 	}
 
 	return guestAccelerators, nil
+}
+
+// suppressEmptyGuestAcceleratorDiff is used to work around perpetual diff
+// issues when a count of `0` guest accelerators is desired. This may occur when
+// guest_accelerator support is controlled via a module variable. E.g.:
+//
+// 		guest_accelerators {
+//      	count = "${var.enable_gpu ? var.gpu_count : 0}"
+//          ...
+// 		}
+// After reconciling the desired and actual state, we would otherwise see a
+// perpetual resembling:
+// 		[] != [{"count":0, "type": "nvidia-tesla-k80"}]
+func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{}) error {
+	oldi, newi := d.GetChange("guest_accelerator")
+
+	old, ok := oldi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected old guest accelerator diff to be a slice")
+	}
+
+	new, ok := newi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected new guest accelerator diff to be a slice")
+	}
+
+	if len(old) != 0 && len(new) != 1 {
+		return nil
+	}
+
+	firstAccel, ok := new[0].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("Unable to type assert guest accelerator")
+	}
+
+	if firstAccel["count"].(int) == 0 {
+		if err := d.Clear("guest_accelerator"); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
