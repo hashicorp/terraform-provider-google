@@ -62,7 +62,7 @@ func dataSourceGoogleSignedUrl() *schema.Resource {
 			"extension_headers": &schema.Schema{
 				Type:         schema.TypeMap,
 				Optional:     true,
-				Elem:         &schema.Schema{Type: schema.TypeString},
+				Elem:         schema.TypeString,
 				ValidateFunc: validateExtensionHeaders,
 			},
 			"http_method": &schema.Schema{
