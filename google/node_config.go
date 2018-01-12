@@ -43,7 +43,7 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
 			},
 
 			"local_ssd_count": {
@@ -65,7 +65,7 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
 			},
 
 			"min_cpu_platform": {

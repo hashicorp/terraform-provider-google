@@ -76,7 +76,7 @@ func resourceDataprocCluster() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
 				// GCP automatically adds two labels
 				//    'goog-dataproc-cluster-uuid'
 				//    'goog-dataproc-cluster-name'
@@ -253,7 +253,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:     schema.TypeMap,
 										Optional: true,
 										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Elem:     schema.TypeString,
 									},
 
 									"properties": {
