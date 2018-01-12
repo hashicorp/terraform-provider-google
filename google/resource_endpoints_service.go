@@ -114,7 +114,7 @@ func resourceEndpointsService() *schema.Resource {
 func getOpenApiConfigSource(config_text string) servicemanagement.ConfigSource {
 	// We need to provide a ConfigSource object to the API whenever submitting a
 	// new config.  A ConfigSource contains a ConfigFile which contains the b64
-	// encoded contents of the file.
+	// encoded contents of the file.  OpenAPI requires only one file.
 	configfile := servicemanagement.ConfigFile{
 		FileContents: base64.StdEncoding.EncodeToString([]byte(config_text)),
 		FileType:     "OPEN_API_YAML",
@@ -126,6 +126,8 @@ func getOpenApiConfigSource(config_text string) servicemanagement.ConfigSource {
 }
 
 func getGrpcConfigSource(service_config, proto_config string) servicemanagement.ConfigSource {
+	// gRPC requires both the file specifying the service and the compiled protobuf,
+	// but they can be in any order.
 	yml_configfile := servicemanagement.ConfigFile{
 		FileContents: base64.StdEncoding.EncodeToString([]byte(service_config)),
 		FileType:     "SERVICE_CONFIG_YAML",
@@ -147,6 +149,8 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	// If the service doesn't exist, we'll need to create it, but if it does, it
+	// will be reused.
 	serviceName := d.Get("service_name").(string)
 	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
 	_, err = servicesService.Get(serviceName).Do()
@@ -175,7 +179,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	// There's a lot of moving parts there, and all of them have knobs that can
 	// be tweaked if the user is using gcloud.  In the interest of simplicity,
 	// we currently only support full rollouts - anyone trying to do incremental
-	// rollouts or A/B testing is going to need a more precise tool than terraform.
+	// rollouts or A/B testing is going to need a more precise tool than this resource.
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
 	openapi_config, ok := d.GetOk("openapi_config")
@@ -193,6 +197,11 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	configService := servicemanagement.NewServicesConfigsService(config.clientServiceMan)
+	// The difference between "submit" and "create" is that submit parses the config
+	// you provide, where "create" requires the config in a pre-parsed format.
+	// "submit" will be a lot more flexible for users and will always be up-to-date
+	// with any new features that arise - this is why you provide a YAML config
+	// instead of providing the config in HCL.
 	op, err := configService.Submit(serviceName, &servicemanagement.SubmitConfigSourceRequest{ConfigSource: &source}).Do()
 	if err != nil {
 		return err
@@ -204,6 +213,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	var serviceConfig servicemanagement.SubmitConfigSourceResponse
 	json.Unmarshal(s, &serviceConfig)
 
+	// Next, we create a new rollout with the new config value, and wait for it to complete.
 	rolloutService := servicemanagement.NewServicesRolloutsService(config.clientServiceMan)
 	rollout := servicemanagement.Rollout{
 		ServiceName: serviceName,
