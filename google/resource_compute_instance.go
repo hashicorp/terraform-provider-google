@@ -79,6 +79,7 @@ func resourceComputeInstance() *schema.Resource {
 						"initialize_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
