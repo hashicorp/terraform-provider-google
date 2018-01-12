@@ -322,6 +322,9 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	hchk := &compute.HealthCheck{
 		Name: d.Get("name").(string),
 	}
+
+	nullFields := make([]string, 0, 3)
+
 	// Optional things
 	if v, ok := d.GetOk("description"); ok {
 		hchk.Description = v.(string)
@@ -355,6 +358,8 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 			tcpHealthCheck.Response = val.(string)
 		}
 		hchk.TcpHealthCheck = tcpHealthCheck
+	} else {
+		nullFields = append(nullFields, "TcpHealthCheck")
 	}
 	if v, ok := d.GetOk("ssl_health_check"); ok {
 		hchk.Type = "SSL"
@@ -373,6 +378,8 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 			sslHealthCheck.Response = val.(string)
 		}
 		hchk.SslHealthCheck = sslHealthCheck
+	} else {
+		nullFields = append(nullFields, "SslHealthCheck")
 	}
 	if v, ok := d.GetOk("http_health_check"); ok {
 		hchk.Type = "HTTP"
@@ -391,6 +398,8 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 			httpHealthCheck.RequestPath = val.(string)
 		}
 		hchk.HttpHealthCheck = httpHealthCheck
+	} else {
+		nullFields = append(nullFields, "HttpHealthCheck")
 	}
 
 	if v, ok := d.GetOk("https_health_check"); ok {
@@ -410,7 +419,11 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 			httpsHealthCheck.RequestPath = val.(string)
 		}
 		hchk.HttpsHealthCheck = httpsHealthCheck
+	} else {
+		nullFields = append(nullFields, "HttpsHealthCheck")
 	}
+
+	hchk.NullFields = nullFields
 
 	log.Printf("[DEBUG] HealthCheck patch request: %#v", hchk)
 	op, err := config.clientCompute.HealthChecks.Patch(
