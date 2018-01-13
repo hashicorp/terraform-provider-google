@@ -291,7 +291,7 @@ func resourceCloudiotRegistryCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	updateMask := make([]string, 5)
+	updateMask := make([]string, 0, 5)
 	hasChanged := false
 	deviceRegistry := &cloudiot.DeviceRegistry{}
 
@@ -362,9 +362,8 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 
 	if res.EventNotificationConfigs != nil {
 		eventConfigs := make([]map[string]string, len(res.EventNotificationConfigs))
-		for _, config := range res.EventNotificationConfigs {
-			eventConfigs = append(eventConfigs,
-				map[string]string{"pubsub_topic_name": config.PubsubTopicName})
+		for i, config := range res.EventNotificationConfigs {
+			eventConfigs[i] = map[string]string{"pubsub_topic_name": config.PubsubTopicName}
 		}
 		d.Set("event_notification_configs", eventConfigs)
 	}
@@ -397,7 +396,7 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 
 	if res.Credentials != nil {
 		credentials := make([]map[string]interface{}, len(res.Credentials))
-		for _, item := range res.Credentials {
+		for i, item := range res.Credentials {
 			pubcert := make(map[string]interface{})
 
 			pubcert["format"] = item.PublicKeyCertificate.Format
@@ -408,13 +407,13 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 				pubcert["x509_details"] = map[string]interface{}{
 					"issuer":              x509details.Issuer,
 					"subject":             x509details.Subject,
-					"start_date":          x509details.StartTime,
+					"start_time":          x509details.StartTime,
 					"expiry_time":         x509details.ExpiryTime,
 					"signature_algorithm": x509details.SignatureAlgorithm,
 					"public_key_type":     x509details.PublicKeyType,
 				}
 			}
-			credentials = append(credentials, pubcert)
+			credentials[i] = pubcert
 		}
 		d.Set("credentials", credentials)
 	}
