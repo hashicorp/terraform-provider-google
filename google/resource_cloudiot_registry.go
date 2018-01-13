@@ -86,8 +86,7 @@ func resourceCloudiotRegistry() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"mqtt_enabled_state": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
-							Default:  mqttStateUnspecified,
+							Required: true,
 							ValidateFunc: validation.StringInSlice(
 								[]string{mqttStateUnspecified, mqttEnabled, mqttDisabled}, false),
 						},
@@ -102,8 +101,7 @@ func resourceCloudiotRegistry() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"http_enabled_state": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
-							Default:  httpStateUnspecified,
+							Required: true,
 							ValidateFunc: validation.StringInSlice(
 								[]string{httpStateUnspecified, httpEnabled, httpDisabled}, false),
 						},
@@ -131,7 +129,7 @@ func resourceCloudiotRegistry() *schema.Resource {
 						},
 						"x509_details": &schema.Schema{
 							Type:     schema.TypeMap,
-							Required: true,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"issuer": &schema.Schema{
@@ -287,9 +285,8 @@ func resourceCloudiotRegistryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(res.Name)
-	print(d.Id())
 
-	return nil
+	return resourceCloudiotRegistryRead(d, meta)
 }
 
 func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -366,21 +363,36 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 	if res.EventNotificationConfigs != nil {
 		eventConfigs := make([]map[string]string, len(res.EventNotificationConfigs))
 		for _, config := range res.EventNotificationConfigs {
-			eventConfigs = append(eventConfigs, map[string]string{"pubsub_topic_name": config.PubsubTopicName})
+			eventConfigs = append(eventConfigs,
+				map[string]string{"pubsub_topic_name": config.PubsubTopicName})
 		}
 		d.Set("event_notification_configs", eventConfigs)
 	}
+	// to keep the data model lean only changes are pushed if not the default is
+	// returned or a config exists for state notification, mqtt and http config.
 	if res.StateNotificationConfig != nil {
-		d.Set("state_notification_config",
-			map[string]string{"pubsub_topic_name": res.StateNotificationConfig.PubsubTopicName})
+		pubsubTopicName := res.StateNotificationConfig.PubsubTopicName
+		_, hasStateConfig := d.GetOk("state_notification_config")
+		if pubsubTopicName != "" || hasStateConfig {
+			d.Set("state_notification_config",
+				map[string]string{"pubsub_topic_name": pubsubTopicName})
+		}
 	}
 	if res.MqttConfig != nil {
-		d.Set("mqtt_config",
-			map[string]string{"mqtt_enabled_state": res.MqttConfig.MqttEnabledState})
+		mqttState := res.MqttConfig.MqttEnabledState
+		_, hasMqttConfig := d.GetOk("mqtt_config")
+		if mqttState != mqttEnabled || hasMqttConfig {
+			d.Set("mqtt_config",
+				map[string]string{"mqtt_enabled_state": mqttState})
+		}
 	}
 	if res.HttpConfig != nil {
-		d.Set("http_config",
-			map[string]string{"http_enabled_state": res.HttpConfig.HttpEnabledState})
+		httpState := res.HttpConfig.HttpEnabledState
+		_, hasHttpConfig := d.GetOk("http_config")
+		if httpState != httpEnabled || hasHttpConfig {
+			d.Set("http_config",
+				map[string]string{"http_enabled_state": httpState})
+		}
 	}
 
 	if res.Credentials != nil {
