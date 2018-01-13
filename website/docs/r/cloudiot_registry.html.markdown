@@ -1,0 +1,128 @@
+---
+layout: "google"
+page_title: "Google: google_cloudiot_registry"
+sidebar_current: "docs-google-cloudiot-registry-x"
+description: |-
+  Creates a device registry in Google's Cloud IoT Core platform
+---
+
+# google\cloudiot\_registry
+
+ Creates a device registry in Google's Cloud IoT Core platform. For more information see
+[the official documentation](https://cloud.google.com/iot/docs/) and
+[API](https://cloud.google.com/iot/docs/reference/rest/v1/projects.locations.registries).
+
+
+## Example Usage
+
+```hcl
+resource "google_pubsub_topic" "default-devicestatus" {
+  name = "default-devicestatus"
+}
+
+resource "google_pubsub_topic" "default-telemetry" {
+  name = "default-telemetry"
+}
+
+resource "google_cloudiot_registry" "default-registry" {
+  name = "default-registry"
+
+  event_notification_configs = [{
+    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+  }]
+
+  state_notification_config = {
+    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+  }
+
+  http_config = {
+    http_enabled_state = "HTTP_ENABLED"
+  }
+
+  mqtt_config = {
+    mqtt_enabled_state = "MQTT_ENABLED"
+  }
+
+  credentials = [
+    {
+      format      = "X509_CERTIFICATE_PEM"
+      certificate = "<CERTIFICATE>"
+
+      x509_details = {
+        issuer              = "CN=unused"
+        subject             = "CN=unused"
+        start_time          = "2018-01-12T20:13:43Z"
+        expiry_time         = "2023-01-11T20:13:43Z"
+        signature_algorithm = "sha256WithRSAEncryption"
+        public_key_type     = "PK_RSA"
+      }
+    },
+  ]
+}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `name` - (Required) A unique name for the resource, required by device registry.
+    Changing this forces a new resource to be created.
+
+- - -
+
+* `project` - (Optional) The project in which the resource belongs. If it
+    is not provided, the provider project is used.
+
+* `region` - (Optional) The Region in which the created address should reside. If it is not provided, the provider region is used.
+
+* `event_notification_configs` - (Optional) List of pubsub topics to publish device events. Structure is documented below.
+
+* `state_notification_config` - (Optional) A pubsub topic to publish device state updates. Structure is documented below.
+
+* `mqtt_config` - (Optional) Activate or deactivate MQTT. Structure is documented below.
+* `http_config` - (Optional) Activate or deactivate HTTP. Structure is documented below.
+
+* `credentials` - (Optional) List of public key certificates to authenticate devices. Structure is documented below. 
+
+
+The `event_notification_configs` block supports:
+
+* `pubsub_topic_name` - (Required) Pubsub topic name to publish device events.
+
+The `state_notification_config` block supports:
+
+* `pubsub_topic_name` - (Required) Pubsub topic name to publish device state updates.
+
+The `mqtt_config` block supports:
+
+* `mqtt_enabled_state` - (Required) The field allows `MQTT_STATE_UNSPECIFIED`, `MQTT_ENABLED` or `MQTT_DISABLED`.
+
+The `http_config` block supports:
+
+* `http_enabled_state` - (Required) The field allows `HTTP_STATE_UNSPECIFIED`, `HTTP_ENABLED` or `HTTP_DISABLED`.
+
+The `credentials` block supports:
+
+* `format` - (Required) The field allows `UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT` or `X509_CERTIFICATE_PEM`.
+* `certificate` - (Required) The certificate data.
+* `x509_details` - (Required) The certificate details. The structure is described below.
+
+The `x509_details` block supports:
+* `issuer` - (Required) Identifies the entity that has signed and issued the certificate.
+* `subject` - (Required) The person or system the certificate belongs to.
+* `start_time` - (Required) The date on which the certificate validity period begins.
+* `expiry_time` - (Required) The date on which the certificate validity period ends.
+* `signature_algorithm` - (Required) Identifier for the cryptographic algorithm used to sign this certificate.
+* `public_key_type` - (Required) The type of public key in the certificate.
+
+## Attributes Reference
+
+Only the arguments listed above are exposed as attributes.
+
+## Import
+
+A device registry can be imported using the `name`, e.g.
+
+```
+$ terraform import google_cloudiot_registry.myregistry myregistry
+```
