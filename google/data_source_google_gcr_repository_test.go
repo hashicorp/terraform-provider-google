@@ -1,0 +1,78 @@
+package google
+
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
+)
+
+func TestDataSourceGoogleGcrRepository(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "data.google_gcr_repository.default"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleGcrRepo_basic,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "project"),
+					resource.TestCheckResourceAttrSet(resourceName, "region"),
+					resource.TestCheckResourceAttr(resourceName, "repository_url", "bar.gcr.io/foo"),
+				),
+			},
+		},
+	})
+}
+
+const testAccCheckGoogleGcrRepo_basic = `
+data "google_gcr_repository" "default" {
+	project = "foo"
+	region = "bar"
+}
+`
+
+func TestDataSourceGoogleGcrImage(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "data.google_gcr_image.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleGcrImage_basic,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "project"),
+					resource.TestCheckResourceAttrSet(resourceName, "region"),
+					resource.TestCheckResourceAttr(resourceName, "image_url", "bar.gcr.io/foo/baz"),
+					resource.TestCheckResourceAttr(resourceName+"2", "image_url", "bar.gcr.io/foo/baz:qux"),
+					resource.TestCheckResourceAttr(resourceName+"3", "image_url", "bar.gcr.io/foo/baz@1234"),
+				),
+			},
+		},
+	})
+}
+
+const testAccCheckGoogleGcrImage_basic = `
+data "google_gcr_image" "test" {
+	project = "foo"
+	region = "bar"
+	name = "baz"
+}
+data "google_gcr_image" "test2" {
+	project = "foo"
+	region = "bar"
+	name = "baz"
+	tag = "qux"
+}
+data "google_gcr_image" "test3" {
+	project = "foo"
+	region = "bar"
+	name = "baz"
+	digest = "1234"
+}
+`

@@ -60,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"google_active_folder":                 dataSourceGoogleActiveFolder(),
 			"google_billing_account":               dataSourceGoogleBillingAccount(),
 			"google_dns_managed_zone":              dataSourceDnsManagedZone(),
 			"google_client_config":                 dataSourceGoogleClientConfig(),
@@ -75,7 +76,8 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_region_instance_group": dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_container_cluster":             dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":     dataSourceGoogleContainerEngineVersions(),
-			"google_active_folder":                 dataSourceGoogleActiveFolder(),
+			"google_gcr_repository":                dataSourceGoogleGcrRepo(),
+			"google_gcr_image":                     dataSourceGoogleGcrImage(),
 			"google_iam_policy":                    dataSourceGoogleIamPolicy(),
 			"google_kms_secret":                    dataSourceGoogleKmsSecret(),
 			"google_organization":                  dataSourceGoogleOrganization(),
