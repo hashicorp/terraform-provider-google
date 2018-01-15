@@ -70,14 +70,13 @@ The following arguments are supported:
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
 
 * `region` - (Optional) The Region in which the created address should reside. If it is not provided, the provider region is used.
 
-* `event_notification_configs` - (Optional) List of pubsub topics to publish device events. Structure is documented below.
+* `event_notification_configs` - (Optional) List of PubSub topics to publish device events. Structure is documented below.
 
-* `state_notification_config` - (Optional) A pubsub topic to publish device state updates. Structure is documented below.
+* `state_notification_config` - (Optional) A PubSub topic to publish device state updates. Structure is documented below.
 
 * `mqtt_config` - (Optional) Activate or deactivate MQTT. Structure is documented below.
 * `http_config` - (Optional) Activate or deactivate HTTP. Structure is documented below.
@@ -87,11 +86,11 @@ The following arguments are supported:
 
 The `event_notification_configs` block supports:
 
-* `pubsub_topic_name` - (Required) Pubsub topic name to publish device events.
+* `pubsub_topic_name` - (Required) PubSub topic name to publish device events.
 
 The `state_notification_config` block supports:
 
-* `pubsub_topic_name` - (Required) Pubsub topic name to publish device state updates.
+* `pubsub_topic_name` - (Required) PubSub topic name to publish device state updates.
 
 The `mqtt_config` block supports:
 
@@ -110,8 +109,9 @@ The `credentials` block supports:
 The `x509_details` block supports:
 * `issuer` - (Required) Identifies the entity that has signed and issued the certificate.
 * `subject` - (Required) The person or system the certificate belongs to.
-* `start_time` - (Required) The date on which the certificate validity period begins.
-* `expiry_time` - (Required) The date on which the certificate validity period ends.
+* `start_time` - (Required) The date on which the certificate validity period begins. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: 
+`2016-10-09T12:33:37.578138407Z`.
+* `expiry_time` - (Required) The date on which the certificate validity period ends. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: `2016-10-09T12:33:37.578138407Z`.
 * `signature_algorithm` - (Required) Identifier for the cryptographic algorithm used to sign this certificate.
 * `public_key_type` - (Required) The type of public key in the certificate.
 
