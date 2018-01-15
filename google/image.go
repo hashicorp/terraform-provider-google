@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	resolveImageProjectRegex = "[-_a-zA-Z0-9]*"
+	resolveImageProjectRegex = "[-_a-zA-Z0-9]*|[a-z0-9][-.a-z0-9]{1,100}:[-_a-zA-Z0-9]*"
 	resolveImageFamilyRegex  = "[-_a-zA-Z0-9]*"
 	resolveImageImageRegex   = "[-_a-zA-Z0-9]*"
 )
