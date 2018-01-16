@@ -218,11 +218,14 @@ func expandX509Details(x509Details map[string]interface{}) *cloudiot.X509Certifi
 }
 
 func expandPublicKeyCertificate(certificate map[string]interface{}) *cloudiot.PublicKeyCertificate {
-	return &cloudiot.PublicKeyCertificate{
+	cert := &cloudiot.PublicKeyCertificate{
 		Format:      certificate["format"].(string),
 		Certificate: certificate["certificate"].(string),
-		X509Details: expandX509Details(certificate["x509_details"].(map[string]interface{})),
 	}
+	if len(certificate["x509_details"].(map[string]interface{})) != 0 {
+		cert.X509Details = expandX509Details(certificate["x509_details"].(map[string]interface{}))
+	}
+	return cert
 }
 
 func expandCredentials(credentials []interface{}) []*cloudiot.RegistryCredential {
@@ -307,6 +310,7 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("state_notification_config") {
 		hasChanged = true
+		updateMask = append(updateMask, "state_notification_config")
 		if v, ok := d.GetOk("state_notification_config"); ok {
 			deviceRegistry.StateNotificationConfig = expandStateNotificationConfig(v.(map[string]interface{}))
 
@@ -314,6 +318,7 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("mqtt_config") {
 		hasChanged = true
+		updateMask = append(updateMask, "mqtt_config")
 		if v, ok := d.GetOk("mqtt_config"); ok {
 			deviceRegistry.MqttConfig = expandMqttConfig(v.(map[string]interface{}))
 
@@ -321,6 +326,7 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("http_config") {
 		hasChanged = true
+		updateMask = append(updateMask, "http_config")
 		if v, ok := d.GetOk("http_config"); ok {
 			deviceRegistry.HttpConfig = expandHttpConfig(v.(map[string]interface{}))
 
@@ -328,6 +334,7 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("credentials") {
 		hasChanged = true
+		updateMask = append(updateMask, "credentials")
 		if v, ok := d.GetOk("credentials"); ok {
 			deviceRegistry.Credentials = expandCredentials(v.([]interface{}))
 
