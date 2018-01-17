@@ -107,3 +107,5 @@ DNS record set can be imported using the `zone name`, `record name` and record `
 ```
 $ terraform import google_dns_record_set.frontend prod-zone/frontend.prod.mydomain.com./A
 ```
+
+Note: The record name must include the trailing dot at the end.
