@@ -31,6 +31,7 @@ IMPROVEMENTS:
 * dataproc: Support `self_link` from a different project in dataproc network and subnetwork fields [GH-935]
 * sourcerepo: Export new `url` field for `google_sourcerepo_repository` [GH-943]
 * folder: Support more format for `folder` field in `google_folder_organization_policy` [GH-963]
+* dns: Add import support to `google_dns_record_set` [GH-895]
 * all: Make provider-wide region optional [GH-916]
 * all: Infers region from zone schema before using the provider-level region [GH-938]
 * all: Upgrade terraform core to v0.11.2 [GH-940]
