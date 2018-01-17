@@ -177,7 +177,6 @@ func buildAutoscaler(d *schema.ResourceData) (*compute.Autoscaler, error) {
 			}
 		}
 	}
-	fmt.Printf("customMetrics: %s\n", customMetrics)
 	scaler.AutoscalingPolicy.CustomMetricUtilizations = customMetrics
 	if _, ok := d.GetOk("autoscaling_policy.0.load_balancing_utilization"); ok {
 		if d.Get(prefix+"load_balancing_utilization.0.target").(float64) != 0 {
