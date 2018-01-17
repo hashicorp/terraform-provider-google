@@ -25,6 +25,12 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/test-record.hashicorptest.com./A", zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -91,6 +97,8 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_ns(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -104,11 +112,19 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/hashicorptest.com./NS", zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func TestAccDnsRecordSet_nestedNS(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
+	"strings"
 )
 
 func resourceDnsRecordSet() *schema.Resource {
@@ -14,6 +15,9 @@ func resourceDnsRecordSet() *schema.Resource {
 		Read:   resourceDnsRecordSetRead,
 		Delete: resourceDnsRecordSetDelete,
 		Update: resourceDnsRecordSetUpdate,
+		Importer: &schema.ResourceImporter{
+			State: resourceDnsRecordSetImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"managed_zone": &schema.Schema{
@@ -64,14 +68,16 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	name := d.Get("name").(string)
 	zone := d.Get("managed_zone").(string)
+	rType := d.Get("type").(string)
 
 	// Build the change
 	chg := &dns.Change{
 		Additions: []*dns.ResourceRecordSet{
 			&dns.ResourceRecordSet{
-				Name:    d.Get("name").(string),
-				Type:    d.Get("type").(string),
+				Name:    name,
+				Type:    rType,
 				Ttl:     int64(d.Get("ttl").(int)),
 				Rrdatas: rrdata(d),
 			},
@@ -86,7 +92,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	// We also can't just remove the NS recordsets on creation, as at
 	// least one is required. So the solution is to "update in place" by
 	// putting the addition and the removal in the same API call.
-	if d.Get("type").(string) == "NS" {
+	if rType == "NS" {
 		log.Printf("[DEBUG] DNS record list request for %q", zone)
 		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
 		if err != nil {
@@ -95,7 +101,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		var deletions []*dns.ResourceRecordSet
 
 		for _, record := range res.Rrsets {
-			if record.Type != "NS" || record.Name != d.Get("name").(string) {
+			if record.Type != "NS" || record.Name != name {
 				continue
 			}
 			deletions = append(deletions, record)
@@ -111,7 +117,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error creating DNS RecordSet: %s", err)
 	}
 
-	d.SetId(chg.Id)
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, name, rType))
 
 	w := &DnsChangeWaiter{
 		Service:     config.clientDns,
@@ -156,6 +162,7 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))
 	}
 
+	d.Set("type", resp.Rrsets[0].Type)
 	d.Set("ttl", resp.Rrsets[0].Ttl)
 	d.Set("rrdatas", resp.Rrsets[0].Rrdatas)
 	d.Set("project", project)
@@ -284,6 +291,19 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return resourceDnsRecordSetRead(d, meta)
+}
+
+func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")
+	}
+
+	d.Set("managed_zone", parts[0])
+	d.Set("name", parts[1])
+	d.Set("type", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func rrdata(
