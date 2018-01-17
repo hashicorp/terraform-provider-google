@@ -110,50 +110,24 @@ func resourceCloudiotRegistry() *schema.Resource {
 				},
 			},
 			"credentials": &schema.Schema{
-				// Removed original "public_key_certificate" wrapper object. Additional nesting caused
-				// problems with schema parsing.
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				MaxItems: 10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"format": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{unspecifiedCertFormat, x509CertificatePEM}, false),
-						},
-						"certificate": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"x509_details": &schema.Schema{
+						"public_key_certificate": &schema.Schema{
 							Type:     schema.TypeMap,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"issuer": &schema.Schema{
+									"format": &schema.Schema{
 										Type:     schema.TypeString,
 										Required: true,
+										ValidateFunc: validation.StringInSlice(
+											[]string{unspecifiedCertFormat, x509CertificatePEM}, false),
 									},
-									"subject": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"start_time": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"expiry_time": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"signature_algorithm": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"public_key_type": &schema.Schema{
+									"certificate": &schema.Schema{
 										Type:     schema.TypeString,
 										Required: true,
 									},
@@ -206,24 +180,10 @@ func expandHttpConfig(config map[string]interface{}) *cloudiot.HttpConfig {
 	return nil
 }
 
-func expandX509Details(x509Details map[string]interface{}) *cloudiot.X509CertificateDetails {
-	return &cloudiot.X509CertificateDetails{
-		Issuer:             x509Details["issuer"].(string),
-		Subject:            x509Details["subject"].(string),
-		StartTime:          x509Details["start_time"].(string),
-		ExpiryTime:         x509Details["expiry_time"].(string),
-		SignatureAlgorithm: x509Details["signature_algorithm"].(string),
-		PublicKeyType:      x509Details["public_key_type"].(string),
-	}
-}
-
 func expandPublicKeyCertificate(certificate map[string]interface{}) *cloudiot.PublicKeyCertificate {
 	cert := &cloudiot.PublicKeyCertificate{
 		Format:      certificate["format"].(string),
 		Certificate: certificate["certificate"].(string),
-	}
-	if len(certificate["x509_details"].(map[string]interface{})) != 0 {
-		cert.X509Details = expandX509Details(certificate["x509_details"].(map[string]interface{}))
 	}
 	return cert
 }
@@ -234,7 +194,7 @@ func expandCredentials(credentials []interface{}) []*cloudiot.RegistryCredential
 		cred := raw.(map[string]interface{})
 
 		certificates[i] = &cloudiot.RegistryCredential{
-			PublicKeyCertificate: expandPublicKeyCertificate(cred), // ["public_key_certificate"]
+			PublicKeyCertificate: expandPublicKeyCertificate(cred["public_key_certificate"].(map[string]interface{})),
 		}
 	}
 	return certificates
@@ -406,21 +366,9 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 		credentials := make([]map[string]interface{}, len(res.Credentials))
 		for i, item := range res.Credentials {
 			pubcert := make(map[string]interface{})
-
 			pubcert["format"] = item.PublicKeyCertificate.Format
 			pubcert["certificate"] = item.PublicKeyCertificate.Certificate
 
-			x509details := item.PublicKeyCertificate.X509Details
-			if x509details != nil {
-				pubcert["x509_details"] = map[string]interface{}{
-					"issuer":              x509details.Issuer,
-					"subject":             x509details.Subject,
-					"start_time":          x509details.StartTime,
-					"expiry_time":         x509details.ExpiryTime,
-					"signature_algorithm": x509details.SignatureAlgorithm,
-					"public_key_type":     x509details.PublicKeyType,
-				}
-			}
 			credentials[i] = pubcert
 		}
 		d.Set("credentials", credentials)
