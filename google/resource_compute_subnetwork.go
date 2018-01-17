@@ -6,9 +6,12 @@ import (
 
 	"strings"
 
+	"github.com/apparentlymart/go-cidr/cidr"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
+	"net"
 	"time"
 )
 
@@ -37,9 +40,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validateIpCidrRange,
+				// ForceNew only if it shrinks the CIDR range, this is set in CustomizeDiff below.
 			},
 
 			"name": &schema.Schema{
@@ -113,6 +117,10 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		CustomizeDiff: customdiff.All(
+			customdiff.ForceNewIfChange("ip_cidr_range", isShrinkageIpCidr),
+		),
 	}
 }
 
@@ -279,6 +287,25 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		d.SetPartial("private_ip_google_access")
 	}
 
+	if d.HasChange("ip_cidr_range") {
+		r := &compute.SubnetworksExpandIpCidrRangeRequest{
+			IpCidrRange: d.Get("ip_cidr_range").(string),
+		}
+
+		op, err := config.clientCompute.Subnetworks.ExpandIpCidrRange(project, region, d.Get("name").(string), r).Do()
+
+		if err != nil {
+			return fmt.Errorf("Error expanding the ip cidr range: %s", err)
+		}
+
+		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Expanding Subnetwork IP CIDR range")
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("ip_cidr_range")
+	}
+
 	if d.HasChange("secondary_ip_range") && computeApiVersion == v0beta {
 		v0BetaSubnetwork := &computeBeta.Subnetwork{
 			SecondaryIpRanges: expandSecondaryRangesV0Beta(d.Get("secondary_ip_range").([]interface{})),
@@ -414,4 +441,24 @@ func flattenSecondaryRangesV0Beta(secondaryRanges []*computeBeta.SubnetworkSecon
 		secondaryRangesSchema = append(secondaryRangesSchema, data)
 	}
 	return secondaryRangesSchema
+}
+
+// Whether the IP CIDR change shrinks the block.
+func isShrinkageIpCidr(old, new, _ interface{}) bool {
+	_, oldCidr, oldErr := net.ParseCIDR(old.(string))
+	_, newCidr, newErr := net.ParseCIDR(new.(string))
+
+	if oldErr != nil || newErr != nil {
+		// This should never happen. The ValidateFunc on the field ensures it.
+		return false
+	}
+
+	oldStart, oldEnd := cidr.AddressRange(oldCidr)
+
+	if newCidr.Contains(oldStart) && newCidr.Contains(oldEnd) {
+		// This is a CIDR range expansion, no need to ForceNew, we have an update method for it.
+		return false
+	}
+
+	return true
 }

@@ -107,3 +107,11 @@ func validateRFC1035Name(min, max int) schema.SchemaValidateFunc {
 
 	return validateRegexp(fmt.Sprintf("^"+RFC1035NameTemplate+"$", min-2, max-2))
 }
+
+func validateIpCidrRange(v interface{}, k string) (warnings []string, errors []error) {
+	_, _, err := net.ParseCIDR(v.(string))
+	if err != nil {
+		errors = append(errors, fmt.Errorf("%q is not a valid IP CIDR range: %s", k, err))
+	}
+	return
+}
