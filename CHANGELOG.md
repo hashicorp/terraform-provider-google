@@ -25,6 +25,7 @@ IMPROVEMENTS:
 * compute: Add import support for `google_compute_instance` [GH-873]
 * compute: More descriptive error message for health check not found in `google_compute_target_pool` [GH-883]
 * compute: Add `disable_on_destroy` (default true) for `google_project_service`. [GH-965]
+* compute: Add update support for subnetwork IP CIDR range expansion [GH-945]
 * container: Ensure operations on a cluster are applied serially [GH-937]
 * container: Don't recreate container_cluster when maintenance_window changes [GH-893]
 * dataproc: Add "internal IP only" support for Dataproc clusters [GH-837]
