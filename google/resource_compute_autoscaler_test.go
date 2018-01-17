@@ -176,7 +176,7 @@ func testAccCheckComputeAutoscalerMultifunction(n string) resource.TestCheckFunc
 		if found.AutoscalingPolicy.CpuUtilization.UtilizationTarget == 0.5 && found.AutoscalingPolicy.LoadBalancingUtilization.UtilizationTarget == 0.5 {
 			return nil
 		}
-		return fmt.Errorf("Util target for CPU: %d, for LB: %d - should have been 0.5 for each.",
+		return fmt.Errorf("Util target for CPU: %f, for LB: %f - should have been 0.5 for each.",
 			found.AutoscalingPolicy.CpuUtilization.UtilizationTarget,
 			found.AutoscalingPolicy.LoadBalancingUtilization.UtilizationTarget)
 
