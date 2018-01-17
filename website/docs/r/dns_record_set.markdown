@@ -102,7 +102,7 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-DNS record set can be imported using the zone `name`, record `name` and record `type`, e.g.
+DNS record set can be imported using the `zone name`, `record name` and record `type`, e.g.
 
 ```
 $ terraform import google_dns_record_set.frontend prod-zone/frontend.prod.mydomain.com./A
