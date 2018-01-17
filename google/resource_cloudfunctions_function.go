@@ -351,9 +351,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		switch function.EventTrigger.EventType {
 		// From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
 		case "providers/cloud.pubsub/eventTypes/topic.publish":
-			d.Set("trigger_topic", extractLastResourceFromUri(function.EventTrigger.Resource))
+			d.Set("trigger_topic", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
 		case "providers/cloud.storage/eventTypes/object.change":
-			d.Set("trigger_bucket", extractLastResourceFromUri(function.EventTrigger.Resource))
+			d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
 		}
 	}
 	d.Set("region", cloudFuncId.Region)
