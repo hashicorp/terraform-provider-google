@@ -19,6 +19,7 @@ import (
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudfunctions/v1"
+	"google.golang.org/api/cloudiot/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -68,6 +69,7 @@ type Config struct {
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
 	clientCloudFunctions         *cloudfunctions.Service
+	clientCloudiot               *cloudiot.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -287,6 +289,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud IoT Core Client...")
+	c.clientCloudiot, err = cloudiot.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientCloudiot.UserAgent = userAgent
 
 	return nil
 }
