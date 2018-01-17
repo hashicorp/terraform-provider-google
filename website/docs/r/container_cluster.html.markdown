@@ -210,7 +210,7 @@ The `master_auth` block supports:
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
-If this block is provided and both username and password are empty, basic auth will be disabled.
+If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
 
 The `master_authorized_networks_config` block supports:
 
