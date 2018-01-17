@@ -144,7 +144,10 @@ The `initialize_params` block supports:
     one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
     `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
     `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-    `{project}/{image}`, `{family}`, or `{image}`.
+    `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
+    images names must include the family name. For instance, the image
+    `centos-6-v20180104` includes its family name `centos-6`. These images can
+    be referred by family name here.
 
 The `scratch_disk` block supports:
 
@@ -276,7 +279,7 @@ exported:
 
 ## Import
 
-~> **Note:** The fields `boot_disk.0.initialize_params`, `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+~> **Note:** The fields `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
 
 Instances can be imported using the `project`, `zone` and `name`, e.g.
 
