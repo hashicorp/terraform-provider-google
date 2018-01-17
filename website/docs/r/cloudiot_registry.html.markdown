@@ -45,16 +45,9 @@ resource "google_cloudiot_registry" "default-registry" {
 
   credentials = [
     {
-      format      = "X509_CERTIFICATE_PEM"
-      certificate = "<CERTIFICATE>"
-
-      x509_details = {
-        issuer              = "CN=unused"
-        subject             = "CN=unused"
-        start_time          = "2018-01-12T20:13:43Z"
-        expiry_time         = "2023-01-11T20:13:43Z"
-        signature_algorithm = "sha256WithRSAEncryption"
-        public_key_type     = "PK_RSA"
+      public_key_certificate = {
+        format      = "X509_CERTIFICATE_PEM"
+        certificate = "<CERTIFICATE>"
       }
     },
   ]
@@ -102,18 +95,13 @@ The `http_config` block supports:
 
 The `credentials` block supports:
 
+* `public_key_certificate` - (Required) The certificate format and data.
+
+The `public_key_certificate` block supports:
+
 * `format` - (Required) The field allows `UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT` or `X509_CERTIFICATE_PEM`.
 * `certificate` - (Required) The certificate data.
-* `x509_details` - (Required) The certificate details. The structure is described below.
 
-The `x509_details` block supports:
-* `issuer` - (Required) Identifies the entity that has signed and issued the certificate.
-* `subject` - (Required) The person or system the certificate belongs to.
-* `start_time` - (Required) The date on which the certificate validity period begins. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: 
-`2016-10-09T12:33:37.578138407Z`.
-* `expiry_time` - (Required) The date on which the certificate validity period ends. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: `2016-10-09T12:33:37.578138407Z`.
-* `signature_algorithm` - (Required) Identifier for the cryptographic algorithm used to sign this certificate.
-* `public_key_type` - (Required) The type of public key in the certificate.
 
 ## Attributes Reference
 

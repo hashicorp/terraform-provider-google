@@ -152,28 +152,6 @@ func testAccCloudiotRegistryUpdate(n string) resource.TestCheckFunc {
 		if registry.Credentials[0].PublicKeyCertificate.Certificate == "" {
 			return fmt.Errorf("Registry certificate not set correctly")
 		}
-		x509Details := registry.Credentials[0].PublicKeyCertificate.X509Details
-		if x509Details == nil {
-			return fmt.Errorf("Registry certificate x509 details not set correctly")
-		}
-		if x509Details.Issuer != "CN=unused" {
-			return fmt.Errorf("Registry certificate x509 issuer not set correctly")
-		}
-		if x509Details.Subject != "CN=unused" {
-			return fmt.Errorf("Registry certificate x509 subject not set correctly")
-		}
-		if x509Details.StartTime != "2018-01-12T20:13:43Z" {
-			return fmt.Errorf("Registry certificate x509 start time not set correctly")
-		}
-		if x509Details.ExpiryTime != "2023-01-11T20:13:43Z" {
-			return fmt.Errorf("Registry certificate x509 expire time not set correctly")
-		}
-		if x509Details.SignatureAlgorithm != "sha256WithRSAEncryption" {
-			return fmt.Errorf("Registry certificate x509 signature algorithm not set correctly")
-		}
-		if x509Details.PublicKeyType != "PK_RSA" {
-			return fmt.Errorf("Registry certificate x509 public key type not set correctly")
-		}
 
 		return nil
 	}
@@ -217,20 +195,12 @@ resource "google_cloudiot_registry" "foobar" {
 
   credentials = [
     {
-      format      = "X509_CERTIFICATE_PEM"
-      certificate = "-----BEGIN CERTIFICATE-----\nMIICnjCCAYYCCQC/5gx7LgJFqTANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZ1\nbnVzZWQwHhcNMTgwMTEyMjAxMzQzWhcNMjMwMTExMjAxMzQzWjARMQ8wDQYDVQQD\nDAZ1bnVzZWQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDStfQvJzmN\nCYLSWpwvTmyCKn8t19cfWZ69wFaB3OSglxXgYe3w9An0QHybDpKITt61PpfsKov3\nEcnzH5IA+Ox+4jUppBL1mSkO/BWig+sd1dG7pQMbGi4nMxW704A0PRUaNIOarOlR\nrNUJZQrsghkMjLayCTJ2HISBBiPnKKB3f3KCc9sDhj2Z7zy7HfeW0apZ1m6xAQCC\neSZNW0IyGIYKTd9F7HEJFzOWg9JHvabbciBEcFWKGVzM8nQr1q8KU8Xi3iN2mpNK\nJkbRLNnqKhvjPyIZ4s4cDSEZN1/OaGQ4XP2mvU03+4UAoMPoJ8IczBKTB0mFxfX8\nlDZZa5IWU9sNAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAHnkTIghRj/cerR9ctji\nkancnjlsdNEuPiVpMj+SOtOH8cvlgl0oWG6segYTVzk4VEHlq3POB67Yjoz829XM\nCEgUxSqGvDrQ7IaPLPryYy8o5azMLnEZDr+Yd6CUKr/pUZzJoZxHj7z3iqeQZnMW\nS6kb6HYvG5PKlJ7+JUIKLou0RQmaM9BQ0Nln/YDRRIerD0MY9k7No2ZEDbywZqQK\nGRIqT+BlN84oHOR44h2RqWhn9O50tkbcmAIKgmeg/mxwmeAm/6hQ8VrOhDHqsFdT\nzh2l6IeCl8EF8MjNrFRcQx21TTqeU6vGIPgM3E0k8PQUc+s+lir8UFsIzKaOFsIh\nuKU=\n-----END CERTIFICATE-----\n"
-
-      x509_details = {
-        issuer              = "CN=unused"
-        subject             = "CN=unused"
-        start_time          = "2018-01-12T20:13:43Z"
-        expiry_time         = "2023-01-11T20:13:43Z"
-        signature_algorithm = "sha256WithRSAEncryption"
-        public_key_type     = "PK_RSA"
+      "public_key_certificate" = {
+        format      = "X509_CERTIFICATE_PEM"
+        certificate = "-----BEGIN CERTIFICATE-----\nMIICnjCCAYYCCQC/5gx7LgJFqTANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZ1\nbnVzZWQwHhcNMTgwMTEyMjAxMzQzWhcNMjMwMTExMjAxMzQzWjARMQ8wDQYDVQQD\nDAZ1bnVzZWQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDStfQvJzmN\nCYLSWpwvTmyCKn8t19cfWZ69wFaB3OSglxXgYe3w9An0QHybDpKITt61PpfsKov3\nEcnzH5IA+Ox+4jUppBL1mSkO/BWig+sd1dG7pQMbGi4nMxW704A0PRUaNIOarOlR\nrNUJZQrsghkMjLayCTJ2HISBBiPnKKB3f3KCc9sDhj2Z7zy7HfeW0apZ1m6xAQCC\neSZNW0IyGIYKTd9F7HEJFzOWg9JHvabbciBEcFWKGVzM8nQr1q8KU8Xi3iN2mpNK\nJkbRLNnqKhvjPyIZ4s4cDSEZN1/OaGQ4XP2mvU03+4UAoMPoJ8IczBKTB0mFxfX8\nlDZZa5IWU9sNAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAHnkTIghRj/cerR9ctji\nkancnjlsdNEuPiVpMj+SOtOH8cvlgl0oWG6segYTVzk4VEHlq3POB67Yjoz829XM\nCEgUxSqGvDrQ7IaPLPryYy8o5azMLnEZDr+Yd6CUKr/pUZzJoZxHj7z3iqeQZnMW\nS6kb6HYvG5PKlJ7+JUIKLou0RQmaM9BQ0Nln/YDRRIerD0MY9k7No2ZEDbywZqQK\nGRIqT+BlN84oHOR44h2RqWhn9O50tkbcmAIKgmeg/mxwmeAm/6hQ8VrOhDHqsFdT\nzh2l6IeCl8EF8MjNrFRcQx21TTqeU6vGIPgM3E0k8PQUc+s+lir8UFsIzKaOFsIh\nuKU=\n-----END CERTIFICATE-----\n"
       }
     },
   ]
 }
-
 `, acctest.RandString(10), acctest.RandString(10), registryName)
 }
