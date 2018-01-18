@@ -442,7 +442,8 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 	if err != nil {
 		return nil, err
 	}
-	canonicalImage := GetResourceNameFromSelfLink(img)
+	imgParts := strings.Split(img, "/projects/")
+	canonicalImage := imgParts[len(imgParts)-1]
 
 	for i, disk := range instance.Disks {
 		if disk.Boot == true || disk.Type == "SCRATCH" {
