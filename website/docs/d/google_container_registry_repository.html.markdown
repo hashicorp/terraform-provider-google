@@ -12,7 +12,7 @@ This data source fetches the project name, and provides the appropriate URLs to 
 
 The URLs are computed entirely offline - as long as the project exists, they will be valid, but this data source does not contact GCR at any point.
 
-# Example Usage
+## Example Usage
 
 ```hcl
 data "google_container_registry_repository" {}
@@ -22,10 +22,10 @@ output "gcr_location" {
 }
 ```
 
-# Argument Reference
+## Argument Reference
 * `project`: (Optional) The project ID that this repository is attached to.  If not provider, provider project will be used instead.
 * `region`: (Optional) The GCR region to use.  As of this writing, one of `asia`, `eu`, and `us`.
 
-# Attributes Reference
+## Attributes Reference
 In addition to the arguments listed above, this data source exports:
 * `repository_url`: The URL at which the repository can be accessed.
