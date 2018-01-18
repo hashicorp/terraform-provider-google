@@ -1,5 +1,5 @@
 provider "google" {
-  region = "${var.region}"
+  region      = "${var.region}"
   credentials = "${file("${var.credentials_file_path}")}"
 }
 
@@ -28,7 +28,8 @@ resource "google_project_service" "endpoints_project_sm" {
 
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "echo-api.endpoints.${google_project.endpoints_project.project_id}.cloud.goog"
-  project = "${google_project.endpoints_project.project_id}"
+  project      = "${google_project.endpoints_project.project_id}"
+
   config_text = <<EOF
 swagger: "2.0"
 info:
@@ -70,6 +71,7 @@ definitions:
       message:
         type: "string"
 EOF
+
   depends_on = ["google_project_service.endpoints_project_sm"]
 }
 
@@ -77,7 +79,7 @@ resource "google_compute_network" "network" {
   name                    = "ep-network"
   auto_create_subnetworks = "true"
   project                 = "${google_project.endpoints_project.project_id}"
-  depends_on = ["google_project_service.endpoints_project"]
+  depends_on              = ["google_project_service.endpoints_project"]
 }
 
 # Allow the hosted network to be hit over ICMP, SSH, and HTTP.
@@ -109,9 +111,9 @@ resource "google_compute_instance" "project_1_vm" {
   }
 
   metadata {
-    endpoints-service-name = "${google_endpoints_service.endpoints_service.service_name}"
+    endpoints-service-name      = "${google_endpoints_service.endpoints_service.service_name}"
     endpoints-service-config-id = "${google_endpoints_service.endpoints_service.config_id}"
-    startup-script = "${file("scripts/install-vm.sh")}"
+    startup-script              = "${file("scripts/install-vm.sh")}"
   }
 
   network_interface {

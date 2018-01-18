@@ -21,8 +21,9 @@ func resourceEndpointsService() *schema.Resource {
 				ForceNew: true,
 			},
 			"openapi_config": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"grpc_config", "protoc_output"},
 			},
 			"grpc_config": &schema.Schema{
 				Type:     schema.TypeString,
@@ -32,16 +33,15 @@ func resourceEndpointsService() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"config_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
-			},
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"config_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"apis": &schema.Schema{
 				Type:     schema.TypeList,
@@ -50,36 +50,36 @@ func resourceEndpointsService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 						"syntax": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 						"version": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 						"methods": &schema.Schema{
 							Type:     schema.TypeList,
-							Required: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": &schema.Schema{
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 									"syntax": &schema.Schema{
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 									"request_type": &schema.Schema{
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 									"response_type": &schema.Schema{
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 								},
 							},
@@ -98,11 +98,11 @@ func resourceEndpointsService() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 						"address": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 					},
 				},
@@ -111,12 +111,12 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func getOpenApiConfigSource(config_text string) servicemanagement.ConfigSource {
+func getOpenAPIConfigSource(configText string) servicemanagement.ConfigSource {
 	// We need to provide a ConfigSource object to the API whenever submitting a
 	// new config.  A ConfigSource contains a ConfigFile which contains the b64
 	// encoded contents of the file.  OpenAPI requires only one file.
 	configfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(config_text)),
+		FileContents: base64.StdEncoding.EncodeToString([]byte(configText)),
 		FileType:     "OPEN_API_YAML",
 		FilePath:     "heredoc.yaml",
 	}
@@ -125,21 +125,21 @@ func getOpenApiConfigSource(config_text string) servicemanagement.ConfigSource {
 	}
 }
 
-func getGrpcConfigSource(service_config, proto_config string) servicemanagement.ConfigSource {
+func getGRPCConfigSource(serviceConfig, protoConfig string) servicemanagement.ConfigSource {
 	// gRPC requires both the file specifying the service and the compiled protobuf,
 	// but they can be in any order.
-	yml_configfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(service_config)),
+	ymlConfigfile := servicemanagement.ConfigFile{
+		FileContents: base64.StdEncoding.EncodeToString([]byte(serviceConfig)),
 		FileType:     "SERVICE_CONFIG_YAML",
 		FilePath:     "heredoc.yaml",
 	}
-	proto_configfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(proto_config)),
+	protoConfigfile := servicemanagement.ConfigFile{
+		FileContents: base64.StdEncoding.EncodeToString([]byte(protoConfig)),
 		FileType:     "FILE_DESCRIPTOR_SET_PROTO",
 		FilePath:     "api_def.pb",
 	}
 	return servicemanagement.ConfigSource{
-		Files: []*servicemanagement.ConfigFile{&yml_configfile, &proto_configfile},
+		Files: []*servicemanagement.ConfigFile{&ymlConfigfile, &protoConfigfile},
 	}
 }
 
@@ -150,7 +150,13 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	// If the service doesn't exist, we'll need to create it, but if it does, it
-	// will be reused.
+	// will be reused.  This is unusual for Terraform, but it causes the behavior
+	// that users will want and accept.  Users of Endpoints are not thinking in
+	// terms of services, configs, and rollouts - they just want the setup declared
+	// in their config to happen.  The fact that a service may need to be created
+	// is not interesting to them.  Consequently, we create this service if necessary
+	// so that we can perform the rollout without further disruption, which is the
+	// action that a user running `terraform apply` is going to want.
 	serviceName := d.Get("service_name").(string)
 	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
 	_, err = servicesService.Get(serviceName).Do()
@@ -182,15 +188,14 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	// rollouts or A/B testing is going to need a more precise tool than this resource.
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
-	openapi_config, ok := d.GetOk("openapi_config")
 	var source servicemanagement.ConfigSource
-	if ok {
-		source = getOpenApiConfigSource(openapi_config.(string))
+	if openapiConfig, ok := d.GetOk("openapi_config"); ok {
+		source = getOpenAPIConfigSource(openapiConfig.(string))
 	} else {
-		grpc_config, g_ok := d.GetOk("grpc_config")
-		protoc_output, p_ok := d.GetOk("protoc_output")
-		if g_ok && p_ok {
-			source = getGrpcConfigSource(grpc_config.(string), protoc_output.(string))
+		grpcConfig, gok := d.GetOk("grpc_config")
+		protocOutput, pok := d.GetOk("protoc_output")
+		if gok && pok {
+			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
 		} else {
 			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output.")
 		}
@@ -253,13 +258,13 @@ func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("config_id", service.Id)
 	d.Set("dns_address", service.Name)
-	d.Set("apis", flattenServiceManagementApi(service.Apis))
+	d.Set("apis", flattenServiceManagementAPIs(service.Apis))
 	d.Set("endpoints", flattenServiceManagementEndpoints(service.Endpoints))
 
 	return nil
 }
 
-func flattenServiceManagementApi(apis []*servicemanagement.Api) []map[string]interface{} {
+func flattenServiceManagementAPIs(apis []*servicemanagement.Api) []map[string]interface{} {
 	flattened := make([]map[string]interface{}, len(apis))
 	for i, a := range apis {
 		flattened[i] = map[string]interface{}{

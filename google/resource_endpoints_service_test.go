@@ -10,6 +10,38 @@ import (
 	"google.golang.org/api/servicemanagement/v1"
 )
 
+func TestAccEndpointsService_basic(t *testing.T) {
+	t.Parallel()
+	random_name := "t-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccEndpointsService_basic(random_name),
+				Check:  testAccCheckEndpointExistsByName(random_name),
+			},
+		},
+	})
+}
+
+func TestAccEndpointsService_grpc(t *testing.T) {
+	t.Parallel()
+	random_name := "t-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccEndpointsService_grpc(random_name),
+				Check:  testAccCheckEndpointExistsByName(random_name),
+			},
+		},
+	})
+}
+
 func testAccEndpointsService_basic(random_name string) string {
 	return fmt.Sprintf(`resource "google_endpoints_service" "endpoints_service" {
   service_name = "%s.endpoints.%s.cloud.goog"
@@ -89,36 +121,4 @@ func testAccCheckEndpointExistsByName(random_name string) resource.TestCheckFunc
 			return fmt.Errorf("Service %s.endpoints.%s.cloud.goog does not seem to exist.", random_name, config.Project)
 		}
 	}
-}
-
-func TestAccEndpointsService_basic(t *testing.T) {
-	t.Parallel()
-	random_name := "t-" + acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccEndpointsService_basic(random_name),
-				Check:  testAccCheckEndpointExistsByName(random_name),
-			},
-		},
-	})
-}
-
-func TestAccEndpointsService_grpc(t *testing.T) {
-	t.Parallel()
-	random_name := "t-" + acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccEndpointsService_grpc(random_name),
-				Check:  testAccCheckEndpointExistsByName(random_name),
-			},
-		},
-	})
 }
