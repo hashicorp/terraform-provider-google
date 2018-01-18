@@ -15,6 +15,8 @@ FEATURES:
 * **New Data Source:** `google_kms_secret` [GH-741]
 * **New Data Source:** `google_billing_account`[GH-889]
 * **New Data Source:** `google_organization` [GH-887]
+* **New Data Source:** `google_container_registry_repository` [GH-954]
+* **New Data Source:** `google_container_registry_image` [GH-954]
 
 IMPROVEMENTS:
 * iam: Add support for import of IAM resources (project, folder, organizations, crypto keys, and key rings).  [GH-835]
