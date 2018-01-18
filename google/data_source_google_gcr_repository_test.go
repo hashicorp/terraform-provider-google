@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestDataSourceGoogleGcrRepository(t *testing.T) {
+func TestDataSourceGoogleContainerRegistryRepository(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "data.google_container_registry_repository.default"
@@ -16,7 +16,7 @@ func TestDataSourceGoogleGcrRepository(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleGcrRepo_basic,
+				Config: testAccCheckGoogleContainerRegistryRepo_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "project"),
 					resource.TestCheckResourceAttrSet(resourceName, "region"),
@@ -27,14 +27,14 @@ func TestDataSourceGoogleGcrRepository(t *testing.T) {
 	})
 }
 
-const testAccCheckGoogleGcrRepo_basic = `
+const testAccCheckGoogleContainerRegistryRepo_basic = `
 data "google_container_registry_repository" "default" {
 	project = "foo"
 	region = "bar"
 }
 `
 
-func TestDataSourceGoogleGcrImage(t *testing.T) {
+func TestDataSourceGoogleContainerRegistryImage(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "data.google_container_registry_image.test"
@@ -44,7 +44,7 @@ func TestDataSourceGoogleGcrImage(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleGcrImage_basic,
+				Config: testAccCheckGoogleContainerRegistryImage_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "project"),
 					resource.TestCheckResourceAttrSet(resourceName, "region"),
@@ -57,7 +57,7 @@ func TestDataSourceGoogleGcrImage(t *testing.T) {
 	})
 }
 
-const testAccCheckGoogleGcrImage_basic = `
+const testAccCheckGoogleContainerRegistryImage_basic = `
 data "google_container_registry_image" "test" {
 	project = "foo"
 	region = "bar"

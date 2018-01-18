@@ -8,7 +8,7 @@ import (
 
 func dataSourceGoogleContainerRepo() *schema.Resource {
 	return &schema.Resource{
-		Read: gcrRepoRead,
+		Read: containerRegistryRepoRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -29,7 +29,7 @@ func dataSourceGoogleContainerRepo() *schema.Resource {
 
 func dataSourceGoogleContainerImage() *schema.Resource {
 	return &schema.Resource{
-		Read: gcrImageRead,
+		Read: containerRegistryImageRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -60,7 +60,7 @@ func dataSourceGoogleContainerImage() *schema.Resource {
 	}
 }
 
-func gcrRepoRead(d *schema.ResourceData, meta interface{}) error {
+func containerRegistryRepoRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
@@ -77,7 +77,7 @@ func gcrRepoRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func gcrImageRead(d *schema.ResourceData, meta interface{}) error {
+func containerRegistryImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
