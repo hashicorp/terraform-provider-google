@@ -10,7 +10,7 @@ description: |-
 
 This data source fetches the project name, and provides the appropriate URLs to use for container registry for this project.
 
-The URLs are computed entirely offline - as long as the project exists, they will be valid, but this data source does not contact GCR at any point.
+The URLs are computed entirely offline - as long as the project exists, they will be valid, but this data source does not contact Google Container Registry (GCR) at any point.
 
 ## Example Usage
 
@@ -24,7 +24,7 @@ output "gcr_location" {
 
 ## Argument Reference
 * `project`: (Optional) The project ID that this repository is attached to.  If not provider, provider project will be used instead.
-* `region`: (Optional) The GCR region to use.  As of this writing, one of `asia`, `eu`, and `us`.
+* `region`: (Optional) The GCR region to use.  As of this writing, one of `asia`, `eu`, and `us`.  See [the documentation](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for additional information.
 
 ## Attributes Reference
 In addition to the arguments listed above, this data source exports:
