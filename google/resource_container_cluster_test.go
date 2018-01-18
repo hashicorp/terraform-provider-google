@@ -1057,7 +1057,7 @@ resource "google_container_cluster" "with_master_auth" {
 
 	master_auth {
 		username = "mr.yoda"
-		password = "adoy.rm"
+		password = "adoy.rm.123456789"
 	}
 }`, acctest.RandString(10))
 }
@@ -1122,11 +1122,6 @@ resource "google_container_cluster" "with_additional_zones" {
 		"us-central1-b",
 		"us-central1-c"
 	]
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 }`, clusterName)
 }
 
@@ -1142,11 +1137,6 @@ resource "google_container_cluster" "with_additional_zones" {
 		"us-central1-b",
 		"us-central1-c",
 	]
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 }`, clusterName)
 }
 
@@ -1194,11 +1184,6 @@ resource "google_container_cluster" "with_version" {
 	zone = "us-central1-a"
 	min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
 	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 }`, clusterName)
 }
 
@@ -1213,11 +1198,6 @@ resource "google_container_cluster" "with_version" {
 	zone = "us-central1-a"
 	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.2}"
 	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 }`, clusterName)
 }
 
@@ -1233,11 +1213,6 @@ resource "google_container_cluster" "with_version" {
 	min_master_version = "${data.google_container_engine_versions.central1a.valid_master_versions.1}"
 	node_version = "${data.google_container_engine_versions.central1a.valid_node_versions.1}"
 	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 }`, clusterName)
 }
 
@@ -1247,11 +1222,6 @@ resource "google_container_cluster" "with_node_config" {
 	name = "cluster-test-%s"
 	zone = "us-central1-f"
 	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 
 	node_config {
 		machine_type = "n1-standard-1"
@@ -1285,11 +1255,6 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
 	zone = "us-central1-f"
 	initial_node_count = 1
 
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
 	node_config {
 		machine_type = "g1-small"
 		disk_size_gb = 15
@@ -1309,11 +1274,6 @@ resource "google_container_cluster" "with_net_ref_by_url" {
 	name = "cluster-test-%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 
 	network = "${google_compute_network.container_network.self_link}"
 }
@@ -1362,11 +1322,6 @@ resource "google_container_cluster" "primary" {
     "us-central1-b",
     "us-central1-c",
   ]
-
-  master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm"
-  }
 
   node_config {
     oauth_scopes = [
@@ -1430,11 +1385,6 @@ resource "google_container_cluster" "with_node_pool" {
 	name = "%s"
 	zone = "us-central1-a"
 
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
 	node_pool {
 		name               = "%s"
 		initial_node_count = 2
@@ -1484,11 +1434,6 @@ resource "google_container_cluster" "with_node_pool" {
 	name = "%s"
 	zone = "us-central1-a"
 
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
 	node_pool {
 		name               = "%s"
 		initial_node_count = 2
@@ -1505,11 +1450,6 @@ func testAccContainerCluster_withNodePoolUpdateAutoscaling(cluster, np string) s
 resource "google_container_cluster" "with_node_pool" {
 	name = "%s"
 	zone = "us-central1-a"
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 
 	node_pool {
 		name               = "%s"
@@ -1528,11 +1468,6 @@ resource "google_container_cluster" "with_node_pool_name_prefix" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
 
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
 	node_pool {
 		name_prefix = "tf-np-test"
 		node_count  = 2
@@ -1545,11 +1480,6 @@ func testAccContainerCluster_withNodePoolMultiple() string {
 resource "google_container_cluster" "with_node_pool_multiple" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 
 	node_pool {
 		name       = "tf-cluster-nodepool-test-%s"
@@ -1568,11 +1498,6 @@ func testAccContainerCluster_withNodePoolConflictingNameFields() string {
 resource "google_container_cluster" "with_node_pool_multiple" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-a"
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
 
 	node_pool {
 		# ERROR: name and name_prefix cannot be both specified
