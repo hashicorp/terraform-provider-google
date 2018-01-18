@@ -9,7 +9,7 @@ import (
 func TestDataSourceGoogleGcrRepository(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "data.google_gcr_repository.default"
+	resourceName := "data.google_container_registry_repository.default"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -28,7 +28,7 @@ func TestDataSourceGoogleGcrRepository(t *testing.T) {
 }
 
 const testAccCheckGoogleGcrRepo_basic = `
-data "google_gcr_repository" "default" {
+data "google_container_registry_repository" "default" {
 	project = "foo"
 	region = "bar"
 }
@@ -37,7 +37,7 @@ data "google_gcr_repository" "default" {
 func TestDataSourceGoogleGcrImage(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "data.google_gcr_image.test"
+	resourceName := "data.google_container_registry_image.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -58,18 +58,18 @@ func TestDataSourceGoogleGcrImage(t *testing.T) {
 }
 
 const testAccCheckGoogleGcrImage_basic = `
-data "google_gcr_image" "test" {
+data "google_container_registry_image" "test" {
 	project = "foo"
 	region = "bar"
 	name = "baz"
 }
-data "google_gcr_image" "test2" {
+data "google_container_registry_image" "test2" {
 	project = "foo"
 	region = "bar"
 	name = "baz"
 	tag = "qux"
 }
-data "google_gcr_image" "test3" {
+data "google_container_registry_image" "test3" {
 	project = "foo"
 	region = "bar"
 	name = "baz"

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func dataSourceGoogleGcrRepo() *schema.Resource {
+func dataSourceGoogleContainerRepo() *schema.Resource {
 	return &schema.Resource{
 		Read: gcrRepoRead,
 		Schema: map[string]*schema.Schema{
@@ -27,7 +27,7 @@ func dataSourceGoogleGcrRepo() *schema.Resource {
 	}
 }
 
-func dataSourceGoogleGcrImage() *schema.Resource {
+func dataSourceGoogleContainerImage() *schema.Resource {
 	return &schema.Resource{
 		Read: gcrImageRead,
 		Schema: map[string]*schema.Schema{
