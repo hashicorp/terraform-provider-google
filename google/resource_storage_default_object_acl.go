@@ -32,7 +32,7 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 }
 
 func getDefaultObjectAclId(bucket string) string {
-	return bucket + "-default-acl"
+	return bucket + "-default-object-acl"
 }
 
 func resourceStorageDefaultObjectAclCreate(d *schema.ResourceData, meta interface{}) error {
@@ -59,7 +59,7 @@ func resourceStorageDefaultObjectAclCreate(d *schema.ResourceData, meta interfac
 			_, err = config.clientStorage.DefaultObjectAccessControls.Insert(bucket, ObjectAccessControl).Do()
 
 			if err != nil {
-				return fmt.Errorf("Error setting Default Object ACL for bucket %s: %v", bucket, err)
+				return fmt.Errorf("Error setting Default Object ACL for %s on bucket %s: %v", pair.Entity, bucket, err)
 			}
 		}
 
