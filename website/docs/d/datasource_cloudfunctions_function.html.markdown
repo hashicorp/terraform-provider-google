@@ -3,12 +3,14 @@ layout: "google"
 page_title: "Google: google_cloudfunctions_function"
 sidebar_current: "docs-google-datasource-cloudfunctions-function"
 description: |-
-  Get information about a Google Compute Image.
+  Get information about a Google Cloud Function.
 ---
 
 # google\_cloudfunctions\_function
 
-Get information about a Google Cloud Function.
+Get information about a Google Cloud Function. For more information see
+the [official documentation](https://cloud.google.com/functions/docs/)
+and [API](https://cloud.google.com/functions/docs/apis).
 
 ## Example Usage
 
@@ -38,7 +40,7 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `name` - The name of the Cloud Function.
-* `source_archive_bucket` - The source archive bucket.
+* `source_archive_bucket` - The GCS bucket containing the zip archive which contains the function.
 * `source_archive_object` - The source archive object (file) in archive bucket.
 * `description` - Description of the function.
 * `available_memory_mb` - Available memory (in MB) to the function.
