@@ -53,7 +53,7 @@ resource "google_container_cluster" "primary" {
 
 * `zone` - (Required) The zone in which the cluster resides.
 
-* `cluster` - (Required) The cluster to create the node pool for.
+* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for this resource.
 
 - - -
 
