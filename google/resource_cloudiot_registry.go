@@ -2,11 +2,12 @@ package google
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/cloudiot/v1"
-	"strings"
 )
 
 const (
@@ -20,15 +21,15 @@ const (
 	x509CertificatePEM    = "X509_CERTIFICATE_PEM"
 )
 
-func resourceCloudiotRegistry() *schema.Resource {
+func resourceCloudIoTRegistry() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudiotRegistryCreate,
-		Update: resourceCloudiotRegistryUpdate,
-		Read:   resourceCloudiotRegistryRead,
-		Delete: resourceCloudiotRegistryDelete,
+		Create: resourceCloudIoTRegistryCreate,
+		Update: resourceCloudIoTRegistryUpdate,
+		Read:   resourceCloudIoTRegistryRead,
+		Delete: resourceCloudIoTRegistryDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceCloudiotRegistryStateImporter,
+			State: resourceCloudIoTRegistryStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -50,11 +51,9 @@ func resourceCloudiotRegistry() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"event_notification_configs": &schema.Schema{
-				Type:     schema.TypeList,
+			"event_notification_config": &schema.Schema{
+				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pubsub_topic_name": &schema.Schema{
@@ -68,7 +67,6 @@ func resourceCloudiotRegistry() *schema.Resource {
 			"state_notification_config": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pubsub_topic_name": &schema.Schema{
@@ -82,7 +80,6 @@ func resourceCloudiotRegistry() *schema.Resource {
 			"mqtt_config": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mqtt_enabled_state": &schema.Schema{
@@ -97,7 +94,6 @@ func resourceCloudiotRegistry() *schema.Resource {
 			"http_config": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"http_enabled_state": &schema.Schema{
@@ -112,7 +108,6 @@ func resourceCloudiotRegistry() *schema.Resource {
 			"credentials": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				MaxItems: 10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -141,19 +136,16 @@ func resourceCloudiotRegistry() *schema.Resource {
 	}
 }
 
-func expandEventNotificationConfigs(configs []interface{}) []*cloudiot.EventNotificationConfig {
-	eventConfigs := make([]*cloudiot.EventNotificationConfig, len(configs))
-	for i, raw := range configs {
-		data := raw.(map[string]interface{})
-
-		eventConfigs[i] = &cloudiot.EventNotificationConfig{
-			PubsubTopicName: data["pubsub_topic_name"].(string),
+func buildEventNotificationConfig(config map[string]interface{}) *cloudiot.EventNotificationConfig {
+	if v, ok := config["pubsub_topic_name"]; ok {
+		return &cloudiot.EventNotificationConfig{
+			PubsubTopicName: v.(string),
 		}
 	}
-	return eventConfigs
+	return nil
 }
 
-func expandStateNotificationConfig(config map[string]interface{}) *cloudiot.StateNotificationConfig {
+func buildStateNotificationConfig(config map[string]interface{}) *cloudiot.StateNotificationConfig {
 	if v, ok := config["pubsub_topic_name"]; ok {
 		return &cloudiot.StateNotificationConfig{
 			PubsubTopicName: v.(string),
@@ -162,7 +154,7 @@ func expandStateNotificationConfig(config map[string]interface{}) *cloudiot.Stat
 	return nil
 }
 
-func expandMqttConfig(config map[string]interface{}) *cloudiot.MqttConfig {
+func buildMqttConfig(config map[string]interface{}) *cloudiot.MqttConfig {
 	if v, ok := config["mqtt_enabled_state"]; ok {
 		return &cloudiot.MqttConfig{
 			MqttEnabledState: v.(string),
@@ -171,7 +163,7 @@ func expandMqttConfig(config map[string]interface{}) *cloudiot.MqttConfig {
 	return nil
 }
 
-func expandHttpConfig(config map[string]interface{}) *cloudiot.HttpConfig {
+func buildHttpConfig(config map[string]interface{}) *cloudiot.HttpConfig {
 	if v, ok := config["http_enabled_state"]; ok {
 		return &cloudiot.HttpConfig{
 			HttpEnabledState: v.(string),
@@ -180,7 +172,7 @@ func expandHttpConfig(config map[string]interface{}) *cloudiot.HttpConfig {
 	return nil
 }
 
-func expandPublicKeyCertificate(certificate map[string]interface{}) *cloudiot.PublicKeyCertificate {
+func buildPublicKeyCertificate(certificate map[string]interface{}) *cloudiot.PublicKeyCertificate {
 	cert := &cloudiot.PublicKeyCertificate{
 		Format:      certificate["format"].(string),
 		Certificate: certificate["certificate"].(string),
@@ -192,68 +184,59 @@ func expandCredentials(credentials []interface{}) []*cloudiot.RegistryCredential
 	certificates := make([]*cloudiot.RegistryCredential, len(credentials))
 	for i, raw := range credentials {
 		cred := raw.(map[string]interface{})
-
 		certificates[i] = &cloudiot.RegistryCredential{
-			PublicKeyCertificate: expandPublicKeyCertificate(cred["public_key_certificate"].(map[string]interface{})),
+			PublicKeyCertificate: buildPublicKeyCertificate(cred["public_key_certificate"].(map[string]interface{})),
 		}
 	}
 	return certificates
 }
 
-func expandDeviceRegistry(d *schema.ResourceData) *cloudiot.DeviceRegistry {
+func createDeviceRegistry(d *schema.ResourceData) *cloudiot.DeviceRegistry {
 	deviceRegistry := &cloudiot.DeviceRegistry{}
-	if v, ok := d.GetOk("event_notification_configs"); ok {
-		deviceRegistry.EventNotificationConfigs = expandEventNotificationConfigs(v.([]interface{}))
+	if v, ok := d.GetOk("event_notification_config"); ok {
+		deviceRegistry.EventNotificationConfigs = make([]*cloudiot.EventNotificationConfig, 1, 1)
+		deviceRegistry.EventNotificationConfigs[0] = buildEventNotificationConfig(v.(map[string]interface{}))
 	}
 	if v, ok := d.GetOk("state_notification_config"); ok {
-		deviceRegistry.StateNotificationConfig = expandStateNotificationConfig(v.(map[string]interface{}))
-
+		deviceRegistry.StateNotificationConfig = buildStateNotificationConfig(v.(map[string]interface{}))
 	}
 	if v, ok := d.GetOk("mqtt_config"); ok {
-		deviceRegistry.MqttConfig = expandMqttConfig(v.(map[string]interface{}))
-
+		deviceRegistry.MqttConfig = buildMqttConfig(v.(map[string]interface{}))
 	}
 	if v, ok := d.GetOk("http_config"); ok {
-		deviceRegistry.HttpConfig = expandHttpConfig(v.(map[string]interface{}))
-
+		deviceRegistry.HttpConfig = buildHttpConfig(v.(map[string]interface{}))
 	}
 	if v, ok := d.GetOk("credentials"); ok {
 		deviceRegistry.Credentials = expandCredentials(v.([]interface{}))
-
 	}
 	return deviceRegistry
 }
 
-func resourceCloudiotRegistryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudIoTRegistryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
 	}
-
 	parent := fmt.Sprintf("projects/%s/locations/%s", project, region)
 
-	deviceRegistry := expandDeviceRegistry(d)
+	deviceRegistry := createDeviceRegistry(d)
 	deviceRegistry.Id = d.Get("name").(string)
 
-	call := config.clientCloudiot.Projects.Locations.Registries.Create(parent, deviceRegistry)
+	call := config.clientCloudIoT.Projects.Locations.Registries.Create(parent, deviceRegistry)
 	res, err := call.Do()
 	if err != nil {
 		return err
 	}
-
 	d.SetId(res.Name)
-
-	return resourceCloudiotRegistryRead(d, meta)
+	return resourceCloudIoTRegistryRead(d, meta)
 }
 
-func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudIoTRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	updateMask := make([]string, 0, 5)
 	hasChanged := false
@@ -261,35 +244,33 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
-	if d.HasChange("event_notification_configs") {
+	if d.HasChange("event_notification_config") {
 		hasChanged = true
-		updateMask = append(updateMask, "event_notification_configs")
-		if v, ok := d.GetOk("event_notification_configs"); ok {
-			deviceRegistry.EventNotificationConfigs = expandEventNotificationConfigs(v.([]interface{}))
+		updateMask = append(updateMask, "event_notification_config")
+		if v, ok := d.GetOk("event_notification_config"); ok {
+			deviceRegistry.EventNotificationConfigs = make([]*cloudiot.EventNotificationConfig, 1, 1)
+			deviceRegistry.EventNotificationConfigs[0] = buildEventNotificationConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("state_notification_config") {
 		hasChanged = true
 		updateMask = append(updateMask, "state_notification_config")
 		if v, ok := d.GetOk("state_notification_config"); ok {
-			deviceRegistry.StateNotificationConfig = expandStateNotificationConfig(v.(map[string]interface{}))
-
+			deviceRegistry.StateNotificationConfig = buildStateNotificationConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("mqtt_config") {
 		hasChanged = true
 		updateMask = append(updateMask, "mqtt_config")
 		if v, ok := d.GetOk("mqtt_config"); ok {
-			deviceRegistry.MqttConfig = expandMqttConfig(v.(map[string]interface{}))
-
+			deviceRegistry.MqttConfig = buildMqttConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("http_config") {
 		hasChanged = true
 		updateMask = append(updateMask, "http_config")
 		if v, ok := d.GetOk("http_config"); ok {
-			deviceRegistry.HttpConfig = expandHttpConfig(v.(map[string]interface{}))
-
+			deviceRegistry.HttpConfig = buildHttpConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("credentials") {
@@ -297,12 +278,10 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 		updateMask = append(updateMask, "credentials")
 		if v, ok := d.GetOk("credentials"); ok {
 			deviceRegistry.Credentials = expandCredentials(v.([]interface{}))
-
 		}
 	}
-
 	if hasChanged {
-		_, err := config.clientCloudiot.Projects.Locations.Registries.Patch(d.Id(),
+		_, err := config.clientCloudIoT.Projects.Locations.Registries.Patch(d.Id(),
 			deviceRegistry).UpdateMask(strings.Join(updateMask, ",")).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating registry %s: %s", d.Get("name").(string), err)
@@ -311,32 +290,30 @@ func resourceCloudiotRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 			d.SetPartial(updateMaskItem)
 		}
 	}
-
 	d.Partial(false)
-
-	return resourceCloudiotRegistryRead(d, meta)
+	return resourceCloudIoTRegistryRead(d, meta)
 }
 
-func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudIoTRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	name := d.Id()
-	res, err := config.clientCloudiot.Projects.Locations.Registries.Get(name).Do()
-
+	res, err := config.clientCloudIoT.Projects.Locations.Registries.Get(name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", name))
 	}
 
 	d.Set("name", res.Id)
+	d.Set("event_notification_config", nil)
+	d.Set("state_notification_config", nil)
+	d.Set("mqtt_config", nil)
+	d.Set("http_config", nil)
+	d.Set("credentials", nil)
 
-	if res.EventNotificationConfigs != nil {
-		eventConfigs := make([]map[string]string, len(res.EventNotificationConfigs))
-		for i, config := range res.EventNotificationConfigs {
-			eventConfigs[i] = map[string]string{"pubsub_topic_name": config.PubsubTopicName}
-		}
-		d.Set("event_notification_configs", eventConfigs)
+	if res.EventNotificationConfigs != nil && len(res.EventNotificationConfigs) > 0 {
+		eventConfig := map[string]string{"pubsub_topic_name": res.EventNotificationConfigs[0].PubsubTopicName}
+		d.Set("event_notification_config", eventConfig)
 	}
-	// to keep the data model lean only changes are pushed if not the default is
-	// returned or a config exists for state notification, mqtt and http config.
+	// If no config exist for state notification, mqtt or http config default values are omitted.
 	if res.StateNotificationConfig != nil {
 		pubsubTopicName := res.StateNotificationConfig.PubsubTopicName
 		_, hasStateConfig := d.GetOk("state_notification_config")
@@ -361,51 +338,44 @@ func resourceCloudiotRegistryRead(d *schema.ResourceData, meta interface{}) erro
 				map[string]string{"http_enabled_state": httpState})
 		}
 	}
-
 	if res.Credentials != nil {
 		credentials := make([]map[string]interface{}, len(res.Credentials))
 		for i, item := range res.Credentials {
 			pubcert := make(map[string]interface{})
 			pubcert["format"] = item.PublicKeyCertificate.Format
 			pubcert["certificate"] = item.PublicKeyCertificate.Certificate
-
 			credentials[i] = pubcert
 		}
 		d.Set("credentials", credentials)
 	}
-
 	return nil
 }
 
-func resourceCloudiotRegistryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudIoTRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
 	name := d.Id()
-	call := config.clientCloudiot.Projects.Locations.Registries.Delete(name)
+	call := config.clientCloudIoT.Projects.Locations.Registries.Delete(name)
 	_, err := call.Do()
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func resourceCloudiotRegistryStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+func resourceCloudIoTRegistryStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	r, _ := regexp.Compile("projects/(.*)/locations/(.*)/registries/(.*)")
+	if r.MatchString(d.Id()) == false {
+		return nil, fmt.Errorf("Invalid registry specifier. " +
+			"Expecting: projects/{project}/locations/{region}/registries/{name}")
 	}
+	parms := r.FindAllStringSubmatch(d.Id(), -1)[0]
+	project := parms[1]
+	region := parms[2]
+	name := parms[3]
 
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	id := fmt.Sprintf("projects/%s/locations/%s/registries/%s", project, region, d.Id())
-
+	id := fmt.Sprintf("projects/%s/locations/%s/registries/%s", project, region, name)
+	d.Set("project", project)
+	d.Set("region", region)
 	d.SetId(id)
-
 	return []*schema.ResourceData{d}, nil
 }

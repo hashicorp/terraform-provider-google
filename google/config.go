@@ -69,7 +69,7 @@ type Config struct {
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
 	clientCloudFunctions         *cloudfunctions.Service
-	clientCloudiot               *cloudiot.Service
+	clientCloudIoT               *cloudiot.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -291,11 +291,11 @@ func (c *Config) loadAndValidate() error {
 	c.clientDataproc.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IoT Core Client...")
-	c.clientCloudiot, err = cloudiot.New(client)
+	c.clientCloudIoT, err = cloudiot.New(client)
 	if err != nil {
 		return err
 	}
-	c.clientCloudiot.UserAgent = userAgent
+	c.clientCloudIoT.UserAgent = userAgent
 
 	return nil
 }

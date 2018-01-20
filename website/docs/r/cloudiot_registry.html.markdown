@@ -27,9 +27,9 @@ resource "google_pubsub_topic" "default-telemetry" {
 resource "google_cloudiot_registry" "default-registry" {
   name = "default-registry"
 
-  event_notification_configs = [{
+  event_notification_config = {
     pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
-  }]
+  }
 
   state_notification_config = {
     pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
@@ -47,7 +47,7 @@ resource "google_cloudiot_registry" "default-registry" {
     {
       public_key_certificate = {
         format      = "X509_CERTIFICATE_PEM"
-        certificate = "<CERTIFICATE>"
+        certificate = "${file("rsa_cert.pem")}"
       }
     },
   ]
@@ -67,7 +67,7 @@ The following arguments are supported:
 
 * `region` - (Optional) The Region in which the created address should reside. If it is not provided, the provider region is used.
 
-* `event_notification_configs` - (Optional) List of PubSub topics to publish device events. Structure is documented below.
+* `event_notification_config` - (Optional) A PubSub topics to publish device events. Structure is documented below.
 
 * `state_notification_config` - (Optional) A PubSub topic to publish device state updates. Structure is documented below.
 
@@ -77,7 +77,7 @@ The following arguments are supported:
 * `credentials` - (Optional) List of public key certificates to authenticate devices. Structure is documented below. 
 
 
-The `event_notification_configs` block supports:
+The `event_notification_config` block supports:
 
 * `pubsub_topic_name` - (Required) PubSub topic name to publish device events.
 
@@ -112,5 +112,5 @@ Only the arguments listed above are exposed as attributes.
 A device registry can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_cloudiot_registry.myregistry myregistry
+$ terraform import google_cloudiot_registry.default-registry projects/{project}/locations/{region}/registries/{name}
 ```
