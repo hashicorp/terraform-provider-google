@@ -34,10 +34,10 @@ func resourceCloudIoTRegistry() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateCloudIoTId,
 			},
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
@@ -363,8 +363,8 @@ func resourceCloudIoTRegistryDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCloudIoTRegistryStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	r, _ := regexp.Compile("projects/(.*)/locations/(.*)/registries/(.*)")
-	if r.MatchString(d.Id()) == false {
+	r, _ := regexp.Compile("projects/(.+)/locations/(.+)/registries/(.+)")
+	if !r.MatchString(d.Id()) {
 		return nil, fmt.Errorf("Invalid registry specifier. " +
 			"Expecting: projects/{project}/locations/{region}/registries/{name}")
 	}
