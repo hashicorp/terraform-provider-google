@@ -54,7 +54,7 @@ func resourceStorageDefaultObjectAclCreate(d *schema.ResourceData, meta interfac
 				Entity: pair.Entity,
 			}
 
-			log.Printf("[DEBUG]: setting role = %s, entity = %s on bucket", pair.Role, pair.Entity, bucket)
+			log.Printf("[DEBUG]: setting role = %s, entity = %s on bucket %s", pair.Role, pair.Entity, bucket)
 
 			_, err = config.clientStorage.DefaultObjectAccessControls.Insert(bucket, ObjectAccessControl).Do()
 
