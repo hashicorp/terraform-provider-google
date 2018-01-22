@@ -31,7 +31,8 @@ The following arguments are supported:
 * `members` - (Required) A list of users that the role should apply to.
 
 * `role` - (Required) The role that should be applied. Only one
-    `google_kms_crypto_key_iam_binding` can be used per role.
+    `google_kms_crypto_key_iam_binding` can be used per role. Note that custom roles must be of the format
+    `[project|organization]/{parent-name}/roles/{role-name}`.
 
 * `crypto_key_id` - (Required) The crypto key ID, in the form
     `{project_id}/{location_name}/{key_ring_name}/{crypto_key_name}` or
