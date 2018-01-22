@@ -37,7 +37,7 @@ func resourceCloudIoTRegistry() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateCloudIoTId,
+				ValidateFunc: validateCloudIoTID,
 			},
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
@@ -222,17 +222,17 @@ func resourceCloudIoTRegistryCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	parent := fmt.Sprintf("projects/%s/locations/%s", project, region)
-
 	deviceRegistry := createDeviceRegistry(d)
 	deviceRegistry.Id = d.Get("name").(string)
+	parent := fmt.Sprintf("projects/%s/locations/%s", project, region)
+	registryId := fmt.Sprintf("%s/registries/%s", parent, deviceRegistry.Id)
+	d.SetId(registryId)
 
-	call := config.clientCloudIoT.Projects.Locations.Registries.Create(parent, deviceRegistry)
-	res, err := call.Do()
+	_, err = config.clientCloudIoT.Projects.Locations.Registries.Create(parent, deviceRegistry).Do()
 	if err != nil {
+		d.SetId("")
 		return err
 	}
-	d.SetId(res.Name)
 	return resourceCloudIoTRegistryRead(d, meta)
 }
 
@@ -303,51 +303,43 @@ func resourceCloudIoTRegistryRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", res.Id)
-	d.Set("event_notification_config", nil)
-	d.Set("state_notification_config", nil)
-	d.Set("mqtt_config", nil)
-	d.Set("http_config", nil)
-	d.Set("credentials", nil)
 
-	if res.EventNotificationConfigs != nil && len(res.EventNotificationConfigs) > 0 {
+	if len(res.EventNotificationConfigs) > 0 {
 		eventConfig := map[string]string{"pubsub_topic_name": res.EventNotificationConfigs[0].PubsubTopicName}
 		d.Set("event_notification_config", eventConfig)
+	} else {
+		d.Set("event_notification_config", nil)
 	}
+
 	// If no config exist for state notification, mqtt or http config default values are omitted.
-	if res.StateNotificationConfig != nil {
-		pubsubTopicName := res.StateNotificationConfig.PubsubTopicName
-		_, hasStateConfig := d.GetOk("state_notification_config")
-		if pubsubTopicName != "" || hasStateConfig {
-			d.Set("state_notification_config",
-				map[string]string{"pubsub_topic_name": pubsubTopicName})
-		}
+	pubsubTopicName := res.StateNotificationConfig.PubsubTopicName
+	_, hasStateConfig := d.GetOk("state_notification_config")
+	if pubsubTopicName != "" || hasStateConfig {
+		d.Set("state_notification_config",
+			map[string]string{"pubsub_topic_name": pubsubTopicName})
 	}
-	if res.MqttConfig != nil {
-		mqttState := res.MqttConfig.MqttEnabledState
-		_, hasMqttConfig := d.GetOk("mqtt_config")
-		if mqttState != mqttEnabled || hasMqttConfig {
-			d.Set("mqtt_config",
-				map[string]string{"mqtt_enabled_state": mqttState})
-		}
+	mqttState := res.MqttConfig.MqttEnabledState
+	_, hasMqttConfig := d.GetOk("mqtt_config")
+	if mqttState != mqttEnabled || hasMqttConfig {
+		d.Set("mqtt_config",
+			map[string]string{"mqtt_enabled_state": mqttState})
 	}
-	if res.HttpConfig != nil {
-		httpState := res.HttpConfig.HttpEnabledState
-		_, hasHttpConfig := d.GetOk("http_config")
-		if httpState != httpEnabled || hasHttpConfig {
-			d.Set("http_config",
-				map[string]string{"http_enabled_state": httpState})
-		}
+	httpState := res.HttpConfig.HttpEnabledState
+	_, hasHttpConfig := d.GetOk("http_config")
+	if httpState != httpEnabled || hasHttpConfig {
+		d.Set("http_config",
+			map[string]string{"http_enabled_state": httpState})
 	}
-	if res.Credentials != nil {
-		credentials := make([]map[string]interface{}, len(res.Credentials))
-		for i, item := range res.Credentials {
-			pubcert := make(map[string]interface{})
-			pubcert["format"] = item.PublicKeyCertificate.Format
-			pubcert["certificate"] = item.PublicKeyCertificate.Certificate
-			credentials[i] = pubcert
-		}
-		d.Set("credentials", credentials)
+
+	credentials := make([]map[string]interface{}, len(res.Credentials))
+	for i, item := range res.Credentials {
+		pubcert := make(map[string]interface{})
+		pubcert["format"] = item.PublicKeyCertificate.Format
+		pubcert["certificate"] = item.PublicKeyCertificate.Certificate
+		credentials[i] = make(map[string]interface{})
+		credentials[i]["public_key_certificate"] = pubcert
 	}
+	d.Set("credentials", credentials)
 	return nil
 }
 
@@ -359,11 +351,12 @@ func resourceCloudIoTRegistryDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	d.SetId("")
 	return nil
 }
 
 func resourceCloudIoTRegistryStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	r, _ := regexp.Compile("projects/(.+)/locations/(.+)/registries/(.+)")
+	r, _ := regexp.Compile("^projects/(.+)/locations/(.+)/registries/(.+)$")
 	if !r.MatchString(d.Id()) {
 		return nil, fmt.Errorf("Invalid registry specifier. " +
 			"Expecting: projects/{project}/locations/{region}/registries/{name}")

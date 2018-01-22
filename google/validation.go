@@ -19,7 +19,7 @@ const (
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
 
 	RFC1035NameTemplate = "[a-z](?:[-a-z0-9]{%d,%d}[a-z0-9])"
-	CloudIoTIdRegex     = "[a-zA-Z][-a-zA-Z0-9._+~%]{2,254}"
+	CloudIoTIdRegex     = "^[a-zA-Z][-a-zA-Z0-9._+~%]{2,254}$"
 )
 
 var (
@@ -110,7 +110,7 @@ func validateRFC1035Name(min, max int) schema.SchemaValidateFunc {
 	return validateRegexp(fmt.Sprintf("^"+RFC1035NameTemplate+"$", min-2, max-2))
 }
 
-func validateCloudIoTId(v interface{}, k string) (warnings []string, errors []error) {
+func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(value, "goog") {
 		errors = append(errors, fmt.Errorf(
