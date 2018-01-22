@@ -559,7 +559,12 @@ func resourceComputeInstance() *schema.Resource {
 			},
 		},
 		CustomizeDiff: customdiff.All(
-			suppressEmptyGuestAcceleratorDiff,
+			customdiff.If(
+				func(d *schema.ResourceDiff, meta interface{}) bool {
+					return d.HasChange("guest_accelerator")
+				},
+				suppressEmptyGuestAcceleratorDiff,
+			),
 		),
 	}
 }
