@@ -53,7 +53,8 @@ The following arguments are supported:
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A Google Apps domain name that represents all the users of that domain. For example, google.com or example.com.
 
-* `role` - (Required) The role that should be applied.
+* `role` - (Required) The role that should be applied. Note that custom roles must be of the format
+    `[project|organization]/{parent-name}/roles/{role-name}`.
 
 ## Attributes Reference
 
