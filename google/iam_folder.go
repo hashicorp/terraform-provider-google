@@ -28,6 +28,11 @@ func NewFolderIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpd
 	}, nil
 }
 
+func FolderIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("folder", d.Id())
+	return nil
+}
+
 func (u *FolderIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(u.folderId,
 		&resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()

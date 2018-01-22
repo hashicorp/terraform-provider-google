@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -12,6 +11,150 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
 )
+
+func TestDiskImageDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		// Full & partial links
+		"matching self_link with different api version": {
+			Old:                "https://www.googleapis.com/compute/beta/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"matching image partial self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"matching image partial no project self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "global/images/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"different image self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		"different image partial self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "projects/debian-cloud/global/images/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		"different image partial no project self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "global/images/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		// Image name
+		"matching image name": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"different image name": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		// Image short hand
+		"matching image short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: true,
+		},
+		"matching image short hand but different project": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "different-cloud/debian-8-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		"different image short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7-jessie-v20171213",
+			ExpectDiffSuppress: false,
+		},
+		// Latest image short hand
+		"matching latest image short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching latest image short hand with project short name": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching latest image short hand but different project": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "different-cloud/debian-8",
+			ExpectDiffSuppress: false,
+		},
+		"different latest image short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		// Image Family
+		"matching image family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family partial self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "projects/debian-cloud/global/images/family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family partial no project self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "global/images/family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"different image family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "family/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"different image family self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"different image family partial self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "projects/debian-cloud/global/images/family/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"different image family partial no project self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "global/images/family/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"matching image family but different project in self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "https://www.googleapis.com/compute/v1/projects/other-cloud/global/images/family/debian-8",
+			ExpectDiffSuppress: false,
+		},
+		"different image family but different project in partial self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "projects/other-cloud/global/images/family/debian-8",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
 
 func TestAccComputeDisk_basic(t *testing.T) {
 	t.Parallel()
@@ -32,6 +175,11 @@ func TestAccComputeDisk_basic(t *testing.T) {
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -90,12 +238,10 @@ func TestAccComputeDisk_update(t *testing.T) {
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_XPN_HOST_PROJECT")
-
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var xpn_host = os.Getenv("GOOGLE_XPN_HOST_PROJECT")
+	projectName := getTestProjectFromEnv()
 
 	var disk compute.Disk
 
@@ -105,14 +251,14 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "self_link"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", &disk),
 				),
 			},
 			resource.TestStep{
-				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host, "name"),
+				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", &disk),
@@ -202,6 +348,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 
 func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
@@ -214,7 +361,7 @@ func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCh
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Disks.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -345,29 +492,31 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName, xpn_host string, ref_selector string) string {
+func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_disk" "foobar" {
-			name = "%s"
-			image = "debian-8-jessie-v20160803"
-			size = 50
-			type = "pd-ssd"
-			zone = "us-central1-a"
-			project = "%s"
-		}
-
-resource "google_compute_snapshot" "snapdisk" {
-  name = "%s"
-  source_disk = "${google_compute_disk.foobar.name}"
-  zone = "us-central1-a"
+resource "google_compute_disk" "foobar" {
+	name = "d1-%s"
+	image = "debian-8-jessie-v20160803"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
 	project = "%s"
 }
-resource "google_compute_disk" "seconddisk" {
+
+resource "google_compute_snapshot" "snapdisk" {
 	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	project = "%s"
+}
+
+resource "google_compute_disk" "seconddisk" {
+	name = "d2-%s"
 	snapshot = "${google_compute_snapshot.snapdisk.%s}"
 	type = "pd-ssd"
 	zone = "us-central1-a"
-}`, firstDiskName, xpn_host, snapshotName, xpn_host, diskName, ref_selector)
+	project = "%s"
+}`, firstDiskName, projectName, snapshotName, projectName, diskName, ref_selector, projectName)
 }
 
 func testAccComputeDisk_encryption(diskName string) string {

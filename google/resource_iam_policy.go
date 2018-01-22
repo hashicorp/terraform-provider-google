@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"encoding/json"
+	"errors"
 	"fmt"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -21,6 +22,20 @@ var IamPolicyBaseSchema = map[string]*schema.Schema{
 	},
 }
 
+func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+}
+
 func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: ResourceIamPolicyCreate(newUpdaterFunc),
@@ -30,6 +45,14 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 
 		Schema: mergeSchemas(IamPolicyBaseSchema, parentSpecificSchema),
 	}
+}
+
+func ResourceIamPolicyWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamPolicy(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamPolicyImport(resourceIdParser),
+	}
+	return r
 }
 
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {

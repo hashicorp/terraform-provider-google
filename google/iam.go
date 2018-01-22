@@ -34,6 +34,14 @@ type ResourceIamUpdater interface {
 type newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
 type iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
 
+// This method parses identifiers specific to the resource (d.GetId()) into the ResourceData
+// object, so that it can be given to the resource's Read method.  Externally, this is wrapped
+// into schema.StateFunc functions - one each for a _member, a _binding, and a _policy.  Any
+// GCP resource supporting IAM policy might support one, two, or all of these.  Any GCP resource
+// for which an implementation of this interface exists could support any of the three.
+
+type resourceIdParserFunc func(d *schema.ResourceData, config *Config) error
+
 func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
 	mutexKey := updater.GetMutexKey()
 	mutexKV.Lock(mutexKey)

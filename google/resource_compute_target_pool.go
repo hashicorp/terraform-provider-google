@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
@@ -189,6 +190,9 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	op, err := config.clientCompute.TargetPools.Insert(
 		project, region, tpool).Do()
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 && strings.Contains(gerr.Message, "httpHealthChecks") {
+			return fmt.Errorf("Health check %s is not a valid HTTP health check", d.Get("health_checks").([]interface{})[0])
+		}
 		return fmt.Errorf("Error creating TargetPool: %s", err)
 	}
 
@@ -396,7 +400,6 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
 
-	regionUrl := strings.Split(tpool.Region, "/")
 	d.Set("self_link", tpool.SelfLink)
 	d.Set("backup_pool", tpool.BackupPool)
 	d.Set("description", tpool.Description)
@@ -408,7 +411,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("instances", nil)
 	}
 	d.Set("name", tpool.Name)
-	d.Set("region", regionUrl[len(regionUrl)-1])
+	d.Set("region", GetResourceNameFromSelfLink(tpool.Region))
 	d.Set("session_affinity", tpool.SessionAffinity)
 	d.Set("project", project)
 	return nil

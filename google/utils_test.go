@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func TestConvertStringArr(t *testing.T) {
@@ -45,22 +47,6 @@ func TestConvertStringMap(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("%s did not match expected value: %s", actual, expected)
-	}
-}
-
-func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
-	actual := extractLastResourceFromUri("http://something.com/one/two/three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
-func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
-	actual := extractLastResourceFromUri("three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
 	}
 }
 
@@ -148,5 +134,273 @@ func TestRfc3339TimeDiffSuppress(t *testing.T) {
 		if rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSupress {
 			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSupress)
 		}
+	}
+}
+
+func TestGetZone(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+		"zone": "foo",
+	})
+	var config Config
+	if err := d.Set("zone", "foo"); err != nil {
+		t.Fatalf("Cannot set zone: %s", err)
+	}
+	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
+		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
+	}
+	config.Zone = "bar"
+	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
+		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
+	}
+	d.Set("zone", "")
+	if zone, err := getZone(d, &config); err != nil || zone != "bar" {
+		t.Fatalf("Zone '%s' != 'bar', %s", zone, err)
+	}
+	config.Zone = ""
+	if zone, err := getZone(d, &config); err == nil || zone != "" {
+		t.Fatalf("Zone '%s' != '', err=%s", zone, err)
+	}
+}
+
+func TestGetRegion(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+		"zone": "foo",
+	})
+	var config Config
+	barRegionName := getRegionFromZone("bar")
+	fooRegionName := getRegionFromZone("foo")
+
+	if region, err := getRegion(d, &config); err != nil || region != fooRegionName {
+		t.Fatalf("Zone '%s' != '%s', %s", region, fooRegionName, err)
+	}
+
+	config.Zone = "bar"
+	d.Set("zone", "")
+	if region, err := getRegion(d, &config); err != nil || region != barRegionName {
+		t.Fatalf("Zone '%s' != '%s', %s", region, barRegionName, err)
+	}
+	config.Region = "something-else"
+	if region, err := getRegion(d, &config); err != nil || region != config.Region {
+		t.Fatalf("Zone '%s' != '%s', %s", region, config.Region, err)
+	}
+}
+
+func TestDatasourceSchemaFromResourceSchema(t *testing.T) {
+	type args struct {
+		rs map[string]*schema.Schema
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]*schema.Schema
+	}{
+		{
+			name: "string",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:        schema.TypeString,
+						Required:    true,
+						ForceNew:    true,
+						Description: "foo of schema",
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:        schema.TypeString,
+					Required:    false,
+					ForceNew:    false,
+					Computed:    true,
+					Elem:        nil,
+					Description: "foo of schema",
+				},
+			},
+		},
+		{
+			name: "map",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:        schema.TypeMap,
+						Required:    true,
+						ForceNew:    true,
+						Description: "map of strings",
+						Elem:        schema.TypeString,
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:        schema.TypeMap,
+					Required:    false,
+					ForceNew:    false,
+					Computed:    true,
+					Description: "map of strings",
+					Elem:        schema.TypeString,
+				},
+			},
+		},
+		{
+			name: "list_of_strings",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeList,
+						Required: true,
+						ForceNew: true,
+						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeList,
+					Required: false,
+					ForceNew: false,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "list_subresource",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeList,
+						Required: true,
+						ForceNew: true,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"subresource": {
+									Type:     schema.TypeList,
+									Optional: true,
+									Computed: true,
+									MaxItems: 1,
+									Elem: &schema.Resource{
+										Schema: map[string]*schema.Schema{
+											"disabled": {
+												Type:     schema.TypeBool,
+												Optional: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeList,
+					Required: false,
+					ForceNew: false,
+					Optional: false,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"subresource": {
+								Type:     schema.TypeList,
+								Optional: false,
+								Computed: true,
+								MaxItems: 0,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"disabled": {
+											Type:     schema.TypeBool,
+											Optional: false,
+											Computed: true,
+										},
+									},
+								},
+							},
+						},
+					},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "set_of_strings",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeSet,
+						Required: true,
+						ForceNew: true,
+						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeSet,
+					Required: false,
+					ForceNew: false,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+		{
+			name: "set_subresource",
+			args: args{
+				rs: map[string]*schema.Schema{
+					"foo": {
+						Type:     schema.TypeSet,
+						Required: true,
+						ForceNew: true,
+						MaxItems: 1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"subresource": {
+									Type:     schema.TypeInt,
+									Optional: true,
+									Computed: true,
+									MaxItems: 1,
+									Elem:     &schema.Schema{Type: schema.TypeInt},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*schema.Schema{
+				"foo": {
+					Type:     schema.TypeSet,
+					Required: false,
+					ForceNew: false,
+					Optional: false,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"subresource": {
+								Type:     schema.TypeInt,
+								Optional: false,
+								Computed: true,
+								MaxItems: 0,
+								Elem:     &schema.Schema{Type: schema.TypeInt},
+							},
+						},
+					},
+					MaxItems: 0,
+					MinItems: 0,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := datasourceSchemaFromResourceSchema(tt.args.rs); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("datasourceSchemaFromResourceSchema() = %#v, want %#v", got, tt.want)
+			}
+		})
 	}
 }

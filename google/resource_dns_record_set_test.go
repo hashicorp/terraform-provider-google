@@ -25,6 +25,12 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/test-record.hashicorptest.com./A", zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -91,6 +97,8 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 }
 
 func TestAccDnsRecordSet_ns(t *testing.T) {
+	t.Parallel()
+
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -99,6 +107,32 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccDnsRecordSet_ns(zoneName, 300),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDnsRecordSetExists(
+						"google_dns_record_set.foobar", zoneName),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/hashicorptest.com./NS", zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDnsRecordSet_nestedNS(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDnsRecordSet_nestedNS(zoneName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
@@ -185,6 +219,23 @@ func testAccDnsRecordSet_ns(name string, ttl int) string {
 	resource "google_dns_record_set" "foobar" {
 		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
 		name = "hashicorptest.com."
+		type = "NS"
+		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
+		ttl = %d
+	}
+	`, name, ttl)
+}
+
+func testAccDnsRecordSet_nestedNS(name string, ttl int) string {
+	return fmt.Sprintf(`
+	resource "google_dns_managed_zone" "parent-zone" {
+		name = "%s"
+		dns_name = "hashicorptest.com."
+		description = "Test Description"
+	}
+	resource "google_dns_record_set" "foobar" {
+		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
+		name = "nested.hashicorptest.com."
 		type = "NS"
 		rrdatas = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
 		ttl = %d

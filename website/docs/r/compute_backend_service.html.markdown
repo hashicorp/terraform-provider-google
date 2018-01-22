@@ -73,12 +73,11 @@ The following arguments are supported:
     for checking the health of the backend service. Currently at most one health
     check can be specified, and a health check is required.
 
-* `region` - (Optional) The region this backend service has been created in. If
-    unspecified, this defaults to the region configured in the provider.
-
 - - -
 
 * `backend` - (Optional) The list of backends that serve this BackendService. Structure is documented below.
+
+* `iap` - (Optional) Specification for the Identity-Aware proxy. Disabled if not specified. Structure is documented below.
 
 * `description` - (Optional) The textual description for the backend service.
 
@@ -128,6 +127,12 @@ The `backend` block supports:
 * `max_utilization` - (Optional) The target CPU utilization for the group as a
     float in the range [0.0, 1.0]. This flag can only be provided when the
     balancing mode is `UTILIZATION`. Defaults to `0.8`.
+
+The `iap` block supports:
+
+* `oauth2_client_id` - (Required) The client ID for use with OAuth 2.0.
+
+* `oauth2_client_secret` - (Required) The client secret for use with OAuth 2.0.
 
 ## Attributes Reference
 

@@ -34,6 +34,11 @@ func NewKmsCryptoKeyIamUpdater(d *schema.ResourceData, config *Config) (Resource
 	}, nil
 }
 
+func CryptoIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("crypto_key_id", d.Id())
+	return nil
+}
+
 func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	p, err := u.Config.clientKms.Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).Do()
 

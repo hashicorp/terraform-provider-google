@@ -40,6 +40,16 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 						"google_compute_instance_group_manager.igm-no-tp", &manager),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_group_manager.igm-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_group_manager.igm-no-tp",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -225,6 +235,9 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 					testAccCheckInstanceGroupManagerAutoHealingPolicies("google_compute_instance_group_manager.igm-basic", hck, 10),
 				),
 			},
+			// TODO: Add import test for auto healing policies
+			// Import doesn't work for auto healing policies because import is not supported
+			// for beta features. See https://github.com/terraform-providers/terraform-provider-google/issues/694
 		},
 	})
 }
@@ -360,8 +373,7 @@ func testAccCheckInstanceGroupManagerUpdated(n string, size int64, targetPools [
 
 		tpNames := make([]string, 0, len(manager.TargetPools))
 		for _, targetPool := range manager.TargetPools {
-			targetPoolParts := strings.Split(targetPool, "/")
-			tpNames = append(tpNames, targetPoolParts[len(targetPoolParts)-1])
+			tpNames = append(tpNames, GetResourceNameFromSelfLink(targetPool))
 		}
 
 		sort.Strings(tpNames)
@@ -477,7 +489,7 @@ func testAccCheckInstanceGroupManagerTemplateTags(n string, tags []string) resou
 
 		// check that the instance template updated
 		instanceTemplate, err := config.clientCompute.InstanceTemplates.Get(
-			config.Project, resourceSplitter(manager.InstanceTemplate)).Do()
+			config.Project, GetResourceNameFromSelfLink(manager.InstanceTemplate)).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading instance template: %s", err)
 		}
@@ -982,10 +994,4 @@ resource "google_compute_autoscaler" "foobar" {
 	}
 }
 `, template, target, igm, hck, autoscaler)
-}
-
-func resourceSplitter(resource string) string {
-	splits := strings.Split(resource, "/")
-
-	return splits[len(splits)-1]
 }

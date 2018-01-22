@@ -26,16 +26,24 @@ func getRegionFromZone(zone string) string {
 	return ""
 }
 
-// getRegion reads the "region" field from the given resource data and falls
-// back to the provider's value if not given. If the provider's value is not
-// given, an error is returned.
+// Infers the region based on the following (in order of priority):
+// - `region` field in resource schema
+// - region extracted from the `zone` field in resource schema
+// - provider-level region
+// - region extracted from the provider-level zone
 func getRegion(d *schema.ResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("region")
+	return getRegionFromSchema("region", "zone", d, config)
+}
+
+// getZone reads the "zone" value from the given resource data and falls back
+// to provider's value if not given.  If neither is provided, returns an error.
+func getZone(d *schema.ResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("zone")
 	if !ok {
-		if config.Region != "" {
-			return config.Region, nil
+		if config.Zone != "" {
+			return config.Zone, nil
 		}
-		return "", fmt.Errorf("region: required field is not set")
+		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
 	}
 	return res.(string), nil
 }
@@ -164,8 +172,7 @@ func isConflictError(err error) bool {
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
-	if parts[len(parts)-1] == new {
+	if GetResourceNameFromSelfLink(old) == new {
 		return true
 	}
 	return false
@@ -259,11 +266,6 @@ func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []str
 	return arr
 }
 
-func extractLastResourceFromUri(uri string) string {
-	rUris := strings.Split(uri, "/")
-	return rUris[len(rUris)-1]
-}
-
 func convertStringArrToInterface(strs []string) []interface{} {
 	arr := make([]interface{}, len(strs))
 	for i, str := range strs {
@@ -278,14 +280,6 @@ func convertStringSet(set *schema.Set) []string {
 		s = append(s, v.(string))
 	}
 	return s
-}
-
-func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
-	sm := make(map[string]struct{})
-	for _, s := range ifaceArr {
-		sm[s.(string)] = struct{}{}
-	}
-	return sm
 }
 
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {

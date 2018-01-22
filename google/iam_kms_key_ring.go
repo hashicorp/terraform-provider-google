@@ -34,20 +34,9 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	}, nil
 }
 
-func resourceManagerToKmsPolicy(p *cloudresourcemanager.Policy) (policy *cloudkms.Policy, err error) {
-	policy = &cloudkms.Policy{}
-
-	err = Convert(p, policy)
-
-	return
-}
-
-func kmsToResourceManagerPolicy(p *cloudkms.Policy) (policy *cloudresourcemanager.Policy, err error) {
-	policy = &cloudresourcemanager.Policy{}
-
-	err = Convert(p, policy)
-
-	return
+func KeyRingIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("key_ring_id", d.Id())
+	return nil
 }
 
 func (u *KmsKeyRingIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
@@ -94,4 +83,22 @@ func (u *KmsKeyRingIamUpdater) GetMutexKey() string {
 
 func (u *KmsKeyRingIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("KMS KeyRing %q", u.resourceId)
+}
+
+func resourceManagerToKmsPolicy(p *cloudresourcemanager.Policy) (*cloudkms.Policy, error) {
+	out := &cloudkms.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a kms policy: %s", err)
+	}
+	return out, nil
+}
+
+func kmsToResourceManagerPolicy(p *cloudkms.Policy) (*cloudresourcemanager.Policy, error) {
+	out := &cloudresourcemanager.Policy{}
+	err := Convert(p, out)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot convert a kms policy to a v1 policy: %s", err)
+	}
+	return out, nil
 }

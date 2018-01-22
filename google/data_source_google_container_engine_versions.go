@@ -17,7 +17,7 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 			},
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"latest_master_version": {
 				Type:     schema.TypeString,
@@ -49,7 +49,10 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, meta.(*Config))
+	if err != nil {
+		return err
+	}
 
 	resp, err := config.clientContainer.Projects.Zones.GetServerconfig(project, zone).Do()
 	if err != nil {

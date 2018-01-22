@@ -46,3 +46,10 @@ exported:
 
 * `etag` - (Computed) The etag of the organization's IAM policy.
 
+## Import
+
+IAM binding imports use space-delimited identifiers; first the resource in question and then the role.  These bindings can be imported using the `org_id` and role, e.g.
+
+```
+$ terraform import google_organization_iam_binding.my_org "your-org-id roles/viewer"
+```

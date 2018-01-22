@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -384,6 +383,12 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				},
 			},
 
+			"min_cpu_platform": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -519,11 +524,13 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &computeBeta.InstanceProperties{}
+	instanceProperties := &computeBeta.InstanceProperties{
+		CanIpForward:   d.Get("can_ip_forward").(bool),
+		Description:    d.Get("instance_description").(string),
+		MachineType:    d.Get("machine_type").(string),
+		MinCpuPlatform: d.Get("min_cpu_platform").(string),
+	}
 
-	instanceProperties.CanIpForward = d.Get("can_ip_forward").(bool)
-	instanceProperties.Description = d.Get("instance_description").(string)
-	instanceProperties.MachineType = d.Get("machine_type").(string)
 	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
@@ -632,8 +639,7 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []m
 		if disk.InitializeParams != nil {
 			var source_img = fmt.Sprintf("disk.%d.source_image", i)
 			if d.Get(source_img) == nil || d.Get(source_img) == "" {
-				sourceImageUrl := strings.Split(disk.InitializeParams.SourceImage, "/")
-				diskMap["source_image"] = sourceImageUrl[len(sourceImageUrl)-1]
+				diskMap["source_image"] = GetResourceNameFromSelfLink(disk.InitializeParams.SourceImage)
 			} else {
 				diskMap["source_image"] = d.Get(source_img)
 			}
@@ -724,6 +730,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 	if err = d.Set("machine_type", instanceTemplate.Properties.MachineType); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
+	}
+	if err = d.Set("min_cpu_platform", instanceTemplate.Properties.MinCpuPlatform); err != nil {
+		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
 	}
 
 	if err = d.Set("can_ip_forward", instanceTemplate.Properties.CanIpForward); err != nil {

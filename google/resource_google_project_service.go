@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -12,6 +13,7 @@ func resourceGoogleProjectService() *schema.Resource {
 		Create: resourceGoogleProjectServiceCreate,
 		Read:   resourceGoogleProjectServiceRead,
 		Delete: resourceGoogleProjectServiceDelete,
+		Update: resourceGoogleProjectServiceUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -24,6 +26,11 @@ func resourceGoogleProjectService() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"disable_on_destroy": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 		},
 	}
@@ -82,6 +89,11 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {
+		log.Printf("Not disabling service '%s', because disable_on_destroy is false.", d.Id())
+		d.SetId("")
+		return nil
+	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -97,6 +109,13 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId("")
+	return nil
+}
+
+func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+	// The only thing that can be updated without a ForceNew is whether to disable the service on resource delete.
+	// This doesn't require any calls to any APIs since it's all internal state.
+	// This update is a no-op.
 	return nil
 }
 

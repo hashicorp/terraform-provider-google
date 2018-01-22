@@ -144,7 +144,10 @@ The `initialize_params` block supports:
     one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
     `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
     `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-    `{project}/{image}`, `{family}`, or `{image}`.
+    `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
+    images names must include the family name. For instance, the image
+    `centos-6-v20180104` includes its family name `centos-6`. These images can
+    be referred by family name here.
 
 The `scratch_disk` block supports:
 
@@ -214,7 +217,8 @@ The `service_account` block supports:
     default Google Compute Engine service account is used.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
-    short names are supported.
+    short names are supported. To allow full access to all Cloud APIs, use the
+    `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
 The `scheduling` block supports:
 
@@ -272,3 +276,13 @@ exported:
 * `disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+
+## Import
+
+~> **Note:** The fields `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+
+Instances can be imported using the `project`, `zone` and `name`, e.g.
+
+```
+$ terraform import google_compute_instance.default gcp-project/us-central1-a/test
+```

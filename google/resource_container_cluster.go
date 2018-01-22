@@ -68,7 +68,8 @@ func resourceContainerCluster() *schema.Resource {
 
 			"zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -175,21 +176,18 @@ func resourceContainerCluster() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
 							Required: true,
-							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"start_time": {
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										ValidateFunc:     validateRFC3339Time,
 										DiffSuppressFunc: rfc3339TimeDiffSuppress,
 									},
@@ -393,7 +391,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 
 	cluster := &container.Cluster{
@@ -404,16 +405,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	if v, ok := d.GetOk("maintenance_policy"); ok {
-		maintenancePolicy := v.([]interface{})[0].(map[string]interface{})
-		dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
-		startTime := dailyMaintenanceWindow["start_time"].(string)
-		cluster.MaintenancePolicy = &container.MaintenancePolicy{
-			Window: &container.MaintenanceWindow{
-				DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
-					StartTime: startTime,
-				},
-			},
-		}
+		cluster.MaintenancePolicy = expandMaintenancePolicy(v)
 	}
 
 	if v, ok := d.GetOk("master_auth"); ok {
@@ -499,10 +491,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.AddonsConfig = expandClusterAddonsConfig(v)
 	}
 
-	if v, ok := d.GetOk("node_config"); ok {
-		cluster.NodeConfig = expandNodeConfig(v)
-	}
-
 	if v, ok := d.GetOk("enable_kubernetes_alpha"); ok {
 		cluster.EnableKubernetesAlpha = v.(bool)
 	}
@@ -519,6 +507,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			nodePools = append(nodePools, nodePool)
 		}
 		cluster.NodePools = nodePools
+	} else {
+		// Node Configs have default values that are set in the expand function,
+		// but can only be set if node pools are unspecified.
+		cluster.NodeConfig = expandNodeConfig([]interface{}{})
+	}
+
+	if v, ok := d.GetOk("node_config"); ok {
+		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
 	if v, ok := d.GetOk("ip_allocation_policy"); ok {
@@ -532,6 +528,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Cluster: cluster,
 	}
 
+	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Create(
 		project, zoneName, req).Do()
 	if err != nil {
@@ -561,7 +559,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	var cluster *container.Cluster
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
@@ -597,18 +598,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("endpoint", cluster.Endpoint)
 
-	if cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil && cluster.MaintenancePolicy.Window.DailyMaintenanceWindow != nil {
-		maintenancePolicy := []map[string]interface{}{
-			{
-				"daily_maintenance_window": []map[string]interface{}{
-					{
-						"start_time": cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.StartTime,
-						"duration":   cluster.MaintenancePolicy.Window.DailyMaintenanceWindow.Duration,
-					},
-				},
-			},
-		}
-		d.Set("maintenance_policy", maintenancePolicy)
+	if cluster.MaintenancePolicy != nil {
+		d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy))
 	}
 
 	masterAuth := []map[string]interface{}{
@@ -638,6 +629,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
 	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	d.Set("zone", zoneName)
 	d.Set("project", project)
 	if cluster.AddonsConfig != nil {
 		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
@@ -671,7 +663,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
@@ -684,6 +679,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -720,6 +717,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredMasterVersion: desiredMasterVersion,
 				},
 			}
+			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 				project, zoneName, clusterName, req).Do()
 			if err != nil {
@@ -747,6 +746,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredNodeVersion: desiredNodeVersion,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -772,6 +773,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
 				},
 			}
+			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 				project, zoneName, clusterName, req).Do()
 			if err != nil {
@@ -790,6 +793,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("maintenance_policy") {
+		var req *container.SetMaintenancePolicyRequest
+		if mp, ok := d.GetOk("maintenance_policy"); ok {
+			req = &container.SetMaintenancePolicyRequest{
+				MaintenancePolicy: expandMaintenancePolicy(mp),
+			}
+		} else {
+			req = &container.SetMaintenancePolicyRequest{
+				NullFields: []string{"MaintenancePolicy"},
+			}
+		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
+		op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+			project, zoneName, clusterName, req).Do()
+		if err != nil {
+			return err
+		}
+
+		// Wait until it's updated
+		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
+		if waitErr != nil {
+			return waitErr
+		}
+
+		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
+
+		d.SetPartial("maintenance_policy")
+	}
+
 	if d.HasChange("additional_zones") {
 		azSet := d.Get("additional_zones").(*schema.Set)
 		if azSet.Contains(zoneName) {
@@ -802,6 +835,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredLocations: locations,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -826,6 +861,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
 		if err != nil {
 			return err
@@ -850,6 +887,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMonitoringService: desiredMonitoringService,
 			},
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -873,6 +912,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetNetworkPolicyRequest{
 			NetworkPolicy: expandNetworkPolicy(np),
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -905,6 +946,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetLoggingServiceRequest{
 			LoggingService: logging,
 		}
+		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 		op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
 			project, zoneName, clusterName, req).Do()
 		if err != nil {
@@ -935,11 +978,16 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName := d.Get("zone").(string)
+	zoneName, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
+	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
 	op, err := config.clientContainer.Projects.Zones.Clusters.Delete(
 		project, zoneName, clusterName).Do()
 	if err != nil {
@@ -1037,6 +1085,21 @@ func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPo
 	return ap, nil
 }
 
+func expandMaintenancePolicy(configured interface{}) *container.MaintenancePolicy {
+	result := &container.MaintenancePolicy{}
+	if len(configured.([]interface{})) > 0 {
+		maintenancePolicy := configured.([]interface{})[0].(map[string]interface{})
+		dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
+		startTime := dailyMaintenanceWindow["start_time"].(string)
+		result.Window = &container.MaintenanceWindow{
+			DailyMaintenanceWindow: &container.DailyMaintenanceWindow{
+				StartTime: startTime,
+			},
+		}
+	}
+	return result
+}
+
 func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.MasterAuthorizedNetworksConfig {
 	result := &container.MasterAuthorizedNetworksConfig{}
 	if len(configured.([]interface{})) > 0 {
@@ -1131,6 +1194,19 @@ func flattenIPAllocationPolicy(c *container.IPAllocationPolicy) []map[string]int
 	}
 }
 
+func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"daily_maintenance_window": []map[string]interface{}{
+				{
+					"start_time": mp.Window.DailyMaintenanceWindow.StartTime,
+					"duration":   mp.Window.DailyMaintenanceWindow.Duration,
+				},
+			},
+		},
+	}
+}
+
 func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworksConfig) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if c.Enabled && len(c.CidrBlocks) > 0 {
@@ -1157,4 +1233,8 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func containerClusterMutexKey(project, zone, clusterName string) string {
+	return fmt.Sprintf("google-container-cluster/%s/%s/%s", project, zone, clusterName)
 }

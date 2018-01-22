@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_kms_crypto_key"
-sidebar_current: "docs-google-kms-crypto-key"
+sidebar_current: "docs-google-kms-crypto-key-x"
 description: |-
  Allows creation of a Google Cloud Platform KMS CryptoKey.
 ---

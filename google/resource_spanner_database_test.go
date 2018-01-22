@@ -215,8 +215,7 @@ func testAccCheckSpannerDatabaseExists(n string, instance *spanner.Database) res
 			return err
 		}
 
-		fName := extractInstanceNameFromUri(found.Name)
-		if fName != id.Database {
+		if fName := GetResourceNameFromSelfLink(found.Name); fName != id.Database {
 			return fmt.Errorf("Spanner database %s not found, found %s instead", id.Database, fName)
 		}
 

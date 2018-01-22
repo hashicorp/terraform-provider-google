@@ -107,6 +107,9 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					// Default behaviour is for Dataproc to autogen or autodiscover a config bucket
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.bucket"),
 
+					// Default behavior is for Dataproc to not use only internal IP addresses
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "false"),
+
 					// Expect 1 master instances with computed values
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.#", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.num_instances", "1"),
@@ -127,6 +130,29 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.preemptible_worker_config.#", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.preemptible_worker_config.0.num_instances", "0"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.preemptible_worker_config.0.instance_names.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
+
+					// Testing behavior for Dataproc to use only internal IP addresses
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "true"),
 				),
 			},
 		},
@@ -556,13 +582,13 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.MasterConfig.NumInstances))},
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "10", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.master_config.0.disk_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
-			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)},
+			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
 			{"cluster_config.0.master_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.MasterConfig.InstanceNames))},
 
 			{"cluster_config.0.worker_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "11", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
-			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
+			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
 			{"cluster_config.0.worker_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.WorkerConfig.InstanceNames))},
 
 			{"cluster_config.0.preemptible_worker_config.0.num_instances", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
@@ -646,6 +672,72 @@ resource "google_dataproc_cluster" "basic" {
 	region                = "us-central1"
 }
 `, rnd)
+}
+
+func testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd string) string {
+	return fmt.Sprintf(`
+variable subnetwork_cidr {
+	default = "10.0.0.0/16"
+}
+
+resource "google_compute_network" "dataproc_network" {
+	name = "dataproc-internalip-network-%s"
+	auto_create_subnetworks = false
+}
+
+#
+# Create a subnet with Private IP Access enabled to test
+# deploying a Dataproc cluster with Internal IP Only enabled.
+#
+resource "google_compute_subnetwork" "dataproc_subnetwork" {
+	name                     = "dataproc-internalip-subnetwork-%s"
+	ip_cidr_range            = "${var.subnetwork_cidr}"
+	network                  = "${google_compute_network.dataproc_network.self_link}"
+	region                   = "us-central1"
+	private_ip_google_access = true
+  }
+
+#
+# The default network within GCP already comes pre configured with
+# certain firewall rules open to allow internal communication. As we
+# are creating a new one here for this test, we need to additionally
+# open up similar rules to allow the nodes to talk to each other
+# internally as part of their configuration or this will just hang.
+#
+resource "google_compute_firewall" "dataproc_network_firewall" {
+	name = "dproc-cluster-test-allow-internal"
+	description = "Firewall rules for dataproc Terraform acceptance testing"
+	network = "${google_compute_network.dataproc_network.name}"
+
+	allow {
+		protocol = "icmp"
+	}
+
+	allow {
+		protocol = "tcp"
+		ports    = ["0-65535"]
+	}
+
+	allow {
+		protocol = "udp"
+		ports    = ["0-65535"]
+	}
+
+	source_ranges = ["${var.subnetwork_cidr}"]
+}
+resource "google_dataproc_cluster" "basic" {
+	name                  = "dproc-cluster-test-%s"
+	region                = "us-central1"
+	depends_on            = ["google_compute_firewall.dataproc_network_firewall"]
+	
+	cluster_config {
+		gce_cluster_config {
+			subnetwork       = "${google_compute_subnetwork.dataproc_subnetwork.name}"
+			internal_ip_only = true
+		}
+	}
+}
+`, rnd, rnd, rnd)
 }
 
 func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {

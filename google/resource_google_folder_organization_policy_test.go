@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"reflect"
-	"testing"
 )
 
 func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
@@ -135,7 +136,7 @@ func testAccCheckGoogleFolderOrganizationPolicyDestroy(s *terraform.State) error
 			continue
 		}
 
-		folder := rs.Primary.Attributes["folder"]
+		folder := canonicalFolderId(rs.Primary.Attributes["folder"])
 		constraint := canonicalOrgPolicyConstraint(rs.Primary.Attributes["constraint"])
 		policy, err := config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: constraint,
@@ -228,8 +229,9 @@ func getGoogleFolderOrganizationPolicyTestResource(s *terraform.State, n string)
 	}
 
 	config := testAccProvider.Meta().(*Config)
+	folder := canonicalFolderId(rs.Primary.Attributes["folder"])
 
-	return config.clientResourceManager.Folders.GetOrgPolicy(rs.Primary.Attributes["folder"], &cloudresourcemanager.GetOrgPolicyRequest{
+	return config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: rs.Primary.Attributes["constraint"],
 	}).Do()
 }
@@ -242,7 +244,8 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "bool" {
-  folder     = "${google_folder.orgpolicy.name}"
+	# Test numeric folder ID.
+  folder     = "${replace(google_folder.orgpolicy.name, "folders/", "")}"
   constraint = "constraints/compute.disableSerialPortAccess"
 
   boolean_policy {
@@ -300,7 +303,7 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-  folder     = "${google_folder.orgpolicy.name}"
+	folder     = "${google_folder.orgpolicy.name}"
   constraint = "serviceuser.services"
 
   list_policy {

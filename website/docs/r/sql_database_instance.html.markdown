@@ -24,6 +24,7 @@ Example creating a SQL Database.
 ```hcl
 resource "google_sql_database_instance" "master" {
   name = "master-instance"
+  database_version = "POSTGRES_9_6"
 
   settings {
     tier = "D0"

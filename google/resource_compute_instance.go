@@ -14,6 +14,7 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+	"time"
 )
 
 var InstanceBaseApiVersion = v1
@@ -25,9 +26,18 @@ func resourceComputeInstance() *schema.Resource {
 		Read:   resourceComputeInstanceRead,
 		Update: resourceComputeInstanceUpdate,
 		Delete: resourceComputeInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeInstanceImportState,
+		},
 
 		SchemaVersion: 6,
 		MigrateState:  resourceComputeInstanceMigrateState,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
+		},
 
 		// A compute instance is more or less a superset of a compute instance
 		// template. Please attempt to maintain consistency with the
@@ -69,6 +79,7 @@ func resourceComputeInstance() *schema.Resource {
 						"initialize_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -76,6 +87,7 @@ func resourceComputeInstance() *schema.Resource {
 									"size": &schema.Schema{
 										Type:         schema.TypeInt,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -83,14 +95,17 @@ func resourceComputeInstance() *schema.Resource {
 									"type": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 									},
 
 									"image": &schema.Schema{
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: diskImageDiffSuppress,
 									},
 								},
 							},
@@ -240,7 +255,8 @@ func resourceComputeInstance() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -534,9 +550,10 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"create_timeout": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  4,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Default:    4,
+				Deprecated: "Use timeouts block instead.",
 			},
 		},
 	}
@@ -547,7 +564,10 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	if err != nil {
 		return nil, err
 	}
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
 	instance := &computeBeta.Instance{}
 	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
 	case v1:
@@ -567,6 +587,20 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	return instance, nil
 }
 
+func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.Disk, error) {
+	source, err := ParseDiskFieldValue(diskUri, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := config.clientCompute.Disks.Get(source.Project, source.Zone, source.Name).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return disk, err
+}
+
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -576,12 +610,16 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Get the zone
-	log.Printf("[DEBUG] Loading zone: %s", d.Get("zone").(string))
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Loading zone: %s", z)
 	zone, err := config.clientCompute.Zones.Get(
-		project, d.Get("zone").(string)).Do()
+		project, z).Do()
 	if err != nil {
 		return fmt.Errorf(
-			"Error loading zone '%s': %s", d.Get("zone").(string), err)
+			"Error loading zone '%s': %s", z, err)
 	}
 
 	// Get the machine type
@@ -640,8 +678,9 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
-	var createTimeout int
-	if v, ok := d.GetOk("create_timeout"); ok {
+	// Until "create_timeout" is removed, use that timeout if set.
+	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
 		createTimeout = v.(int)
 	}
 
@@ -722,12 +761,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	md := flattenMetadataBeta(instance.Metadata)
 
-	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
-		d.Set("metadata_startup_script", md["startup-script"])
-		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-		delete(md, "startup-script")
-	}
+	d.Set("metadata_startup_script", md["startup-script"])
+	// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+	// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+	delete(md, "startup-script")
 
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 
@@ -743,10 +780,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("can_ip_forward", instance.CanIpForward)
-
-	machineTypeResource := strings.Split(instance.MachineType, "/")
-	machineType := machineTypeResource[len(machineTypeResource)-1]
-	d.Set("machine_type", machineType)
+	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
@@ -778,6 +812,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
 		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
+		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
 	}
 
 	if len(instance.Labels) > 0 {
@@ -804,7 +839,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk))
+			d.Set("boot_disk", flattenBootDisk(d, disk, config))
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
@@ -843,6 +878,8 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.Set("project", project)
+	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
+	d.Set("name", instance.Name)
 	d.SetId(instance.Name)
 
 	return nil
@@ -856,7 +893,10 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 
 	instance, err := getInstance(config, d)
 	if err != nil {
@@ -904,7 +944,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
 
-			opErr := computeOperationWait(config.clientCompute, op, project, "metadata to update")
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 			if opErr != nil {
 				return opErr
 			}
@@ -928,7 +968,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "tags to update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "tags to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -946,7 +986,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "labels to update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "labels to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -976,7 +1016,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "scheduling policy update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "scheduling policy update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -1016,7 +1056,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error deleting old access_config: %s", err)
 				}
-				opErr := computeOperationWait(config.clientCompute, op, project, "old access_config to delete")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "old access_config to delete", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
 					return opErr
 				}
@@ -1035,7 +1075,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
-				opErr := computeOperationWait(config.clientCompute, op, project, "new access_config to add")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
 					return opErr
 				}
@@ -1113,7 +1153,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return errwrap.Wrapf("Error detaching disk: %s", err)
 				}
 
-				opErr := computeOperationWait(config.clientCompute, op, project, "detaching disk")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "detaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
 					return opErr
 				}
@@ -1128,7 +1168,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return errwrap.Wrapf("Error attaching disk : {{err}}", err)
 			}
 
-			opErr := computeOperationWait(config.clientCompute, op, project, "attaching disk")
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "attaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 			if opErr != nil {
 				return opErr
 			}
@@ -1200,7 +1240,10 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
 	op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
 	if err != nil {
@@ -1208,13 +1251,27 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config.clientCompute, op, project, "instance to delete")
+	opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if opErr != nil {
 		return opErr
 	}
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
+	}
+
+	d.Set("project", parts[0])
+	d.Set("zone", parts[1])
+	d.SetId(parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*computeBeta.AttachedDisk, error) {
@@ -1271,7 +1328,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, config *Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -1280,14 +1337,29 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
 	}
+
+	diskDetails, err := getDisk(disk.Source, d, config)
+	if err != nil {
+		log.Printf("[WARN] Cannot retrieve boot disk details: %s", err)
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+			// If we can't read the disk details due to permission for instance,
+			// copy the initialize_params from what the user originally specified to avoid diffs.
+			m := d.Get("boot_disk.0.initialize_params")
+			result["initialize_params"] = m
+		}
+	} else {
+		result["initialize_params"] = []map[string]interface{}{{
+			"type": GetResourceNameFromSelfLink(diskDetails.Type),
+			// If the config specifies a family name that doesn't match the image name, then
+			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
+			"image": diskDetails.SourceImage,
+			"size":  diskDetails.SizeGb,
+		}}
+	}
+
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
-	}
-	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		// initialize_params is not returned from the API, so copy it from what the user
-		// originally specified to avoid diffs.
-		m := d.Get("boot_disk.0.initialize_params")
-		result["initialize_params"] = m
 	}
 
 	return []map[string]interface{}{result}

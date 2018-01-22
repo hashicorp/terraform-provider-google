@@ -1,9 +1,12 @@
 package google
 
 import (
+	"errors"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
+	"strings"
 )
 
 var iamBindingSchema = map[string]*schema.Schema{
@@ -31,9 +34,16 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 		Read:   resourceIamBindingRead(newUpdaterFunc),
 		Update: resourceIamBindingUpdate(newUpdaterFunc),
 		Delete: resourceIamBindingDelete(newUpdaterFunc),
-
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 	}
+}
+
+func ResourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	r := ResourceIamBinding(parentSpecificSchema, newUpdaterFunc)
+	r.Importer = &schema.ResourceImporter{
+		State: iamBindingImport(resourceIdParser),
+	}
+	return r
 }
 
 func resourceIamBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
@@ -93,6 +103,38 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		d.Set("members", binding.Members)
 		d.Set("role", binding.Role)
 		return nil
+	}
+}
+
+func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+		if resourceIdParser == nil {
+			return nil, errors.New("Import not supported for this IAM resource.")
+		}
+		config := m.(*Config)
+		s := strings.Split(d.Id(), " ")
+		if len(s) != 2 {
+			d.SetId("")
+			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
+		}
+		id, role := s[0], s[1]
+		d.SetId(id)
+		d.Set("role", role)
+		err := resourceIdParser(d, config)
+		if err != nil {
+			return nil, err
+		}
+		// It is possible to return multiple bindings, since we can learn about all the bindings
+		// for this resource here.  Unfortunately, `terraform import` has some messy behavior here -
+		// there's no way to know at this point which resource is being imported, so it's not possible
+		// to order this list in a useful way.  In the event of a complex set of bindings, the user
+		// will have a terribly confusing set of imported resources and no way to know what matches
+		// up to what.  And since the only users who will do a terraform import on their IAM bindings
+		// are users who aren't too familiar with Google Cloud IAM (because a "create" for bindings or
+		// members is idempotent), it's reasonable to expect that the user will be very alarmed by the
+		// plan that terraform will output which mentions destroying a dozen-plus IAM bindings.  With
+		// that in mind, we return only the binding that matters.
+		return []*schema.ResourceData{d}, nil
 	}
 }
 

@@ -12,6 +12,7 @@ func resourceComputeNetwork() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkCreate,
 		Read:   resourceComputeNetworkRead,
+		Update: resourceComputeNetworkUpdate,
 		Delete: resourceComputeNetworkDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -35,6 +36,12 @@ func resourceComputeNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"routing_mode": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 
 			"gateway_ipv4": &schema.Schema{
@@ -93,6 +100,13 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		Description:           d.Get("description").(string),
 	}
 
+	if v, ok := d.GetOk("routing_mode"); ok {
+		routingConfig := &compute.NetworkRoutingConfig{
+			RoutingMode: v.(string),
+		}
+		network.RoutingConfig = routingConfig
+	}
+
 	if v, ok := d.GetOk("ipv4_range"); ok {
 		log.Printf("[DEBUG] Setting IPv4Range (%#v) for legacy network mode", v.(string))
 		network.IPv4Range = v.(string)
@@ -133,14 +147,44 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
 	}
 
+	routingConfig := network.RoutingConfig
+
+	d.Set("routing_mode", routingConfig.RoutingMode)
 	d.Set("gateway_ipv4", network.GatewayIPv4)
 	d.Set("ipv4_range", network.IPv4Range)
 	d.Set("self_link", network.SelfLink)
 	d.Set("name", network.Name)
+	d.Set("description", network.Description)
 	d.Set("auto_create_subnetworks", network.AutoCreateSubnetworks)
 	d.Set("project", project)
 
 	return nil
+}
+
+func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	op, err := config.clientCompute.Networks.Patch(project, d.Id(), &compute.Network{
+		RoutingConfig: &compute.NetworkRoutingConfig{
+			RoutingMode: d.Get("routing_mode").(string),
+		},
+	}).Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating network: %s", err)
+	}
+
+	err = computeSharedOperationWait(config.clientCompute, op, project, "UpdateNetwork")
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeNetworkRead(d, meta)
 }
 
 func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) error {

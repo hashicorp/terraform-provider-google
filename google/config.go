@@ -18,12 +18,14 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
@@ -43,12 +45,14 @@ type Config struct {
 	Credentials string
 	Project     string
 	Region      string
+	Zone        string
 
 	clientBilling                *cloudbilling.Service
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
 	clientDataproc               *dataproc.Service
+	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
@@ -63,6 +67,7 @@ type Config struct {
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
 	clientBigQuery               *bigquery.Service
+	clientCloudFunctions         *cloudfunctions.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -194,6 +199,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientPubsub.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating Google Dataflow Client...")
+	c.clientDataflow, err = dataflow.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDataflow.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager Client...")
 	c.clientResourceManager, err = cloudresourcemanager.New(client)
 	if err != nil {
@@ -242,6 +254,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientBigQuery.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client...")
+	c.clientCloudFunctions, err = cloudfunctions.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientCloudFunctions.UserAgent = userAgent
 
 	c.bigtableClientFactory = &BigtableClientFactory{
 		UserAgent:   userAgent,

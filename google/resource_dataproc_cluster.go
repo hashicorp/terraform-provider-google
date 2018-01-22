@@ -26,7 +26,7 @@ func resourceDataprocCluster() *schema.Resource {
 		Delete: resourceDataprocClusterDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(15 * time.Minute),
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
@@ -128,24 +128,20 @@ func resourceDataprocCluster() *schema.Resource {
 									},
 
 									"network": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										Computed:      true,
-										ForceNew:      true,
-										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.subnetwork"},
-										StateFunc: func(s interface{}) string {
-											return extractLastResourceFromUri(s.(string))
-										},
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.subnetwork"},
+										DiffSuppressFunc: compareSelfLinkOrResourceName,
 									},
 
 									"subnetwork": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										ForceNew:      true,
-										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.network"},
-										StateFunc: func(s interface{}) string {
-											return extractLastResourceFromUri(s.(string))
-										},
+										Type:             schema.TypeString,
+										Optional:         true,
+										ForceNew:         true,
+										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.network"},
+										DiffSuppressFunc: compareSelfLinkOrResourceName,
 									},
 
 									"tags": {
@@ -173,6 +169,13 @@ func resourceDataprocCluster() *schema.Resource {
 											},
 										},
 										Set: stringScopeHashcode,
+									},
+
+									"internal_ip_only": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Default:  false,
 									},
 								},
 							},
@@ -369,7 +372,11 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		ProjectId:   project,
 	}
 
-	cluster.Config = expandClusterConfig(d)
+	cluster.Config, err = expandClusterConfig(d, config)
+	if err != nil {
+		return err
+	}
+
 	if _, ok := d.GetOk("labels"); ok {
 		cluster.Labels = expandLabels(d)
 	}
@@ -384,7 +391,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	op, err := config.clientDataproc.Projects.Regions.Clusters.Create(
 		project, region, cluster).Do()
 	if err != nil {
-		return err
+		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
 	}
 
 	d.SetId(cluster.ClusterName)
@@ -403,7 +410,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 }
 
-func expandClusterConfig(d *schema.ResourceData) *dataproc.ClusterConfig {
+func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.ClusterConfig, error) {
 	conf := &dataproc.ClusterConfig{
 		// SDK requires GceClusterConfig to be specified,
 		// even if no explicit values specified
@@ -413,7 +420,7 @@ func expandClusterConfig(d *schema.ResourceData) *dataproc.ClusterConfig {
 	if v, ok := d.GetOk("cluster_config"); ok {
 		confs := v.([]interface{})
 		if (len(confs)) == 0 {
-			return conf
+			return conf, nil
 		}
 	}
 
@@ -421,9 +428,11 @@ func expandClusterConfig(d *schema.ResourceData) *dataproc.ClusterConfig {
 		conf.ConfigBucket = v.(string)
 	}
 
-	if cfg, ok := configOptions(d, "cluster_config.0.gce_cluster_config"); ok {
-		conf.GceClusterConfig = expandGceClusterConfig(cfg)
+	c, err := expandGceClusterConfig(d, config)
+	if err != nil {
+		return nil, err
 	}
+	conf.GceClusterConfig = c
 
 	if cfg, ok := configOptions(d, "cluster_config.0.software_config"); ok {
 		conf.SoftwareConfig = expandSoftwareConfig(cfg)
@@ -450,20 +459,36 @@ func expandClusterConfig(d *schema.ResourceData) *dataproc.ClusterConfig {
 			conf.SecondaryWorkerConfig.IsPreemptible = true
 		}
 	}
-	return conf
+	return conf, nil
 }
 
-func expandGceClusterConfig(cfg map[string]interface{}) *dataproc.GceClusterConfig {
+func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.GceClusterConfig, error) {
 	conf := &dataproc.GceClusterConfig{}
+
+	v, ok := d.GetOk("cluster_config.0.gce_cluster_config")
+	if !ok {
+		return conf, nil
+	}
+	cfg := v.([]interface{})[0].(map[string]interface{})
 
 	if v, ok := cfg["zone"]; ok {
 		conf.ZoneUri = v.(string)
 	}
 	if v, ok := cfg["network"]; ok {
-		conf.NetworkUri = extractLastResourceFromUri(v.(string))
+		nf, err := ParseNetworkFieldValue(v.(string), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine self_link for network %q: %s", v, err)
+		}
+
+		conf.NetworkUri = nf.RelativeLink()
 	}
 	if v, ok := cfg["subnetwork"]; ok {
-		conf.SubnetworkUri = extractLastResourceFromUri(v.(string))
+		snf, err := ParseSubnetworkFieldValue(v.(string), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", v, err)
+		}
+
+		conf.SubnetworkUri = snf.RelativeLink()
 	}
 	if v, ok := cfg["tags"]; ok {
 		conf.Tags = convertStringArr(v.([]interface{}))
@@ -479,7 +504,10 @@ func expandGceClusterConfig(cfg map[string]interface{}) *dataproc.GceClusterConf
 		}
 		conf.ServiceAccountScopes = scopes
 	}
-	return conf
+	if v, ok := cfg["internal_ip_only"]; ok {
+		conf.InternalIpOnly = v.(bool)
+	}
+	return conf, nil
 }
 
 func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
@@ -542,7 +570,7 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 		icg.NumInstances = int64(v.(int))
 	}
 	if v, ok := cfg["machine_type"]; ok {
-		icg.MachineTypeUri = extractLastResourceFromUri(v.(string))
+		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
 	}
 
 	if dc, ok := cfg["disk_config"]; ok {
@@ -720,16 +748,17 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
 
 	gceConfig := map[string]interface{}{
-		"tags":            gcc.Tags,
-		"service_account": gcc.ServiceAccount,
-		"zone":            extractLastResourceFromUri(gcc.ZoneUri),
+		"tags":             gcc.Tags,
+		"service_account":  gcc.ServiceAccount,
+		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
+		"internal_ip_only": gcc.InternalIpOnly,
 	}
 
 	if gcc.NetworkUri != "" {
-		gceConfig["network"] = extractLastResourceFromUri(gcc.NetworkUri)
+		gceConfig["network"] = gcc.NetworkUri
 	}
 	if gcc.SubnetworkUri != "" {
-		gceConfig["subnetwork"] = extractLastResourceFromUri(gcc.SubnetworkUri)
+		gceConfig["subnetwork"] = gcc.SubnetworkUri
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
 		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
@@ -762,7 +791,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
-		data["machine_type"] = extractLastResourceFromUri(icg.MachineTypeUri)
+		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
