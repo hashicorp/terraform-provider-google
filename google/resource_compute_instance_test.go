@@ -41,7 +41,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 				ResourceName:            "google_compute_instance.foobar",
 				ImportState:             true,
 				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params", "create_timeout"},
+				ImportStateVerifyIgnore: []string{"create_timeout"},
 			},
 		},
 	})
@@ -253,10 +253,9 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -283,10 +282,9 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -395,10 +393,9 @@ func TestAccComputeInstance_bootDisk_sourceUrl(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -448,10 +445,9 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -547,10 +543,9 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -575,10 +570,9 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -604,10 +598,9 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -633,10 +626,9 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -721,7 +713,6 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
-	var imageName = fmt.Sprintf("instance-testi-%s", acctest.RandString(10))
 	var familyName = fmt.Sprintf("instance-testf-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -730,7 +721,7 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_private_image_family(diskName, imageName, familyName, instanceName),
+				Config: testAccComputeInstance_private_image_family(diskName, familyName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -763,7 +754,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 				ResourceName:            "google_compute_instance.foobar",
 				ImportState:             true,
 				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params", "create_timeout"},
+				ImportStateVerifyIgnore: []string{"create_timeout"},
 			},
 		},
 	})
@@ -790,10 +781,9 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
 			},
 		},
 	})
@@ -818,10 +808,9 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
 			},
 		},
 	})
@@ -847,10 +836,9 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
 			},
 		},
 	})
@@ -875,10 +863,9 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
 			},
 		},
 	})
@@ -903,10 +890,9 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
 			},
 		},
 	})
@@ -2225,7 +2211,7 @@ resource "google_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance, address)
 }
 
-func testAccComputeInstance_private_image_family(disk, image, family, instance string) string {
+func testAccComputeInstance_private_image_family(disk, family, instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
@@ -2234,7 +2220,7 @@ resource "google_compute_disk" "foobar" {
 }
 
 resource "google_compute_image" "foobar" {
-	name        = "%s"
+	name        = "%s-1"
 	source_disk = "${google_compute_disk.foobar.self_link}"
 	family      = "%s"
 }
@@ -2258,7 +2244,7 @@ resource "google_compute_instance" "foobar" {
 		foo = "bar"
 	}
 }
-`, disk, image, family, instance)
+`, disk, family, family, instance)
 }
 
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {

@@ -79,6 +79,7 @@ func resourceComputeInstance() *schema.Resource {
 						"initialize_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -86,6 +87,7 @@ func resourceComputeInstance() *schema.Resource {
 									"size": &schema.Schema{
 										Type:         schema.TypeInt,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -93,14 +95,17 @@ func resourceComputeInstance() *schema.Resource {
 									"type": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 									},
 
 									"image": &schema.Schema{
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: diskImageDiffSuppress,
 									},
 								},
 							},
@@ -582,6 +587,20 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	return instance, nil
 }
 
+func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.Disk, error) {
+	source, err := ParseDiskFieldValue(diskUri, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := config.clientCompute.Disks.Get(source.Project, source.Zone, source.Name).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return disk, err
+}
+
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -820,7 +839,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk))
+			d.Set("boot_disk", flattenBootDisk(d, disk, config))
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
@@ -1309,7 +1328,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, config *Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -1318,14 +1337,29 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
 	}
+
+	diskDetails, err := getDisk(disk.Source, d, config)
+	if err != nil {
+		log.Printf("[WARN] Cannot retrieve boot disk details: %s", err)
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+			// If we can't read the disk details due to permission for instance,
+			// copy the initialize_params from what the user originally specified to avoid diffs.
+			m := d.Get("boot_disk.0.initialize_params")
+			result["initialize_params"] = m
+		}
+	} else {
+		result["initialize_params"] = []map[string]interface{}{{
+			"type": GetResourceNameFromSelfLink(diskDetails.Type),
+			// If the config specifies a family name that doesn't match the image name, then
+			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
+			"image": diskDetails.SourceImage,
+			"size":  diskDetails.SizeGb,
+		}}
+	}
+
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
-	}
-	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		// initialize_params is not returned from the API, so copy it from what the user
-		// originally specified to avoid diffs.
-		m := d.Get("boot_disk.0.initialize_params")
-		result["initialize_params"] = m
 	}
 
 	return []map[string]interface{}{result}

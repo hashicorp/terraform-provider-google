@@ -3,7 +3,8 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
+	"regexp"
+  "strings"
 	"testing"
 )
 
@@ -164,6 +165,24 @@ func testRFC1918Network(testCase RFC1918NetworkTestCase) []error {
 	}
 
 	return es
+}
+
+func TestProjectRegex(t *testing.T) {
+	tests := []struct {
+		project string
+		want    bool
+	}{
+		{"example", true},
+		{"example.com:example", true},
+		{"12345", true},
+		{"", false},
+		{"example_", false},
+	}
+	for _, test := range tests {
+		if got, err := regexp.MatchString("^"+ProjectRegex+"$", test.project); err != nil || got != test.want {
+			t.Errorf("got %t, want %t for project %v", got, test.want, test.project)
+		}
+	}
 }
 
 func TestValidateCloudIoTID(t *testing.T) {
