@@ -310,14 +310,14 @@ func resourceCloudIoTRegistryRead(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		d.Set("event_notification_config", nil)
 	}
-
-	// If no config exist for state notification, mqtt or http config default values are omitted.
 	pubsubTopicName := res.StateNotificationConfig.PubsubTopicName
-	_, hasStateConfig := d.GetOk("state_notification_config")
-	if pubsubTopicName != "" || hasStateConfig {
+	if pubsubTopicName != "" {
 		d.Set("state_notification_config",
 			map[string]string{"pubsub_topic_name": pubsubTopicName})
+	} else {
+		d.Set("state_notification_config", nil)
 	}
+	// If no config exist for mqtt or http config default values are omitted.
 	mqttState := res.MqttConfig.MqttEnabledState
 	_, hasMqttConfig := d.GetOk("mqtt_config")
 	if mqttState != mqttEnabled || hasMqttConfig {
