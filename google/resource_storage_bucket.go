@@ -546,13 +546,16 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 }
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
-	return map[string]interface{}{
+	ruleCondition := map[string]interface{}{
 		"age":                   int(condition.Age),
 		"created_before":        condition.CreatedBefore,
-		"is_live":               *condition.IsLive,
 		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
 		"num_newer_versions":    int(condition.NumNewerVersions),
 	}
+	if condition.IsLive != nil {
+		ruleCondition["is_live"] = *condition.IsLive
+	}
+	return ruleCondition
 }
 
 func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket) error {
