@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"regexp"
-  "strings"
+	"strings"
 	"testing"
 )
 
