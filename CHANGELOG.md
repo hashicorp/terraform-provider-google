@@ -1,4 +1,8 @@
 ## 1.5.1 (Unreleased)
+
+IMPROVEMENTS:
+* compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
+
 ## 1.5.0 (January 18, 2018)
 
 FEATURES:
