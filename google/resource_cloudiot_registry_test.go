@@ -119,6 +119,11 @@ resource "google_cloudiot_registry" "foobar" {
 
 func testAccCloudIoTRegistry_extended(registryName string) string {
 	return fmt.Sprintf(`
+resource "google_project_iam_binding" "cloud-iot-iam-binding" {
+  members = ["serviceAccount:cloud-iot@system.gserviceaccount.com"]
+  role    = "roles/pubsub.publisher"
+}
+
 resource "google_pubsub_topic" "default-devicestatus" {
   name = "psregistry-test-devicestatus-%s"
 }
@@ -128,6 +133,8 @@ resource "google_pubsub_topic" "default-telemetry" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
+  depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
+
   name = "psregistry-test-%s"
 
   event_notification_config = {
