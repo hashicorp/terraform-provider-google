@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
