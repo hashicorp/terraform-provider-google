@@ -177,6 +177,13 @@ func resourceDataprocCluster() *schema.Resource {
 										ForceNew: true,
 										Default:  false,
 									},
+
+									"metadata": &schema.Schema{
+										Type:     schema.TypeMap,
+										Optional: true,
+										Elem:     schema.TypeString,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -507,6 +514,9 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 	if v, ok := cfg["internal_ip_only"]; ok {
 		conf.InternalIpOnly = v.(bool)
 	}
+	if v, ok := cfg["metadata"]; ok {
+		conf.Metadata = convertStringMap(v.(map[string]interface{}))
+	}
 	return conf, nil
 }
 
@@ -752,6 +762,7 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		"service_account":  gcc.ServiceAccount,
 		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,
+		"metadata":         gcc.Metadata,
 	}
 
 	if gcc.NetworkUri != "" {
