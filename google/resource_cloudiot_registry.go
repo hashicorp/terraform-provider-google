@@ -11,14 +11,11 @@ import (
 )
 
 const (
-	mqttStateUnspecified  = "MQTT_STATE_UNSPECIFIED"
-	mqttEnabled           = "MQTT_ENABLED"
-	mqttDisabled          = "MQTT_DISABLED"
-	httpStateUnspecified  = "HTTP_STATE_UNSPECIFIED"
-	httpEnabled           = "HTTP_ENABLED"
-	httpDisabled          = "HTTP_DISABLED"
-	unspecifiedCertFormat = "UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT"
-	x509CertificatePEM    = "X509_CERTIFICATE_PEM"
+	mqttEnabled        = "MQTT_ENABLED"
+	mqttDisabled       = "MQTT_DISABLED"
+	httpEnabled        = "HTTP_ENABLED"
+	httpDisabled       = "HTTP_DISABLED"
+	x509CertificatePEM = "X509_CERTIFICATE_PEM"
 )
 
 func resourceCloudIoTRegistry() *schema.Resource {
@@ -86,7 +83,7 @@ func resourceCloudIoTRegistry() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice(
-								[]string{mqttStateUnspecified, mqttEnabled, mqttDisabled}, false),
+								[]string{mqttEnabled, mqttDisabled}, false),
 						},
 					},
 				},
@@ -100,7 +97,7 @@ func resourceCloudIoTRegistry() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice(
-								[]string{httpStateUnspecified, httpEnabled, httpDisabled}, false),
+								[]string{httpEnabled, httpDisabled}, false),
 						},
 					},
 				},
@@ -120,7 +117,7 @@ func resourceCloudIoTRegistry() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 										ValidateFunc: validation.StringInSlice(
-											[]string{unspecifiedCertFormat, x509CertificatePEM}, false),
+											[]string{x509CertificatePEM}, false),
 									},
 									"certificate": &schema.Schema{
 										Type:     schema.TypeString,
