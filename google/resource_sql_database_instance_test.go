@@ -318,6 +318,40 @@ func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
 	})
 }
 
+func TestAccGoogleSqlDatabaseInstance_highAvailability(t *testing.T) {
+	t.Parallel()
+
+	var instance sqladmin.DatabaseInstance
+	instanceID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_highAvailability, instanceID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+					// Check that we've set our high availability type correctly, and it's been
+					// accepted by the API
+					func(s *terraform.State) error {
+						if instance.Settings.AvailabilityType != "REGIONAL" {
+							return fmt.Errorf("Database %s was not configured with Regional HA", instance.Name)
+						}
+
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
 	t.Parallel()
 
@@ -906,6 +940,25 @@ resource "google_sql_database_instance" "instance_slave" {
 
 	settings {
 		tier = "db-f1-micro"
+	}
+}
+`
+
+var testGoogleSqlDatabaseInstance_highAvailability = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	database_version = "POSTGRES_9_6"
+
+	settings {
+		tier = "db-f1-micro"
+
+		availability_type = "REGIONAL"
+
+		backup_configuration {
+			enabled = true
+			binary_log_enabled = true
+		}
 	}
 }
 `

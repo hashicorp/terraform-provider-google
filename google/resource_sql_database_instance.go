@@ -77,8 +77,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: suppressFirstGen,
-							// Set computed instead of default because this property is for second-gen only.
-							Computed: true,
+							// Set computed instead of default because this property is for second-gen
+							// only. The default when not provided is ZONAL, which means no explicit HA
+							// configuration.
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
 						},
 						"backup_configuration": &schema.Schema{
 							Type:     schema.TypeList,
@@ -350,7 +353,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 	}
 }
 
-// Suppress diff with any disk_autoresize value on 1st Generation Instances
+// Suppress diff with any attribute value that is not supported on 1st Generation
+// Instances
 func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
 	settingsList := d.Get("settings").([]interface{})
 
@@ -358,10 +362,10 @@ func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
 	tier := settings["tier"].(string)
 	matched, err := regexp.MatchString("db*", tier)
 	if err != nil {
-		log.Printf("[ERR] error with regex in diff supression for disk_autoresize: %s", err)
+		log.Printf("[ERR] error with regex in diff supression for %s: %s", k, err)
 	}
 	if !matched {
-		log.Printf("[DEBUG] suppressing diff on disk_autoresize due to 1st gen instance type")
+		log.Printf("[DEBUG] suppressing diff on %s due to 1st gen instance type", k)
 		return true
 	}
 	return false
@@ -427,7 +431,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.CrashSafeReplicationEnabled = v.(bool)
 	}
 
-	settings.StorageAutoResize = _settings["disk_autoresize"].(*bool)
+	autoResize := _settings["disk_autoresize"].(bool)
+	settings.StorageAutoResize = &autoResize
 
 	if v, ok := _settings["disk_size"]; ok && v.(int) > 0 {
 		settings.DataDiskSizeGb = int64(v.(int))
@@ -729,10 +734,12 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		_settingsList := _settingsListCast.([]interface{})
 
 		_settings := _settingsList[0].(map[string]interface{})
+		_autoResize := _settings["disk_autoresize"].(bool)
+
 		settings := &sqladmin.Settings{
 			Tier:              _settings["tier"].(string),
 			SettingsVersion:   instance.Settings.SettingsVersion,
-			StorageAutoResize: _settings["disk_autoresize"].(*bool),
+			StorageAutoResize: &_autoResize,
 			ForceSendFields:   []string{"StorageAutoResize"},
 		}
 
