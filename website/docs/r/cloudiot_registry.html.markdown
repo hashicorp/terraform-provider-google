@@ -87,11 +87,11 @@ The `state_notification_config` block supports:
 
 The `mqtt_config` block supports:
 
-* `mqtt_enabled_state` - (Required) The field allows `MQTT_STATE_UNSPECIFIED`, `MQTT_ENABLED` or `MQTT_DISABLED`.
+* `mqtt_enabled_state` - (Required) The field allows `MQTT_ENABLED` or `MQTT_DISABLED`.
 
 The `http_config` block supports:
 
-* `http_enabled_state` - (Required) The field allows `HTTP_STATE_UNSPECIFIED`, `HTTP_ENABLED` or `HTTP_DISABLED`.
+* `http_enabled_state` - (Required) The field allows `HTTP_ENABLED` or `HTTP_DISABLED`.
 
 The `credentials` block supports:
 
@@ -99,7 +99,7 @@ The `credentials` block supports:
 
 The `public_key_certificate` block supports:
 
-* `format` - (Required) The field allows `UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT` or `X509_CERTIFICATE_PEM`.
+* `format` - (Required) The field allows only  `X509_CERTIFICATE_PEM`.
 * `certificate` - (Required) The certificate data.
 
 
