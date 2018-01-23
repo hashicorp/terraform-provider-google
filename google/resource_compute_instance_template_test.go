@@ -351,7 +351,7 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10)),
+				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10), 1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
@@ -361,6 +361,28 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+
+}
+
+func TestAccComputeInstanceTemplate_guestAcceleratorSkip(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10), 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateLacksGuestAccelerator(&instanceTemplate),
+				),
 			},
 		},
 	})
@@ -658,6 +680,16 @@ func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *co
 
 		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
 			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instanceTemplate.Properties.GuestAccelerators) > 0 {
+			return fmt.Errorf("Expected no guest accelerators")
 		}
 
 		return nil
@@ -1087,7 +1119,7 @@ resource "google_compute_instance_template" "foobar" {
 }`, i, i, i)
 }
 
-func testAccComputeInstanceTemplate_guestAccelerator(i string) string {
+func testAccComputeInstanceTemplate_guestAccelerator(i string, count uint8) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
@@ -1110,10 +1142,10 @@ resource "google_compute_instance_template" "foobar" {
 	}
 
 	guest_accelerator {
-		count = 1
+		count = %d
 		type = "nvidia-tesla-k80"
 	}
-}`, i)
+}`, i, count)
 }
 
 func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
