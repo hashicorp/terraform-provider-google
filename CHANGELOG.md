@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 * compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
+* compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
 * sql: Support for PostgreSQL high availability [GH-1001]
 
 ## 1.5.0 (January 18, 2018)
