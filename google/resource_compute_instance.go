@@ -7,6 +7,8 @@ import (
 	"log"
 	"strings"
 
+	"time"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -15,7 +17,6 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
-	"time"
 )
 
 var InstanceBaseApiVersion = v1
@@ -240,7 +241,6 @@ func resourceComputeInstance() *schema.Resource {
 			"machine_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"name": &schema.Schema{
@@ -468,12 +468,10 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": &schema.Schema{
 							Type:     schema.TypeString,
-							ForceNew: true,
 							Optional: true,
 							Computed: true,
 						},
@@ -481,7 +479,6 @@ func resourceComputeInstance() *schema.Resource {
 						"scopes": &schema.Schema{
 							Type:     schema.TypeSet,
 							Required: true,
-							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								StateFunc: func(v interface{}) string {
@@ -524,7 +521,6 @@ func resourceComputeInstance() *schema.Resource {
 			"min_cpu_platform": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"tags": &schema.Schema{
@@ -1186,6 +1182,89 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetPartial("attached_disk")
+	}
+
+	// Attributes which can only be changed if the instance is stopped
+	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
+		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		}
+
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		if d.HasChange("machine_type") {
+			mt, err := ParseMachineTypesFieldValue(d.Get("machine_type").(string), d, config)
+			if err != nil {
+				return err
+			}
+			req := &compute.InstancesSetMachineTypeRequest{
+				MachineType: mt.RelativeLink(),
+			}
+			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating machinetype", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("machine_type")
+		}
+
+		if d.HasChange("min_cpu_platform") {
+			minCpuPlatform, ok := d.GetOk("min_cpu_platform")
+			// Even though you don't have to set minCpuPlatform on create, you do have to set it to an
+			// actual value on update. "Automatic" is the default. This will be read back from the API as empty,
+			// so we don't need to worry about diffs.
+			if !ok {
+				minCpuPlatform = "Automatic"
+			}
+			req := &compute.InstancesSetMinCpuPlatformRequest{
+				MinCpuPlatform: minCpuPlatform.(string),
+			}
+			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating min cpu platform", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("min_cpu_platform")
+		}
+
+		if d.HasChange("service_account") {
+			sa := d.Get("service_account").([]interface{})
+			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
+			if len(sa) > 0 {
+				saMap := sa[0].(map[string]interface{})
+				req.Email = saMap["email"].(string)
+				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
+			}
+			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating service account", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("service_account")
+		}
+
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error starting instance: {{err}}", err)
+		}
+
+		opErr = computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
 	}
 
 	// We made it, disable partial mode
