@@ -54,6 +54,10 @@ func ParseAcceleratorFieldValue(accelerator string, d TerraformResourceData, con
 	return parseZonalFieldValue("acceleratorTypes", accelerator, "project", "zone", d, config, false)
 }
 
+func ParseMachineTypesFieldValue(machineType string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("machineTypes", machineType, "project", "zone", d, config, false)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------

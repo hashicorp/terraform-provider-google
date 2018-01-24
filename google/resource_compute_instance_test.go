@@ -518,6 +518,60 @@ func TestAccComputeInstance_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Set fields that require stopping the instance
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+			// Check that updating them works
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+			// Check that removing them works
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate3(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_service_account(t *testing.T) {
 	t.Parallel()
 
@@ -2423,4 +2477,90 @@ resource "google_compute_instance" "foobar" {
     }
   }
 }`, acctest.RandString(10), acctest.RandString(10), instance)
+}
+
+// Set fields that require stopping the instance: machine_type, min_cpu_platform, and service_account
+func testAccComputeInstance_stopInstanceToUpdate(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	min_cpu_platform = "Intel Broadwell"
+	service_account {
+		scopes = [
+			"userinfo-email",
+			"compute-ro",
+			"storage-ro",
+		]
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+// Update fields that require stopping the instance: machine_type, min_cpu_platform, and service_account
+func testAccComputeInstance_stopInstanceToUpdate2(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-2"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	min_cpu_platform = "Intel Skylake"
+	service_account {
+		scopes = [
+			"userinfo-email",
+			"compute-ro",
+		]
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+// Remove fields that require stopping the instance: min_cpu_platform and service_account (machine_type is Required)
+func testAccComputeInstance_stopInstanceToUpdate3(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-2"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
 }
