@@ -63,7 +63,9 @@ The following arguments are supported:
 
 * `machine_type` - (Required) The machine type to create. To create a custom
     machine type, value should be set as specified
-    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType)
+    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
+    **Warning**: Terraform will stop the instance while updating this field. Make sure this
+    is acceptable for your instance before changing this value.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -86,6 +88,8 @@ The following arguments are supported:
 
 * `description` - (Optional) A brief description of this resource.
 
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
@@ -96,6 +100,11 @@ The following arguments are supported:
     recreated (thus re-running the script) if it is changed. This replaces the
     startup-script metadata key on the created instance and thus the two
     mechanisms are not allowed to be used simultaneously.
+
+* `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
+`Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
+    **Warning**: Terraform will stop the instance while updating this field. Make sure this
+    is acceptable for your instance before changing this value.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -108,6 +117,8 @@ The following arguments are supported:
 
 * `service_account` - (Optional) Service account to attach to the instance.
     Structure is documented below.
+    **Warning**: Terraform will stop the instance while updating this field. Make sure this
+    is acceptable for your instance before changing this value.
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
@@ -215,10 +226,14 @@ The `service_account` block supports:
 
 * `email` - (Optional) The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
+    **Warning**: Terraform will stop the instance while updating this field. Make sure this
+    is acceptable for your instance before changing this value.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
     short names are supported. To allow full access to all Cloud APIs, use the
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
+    **Warning**: Terraform will stop the instance while updating this field. Make sure this
+    is acceptable for your instance before changing this value.
 
 The `scheduling` block supports:
 
@@ -230,13 +245,6 @@ The `scheduling` block supports:
 
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
-
----
-
-* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
-
-* `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
-`Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
 
 The `guest_accelerator` block supports:
 
