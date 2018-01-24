@@ -2,12 +2,14 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"google.golang.org/api/compute/v1"
 
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/googleapi"
-	"log"
 )
 
 func resourceComputeSharedVpcServiceProject() *schema.Resource {
@@ -15,6 +17,9 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 		Create: resourceComputeSharedVpcServiceProjectCreate,
 		Read:   resourceComputeSharedVpcServiceProjectRead,
 		Delete: resourceComputeSharedVpcServiceProjectDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"host_project": &schema.Schema{
@@ -59,8 +64,12 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hostProject := d.Get("host_project").(string)
-	serviceProject := d.Get("service_project").(string)
+	split := strings.Split(d.Id(), "/")
+	if len(split) != 2 {
+		return fmt.Errorf("Error parsing resource ID %s", d.Id())
+	}
+	hostProject := split[0]
+	serviceProject := split[1]
 
 	associatedHostProject, err := config.clientCompute.Projects.GetXpnHost(serviceProject).Do()
 	if err != nil {
@@ -75,6 +84,9 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 		d.SetId("")
 		return nil
 	}
+
+	d.Set("host_project", hostProject)
+	d.Set("service_project", serviceProject)
 
 	return nil
 }

@@ -12,6 +12,9 @@ func resourceComputeSharedVpcHostProject() *schema.Resource {
 		Create: resourceComputeSharedVpcHostProjectCreate,
 		Read:   resourceComputeSharedVpcHostProjectRead,
 		Delete: resourceComputeSharedVpcHostProjectDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
@@ -46,7 +49,7 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hostProject := d.Get("project").(string)
+	hostProject := d.Id()
 
 	project, err := config.clientCompute.Projects.Get(hostProject).Do()
 	if err != nil {
@@ -57,6 +60,8 @@ func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interf
 		log.Printf("[WARN] Removing Shared VPC host resource %q because it's not enabled server-side", hostProject)
 		d.SetId("")
 	}
+
+	d.Set("project", hostProject)
 
 	return nil
 }
