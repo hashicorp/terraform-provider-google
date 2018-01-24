@@ -47,6 +47,9 @@ type Config struct {
 	Region      string
 	Zone        string
 
+	client    *http.Client
+	userAgent string
+
 	clientBilling                *cloudbilling.Service
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
@@ -133,6 +136,9 @@ func (c *Config) loadAndValidate() error {
 	versionString := terraform.VersionString()
 	userAgent := fmt.Sprintf(
 		"(%s %s) Terraform/%s", runtime.GOOS, runtime.GOARCH, versionString)
+
+	c.client = client
+	c.userAgent = userAgent
 
 	var err error
 
