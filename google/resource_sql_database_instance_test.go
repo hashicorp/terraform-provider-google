@@ -437,7 +437,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_settings_downgrade(t *testing.T) {
+func TestAccGoogleSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -608,10 +608,15 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			return fmt.Errorf("Error settings.crash_safe_replication mismatch, (%s, %s)", server, local)
 		}
 
-		server = strconv.FormatBool(*instance.Settings.StorageAutoResize)
-		local = attributes["settings.0.disk_autoresize"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)
+		// First generation CloudSQL instances will not have any value for StorageAutoResize.
+		// We need to check if this value has been omitted before we potentially deference a
+		// nil pointer.
+		if instance.Settings.StorageAutoResize != nil {
+			server = strconv.FormatBool(*instance.Settings.StorageAutoResize)
+			local = attributes["settings.0.disk_autoresize"]
+			if server != local && len(server) > 0 && len(local) > 0 {
+				return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)
+			}
 		}
 
 		server = strconv.FormatInt(instance.Settings.DataDiskSizeGb, 10)
