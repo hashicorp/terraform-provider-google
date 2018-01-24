@@ -139,6 +139,7 @@ func Provider() terraform.ResourceProvider {
 			"google_dataproc_job":                          resourceDataprocJob(),
 			"google_dns_managed_zone":                      resourceDnsManagedZone(),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
+			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_iam_policy":                     ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
