@@ -2505,6 +2505,8 @@ resource "google_compute_instance" "foobar" {
 			"storage-ro",
 		]
 	}
+
+	allow_stopping_for_update = true
 }
 `, instance)
 }
@@ -2534,6 +2536,8 @@ resource "google_compute_instance" "foobar" {
 			"compute-ro",
 		]
 	}
+
+	allow_stopping_for_update = true
 }
 `, instance)
 }
@@ -2555,6 +2559,8 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 	}
+
+	allow_stopping_for_update = true
 }
 `, instance)
 }

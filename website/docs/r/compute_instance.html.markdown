@@ -64,8 +64,7 @@ The following arguments are supported:
 * `machine_type` - (Required) The machine type to create. To create a custom
     machine type, value should be set as specified
     [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
-    **Warning**: Terraform will stop the instance while updating this field. Make sure this
-    is acceptable for your instance before changing this value.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -76,6 +75,9 @@ The following arguments are supported:
     be specified multiple times. Structure is documented below.
 
 - - -
+
+* `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance to update its properties.
+  If you try to update a property that requires stopping the instance without setting this field, the update will fail.
 
 * `attached_disk` - (Optional) List of disks to attach to the instance. Structure is documented below.
 
@@ -103,8 +105,7 @@ The following arguments are supported:
 
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
-    **Warning**: Terraform will stop the instance while updating this field. Make sure this
-    is acceptable for your instance before changing this value.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -117,8 +118,7 @@ The following arguments are supported:
 
 * `service_account` - (Optional) Service account to attach to the instance.
     Structure is documented below.
-    **Warning**: Terraform will stop the instance while updating this field. Make sure this
-    is acceptable for your instance before changing this value.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
@@ -226,14 +226,12 @@ The `service_account` block supports:
 
 * `email` - (Optional) The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
-    **Warning**: Terraform will stop the instance while updating this field. Make sure this
-    is acceptable for your instance before changing this value.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
     short names are supported. To allow full access to all Cloud APIs, use the
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
-    **Warning**: Terraform will stop the instance while updating this field. Make sure this
-    is acceptable for your instance before changing this value.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 The `scheduling` block supports:
 

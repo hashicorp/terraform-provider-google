@@ -542,6 +542,11 @@ func resourceComputeInstance() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"allow_stopping_for_update": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"label_fingerprint": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1186,6 +1191,10 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Attributes which can only be changed if the instance is stopped
 	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
+		if !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+		}
 		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
