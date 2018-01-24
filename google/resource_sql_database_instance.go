@@ -73,6 +73,13 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"availability_type": &schema.Schema{
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: suppressFirstGen,
+							// Set computed instead of default because this property is for second-gen only.
+							Computed: true,
+						},
 						"backup_configuration": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -391,6 +398,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	if v, ok := _settings["availability_type"]; ok {
+		settings.AvailabilityType = v.(string)
+	}
+
 	if v, ok := _settings["backup_configuration"]; ok {
 		_backupConfigurationList := v.([]interface{})
 
@@ -416,7 +427,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.CrashSafeReplicationEnabled = v.(bool)
 	}
 
-	settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
+	settings.StorageAutoResize = _settings["disk_autoresize"].(*bool)
 
 	if v, ok := _settings["disk_size"]; ok && v.(int) > 0 {
 		settings.DataDiskSizeGb = int64(v.(int))
@@ -721,7 +732,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		settings := &sqladmin.Settings{
 			Tier:              _settings["tier"].(string),
 			SettingsVersion:   instance.Settings.SettingsVersion,
-			StorageAutoResize: _settings["disk_autoresize"].(bool),
+			StorageAutoResize: _settings["disk_autoresize"].(*bool),
 			ForceSendFields:   []string{"StorageAutoResize"},
 		}
 
@@ -735,6 +746,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 				settings.AuthorizedGaeApplications = append(settings.AuthorizedGaeApplications,
 					app.(string))
 			}
+		}
+
+		if v, ok := _settings["availability_type"]; ok {
+			settings.AvailabilityType = v.(string)
 		}
 
 		if v, ok := _settings["backup_configuration"]; ok {
@@ -984,6 +999,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		"tier":                        settings.Tier,
 		"activation_policy":           settings.ActivationPolicy,
 		"authorized_gae_applications": settings.AuthorizedGaeApplications,
+		"availability_type":           settings.AvailabilityType,
 		"crash_safe_replication":      settings.CrashSafeReplicationEnabled,
 		"disk_autoresize":             settings.StorageAutoResize,
 		"disk_type":                   settings.DataDiskType,
