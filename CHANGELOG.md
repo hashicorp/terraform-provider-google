@@ -1,5 +1,9 @@
 ## 1.5.1 (Unreleased)
 
+Features:
+* **New Resource** `google_cloudiot_registry` [GH-970]
+* **New Resource** `google_endpoints_service` [GH-933]
+
 IMPROVEMENTS:
 * compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
 * compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
