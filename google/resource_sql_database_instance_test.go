@@ -318,6 +318,40 @@ func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
 	})
 }
 
+func TestAccGoogleSqlDatabaseInstance_highAvailability(t *testing.T) {
+	t.Parallel()
+
+	var instance sqladmin.DatabaseInstance
+	instanceID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_highAvailability, instanceID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+					// Check that we've set our high availability type correctly, and it's been
+					// accepted by the API
+					func(s *terraform.State) error {
+						if instance.Settings.AvailabilityType != "REGIONAL" {
+							return fmt.Errorf("Database %s was not configured with Regional HA", instance.Name)
+						}
+
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
 	t.Parallel()
 
@@ -403,7 +437,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_settings_downgrade(t *testing.T) {
+func TestAccGoogleSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -542,6 +576,12 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			return fmt.Errorf("Error settings.activation_policy mismatch, (%s, %s)", server, local)
 		}
 
+		server = instance.Settings.AvailabilityType
+		local = attributes["settings.0.availability_type"]
+		if server != local && len(server) > 0 && len(local) > 0 {
+			return fmt.Errorf("Error settings.availability_type mismatch, (%s, %s)", server, local)
+		}
+
 		if instance.Settings.BackupConfiguration != nil {
 			server = strconv.FormatBool(instance.Settings.BackupConfiguration.BinaryLogEnabled)
 			local = attributes["settings.0.backup_configuration.0.binary_log_enabled"]
@@ -568,10 +608,15 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			return fmt.Errorf("Error settings.crash_safe_replication mismatch, (%s, %s)", server, local)
 		}
 
-		server = strconv.FormatBool(instance.Settings.StorageAutoResize)
-		local = attributes["settings.0.disk_autoresize"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)
+		// First generation CloudSQL instances will not have any value for StorageAutoResize.
+		// We need to check if this value has been omitted before we potentially deference a
+		// nil pointer.
+		if instance.Settings.StorageAutoResize != nil {
+			server = strconv.FormatBool(*instance.Settings.StorageAutoResize)
+			local = attributes["settings.0.disk_autoresize"]
+			if server != local && len(server) > 0 && len(local) > 0 {
+				return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)
+			}
 		}
 
 		server = strconv.FormatInt(instance.Settings.DataDiskSizeGb, 10)
@@ -900,6 +945,25 @@ resource "google_sql_database_instance" "instance_slave" {
 
 	settings {
 		tier = "db-f1-micro"
+	}
+}
+`
+
+var testGoogleSqlDatabaseInstance_highAvailability = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	database_version = "POSTGRES_9_6"
+
+	settings {
+		tier = "db-f1-micro"
+
+		availability_type = "REGIONAL"
+
+		backup_configuration {
+			enabled = true
+			binary_log_enabled = true
+		}
 	}
 }
 `

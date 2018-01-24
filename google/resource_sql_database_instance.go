@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
@@ -72,6 +72,16 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"availability_type": &schema.Schema{
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: suppressFirstGen,
+							// Set computed instead of default because this property is for second-gen
+							// only. The default when not provided is ZONAL, which means no explicit HA
+							// configuration.
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
 						},
 						"backup_configuration": &schema.Schema{
 							Type:     schema.TypeList,
@@ -343,21 +353,26 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 	}
 }
 
-// Suppress diff with any disk_autoresize value on 1st Generation Instances
+// Suppress diff with any attribute value that is not supported on 1st Generation
+// Instances
 func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
-	settingsList := d.Get("settings").([]interface{})
-
-	settings := settingsList[0].(map[string]interface{})
-	tier := settings["tier"].(string)
-	matched, err := regexp.MatchString("db*", tier)
-	if err != nil {
-		log.Printf("[ERR] error with regex in diff supression for disk_autoresize: %s", err)
-	}
-	if !matched {
-		log.Printf("[DEBUG] suppressing diff on disk_autoresize due to 1st gen instance type")
+	if isFirstGen(d) {
+		log.Printf("[DEBUG] suppressing diff on %s due to 1st gen instance type", k)
 		return true
 	}
+
 	return false
+}
+
+// Detects whether a database is 1st Generation by inspecting the tier name
+func isFirstGen(d *schema.ResourceData) bool {
+	settingsList := d.Get("settings").([]interface{})
+	settings := settingsList[0].(map[string]interface{})
+	tier := settings["tier"].(string)
+
+	// 1st Generation databases have tiers like 'D0', as opposed to 2nd Generation which are
+	// prefixed with 'db'
+	return !regexp.MustCompile("db*").Match([]byte(tier))
 }
 
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -391,6 +406,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	if v, ok := _settings["availability_type"]; ok {
+		settings.AvailabilityType = v.(string)
+	}
+
 	if v, ok := _settings["backup_configuration"]; ok {
 		_backupConfigurationList := v.([]interface{})
 
@@ -416,7 +435,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.CrashSafeReplicationEnabled = v.(bool)
 	}
 
-	settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
+	// 1st Generation instances don't support the disk_autoresize parameter
+	if !isFirstGen(d) {
+		autoResize := _settings["disk_autoresize"].(bool)
+		settings.StorageAutoResize = &autoResize
+	}
 
 	if v, ok := _settings["disk_size"]; ok && v.(int) > 0 {
 		settings.DataDiskSizeGb = int64(v.(int))
@@ -718,11 +741,16 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		_settingsList := _settingsListCast.([]interface{})
 
 		_settings := _settingsList[0].(map[string]interface{})
+
 		settings := &sqladmin.Settings{
-			Tier:              _settings["tier"].(string),
-			SettingsVersion:   instance.Settings.SettingsVersion,
-			StorageAutoResize: _settings["disk_autoresize"].(bool),
-			ForceSendFields:   []string{"StorageAutoResize"},
+			Tier:            _settings["tier"].(string),
+			SettingsVersion: instance.Settings.SettingsVersion,
+			ForceSendFields: []string{"StorageAutoResize"},
+		}
+
+		if !isFirstGen(d) {
+			autoResize := _settings["disk_autoresize"].(bool)
+			settings.StorageAutoResize = &autoResize
 		}
 
 		if v, ok := _settings["activation_policy"]; ok {
@@ -735,6 +763,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 				settings.AuthorizedGaeApplications = append(settings.AuthorizedGaeApplications,
 					app.(string))
 			}
+		}
+
+		if v, ok := _settings["availability_type"]; ok {
+			settings.AvailabilityType = v.(string)
 		}
 
 		if v, ok := _settings["backup_configuration"]; ok {
@@ -984,8 +1016,8 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		"tier":                        settings.Tier,
 		"activation_policy":           settings.ActivationPolicy,
 		"authorized_gae_applications": settings.AuthorizedGaeApplications,
+		"availability_type":           settings.AvailabilityType,
 		"crash_safe_replication":      settings.CrashSafeReplicationEnabled,
-		"disk_autoresize":             settings.StorageAutoResize,
 		"disk_type":                   settings.DataDiskType,
 		"disk_size":                   settings.DataDiskSizeGb,
 		"pricing_plan":                settings.PricingPlan,
@@ -1007,8 +1039,13 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	if settings.LocationPreference != nil {
 		data["location_preference"] = flattenLocationPreference(settings.LocationPreference)
 	}
+
 	if settings.MaintenanceWindow != nil {
 		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
+	}
+
+	if settings.StorageAutoResize != nil {
+		data["disk_autoresize"] = *settings.StorageAutoResize
 	}
 
 	return []map[string]interface{}{data}
