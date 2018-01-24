@@ -42,3 +42,10 @@ The following arguments are expected:
 
 * `project` - (Required) The ID of the project that will serve as a Shared VPC host project
 
+## Import
+
+Google Compute Engine Shared VPC host project feature can be imported using the `project`, e.g.
+
+```
+$ terraform import google_compute_shared_vpc_host_project.host host-project-id
+```
