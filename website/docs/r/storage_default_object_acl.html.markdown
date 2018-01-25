@@ -8,7 +8,7 @@ description: |-
 
 # google\_storage\_default\_object\_acl
 
-Creates a new default object ACL in Google cloud storage service (GCS). For more information see 
+Creates a new default object ACL in Google Cloud Storage service (GCS). For more information see
 [the official documentation](https://cloud.google.com/storage/docs/access-control/lists) 
 and 
 [API](https://cloud.google.com/storage/docs/json_api/v1/defaultObjectAccessControls).
