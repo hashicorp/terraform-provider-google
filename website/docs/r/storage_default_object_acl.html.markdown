@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_storage_default_object_acl"
-sidebar_current: "docs-google-storage-default_object-acl"
+sidebar_current: "docs-google-storage-default-object-acl"
 description: |-
   Creates a new default object ACL in Google Cloud Storage.
 ---
