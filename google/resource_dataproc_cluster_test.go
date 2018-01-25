@@ -159,6 +159,29 @@ func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_basicWithMetadata(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.foo", "bar"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.baz", "qux"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
 	t.Parallel()
 
@@ -738,6 +761,24 @@ resource "google_dataproc_cluster" "basic" {
 	}
 }
 `, rnd, rnd, rnd)
+}
+
+func testAccDataprocCluster_basicWithMetadata(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+	cluster_config {
+		gce_cluster_config {
+			metadata {
+				foo = "bar"
+				baz = "qux"
+			}
+		}
+	}
+}
+`, rnd)
 }
 
 func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/pubsub/v1"
@@ -66,7 +67,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	}).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
 	}
 
 	return nil

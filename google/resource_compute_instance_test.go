@@ -518,6 +518,60 @@ func TestAccComputeInstance_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Set fields that require stopping the instance
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+			// Check that updating them works
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+			// Check that removing them works
+			resource.TestStep{
+				Config: testAccComputeInstance_stopInstanceToUpdate3(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_service_account(t *testing.T) {
 	t.Parallel()
 
@@ -801,7 +855,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_guestAccelerator(instanceName),
+				Config: testAccComputeInstance_guestAccelerator(instanceName, 1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
@@ -811,6 +865,29 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 				ResourceName:  "google_compute_instance.foobar",
 				ImportState:   true,
 				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
+			},
+		},
+	})
+
+}
+
+func TestAccComputeInstance_guestAcceleratorSkip(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_guestAccelerator(instanceName, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLacksGuestAccelerator(&instance),
+				),
 			},
 		},
 	})
@@ -1292,6 +1369,16 @@ func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, 
 
 		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
 			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceLacksGuestAccelerator(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.GuestAccelerators) > 0 {
+			return fmt.Errorf("Expected no guest accelerators")
 		}
 
 		return nil
@@ -2282,7 +2369,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 `, instance, network, subnetwork)
 }
 
-func testAccComputeInstance_guestAccelerator(instance string) string {
+func testAccComputeInstance_guestAccelerator(instance string, count uint8) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
   name = "%s"
@@ -2305,10 +2392,10 @@ resource "google_compute_instance" "foobar" {
   }
 
   guest_accelerator {
-    count = 1
+    count = %d
     type = "nvidia-tesla-k80"
   }
-}`, instance)
+}`, instance, count)
 }
 
 func testAccComputeInstance_minCpuPlatform(instance string) string {
@@ -2390,4 +2477,90 @@ resource "google_compute_instance" "foobar" {
     }
   }
 }`, acctest.RandString(10), acctest.RandString(10), instance)
+}
+
+// Set fields that require stopping the instance: machine_type, min_cpu_platform, and service_account
+func testAccComputeInstance_stopInstanceToUpdate(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	min_cpu_platform = "Intel Broadwell"
+	service_account {
+		scopes = [
+			"userinfo-email",
+			"compute-ro",
+			"storage-ro",
+		]
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+// Update fields that require stopping the instance: machine_type, min_cpu_platform, and service_account
+func testAccComputeInstance_stopInstanceToUpdate2(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-2"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	min_cpu_platform = "Intel Skylake"
+	service_account {
+		scopes = [
+			"userinfo-email",
+			"compute-ro",
+		]
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+// Remove fields that require stopping the instance: min_cpu_platform and service_account (machine_type is Required)
+func testAccComputeInstance_stopInstanceToUpdate3(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-2"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	allow_stopping_for_update = true
+}
+`, instance)
 }

@@ -53,6 +53,7 @@ each accept the following arguments:
 
 * `role` (Required) - The role/permission that will be granted to the members.
   See the [IAM Roles](https://cloud.google.com/compute/docs/access/iam) documentation for a complete list of roles.
+  Note that custom roles must be of the format `[project|organization]/{parent-name}/roles/{role-name}`.
 
 * `members` (Required) - An array of identites that will be granted the privilege in the `role`.
   Each entry can have one of the following values:

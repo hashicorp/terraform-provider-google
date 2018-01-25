@@ -191,7 +191,7 @@ func enableService(s, pid string, config *Config) error {
 		if err != nil {
 			return err
 		}
-		waitErr := serviceManagementOperationWait(config, sop, "api to enable")
+		_, waitErr := serviceManagementOperationWait(config, sop, "api to enable")
 		if waitErr != nil {
 			return waitErr
 		}
@@ -211,7 +211,7 @@ func disableService(s, pid string, config *Config) error {
 			return err
 		}
 		// Wait for the operation to complete
-		waitErr := serviceManagementOperationWait(config, sop, "api to disable")
+		_, waitErr := serviceManagementOperationWait(config, sop, "api to disable")
 		if waitErr != nil {
 			return waitErr
 		}
