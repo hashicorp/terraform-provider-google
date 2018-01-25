@@ -223,6 +223,11 @@ func resourceStorageBucket() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"log_object_prefix": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -362,8 +367,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("logging") {
 		if v, ok := d.GetOk("logging"); ok {
 			sb.Logging = expandBucketLogging(v.([]interface{}))
-		}
-		if sb.Logging == nil {
+		} else {
 			sb.NullFields = append(sb.NullFields, "Logging")
 		}
 	}
@@ -521,7 +525,8 @@ func expandBucketLogging(configured interface{}) *storage.BucketLogging {
 	logging := loggings[0].(map[string]interface{})
 
 	bucketLogging := &storage.BucketLogging{
-		LogBucket: logging["log_bucket"].(string),
+		LogBucket:       logging["log_bucket"].(string),
+		LogObjectPrefix: logging["log_object_prefix"].(string),
 	}
 
 	return bucketLogging
@@ -535,7 +540,8 @@ func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]int
 	}
 
 	logging := map[string]interface{}{
-		"log_bucket": bucketLogging.LogBucket,
+		"log_bucket":        bucketLogging.LogBucket,
+		"log_object_prefix": bucketLogging.LogObjectPrefix,
 	}
 
 	loggings = append(loggings, logging)

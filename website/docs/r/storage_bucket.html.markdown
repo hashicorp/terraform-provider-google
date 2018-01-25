@@ -114,6 +114,9 @@ The `logging` block supports:
 
 * `log_bucket` - (Required) The bucket that will receive log objects.
 
+* `log_object_prefix` - (Optional, Computed) The object prefix for log objects. If it's not provided,
+    by default GCS sets this to the log_bucket's name.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

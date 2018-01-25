@@ -397,10 +397,12 @@ func TestAccStorageBucket_logging(t *testing.T) {
 						"google_storage_bucket.bucket", "logging.#", "1"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "logging.0.log_bucket", "log-bucket"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_object_prefix", bucketName),
 				),
 			},
 			resource.TestStep{
-				Config: testAccStorageBucket_logging(bucketName, "another-log-bucket"),
+				Config: testAccStorageBucket_loggingWithPrefix(bucketName, "another-log-bucket", "object-prefix"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
@@ -408,6 +410,8 @@ func TestAccStorageBucket_logging(t *testing.T) {
 						"google_storage_bucket.bucket", "logging.#", "1"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "logging.0.log_bucket", "another-log-bucket"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_object_prefix", "object-prefix"),
 				),
 			},
 			resource.TestStep{
@@ -770,6 +774,18 @@ resource "google_storage_bucket" "bucket" {
 	}
 }
 `, bucketName, logBucketName)
+}
+
+func testAccStorageBucket_loggingWithPrefix(bucketName string, logBucketName string, prefix string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	logging = {
+		log_bucket = "%s"
+		log_object_prefix = "%s"
+	}
+}
+`, bucketName, logBucketName, prefix)
 }
 
 func testAccStorageBucket_lifecycleRules(bucketName string) string {
