@@ -192,18 +192,17 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 	}
 }
 
-func testAccCheckDnsRecordSetValid(t *testing.T) {
+func TestAccCheckDnsRecordSetValid(t *testing.T) {
 	t.Parallel()
 	valid_names := []string{
 		"www.google.com.",
 		"3www.google.com.",
 		"www-5512.google.com.",
-		"Bücher.tld",
-		"www.google-.com.",
+		"Bücher.tld.",
 	}
 	invalid_names := []string{
-		"www.google-.com.",
 		"www.go--ogle.com.",
+		"www.google-.com.",
 		"www.-google.com.",
 		"www.goo gle.com.",
 		"www.google.com",
@@ -213,14 +212,14 @@ func testAccCheckDnsRecordSetValid(t *testing.T) {
 	}
 
 	for _, valid := range valid_names {
-		err := checkName(valid)
-		if err != nil {
-			t.Fatalf("Valid DNS name %s rejcted: %s", valid, err)
+		error := checkName(valid)
+		if error != nil {
+			t.Fatalf("Valid DNS name %s rejected: %s", valid, error)
 		}
 	}
 	for _, invalid := range invalid_names {
-		err := checkName(invalid)
-		if err == nil {
+		expected_error := checkName(invalid)
+		if expected_error == nil {
 			t.Fatalf("Invalid DNS name %s not rejected", invalid)
 		}
 	}
