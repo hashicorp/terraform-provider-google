@@ -9,6 +9,7 @@ IMPROVEMENTS:
 * compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
 * compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
 * sql: Support for PostgreSQL high availability [GH-1001]
+* storage: Add support for setting bucket's logging config [GH-946]
 
 ## 1.5.0 (January 18, 2018)
 
