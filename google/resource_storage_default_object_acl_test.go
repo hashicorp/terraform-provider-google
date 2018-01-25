@@ -19,7 +19,7 @@ func TestAccGoogleStorageDefaultObjectAcl_basic(t *testing.T) {
 		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasic1(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
@@ -40,7 +40,7 @@ func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
 		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasic1(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
@@ -48,7 +48,7 @@ func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasic2(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic2, roleEntityBasic3_owner),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic3_owner),
@@ -56,9 +56,9 @@ func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasicDelete(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasicDelete(bucketName, roleEntityBasic1),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic1),
+					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic3_reader),
 				),
@@ -78,7 +78,7 @@ func TestAccGoogleStorageDefaultObjectAcl_downgrade(t *testing.T) {
 		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasic2(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic2, roleEntityBasic3_owner),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic3_owner),
@@ -86,7 +86,7 @@ func TestAccGoogleStorageDefaultObjectAcl_downgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasic3(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic2, roleEntityBasic3_reader),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic3_reader),
@@ -94,9 +94,9 @@ func TestAccGoogleStorageDefaultObjectAcl_downgrade(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testGoogleStorageDefaultObjectsAclBasicDelete(bucketName),
+				Config: testGoogleStorageDefaultObjectsAclBasicDelete(bucketName, roleEntityBasic1),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic1),
+					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageDefaultObjectAclDelete(bucketName, roleEntityBasic3_reader),
 				),
@@ -160,7 +160,7 @@ func testAccCheckGoogleStorageDefaultObjectAclDelete(bucket, roleEntityS string)
 	}
 }
 
-func testGoogleStorageDefaultObjectsAclBasicDelete(bucketName string) string {
+func testGoogleStorageDefaultObjectsAclBasicDelete(bucketName, roleEntity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -168,25 +168,12 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_default_object_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = []
+	role_entity = ["%s"]
 }
-`, bucketName)
-}
-
-func testGoogleStorageDefaultObjectsAclBasic1(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-	name = "%s"
+`, bucketName, roleEntity)
 }
 
-resource "google_storage_default_object_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
-}
-`, bucketName, roleEntityBasic1, roleEntityBasic2)
-}
-
-func testGoogleStorageDefaultObjectsAclBasic2(bucketName string) string {
+func testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntity1, roleEntity2 string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -196,18 +183,5 @@ resource "google_storage_default_object_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
 	role_entity = ["%s", "%s"]
 }
-`, bucketName, roleEntityBasic2, roleEntityBasic3_owner)
-}
-
-func testGoogleStorageDefaultObjectsAclBasic3(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-	name = "%s"
-}
-
-resource "google_storage_default_object_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
-}
-`, bucketName, roleEntityBasic2, roleEntityBasic3_reader)
+`, bucketName, roleEntity1, roleEntity2)
 }
