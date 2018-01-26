@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied. Only one
     `google_project_iam_binding` can be used per role. Note that custom roles must be of the format
-    `[project|organization]/{parent-name}/roles/{role-name}`.
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `project` - (Optional) The project ID. If not specified, uses the
     ID of the project configured with the provider.

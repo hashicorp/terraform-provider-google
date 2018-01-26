@@ -32,7 +32,7 @@ The following arguments are supported:
 * `org_id` - (Required) The numeric ID of the organization in which you want to create a custom role.
 
 * `role` - (Required) The role that should be applied. Note that custom roles must be of the format
-    `[project|organization]/{parent-name}/roles/{role-name}`.
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `member` - (Required) The user that the role should apply to.
     
