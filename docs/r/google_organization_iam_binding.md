@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied. Only one
     `google_organization_iam_binding` can be used per role. Note that custom roles must be of the format
-    `[project|organization]/{parent-name}/roles/{role-name}`.
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `members` - (Required) A list of users that the role should apply to.
 
