@@ -39,8 +39,9 @@ func resourceComputeRoute() *schema.Resource {
 
 			"priority": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Default:  1000,
 			},
 
 			"next_hop_gateway": &schema.Schema{

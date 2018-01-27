@@ -153,7 +153,6 @@ resource "google_compute_route" "foobar" {
 	dest_range = "15.0.0.0/24"
 	network = "${google_compute_network.foobar.name}"
 	next_hop_ip = "10.0.1.5"
-	priority = 100
 }`, acctest.RandString(10), acctest.RandString(10))
 }
 
