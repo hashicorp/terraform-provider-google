@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -16,12 +17,13 @@ func resourceLoggingProjectSink() *schema.Resource {
 		Update: resourceLoggingProjectSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceLoggingProjectSinkImportState,
 		},
 	}
 	schm.Schema["project"] = &schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
+		Computed: true,
 		ForceNew: true,
 	}
 	schm.Schema["unique_writer_identity"] = &schema.Schema{
@@ -57,11 +59,17 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	sink, err := config.clientLogging.Projects.Sinks.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
 
+	d.Set("project", project)
 	flattenResourceLoggingSink(d, sink)
 	if sink.WriterIdentity != nonUniqueWriterAccount {
 		d.Set("unique_writer_identity", true)
@@ -95,4 +103,16 @@ func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId("")
 	return nil
+}
+
+func resourceLoggingProjectSinkImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 4 {
+		return nil, fmt.Errorf("Invalid logging sink specifier. Expecting projects/{project_id}/sinks/{sink_id}")
+	}
+
+	project := parts[1]
+	d.Set("project", project)
+
+	return []*schema.ResourceData{d}, nil
 }
