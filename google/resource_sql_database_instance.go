@@ -344,7 +344,36 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 					},
 				},
 			},
-
+			"server_ca_cert": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cert": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"common_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"create_time": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"expiration_time": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"sha1_fingerprint": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -706,6 +735,10 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
+	}
+
+	if err := d.Set("server_ca_cert", flattenServerCaCert(instance.ServerCaCert)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database CA Certificate")
 	}
 
 	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
@@ -1154,6 +1187,24 @@ func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interfac
 	}
 
 	return ips
+}
+
+func flattenServerCaCert(caCert *sqladmin.SslCert) []map[string]interface{} {
+	var cert []map[string]interface{}
+
+	if caCert != nil {
+		data := map[string]interface{}{
+			"cert":             caCert.Cert,
+			"common_name":      caCert.CommonName,
+			"create_time":      caCert.CreateTime,
+			"expiration_time":  caCert.ExpirationTime,
+			"sha1_fingerprint": caCert.Sha1Fingerprint,
+		}
+
+		cert = append(cert, data)
+	}
+
+	return cert
 }
 
 func instanceMutexKey(project, instance_name string) string {
