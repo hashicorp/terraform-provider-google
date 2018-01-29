@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -106,13 +105,16 @@ func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLoggingProjectSinkImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 4 {
-		return nil, fmt.Errorf("Invalid logging sink specifier. Expecting projects/{project_id}/sinks/{sink_id}")
+	config := meta.(*Config)
+
+	loggingSinkId, err := parseLoggingSinkId(d.Id())
+	if err != nil {
+		return nil, err
 	}
 
-	project := parts[1]
-	d.Set("project", project)
+	if config.Project != loggingSinkId.resourceId {
+		d.Set("project", loggingSinkId.resourceId)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
