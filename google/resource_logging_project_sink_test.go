@@ -31,11 +31,6 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 					testAccCheckLoggingProjectSink(&sink, "google_logging_project_sink.basic"),
 				),
 			},
-			{
-				ResourceName:      "google_logging_project_sink.basic",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
