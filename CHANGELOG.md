@@ -1,4 +1,4 @@
-## 1.5.1 (Unreleased)
+## 1.6.0 (Unreleased)
 
 Features:
 * **New Resource** `google_cloudiot_registry` [GH-970]
@@ -11,6 +11,10 @@ IMPROVEMENTS:
 * compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
 * sql: Support for PostgreSQL high availability [GH-1001]
 * storage: Add support for setting bucket's logging config [GH-946]
+
+BUG FIXES:
+
+* Fix crash when errors are encountered updating a `google_project` [GH-1016]
 
 ## 1.5.0 (January 18, 2018)
 
