@@ -66,7 +66,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
 						"google_compute_target_https_proxy.foobar", &proxy),
-					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing (updated)", &proxy),
+					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert2-"+resourceSuffix, &proxy),
 				),
@@ -226,7 +226,7 @@ resource "google_compute_ssl_certificate" "foobar2" {
 func testAccComputeTargetHttpsProxy_basic2(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "foobar" {
-	description = "Resource created for Terraform acceptance testing (updated)"
+	description = "Resource created for Terraform acceptance testing"
 	name = "httpsproxy-test-%s"
 	url_map = "${google_compute_url_map.foobar.self_link}"
 	ssl_certificates = [
