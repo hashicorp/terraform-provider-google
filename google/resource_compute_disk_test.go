@@ -75,27 +75,6 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "debian-cloud/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
-		// Latest image short hand
-		"matching latest image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-8",
-			ExpectDiffSuppress: true,
-		},
-		"matching latest image short hand with project short name": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian/debian-8",
-			ExpectDiffSuppress: true,
-		},
-		"matching latest image short hand but different project": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "different-cloud/debian-8",
-			ExpectDiffSuppress: false,
-		},
-		"different latest image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-7",
-			ExpectDiffSuppress: false,
-		},
 		// Image Family
 		"matching image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
@@ -115,6 +94,16 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 		"matching image family partial no project self link": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "global/images/family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family short hand with project short name": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian/debian-8",
 			ExpectDiffSuppress: true,
 		},
 		"different image family": {
@@ -145,6 +134,16 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 		"different image family but different project in partial self link": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "projects/other-cloud/global/images/family/debian-8",
+			ExpectDiffSuppress: false,
+		},
+		"different image family short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"matching image family shorthand but different project": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "different-cloud/debian-8",
 			ExpectDiffSuppress: false,
 		},
 	}
