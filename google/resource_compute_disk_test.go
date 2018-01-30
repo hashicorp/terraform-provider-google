@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
+	"os"
 )
 
 func TestDiskImageDiffSuppress(t *testing.T) {
@@ -171,8 +172,12 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 }
 
 // Test that all the naming pattern for public images are supported.
-func TestAccDiskImageDiffSuppressPublicVendorsFamilyNames(t *testing.T) {
+func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) {
 	t.Parallel()
+
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
 
 	config := getInitializedConfig(t)
 
