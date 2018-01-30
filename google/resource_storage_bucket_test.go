@@ -377,6 +377,56 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_logging(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_logging(bucketName, "log-bucket"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_bucket", "log-bucket"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_object_prefix", bucketName),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_loggingWithPrefix(bucketName, "another-log-bucket", "object-prefix"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_bucket", "another-log-bucket"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.0.log_object_prefix", "object-prefix"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_basic(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "logging.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_cors(t *testing.T) {
 	t.Parallel()
 
@@ -713,6 +763,29 @@ resource "google_storage_bucket" "bucket" {
 	}
 }
 `, bucketName)
+}
+
+func testAccStorageBucket_logging(bucketName string, logBucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	logging = {
+		log_bucket = "%s"
+	}
+}
+`, bucketName, logBucketName)
+}
+
+func testAccStorageBucket_loggingWithPrefix(bucketName string, logBucketName string, prefix string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	logging = {
+		log_bucket = "%s"
+		log_object_prefix = "%s"
+	}
+}
+`, bucketName, logBucketName, prefix)
 }
 
 func testAccStorageBucket_lifecycleRules(bucketName string) string {
