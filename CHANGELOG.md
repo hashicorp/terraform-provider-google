@@ -1,14 +1,20 @@
-## 1.5.1 (Unreleased)
+## 1.6.0 (Unreleased)
 
 Features:
 * **New Resource** `google_cloudiot_registry` [GH-970]
 * **New Resource** `google_endpoints_service` [GH-933]
+* **New Resource** `google_storage_default_object_acl` [GH-992]
 
 IMPROVEMENTS:
 * compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
 * compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
 * compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
 * sql: Support for PostgreSQL high availability [GH-1001]
+* storage: Add support for setting bucket's logging config [GH-946]
+
+BUG FIXES:
+
+* Fix crash when errors are encountered updating a `google_project` [GH-1016]
 
 ## 1.5.0 (January 18, 2018)
 

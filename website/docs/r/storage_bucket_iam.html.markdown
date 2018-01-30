@@ -54,7 +54,7 @@ The following arguments are supported:
   * **domain:{domain}**: A Google Apps domain name that represents all the users of that domain. For example, google.com or example.com.
 
 * `role` - (Required) The role that should be applied. Note that custom roles must be of the format
-    `[project|organization]/{parent-name}/roles/{role-name}`.
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 ## Attributes Reference
 
