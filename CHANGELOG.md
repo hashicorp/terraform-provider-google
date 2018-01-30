@@ -9,12 +9,16 @@ IMPROVEMENTS:
 * compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
 * compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
 * compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
+* compute: Make route priority optional since Compute has a default value. ([#1009](https://github.com/terraform-providers/terraform-provider-google/issues/1009))
 * sql: Support for PostgreSQL high availability [GH-1001]
+* sql: Support for ServerCaCert in Cloud SQL instance. (Related to [#635](https://github.com/terraform-providers/terraform-provider-google/issues/635))
 * storage: Add support for setting bucket's logging config [GH-946]
+
 
 BUG FIXES:
 
 * Fix crash when errors are encountered updating a `google_project` [GH-1016]
+* logging: Set project during import for `google_logging_project_sink` to avoid recreation ([#1018](https://github.com/terraform-providers/terraform-provider-google/issues/1018))
 
 ## 1.5.0 (January 18, 2018)
 
