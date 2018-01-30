@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `network` - (Required) The name or self_link of the network to attach this route to.
 
-* `priority` - (Required) The priority of this route, used to break ties.
+* `priority` - (Optional) The priority of this route, used to break ties. Defaults to 1000.
 
 - - -
 
