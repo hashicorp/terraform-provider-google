@@ -5,8 +5,6 @@ import (
 	"log"
 	"strconv"
 
-	"regexp"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
@@ -38,9 +36,9 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(sslCertificateRegex),
-					StateFunc:    toCanonicalSslCertificate,
+					Type:             schema.TypeString,
+					ValidateFunc:     validateRegexp(sslCertificateRegex),
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
 
@@ -216,11 +214,4 @@ func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interfac
 
 	d.SetId("")
 	return nil
-}
-
-func toCanonicalSslCertificate(v interface{}) string {
-	value := v.(string)
-	m := regexp.MustCompile(sslCertificateRegex).FindStringSubmatch(value)
-
-	return fmt.Sprintf(canonicalSslCertificateTemplate, m[1], m[2])
 }
