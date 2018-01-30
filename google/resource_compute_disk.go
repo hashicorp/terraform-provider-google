@@ -426,18 +426,17 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		newProject := matches[1]
 		newFamilyName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, oldName, newProject, newFamilyName)
+		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newFamilyName)
 	}
 
 	// Partial or full self link image
 	if resolveImageProjectImage.MatchString(new) {
 		// Value matches pattern "projects/{project}/global/images/{image-name}$"
-		// or "projects/{project}/global/images/{image-name-latest}$"
 		matches := resolveImageProjectImage.FindStringSubmatch(new)
 		newProject := matches[1]
 		newImageName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, oldName, newProject, newImageName)
+		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newImageName)
 	}
 
 	// Partial link without project family
@@ -451,7 +450,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 
 	// Partial link without project image
 	if resolveImageGlobalImage.MatchString(new) {
-		// Value is "global/images/family/{image-name}" or "global/images/family/{image-name-latest}"
+		// Value is "global/images/{image-name}"
 		matches := resolveImageGlobalImage.FindStringSubmatch(new)
 		imageName := matches[1]
 
@@ -467,26 +466,26 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		return strings.Contains(oldName, familyName)
 	}
 
-	// Shorthand for image
+	// Shorthand for image or family
 	if resolveImageProjectImageShorthand.MatchString(new) {
-		// Value is "{project}/{image-name}" or "{project}/{image-name-latest}"
+		// Value is "{project}/{image-name}" or "{project}/{family-name}"
 		matches := resolveImageProjectImageShorthand.FindStringSubmatch(new)
 		newProject := matches[1]
 		newName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, oldName, newProject, newName)
+		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newName)
 	}
 
 	// Image or family only
 	if strings.Contains(oldName, new) {
-		// Value is "{image-name}" or "{family-name}" or "{image-name-latest}"
+		// Value is "{image-name}" or "{family-name}"
 		return true
 	}
 
 	return false
 }
 
-func diskImageProjectNameEquals(project1, name1, project2, name2 string) bool {
+func diskImageProjectNameEquals(project1, project2 string) bool {
 	// Convert short project name to full name
 	// For instance, centos => centos-cloud
 	fullProjectName, ok := imageMap[project2]
@@ -494,5 +493,5 @@ func diskImageProjectNameEquals(project1, name1, project2, name2 string) bool {
 		project2 = fullProjectName
 	}
 
-	return project1 == project2 && strings.Contains(name1, name2)
+	return project1 == project2
 }
