@@ -47,8 +47,14 @@ The following arguments are supported:
     to encrypt this disk.
 
 * `image` - (Optional) The image from which to initialize this disk. This can be
-    one of: the image's `self_link`, of a full name and version, e.g.
-    `debian-8-jessie-v20170523`
+    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
+    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
+    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
+    `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
+    images names must include the family name. If they don't, use the
+    [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+    For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
+    These images can be referred by family name here.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.

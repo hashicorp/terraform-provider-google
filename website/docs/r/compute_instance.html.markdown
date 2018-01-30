@@ -156,9 +156,10 @@ The `initialize_params` block supports:
     `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
     `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
     `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
-    images names must include the family name. For instance, the image
-    `centos-6-v20180104` includes its family name `centos-6`. These images can
-    be referred by family name here.
+    images names must include the family name. If they don't, use the
+    [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+    For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
+    These images can be referred by family name here.
 
 The `scratch_disk` block supports:
 
