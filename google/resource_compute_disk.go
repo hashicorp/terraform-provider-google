@@ -498,7 +498,7 @@ func diskImageProjectNameEquals(project1, project2 string) bool {
 }
 
 func diskImageEquals(oldImageName, newImageName string) bool {
-	return strings.Contains(oldImageName, newImageName)
+	return oldImageName == newImageName
 }
 
 func diskImageFamilyEquals(imageName, familyName string) bool {
