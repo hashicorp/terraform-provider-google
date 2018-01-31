@@ -426,7 +426,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		newProject := matches[1]
 		newFamilyName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newFamilyName)
+		return diskImageProjectNameEquals(oldProject, newProject) && diskImageFamilyEquals(oldName, newFamilyName)
 	}
 
 	// Partial or full self link image
@@ -436,7 +436,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		newProject := matches[1]
 		newImageName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newImageName)
+		return diskImageProjectNameEquals(oldProject, newProject) && diskImageEquals(oldName, newImageName)
 	}
 
 	// Partial link without project family
@@ -445,7 +445,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		matches := resolveImageGlobalFamily.FindStringSubmatch(new)
 		familyName := matches[1]
 
-		return strings.Contains(oldName, familyName)
+		return diskImageFamilyEquals(oldName, familyName)
 	}
 
 	// Partial link without project image
@@ -454,7 +454,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		matches := resolveImageGlobalImage.FindStringSubmatch(new)
 		imageName := matches[1]
 
-		return strings.Contains(oldName, imageName)
+		return diskImageEquals(oldName, imageName)
 	}
 
 	// Family shorthand
@@ -463,7 +463,7 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		matches := resolveImageFamilyFamily.FindStringSubmatch(new)
 		familyName := matches[1]
 
-		return strings.Contains(oldName, familyName)
+		return diskImageFamilyEquals(oldName, familyName)
 	}
 
 	// Shorthand for image or family
@@ -473,11 +473,12 @@ func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		newProject := matches[1]
 		newName := matches[2]
 
-		return diskImageProjectNameEquals(oldProject, newProject) && strings.Contains(oldName, newName)
+		return diskImageProjectNameEquals(oldProject, newProject) &&
+			(diskImageEquals(oldName, newName) || diskImageFamilyEquals(oldName, newName))
 	}
 
 	// Image or family only
-	if strings.Contains(oldName, new) {
+	if diskImageEquals(oldName, new) || diskImageFamilyEquals(oldName, new) {
 		// Value is "{image-name}" or "{family-name}"
 		return true
 	}
@@ -494,4 +495,92 @@ func diskImageProjectNameEquals(project1, project2 string) bool {
 	}
 
 	return project1 == project2
+}
+
+func diskImageEquals(oldImageName, newImageName string) bool {
+	return oldImageName == newImageName
+}
+
+func diskImageFamilyEquals(imageName, familyName string) bool {
+	// Handles the case when the image name includes the family name
+	// e.g. image name: debian-9-drawfork-v20180109, family name: debian-9
+	if strings.Contains(imageName, familyName) {
+		return true
+	}
+
+	if suppressCanonicalFamilyDiff(imageName, familyName) {
+		return true
+	}
+
+	if suppressWindowsSqlFamilyDiff(imageName, familyName) {
+		return true
+	}
+
+	if suppressWindowsFamilyDiff(imageName, familyName) {
+		return true
+	}
+
+	return false
+}
+
+// e.g. image: ubuntu-1404-trusty-v20180122, family: ubuntu-1404-lts
+func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
+	parts := canonicalUbuntuLtsImage.FindStringSubmatch(imageName)
+	if len(parts) == 2 {
+		f := fmt.Sprintf("ubuntu-%s-lts", parts[1])
+		if f == familyName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// e.g. image: sql-2017-standard-windows-2016-dc-v20180109, family: sql-std-2017-win-2016
+// e.g. image: sql-2017-express-windows-2012-r2-dc-v20180109, family: sql-exp-2017-win-2012-r2
+func suppressWindowsSqlFamilyDiff(imageName, familyName string) bool {
+	parts := windowsSqlImage.FindStringSubmatch(imageName)
+	if len(parts) == 5 {
+		edition := parts[2] // enterprise, standard or web.
+		sqlVersion := parts[1]
+		windowsVersion := parts[3]
+
+		// Translate edition
+		switch edition {
+		case "enterprise":
+			edition = "ent"
+		case "standard":
+			edition = "std"
+		case "express":
+			edition = "exp"
+		}
+
+		var f string
+		if revision := parts[4]; revision != "" {
+			// With revision
+			f = fmt.Sprintf("sql-%s-%s-win-%s-r%s", edition, sqlVersion, windowsVersion, revision)
+		} else {
+			// No revision
+			f = fmt.Sprintf("sql-%s-%s-win-%s", edition, sqlVersion, windowsVersion)
+		}
+
+		if f == familyName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// e.g. image: windows-server-1709-dc-core-v20180109, family: windows-1709-core
+// e.g. image: windows-server-1709-dc-core-for-containers-v20180109, family: "windows-1709-core-for-containers
+func suppressWindowsFamilyDiff(imageName, familyName string) bool {
+	updatedFamilyString := strings.Replace(familyName, "windows-", "windows-server-", 1)
+	updatedFamilyString = strings.Replace(updatedFamilyString, "-core", "-dc-core", 1)
+
+	if strings.Contains(imageName, updatedFamilyString) {
+		return true
+	}
+
+	return false
 }

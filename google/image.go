@@ -24,19 +24,23 @@ var (
 	resolveImageFamily                 = regexp.MustCompile(fmt.Sprintf("^(%s)$", resolveImageFamilyRegex))
 	resolveImageImage                  = regexp.MustCompile(fmt.Sprintf("^(%s)$", resolveImageImageRegex))
 	resolveImageLink                   = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)", ProjectRegex, resolveImageImageRegex))
+
+	windowsSqlImage         = regexp.MustCompile("^sql-([0-9]{4})-([a-z]+)-windows-([0-9]{4})(?:-r([0-9]+))?-dc-v[0-9]+$")
+	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-([0-9]+)-")
 )
 
 // built-in projects to look for images/families containing the string
 // on the left in
 var imageMap = map[string]string{
-	"centos":   "centos-cloud",
-	"coreos":   "coreos-cloud",
-	"debian":   "debian-cloud",
-	"opensuse": "opensuse-cloud",
-	"rhel":     "rhel-cloud",
-	"sles":     "suse-cloud",
-	"ubuntu":   "ubuntu-os-cloud",
-	"windows":  "windows-cloud",
+	"centos":      "centos-cloud",
+	"coreos":      "coreos-cloud",
+	"debian":      "debian-cloud",
+	"opensuse":    "opensuse-cloud",
+	"rhel":        "rhel-cloud",
+	"sles":        "suse-cloud",
+	"ubuntu":      "ubuntu-os-cloud",
+	"windows":     "windows-cloud",
+	"windows-sql": "windows-sql-cloud",
 }
 
 func resolveImageImageExists(c *Config, project, name string) (bool, error) {
