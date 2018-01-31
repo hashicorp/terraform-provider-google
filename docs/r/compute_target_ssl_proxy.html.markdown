@@ -54,7 +54,7 @@ The following arguments are supported:
 
 * `backend_service` - (Required) The URL of a Backend Service resource to receive the matched traffic.
 
-* `ssl_certificates` - (Required) The URLs of the SSL Certificate resources that
+* `ssl_certificates` - (Required) The URLs or names of the SSL Certificate resources that
     authenticate connections between users and load balancing.
 
 - - -
