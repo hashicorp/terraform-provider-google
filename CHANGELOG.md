@@ -17,8 +17,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-* Fix crash when errors are encountered updating a `google_project` [GH-1016]
+* project: Fix crash when errors are encountered updating a `google_project` [GH-1016]
 * logging: Set project during import for `google_logging_project_sink` to avoid recreation ([#1018](https://github.com/terraform-providers/terraform-provider-google/issues/1018))
+* compute: Suppress diff on image field when referring to unconventional public image family naming pattern [GH-1024]
 
 ## 1.5.0 (January 18, 2018)
 
