@@ -193,6 +193,7 @@ func Provider() terraform.ResourceProvider {
 			"google_storage_bucket_object":      resourceStorageBucketObject(),
 			"google_storage_object_acl":         resourceStorageObjectAcl(),
 			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
+			"google_storage_notification":       resourceStorageNotification(),
 		},
 
 		ConfigureFunc: providerConfigure,
