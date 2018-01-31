@@ -57,8 +57,6 @@ The following arguments are supported:
 
 * `topic` - (Requred) The Cloud PubSub topic to which this subscription publishes.
 
-*  
-
 - - -
 
 * `custom_attrubutes` - (Optional)  A set of key/value attribute pairs to attach to each Cloud PubSub message published for this notification subscription
