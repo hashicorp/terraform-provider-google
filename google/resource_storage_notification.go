@@ -38,6 +38,15 @@ func resourceStorageNotification() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"custom_attributes": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
 			"event_types": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -47,15 +56,6 @@ func resourceStorageNotification() *schema.Resource {
 					ValidateFunc: validation.StringInSlice([]string{
 						"OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE", "OBJECT_DELETE", "OBJECT_ARCHIVE"},
 						false),
-				},
-			},
-
-			"custom_attributes": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
 				},
 			},
 
