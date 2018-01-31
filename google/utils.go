@@ -184,6 +184,12 @@ func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	}
 }
 
+func emptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
+	}
+}
+
 func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// The range may be a:
 	// A) single IP address (e.g. 10.2.3.4)

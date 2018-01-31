@@ -310,6 +310,7 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("PROVIDER_UNSPECIFIED"),
 			},
 
 			"node_config": schemaNodeConfig,
