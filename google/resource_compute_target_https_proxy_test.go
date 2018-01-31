@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
-	"regexp"
 )
 
 func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
@@ -70,24 +69,6 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert2-"+resourceSuffix, &proxy),
 				),
-			},
-		},
-	})
-}
-
-func TestAccComputeTargetHttpsProxy_invalidCertificate(t *testing.T) {
-	t.Parallel()
-
-	resourceSuffix := acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config:      testAccComputeTargetHttpsProxy_invalidCertificate(resourceSuffix),
-				ExpectError: regexp.MustCompile("ssl_certificate"),
 			},
 		},
 	})
@@ -283,14 +264,4 @@ resource "google_compute_ssl_certificate" "foobar2" {
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 `, id, id, id, id, id, id)
-}
-
-func testAccComputeTargetHttpsProxy_invalidCertificate(id string) string {
-	return fmt.Sprintf(`
-resource "google_compute_target_https_proxy" "foobar" {
-name = "httpsproxy-test-%s"
-url_map = "some-url-map"
-ssl_certificates = ["invalid-certificate-reference"]
-}
-`, id)
 }
