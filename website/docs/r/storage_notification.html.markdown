@@ -26,17 +26,18 @@ resource "google_pubsub_topic" "topic" {
 }
 
 //In order to enable notifications,
-//a special Cloud Storage service account unique to each project
+//a GCS service account unique to each project
 //must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
 //The only reference to this requirement can be found here:
 //https://cloud.google.com/storage/docs/gsutil/commands/notification
-//The GCS service account has the format of <project-name>@gs-project-accounts.iam.gserviceaccount.com
+//The GCS service account has the format of <project-id>@gs-project-accounts.iam.gserviceaccount.com
+//API for retrieving it https://cloud.google.com/storage/docs/json_api/v1/projects/serviceAccount/get
 
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic       = "${google_pubsub_topic.topic.name}"
 	role        = "roles/pubsub.publisher"
 		  
-	members     = ["serviceAccount:my-project-name@gs-project-accounts.iam.gserviceaccount.com"]
+	members     = ["serviceAccount:my-project-id@gs-project-accounts.iam.gserviceaccount.com"]
 }
 
 resource "google_storage_notification" "notification" {
