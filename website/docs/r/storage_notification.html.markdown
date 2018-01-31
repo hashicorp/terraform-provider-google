@@ -25,14 +25,18 @@ resource "google_pubsub_topic" "topic" {
 	name = "default_topic"
 }
 
-//GCS default storage account must have "projects.topics.publish" permission
-//to publish to a Cloud Pub/Sub topic from this project
+//In order to enable notifications,
+//a special Cloud Storage service account unique to each project
+//must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
+//The only reference to this requirement can be found here:
+//https://cloud.google.com/storage/docs/gsutil/commands/notification
+//The GCS service account has the format of <project-name>@gs-project-accounts.iam.gserviceaccount.com
 
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic       = "${google_pubsub_topic.topic.name}"
 	role        = "roles/pubsub.publisher"
 		  
-	members     = ["serviceAccount:default@gs-project-accounts.iam.gserviceaccount.com"]
+	members     = ["serviceAccount:my-project-name@gs-project-accounts.iam.gserviceaccount.com"]
 }
 
 resource "google_storage_notification" "notification" {
