@@ -22,7 +22,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 		Read:   resourceComputeRegionInstanceGroupManagerRead,
 		Update: resourceComputeRegionInstanceGroupManagerUpdate,
 		Delete: resourceComputeRegionInstanceGroupManagerDelete,
-		Exists: resourceComputeRegionInstanceGroupManagerExists,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -510,33 +509,4 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
-}
-
-func resourceComputeRegionInstanceGroupManagerExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return false, err
-	}
-
-	region := d.Get("region").(string)
-
-	switch computeApiVersion {
-	case v1:
-		_, err = config.clientCompute.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
-	case v0beta:
-		_, err = config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
-	}
-
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			return false, nil
-		}
-		// There was some other error in reading the resource but we can't say for sure if it doesn't exist.
-		return true, err
-	}
-	return true, nil
-
 }
