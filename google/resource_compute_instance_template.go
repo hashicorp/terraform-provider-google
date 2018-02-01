@@ -51,6 +51,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					}
 					return
 				},
+				Deprecated: "Use the random provider instead",
 			},
 
 			"disk": &schema.Schema{

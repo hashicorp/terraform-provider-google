@@ -117,9 +117,10 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 
 	"name_prefix": &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		ForceNew: true,
+		Type:       schema.TypeString,
+		Optional:   true,
+		ForceNew:   true,
+		Deprecated: "Use the random provider instead",
 	},
 
 	"node_config": schemaNodeConfig,

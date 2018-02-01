@@ -50,6 +50,7 @@ func resourceComputeSslCertificate() *schema.Resource {
 					}
 					return
 				},
+				Deprecated: "Use the random provider instead",
 			},
 
 			"private_key": &schema.Schema{

@@ -69,7 +69,7 @@ resource "google_container_cluster" "primary" {
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
-* `name_prefix` - (Optional) Creates a unique name for the node pool beginning
+* `name_prefix` - (Deprecated, Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) The node configuration of the pool. See
