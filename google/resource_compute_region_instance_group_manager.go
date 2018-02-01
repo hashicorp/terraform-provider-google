@@ -9,7 +9,6 @@ import (
 	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"google.golang.org/api/googleapi"
 	"time"
 )
 
