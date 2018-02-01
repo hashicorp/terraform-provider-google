@@ -20,13 +20,14 @@ import (
 func TestAccContainerCluster_basic(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_basic(fmt.Sprintf("cluster-test-%s", acctest.RandString(10))),
+				Config: testAccContainerCluster_basic(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster(
 						"google_container_cluster.primary"),
@@ -134,6 +135,20 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 					resource.TestCheckNoResourceAttr("google_container_cluster.with_network_policy_enabled",
 						"network_policy"),
 				),
+			},
+			{
+				Config: testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_network_policy_enabled"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_network_policy_enabled",
+						"network_policy.0.enabled", "false"),
+				),
+			},
+			{
+				Config:             testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 		},
 	})
@@ -1082,6 +1097,17 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
+}`, clusterName)
+}
+
+func testAccContainerCluster_withNetworkPolicyDisabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_network_policy_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	network_policy = {}
 }`, clusterName)
 }
 
