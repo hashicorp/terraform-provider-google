@@ -41,6 +41,7 @@ resource "google_dataproc_cluster" "mycluster" {
                 boot_disk_size_gb = 10
             }
         }
+    }
 
     worker_config {
         num_instances     = 2
