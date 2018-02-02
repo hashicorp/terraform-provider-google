@@ -44,7 +44,7 @@ func TestAccGoogleStorageNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_storage_notification.notification", "payload_format", payload),
 					resource.TestCheckResourceAttr(
-						"google_storage_notification.notification_with_prefix", "prefix", "foobar"),
+						"google_storage_notification.notification_with_prefix", "object_name_prefix", "foobar"),
 				),
 			},
 			resource.TestStep{
@@ -114,7 +114,7 @@ func testAccGoogleStorageNotificationDestroy(s *terraform.State) error {
 
 		bucket := rs.Primary.Attributes["bucket"]
 
-		notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
+		_, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
 
 		_, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 		if err == nil {
@@ -138,7 +138,7 @@ func testAccCheckStorageNotificationExists(bucket, resource string, notification
 
 		config := testAccProvider.Meta().(*Config)
 
-		notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
+		_, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
 
 		found, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 		if err != nil {
@@ -209,7 +209,7 @@ func testGoogleStorageNotificationBasic(bucketName, topicName, topic string) str
 			bucket = "${google_storage_bucket.bucket.name}"
 			payload_format = "JSON_API_V1"
 			topic = "${google_pubsub_topic.topic.id}"
-			prefix = "foobar"
+			object_name_prefix = "foobar"
 			depends_on = ["google_pubsub_topic_iam_binding.binding"]
 		}
 
