@@ -33,47 +33,49 @@ resource "google_dataproc_cluster" "mycluster" {
 
     cluster_config {
         delete_autogen_bucket = true
+        staging_bucket        = "dataproc-staging-bucket"
 
-    	master_config {
-	        num_instances     = 1
-	        machine_type      = "n1-standard-1"
+        master_config {
+            num_instances     = 1
+            machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_size_gb = 10
             }
         }
 
-    worker_config {
-        num_instances     = 2
-        machine_type      = "n1-standard-1"
-        disk_config {
-            boot_disk_size_gb = 10
-            num_local_ssds    = 1
+        worker_config {
+            num_instances     = 2
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+                num_local_ssds    = 1
+            }
         }
-    }
 
-    preemptible_worker_config {
-        num_instances     = 0
-    }
-
-    # Override or set some custom properties
-    software_config {
-        image_version       = "preview"
-        override_properties = {
-            "dataproc:dataproc.allow.zero.workers" = "true"
+        preemptible_worker_config {
+            num_instances     = 0
         }
-    }
 
-    gce_cluster_config {
-        #network = "${google_compute_network.dataproc_network.name}"
-        tags    = ["foo", "bar"]
-    }
+        # Override or set some custom properties
+        software_config {
+            image_version       = "preview"
+            override_properties = {
+                "dataproc:dataproc.allow.zero.workers" = "true"
+            }
+        }
 
-    # You can define multiple initialization_action blocks
-    initialization_action {
-        script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
-        timeout_sec = 500
-    }
+        gce_cluster_config {
+            #network = "${google_compute_network.dataproc_network.name}"
+            tags    = ["foo", "bar"]
+        }
 
+        # You can define multiple initialization_action blocks
+        initialization_action {
+            script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+            timeout_sec = 500
+        }
+
+    }
 }
 ```
 
