@@ -33,10 +33,11 @@ resource "google_dataproc_cluster" "mycluster" {
 
     cluster_config {
         delete_autogen_bucket = true
+        staging_bucket        = "dataproc-staging-bucket"
 
-    	master_config {
-	        num_instances     = 1
-	        machine_type      = "n1-standard-1"
+        master_config {
+            num_instances     = 1
+            machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_size_gb = 10
             }
