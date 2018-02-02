@@ -14,7 +14,6 @@ func resourceComputeSnapshot() *schema.Resource {
 		Create: resourceComputeSnapshotCreate,
 		Read:   resourceComputeSnapshotRead,
 		Delete: resourceComputeSnapshotDelete,
-		Exists: resourceComputeSnapshotExists,
 		Update: resourceComputeSnapshotUpdate,
 
 		Schema: map[string]*schema.Schema{
@@ -244,29 +243,6 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 
 	d.SetId("")
 	return nil
-}
-
-func resourceComputeSnapshotExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return false, err
-	}
-
-	_, err = config.clientCompute.Snapshots.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Removing Snapshot %q because it's gone", d.Get("name").(string))
-			// The resource doesn't exist anymore
-			d.SetId("")
-
-			return false, err
-		}
-		return true, err
-	}
-	return true, nil
 }
 
 func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string) error {
