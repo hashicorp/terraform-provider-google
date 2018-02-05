@@ -351,11 +351,15 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 		}
 		if v, ok := data["max_rate"]; ok {
 			b.MaxRate = int64(v.(int))
-			b.ForceSendFields = append(b.ForceSendFields, "MaxRate")
+			if b.MaxRate == 0 {
+				b.NullFields = append(b.NullFields, "MaxRate")
+			}
 		}
 		if v, ok := data["max_rate_per_instance"]; ok {
 			b.MaxRatePerInstance = v.(float64)
-			b.ForceSendFields = append(b.ForceSendFields, "MaxRatePerInstance")
+			if b.MaxRatePerInstance == 0 {
+				b.NullFields = append(b.NullFields, "MaxRatePerInstance")
+			}
 		}
 		if v, ok := data["max_utilization"]; ok {
 			b.MaxUtilization = v.(float64)
