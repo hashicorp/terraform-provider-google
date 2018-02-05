@@ -1283,11 +1283,6 @@ resource "google_container_cluster" "with_net_ref_by_name" {
 	zone = "us-central1-a"
 	initial_node_count = 1
 
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm"
-	}
-
 	network = "${google_compute_network.container_network.name}"
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
