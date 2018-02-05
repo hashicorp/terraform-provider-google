@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	gscServiceAccount = fmt.Sprintf("serviceAccount:%s@gs-project-accounts.iam.gserviceaccount.com", os.Getenv("GOOGLE_PROJECT"))
+	gcsServiceAccount = fmt.Sprintf("serviceAccount:%s@gs-project-accounts.iam.gserviceaccount.com", os.Getenv("GOOGLE_PROJECT"))
 	payload           = "JSON_API_V1"
 )
 
@@ -25,7 +25,7 @@ func TestAccGoogleStorageNotification_basic(t *testing.T) {
 	var notification storage.Notification
 	bucketName := testBucketName()
 	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt())
-	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
+	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,7 +36,7 @@ func TestAccGoogleStorageNotification_basic(t *testing.T) {
 				Config: testGoogleStorageNotificationBasic(bucketName, topicName, topic),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
-						bucketName, "google_storage_notification.notification", &notification),
+						"google_storage_notification.notification", &notification),
 					resource.TestCheckResourceAttr(
 						"google_storage_notification.notification", "bucket", bucketName),
 					resource.TestCheckResourceAttr(
@@ -69,7 +69,7 @@ func TestAccGoogleStorageNotification_withEventsAndAttributes(t *testing.T) {
 	var notification storage.Notification
 	bucketName := testBucketName()
 	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt())
-	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
+	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 	eventType1 := "OBJECT_FINALIZE"
 	eventType2 := "OBJECT_ARCHIVE"
 
@@ -82,7 +82,7 @@ func TestAccGoogleStorageNotification_withEventsAndAttributes(t *testing.T) {
 				Config: testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
-						bucketName, "google_storage_notification.notification", &notification),
+						"google_storage_notification.notification", &notification),
 					resource.TestCheckResourceAttr(
 						"google_storage_notification.notification", "bucket", bucketName),
 					resource.TestCheckResourceAttr(
@@ -112,9 +112,7 @@ func testAccGoogleStorageNotificationDestroy(s *terraform.State) error {
 			continue
 		}
 
-		bucket := rs.Primary.Attributes["bucket"]
-
-		_, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
+		bucket, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
 
 		_, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 		if err == nil {
@@ -125,7 +123,7 @@ func testAccGoogleStorageNotificationDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckStorageNotificationExists(bucket, resource string, notification *storage.Notification) resource.TestCheckFunc {
+func testAccCheckStorageNotificationExists(resource string, notification *storage.Notification) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
@@ -138,7 +136,7 @@ func testAccCheckStorageNotificationExists(bucket, resource string, notification
 
 		config := testAccProvider.Meta().(*Config)
 
-		_, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
+		bucket, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
 
 		found, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 		if err != nil {
@@ -157,7 +155,6 @@ func testAccCheckStorageNotificationExists(bucket, resource string, notification
 
 func testAccCheckStorageNotificationCheckEventType(notification *storage.Notification, eventTypes []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-
 		if !reflect.DeepEqual(notification.EventTypes, eventTypes) {
 			return fmt.Errorf("Target event types are incorrect. Expected %s, got %s", eventTypes, notification.EventTypes)
 		}
@@ -181,70 +178,70 @@ func testAccCheckStorageNotificationCheckAttributes(notification *storage.Notifi
 
 func testGoogleStorageNotificationBasic(bucketName, topicName, topic string) string {
 	return fmt.Sprintf(`
-		resource "google_storage_bucket" "bucket" {
-			name = "%s"
-		}
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
 		
-		resource "google_pubsub_topic" "topic" {
-			name = "%s"
-		}
-		// We have to provide GCS default storage account with the permission
-		// to publish to a Cloud Pub/Sub topic from this project
-		// Otherwise notification configuration won't work
-		resource "google_pubsub_topic_iam_binding" "binding" {
-			topic = "${google_pubsub_topic.topic.name}"
-			role        = "roles/pubsub.publisher"
+resource "google_pubsub_topic" "topic" {
+	name = "%s"
+}
+// We have to provide GCS default storage account with the permission
+// to publish to a Cloud Pub/Sub topic from this project
+// Otherwise notification configuration won't work
+resource "google_pubsub_topic_iam_binding" "binding" {
+	topic   = "${google_pubsub_topic.topic.name}"
+	role    = "roles/pubsub.publisher"
 		  
-			members = ["%s"]
-		}
+	members = ["%s"]
+}
 
-		resource "google_storage_notification" "notification" {
-			bucket = "${google_storage_bucket.bucket.name}"
-			payload_format = "JSON_API_V1"
-			topic = "${google_pubsub_topic.topic.id}"
-			depends_on = ["google_pubsub_topic_iam_binding.binding"]
-		}
+resource "google_storage_notification" "notification" {
+	bucket         = "${google_storage_bucket.bucket.name}"
+	payload_format = "JSON_API_V1"
+	topic          = "${google_pubsub_topic.topic.id}"
+	depends_on     = ["google_pubsub_topic_iam_binding.binding"]
+}
 
-		resource "google_storage_notification" "notification_with_prefix" {
-			bucket = "${google_storage_bucket.bucket.name}"
-			payload_format = "JSON_API_V1"
-			topic = "${google_pubsub_topic.topic.id}"
-			object_name_prefix = "foobar"
-			depends_on = ["google_pubsub_topic_iam_binding.binding"]
-		}
+resource "google_storage_notification" "notification_with_prefix" {
+	bucket             = "${google_storage_bucket.bucket.name}"
+	payload_format     = "JSON_API_V1"
+	topic              = "${google_pubsub_topic.topic.id}"
+	object_name_prefix = "foobar"
+	depends_on         = ["google_pubsub_topic_iam_binding.binding"]
+}
 
-	`, bucketName, topicName, gscServiceAccount)
+`, bucketName, topicName, gcsServiceAccount)
 }
 
 func testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2 string) string {
 	return fmt.Sprintf(`
-		resource "google_storage_bucket" "bucket" {
-			name = "%s"
-		}
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
 		
-		resource "google_pubsub_topic" "topic" {
-			name = "%s"
-		}
-		// We have to provide GCS default storage account with the permission
-		// to publish to a Cloud Pub/Sub topic from this project
-		// Otherwise notification configuration won't work
-		resource "google_pubsub_topic_iam_binding" "binding" {
-			topic       = "${google_pubsub_topic.topic.name}"
-			role        = "roles/pubsub.publisher"
+resource "google_pubsub_topic" "topic" {
+	name = "%s"
+}
+// We have to provide GCS default storage account with the permission
+// to publish to a Cloud Pub/Sub topic from this project
+// Otherwise notification configuration won't work
+resource "google_pubsub_topic_iam_binding" "binding" {
+	topic       = "${google_pubsub_topic.topic.name}"
+	role        = "roles/pubsub.publisher"
 		  
-			members     = ["%s"]
-		}
+	members     = ["%s"]
+}
 
-		resource "google_storage_notification" "notification" {
-			bucket            = "${google_storage_bucket.bucket.name}"
-			payload_format    = "JSON_API_V1"
-			topic             = "${google_pubsub_topic.topic.id}"
-			event_types       = ["%s","%s"]
-			custom_attributes {
-				new-attribute = "new-attribute-value"
-			}
-			depends_on        = ["google_pubsub_topic_iam_binding.binding"]
-		}
+resource "google_storage_notification" "notification" {
+	bucket            = "${google_storage_bucket.bucket.name}"
+	payload_format    = "JSON_API_V1"
+	topic             = "${google_pubsub_topic.topic.id}"
+	event_types       = ["%s","%s"]
+	custom_attributes {
+		new-attribute = "new-attribute-value"
+	}
+	depends_on        = ["google_pubsub_topic_iam_binding.binding"]
+}
 
-	`, bucketName, topicName, gscServiceAccount, eventType1, eventType2)
+`, bucketName, topicName, gcsServiceAccount, eventType1, eventType2)
 }

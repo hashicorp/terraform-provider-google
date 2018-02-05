@@ -25,13 +25,13 @@ resource "google_pubsub_topic" "topic" {
 	name = "default_topic"
 }
 
-//In order to enable notifications,
-//a GCS service account unique to each project
-//must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
-//The only reference to this requirement can be found here:
-//https://cloud.google.com/storage/docs/gsutil/commands/notification
-//The GCS service account has the format of <project-id>@gs-project-accounts.iam.gserviceaccount.com
-//API for retrieving it https://cloud.google.com/storage/docs/json_api/v1/projects/serviceAccount/get
+// In order to enable notifications,
+// a GCS service account unique to each project
+// must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
+// The only reference to this requirement can be found here:
+// https://cloud.google.com/storage/docs/gsutil/commands/notification
+// The GCS service account has the format of <project-id>@gs-project-accounts.iam.gserviceaccount.com
+// API for retrieving it https://cloud.google.com/storage/docs/json_api/v1/projects/serviceAccount/get
 
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic       = "${google_pubsub_topic.topic.name}"
@@ -84,7 +84,3 @@ Storage notifications can be imported using the notification `id` in the format 
 ```
 $ terraform import google_storage_notification.notification default_bucket/notificationConfigs/102
 ```
-
-
-
-
