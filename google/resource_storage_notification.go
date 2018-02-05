@@ -107,18 +107,15 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	bucket := d.Get("bucket").(string)
-	_, notificationID := resourceStorageNotificationParseID(d.Id())
+	bucket, notificationID := resourceStorageNotificationParseID(d.Id())
 
 	res, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
 	}
 
-	topic, _ := getRelativePath(res.Topic)
-
 	d.Set("payload_format", res.PayloadFormat)
-	d.Set("topic", topic)
+	d.Set("topic", res.Topic)
 	d.Set("object_name_prefix", res.ObjectNamePrefix)
 	d.Set("event_types", res.EventTypes)
 	d.Set("self_link", res.SelfLink)
@@ -130,9 +127,7 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 func resourceStorageNotificationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	bucket := d.Get("bucket").(string)
-
-	_, notificationID := resourceStorageNotificationParseID(d.Id())
+	bucket, notificationID := resourceStorageNotificationParseID(d.Id())
 
 	err := config.clientStorage.Notifications.Delete(bucket, notificationID).Do()
 	if err != nil {
