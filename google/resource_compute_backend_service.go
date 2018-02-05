@@ -357,7 +357,7 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 		}
 		if v, ok := data["max_rate_per_instance"]; ok {
 			b.MaxRatePerInstance = v.(float64)
-			if b.MaxConnectionsPerInstance == 0 {
+			if b.MaxRatePerInstance == 0 {
 				b.NullFields = append(b.NullFields, "MaxRatePerInstance")
 			}
 		}
