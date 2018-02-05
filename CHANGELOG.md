@@ -4,6 +4,7 @@ Features:
 * **New Resource** `google_cloudiot_registry` [GH-970]
 * **New Resource** `google_endpoints_service` [GH-933]
 * **New Resource** `google_storage_default_object_acl` [GH-992]
+* **New Resource** `google_storage_notification` [GH-1033]
 
 IMPROVEMENTS:
 * compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
