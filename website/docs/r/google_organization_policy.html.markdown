@@ -28,6 +28,16 @@ resource "google_organization_policy" "serial_port_policy" {
 }
 ```
 
+Alternately, you can write the policy in YAML format and provide the source file path:
+
+```hcl
+resource "google_folder_organization_policy" "serial_port_policy" {
+  org_id     = "123456789"
+  constraint = "compute.disableSerialPortAccess"
+
+  boolean_policy_source = "path/to/file.json"
+}
+```
 
 To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
@@ -44,7 +54,6 @@ resource "google_organization_policy" "services_policy" {
 }
 ```
 
-
 Or to deny some services, use the following instead:
 
 ```hcl
@@ -59,6 +68,18 @@ resource "google_organization_policy" "services_policy" {
       values = ["cloudresourcemanager.googleapis.com"]
     }
   }
+}
+```
+
+You can also provide the policy in YAML format:
+
+
+```hcl
+resource "google_folder_organization_policy" "services_policy" {
+  org_id     = "123456789"
+  constraint = "serviceuser.services"
+
+  list_policy_file = "path/to/policy_file.json"
 }
 ```
 
