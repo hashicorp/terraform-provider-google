@@ -15,7 +15,7 @@ func resourceStorageNotification() *schema.Resource {
 		Read:   resourceStorageNotificationRead,
 		Delete: resourceStorageNotificationDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceStorageNotificationImportState,
+			State: schema.ImportStatePassthrough,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -114,6 +114,7 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
 	}
 
+	d.Set("bucket", bucket)
 	d.Set("payload_format", res.PayloadFormat)
 	d.Set("topic", res.Topic)
 	d.Set("object_name_prefix", res.ObjectNamePrefix)
@@ -135,18 +136,6 @@ func resourceStorageNotificationDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
-}
-
-func resourceStorageNotificationImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	bucket, _ := resourceStorageNotificationParseID(d.Id())
-
-	d.Set("bucket", bucket)
-
-	if err := resourceStorageNotificationRead(d, meta); err != nil {
-		return nil, err
-	}
-
-	return []*schema.ResourceData{d}, nil
 }
 
 func resourceStorageNotificationParseID(id string) (string, string) {
