@@ -570,6 +570,15 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 			}
 		}
 
+		local = ""
+		if len(instance.IpAddresses) > 0 {
+			local = instance.IpAddresses[0].IpAddress
+		}
+		server = attributes["first_ip_address"]
+		if server != local {
+			return fmt.Errorf("Error first_ip_address mismatch, server has %s but local has %s", server, local)
+		}
+
 		server = instance.Settings.ActivationPolicy
 		local = attributes["settings.0.activation_policy"]
 		if server != local && len(server) > 0 && len(local) > 0 {

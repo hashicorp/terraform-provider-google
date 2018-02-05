@@ -729,11 +729,17 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
+
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
+
 	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
+	}
+
+	if err := d.Set("first_ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
+		log.Printf("[WARN] Failed to set SQL Database Instance First IP Address")
 	}
 
 	if err := d.Set("server_ca_cert", flattenServerCaCert(instance.ServerCaCert)); err != nil {
