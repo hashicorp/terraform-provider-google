@@ -326,3 +326,10 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 
 	return m[0].(map[string]interface{})
 }
+
+func lockedCall(lockKey string, f func() error) error {
+	mutexKV.Lock(lockKey)
+	defer mutexKV.Unlock(lockKey)
+
+	return f()
+}

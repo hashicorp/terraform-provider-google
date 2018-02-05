@@ -412,6 +412,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	npName := d.Get(prefix + "name").(string)
+	lockKey := containerClusterMutexKey(project, zone, clusterName)
 
 	if d.HasChange(prefix + "autoscaling") {
 		update := &container.ClusterUpdate{
@@ -434,18 +435,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.UpdateClusterRequest{
 			Update: update,
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zone, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zone, clusterName, req).Do()
-		if err != nil {
-			return err
+
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zone, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
@@ -460,17 +464,20 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.SetNodePoolSizeRequest{
 			NodeCount: newSize,
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zone, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
-		if err != nil {
-			return err
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
@@ -491,19 +498,22 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.SetNodePoolManagementRequest{
 			Management: management,
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zone, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zone, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
-			project, zone, clusterName, npName, req).Do()
 
-		if err != nil {
-			return err
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
+				project, zone, clusterName, npName, req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool management", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool management", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] Updated management in Node Pool %s", npName)

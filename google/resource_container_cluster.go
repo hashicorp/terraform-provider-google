@@ -673,6 +673,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
+	lockKey := containerClusterMutexKey(project, zoneName, clusterName)
+
 	if d.HasChange("master_authorized_networks_config") {
 		c := d.Get("master_authorized_networks_config")
 		req := &container.UpdateClusterRequest{
@@ -680,18 +682,18 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
 			},
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
-		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster master authorized networks", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster master authorized networks", timeoutInMinutes, 2)
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 		log.Printf("[INFO] GKE cluster %s master authorized networks config has been updated", d.Id())
 
@@ -718,8 +720,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredMasterVersion: desiredMasterVersion,
 				},
 			}
-			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
+
+			updateF := func() error {
+				op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+					project, zoneName, clusterName, req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(), desiredMasterVersion)
+		}
+		d.SetPartial("min_master_version")
+	}
+
+	if d.HasChange("node_version") {
+		desiredNodeVersion := d.Get("node_version").(string)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeVersion: desiredNodeVersion,
+			},
+		}
+
+		updateF := func() error {
 			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
 				project, zoneName, clusterName, req).Do()
 			if err != nil {
@@ -727,40 +757,13 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			}
 
 			// Wait until it's updated
-			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
-			if waitErr != nil {
-				return waitErr
-			}
-
-			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(),
-				desiredMasterVersion)
+			return containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
 		}
 
-		d.SetPartial("min_master_version")
-	}
-
-	if d.HasChange("node_version") {
-		desiredNodeVersion := d.Get("node_version").(string)
-
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
-			},
-		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
 		}
-
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
-		}
-
 		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
 			desiredNodeVersion)
 
@@ -774,18 +777,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
 				},
 			}
-			mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-			defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
-			if err != nil {
-				return err
+
+			updateF := func() error {
+				op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+					project, zoneName, clusterName, req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op, project, zoneName, "updating GKE cluster addons", timeoutInMinutes, 2)
 			}
 
-			// Wait until it's updated
-			waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster addons", timeoutInMinutes, 2)
-			if waitErr != nil {
-				return waitErr
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
 			}
 
 			log.Printf("[INFO] GKE cluster %s addons have been updated", d.Id())
@@ -805,18 +811,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				NullFields: []string{"MaintenancePolicy"},
 			}
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
+
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
@@ -836,18 +845,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredLocations: locations,
 			},
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
+
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster locations", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster locations", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(),
@@ -862,17 +874,23 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
-		if err != nil {
+
+		updateF := func() error {
+			log.Println("[DEBUG] emilyye updating enable_legacy_abac")
+			op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, zoneName, "updating GKE legacy ABAC", timeoutInMinutes, 2)
+			log.Println("[DEBUG] emilyye done updating enable_legacy_abac")
 			return err
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE legacy ABAC", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
@@ -888,18 +906,20 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMonitoringService: desiredMonitoringService,
 			},
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster monitoring service", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster monitoring service", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 		log.Printf("[INFO] Monitoring service for GKE cluster %s has been updated to %s", d.Id(),
 			desiredMonitoringService)
@@ -913,19 +933,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetNetworkPolicyRequest{
 			NetworkPolicy: expandNetworkPolicy(np),
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
+
+		updateF := func() error {
+			log.Println("[DEBUG] emilyye updating network_policy")
+			op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, zoneName, "updating GKE cluster network policy", timeoutInMinutes, 2)
+			log.Println("[DEBUG] emilyye done updating network_policy")
 			return err
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE cluster network policy", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
+
 		log.Printf("[INFO] Network policy for GKE cluster %s has been updated", d.Id())
 
 		d.SetPartial("network_policy")
@@ -947,18 +974,20 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.SetLoggingServiceRequest{
 			LoggingService: logging,
 		}
-		mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-		defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-		op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
-			project, zoneName, clusterName, req).Do()
-		if err != nil {
-			return err
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zoneName, "updating GKE logging service", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zoneName, "updating GKE logging service", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE cluster %s: logging service has been updated to %s", d.Id(),
