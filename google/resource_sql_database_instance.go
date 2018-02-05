@@ -257,6 +257,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				},
 			},
 
+			"first_ip_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
