@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -194,6 +195,8 @@ func testAccCheckGoogleFolderOrganizationListPolicyAllowedValues(n string, value
 			return err
 		}
 
+		sort.Strings(policy.ListPolicy.AllowedValues)
+		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.AllowedValues, values) {
 			return fmt.Errorf("Expected the list policy to allow '%s', instead allowed '%s'", values, policy.ListPolicy.AllowedValues)
 		}
@@ -209,6 +212,8 @@ func testAccCheckGoogleFolderOrganizationListPolicyDeniedValues(n string, values
 			return err
 		}
 
+		sort.Strings(policy.ListPolicy.DeniedValues)
+		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.DeniedValues, values) {
 			return fmt.Errorf("Expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
 		}
@@ -303,14 +308,14 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-	folder     = "${google_folder.orgpolicy.name}"
+  folder     = "${google_folder.orgpolicy.name}"
   constraint = "serviceuser.services"
 
   list_policy {
     deny {
       values = [
-        "maps-ios-backend.googleapis.com",
-        "placesios.googleapis.com",
+        "doubleclicksearch.googleapis.com",
+        "replicapoolupdater.googleapis.com",
       ]
     }
   }
