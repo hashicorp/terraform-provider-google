@@ -140,7 +140,6 @@ func testGoogleSqlUser_basic2(instance, user string) string {
 		name = "user%s"
 		instance = "${google_sql_database_instance.instance.name}"
 		host = "google.com"
-		password = "oops"
 	}
 	`, instance, user)
 }
