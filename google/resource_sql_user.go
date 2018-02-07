@@ -43,7 +43,7 @@ func resourceSqlUser() *schema.Resource {
 
 			"password": &schema.Schema{
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 			},
 
