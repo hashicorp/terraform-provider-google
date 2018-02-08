@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
 * compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
 * container: Suppress diff for empty/default provider in `google_container_cluster` network policy [#1031](https://github.com/terraform-providers/terraform-provider-google/issues/1031)
+* container: Return an error if name and name prefix are specified in node pool [GH-1062]
 * compute: Make route priority optional since Compute has a default value. ([#1009](https://github.com/terraform-providers/terraform-provider-google/issues/1009))
 * sql: Support for PostgreSQL high availability [GH-1001]
 * sql: Support for ServerCaCert in Cloud SQL instance. (Related to [#635](https://github.com/terraform-providers/terraform-provider-google/issues/635))
