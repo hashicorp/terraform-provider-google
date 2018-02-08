@@ -307,6 +307,9 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool, error) {
 	var name string
 	if v, ok := d.GetOk(prefix + "name"); ok {
+		if _, ok := d.GetOk(prefix + "name_prefix"); ok {
+			return nil, fmt.Errorf("Cannot specify both name and name_prefix for a node_pool")
+		}
 		name = v.(string)
 	} else if v, ok := d.GetOk(prefix + "name_prefix"); ok {
 		name = resource.PrefixedUniqueId(v.(string))
