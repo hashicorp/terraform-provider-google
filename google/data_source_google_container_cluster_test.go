@@ -95,7 +95,7 @@ var testAccContainerClusterDatasourceConfig = fmt.Sprintf(`
 	
 		master_auth {
 			username = "mr.yoda"
-			password = "adoy.rm"
+			password = "adoy.rm.123456789"
 		}
 	}
 	
