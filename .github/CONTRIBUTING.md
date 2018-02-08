@@ -1,4 +1,4 @@
-# Contributing to Terraform- Google Provider
+# Contributing to Terraform - Google Provider
 
 For a set of general guidelines, see the [CONTRIBUTING.md](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md) page in the main Terraform repository.
 
