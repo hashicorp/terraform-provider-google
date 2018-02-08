@@ -23,6 +23,7 @@ BUG FIXES:
 * logging: Set project during import for `google_logging_project_sink` to avoid recreation ([#1018](https://github.com/terraform-providers/terraform-provider-google/issues/1018))
 * compute: Suppress diff on image field when referring to unconventional public image family naming pattern [GH-1024]
 * compute: Backend service backed by a group couldn't be created or updated because both max_rate and max_rate_per_instance would always be set to zero and they can't be both set. [GH-1051]
+* container: Fix perpetual diff in `google_container_cluster` if the subnetwork field is not specified [GH-1061]
 
 ## 1.5.0 (January 18, 2018)
 
