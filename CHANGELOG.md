@@ -1,30 +1,30 @@
-## 1.6.0 (Unreleased)
+## 1.6.0 (February 09, 2018)
 
 Features:
-* **New Resource** `google_cloudiot_registry` [GH-970]
-* **New Resource** `google_endpoints_service` [GH-933]
-* **New Resource** `google_storage_default_object_acl` [GH-992]
-* **New Resource** `google_storage_notification` [GH-1033]
+* **New Resource** `google_cloudiot_registry` ([#970](https://github.com/terraform-providers/terraform-provider-google/issues/970))
+* **New Resource** `google_endpoints_service` ([#933](https://github.com/terraform-providers/terraform-provider-google/issues/933))
+* **New Resource** `google_storage_default_object_acl` ([#992](https://github.com/terraform-providers/terraform-provider-google/issues/992))
+* **New Resource** `google_storage_notification` ([#1033](https://github.com/terraform-providers/terraform-provider-google/issues/1033))
 
 IMPROVEMENTS:
-* compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` [GH-866]
-* compute: Add update support for machine type, min cpu platform, and service accounts [GH-1005]
-* compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources [GH-1004]
+* compute: Suppress diff if `guest_accelerators` count is 0 in `google_compute_instance` and `google_compute_instance_template` ([#866](https://github.com/terraform-providers/terraform-provider-google/issues/866))
+* compute: Add update support for machine type, min cpu platform, and service accounts ([#1005](https://github.com/terraform-providers/terraform-provider-google/issues/1005))
+* compute: Add import support for google_compute_shared_vpc_host_project/google_compute_shared_vpc_service_project resources ([#1004](https://github.com/terraform-providers/terraform-provider-google/issues/1004))
 * compute: Make route priority optional since Compute has a default value. ([#1009](https://github.com/terraform-providers/terraform-provider-google/issues/1009))
 * container: Suppress diff for empty/default provider in `google_container_cluster` network policy [#1031](https://github.com/terraform-providers/terraform-provider-google/issues/1031)
-* container: Return an error if name and name prefix are specified in node pool [GH-1062]
-* sql: Support for PostgreSQL high availability [GH-1001]
+* container: Return an error if name and name prefix are specified in node pool ([#1062](https://github.com/terraform-providers/terraform-provider-google/issues/1062))
+* sql: Support for PostgreSQL high availability ([#1001](https://github.com/terraform-providers/terraform-provider-google/issues/1001))
 * sql: Support for ServerCaCert in Cloud SQL instance. (Related to [#635](https://github.com/terraform-providers/terraform-provider-google/issues/635))
-* storage: Add support for setting bucket's logging config [GH-946]
+* storage: Add support for setting bucket's logging config ([#946](https://github.com/terraform-providers/terraform-provider-google/issues/946))
 
 
 BUG FIXES:
 
-* project: Fix crash when errors are encountered updating a `google_project` [GH-1016]
+* project: Fix crash when errors are encountered updating a `google_project` ([#1016](https://github.com/terraform-providers/terraform-provider-google/issues/1016))
 * logging: Set project during import for `google_logging_project_sink` to avoid recreation ([#1018](https://github.com/terraform-providers/terraform-provider-google/issues/1018))
-* compute: Suppress diff on image field when referring to unconventional public image family naming pattern [GH-1024]
-* compute: Backend service backed by a group couldn't be created or updated because both max_rate and max_rate_per_instance would always be set to zero and they can't be both set. [GH-1051]
-* container: Fix perpetual diff in `google_container_cluster` if the subnetwork field is not specified [GH-1061]
+* compute: Suppress diff on image field when referring to unconventional public image family naming pattern ([#1024](https://github.com/terraform-providers/terraform-provider-google/issues/1024))
+* compute: Backend service backed by a group couldn't be created or updated because both max_rate and max_rate_per_instance would always be set to zero and they can't be both set. ([#1051](https://github.com/terraform-providers/terraform-provider-google/issues/1051))
+* container: Fix perpetual diff in `google_container_cluster` if the subnetwork field is not specified ([#1061](https://github.com/terraform-providers/terraform-provider-google/issues/1061))
 
 ## 1.5.0 (January 18, 2018)
 
