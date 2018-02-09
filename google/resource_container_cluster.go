@@ -380,9 +380,9 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew: true,
 						},
 						"use_ip_aliases": {
-							Type: schema.TypeBool,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default: true,
+							Default:  true,
 							ForceNew: true,
 						},
 					},
@@ -1229,7 +1229,7 @@ func flattenIPAllocationPolicy(c *container.IPAllocationPolicy) []map[string]int
 		{
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
 			"services_secondary_range_name": c.ServicesSecondaryRangeName,
-			"use_ip_aliases": c.UseIpAliases,
+			"use_ip_aliases":                c.UseIpAliases,
 		},
 	}
 }
