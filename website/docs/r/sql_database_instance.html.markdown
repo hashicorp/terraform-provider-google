@@ -19,15 +19,35 @@ a restricted host and strong password.
 
 ## Example Usage
 
-Example creating a SQL Database.
+### SQL First Generation
+
+```hcl
+resource "google_sql_database_instance" "master" {
+  name = "master-instance"
+  database_version = "MYSQL_5_6"
+  # First-generation instance regions are not the conventional
+  # Google Compute Engine regions. See argument reference below.
+  region = "us-central"
+
+  settings {
+    tier = "D0"
+  }
+}
+```
+
+
+### SQL Second generation
 
 ```hcl
 resource "google_sql_database_instance" "master" {
   name = "master-instance"
   database_version = "POSTGRES_9_6"
+  region = "us-central1"
 
   settings {
-    tier = "D0"
+    # Second-generation instance tiers are based on the machine
+    # type. See argument reference below.
+    tier = "db-f1-micro"
   }
 }
 ```
