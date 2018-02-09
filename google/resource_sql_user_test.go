@@ -9,50 +9,68 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleSqlUser_basic(t *testing.T) {
+func TestAccGoogleSqlUser_firstGen(t *testing.T) {
 	t.Parallel()
 
-	user := acctest.RandString(10)
-	instance := acctest.RandString(10)
-
+	instance := acctest.RandomWithPrefix("i")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccGoogleSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleSqlUser_basic(instance, user),
+				Config: testGoogleSqlUser_firstGen(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
+					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
 				),
+			},
+			resource.TestStep{
+				// Update password
+				Config: testGoogleSqlUser_firstGen(instance, "new_password"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_user.user2",
+				ImportStateId:           instance + "/gmail.com/john",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
 			},
 		},
 	})
 }
 
-func TestAccGoogleSqlUser_update(t *testing.T) {
+func TestAccGoogleSqlUser_secondGen(t *testing.T) {
 	t.Parallel()
 
-	user := acctest.RandString(10)
-	instance := acctest.RandString(10)
-
+	instance := acctest.RandomWithPrefix("i")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccGoogleSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleSqlUser_basic(instance, user),
+				Config: testGoogleSqlUser_secondGen(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
 			},
-
 			resource.TestStep{
-				Config: testGoogleSqlUser_basic2(instance, user),
+				// Update password
+				Config: testGoogleSqlUser_secondGen(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_user.user",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
 			},
 		},
 	})
@@ -107,39 +125,48 @@ func testAccGoogleSqlUserDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testGoogleSqlUser_basic(instance, user string) string {
+func testGoogleSqlUser_firstGen(instance, password string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
-		name = "i%s"
+		name = "%s"
 		region = "us-central"
 		settings {
 			tier = "D0"
 		}
 	}
 
-	resource "google_sql_user" "user" {
-		name = "user%s"
+	resource "google_sql_user" "user1" {
+		name = "john"
 		instance = "${google_sql_database_instance.instance.name}"
 		host = "google.com"
+		password = "%s"
+	}
+
+	resource "google_sql_user" "user2" {
+		name = "john"
+		instance = "${google_sql_database_instance.instance.name}"
+		host = "gmail.com"
 		password = "hunter2"
 	}
-	`, instance, user)
+	`, instance, password)
 }
 
-func testGoogleSqlUser_basic2(instance, user string) string {
+func testGoogleSqlUser_secondGen(instance, password string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
-		name = "i%s"
-		region = "us-central"
+		name = "%s"
+		region = "us-central1"
+		database_version = "POSTGRES_9_6"
+
 		settings {
-			tier = "D0"
+			tier = "db-f1-micro"
 		}
 	}
 
 	resource "google_sql_user" "user" {
-		name = "user%s"
+		name = "user"
 		instance = "${google_sql_database_instance.instance.name}"
-		host = "google.com"
+		password = "%s"
 	}
-	`, instance, user)
+	`, instance, password)
 }
