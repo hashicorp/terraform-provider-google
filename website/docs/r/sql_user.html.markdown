@@ -50,8 +50,8 @@ The following arguments are supported:
 - - -
 
 * `host` - (Optional) The host the user can connect from. This is only supported
-    for first generation SQL instance. Don't set this field for second generation
-    SQL instance. Can be an IP address. Changing this forces a new resource to be created.
+    for first generation SQL instances. Don't set this field for second generation
+    SQL instances. Can be an IP address. Changing this forces a new resource to be created.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.

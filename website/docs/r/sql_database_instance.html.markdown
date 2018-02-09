@@ -26,7 +26,7 @@ resource "google_sql_database_instance" "master" {
   name = "master-instance"
   database_version = "MYSQL_5_6"
   # First-generation instance regions are not the conventional
-  # Google Compute Engine region. See argument reference below.
+  # Google Compute Engine regions. See argument reference below.
   region = "us-central"
 
   settings {
@@ -45,7 +45,7 @@ resource "google_sql_database_instance" "master" {
   region = "us-central1"
 
   settings {
-    # Second-generation instance tier are based on the machine
+    # Second-generation instance tiers are based on the machine
     # type. See argument reference below.
     tier = "db-f1-micro"
   }

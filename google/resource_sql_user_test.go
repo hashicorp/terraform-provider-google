@@ -35,7 +35,7 @@ func TestAccGoogleSqlUser_firstGen(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:            "google_sql_user.user2",
-				ImportStateId:           instance + "/gmail.com/john",
+				ImportStateId:           instance + "/gmail.com/admin",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -136,14 +136,14 @@ func testGoogleSqlUser_firstGen(instance, password string) string {
 	}
 
 	resource "google_sql_user" "user1" {
-		name = "john"
+		name = "admin"
 		instance = "${google_sql_database_instance.instance.name}"
 		host = "google.com"
 		password = "%s"
 	}
 
 	resource "google_sql_user" "user2" {
-		name = "john"
+		name = "admin"
 		instance = "${google_sql_database_instance.instance.name}"
 		host = "gmail.com"
 		password = "hunter2"
@@ -164,7 +164,7 @@ func testGoogleSqlUser_secondGen(instance, password string) string {
 	}
 
 	resource "google_sql_user" "user" {
-		name = "user"
+		name = "admin"
 		instance = "${google_sql_database_instance.instance.name}"
 		password = "%s"
 	}
