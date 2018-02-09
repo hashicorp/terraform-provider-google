@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
+* container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
 
 ## 1.6.0 (February 09, 2018)
 
