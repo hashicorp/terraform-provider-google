@@ -1,4 +1,8 @@
 ## 1.6.1 (Unreleased)
+
+IMPROVEMENTS:
+* sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
+
 ## 1.6.0 (February 09, 2018)
 
 Features:
