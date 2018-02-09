@@ -685,6 +685,17 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 				Config: testAccContainerCluster_withIPAllocationPolicy(
 					cluster,
 					map[string]string{
+						"pods":     "10.1.0.0/16",
+						"services": "10.2.0.0/20",
+					},
+					map[string]string{},
+				),
+				ExpectError: regexp.MustCompile("clusters using IP aliases must specify secondary ranges"),
+			},
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy(
+					cluster,
+					map[string]string{
 						"pods": "10.1.0.0/16",
 					},
 					map[string]string{
@@ -1575,6 +1586,7 @@ resource "google_container_cluster" "with_maintenance_window" {
 }
 
 func testAccContainerCluster_withIPAllocationPolicy(cluster string, ranges, policy map[string]string) string {
+
 	var secondaryRanges bytes.Buffer
 	for rangeName, cidr := range ranges {
 		secondaryRanges.WriteString(fmt.Sprintf(`
