@@ -1095,8 +1095,9 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 
 func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPolicy, error) {
 	ap := &container.IPAllocationPolicy{}
-	if len(configured.([]interface{})) > 0 {
-		if config, ok := configured.([]interface{})[0].(map[string]interface{}); ok {
+	l := configured.([]interface{})
+	if len(l) > 0 {
+		if config, ok := l[0].(map[string]interface{}); ok {
 			ap.UseIpAliases = true
 			if v, ok := config["cluster_secondary_range_name"]; ok {
 				ap.ClusterSecondaryRangeName = v.(string)
@@ -1105,12 +1106,8 @@ func expandIPAllocationPolicy(configured interface{}) (*container.IPAllocationPo
 			if v, ok := config["services_secondary_range_name"]; ok {
 				ap.ServicesSecondaryRangeName = v.(string)
 			}
-
-			if ap.UseIpAliases &&
-				(ap.ClusterSecondaryRangeName == "" || ap.ServicesSecondaryRangeName == "") {
-
-				return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
-			}
+		} else {
+			return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
 		}
 	}
 
