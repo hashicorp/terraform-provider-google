@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	compute "google.golang.org/api/compute/v1"
@@ -88,6 +89,8 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	log.Printf("[DEBUG] Creating new BackendBucket: %#v", obj)
 	res, err := Post(config, url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucket: %s", err)
@@ -128,6 +131,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
 	res, err := Get(config, url)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
@@ -163,6 +167,8 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
 	res, err := Put(config, url, obj)
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
@@ -194,6 +200,8 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
 		return fmt.Errorf("Error deleting BackendBucket %q: %s", d.Id(), err)
@@ -205,7 +213,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Updating BackendBucket")
+	err = computeOperationWait(config.clientCompute, op, project, "Deleting BackendBucket")
 	if err != nil {
 		return err
 	}
