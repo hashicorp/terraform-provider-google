@@ -7,14 +7,16 @@ import (
 	"log"
 	"strings"
 
+	"time"
+
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
-	"time"
 )
 
 var InstanceBaseApiVersion = v1
@@ -79,6 +81,7 @@ func resourceComputeInstance() *schema.Resource {
 						"initialize_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -86,6 +89,7 @@ func resourceComputeInstance() *schema.Resource {
 									"size": &schema.Schema{
 										Type:         schema.TypeInt,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -93,14 +97,17 @@ func resourceComputeInstance() *schema.Resource {
 									"type": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 									},
 
 									"image": &schema.Schema{
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: diskImageDiffSuppress,
 									},
 								},
 							},
@@ -241,7 +248,6 @@ func resourceComputeInstance() *schema.Resource {
 			"machine_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"name": &schema.Schema{
@@ -278,7 +284,7 @@ func resourceComputeInstance() *schema.Resource {
 			"metadata": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
 			},
 
 			"metadata_startup_script": &schema.Schema{
@@ -469,12 +475,10 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": &schema.Schema{
 							Type:     schema.TypeString,
-							ForceNew: true,
 							Optional: true,
 							Computed: true,
 						},
@@ -482,7 +486,6 @@ func resourceComputeInstance() *schema.Resource {
 						"scopes": &schema.Schema{
 							Type:     schema.TypeSet,
 							Required: true,
-							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								StateFunc: func(v interface{}) string {
@@ -498,6 +501,7 @@ func resourceComputeInstance() *schema.Resource {
 			"guest_accelerator": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -524,7 +528,6 @@ func resourceComputeInstance() *schema.Resource {
 			"min_cpu_platform": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"tags": &schema.Schema{
@@ -546,6 +549,11 @@ func resourceComputeInstance() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"allow_stopping_for_update": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"label_fingerprint": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -558,6 +566,14 @@ func resourceComputeInstance() *schema.Resource {
 				Deprecated: "Use timeouts block instead.",
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.If(
+				func(d *schema.ResourceDiff, meta interface{}) bool {
+					return d.HasChange("guest_accelerator")
+				},
+				suppressEmptyGuestAcceleratorDiff,
+			),
+		),
 	}
 }
 
@@ -587,6 +603,20 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 		}
 	}
 	return instance, nil
+}
+
+func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.Disk, error) {
+	source, err := ParseDiskFieldValue(diskUri, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := config.clientCompute.Disks.Get(source.Project, source.Zone, source.Name).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return disk, err
 }
 
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -768,10 +798,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("can_ip_forward", instance.CanIpForward)
-
-	machineTypeResource := strings.Split(instance.MachineType, "/")
-	machineType := machineTypeResource[len(machineTypeResource)-1]
-	d.Set("machine_type", machineType)
+	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
@@ -830,7 +857,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk))
+			d.Set("boot_disk", flattenBootDisk(d, disk, config))
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
@@ -1170,6 +1197,93 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("attached_disk")
 	}
 
+	// Attributes which can only be changed if the instance is stopped
+	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
+		if !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+		}
+		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		}
+
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		if d.HasChange("machine_type") {
+			mt, err := ParseMachineTypesFieldValue(d.Get("machine_type").(string), d, config)
+			if err != nil {
+				return err
+			}
+			req := &compute.InstancesSetMachineTypeRequest{
+				MachineType: mt.RelativeLink(),
+			}
+			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating machinetype", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("machine_type")
+		}
+
+		if d.HasChange("min_cpu_platform") {
+			minCpuPlatform, ok := d.GetOk("min_cpu_platform")
+			// Even though you don't have to set minCpuPlatform on create, you do have to set it to an
+			// actual value on update. "Automatic" is the default. This will be read back from the API as empty,
+			// so we don't need to worry about diffs.
+			if !ok {
+				minCpuPlatform = "Automatic"
+			}
+			req := &compute.InstancesSetMinCpuPlatformRequest{
+				MinCpuPlatform: minCpuPlatform.(string),
+			}
+			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating min cpu platform", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("min_cpu_platform")
+		}
+
+		if d.HasChange("service_account") {
+			sa := d.Get("service_account").([]interface{})
+			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
+			if len(sa) > 0 {
+				saMap := sa[0].(map[string]interface{})
+				req.Email = saMap["email"].(string)
+				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
+			}
+			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating service account", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("service_account")
+		}
+
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error starting instance: {{err}}", err)
+		}
+
+		opErr = computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+	}
+
 	// We made it, disable partial mode
 	d.Partial(false)
 
@@ -1212,20 +1326,65 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 		return nil, nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, len(accels))
-	for i, raw := range accels {
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	for _, raw := range accels {
 		data := raw.(map[string]interface{})
+		if data["count"].(int) == 0 {
+			continue
+		}
 		at, err := ParseAcceleratorFieldValue(data["type"].(string), d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
 		}
-		guestAccelerators[i] = &computeBeta.AcceleratorConfig{
+		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			AcceleratorType:  at.RelativeLink(),
-		}
+		})
 	}
 
 	return guestAccelerators, nil
+}
+
+// suppressEmptyGuestAcceleratorDiff is used to work around perpetual diff
+// issues when a count of `0` guest accelerators is desired. This may occur when
+// guest_accelerator support is controlled via a module variable. E.g.:
+//
+// 		guest_accelerators {
+//      	count = "${var.enable_gpu ? var.gpu_count : 0}"
+//          ...
+// 		}
+// After reconciling the desired and actual state, we would otherwise see a
+// perpetual resembling:
+// 		[] != [{"count":0, "type": "nvidia-tesla-k80"}]
+func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{}) error {
+	oldi, newi := d.GetChange("guest_accelerator")
+
+	old, ok := oldi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected old guest accelerator diff to be a slice")
+	}
+
+	new, ok := newi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected new guest accelerator diff to be a slice")
+	}
+
+	if len(old) != 0 && len(new) != 1 {
+		return nil
+	}
+
+	firstAccel, ok := new[0].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("Unable to type assert guest accelerator")
+	}
+
+	if firstAccel["count"].(int) == 0 {
+		if err := d.Clear("guest_accelerator"); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
@@ -1324,7 +1483,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, config *Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -1333,14 +1492,29 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
 	}
+
+	diskDetails, err := getDisk(disk.Source, d, config)
+	if err != nil {
+		log.Printf("[WARN] Cannot retrieve boot disk details: %s", err)
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+			// If we can't read the disk details due to permission for instance,
+			// copy the initialize_params from what the user originally specified to avoid diffs.
+			m := d.Get("boot_disk.0.initialize_params")
+			result["initialize_params"] = m
+		}
+	} else {
+		result["initialize_params"] = []map[string]interface{}{{
+			"type": GetResourceNameFromSelfLink(diskDetails.Type),
+			// If the config specifies a family name that doesn't match the image name, then
+			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
+			"image": diskDetails.SourceImage,
+			"size":  diskDetails.SizeGb,
+		}}
+	}
+
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
-	}
-	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		// initialize_params is not returned from the API, so copy it from what the user
-		// originally specified to avoid diffs.
-		m := d.Get("boot_disk.0.initialize_params")
-		result["initialize_params"] = m
 	}
 
 	return []map[string]interface{}{result}

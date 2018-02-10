@@ -62,6 +62,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the bucket.
 
+* `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
+
 The `lifecycle_rule` block supports:
 
 * `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
@@ -107,6 +109,13 @@ The `cors` block supports:
 * `response_header` - (Optional) The list of HTTP headers other than the [simple response headers](https://www.w3.org/TR/cors/#simple-response-header) to give permission for the user-agent to share across domains.
     
 * `max_age_seconds` - (Optional) The value, in seconds, to return in the [Access-Control-Max-Age header](https://www.w3.org/TR/cors/#access-control-max-age-response-header) used in preflight responses.
+
+The `logging` block supports:
+
+* `log_bucket` - (Required) The bucket that will receive log objects.
+
+* `log_object_prefix` - (Optional, Computed) The object prefix for log objects. If it's not provided,
+    by default GCS sets this to the log_bucket's name.
 
 ## Attributes Reference
 

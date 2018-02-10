@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -213,6 +214,24 @@ func resourceStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"logging": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_bucket": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"log_object_prefix": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -270,6 +289,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("cors"); ok {
 		sb.Cors = expandCors(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("logging"); ok {
+		sb.Logging = expandBucketLogging(v.([]interface{}))
 	}
 
 	var res *storage.Bucket
@@ -342,6 +365,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		sb.Cors = expandCors(v.([]interface{}))
 	}
 
+	if d.HasChange("logging") {
+		if v, ok := d.GetOk("logging"); ok {
+			sb.Logging = expandBucketLogging(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "Logging")
+		}
+	}
+
 	if d.HasChange("labels") {
 		sb.Labels = expandLabels(d)
 		if len(sb.Labels) == 0 {
@@ -367,11 +398,6 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
@@ -381,6 +407,16 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
+	// We need to get the project associated with this bucket because otherwise import
+	// won't work properly.  That means we need to call the projects.get API with the
+	// project number, to get the project ID - there's no project ID field in the
+	// resource response.
+	log.Println("[TRACE] Fetching project ID.")
+	proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
 
 	// Update the bucket ID according to the resource ID
 	d.Set("self_link", res.SelfLink)
@@ -388,10 +424,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("storage_class", res.StorageClass)
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
+	d.Set("logging", flattenBucketLogging(res.Logging))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
-	d.Set("project", project)
+	d.Set("project", proj.Name)
 	d.SetId(res.Id)
 	return nil
 }
@@ -489,6 +526,34 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 	return corsRulesSchema
 }
 
+func expandBucketLogging(configured interface{}) *storage.BucketLogging {
+	loggings := configured.([]interface{})
+	logging := loggings[0].(map[string]interface{})
+
+	bucketLogging := &storage.BucketLogging{
+		LogBucket:       logging["log_bucket"].(string),
+		LogObjectPrefix: logging["log_object_prefix"].(string),
+	}
+
+	return bucketLogging
+}
+
+func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]interface{} {
+	loggings := make([]map[string]interface{}, 0, 1)
+
+	if bucketLogging == nil {
+		return loggings
+	}
+
+	logging := map[string]interface{}{
+		"log_bucket":        bucketLogging.LogBucket,
+		"log_object_prefix": bucketLogging.LogObjectPrefix,
+	}
+
+	loggings = append(loggings, logging)
+	return loggings
+}
+
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 	versionings := configured.([]interface{})
 	versioning := versionings[0].(map[string]interface{})
@@ -540,13 +605,16 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 }
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
-	return map[string]interface{}{
+	ruleCondition := map[string]interface{}{
 		"age":                   int(condition.Age),
 		"created_before":        condition.CreatedBefore,
-		"is_live":               *condition.IsLive,
 		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
 		"num_newer_versions":    int(condition.NumNewerVersions),
 	}
+	if condition.IsLive != nil {
+		ruleCondition["is_live"] = *condition.IsLive
+	}
+	return ruleCondition
 }
 
 func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storage.Bucket) error {

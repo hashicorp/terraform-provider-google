@@ -235,8 +235,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 
 			for _, disk := range instance.Disks {
 				if disk.Boot {
-					sourceUrl := strings.Split(disk.Source, "/")
-					is.Attributes["boot_disk.0.source"] = sourceUrl[len(sourceUrl)-1]
+					is.Attributes["boot_disk.0.source"] = GetResourceNameFromSelfLink(disk.Source)
 					is.Attributes["boot_disk.0.device_name"] = disk.DeviceName
 					break
 				}
@@ -453,8 +452,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			sourceUrl := strings.Split(disk.Source, "/")
-			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
+			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
 			sourceImage, err := getRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err
@@ -479,8 +477,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			sourceUrl := strings.Split(disk.Source, "/")
-			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
+			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
 			sourceImage, err := getRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err

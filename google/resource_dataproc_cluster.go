@@ -26,7 +26,7 @@ func resourceDataprocCluster() *schema.Resource {
 		Delete: resourceDataprocClusterDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(15 * time.Minute),
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
@@ -76,7 +76,7 @@ func resourceDataprocCluster() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     schema.TypeString,
 				// GCP automatically adds two labels
 				//    'goog-dataproc-cluster-uuid'
 				//    'goog-dataproc-cluster-name'
@@ -177,6 +177,13 @@ func resourceDataprocCluster() *schema.Resource {
 										ForceNew: true,
 										Default:  false,
 									},
+
+									"metadata": &schema.Schema{
+										Type:     schema.TypeMap,
+										Optional: true,
+										Elem:     schema.TypeString,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -253,7 +260,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:     schema.TypeMap,
 										Optional: true,
 										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Elem:     schema.TypeString,
 									},
 
 									"properties": {
@@ -507,6 +514,9 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 	if v, ok := cfg["internal_ip_only"]; ok {
 		conf.InternalIpOnly = v.(bool)
 	}
+	if v, ok := cfg["metadata"]; ok {
+		conf.Metadata = convertStringMap(v.(map[string]interface{}))
+	}
 	return conf, nil
 }
 
@@ -570,7 +580,7 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 		icg.NumInstances = int64(v.(int))
 	}
 	if v, ok := cfg["machine_type"]; ok {
-		icg.MachineTypeUri = extractLastResourceFromUri(v.(string))
+		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
 	}
 
 	if dc, ok := cfg["disk_config"]; ok {
@@ -750,8 +760,9 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	gceConfig := map[string]interface{}{
 		"tags":             gcc.Tags,
 		"service_account":  gcc.ServiceAccount,
-		"zone":             extractLastResourceFromUri(gcc.ZoneUri),
+		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,
+		"metadata":         gcc.Metadata,
 	}
 
 	if gcc.NetworkUri != "" {
@@ -791,7 +802,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
-		data["machine_type"] = extractLastResourceFromUri(icg.MachineTypeUri)
+		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb

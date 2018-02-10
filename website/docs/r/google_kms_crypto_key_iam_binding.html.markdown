@@ -14,7 +14,7 @@ an existing Google Cloud KMS crypto key.
 ## Example Usage
 
 ```hcl
-resource "google_kms_crypto_key_binding" "crypto_key" {
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   crypto_key_id = "your-crypto-key-id"
   role          = "roles/editor"
 
@@ -31,7 +31,8 @@ The following arguments are supported:
 * `members` - (Required) A list of users that the role should apply to.
 
 * `role` - (Required) The role that should be applied. Only one
-    `google_kms_crypto_key_iam_binding` can be used per role.
+    `google_kms_crypto_key_iam_binding` can be used per role. Note that custom roles must be of the format
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `crypto_key_id` - (Required) The crypto key ID, in the form
     `{project_id}/{location_name}/{key_ring_name}/{crypto_key_name}` or
@@ -50,5 +51,5 @@ exported:
 IAM binding imports use space-delimited identifiers; first the resource in question and then the role.  These bindings can be imported using the `crypto_key_id` and role, e.g.
 
 ```
-$ terraform import google_kms_crypto_key_binding.my_binding "your-project-id/location-name/key-name roles/viewer"
+$ terraform import google_kms_crypto_key_iam_binding.my_binding "your-project-id/location-name/key-name roles/viewer"
 ```

@@ -16,7 +16,7 @@ func resourceSqlUser() *schema.Resource {
 		Update: resourceSqlUserUpdate,
 		Delete: resourceSqlUserDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSqlUserImporter,
 		},
 
 		SchemaVersion: 1,
@@ -25,7 +25,7 @@ func resourceSqlUser() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"host": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -43,7 +43,7 @@ func resourceSqlUser() *schema.Resource {
 
 			"password": &schema.Schema{
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 			},
 
@@ -107,16 +107,9 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	instanceAndName := strings.SplitN(d.Id(), "/", 2)
-	if len(instanceAndName) != 2 {
-		return fmt.Errorf(
-			"Wrong number of arguments when specifying imported id. Expected: 2.  Saw: %d. Expected Input: $INSTANCENAME/$SQLUSERNAME Input: %s",
-			len(instanceAndName),
-			d.Id())
-	}
-
-	instance := instanceAndName[0]
-	name := instanceAndName[1]
+	instance := d.Get("instance").(string)
+	name := d.Get("name").(string)
+	host := d.Get("host").(string)
 
 	users, err := config.clientSqlAdmin.Users.List(project, instance).Do()
 
@@ -126,7 +119,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
-		if currentUser.Name == name {
+		if currentUser.Name == name && currentUser.Host == host {
 			user = currentUser
 			break
 		}
@@ -220,4 +213,22 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) == 2 {
+		d.Set("instance", parts[0])
+		d.Set("name", parts[1])
+	} else if len(parts) == 3 {
+		d.Set("instance", parts[0])
+		d.Set("host", parts[1])
+		d.Set("name", parts[2])
+		d.SetId(fmt.Sprintf("%s/%s", parts[0], parts[2]))
+	} else {
+		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for 2nd generation instance and {instance}/{host}/{name} for 1st generation instance")
+	}
+
+	return []*schema.ResourceData{d}, nil
 }

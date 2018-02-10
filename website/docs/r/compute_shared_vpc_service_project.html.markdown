@@ -36,3 +36,11 @@ The following arguments are expected:
 * `host_project` - (Required) The ID of a host project to associate.
 
 * `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
+
+## Import
+
+Google Compute Engine Shared VPC service project feature can be imported using the `host_project` and `service_project`, e.g.
+
+```
+$ terraform import google_compute_shared_vpc_service_project.service1 host-project-id/service-project-id-1
+```

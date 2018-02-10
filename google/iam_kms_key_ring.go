@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -67,7 +68,7 @@ func (u *KmsKeyRingIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager
 	}).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
 	}
 
 	return nil

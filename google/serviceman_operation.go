@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/servicemanagement/v1"
 )
 
@@ -39,11 +40,11 @@ func (w *ServiceManagementOperationWaiter) Conf() *resource.StateChangeConf {
 	}
 }
 
-func serviceManagementOperationWait(config *Config, op *servicemanagement.Operation, activity string) error {
+func serviceManagementOperationWait(config *Config, op *servicemanagement.Operation, activity string) (googleapi.RawMessage, error) {
 	return serviceManagementOperationWaitTime(config, op, activity, 10)
 }
 
-func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMin int) error {
+func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMin int) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
 		Service: config.clientServiceMan,
 		Op:      op,
@@ -55,13 +56,13 @@ func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Op
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return nil, fmt.Errorf("Error waiting for %s: %s", activity, err)
 	}
 
 	op = opRaw.(*servicemanagement.Operation)
 	if op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		return nil, fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
 	}
 
-	return nil
+	return op.Response, nil
 }

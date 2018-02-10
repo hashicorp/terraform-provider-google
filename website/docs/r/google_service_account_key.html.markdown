@@ -25,6 +25,26 @@ resource "google_service_account_key" "acceptance" {
 }
 ```
 
+## Example Usage, save key in Kubernetes secret
+
+```hcl
+resource "google_service_account" "myaccount" {
+  account_id   = "myaccount"
+  display_name = "My Service Account"
+}
+resource "google_service_account_key" "mykey" {
+  service_account_id = "${google_service_account.myaccount.id}"
+}
+resource "kubernetes_secret" "google-application-credentials" {
+  metadata {
+    name = "google-application-credentials"
+  }
+  data {
+    credentials.json = "${base64decode(google_service_account_key.mykey.private_key)}"
+  }
+}
+```
+
 ## Create new Key Pair, encrypting the private key with a PGP Key
 
 ```hcl
@@ -71,8 +91,9 @@ The following attributes are exported in addition to the arguments listed above:
 
 * `public_key` - The public key, base64 encoded
 
-* `private_key` - The private key, base64 encoded. This is only populated
-when creating a new key, and when no `pgp_key` is provided
+* `private_key` - The private key in JSON format, base64 encoded. This is what you normally get as a file when creating
+service account keys through the CLI or web console. This is only populated when creating a new key, and when no 
+`pgp_key` is provided.
 
 * `private_key_encrypted` – The private key material, base 64 encoded and
 encrypted with the given `pgp_key`. This is only populated when creating a new

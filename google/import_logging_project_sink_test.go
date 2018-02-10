@@ -18,7 +18,7 @@ func TestAccLoggingProjectSink_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccLoggingProjectSink_basic(sinkName, bucketName),
+				Config: testAccLoggingProjectSink_basic(sinkName, getTestProjectFromEnv(), bucketName),
 			},
 
 			resource.TestStep{

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -38,7 +39,7 @@ func resourceGoogleFolderOrganizationPolicyCreate(d *schema.ResourceData, meta i
 
 func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	folder := d.Get("folder").(string)
+	folder := canonicalFolderId(d.Get("folder").(string))
 
 	policy, err := config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
@@ -68,8 +69,9 @@ func resourceGoogleFolderOrganizationPolicyUpdate(d *schema.ResourceData, meta i
 
 func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	folder := canonicalFolderId(d.Get("folder").(string))
 
-	_, err := config.clientResourceManager.Folders.ClearOrgPolicy(d.Get("folder").(string), &cloudresourcemanager.ClearOrgPolicyRequest{
+	_, err := config.clientResourceManager.Folders.ClearOrgPolicy(folder, &cloudresourcemanager.ClearOrgPolicyRequest{
 		Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 	}).Do()
 
@@ -82,12 +84,13 @@ func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta i
 
 func setFolderOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	folder := canonicalFolderId(d.Get("folder").(string))
 	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))
 	if err != nil {
 		return err
 	}
 
-	_, err = config.clientResourceManager.Folders.SetOrgPolicy(d.Get("folder").(string), &cloudresourcemanager.SetOrgPolicyRequest{
+	_, err = config.clientResourceManager.Folders.SetOrgPolicy(folder, &cloudresourcemanager.SetOrgPolicyRequest{
 		Policy: &cloudresourcemanager.OrgPolicy{
 			Constraint:    canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 			BooleanPolicy: expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),

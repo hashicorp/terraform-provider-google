@@ -52,6 +52,8 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `creation_timestamp` -  Creation timestamp in RFC3339 text format.
+
 * `self_link` - The URI of the created resource.
 
 ## Import

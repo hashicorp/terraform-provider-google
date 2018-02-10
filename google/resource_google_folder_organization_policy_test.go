@@ -2,12 +2,14 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"reflect"
-	"testing"
 )
 
 func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
@@ -135,7 +137,7 @@ func testAccCheckGoogleFolderOrganizationPolicyDestroy(s *terraform.State) error
 			continue
 		}
 
-		folder := rs.Primary.Attributes["folder"]
+		folder := canonicalFolderId(rs.Primary.Attributes["folder"])
 		constraint := canonicalOrgPolicyConstraint(rs.Primary.Attributes["constraint"])
 		policy, err := config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: constraint,
@@ -193,6 +195,8 @@ func testAccCheckGoogleFolderOrganizationListPolicyAllowedValues(n string, value
 			return err
 		}
 
+		sort.Strings(policy.ListPolicy.AllowedValues)
+		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.AllowedValues, values) {
 			return fmt.Errorf("Expected the list policy to allow '%s', instead allowed '%s'", values, policy.ListPolicy.AllowedValues)
 		}
@@ -208,6 +212,8 @@ func testAccCheckGoogleFolderOrganizationListPolicyDeniedValues(n string, values
 			return err
 		}
 
+		sort.Strings(policy.ListPolicy.DeniedValues)
+		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.DeniedValues, values) {
 			return fmt.Errorf("Expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
 		}
@@ -228,8 +234,9 @@ func getGoogleFolderOrganizationPolicyTestResource(s *terraform.State, n string)
 	}
 
 	config := testAccProvider.Meta().(*Config)
+	folder := canonicalFolderId(rs.Primary.Attributes["folder"])
 
-	return config.clientResourceManager.Folders.GetOrgPolicy(rs.Primary.Attributes["folder"], &cloudresourcemanager.GetOrgPolicyRequest{
+	return config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: rs.Primary.Attributes["constraint"],
 	}).Do()
 }
@@ -242,7 +249,8 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "bool" {
-  folder     = "${google_folder.orgpolicy.name}"
+	# Test numeric folder ID.
+  folder     = "${replace(google_folder.orgpolicy.name, "folders/", "")}"
   constraint = "constraints/compute.disableSerialPortAccess"
 
   boolean_policy {
@@ -306,8 +314,8 @@ resource "google_folder_organization_policy" "list" {
   list_policy {
     deny {
       values = [
-        "maps-ios-backend.googleapis.com",
-        "placesios.googleapis.com",
+        "doubleclicksearch.googleapis.com",
+        "replicapoolupdater.googleapis.com",
       ]
     }
   }

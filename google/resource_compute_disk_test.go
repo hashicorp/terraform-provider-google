@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
+	"os"
 )
 
 func TestDiskImageDiffSuppress(t *testing.T) {
@@ -75,27 +76,6 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "debian-cloud/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
-		// Latest image short hand
-		"matching latest image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-8",
-			ExpectDiffSuppress: true,
-		},
-		"matching latest image short hand with project short name": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian/debian-8",
-			ExpectDiffSuppress: true,
-		},
-		"matching latest image short hand but different project": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "different-cloud/debian-8",
-			ExpectDiffSuppress: false,
-		},
-		"different latest image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-7",
-			ExpectDiffSuppress: false,
-		},
 		// Image Family
 		"matching image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
@@ -107,14 +87,39 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20180122",
+			New:                "https://www.googleapis.com/compute/v1/projects/projects/ubuntu-os-cloud/global/images/family/ubuntu-1404-lts",
+			ExpectDiffSuppress: true,
+		},
 		"matching image family partial self link": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "projects/debian-cloud/global/images/family/debian-8",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family partial self link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20180122",
+			New:                "projects/ubuntu-os-cloud/global/images/family/ubuntu-1404-lts",
+			ExpectDiffSuppress: true,
+		},
 		"matching image family partial no project self link": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "global/images/family/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching image family short hand with project short name": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian/debian-8",
+			ExpectDiffSuppress: true,
+		},
+		"matching unconventional image family short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20180122",
+			New:                "ubuntu-os-cloud/ubuntu-1404-lts",
 			ExpectDiffSuppress: true,
 		},
 		"different image family": {
@@ -147,11 +152,50 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "projects/other-cloud/global/images/family/debian-8",
 			ExpectDiffSuppress: false,
 		},
+		"different image family short hand": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "debian-cloud/debian-7",
+			ExpectDiffSuppress: false,
+		},
+		"matching image family shorthand but different project": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			New:                "different-cloud/debian-8",
+			ExpectDiffSuppress: false,
+		},
 	}
 
 	for tn, tc := range cases {
 		if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
+// Test that all the naming pattern for public images are supported.
+func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) {
+	t.Parallel()
+
+	if os.Getenv(resource.TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	}
+
+	config := getInitializedConfig(t)
+
+	for _, publicImageProject := range imageMap {
+		token := ""
+		for paginate := true; paginate; {
+			resp, err := config.clientCompute.Images.List(publicImageProject).Filter("deprecated.replacement ne .*images.*").PageToken(token).Do()
+			if err != nil {
+				t.Fatalf("Can't list public images for project %q", publicImageProject)
+			}
+
+			for _, image := range resp.Items {
+				if !diskImageDiffSuppress("image", image.SelfLink, "family/"+image.Family, nil) {
+					t.Errorf("should suppress diff for image %q and family %q", image.SelfLink, image.Family)
+				}
+			}
+			token := resp.NextPageToken
+			paginate = token != ""
 		}
 	}
 }

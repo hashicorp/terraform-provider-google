@@ -60,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"google_active_folder":                 dataSourceGoogleActiveFolder(),
 			"google_billing_account":               dataSourceGoogleBillingAccount(),
 			"google_dns_managed_zone":              dataSourceDnsManagedZone(),
 			"google_client_config":                 dataSourceGoogleClientConfig(),
@@ -75,7 +76,8 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_region_instance_group": dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_container_cluster":             dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":     dataSourceGoogleContainerEngineVersions(),
-			"google_active_folder":                 dataSourceGoogleActiveFolder(),
+			"google_container_registry_repository": dataSourceGoogleContainerRepo(),
+			"google_container_registry_image":      dataSourceGoogleContainerImage(),
 			"google_iam_policy":                    dataSourceGoogleIamPolicy(),
 			"google_kms_secret":                    dataSourceGoogleKmsSecret(),
 			"google_organization":                  dataSourceGoogleOrganization(),
@@ -88,6 +90,7 @@ func Provider() terraform.ResourceProvider {
 			"google_bigtable_instance":                     resourceBigtableInstance(),
 			"google_bigtable_table":                        resourceBigtableTable(),
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
+			"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
 			"google_compute_autoscaler":                    resourceComputeAutoscaler(),
 			"google_compute_address":                       resourceComputeAddress(),
 			"google_compute_backend_bucket":                resourceComputeBackendBucket(),
@@ -136,6 +139,7 @@ func Provider() terraform.ResourceProvider {
 			"google_dataproc_job":                          resourceDataprocJob(),
 			"google_dns_managed_zone":                      resourceDnsManagedZone(),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
+			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_iam_policy":                     ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
@@ -188,6 +192,8 @@ func Provider() terraform.ResourceProvider {
 			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
 			"google_storage_bucket_object":      resourceStorageBucketObject(),
 			"google_storage_object_acl":         resourceStorageObjectAcl(),
+			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
+			"google_storage_notification":       resourceStorageNotification(),
 		},
 
 		ConfigureFunc: providerConfigure,

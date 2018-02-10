@@ -35,7 +35,8 @@ The following arguments are supported:
 * `org_id` - (Required) The numeric ID of the organization in which you want to create a custom role.
 
 * `role` - (Required) The role that should be applied. Only one
-    `google_organization_iam_binding` can be used per role.
+    `google_organization_iam_binding` can be used per role. Note that custom roles must be of the format
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `members` - (Required) A list of users that the role should apply to.
 

@@ -7,6 +7,7 @@ import (
 	"net"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
 
 	RFC1035NameTemplate = "[a-z](?:[-a-z0-9]{%d,%d}[a-z0-9])"
+	CloudIoTIdRegex     = "^[a-zA-Z][-a-zA-Z0-9._+~%]{2,254}$"
 )
 
 var (
@@ -106,4 +108,25 @@ func validateRFC1035Name(min, max int) schema.SchemaValidateFunc {
 	}
 
 	return validateRegexp(fmt.Sprintf("^"+RFC1035NameTemplate+"$", min-2, max-2))
+}
+
+func validateIpCidrRange(v interface{}, k string) (warnings []string, errors []error) {
+	_, _, err := net.ParseCIDR(v.(string))
+	if err != nil {
+		errors = append(errors, fmt.Errorf("%q is not a valid IP CIDR range: %s", k, err))
+	}
+	return
+}
+
+func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []error) {
+	value := v.(string)
+	if strings.HasPrefix(value, "goog") {
+		errors = append(errors, fmt.Errorf(
+			"%q (%q) can not start with \"goog\"", k, value))
+	}
+	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
+	}
+	return
 }

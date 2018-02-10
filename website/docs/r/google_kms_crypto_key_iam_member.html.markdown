@@ -32,7 +32,8 @@ The following arguments are supported:
 
 * `member` - (Required) The user that the role should apply to.
 
-* `role` - (Required) The role that should be applied.
+* `role` - (Required) The role that should be applied. Note that custom roles must be of the format
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `crypto_key_id` - (Required) The key ring ID, in the form
     `{project_id}/{location_name}/{key_ring_name}/{crypto_key_name}` or

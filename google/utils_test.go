@@ -50,22 +50,6 @@ func TestConvertStringMap(t *testing.T) {
 	}
 }
 
-func TestExtractLastResourceFromUri_withUrl(t *testing.T) {
-	actual := extractLastResourceFromUri("http://something.com/one/two/three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
-func TestExtractLastResourceFromUri_WithStaticValue(t *testing.T) {
-	actual := extractLastResourceFromUri("three")
-	expected := "three"
-	if actual != expected {
-		t.Fatalf("Expected %s, but got %s", expected, actual)
-	}
-}
-
 func TestIpCidrRangeDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New          string
@@ -418,5 +402,45 @@ func TestDatasourceSchemaFromResourceSchema(t *testing.T) {
 				t.Errorf("datasourceSchemaFromResourceSchema() = %#v, want %#v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestEmptyOrDefaultStringSuppress(t *testing.T) {
+	testFunc := emptyOrDefaultStringSuppress("default value")
+
+	cases := map[string]struct {
+		Old, New          string
+		ExpectDiffSupress bool
+	}{
+		"same value, format changed from empty to default": {
+			Old:               "",
+			New:               "default value",
+			ExpectDiffSupress: true,
+		},
+		"same value, format changed from default to empty": {
+			Old:               "default value",
+			New:               "",
+			ExpectDiffSupress: true,
+		},
+		"different value, format changed from empty to non-default": {
+			Old:               "",
+			New:               "not default new",
+			ExpectDiffSupress: false,
+		},
+		"different value, format changed from non-default to empty": {
+			Old:               "not default old",
+			New:               "",
+			ExpectDiffSupress: false,
+		},
+		"different value, format changed from non-default to non-default": {
+			Old:               "not default 1",
+			New:               "not default 2",
+			ExpectDiffSupress: false,
+		},
+	}
+	for tn, tc := range cases {
+		if testFunc("", tc.Old, tc.New, nil) != tc.ExpectDiffSupress {
+			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSupress)
+		}
 	}
 }

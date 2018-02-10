@@ -31,13 +31,13 @@ func getRegionFromZone(zone string) string {
 // - region extracted from the `zone` field in resource schema
 // - provider-level region
 // - region extracted from the provider-level zone
-func getRegion(d *schema.ResourceData, config *Config) (string, error) {
+func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
 }
 
 // getZone reads the "zone" value from the given resource data and falls back
 // to provider's value if not given.  If neither is provided, returns an error.
-func getZone(d *schema.ResourceData, config *Config) (string, error) {
+func getZone(d TerraformResourceData, config *Config) (string, error) {
 	res, ok := d.GetOk("zone")
 	if !ok {
 		if config.Zone != "" {
@@ -65,7 +65,7 @@ func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (st
 // getProject reads the "project" field from the given resource data and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
-func getProject(d *schema.ResourceData, config *Config) (string, error) {
+func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
 }
 
@@ -172,8 +172,7 @@ func isConflictError(err error) bool {
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
-	if parts[len(parts)-1] == new {
+	if GetResourceNameFromSelfLink(old) == new {
 		return true
 	}
 	return false
@@ -182,6 +181,12 @@ func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return prefix+old == new || prefix+new == old
+	}
+}
+
+func emptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
 	}
 }
 
@@ -267,11 +272,6 @@ func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []str
 	return arr
 }
 
-func extractLastResourceFromUri(uri string) string {
-	rUris := strings.Split(uri, "/")
-	return rUris[len(rUris)-1]
-}
-
 func convertStringArrToInterface(strs []string) []interface{} {
 	arr := make([]interface{}, len(strs))
 	for i, str := range strs {
@@ -325,4 +325,11 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 	}
 
 	return m[0].(map[string]interface{})
+}
+
+func lockedCall(lockKey string, f func() error) error {
+	mutexKV.Lock(lockKey)
+	defer mutexKV.Unlock(lockKey)
+
+	return f()
 }

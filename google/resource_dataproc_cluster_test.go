@@ -159,6 +159,29 @@ func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_basicWithMetadata(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.foo", "bar"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.baz", "qux"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
 	t.Parallel()
 
@@ -582,13 +605,13 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.MasterConfig.NumInstances))},
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "10", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.master_config.0.disk_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
-			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.MasterConfig.MachineTypeUri)},
+			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
 			{"cluster_config.0.master_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.MasterConfig.InstanceNames))},
 
 			{"cluster_config.0.worker_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "11", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
-			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", extractLastResourceFromUri(cluster.Config.WorkerConfig.MachineTypeUri)},
+			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
 			{"cluster_config.0.worker_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.WorkerConfig.InstanceNames))},
 
 			{"cluster_config.0.preemptible_worker_config.0.num_instances", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
@@ -738,6 +761,24 @@ resource "google_dataproc_cluster" "basic" {
 	}
 }
 `, rnd, rnd, rnd)
+}
+
+func testAccDataprocCluster_basicWithMetadata(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+	cluster_config {
+		gce_cluster_config {
+			metadata {
+				foo = "bar"
+				baz = "qux"
+			}
+		}
+	}
+}
+`, rnd)
 }
 
 func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {

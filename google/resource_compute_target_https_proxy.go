@@ -5,14 +5,11 @@ import (
 	"log"
 	"strconv"
 
-	"regexp"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
 const (
-	sslCertificateRegex             = "projects/(.+)/global/sslCertificates/(.+)$"
 	canonicalSslCertificateTemplate = "https://www.googleapis.com/compute/v1/projects/%s/global/sslCertificates/%s"
 )
 
@@ -38,9 +35,8 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(sslCertificateRegex),
-					StateFunc:    toCanonicalSslCertificate,
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
 
@@ -83,11 +79,9 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	_sslCertificates := d.Get("ssl_certificates").([]interface{})
-	sslCertificates := make([]string, len(_sslCertificates))
-
-	for i, v := range _sslCertificates {
-		sslCertificates[i] = v.(string)
+	sslCertificates, err := expandSslCertificates(d, config)
+	if err != nil {
+		return err
 	}
 
 	proxy := &compute.TargetHttpsProxy{
@@ -145,7 +139,10 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if d.HasChange("ssl_certificates") {
-		certs := convertStringArr(d.Get("ssl_certificates").([]interface{}))
+		certs, err := expandSslCertificates(d, config)
+		if err != nil {
+			return err
+		}
 		cert_ref := &compute.TargetHttpsProxiesSetSslCertificatesRequest{
 			SslCertificates: certs,
 		}
@@ -216,11 +213,4 @@ func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interfac
 
 	d.SetId("")
 	return nil
-}
-
-func toCanonicalSslCertificate(v interface{}) string {
-	value := v.(string)
-	m := regexp.MustCompile(sslCertificateRegex).FindStringSubmatch(value)
-
-	return fmt.Sprintf(canonicalSslCertificateTemplate, m[1], m[2])
 }

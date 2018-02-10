@@ -33,6 +33,20 @@ func TestAccGoogleProjectService_basic(t *testing.T) {
 					testAccCheckProjectService(services, pid, false),
 				),
 			},
+			// Create services with disabling turned off.
+			resource.TestStep{
+				Config: testAccGoogleProjectService_noDisable(services, pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProjectService(services, pid, true),
+				),
+			},
+			// Check that services are still enabled even after the resources are deleted.
+			resource.TestStep{
+				Config: testAccGoogleProject_create(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProjectService(services, pid, true),
+				),
+			},
 		},
 	})
 }
@@ -81,6 +95,28 @@ resource "google_project_service" "test" {
 resource "google_project_service" "test2" {
   project = "${google_project.acceptance.project_id}"
   service = "%s"
+}
+`, pid, name, org, services[0], services[1])
+}
+
+func testAccGoogleProjectService_noDisable(services []string, pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_service" "test" {
+  project = "${google_project.acceptance.project_id}"
+  service = "%s"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "test2" {
+  project = "${google_project.acceptance.project_id}"
+  service = "%s"
+  disable_on_destroy = false
 }
 `, pid, name, org, services[0], services[1])
 }

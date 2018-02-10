@@ -65,3 +65,24 @@ func TestCompareSelfLinkOrResourceName(t *testing.T) {
 		}
 	}
 }
+
+func TestGetResourceNameFromSelfLink(t *testing.T) {
+	cases := map[string]struct {
+		SelfLink, ExpectedName string
+	}{
+		"name is extracted from self_link": {
+			SelfLink:     "http://something.com/one/two/three",
+			ExpectedName: "three",
+		},
+		"name is returned if the self_link only contains the name": {
+			SelfLink:     "resource_name",
+			ExpectedName: "resource_name",
+		},
+	}
+
+	for tn, tc := range cases {
+		if n := GetResourceNameFromSelfLink(tc.SelfLink); n != tc.ExpectedName {
+			t.Errorf("%s: expected resource name %q; got %q", tn, tc.ExpectedName, n)
+		}
+	}
+}

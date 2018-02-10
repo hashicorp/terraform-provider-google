@@ -61,7 +61,7 @@ func resourcePubsubSubscription() *schema.Resource {
 						"attributes": &schema.Schema{
 							Type:     schema.TypeMap,
 							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Elem:     schema.TypeString,
 						},
 
 						"push_endpoint": &schema.Schema{

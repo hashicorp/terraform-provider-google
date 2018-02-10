@@ -16,6 +16,9 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 	hostProject := "xpn-host-" + acctest.RandString(10)
 	serviceProject := "xpn-service-" + acctest.RandString(10)
 
+	hostProjectResourceName := "google_compute_shared_vpc_host_project.host"
+	serviceProjectResourceName := "google_compute_shared_vpc_service_project.service"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -26,6 +29,17 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 					testAccCheckComputeSharedVpcHostProject(hostProject, true),
 					testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject, true),
 				),
+			},
+			// Test import.
+			resource.TestStep{
+				ResourceName:      hostProjectResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      serviceProjectResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{

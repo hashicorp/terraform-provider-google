@@ -400,7 +400,6 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
 
-	regionUrl := strings.Split(tpool.Region, "/")
 	d.Set("self_link", tpool.SelfLink)
 	d.Set("backup_pool", tpool.BackupPool)
 	d.Set("description", tpool.Description)
@@ -412,7 +411,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("instances", nil)
 	}
 	d.Set("name", tpool.Name)
-	d.Set("region", regionUrl[len(regionUrl)-1])
+	d.Set("region", GetResourceNameFromSelfLink(tpool.Region))
 	d.Set("session_affinity", tpool.SessionAffinity)
 	d.Set("project", project)
 	return nil
