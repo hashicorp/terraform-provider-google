@@ -3,12 +3,13 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"reflect"
-	"testing"
 )
 
 func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
@@ -141,6 +142,22 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 			return fmt.Errorf("Incorrect etag value. Expected '%s', got '%s'", p.Etag, rs.Primary.Attributes["etag"])
 		}
 
+		return nil
+	}
+}
+
+// Confirm that a folder has an IAM policy with at least 1 binding
+func testAccGoogleFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		c := testAccProvider.Meta().(*Config)
+		var err error
+		originalPolicy, err = getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, c)
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve IAM Policy for folder %q: %s", fname, err)
+		}
+		if len(originalPolicy.Bindings) == 0 {
+			return fmt.Errorf("Refuse to run test against folder with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a folder.")
+		}
 		return nil
 	}
 }

@@ -142,6 +142,8 @@ func Provider() terraform.ResourceProvider {
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
+			"google_folder_iam_binding":                    ResourceIamBindingWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_iam_member":                     ResourceIamMemberWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_iam_policy":                     ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
