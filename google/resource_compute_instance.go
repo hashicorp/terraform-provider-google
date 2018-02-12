@@ -224,6 +224,13 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"mode": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "READ_WRITE",
+							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+						},
+
 						"disk_encryption_key_raw": &schema.Schema{
 							Type:      schema.TypeString,
 							Optional:  true,
@@ -863,6 +870,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
+				"mode":        disk.Mode,
 			}
 			if key := disk.DiskEncryptionKey; key != nil {
 				if inConfig {
@@ -1292,6 +1300,10 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 
 	disk := &computeBeta.AttachedDisk{
 		Source: source.RelativeLink(),
+	}
+
+	if v, ok := diskConfig["mode"]; ok {
+		disk.Mode = v.(string)
 	}
 
 	if v, ok := diskConfig["device_name"]; ok {

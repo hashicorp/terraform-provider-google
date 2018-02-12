@@ -290,6 +290,36 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskName = fmt.Sprintf("instance-testd-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_attachedDisk_modeRo(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
+				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_instance.foobar",
+				ImportState:             true,
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1827,6 +1857,38 @@ resource "google_compute_instance" "foobar" {
 
 	attached_disk {
 		source = "${google_compute_disk.foobar.self_link}"
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, disk, instance)
+}
+
+func testAccComputeInstance_attachedDisk_modeRo(disk, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
+		mode = "READ_ONLY"
 	}
 
 	network_interface {
