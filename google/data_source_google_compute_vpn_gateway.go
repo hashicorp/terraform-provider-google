@@ -69,8 +69,7 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			// The resource doesn't exist anymore
-
-			return fmt.Errorf("VPN Gateway Not Found : %s", d.Get("name"))
+			return handleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
 		}
 
 		return fmt.Errorf("Error reading VPN Gateway: %s", err)
