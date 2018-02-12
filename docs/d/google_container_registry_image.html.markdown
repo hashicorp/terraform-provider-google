@@ -15,12 +15,12 @@ The URLs are computed entirely offline - as long as the project exists, they wil
 ## Example Usage
 
 ```hcl
-data "google_container_registry_image" {
+data "google_container_registry_image" "debian" {
     name = "debian"
 }
 
 output "gcr_location" {
-    value = "${data.google_container_registry_image.image_url}"
+    value = "${data.google_container_registry_image.debian.image_url}"
 }
 ```
 
