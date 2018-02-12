@@ -1,5 +1,8 @@
 ## 1.6.1 (Unreleased)
 
+Features:
+* **New Data Source** `google_compute_vpn_gateway` [GH-1071]
+
 IMPROVEMENTS:
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
 * container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
