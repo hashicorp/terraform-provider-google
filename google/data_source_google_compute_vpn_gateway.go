@@ -18,6 +18,18 @@ func dataSourceGoogleComputeVpnGateway() *schema.Resource {
 				Required: true,
 			},
 
+			"region": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -25,17 +37,6 @@ func dataSourceGoogleComputeVpnGateway() *schema.Resource {
 
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"project": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"region": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 
