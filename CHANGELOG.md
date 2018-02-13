@@ -4,6 +4,7 @@ Features:
 * **New Data Source** `google_compute_vpn_gateway` [GH-1071]
 * **New Resource** `google_folder_iam_binding` [GH-1076]
 * **New Resource** `google_folder_iam_member` [GH-1076]
+* **New Resource** `google_project_usage_export_bucket` [GH-1080]
 
 IMPROVEMENTS:
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
