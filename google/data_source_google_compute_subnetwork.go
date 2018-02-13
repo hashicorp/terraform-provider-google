@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleComputeSubnetwork() *schema.Resource {
@@ -83,17 +82,11 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	name := d.Get("name").(string)
 
-	subnetwork, err := config.clientCompute.Subnetworks.Get(
-		project, region, d.Get("name").(string)).Do()
+	subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, name).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			// The resource doesn't exist anymore
-
-			return fmt.Errorf("Subnetwork Not Found")
-		}
-
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
 	}
 
 	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
