@@ -27,7 +27,6 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 		},
 	})
 }
@@ -54,6 +53,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_project_usage_export_bucket" "ueb" {
   project = "${google_project.base.project_id}"
   bucket_name = "${google_storage_bucket.bucket.name}"
+	prefix = "foobar"
 }
 `, baseProject, org, billingId)
 }
