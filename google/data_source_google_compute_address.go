@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleComputeAddress() *schema.Resource {
@@ -59,17 +58,11 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	name := d.Get("name").(string)
 
-	address, err := config.clientCompute.Addresses.Get(
-		project, region, d.Get("name").(string)).Do()
+	address, err := config.clientCompute.Addresses.Get(project, region, name).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			// The resource doesn't exist anymore
-
-			return fmt.Errorf("Address Not Found")
-		}
-
-		return fmt.Errorf("Error reading Address: %s", err)
+		return handleNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name))
 	}
 
 	d.Set("address", address.Address)

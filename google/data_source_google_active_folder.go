@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleActiveFolder() *schema.Resource {
@@ -41,11 +40,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	}
 	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			return fmt.Errorf("Folder Not Found : %s", d.Get("name"))
-		}
-
-		return fmt.Errorf("Error reading folders: %s", err)
+		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", displayName))
 	}
 
 	folders := searchResponse.Folders

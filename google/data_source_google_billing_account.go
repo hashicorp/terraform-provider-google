@@ -2,13 +2,11 @@ package google
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"google.golang.org/api/cloudbilling/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleBillingAccount() *schema.Resource {
@@ -55,11 +53,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := d.GetOk("billing_account"); ok {
 		resp, err := config.clientBilling.BillingAccounts.Get(canonicalBillingAccountName(v.(string))).Do()
 		if err != nil {
-			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-				return fmt.Errorf("Billing account not found: %s", v)
-			}
-
-			return fmt.Errorf("Error reading billing account: %s", err)
+			return handleNotFoundError(err, d, fmt.Sprintf("Billing Account Not Found : %s", v))
 		}
 
 		if openOk && resp.Open != open.(bool) {

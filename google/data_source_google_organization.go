@@ -2,13 +2,11 @@ package google
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleOrganization() *schema.Resource {
@@ -70,11 +68,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOk("organization"); ok {
 		resp, err := config.clientResourceManager.Organizations.Get(canonicalOrganizationName(v.(string))).Do()
 		if err != nil {
-			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-				return fmt.Errorf("Organization not found: %s", v)
-			}
-
-			return fmt.Errorf("Error reading organization: %s", err)
+			return handleNotFoundError(err, d, fmt.Sprintf("Organization Not Found : %s", v))
 		}
 
 		organization = resp
