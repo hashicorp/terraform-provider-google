@@ -21,8 +21,8 @@ and for further details, the
 
 ```hcl
 resource "google_project_usage_export_bucket" "export" {
-  project = "foo"
-  bucket  = "bar"
+  project      = "foo"
+  bucket_name  = "bar"
 }
 ```
 
