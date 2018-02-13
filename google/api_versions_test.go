@@ -228,3 +228,8 @@ func (d *ResourceDataMock) GetOk(key string) (interface{}, bool) {
 
 	return nil, false
 }
+
+func (d *ResourceDataMock) Set(key string, value interface{}) error {
+	d.FieldsInSchema[key] = value
+	return nil
+}

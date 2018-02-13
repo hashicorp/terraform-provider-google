@@ -38,6 +38,7 @@ func Convert(item, out interface{}) error {
 type TerraformResourceData interface {
 	HasChange(string) bool
 	GetOk(string) (interface{}, bool)
+	Set(string, interface{}) error
 }
 
 // Compare the fields set in schema against a list of features and their versions to determine
