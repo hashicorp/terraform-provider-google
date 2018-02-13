@@ -778,13 +778,14 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	md := flattenMetadataBeta(instance.Metadata)
-
-	d.Set("metadata_startup_script", md["startup-script"])
-	// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-	// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-	delete(md, "startup-script")
-
 	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	if ss, ok := existingMetadata["startup-script"]; ok && ss != "" {
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
+	}
 
 	// Delete any keys not explicitly set in our config file
 	for k := range md {
