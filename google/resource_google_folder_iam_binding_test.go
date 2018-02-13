@@ -231,7 +231,7 @@ func testAccCheckGoogleFolderIamBindingExists(key string, expected *cloudresourc
 			}
 		}
 		if result == nil {
-			return fmt.Errorf("IAM policy for folder %q had no role %q", fname, expected.Role)
+			return fmt.Errorf("IAM policy for folder %q had no role %q, got %#v", fname, expected.Role, folderPolicy.Bindings)
 		}
 		if len(result.Members) != len(expected.Members) {
 			return fmt.Errorf("Got %v as members for role %q of folder %q, expected %v", result.Members, expected.Role, fname, expected.Members)
