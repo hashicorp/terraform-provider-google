@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"strings"
+	"google.golang.org/api/googleapi"
 )
 
 var IamFolderSchema = map[string]*schema.Schema{
@@ -35,19 +37,7 @@ func FolderIdParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *FolderIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(u.folderId,
-		&resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
-
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
-	}
-
-	v1Policy, err := v2BetaPolicyToV1(p)
-	if err != nil {
-		return nil, err
-	}
-
-	return v1Policy, nil
+	return getFolderIamPolicyByFolderName(u.folderId, u.Config)
 }
 
 func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
@@ -104,4 +94,43 @@ func v2BetaPolicyToV1(in *resourceManagerV2Beta1.Policy) (*cloudresourcemanager.
 		return nil, fmt.Errorf("Cannot convert a v2beta policy to a v1 policy: %s", err)
 	}
 	return out, nil
+}
+
+// Retrieve the existing IAM Policy for a folder
+func getFolderIamPolicyByFolderName(folderName string, config *Config) (*cloudresourcemanager.Policy, error) {
+	p, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folderName,
+		&resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
+
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving IAM policy for folder %q: %s", folderName, err)
+	}
+
+	v1Policy, err := v2BetaPolicyToV1(p)
+	if err != nil {
+		return nil, err
+	}
+
+	return v1Policy, nil
+}
+
+func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
+	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
+	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
+		Query: queryString,
+	}
+	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			return nil, fmt.Errorf("Folder Not Found: %s,%s", parent, displayName)
+		}
+
+		return nil, fmt.Errorf("Error reading folders: %s", err)
+	}
+
+	folders := searchResponse.Folders
+	if len(folders) != 1 {
+		return nil, fmt.Errorf("More than one folder found")
+	}
+
+	return getFolderIamPolicyByFolderName(folders[0].Name, config)
 }
