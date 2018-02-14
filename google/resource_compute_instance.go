@@ -788,6 +788,8 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
 		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
 		delete(md, "startup-script")
+	} else if _, ok := d.GetOk("metadata_startup_script"); ok {
+		delete(md, "startup-script")
 	}
 
 	// Delete any keys not explicitly set in our config file
@@ -932,11 +934,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// If the Metadata has changed, then update that.
 	if d.HasChange("metadata") {
 		o, n := d.GetChange("metadata")
-		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists && script != "" {
 			if _, ok := n.(map[string]interface{})["startup-script"]; ok {
 				return fmt.Errorf("Only one of metadata.startup-script and metadata_startup_script may be defined")
 			}
 
+			if err = d.Set("metadata", n); err != nil {
+				return err
+			}
 			n.(map[string]interface{})["startup-script"] = script
 		}
 
@@ -973,10 +978,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			d.SetPartial("metadata")
+
 			return nil
 		}
 
 		MetadataRetryWrapper(updateMD)
+
 	}
 
 	if d.HasChange("tags") {
