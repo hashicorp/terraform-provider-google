@@ -1478,7 +1478,9 @@ resource "google_compute_instance" "foobar" {
 
 	create_timeout = 5
 
-	metadata_startup_script = "echo Hello"
+	metadata {
+		startup-script = "echo Hello"
+	}
 
 	labels {
 		my_key       = "my_value"

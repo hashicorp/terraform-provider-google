@@ -778,13 +778,19 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	md := flattenMetadataBeta(instance.Metadata)
-
-	d.Set("metadata_startup_script", md["startup-script"])
-	// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-	// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-	delete(md, "startup-script")
-
 	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	// If the existing config specifies "metadata.startup-script" instead of "metadata_startup_script",
+	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
+	// we should.
+	if ss, ok := existingMetadata["startup-script"]; !ok || ss == "" {
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
+	} else if _, ok := d.GetOk("metadata_startup_script"); ok {
+		delete(md, "startup-script")
+	}
 
 	// Delete any keys not explicitly set in our config file
 	for k := range md {
@@ -928,11 +934,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// If the Metadata has changed, then update that.
 	if d.HasChange("metadata") {
 		o, n := d.GetChange("metadata")
-		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists && script != "" {
 			if _, ok := n.(map[string]interface{})["startup-script"]; ok {
 				return fmt.Errorf("Only one of metadata.startup-script and metadata_startup_script may be defined")
 			}
 
+			if err = d.Set("metadata", n); err != nil {
+				return err
+			}
 			n.(map[string]interface{})["startup-script"] = script
 		}
 
@@ -969,10 +978,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			d.SetPartial("metadata")
+
 			return nil
 		}
 
 		MetadataRetryWrapper(updateMD)
+
 	}
 
 	if d.HasChange("tags") {
