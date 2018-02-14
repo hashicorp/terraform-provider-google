@@ -39,6 +39,8 @@ type TerraformResourceData interface {
 	HasChange(string) bool
 	GetOk(string) (interface{}, bool)
 	Set(string, interface{}) error
+	SetId(string)
+	Id() string
 }
 
 // Compare the fields set in schema against a list of features and their versions to determine
