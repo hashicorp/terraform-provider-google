@@ -11,10 +11,16 @@ type ApiVersion uint8
 const (
 	v1 ApiVersion = iota
 	v0beta
+	v1beta1
 )
 
 var OrderedComputeApiVersions = []ApiVersion{
 	v0beta,
+	v1,
+}
+
+var OrderedContainerApiVersions = []ApiVersion{
+	v1beta1,
 	v1,
 }
 
@@ -57,6 +63,10 @@ func getComputeApiVersion(d TerraformResourceData, resourceVersion ApiVersion, f
 	return getApiVersion(d, resourceVersion, features, maxComputeVersion)
 }
 
+func getContainerApiVersion(d TerraformResourceData, resourceVersion ApiVersion, features []Feature) ApiVersion {
+	return getApiVersion(d, resourceVersion, features, maxContainerVersion)
+}
+
 // Compare the fields set in schema against a list of features and their version, and a
 // list of features that exist at the base resource version that can only be update at some other
 // version, to determine what version of the API is required in order to update the resource.
@@ -80,6 +90,10 @@ func getApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, fe
 
 func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, features, updateOnlyFields []Feature) ApiVersion {
 	return getApiVersionUpdate(d, resourceVersion, features, updateOnlyFields, maxComputeVersion)
+}
+
+func getContainerApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, features, updateOnlyFields []Feature) ApiVersion {
+	return getApiVersionUpdate(d, resourceVersion, features, updateOnlyFields, maxContainerVersion)
 }
 
 // A field of a resource and the version of the Compute API required to use it.
@@ -162,13 +176,21 @@ func inUseBy(d TerraformResourceData, path string, defaultValue interface{}, inU
 	return false
 }
 
-func maxComputeVersion(versionsInUse map[ApiVersion]struct{}) ApiVersion {
-	for _, version := range OrderedComputeApiVersions {
+func maxVersion(versionsInUse map[ApiVersion]struct{}, orderedVersions []ApiVersion) ApiVersion {
+	for _, version := range orderedVersions {
 		if _, ok := versionsInUse[version]; ok {
 			return version
 		}
 	}
 
 	// Fallback to the final, most stable version
-	return OrderedComputeApiVersions[len(OrderedComputeApiVersions)-1]
+	return orderedVersions[len(orderedVersions)-1]
+}
+
+func maxComputeVersion(versionsInUse map[ApiVersion]struct{}) ApiVersion {
+	return maxVersion(versionsInUse, OrderedComputeApiVersions)
+}
+
+func maxContainerVersion(versionsInUse map[ApiVersion]struct{}) ApiVersion {
+	return maxVersion(versionsInUse, OrderedContainerApiVersions)
 }
