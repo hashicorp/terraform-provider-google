@@ -371,20 +371,18 @@ func resourceComputeInstance() *schema.Resource {
 
 						"alias_ip_range": &schema.Schema{
 							Type:     schema.TypeList,
+							MaxItems: 1,
 							Optional: true,
-							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_cidr_range": &schema.Schema{
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
 									},
 									"subnetwork_range_name": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -923,9 +921,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	instance, err := getInstance(config, d)
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
 
 	// Enable partial mode for the resource since it is possible
@@ -1106,6 +1106,50 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
 				opErr := computeOperationWaitTime(config.clientCompute, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				if opErr != nil {
+					return opErr
+				}
+			}
+		}
+
+		if d.HasChange(prefix + ".alias_ip_range") {
+			rereadFingerprint := false
+
+			// Alias IP ranges cannot be updated; they must be removed and then added.
+			if len(instNetworkInterface.AliasIpRanges) > 0 {
+				ni := &computeBeta.NetworkInterface{
+					Fingerprint:     instNetworkInterface.Fingerprint,
+					ForceSendFields: []string{"AliasIpRanges"},
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
+				if opErr != nil {
+					return opErr
+				}
+				rereadFingerprint = true
+			}
+
+			ranges := d.Get(prefix + ".alias_ip_range").([]interface{})
+			if len(ranges) > 0 {
+				if rereadFingerprint {
+					instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+					if err != nil {
+						return err
+					}
+					instNetworkInterface = instance.NetworkInterfaces[i]
+				}
+				ni := &computeBeta.NetworkInterface{
+					AliasIpRanges: expandAliasIpRanges(ranges),
+					Fingerprint:   instNetworkInterface.Fingerprint,
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
 				if opErr != nil {
 					return opErr
 				}
