@@ -34,9 +34,10 @@ resource "google_compute_health_check" "autohealing" {
 resource "google_compute_region_instance_group_manager" "appserver" {
   name = "appserver-igm"
 
-  base_instance_name = "app"
-  instance_template  = "${google_compute_instance_template.appserver.self_link}"
-  region             = "us-central1"
+  base_instance_name  = "app"
+  instance_template   = "${google_compute_instance_template.appserver.self_link}"
+  region              = "us-central1"
+  distribution_policy = ["us-central1-a", "us-central1-f"]
 
   target_pools = ["${google_compute_target_pool.appserver.self_link}"]
   target_size  = 2
@@ -98,6 +99,10 @@ The following arguments are supported:
 
 * `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
+
+* `distribution_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The distribution policy for this managed instance
+group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
+
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).
 
