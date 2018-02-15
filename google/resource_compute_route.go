@@ -83,6 +83,12 @@ func resourceComputeRoute() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -162,6 +168,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	// Build the route parameter
 	route := &compute.Route{
 		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
 		DestRange:        d.Get("dest_range").(string),
 		Network:          network.RelativeLink(),
 		NextHopInstance:  nextHopInstance,
@@ -209,6 +216,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", route.Name)
+	d.Set("description", route.Description)
 	d.Set("dest_range", route.DestRange)
 	d.Set("network", route.Network)
 	d.Set("priority", route.Priority)
