@@ -45,7 +45,7 @@ func getZone(d TerraformResourceData, config *Config) (string, error) {
 		}
 		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
 	}
-	return res.(string), nil
+	return GetResourceNameFromSelfLink(res.(string)), nil
 }
 
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
