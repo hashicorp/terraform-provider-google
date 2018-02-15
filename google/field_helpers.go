@@ -318,7 +318,7 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 // - region extracted from the provider-level zone
 func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config) (string, error) {
 	if v, ok := d.GetOk(regionSchemaField); ok && regionSchemaField != "" {
-		return v.(string), nil
+		return GetResourceNameFromSelfLink(v.(string)), nil
 	}
 	if v, ok := d.GetOk(zoneSchemaField); ok && zoneSchemaField != "" {
 		return getRegionFromZone(v.(string)), nil

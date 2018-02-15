@@ -206,7 +206,7 @@ func TestComputeApiVersion(t *testing.T) {
 type ResourceDataMock struct {
 	FieldsInSchema      map[string]interface{}
 	FieldsWithHasChange []string
-	id string
+	id                  string
 }
 
 func (d *ResourceDataMock) HasChange(key string) bool {
