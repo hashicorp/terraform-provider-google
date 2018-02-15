@@ -330,7 +330,7 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 
 // resourceComputeGlobalForwardingRuleReadLabelFingerprint performs a read on the remote resource and returns only the
 // fingerprint. Used on create when setting labels as we don't know the label fingerprint initially.
-func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, computeApiVersion ComputeApiVersion,
+func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, computeApiVersion ApiVersion,
 	project, name string) (string, error) {
 	switch computeApiVersion {
 	case v0beta:
@@ -348,7 +348,7 @@ func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, com
 }
 
 // resourceComputeGlobalForwardingRuleSetLabels sets the Labels attribute on a forwarding rule.
-func resourceComputeGlobalForwardingRuleSetLabels(config *Config, computeApiVersion ComputeApiVersion, project,
+func resourceComputeGlobalForwardingRuleSetLabels(config *Config, computeApiVersion ApiVersion, project,
 	name string, labels map[string]string, fingerprint string) error {
 	var op interface{}
 	var err error

@@ -3,14 +3,20 @@ package google
 import "testing"
 
 type ExpectedApiVersions struct {
-	Create     ComputeApiVersion
-	ReadDelete ComputeApiVersion
-	Update     ComputeApiVersion
+	Create     ApiVersion
+	ReadDelete ApiVersion
+	Update     ApiVersion
 }
 
-func TestComputeApiVersion(t *testing.T) {
+func TestApiVersion(t *testing.T) {
 	baseVersion := v1
 	betaVersion := v0beta
+	maxTestApiVersion := func(versionsInUse map[ApiVersion]struct{}) ApiVersion {
+		if _, ok := versionsInUse[betaVersion]; ok {
+			return betaVersion
+		}
+		return baseVersion
+	}
 
 	cases := map[string]struct {
 		Features         []Feature
@@ -173,7 +179,7 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsWithHasChange: keys,
 		}
 
-		apiVersion := getComputeApiVersion(d, v1, tc.Features)
+		apiVersion := getApiVersion(d, v1, tc.Features, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.Create {
 			t.Errorf("bad: %s, Expected to see version %v for create, got version %v", tn, tc.ExpectedApiVersions.Create, apiVersion)
 		}
@@ -184,7 +190,7 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsInSchema: tc.FieldsInSchema,
 		}
 
-		apiVersion = getComputeApiVersion(d, v1, tc.Features)
+		apiVersion = getApiVersion(d, v1, tc.Features, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.ReadDelete {
 			t.Errorf("bad: %s, Expected to see version %v for read/delete, got version %v", tn, tc.ExpectedApiVersions.ReadDelete, apiVersion)
 		}
@@ -196,7 +202,7 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsWithHasChange: tc.UpdatedFields,
 		}
 
-		apiVersion = getComputeApiVersionUpdate(d, v1, tc.Features, tc.UpdateOnlyFields)
+		apiVersion = getApiVersionUpdate(d, v1, tc.Features, tc.UpdateOnlyFields, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.Update {
 			t.Errorf("bad: %s, Expected to see version %v for update, got version %v", tn, tc.ExpectedApiVersions.Update, apiVersion)
 		}
