@@ -92,6 +92,24 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withGPU(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_withGPU(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.np_with_gpu"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withManagement(t *testing.T) {
 	t.Parallel()
 
@@ -313,6 +331,18 @@ func testAccCheckContainerNodePoolMatches(n string) resource.TestCheckFunc {
 					tf, nodepool.Autoscaling.MaxNodeCount)
 			}
 
+		}
+
+		tfGA := attributes["node_config.0.guest_accelerator.#"] == "1"
+		if gcpGA := nodepool.Config.Accelerators != nil && len(nodepool.Config.Accelerators) == 1; tfGA != gcpGA {
+			if tf := attributes["node_config.0.guest_accelerator.0.type"]; nodepool.Config.Accelerators[0].AcceleratorType != tf {
+				return fmt.Errorf("Mismatched NodeConfig.Accelerators type. TF State: %s. GCP State: %s",
+					tf, nodepool.Config.Accelerators[0].AcceleratorType)
+			}
+			if tf := attributes["node_config.0.guest_accelerator.0.count"]; strconv.FormatInt(nodepool.Config.Accelerators[0].AcceleratorCount, 10) != tf {
+				return fmt.Errorf("Mismatched NodeConfig.Accelerators count. TF State: %s. GCP State: %d",
+					tf, nodepool.Config.Accelerators[0].AcceleratorCount)
+			}
 		}
 
 		return nil
@@ -579,6 +609,44 @@ resource "google_container_node_pool" "np_with_node_config" {
 		]
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccContainerNodePool_withGPU() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-c"
+	initial_node_count = 1
+  node_version = "1.9.2-gke.1"
+  min_master_version = "1.9.2-gke.1"
+}
+resource "google_container_node_pool" "np_with_gpu" {
+	name = "tf-nodepool-test-%s"
+	zone = "us-central1-c"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+	node_config {
+		machine_type = "n1-standard-1"
+		disk_size_gb = 10
+		oauth_scopes = [
+			"https://www.googleapis.com/auth/devstorage.read_only", 
+			"https://www.googleapis.com/auth/logging.write", 
+			"https://www.googleapis.com/auth/monitoring", 
+			"https://www.googleapis.com/auth/service.management.readonly",
+			"https://www.googleapis.com/auth/servicecontrol", 
+			"https://www.googleapis.com/auth/trace.append"
+		]
+		preemptible = true
+		service_account = "default"
+		image_type = "COS"
+		guest_accelerator = [
+			{
+				type = "nvidia-tesla-k80"
+				count = 1
+			}
+		]
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 }
