@@ -3,8 +3,8 @@ package google
 import (
 	"fmt"
 
-	"google.golang.org/api/compute/v1"
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v1"
 )
 
 func dataSourceGoogleComputeSubnetwork() *schema.Resource {
