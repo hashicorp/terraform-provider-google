@@ -30,7 +30,7 @@ resource "google_sql_database_instance" "master" {
   region = "us-central"
 
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 ```
