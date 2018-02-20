@@ -108,6 +108,34 @@ func TestValidateRFC1035Name(t *testing.T) {
 	}
 }
 
+func TestValidateServiceAccountLink(t *testing.T) {
+	cases := []StringValidationTestCase{
+		// These test cases focus on the project name part of the regex
+		// The service account name is covered by the RFC1035Name tests above
+
+		// No errors
+		{TestName: "valid with dash", Value: "projects/my-project/serviceAccounts/svcacct@my-project.iam.gserviceaccount.com"},
+		{TestName: "valid with colon", Value: "projects/my:project/serviceAccounts/svcacct@project.my.iam.gserviceaccount.com"},
+		{TestName: "valid with dot and colon", Value: "projects/my.thing:project/serviceAccounts/svcacct@project.my.thing.iam.gserviceaccount.com"},
+
+		// Errors
+		{TestName: "multiple colons", Value: "projects/my:project:thing/serviceAccounts/svcacct@thing.project.my.iam.gserviceaccount.com", ExpectError: true},
+		{TestName: "project name empty", Value: "projects//serviceAccounts/svcacct@.iam.gserviceaccount.com", ExpectError: true},
+		{TestName: "dot only with no colon", Value: "projects/my.project/serviceAccounts/svcacct@my.project.iam.gserviceaccount.com", ExpectError: true},
+		{
+			TestName: "too long",
+			Value: "projects/foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoob/serviceAccounts/svcacct@" +
+				"foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoob.iam.gserviceaccount.com",
+			ExpectError: true,
+		},
+	}
+
+	es := testStringValidationCases(cases, validateRegexp(ServiceAccountLinkRegex))
+	if len(es) > 0 {
+		t.Errorf("Failed to validate Service Account Links: %v", es)
+	}
+}
+
 type StringValidationTestCase struct {
 	TestName    string
 	Value       string
