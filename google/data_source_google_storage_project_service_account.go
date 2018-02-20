@@ -11,12 +11,6 @@ import (
 func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleStorageProjectServiceAccountRead,
-		Schema: map[string]*schema.Schema{
-			"email_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
 	}
 }
 
@@ -38,7 +32,6 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 	}
 
 	d.SetId(serviceAccount.EmailAddress)
-	d.Set("email_address", serviceAccount.EmailAddress)
 
 	return nil
 }

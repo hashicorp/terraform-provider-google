@@ -33,6 +33,4 @@ There are no arguments available for this data source.
 
 The following attributes are exported:
 
-* `id` - The ID of the service account, which is its email_address
-
-* `email_address` - The email_address for this account
+* `id` - The ID of the service account, which is its email address
