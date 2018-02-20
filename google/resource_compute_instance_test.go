@@ -983,6 +983,8 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 
 	var instance compute.Instance
 	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	networkName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	subnetName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -990,10 +992,22 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_secondaryAliasIpRange(instanceName),
+				Config: testAccComputeInstance_secondaryAliasIpRange(networkName, subnetName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:  "google_compute_instance.foobar",
+				ImportState:   true,
+				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
+			},
+			resource.TestStep{
+				Config: testAccComputeInstance_secondaryAliasIpRangeUpdate(networkName, subnetName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "10.0.1.0/24"),
 				),
 			},
 			resource.TestStep{
@@ -1478,7 +1492,9 @@ resource "google_compute_instance" "foobar" {
 
 	create_timeout = 5
 
-	metadata_startup_script = "echo Hello"
+	metadata {
+		startup-script = "echo Hello"
+	}
 
 	labels {
 		my_key       = "my_value"
@@ -2504,13 +2520,13 @@ resource "google_compute_instance" "foobar" {
 }`, instance)
 }
 
-func testAccComputeInstance_secondaryAliasIpRange(instance string) string {
+func testAccComputeInstance_secondaryAliasIpRange(network, subnet, instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+	name = "%s"
 }
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
-	name          = "inst-test-subnetwork-%s"
+	name          = "%s"
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-east1"
 	network       = "${google_compute_network.inst-test-network.self_link}"
@@ -2520,9 +2536,9 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	}
 }
 resource "google_compute_instance" "foobar" {
-  name = "%s"
+  name         = "%s"
   machine_type = "n1-standard-1"
-  zone = "us-east1-d"
+  zone         = "us-east1-d"
 
   boot_disk {
     initialize_params {
@@ -2535,10 +2551,46 @@ resource "google_compute_instance" "foobar" {
 
     alias_ip_range {
       subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
-      ip_cidr_range = "172.16.0.0/24"
+      ip_cidr_range         = "172.16.0.0/24"
     }
   }
-}`, acctest.RandString(10), acctest.RandString(10), instance)
+}`, network, subnet, instance)
+}
+
+func testAccComputeInstance_secondaryAliasIpRangeUpdate(network, subnet, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "inst-test-network" {
+	name = "%s"
+}
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-east1"
+	network       = "${google_compute_network.inst-test-network.self_link}"
+	secondary_ip_range {
+		range_name    = "inst-test-secondary"
+		ip_cidr_range = "172.16.0.0/20"
+	}
+}
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+
+    alias_ip_range {
+      ip_cidr_range = "10.0.1.0/24"
+    }
+  }
+}`, network, subnet, instance)
 }
 
 // Set fields that require stopping the instance: machine_type, min_cpu_platform, and service_account

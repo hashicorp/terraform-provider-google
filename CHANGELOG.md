@@ -1,14 +1,17 @@
 ## 1.6.1 (Unreleased)
 
 Features:
+* **New Data Source** `google_compute_forwarding_rule` [GH-1078]
 * **New Data Source** `google_compute_vpn_gateway` [GH-1071]
 * **New Resource** `google_folder_iam_binding` [GH-1076]
 * **New Resource** `google_folder_iam_member` [GH-1076]
 * **New Resource** `google_project_usage_export_bucket` [GH-1080]
 
 IMPROVEMENTS:
-* sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
+* compute: add support for updating alias ips in instances [GH-1084]
+* compute: allow setting a route resource's `description` attribute [GH-1088]
 * container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
+* sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
 
 ## 1.6.0 (February 09, 2018)
 

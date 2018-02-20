@@ -378,10 +378,6 @@ func resourceComputeSubnetworkImportState(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func createSubnetID(s *compute.Subnetwork) string {
-	return fmt.Sprintf("%s/%s", s.Region, s.Name)
-}
-
 func splitSubnetID(id string) (region string, name string) {
 	parts := strings.Split(id, "/")
 	region = parts[0]
@@ -415,19 +411,6 @@ func expandSecondaryRangesV0Beta(configured []interface{}) []*computeBeta.Subnet
 		secondaryRanges = append(secondaryRanges, &secondaryRange)
 	}
 	return secondaryRanges
-}
-
-func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange) []map[string]interface{} {
-	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
-	for _, secondaryRange := range secondaryRanges {
-		data := map[string]interface{}{
-			"range_name":    secondaryRange.RangeName,
-			"ip_cidr_range": secondaryRange.IpCidrRange,
-		}
-
-		secondaryRangesSchema = append(secondaryRangesSchema, data)
-	}
-	return secondaryRangesSchema
 }
 
 func flattenSecondaryRangesV0Beta(secondaryRanges []*computeBeta.SubnetworkSecondaryRange) []map[string]interface{} {

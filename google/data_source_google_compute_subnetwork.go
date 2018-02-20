@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v1"
 )
 
 func dataSourceGoogleComputeSubnetwork() *schema.Resource {
@@ -104,4 +105,21 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	subnetwork.Region = region
 	d.SetId(createSubnetID(subnetwork))
 	return nil
+}
+
+func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange) []map[string]interface{} {
+	secondaryRangesSchema := make([]map[string]interface{}, 0, len(secondaryRanges))
+	for _, secondaryRange := range secondaryRanges {
+		data := map[string]interface{}{
+			"range_name":    secondaryRange.RangeName,
+			"ip_cidr_range": secondaryRange.IpCidrRange,
+		}
+
+		secondaryRangesSchema = append(secondaryRangesSchema, data)
+	}
+	return secondaryRangesSchema
+}
+
+func createSubnetID(s *compute.Subnetwork) string {
+	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }

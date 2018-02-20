@@ -371,20 +371,18 @@ func resourceComputeInstance() *schema.Resource {
 
 						"alias_ip_range": &schema.Schema{
 							Type:     schema.TypeList,
+							MaxItems: 1,
 							Optional: true,
-							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_cidr_range": &schema.Schema{
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
 									},
 									"subnetwork_range_name": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -778,13 +776,19 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	md := flattenMetadataBeta(instance.Metadata)
-
-	d.Set("metadata_startup_script", md["startup-script"])
-	// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-	// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-	delete(md, "startup-script")
-
 	existingMetadata := d.Get("metadata").(map[string]interface{})
+
+	// If the existing config specifies "metadata.startup-script" instead of "metadata_startup_script",
+	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
+	// we should.
+	if ss, ok := existingMetadata["startup-script"]; !ok || ss == "" {
+		d.Set("metadata_startup_script", md["startup-script"])
+		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
+		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
+		delete(md, "startup-script")
+	} else if _, ok := d.GetOk("metadata_startup_script"); ok {
+		delete(md, "startup-script")
+	}
 
 	// Delete any keys not explicitly set in our config file
 	for k := range md {
@@ -917,9 +921,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	instance, err := getInstance(config, d)
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
 
 	// Enable partial mode for the resource since it is possible
@@ -928,11 +934,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// If the Metadata has changed, then update that.
 	if d.HasChange("metadata") {
 		o, n := d.GetChange("metadata")
-		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists && script != "" {
 			if _, ok := n.(map[string]interface{})["startup-script"]; ok {
 				return fmt.Errorf("Only one of metadata.startup-script and metadata_startup_script may be defined")
 			}
 
+			if err = d.Set("metadata", n); err != nil {
+				return err
+			}
 			n.(map[string]interface{})["startup-script"] = script
 		}
 
@@ -969,10 +978,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			d.SetPartial("metadata")
+
 			return nil
 		}
 
 		MetadataRetryWrapper(updateMD)
+
 	}
 
 	if d.HasChange("tags") {
@@ -1095,6 +1106,50 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
 				opErr := computeOperationWaitTime(config.clientCompute, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				if opErr != nil {
+					return opErr
+				}
+			}
+		}
+
+		if d.HasChange(prefix + ".alias_ip_range") {
+			rereadFingerprint := false
+
+			// Alias IP ranges cannot be updated; they must be removed and then added.
+			if len(instNetworkInterface.AliasIpRanges) > 0 {
+				ni := &computeBeta.NetworkInterface{
+					Fingerprint:     instNetworkInterface.Fingerprint,
+					ForceSendFields: []string{"AliasIpRanges"},
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
+				if opErr != nil {
+					return opErr
+				}
+				rereadFingerprint = true
+			}
+
+			ranges := d.Get(prefix + ".alias_ip_range").([]interface{})
+			if len(ranges) > 0 {
+				if rereadFingerprint {
+					instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+					if err != nil {
+						return err
+					}
+					instNetworkInterface = instance.NetworkInterfaces[i]
+				}
+				ni := &computeBeta.NetworkInterface{
+					AliasIpRanges: expandAliasIpRanges(ranges),
+					Fingerprint:   instNetworkInterface.Fingerprint,
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
 				if opErr != nil {
 					return opErr
 				}

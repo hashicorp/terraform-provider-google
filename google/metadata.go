@@ -1,6 +1,7 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -151,6 +152,9 @@ func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, er
 	m := &computeBeta.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
+		if ss, ok := mdMap["startup-script"]; ok && ss != "" {
+			return nil, errors.New("Cannot provide both metadata_startup_script and metadata.startup-script.")
+		}
 		mdMap["startup-script"] = v
 	}
 	if len(mdMap) > 0 {

@@ -26,6 +26,8 @@ func TestAccComputeRoute_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
+					resource.TestMatchResourceAttr(
+						"google_compute_route.foobar", "description", regexp.MustCompile("This is a route")),
 				),
 			},
 			resource.TestStep{
@@ -150,6 +152,7 @@ resource "google_compute_network" "foobar" {
 
 resource "google_compute_route" "foobar" {
 	name = "route-test-%s"
+	description = "This is a route"
 	dest_range = "15.0.0.0/24"
 	network = "${google_compute_network.foobar.name}"
 	next_hop_ip = "10.0.1.5"
