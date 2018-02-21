@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	// "github.com/davecgh/go-spew/spew"
-	"github.com/fatih/structs"
-	"github.com/mitchellh/mapstructure"
 )
 
 type ApiVersion uint8
@@ -42,15 +38,7 @@ func Convert(item, out interface{}) error {
 	// 	return err
 	// }
 
-	s := structs.Map(item)
-	// fmt.Printf("structs.Map: %#v\n", s)
-	// spew.Dump(s)
-	err := mapstructure.Decode(structs.Map(item), out)
-	if err != nil {
-		return err
-	}
-
-	// setOmittedFields(item, out)
+	setOmittedFields(item, out)
 
 	return nil
 }
