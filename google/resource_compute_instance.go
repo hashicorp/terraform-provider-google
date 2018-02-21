@@ -1254,6 +1254,17 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Attributes which can only be changed if the instance is stopped
 	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
+		o, n := d.GetChange("machine_type")
+		log.Printf("[INFO] machine_type: HasChange %v, Old %v, New %v", d.HasChange("machine_type"), o, n)
+		o, n = d.GetChange("min_cpu_platform")
+		log.Printf("[INFO] min_cpu_platform: HasChange %v, Old %v, New %v", d.HasChange("min_cpu_platform"), o, n)
+		o, n = d.GetChange("service_account")
+		log.Printf("[INFO] service_account: HasChange %v, Old %v, New %v", d.HasChange("service_account"), o, n)
+		oScopes := o.([]interface{})[0].(map[string]interface{})["scopes"]
+		nScopes := n.([]interface{})[0].(map[string]interface{})["scopes"]
+		log.Printf("[INFO] oScopes: %#v", convertStringSet(oScopes.(*schema.Set)))
+		log.Printf("[INFO] nScopes: %#v", convertStringSet(nScopes.(*schema.Set)))
+
 		if !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
