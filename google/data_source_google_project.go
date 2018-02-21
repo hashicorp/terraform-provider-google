@@ -1,44 +1,34 @@
 package google
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceGoogleProject() *schema.Resource {
+	// Generate datasource schema from resource
+	dsSchema := datasourceSchemaFromResourceSchema(resourceGoogleProject().Schema)
+
+	addOptionalFieldsToSchema(dsSchema, "project_id")
+
 	return &schema.Resource{
-		Read: dataSourceGoogleProjectRead,
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"project_number": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+		Read:   datasourceGoogleProjectRead,
+		Schema: dsSchema,
 	}
 }
 
-func dataSourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
+func datasourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	if v, ok := d.GetOk("project_id"); ok {
+		project := v.(string)
+		d.SetId(project)
+	} else {
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		d.SetId(project)
 	}
 
-	projectResManager, err := config.clientResourceManager.Projects.Get(project).Do()
-	if err != nil {
-		return fmt.Errorf("Error reading project resource: %s", err)
-	}
-
-	d.SetId(projectResManager.ProjectId)
-	d.Set("project_number", strconv.FormatInt(projectResManager.ProjectNumber, 10))
-	d.Set("name", projectResManager.Name)
-
-	return nil
+	return resourceGoogleProjectRead(d, meta)
 }

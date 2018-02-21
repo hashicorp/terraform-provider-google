@@ -18,20 +18,20 @@ For more information see
 data "google_project" "project" {}
 
 output "project_number" {
-  value = "${data.google_project.project.project_number}"
+  value = "${data.google_project.project.number}"
 } 
 ```
 
 ## Argument Reference
 
-There are no arguments available for this data source.
+The following arguments are supported:
+
+* `project_id` - (Optional) The project ID. If it is not provided, the provider project is used.
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `name` - The user-assigned display name of the project
-
-* `project_number` - The number uniquely identifying the project
+See [google_project](https://www.terraform.io/docs/providers/google/r/google_project.html) resource for details of the available attributes.
 
