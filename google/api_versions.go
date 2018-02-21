@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -28,15 +29,15 @@ var OrderedContainerApiVersions = []ApiVersion{
 // between multiple API versions, as they are strict supersets of one another.
 // item and out are pointers to structs
 func Convert(item, out interface{}) error {
-	// bytes, err := json.Marshal(item)
-	// if err != nil {
-	// 	return err
-	// }
+	bytes, err := json.Marshal(item)
+	if err != nil {
+		return err
+	}
 
-	// err = json.Unmarshal(bytes, out)
-	// if err != nil {
-	// 	return err
-	// }
+	err = json.Unmarshal(bytes, out)
+	if err != nil {
+		return err
+	}
 
 	setOmittedFields(item, out)
 
@@ -66,9 +67,9 @@ func setOmittedFields(item, out interface{}) {
 
 		// If the field contains a 'json:"="' tag, then it was omitted from the Marshal/Unmarshal
 		// call and needs to be added back in.
-		// if fieldInfo.Tag.Get("json") == "-" {
-		oField.Set(iField)
-		// }
+		if fieldInfo.Tag.Get("json") == "-" {
+			oField.Set(iField)
+		}
 
 		// If this field is a struct, *struct, []struct, or []*struct, recurse.
 		if iField.Kind() == reflect.Struct {
