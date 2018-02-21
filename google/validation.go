@@ -29,7 +29,8 @@ var (
 	// 4 and 28 since the first and last character are excluded.
 	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
 
-	ServiceAccountLinkRegex = "projects/" + ProjectRegex + "/serviceAccounts/" + ServiceAccountNameRegex + "@" + ProjectRegex + "\\.iam\\.gserviceaccount\\.com$"
+	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
+	ServiceAccountLinkRegex   = "projects/" + ProjectRegex + "/serviceAccounts/" + ServiceAccountNameRegex + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
 )
 
 var rfc1918Networks = []string{

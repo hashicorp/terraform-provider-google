@@ -158,3 +158,14 @@ func flattenInstancesWithNamedPorts(insts []*compute.InstanceWithNamedPorts) []m
 	}
 	return result
 }
+
+func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(namedPorts))
+	for _, namedPort := range namedPorts {
+		namedPortMap := make(map[string]interface{})
+		namedPortMap["name"] = namedPort.Name
+		namedPortMap["port"] = namedPort.Port
+		result = append(result, namedPortMap)
+	}
+	return result
+}
