@@ -45,6 +45,34 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_WithFields(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_bigquery_table.test"
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithFields(datasetID, tableID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigQueryTableExists(resourceName),
+				),
+			},
+
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_View(t *testing.T) {
 	t.Parallel()
 
@@ -233,6 +261,41 @@ resource "google_bigquery_table" "test" {
   }
 ]
 EOH
+}`, datasetID, tableID)
+}
+
+func testAccBigQueryTableWithFields(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+
+  time_partitioning {
+    type = "DAY"
+    field = "ts"
+  }
+
+  field {
+    name = "ts"
+    type = "TIMESTAMP"
+    mode = "REQUIRED"
+  }
+
+  field {
+    name = "city"
+    type = "STRING"
+    description = "City of residence"
+  }
+
+  field {
+    name = "interests"
+    type = "STRING"
+    mode = "REPEATED"
+  }
 }`, datasetID, tableID)
 }
 

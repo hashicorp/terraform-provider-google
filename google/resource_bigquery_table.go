@@ -83,13 +83,45 @@ func resourceBigQueryTable() *schema.Resource {
 
 			// Schema: [Optional] Describes the schema of this table.
 			"schema": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.ValidateJsonString,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validation.ValidateJsonString,
+				ConflictsWith: []string{"field"},
 				StateFunc: func(v interface{}) string {
 					json, _ := structure.NormalizeJsonString(v)
 					return json
+				},
+			},
+
+			// Field: A field in the table's schema.
+			"field": &schema.Schema{
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"schema"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "NULLABLE",
+							ValidateFunc: validation.StringInSlice([]string{"NULLABLE", "REQUIRED", "REPEATED"}, false),
+						},
+					},
 				},
 			},
 
@@ -277,7 +309,35 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		table.TimePartitioning = expandTimePartitioning(v)
 	}
 
+	fields := d.Get("field").(*schema.Set)
+	table.Schema = &bigquery.TableSchema{}
+	table.Schema.Fields = make([]*bigquery.TableFieldSchema, len(fields.List()))
+
+	for i, v := range fields.List() {
+		field := v.(map[string]interface{})
+		table.Schema.Fields[i] = &bigquery.TableFieldSchema{
+			Name:        field["name"].(string),
+			Type:        field["type"].(string),
+			Description: field["description"].(string),
+			Mode:        field["mode"].(string),
+		}
+	}
+
 	return table, nil
+}
+
+func flattenTableFields(fields []*bigquery.TableFieldSchema) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(fields))
+	for _, field := range fields {
+		fieldMap := make(map[string]interface{})
+		fieldMap["name"] = field.Name
+		fieldMap["type"] = field.Type
+		fieldMap["description"] = field.Description
+		fieldMap["mode"] = field.Mode
+
+		result = append(result, fieldMap)
+	}
+	return result
 }
 
 func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error {
@@ -354,6 +414,7 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		d.Set("schema", schema)
+		d.Set("field", flattenTableFields(res.Schema.Fields))
 	}
 
 	if res.View != nil {

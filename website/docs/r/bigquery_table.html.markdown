@@ -16,10 +16,10 @@ Creates a table resource in a dataset for Google BigQuery. For more information 
 ## Example Usage
 
 ```hcl
-resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "foo"
-  friendly_name               = "test"
-  description                 = "This is a test description"
+resource "google_bigquery_dataset" "click-tracking" {
+  dataset_id                  = "click-tracking"
+  friendly_name               = "Click Tracking"
+  description                 = "Impressions and clicks"
   location                    = "EU"
   default_table_expiration_ms = 3600000
 
@@ -28,19 +28,48 @@ resource "google_bigquery_dataset" "default" {
   }
 }
 
-resource "google_bigquery_table" "default" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
-  table_id   = "bar"
-
-  time_partitioning {
-    type = "DAY"
-  }
+resource "google_bigquery_table" "impressions" {
+  dataset_id = "${google_bigquery_dataset.click-tracking.dataset_id}"
+  table_id   = "impressions"
 
   labels {
     env = "default"
   }
 
-  schema = "${file("schema.json")}"
+  time_partitioning {
+    type = "DAY"
+  }
+
+  field {
+    name = "impression_id"
+    type = "INTEGER"
+    mode = "REQUIRED"
+  }
+
+  field {
+    name = "ip"
+    type = "STRING"
+    description = "IP address of the user who received the impression."
+  }
+}
+
+resource "google_bigquery_table" "clicks" {
+  dataset_id = "${google_bigquery_dataset.click-tracking.dataset_id}"
+  table_id   = "clicks"
+
+  labels {
+    env = "default"
+  }
+
+  time_partitioning {
+    type = "DAY"
+  }
+
+  field {
+    name = "impression_id"
+    type = "INTEGER"
+    mode = "REQUIRED"
+  }
 }
 ```
 
@@ -57,7 +86,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `description` - (Optional) The field description.
+* `description` - (Optional) A description of the table.
 
 * `expiration_time` - (Optional) The time when this table expires, in
     milliseconds since the epoch. If not present, the table will persist
@@ -67,6 +96,9 @@ The following arguments are supported:
 * `friendly_name` - (Optional) A descriptive name for the table.
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
+
+* `field` (Optional) - A nested configuration block (described below)
+  defining a field in the table's schema. Multiple `field` arguments are supported.
 
 * `schema` - (Optional) A JSON schema for the table.
 
@@ -78,7 +110,7 @@ The following arguments are supported:
 
 The `time_partitioning` block supports:
 
-* `expiration_ms` -  (Optional) Number of milliseconds for which to keep the
+* `expiration_ms` - (Optional) Number of milliseconds for which to keep the
     storage for a partition.
 
 * `field` - (Optional) The field used to determine how to create a time-based
@@ -87,6 +119,17 @@ The `time_partitioning` block supports:
 
 * `type` - (Required) The only type supported is DAY, which will generate
     one partition per day based on data loading time.
+
+The `field` block supports:
+
+* `name` - (Required) The name of the field.
+
+* `type` - (Required) The type of the field. Must be a
+  [valid BigQuery data type](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types).
+
+* `mode` - (Optional) One of `NULLABLE`, `REQUIRED`, or `REPEATED`. Default is `NULLABLE`.
+
+* `description` - (Optional) The field's description.
 
 The `view` block supports:
 
