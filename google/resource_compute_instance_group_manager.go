@@ -14,7 +14,10 @@ import (
 )
 
 var InstanceGroupManagerBaseApiVersion = v1
-var InstanceGroupManagerVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "auto_healing_policies"}}
+var InstanceGroupManagerVersionedFeatures = []Feature{
+	Feature{Version: v0beta, Item: "auto_healing_policies"},
+	Feature{Version: v0beta, Item: "rolling_update_policy"},
+}
 
 func resourceComputeInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
@@ -102,7 +105,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "RESTART",
-				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE", "ROLLING_UPDATE"}, false),
 			},
 
 			"target_pools": &schema.Schema{
@@ -135,6 +138,60 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 						"initial_delay_sec": &schema.Schema{
 							Type:         schema.TypeInt,
 							Required:     true,
+							ValidateFunc: validation.IntBetween(0, 3600),
+						},
+					},
+				},
+			},
+			"rolling_update_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"minimal_action": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
+						},
+
+						"type": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OPPORTUNISTIC", "PROACTIVE"}, false),
+						},
+
+						"max_surge_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       1,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_percent"},
+						},
+
+						"max_surge_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"max_unavailable_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       1,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_percent"},
+						},
+
+						"max_unavailable_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"min_ready_sec": &schema.Schema{
+							Type:         schema.TypeInt,
+							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 3600),
 						},
 					},
@@ -182,6 +239,12 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	zone, err := getZone(d, config)
 	if err != nil {
 		return err
+	}
+
+	_, ok := d.GetOk("rolling_update_policy")
+
+	if d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
 	}
 
 	// Build the parameter
@@ -380,6 +443,11 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	d.Partial(true)
 
+	_, ok := d.GetOk("rolling_update_policy")
+	if d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
+	}
+
 	// If target_pools changes then update
 	if d.HasChange("target_pools") {
 		targetPools := convertStringSet(d.Get("target_pools").(*schema.Set))
@@ -531,6 +599,23 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 			// Wait for the operation to complete
 			err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
+			manager := &computeBeta.InstanceGroupManager{
+				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.Patch(
+				project, zone, d.Id(), manager).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating managed group instances: %s", err)
+			}
+
+			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
 			if err != nil {
 				return err
 			}
@@ -730,6 +815,42 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 		autoHealingPolicies = append(autoHealingPolicies, &autoHealingPolicy)
 	}
 	return autoHealingPolicies
+}
+
+func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {
+	updatePolicy := &computeBeta.InstanceGroupManagerUpdatePolicy{}
+
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+
+		updatePolicy.MinimalAction = data["minimal_action"].(string)
+		updatePolicy.Type = data["type"].(string)
+		updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+			Fixed: int64(data["max_surge_fixed"].(int)),
+		}
+		updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+			Fixed: int64(data["max_unavailable_fixed"].(int)),
+		}
+
+		// percent and fixed values are conflicting
+		// when the percent values are set, the fixed values will be ignored
+		if v := data["max_surge_percent"]; v.(int) > 0 {
+			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+				Percent: int64(v.(int)),
+			}
+		}
+
+		if v := data["max_unavailable_percent"]; v.(int) > 0 {
+			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+				Percent: int64(v.(int)),
+			}
+		}
+
+		if v, ok := data["min_ready_sec"]; ok {
+			updatePolicy.MinReadySec = int64(v.(int))
+		}
+	}
+	return updatePolicy
 }
 
 func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
