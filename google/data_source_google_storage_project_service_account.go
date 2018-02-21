@@ -1,11 +1,7 @@
 package google
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
@@ -24,11 +20,7 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 
 	serviceAccount, err := config.clientStorage.Projects.ServiceAccount.Get(project).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-			return fmt.Errorf("GCS service account not found")
-		}
-
-		return fmt.Errorf("Error reading GCS service account: %s", err)
+		return handleNotFoundError(err, d, "GCS service account not found")
 	}
 
 	d.SetId(serviceAccount.EmailAddress)
