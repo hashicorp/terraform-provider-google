@@ -406,17 +406,24 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
 
-	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 	// We need to get the project associated with this bucket because otherwise import
 	// won't work properly.  That means we need to call the projects.get API with the
 	// project number, to get the project ID - there's no project ID field in the
-	// resource response.
-	log.Println("[TRACE] Fetching project ID.")
-	proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
-	if err != nil {
-		return err
+	// resource response.  However, this requires a call to the Compute API, which
+	// would otherwise not be required for this resource.  So, we're going to
+	// intentionally check whether the project is set *on the resource*.  If it is,
+	// we will not try to fetch the project name.  If it is not, either because
+	// the user intends to use the default provider project, or because the resource
+	// is currently being imported, we will read it from the API.
+	if _, ok := d.GetOk("project"); !ok {
+		log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
+		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
+		d.Set("project", proj.Name)
 	}
-	log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
 
 	// Update the bucket ID according to the resource ID
 	d.Set("self_link", res.SelfLink)
@@ -428,7 +435,6 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
-	d.Set("project", proj.Name)
 	d.SetId(res.Id)
 	return nil
 }
