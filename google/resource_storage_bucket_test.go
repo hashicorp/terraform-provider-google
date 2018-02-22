@@ -34,6 +34,8 @@ func TestAccStorageBucket_basic(t *testing.T) {
 						"google_storage_bucket.bucket", "location", "US"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
 				),
 			},
 			resource.TestStep{
@@ -87,6 +89,8 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
 			},
@@ -116,6 +120,8 @@ func TestAccStorageBucket_lifecycleRules(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "lifecycle_rule.#", "2"),
 					resource.TestCheckResourceAttr(
@@ -165,6 +171,8 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "storage_class", "MULTI_REGIONAL"),
 				),
 			},
@@ -174,6 +182,8 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "storage_class", "NEARLINE"),
 				),
 			},
@@ -182,6 +192,8 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "storage_class", "REGIONAL"),
 					resource.TestCheckResourceAttr(
@@ -224,6 +236,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "US"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
@@ -235,6 +249,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
@@ -245,6 +261,8 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", getTestProjectFromEnv()),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "location", "EU"),
 					resource.TestCheckResourceAttr(

@@ -415,7 +415,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// we will not try to fetch the project name.  If it is not, either because
 	// the user intends to use the default provider project, or because the resource
 	// is currently being imported, we will read it from the API.
-	if p, ok := d.GetOk("project"); ok && p != "" {
+	if _, ok := d.GetOk("project"); !ok {
 		log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
