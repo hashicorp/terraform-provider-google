@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleContainerNodePool_import(t *testing.T) {
+func TestAccContainerNodePool_import(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_container_node_pool.np"

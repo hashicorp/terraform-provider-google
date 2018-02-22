@@ -14,7 +14,7 @@ import (
 )
 
 // Test that services can be enabled and disabled on a project
-func TestAccGoogleProjectServices_basic(t *testing.T) {
+func TestAccProjectServices_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -28,14 +28,14 @@ func TestAccGoogleProjectServices_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project with some services
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateServicesBasic(services1, pid, pname, org),
+				Config: testAccProjectAssociateServicesBasic(services1, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services1, pid),
 				),
 			},
 			// Update services to remove one
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateServicesBasic(services2, pid, pname, org),
+				Config: testAccProjectAssociateServicesBasic(services2, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services2, pid),
 				),
@@ -46,7 +46,7 @@ func TestAccGoogleProjectServices_basic(t *testing.T) {
 					config := testAccProvider.Meta().(*Config)
 					enableService(oobService, pid, config)
 				},
-				Config: testAccGoogleProjectAssociateServicesBasic(services2, pid, pname, org),
+				Config: testAccProjectAssociateServicesBasic(services2, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services2, pid),
 				),
@@ -57,7 +57,7 @@ func TestAccGoogleProjectServices_basic(t *testing.T) {
 
 // Test that services are authoritative when a project has existing
 // sevices not represented in config
-func TestAccGoogleProjectServices_authoritative(t *testing.T) {
+func TestAccProjectServices_authoritative(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -70,7 +70,7 @@ func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project with no services
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -82,7 +82,7 @@ func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 					config := testAccProvider.Meta().(*Config)
 					enableService(oobService, pid, config)
 				},
-				Config: testAccGoogleProjectAssociateServicesBasic(services, pid, pname, org),
+				Config: testAccProjectAssociateServicesBasic(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -94,7 +94,7 @@ func TestAccGoogleProjectServices_authoritative(t *testing.T) {
 // Test that services are authoritative when a project has existing
 // sevices, some which are represented in the config and others
 // that are not
-func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
+func TestAccProjectServices_authoritative2(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -108,7 +108,7 @@ func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project with no services
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -122,7 +122,7 @@ func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 						enableService(s, pid, config)
 					}
 				},
-				Config: testAccGoogleProjectAssociateServicesBasic(services, pid, pname, org),
+				Config: testAccProjectAssociateServicesBasic(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -134,7 +134,7 @@ func TestAccGoogleProjectServices_authoritative2(t *testing.T) {
 // Test that services that can't be enabled on their own (such as dataproc-control.googleapis.com)
 // don't end up causing diffs when they are enabled as a side-effect of a different service's
 // enablement.
-func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
+func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -160,7 +160,7 @@ func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -169,7 +169,7 @@ func TestAccGoogleProjectServices_ignoreUnenablableServices(t *testing.T) {
 	})
 }
 
-func TestAccGoogleProjectServices_manyServices(t *testing.T) {
+func TestAccProjectServices_manyServices(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -211,7 +211,7 @@ func TestAccGoogleProjectServices_manyServices(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -220,7 +220,7 @@ func TestAccGoogleProjectServices_manyServices(t *testing.T) {
 	})
 }
 
-func testAccGoogleProjectAssociateServicesBasic(services []string, pid, name, org string) string {
+func testAccProjectAssociateServicesBasic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -234,7 +234,7 @@ resource "google_project_services" "acceptance" {
 `, pid, name, org, testStringsToString(services))
 }
 
-func testAccGoogleProjectAssociateServicesBasic_withBilling(services []string, pid, name, org, billing string) string {
+func testAccProjectAssociateServicesBasic_withBilling(services []string, pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"log"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
 )
 
 func TestKeyRingIdParsing(t *testing.T) {
@@ -66,7 +67,7 @@ func TestKeyRingIdParsing(t *testing.T) {
 	}
 }
 
-func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
+func TestAccKmsKeyRing_basic(t *testing.T) {
 	projectId := "terraform-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)

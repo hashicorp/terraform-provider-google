@@ -10,7 +10,7 @@ import (
 )
 
 // Test that an IAM binding can be applied to a project
-func TestAccGoogleProjectIamMember_basic(t *testing.T) {
+func TestAccProjectIamMember_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -21,14 +21,14 @@ func TestAccGoogleProjectIamMember_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateMemberBasic(pid, pname, org),
+				Config: testAccProjectAssociateMemberBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -41,7 +41,7 @@ func TestAccGoogleProjectIamMember_basic(t *testing.T) {
 }
 
 // Test that multiple IAM bindings can be applied to a project
-func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
+func TestAccProjectIamMember_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -54,14 +54,14 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateMemberBasic(pid, pname, org),
+				Config: testAccProjectAssociateMemberBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -71,7 +71,7 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 			},
 			// Apply another IAM binding
 			{
-				Config: testAccGoogleProjectAssociateMemberMultiple(pid, pname, org),
+				Config: testAccProjectAssociateMemberMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.multiple", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -84,7 +84,7 @@ func TestAccGoogleProjectIamMember_multiple(t *testing.T) {
 }
 
 // Test that an IAM binding can be removed from a project
-func TestAccGoogleProjectIamMember_remove(t *testing.T) {
+func TestAccProjectIamMember_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -97,14 +97,14 @@ func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply multiple IAM bindings
 			{
-				Config: testAccGoogleProjectAssociateMemberMultiple(pid, pname, org),
+				Config: testAccProjectAssociateMemberMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -114,16 +114,16 @@ func TestAccGoogleProjectIamMember_remove(t *testing.T) {
 			},
 			// Remove the bindings
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 		},
 	})
 }
 
-func testAccGoogleProjectAssociateMemberBasic(pid, name, org string) string {
+func testAccProjectAssociateMemberBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -139,7 +139,7 @@ resource "google_project_iam_member" "acceptance" {
 `, pid, name, org)
 }
 
-func testAccGoogleProjectAssociateMemberMultiple(pid, name, org string) string {
+func testAccProjectAssociateMemberMultiple(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"

@@ -2,17 +2,18 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 const DEFAULT_KMS_TEST_LOCATION = "us-central1"
 
-func TestAccGoogleKmsKeyRingIamBinding(t *testing.T) {
+func TestAccKmsKeyRingIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -34,14 +35,14 @@ func TestAccGoogleKmsKeyRingIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
-				Config: testAccGoogleKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccGoogleKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId),
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
@@ -51,7 +52,7 @@ func TestAccGoogleKmsKeyRingIamBinding(t *testing.T) {
 	})
 }
 
-func TestAccGoogleKmsKeyRingIamMember(t *testing.T) {
+func TestAccKmsKeyRingIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -73,7 +74,7 @@ func TestAccGoogleKmsKeyRingIamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
@@ -82,7 +83,7 @@ func TestAccGoogleKmsKeyRingIamMember(t *testing.T) {
 	})
 }
 
-func TestAccGoogleKmsKeyRingIamPolicy(t *testing.T) {
+func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -103,7 +104,7 @@ func TestAccGoogleKmsKeyRingIamPolicy(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
@@ -139,7 +140,7 @@ func testAccCheckGoogleKmsKeyRingIam(keyRingId, role string, members []string) r
 
 // We are using a custom role since iam_binding is authoritative on the member list and
 // we want to avoid removing members from an existing role to prevent unwanted side effects.
-func testAccGoogleKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
+func testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"
@@ -177,7 +178,7 @@ resource "google_kms_key_ring_iam_binding" "foo" {
 `, projectId, orgId, billingAccount, account, keyRingName, roleId)
 }
 
-func testAccGoogleKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
+func testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"
@@ -224,7 +225,7 @@ resource "google_kms_key_ring_iam_binding" "foo" {
 `, projectId, orgId, billingAccount, account, account, DEFAULT_KMS_TEST_LOCATION, keyRingName, roleId)
 }
 
-func testAccGoogleKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
+func testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"
@@ -262,7 +263,7 @@ resource "google_kms_key_ring_iam_member" "foo" {
 `, projectId, orgId, billingAccount, account, DEFAULT_KMS_TEST_LOCATION, keyRingName, roleId)
 }
 
-func testAccGoogleKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
+func testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"

@@ -2,15 +2,16 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleServiceAccountIamBinding(t *testing.T) {
+func TestAccServiceAccountIamBinding(t *testing.T) {
 	t.Parallel()
 
 	account := acctest.RandomWithPrefix("tf-test")
@@ -20,7 +21,7 @@ func TestAccGoogleServiceAccountIamBinding(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleServiceAccountIamBinding_basic(account),
+				Config: testAccServiceAccountIamBinding_basic(account),
 				Check: testAccCheckGoogleServiceAccountIam(account, "roles/viewer", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -34,7 +35,7 @@ func TestAccGoogleServiceAccountIamBinding(t *testing.T) {
 	})
 }
 
-func TestAccGoogleServiceAccountIamMember(t *testing.T) {
+func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := acctest.RandomWithPrefix("tf-test")
@@ -45,7 +46,7 @@ func TestAccGoogleServiceAccountIamMember(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleServiceAccountIamMember_basic(account),
+				Config: testAccServiceAccountIamMember_basic(account),
 				Check:  testAccCheckGoogleServiceAccountIam(account, "roles/editor", []string{identity}),
 			},
 			{
@@ -57,7 +58,7 @@ func TestAccGoogleServiceAccountIamMember(t *testing.T) {
 	})
 }
 
-func TestAccGoogleServiceAccountIamPolicy(t *testing.T) {
+func TestAccServiceAccountIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	account := acctest.RandomWithPrefix("tf-test")
@@ -67,7 +68,7 @@ func TestAccGoogleServiceAccountIamPolicy(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleServiceAccountIamPolicy_basic(account),
+				Config: testAccServiceAccountIamPolicy_basic(account),
 				Check: testAccCheckGoogleServiceAccountIam(account, "roles/owner", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -110,7 +111,7 @@ func getServiceAccountCanonicalId(account string) string {
 	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), account, getTestProjectFromEnv())
 }
 
-func testAccGoogleServiceAccountIamBinding_basic(account string) string {
+func testAccServiceAccountIamBinding_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
@@ -125,7 +126,7 @@ resource "google_service_account_iam_binding" "foo" {
 `, account)
 }
 
-func testAccGoogleServiceAccountIamMember_basic(account string) string {
+func testAccServiceAccountIamMember_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
@@ -140,7 +141,7 @@ resource "google_service_account_iam_member" "foo" {
 `, account)
 }
 
-func testAccGoogleServiceAccountIamPolicy_basic(account string) string {
+func testAccServiceAccountIamPolicy_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"

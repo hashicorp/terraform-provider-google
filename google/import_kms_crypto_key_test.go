@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleKmsCryptoKey_importBasic(t *testing.T) {
+func TestAccKmsCryptoKey_importBasic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_kms_crypto_key.crypto_key"

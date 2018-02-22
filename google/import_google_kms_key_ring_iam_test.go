@@ -28,7 +28,7 @@ func TestAccKmsKeyRingIamMember_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 			},
 
 			resource.TestStep{
@@ -60,7 +60,7 @@ func TestAccKmsKeyRingIamPolicy_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 			},
 
 			resource.TestStep{
@@ -91,7 +91,7 @@ func TestAccKmsKeyRingIamBinding_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
+				Config: testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
 			},
 
 			resource.TestStep{

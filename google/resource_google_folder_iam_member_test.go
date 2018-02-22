@@ -10,7 +10,7 @@ import (
 )
 
 // Test that an IAM binding can be applied to a folder
-func TestAccGoogleFolderIamMember_basic(t *testing.T) {
+func TestAccFolderIamMember_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -21,14 +21,14 @@ func TestAccGoogleFolderIamMember_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
-				Config: testAccGoogleFolderIamBasic(org, fname),
+				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(org, fname),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleFolderAssociateMemberBasic(org, fname),
+				Config: testAccFolderAssociateMemberBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -41,7 +41,7 @@ func TestAccGoogleFolderIamMember_basic(t *testing.T) {
 }
 
 // Test that multiple IAM bindings can be applied to a folder
-func TestAccGoogleFolderIamMember_multiple(t *testing.T) {
+func TestAccFolderIamMember_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -52,14 +52,14 @@ func TestAccGoogleFolderIamMember_multiple(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
-				Config: testAccGoogleFolderIamBasic(org, fname),
+				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(org, fname),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleFolderAssociateMemberBasic(org, fname),
+				Config: testAccFolderAssociateMemberBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -69,7 +69,7 @@ func TestAccGoogleFolderIamMember_multiple(t *testing.T) {
 			},
 			// Apply another IAM binding
 			{
-				Config: testAccGoogleFolderAssociateMemberMultiple(org, fname),
+				Config: testAccFolderAssociateMemberMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.multiple", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -82,7 +82,7 @@ func TestAccGoogleFolderIamMember_multiple(t *testing.T) {
 }
 
 // Test that an IAM binding can be removed from a folder
-func TestAccGoogleFolderIamMember_remove(t *testing.T) {
+func TestAccFolderIamMember_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -93,14 +93,14 @@ func TestAccGoogleFolderIamMember_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
-				Config: testAccGoogleFolderIamBasic(org, fname),
+				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(org, fname),
 				),
 			},
 			// Apply multiple IAM bindings
 			{
-				Config: testAccGoogleFolderAssociateMemberMultiple(org, fname),
+				Config: testAccFolderAssociateMemberMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -110,16 +110,16 @@ func TestAccGoogleFolderIamMember_remove(t *testing.T) {
 			},
 			// Remove the bindings
 			{
-				Config: testAccGoogleFolderIamBasic(org, fname),
+				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(org, fname),
 				),
 			},
 		},
 	})
 }
 
-func testAccGoogleFolderAssociateMemberBasic(org, fname string) string {
+func testAccFolderAssociateMemberBasic(org, fname string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
@@ -134,7 +134,7 @@ resource "google_folder_iam_member" "acceptance" {
 `, org, fname)
 }
 
-func testAccGoogleFolderAssociateMemberMultiple(org, fname string) string {
+func testAccFolderAssociateMemberMultiple(org, fname string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"

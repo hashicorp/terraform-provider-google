@@ -139,7 +139,7 @@ func testSweepDatabases(region string) error {
 	return nil
 }
 
-func TestAccGoogleSqlDatabaseInstance_basic(t *testing.T) {
+func TestAccSqlDatabaseInstance_basic(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -148,7 +148,7 @@ func TestAccGoogleSqlDatabaseInstance_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -164,7 +164,7 @@ func TestAccGoogleSqlDatabaseInstance_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_basic2(t *testing.T) {
+func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -172,7 +172,7 @@ func TestAccGoogleSqlDatabaseInstance_basic2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstance_basic2,
@@ -187,7 +187,7 @@ func TestAccGoogleSqlDatabaseInstance_basic2(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_basic3(t *testing.T) {
+func TestAccSqlDatabaseInstance_basic3(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -196,7 +196,7 @@ func TestAccGoogleSqlDatabaseInstance_basic3(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -214,7 +214,7 @@ func TestAccGoogleSqlDatabaseInstance_basic3(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
+func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -227,7 +227,7 @@ func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstanceConfig_withoutReplica(databaseName),
@@ -263,7 +263,7 @@ func TestAccGoogleSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_settings_basic(t *testing.T) {
+func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -272,7 +272,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -288,7 +288,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
+func TestAccSqlDatabaseInstance_slave(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -298,7 +298,7 @@ func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -318,7 +318,7 @@ func TestAccGoogleSqlDatabaseInstance_slave(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_highAvailability(t *testing.T) {
+func TestAccSqlDatabaseInstance_highAvailability(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -327,7 +327,7 @@ func TestAccGoogleSqlDatabaseInstance_highAvailability(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -352,7 +352,7 @@ func TestAccGoogleSqlDatabaseInstance_highAvailability(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
+func TestAccSqlDatabaseInstance_diskspecs(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -361,7 +361,7 @@ func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -377,7 +377,7 @@ func TestAccGoogleSqlDatabaseInstance_diskspecs(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_maintenance(t *testing.T) {
+func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -386,7 +386,7 @@ func TestAccGoogleSqlDatabaseInstance_maintenance(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -402,7 +402,7 @@ func TestAccGoogleSqlDatabaseInstance_maintenance(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
+func TestAccSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -411,7 +411,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -437,7 +437,7 @@ func TestAccGoogleSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
+func TestAccSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -446,7 +446,7 @@ func TestAccGoogleSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -473,7 +473,7 @@ func TestAccGoogleSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 }
 
 // GH-4222
-func TestAccGoogleSqlDatabaseInstance_authNets(t *testing.T) {
+func TestAccSqlDatabaseInstance_authNets(t *testing.T) {
 	t.Parallel(
 	// var instance sqladmin.DatabaseInstance
 	)
@@ -483,7 +483,7 @@ func TestAccGoogleSqlDatabaseInstance_authNets(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -503,7 +503,7 @@ func TestAccGoogleSqlDatabaseInstance_authNets(t *testing.T) {
 
 // Tests that a SQL instance can be referenced from more than one other resource without
 // throwing an error during provisioning, see #9018.
-func TestAccGoogleSqlDatabaseInstance_multipleOperations(t *testing.T) {
+func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 	t.Parallel()
 
 	databaseID, instanceID, userID := acctest.RandString(8), acctest.RandString(8), acctest.RandString(8)
@@ -511,7 +511,7 @@ func TestAccGoogleSqlDatabaseInstance_multipleOperations(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -725,7 +725,7 @@ func testAccCheckGoogleSqlDatabaseInstanceExists(n string,
 	}
 }
 
-func testAccGoogleSqlDatabaseInstanceDestroy(s *terraform.State) error {
+func testAccSqlDatabaseInstanceDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		config := testAccProvider.Meta().(*Config)
 		if rs.Type != "google_sql_database_instance" {

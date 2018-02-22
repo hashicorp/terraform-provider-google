@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleContainerClusterDatasource_basic(t *testing.T) {
+func TestAccContainerClusterDatasource_basic(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{

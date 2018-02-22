@@ -2,15 +2,16 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
+func TestAccOrganizationIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -48,7 +49,7 @@ func TestAccGoogleOrganizationIamCustomRole_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleOrganizationIamCustomRole_undelete(t *testing.T) {
+func TestAccOrganizationIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)

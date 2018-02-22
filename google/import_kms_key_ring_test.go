@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleKmsKeyRing_importBasic(t *testing.T) {
+func TestAccKmsKeyRing_importBasic(t *testing.T) {
 	resourceName := "google_kms_key_ring.key_ring"
 
 	projectId := "terraform-" + acctest.RandString(10)

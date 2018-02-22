@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -109,7 +108,7 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testGoogleSignedUrlConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleSignedUrlExists("data.google_storage_object_signed_url.blerg"),
+					testAccSignedUrlExists("data.google_storage_object_signed_url.blerg"),
 				),
 			},
 		},
@@ -133,17 +132,17 @@ func TestAccStorageSignedUrl_accTest(t *testing.T) {
 			resource.TestStep{
 				Config: testAccTestGoogleStorageObjectSignedURL(bucketName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleSignedUrlRetrieval("data.google_storage_object_signed_url.story_url", nil),
-					testAccGoogleSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_headers", headers),
-					testAccGoogleSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_content_type", nil),
-					testAccGoogleSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_md5", nil),
+					testAccSignedUrlRetrieval("data.google_storage_object_signed_url.story_url", nil),
+					testAccSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_headers", headers),
+					testAccSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_content_type", nil),
+					testAccSignedUrlRetrieval("data.google_storage_object_signed_url.story_url_w_md5", nil),
 				),
 			},
 		},
 	})
 }
 
-func testAccGoogleSignedUrlExists(n string) resource.TestCheckFunc {
+func testAccSignedUrlExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		r := s.RootModule().Resources[n]
@@ -157,7 +156,7 @@ func testAccGoogleSignedUrlExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccGoogleSignedUrlRetrieval(n string, headers map[string]string) resource.TestCheckFunc {
+func testAccSignedUrlRetrieval(n string, headers map[string]string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		r := s.RootModule().Resources[n]
 		if r == nil {

@@ -17,7 +17,7 @@ var (
 	payload           = "JSON_API_V1"
 )
 
-func TestAccGoogleStorageNotification_basic(t *testing.T) {
+func TestAccStorageNotification_basic(t *testing.T) {
 	t.Parallel()
 
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT")
@@ -30,7 +30,7 @@ func TestAccGoogleStorageNotification_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageNotificationDestroy,
+		CheckDestroy: testAccStorageNotificationDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageNotificationBasic(bucketName, topicName, topic),
@@ -61,7 +61,7 @@ func TestAccGoogleStorageNotification_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageNotification_withEventsAndAttributes(t *testing.T) {
+func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	t.Parallel()
 
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT")
@@ -76,7 +76,7 @@ func TestAccGoogleStorageNotification_withEventsAndAttributes(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageNotificationDestroy,
+		CheckDestroy: testAccStorageNotificationDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2),
@@ -104,7 +104,7 @@ func TestAccGoogleStorageNotification_withEventsAndAttributes(t *testing.T) {
 	})
 }
 
-func testAccGoogleStorageNotificationDestroy(s *terraform.State) error {
+func testAccStorageNotificationDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
