@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -55,6 +56,9 @@ func resourceComputeForwardingRule() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToUpper(old) == strings.ToUpper(new)
+				},
 			},
 
 			"load_balancing_scheme": &schema.Schema{
