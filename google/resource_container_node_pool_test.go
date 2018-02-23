@@ -106,6 +106,10 @@ func TestAccContainerNodePool_withGPU(t *testing.T) {
 					testAccCheckContainerNodePoolMatches("google_container_node_pool.np_with_gpu"),
 				),
 			},
+			resource.TestStep{
+				ResourceName: "google_container_node_pool.np_with_gpu",
+				ImportState:  true,
+			},
 		},
 	})
 }
