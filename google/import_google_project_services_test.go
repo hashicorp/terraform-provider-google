@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleProjectServices_importBasic(t *testing.T) {
+func TestAccProjectServices_importBasic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -15,7 +15,7 @@ func TestAccGoogleProjectServices_importBasic(t *testing.T) {
 	projectId := "terraform-" + acctest.RandString(10)
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com", "servicemanagement.googleapis.com"}
 
-	conf := testAccGoogleProjectAssociateServicesBasic(services, projectId, pname, org)
+	conf := testAccProjectAssociateServicesBasic(services, projectId, pname, org)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

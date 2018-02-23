@@ -221,7 +221,7 @@ func TestSubtractIamPolicy(t *testing.T) {
 }
 
 // Test that an IAM policy can be applied to a project
-func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
+func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -232,15 +232,15 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM policy from a data source. The application
 			// merges policies, so we validate the expected state.
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociatePolicyBasic(pid, pname, org),
+				Config: testAccProjectAssociatePolicyBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", pid),
 				),
@@ -248,9 +248,9 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 			// Finally, remove the custom IAM policy from config and apply, then
 			// confirm that the project is in its original state.
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 		},
@@ -258,7 +258,7 @@ func TestAccGoogleProjectIamPolicy_basic(t *testing.T) {
 }
 
 // Test that an IAM policy can be applied to a project when no project is set in the resource
-func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
+func TestAccProjectIamPolicy_defaultProject(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -267,15 +267,15 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			resource.TestStep{
-				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
+				Config: testAccProjectDefaultAssociatePolicyBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(getTestProjectFromEnv()),
+					testAccProjectExistingPolicy(getTestProjectFromEnv()),
 				),
 			},
 			// Apply an IAM policy from a data source. The application
 			// merges policies, so we validate the expected state.
 			resource.TestStep{
-				Config: testAccGoogleProjectDefaultAssociatePolicyBasic(),
+				Config: testAccProjectDefaultAssociatePolicyBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", getTestProjectFromEnv()),
 				),
@@ -285,7 +285,7 @@ func TestAccGoogleProjectIamPolicy_defaultProject(t *testing.T) {
 }
 
 // Test that a non-collapsed IAM policy doesn't perpetually diff
-func TestAccGoogleProjectIamPolicy_expanded(t *testing.T) {
+func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -295,7 +295,7 @@ func TestAccGoogleProjectIamPolicy_expanded(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociatePolicyExpanded(pid, pname, org),
+				Config: testAccProjectAssociatePolicyExpanded(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamPolicyExists("google_project_iam_policy.acceptance", "data.google_iam_policy.expanded", pid),
 				),
@@ -647,7 +647,7 @@ func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Bin
 }
 
 // Confirm that a project has an IAM policy with at least 1 binding
-func testAccGoogleProjectExistingPolicy(pid string) resource.TestCheckFunc {
+func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := testAccProvider.Meta().(*Config)
 		var err error
@@ -662,7 +662,7 @@ func testAccGoogleProjectExistingPolicy(pid string) resource.TestCheckFunc {
 	}
 }
 
-func testAccGoogleProjectDefaultAssociatePolicyBasic() string {
+func testAccProjectDefaultAssociatePolicyBasic() string {
 	return fmt.Sprintf(`
 resource "google_project_iam_policy" "acceptance" {
     policy_data = "${data.google_iam_policy.admin.policy_data}"
@@ -685,7 +685,7 @@ data "google_iam_policy" "admin" {
 `)
 }
 
-func testAccGoogleProjectAssociatePolicyBasic(pid, name, org string) string {
+func testAccProjectAssociatePolicyBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"
@@ -714,7 +714,7 @@ data "google_iam_policy" "admin" {
 `, pid, name, org)
 }
 
-func testAccGoogleProject_createWithoutOrg(pid, name string) string {
+func testAccProject_createWithoutOrg(pid, name string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"
@@ -722,7 +722,7 @@ resource "google_project" "acceptance" {
 }`, pid, name)
 }
 
-func testAccGoogleProject_create(pid, name, org string) string {
+func testAccProject_create(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"
@@ -731,7 +731,7 @@ resource "google_project" "acceptance" {
 }`, pid, name, org)
 }
 
-func testAccGoogleProject_createBilling(pid, name, org, billing string) string {
+func testAccProject_createBilling(pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"
@@ -741,7 +741,7 @@ resource "google_project" "acceptance" {
 }`, pid, name, org, billing)
 }
 
-func testAccGoogleProjectAssociatePolicyExpanded(pid, name, org string) string {
+func testAccProjectAssociatePolicyExpanded(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"

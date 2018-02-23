@@ -1,12 +1,13 @@
 package google
 
 import (
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
 )
 
-func TestAccGoogleProjectIamCustomRole_import(t *testing.T) {
+func TestAccProjectIamCustomRole_import(t *testing.T) {
 	t.Parallel()
 
 	roleId := "tfIamRole" + acctest.RandString(10)

@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
+func TestAccFolderOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
 	folder := acctest.RandomWithPrefix("tf-test")
@@ -25,12 +25,12 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, true),
+				Config: testAccFolderOrganizationPolicy_boolean(org, folder, true),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", true),
 			},
 			{
 				// Test update from enforced to not
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, false),
+				Config: testAccFolderOrganizationPolicy_boolean(org, folder, false),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", false),
 			},
 			{
@@ -39,19 +39,19 @@ func TestAccGoogleFolderOrganizationPolicy_boolean(t *testing.T) {
 			},
 			{
 				// Test creation of a not enforced boolean policy
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, false),
+				Config: testAccFolderOrganizationPolicy_boolean(org, folder, false),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", false),
 			},
 			{
 				// Test update from not enforced to enforced
-				Config: testAccGoogleFolderOrganizationPolicy_boolean(org, folder, true),
+				Config: testAccFolderOrganizationPolicy_boolean(org, folder, true),
 				Check:  testAccCheckGoogleFolderOrganizationBooleanPolicy("bool", true),
 			},
 		},
 	})
 }
 
-func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
+func TestAccFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
 	folder := acctest.RandomWithPrefix("tf-test")
@@ -63,14 +63,14 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder),
+				Config: testAccFolderOrganizationPolicy_list_allowAll(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAll("list", "ALLOW"),
 			},
 		},
 	})
 }
 
-func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
+func TestAccFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
 	folder := acctest.RandomWithPrefix("tf-test")
@@ -82,14 +82,14 @@ func TestAccGoogleFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowSome(org, folder, project),
+				Config: testAccFolderOrganizationPolicy_list_allowSome(org, folder, project),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAllowedValues("list", []string{project}),
 			},
 		},
 	})
 }
 
-func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
+func TestAccFolderOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
 	folder := acctest.RandomWithPrefix("tf-test")
@@ -100,14 +100,14 @@ func TestAccGoogleFolderOrganizationPolicy_list_denySome(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder),
+				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
 	})
 }
 
-func TestAccGoogleFolderOrganizationPolicy_list_update(t *testing.T) {
+func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
 	folder := acctest.RandomWithPrefix("tf-test")
@@ -118,11 +118,11 @@ func TestAccGoogleFolderOrganizationPolicy_list_update(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder),
+				Config: testAccFolderOrganizationPolicy_list_allowAll(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAll("list", "ALLOW"),
 			},
 			{
-				Config: testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder),
+				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
@@ -241,7 +241,7 @@ func getGoogleFolderOrganizationPolicyTestResource(s *terraform.State, n string)
 	}).Do()
 }
 
-func testAccGoogleFolderOrganizationPolicy_boolean(org, folder string, enforced bool) string {
+func testAccFolderOrganizationPolicy_boolean(org, folder string, enforced bool) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
@@ -260,7 +260,7 @@ resource "google_folder_organization_policy" "bool" {
 `, folder, "organizations/"+org, enforced)
 }
 
-func testAccGoogleFolderOrganizationPolicy_list_allowAll(org, folder string) string {
+func testAccFolderOrganizationPolicy_list_allowAll(org, folder string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
@@ -280,7 +280,7 @@ resource "google_folder_organization_policy" "list" {
 `, folder, "organizations/"+org)
 }
 
-func testAccGoogleFolderOrganizationPolicy_list_allowSome(org, folder, project string) string {
+func testAccFolderOrganizationPolicy_list_allowSome(org, folder, project string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
@@ -300,7 +300,7 @@ resource "google_folder_organization_policy" "list" {
 `, folder, "organizations/"+org, project)
 }
 
-func testAccGoogleFolderOrganizationPolicy_list_denySome(org, folder string) string {
+func testAccFolderOrganizationPolicy_list_denySome(org, folder string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "orgpolicy" {
   display_name = "%s"

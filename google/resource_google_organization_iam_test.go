@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"reflect"
-	"sort"
-	"testing"
 )
 
 // Bindings and members are tested serially to avoid concurrent updates of the org's IAM policy.
@@ -16,7 +17,7 @@ import (
 // them to see the new diff instead of blindly overriding the policy stored in GCP. This desired
 // behavior however induces flakiness in our acceptance tests, hence the need for running them
 // serially.
-func TestAccGoogleOrganizationIam(t *testing.T) {
+func TestAccOrganizationIam(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -28,14 +29,14 @@ func TestAccGoogleOrganizationIam(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
-				Config: testAccGoogleOrganizationIamBinding_basic(account, roleId, org),
+				Config: testAccOrganizationIamBinding_basic(account, roleId, org),
 				Check: testAccCheckGoogleOrganizationIamBindingExists("foo", "test-role", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccGoogleOrganizationIamBinding_update(account, roleId, org),
+				Config: testAccOrganizationIamBinding_update(account, roleId, org),
 				Check: testAccCheckGoogleOrganizationIamBindingExists("foo", "test-role", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
@@ -43,7 +44,7 @@ func TestAccGoogleOrganizationIam(t *testing.T) {
 			},
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleOrganizationIamMember_basic(account, org),
+				Config: testAccOrganizationIamMember_basic(account, org),
 				Check: testAccCheckGoogleOrganizationIamMemberExists("foo", "roles/browser",
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				),
@@ -118,7 +119,7 @@ func testAccCheckGoogleOrganizationIamMemberExists(n, role, member string) resou
 
 // We are using a custom role since iam_binding is authoritative on the member list and
 // we want to avoid removing members from an existing role to prevent unwanted side effects.
-func testAccGoogleOrganizationIamBinding_basic(account, role, org string) string {
+func testAccOrganizationIamBinding_basic(account, role, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
@@ -140,7 +141,7 @@ resource "google_organization_iam_binding" "foo" {
 `, account, role, org, org)
 }
 
-func testAccGoogleOrganizationIamBinding_update(account, role, org string) string {
+func testAccOrganizationIamBinding_update(account, role, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
@@ -170,7 +171,7 @@ resource "google_organization_iam_binding" "foo" {
 `, account, role, org, account, org)
 }
 
-func testAccGoogleOrganizationIamMember_basic(account, org string) string {
+func testAccOrganizationIamMember_basic(account, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"

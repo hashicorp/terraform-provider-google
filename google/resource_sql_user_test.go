@@ -9,14 +9,14 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleSqlUser_firstGen(t *testing.T) {
+func TestAccSqlUser_firstGen(t *testing.T) {
 	t.Parallel()
 
 	instance := acctest.RandomWithPrefix("i")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlUserDestroy,
+		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlUser_firstGen(instance, "password"),
@@ -44,14 +44,14 @@ func TestAccGoogleSqlUser_firstGen(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlUser_secondGen(t *testing.T) {
+func TestAccSqlUser_secondGen(t *testing.T) {
 	t.Parallel()
 
 	instance := acctest.RandomWithPrefix("i")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlUserDestroy,
+		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlUser_secondGen(instance, "password"),
@@ -100,7 +100,7 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccGoogleSqlUserDestroy(s *terraform.State) error {
+func testAccSqlUserDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		config := testAccProvider.Meta().(*Config)
 		if rs.Type != "google_sql_database" {

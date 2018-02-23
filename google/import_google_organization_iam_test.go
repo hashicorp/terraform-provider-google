@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleOrganizationIamMember_importBasic(t *testing.T) {
+func TestAccOrganizationIamMember_importBasic(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -20,7 +20,7 @@ func TestAccGoogleOrganizationIamMember_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleOrganizationIamMember_basic(account, orgId),
+				Config: testAccOrganizationIamMember_basic(account, orgId),
 			},
 
 			resource.TestStep{
@@ -32,7 +32,7 @@ func TestAccGoogleOrganizationIamMember_importBasic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleOrganizationIamBinding_importBasic(t *testing.T) {
+func TestAccOrganizationIamBinding_importBasic(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -44,7 +44,7 @@ func TestAccGoogleOrganizationIamBinding_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleOrganizationIamBinding_basic(account, roleId, orgId),
+				Config: testAccOrganizationIamBinding_basic(account, roleId, orgId),
 			},
 
 			resource.TestStep{

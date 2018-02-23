@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccGoogleProjectIamMember_importBasic(t *testing.T) {
+func TestAccProjectIamMember_importBasic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_project_iam_member.acceptance"
@@ -20,7 +20,7 @@ func TestAccGoogleProjectIamMember_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateMemberBasic(pid, "Acceptance", org),
+				Config: testAccProjectAssociateMemberBasic(pid, "Acceptance", org),
 			},
 
 			resource.TestStep{
@@ -32,7 +32,7 @@ func TestAccGoogleProjectIamMember_importBasic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleProjectIamBinding_importBasic(t *testing.T) {
+func TestAccProjectIamBinding_importBasic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_project_iam_binding.acceptance"
@@ -44,7 +44,7 @@ func TestAccGoogleProjectIamBinding_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectAssociateBindingBasic(pid, "Acceptance", org),
+				Config: testAccProjectAssociateBindingBasic(pid, "Acceptance", org),
 			},
 
 			resource.TestStep{

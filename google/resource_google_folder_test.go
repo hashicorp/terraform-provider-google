@@ -2,15 +2,16 @@ package google
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"testing"
 
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
-func TestAccGoogleFolder_rename(t *testing.T) {
+func TestAccFolder_rename(t *testing.T) {
 	t.Parallel()
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
@@ -25,7 +26,7 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleFolder_basic(folderDisplayName, parent),
+				Config: testAccFolder_basic(folderDisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder),
 					testAccCheckGoogleFolderParent(&folder, parent),
@@ -33,7 +34,7 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccGoogleFolder_basic(newFolderDisplayName, parent),
+				Config: testAccFolder_basic(newFolderDisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder),
 					testAccCheckGoogleFolderParent(&folder, parent),
@@ -48,7 +49,7 @@ func TestAccGoogleFolder_rename(t *testing.T) {
 	})
 }
 
-func TestAccGoogleFolder_moveParent(t *testing.T) {
+func TestAccFolder_moveParent(t *testing.T) {
 	t.Parallel()
 
 	folder1DisplayName := "tf-test-" + acctest.RandString(10)
@@ -64,7 +65,7 @@ func TestAccGoogleFolder_moveParent(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleFolder_basic(folder1DisplayName, parent),
+				Config: testAccFolder_basic(folder1DisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder1),
 					testAccCheckGoogleFolderParent(&folder1, parent),
@@ -72,7 +73,7 @@ func TestAccGoogleFolder_moveParent(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccGoogleFolder_move(folder1DisplayName, folder2DisplayName, parent),
+				Config: testAccFolder_move(folder1DisplayName, folder2DisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder1),
 					testAccCheckGoogleFolderDisplayName(&folder1, folder1DisplayName),
@@ -144,7 +145,7 @@ func testAccCheckGoogleFolderParent(folder *resourceManagerV2Beta1.Folder, paren
 	}
 }
 
-func testAccGoogleFolder_basic(folder, parent string) string {
+func testAccFolder_basic(folder, parent string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "folder1" {
   display_name = "%s"
@@ -153,7 +154,7 @@ resource "google_folder" "folder1" {
 `, folder, parent)
 }
 
-func testAccGoogleFolder_move(folder1, folder2, parent string) string {
+func testAccFolder_move(folder1, folder2, parent string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "folder1" {
   display_name = "%s"

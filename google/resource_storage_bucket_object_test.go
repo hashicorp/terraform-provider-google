@@ -10,8 +10,9 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"google.golang.org/api/storage/v1"
 	"os"
+
+	"google.golang.org/api/storage/v1"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 	content    = "now this is content!"
 )
 
-func TestAccGoogleStorageObject_basic(t *testing.T) {
+func TestAccStorageObject_basic(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -33,7 +34,7 @@ func TestAccGoogleStorageObject_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
@@ -43,7 +44,7 @@ func TestAccGoogleStorageObject_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_recreate(t *testing.T) {
+func TestAccStorageObject_recreate(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -64,7 +65,7 @@ func TestAccGoogleStorageObject_recreate(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
@@ -84,7 +85,7 @@ func TestAccGoogleStorageObject_recreate(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_content(t *testing.T) {
+func TestAccStorageObject_content(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -98,7 +99,7 @@ func TestAccGoogleStorageObject_content(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObjectContent(bucketName),
@@ -114,7 +115,7 @@ func TestAccGoogleStorageObject_content(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
+func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -129,7 +130,7 @@ func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObject_optionalContentFields(
@@ -150,13 +151,13 @@ func TestAccGoogleStorageObject_withContentCharacteristics(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_dynamicContent(t *testing.T) {
+func TestAccStorageObject_dynamicContent(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObjectDynamicContent(testBucketName()),
@@ -171,7 +172,7 @@ func TestAccGoogleStorageObject_dynamicContent(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
+func TestAccStorageObject_cacheControl(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -186,7 +187,7 @@ func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObject_cacheControl(bucketName, testFile.Name(), cacheControl),
@@ -200,7 +201,7 @@ func TestAccGoogleStorageObject_cacheControl(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageObject_storageClass(t *testing.T) {
+func TestAccStorageObject_storageClass(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -215,7 +216,7 @@ func TestAccGoogleStorageObject_storageClass(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageObjectDestroy,
+		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageBucketsObject_storageClass(bucketName, storageClass),
@@ -250,7 +251,7 @@ func testAccCheckGoogleStorageObject(bucket, object, md5 string) resource.TestCh
 	}
 }
 
-func testAccGoogleStorageObjectDestroy(s *terraform.State) error {
+func testAccStorageObjectDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {

@@ -10,7 +10,7 @@ import (
 )
 
 // Test that services can be enabled and disabled on a project
-func TestAccGoogleProjectService_basic(t *testing.T) {
+func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -21,28 +21,28 @@ func TestAccGoogleProjectService_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleProjectService_basic(services, pid, pname, org),
+				Config: testAccProjectService_basic(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectService(services, pid, true),
 				),
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectService(services, pid, false),
 				),
 			},
 			// Create services with disabling turned off.
 			resource.TestStep{
-				Config: testAccGoogleProjectService_noDisable(services, pid, pname, org),
+				Config: testAccProjectService_noDisable(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectService(services, pid, true),
 				),
 			},
 			// Check that services are still enabled even after the resources are deleted.
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProjectService(services, pid, true),
 				),
@@ -79,7 +79,7 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 	}
 }
 
-func testAccGoogleProjectService_basic(services []string, pid, name, org string) string {
+func testAccProjectService_basic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -99,7 +99,7 @@ resource "google_project_service" "test2" {
 `, pid, name, org, services[0], services[1])
 }
 
-func testAccGoogleProjectService_noDisable(services []string, pid, name, org string) string {
+func testAccProjectService_noDisable(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"

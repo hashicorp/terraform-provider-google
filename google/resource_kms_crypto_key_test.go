@@ -104,7 +104,7 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 	}
 }
 
-func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
+func TestAccKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
 	projectId := "terraform-" + acctest.RandString(10)
@@ -136,7 +136,7 @@ func TestAccGoogleKmsCryptoKey_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleKmsCryptoKey_rotation(t *testing.T) {
+func TestAccKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
 	projectId := "terraform-" + acctest.RandString(10)

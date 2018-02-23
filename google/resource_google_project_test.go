@@ -21,7 +21,7 @@ var (
 )
 
 // Test that a Project resource can be created without an organization
-func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
+func TestAccProject_createWithoutOrg(t *testing.T) {
 	t.Parallel()
 
 	creds := multiEnvSearch(credsEnvVars)
@@ -36,7 +36,7 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			resource.TestStep{
-				Config: testAccGoogleProject_createWithoutOrg(pid, pname),
+				Config: testAccProject_createWithoutOrg(pid, pname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -47,7 +47,7 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 
 // Test that a Project resource can be created and an IAM policy
 // associated
-func TestAccGoogleProject_create(t *testing.T) {
+func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -58,7 +58,7 @@ func TestAccGoogleProject_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -69,7 +69,7 @@ func TestAccGoogleProject_create(t *testing.T) {
 
 // Test that a Project resource can be created with an associated
 // billing account
-func TestAccGoogleProject_billing(t *testing.T) {
+func TestAccProject_billing(t *testing.T) {
 	t.Parallel()
 	org := getTestOrgFromEnv(t)
 	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
@@ -82,7 +82,7 @@ func TestAccGoogleProject_billing(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_createBilling(pid, pname, org, billingId),
+				Config: testAccProject_createBilling(pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
 				),
@@ -95,14 +95,14 @@ func TestAccGoogleProject_billing(t *testing.T) {
 			},
 			// Update to a different  billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_createBilling(pid, pname, org, billingId2),
+				Config: testAccProject_createBilling(pid, pname, org, billingId2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId2),
 				),
 			},
 			// Unlink the billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, ""),
 				),
@@ -112,7 +112,7 @@ func TestAccGoogleProject_billing(t *testing.T) {
 }
 
 // Test that a Project resource can be created with labels
-func TestAccGoogleProject_labels(t *testing.T) {
+func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -122,7 +122,7 @@ func TestAccGoogleProject_labels(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGoogleProject_labels(pid, pname, org, map[string]string{"test": "that"}),
+				Config: testAccProject_labels(pid, pname, org, map[string]string{"test": "that"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
@@ -135,7 +135,7 @@ func TestAccGoogleProject_labels(t *testing.T) {
 			},
 			// update project with labels
 			{
-				Config: testAccGoogleProject_labels(pid, pname, org, map[string]string{"label": "label-value"}),
+				Config: testAccProject_labels(pid, pname, org, map[string]string{"label": "label-value"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"label": "label-value"}),
@@ -143,7 +143,7 @@ func TestAccGoogleProject_labels(t *testing.T) {
 			},
 			// update project delete labels
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasNoLabels("google_project.acceptance", pid),
@@ -269,7 +269,7 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 	}
 }
 
-func testAccGoogleProject_labels(pid, name, org string, labels map[string]string) string {
+func testAccProject_labels(pid, name, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"

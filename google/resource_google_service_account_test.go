@@ -10,7 +10,7 @@ import (
 )
 
 // Test that a service account resource can be created, updated, and destroyed
-func TestAccGoogleServiceAccount_basic(t *testing.T) {
+func TestAccServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
 	accountId := "a" + acctest.RandString(10)
@@ -24,7 +24,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountBasic(accountId, displayName),
+				Config: testAccServiceAccountBasic(accountId, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountExists("google_service_account.acceptance"),
 					resource.TestCheckResourceAttr(
@@ -33,7 +33,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 			},
 			// The second step updates the service account
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountBasic(accountId, displayName2),
+				Config: testAccServiceAccountBasic(accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
 					resource.TestCheckResourceAttr(
@@ -44,7 +44,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 			// The third step explicitely adds the same default project to the service account configuration
 			// and ensure the service account is not recreated by comparing the value of its unique_id with the one from the previous step
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountWithProject(project, accountId, displayName2),
+				Config: testAccServiceAccountWithProject(project, accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountNameModified("google_service_account.acceptance", displayName2),
 					resource.TestCheckResourceAttr(
@@ -59,7 +59,7 @@ func TestAccGoogleServiceAccount_basic(t *testing.T) {
 
 // Test that a service account resource can be created with a policy, updated,
 // and destroyed.
-func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
+func TestAccServiceAccount_createPolicy(t *testing.T) {
 	t.Parallel()
 
 	accountId := "a" + acctest.RandString(10)
@@ -70,21 +70,21 @@ func TestAccGoogleServiceAccount_createPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account with an IAM policy
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountPolicy(accountId, getTestProjectFromEnv()),
+				Config: testAccServiceAccountPolicy(accountId, getTestProjectFromEnv()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountPolicyCount("google_service_account.acceptance", 1),
 				),
 			},
 			// The second step updates the service account with no IAM policy
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountBasic(accountId, displayName),
+				Config: testAccServiceAccountBasic(accountId, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountPolicyCount("google_service_account.acceptance", 0),
 				),
 			},
 			// The final step re-applies the IAM policy
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountPolicy(accountId, getTestProjectFromEnv()),
+				Config: testAccServiceAccountPolicy(accountId, getTestProjectFromEnv()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountPolicyCount("google_service_account.acceptance", 1),
 				),
@@ -144,7 +144,7 @@ func testAccCheckGoogleServiceAccountNameModified(r, n string) resource.TestChec
 	}
 }
 
-func testAccGoogleServiceAccountBasic(account, name string) string {
+func testAccServiceAccountBasic(account, name string) string {
 	t := `resource "google_service_account" "acceptance" {
     account_id = "%v"
 	display_name = "%v"
@@ -152,7 +152,7 @@ func testAccGoogleServiceAccountBasic(account, name string) string {
 	return fmt.Sprintf(t, account, name)
 }
 
-func testAccGoogleServiceAccountWithProject(project, account, name string) string {
+func testAccServiceAccountWithProject(project, account, name string) string {
 	t := `resource "google_service_account" "acceptance" {
     project = "%v"
     account_id = "%v"
@@ -161,7 +161,7 @@ func testAccGoogleServiceAccountWithProject(project, account, name string) strin
 	return fmt.Sprintf(t, project, account, name)
 }
 
-func testAccGoogleServiceAccountPolicy(account, project string) string {
+func testAccServiceAccountPolicy(account, project string) string {
 
 	t := `resource "google_service_account" "acceptance" {
     account_id = "%v"

@@ -10,7 +10,7 @@ import (
 )
 
 // Test that a service account key can be created and destroyed
-func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
+func TestAccServiceAccountKey_basic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_service_account_key.acceptance"
@@ -21,7 +21,7 @@ func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountKey(accountID, displayName),
+				Config: testAccServiceAccountKey(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
@@ -34,7 +34,7 @@ func TestAccGoogleServiceAccountKey_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleServiceAccountKey_pgp(t *testing.T) {
+func TestAccServiceAccountKey_pgp(t *testing.T) {
 	t.Parallel()
 	resourceName := "google_service_account_key.acceptance"
 	accountID := "a" + acctest.RandString(10)
@@ -44,7 +44,7 @@ func TestAccGoogleServiceAccountKey_pgp(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleServiceAccountKey_pgp(accountID, displayName, testKeyPairPubKey1),
+				Config: testAccServiceAccountKey_pgp(accountID, displayName, testKeyPairPubKey1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
@@ -78,7 +78,7 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 	}
 }
 
-func testAccGoogleServiceAccountKey(account, name string) string {
+func testAccServiceAccountKey(account, name string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
 	account_id = "%s"
@@ -92,7 +92,7 @@ resource "google_service_account_key" "acceptance" {
 `, account, name)
 }
 
-func testAccGoogleServiceAccountKey_pgp(account, name string, key string) string {
+func testAccServiceAccountKey_pgp(account, name string, key string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
 	account_id = "%s"

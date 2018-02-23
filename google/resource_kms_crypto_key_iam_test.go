@@ -2,15 +2,16 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleKmsCryptoKeyIamBinding(t *testing.T) {
+func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -27,14 +28,14 @@ func TestAccGoogleKmsCryptoKeyIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
-				Config: testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccGoogleKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
@@ -44,7 +45,7 @@ func TestAccGoogleKmsCryptoKeyIamBinding(t *testing.T) {
 	})
 }
 
-func TestAccGoogleKmsCryptoKeyIamMember(t *testing.T) {
+func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
@@ -61,7 +62,7 @@ func TestAccGoogleKmsCryptoKeyIamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccGoogleKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
+				Config: testAccKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamMemberExists("foo", roleId,
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				),
@@ -143,7 +144,7 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 
 // We are using a custom role since iam_binding is authoritative on the member list and
 // we want to avoid removing members from an existing role to prevent unwanted side effects.
-func testAccGoogleKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"
@@ -186,7 +187,7 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
 `, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
 
-func testAccGoogleKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"
@@ -238,7 +239,7 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
 `, projectId, orgId, billingAccount, account, account, keyRingName, cryptoKeyName, roleId)
 }
 
-func testAccGoogleKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
+func testAccKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
   name            = "Test project"

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleStorageDefaultObjectAcl_basic(t *testing.T) {
+func TestAccStorageDefaultObjectAcl_basic(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -16,7 +16,7 @@ func TestAccGoogleStorageDefaultObjectAcl_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
+		CheckDestroy: testAccStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
@@ -29,7 +29,7 @@ func TestAccGoogleStorageDefaultObjectAcl_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
+func TestAccStorageDefaultObjectAcl_upgrade(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -37,7 +37,7 @@ func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
+		CheckDestroy: testAccStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
@@ -67,7 +67,7 @@ func TestAccGoogleStorageDefaultObjectAcl_upgrade(t *testing.T) {
 	})
 }
 
-func TestAccGoogleStorageDefaultObjectAcl_downgrade(t *testing.T) {
+func TestAccStorageDefaultObjectAcl_downgrade(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
@@ -75,7 +75,7 @@ func TestAccGoogleStorageDefaultObjectAcl_downgrade(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleStorageDefaultObjectAclDestroy,
+		CheckDestroy: testAccStorageDefaultObjectAclDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic2, roleEntityBasic3_owner),
@@ -125,7 +125,7 @@ func testAccCheckGoogleStorageDefaultObjectAcl(bucket, roleEntityS string) resou
 	}
 }
 
-func testAccGoogleStorageDefaultObjectAclDestroy(s *terraform.State) error {
+func testAccStorageDefaultObjectAclDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {

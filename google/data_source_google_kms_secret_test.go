@@ -3,16 +3,16 @@ package google
 import (
 	"encoding/base64"
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudkms/v1"
-	"log"
 )
 
-func TestAccGoogleKmsSecret_basic(t *testing.T) {
+func TestAccKmsSecret_basic(t *testing.T) {
 	t.Parallel()
 
 	projectOrg := getTestOrgFromEnv(t)
