@@ -405,6 +405,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
+	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
 	// We need to get the project associated with this bucket because otherwise import
 	// won't work properly.  That means we need to call the projects.get API with the
@@ -416,7 +417,6 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// the user intends to use the default provider project, or because the resource
 	// is currently being imported, we will read it from the API.
 	if _, ok := d.GetOk("project"); !ok {
-		log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
 			return err
