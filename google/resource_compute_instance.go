@@ -9,6 +9,7 @@ import (
 
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -1264,6 +1265,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		nScopes := n.([]interface{})[0].(map[string]interface{})["scopes"]
 		log.Printf("[INFO] oScopes: %#v", convertStringSet(oScopes.(*schema.Set)))
 		log.Printf("[INFO] nScopes: %#v", convertStringSet(nScopes.(*schema.Set)))
+		oDump := spew.Sdump(o)
+		nDump := spew.Sdump(n)
+		log.Printf("[INFO] oSpew: %s\nnSpew: %s\n", oDump, nDump)
 
 		if !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
