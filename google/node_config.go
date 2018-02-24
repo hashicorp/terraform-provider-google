@@ -32,6 +32,28 @@ var schemaNodeConfig = &schema.Schema{
 				ValidateFunc: validation.IntAtLeast(10),
 			},
 
+			"guest_accelerator": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"count": &schema.Schema{
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"type": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
+						},
+					},
+				},
+			},
+
 			"image_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -128,6 +150,22 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.MachineType = v.(string)
 	}
 
+	if v, ok := nodeConfig["guest_accelerator"]; ok {
+		accels := v.([]interface{})
+		guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
+		for _, raw := range accels {
+			data := raw.(map[string]interface{})
+			if data["count"].(int) == 0 {
+				continue
+			}
+			guestAccelerators = append(guestAccelerators, &container.AcceleratorConfig{
+				AcceleratorCount: int64(data["count"].(int)),
+				AcceleratorType:  data["type"].(string),
+			})
+		}
+		nc.Accelerators = guestAccelerators
+	}
+
 	if v, ok := nodeConfig["disk_size_gb"]; ok {
 		nc.DiskSizeGb = int64(v.(int))
 	}
@@ -196,16 +234,17 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	}
 
 	config = append(config, map[string]interface{}{
-		"machine_type":     c.MachineType,
-		"disk_size_gb":     c.DiskSizeGb,
-		"local_ssd_count":  c.LocalSsdCount,
-		"service_account":  c.ServiceAccount,
-		"metadata":         c.Metadata,
-		"image_type":       c.ImageType,
-		"labels":           c.Labels,
-		"tags":             c.Tags,
-		"preemptible":      c.Preemptible,
-		"min_cpu_platform": c.MinCpuPlatform,
+		"machine_type":      c.MachineType,
+		"disk_size_gb":      c.DiskSizeGb,
+		"guest_accelerator": c.Accelerators,
+		"local_ssd_count":   c.LocalSsdCount,
+		"service_account":   c.ServiceAccount,
+		"metadata":          c.Metadata,
+		"image_type":        c.ImageType,
+		"labels":            c.Labels,
+		"tags":              c.Tags,
+		"preemptible":       c.Preemptible,
+		"min_cpu_platform":  c.MinCpuPlatform,
 	})
 
 	if len(c.OauthScopes) > 0 {
