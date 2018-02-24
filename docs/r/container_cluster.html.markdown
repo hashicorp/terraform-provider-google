@@ -235,6 +235,9 @@ The `node_config` block supports:
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. 
+    Structure documented below.
+
 * `image_type` - (Optional) The image type to use for this node.
 
 * `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
@@ -275,6 +278,12 @@ The `node_config` block supports:
 
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
+
+The `guest_accelerator` block supports:
+
+* `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
+
+* `count` (Required) - The number of the guest accelerator cards exposed to this instance.
 
 ## Attributes Reference
 
