@@ -214,6 +214,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 	err = computeOperationWaitTime(config.clientCompute, op, project, "Creating Disk", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
+		d.SetId("")
 		return err
 	}
 	return resourceComputeDiskRead(d, meta)
