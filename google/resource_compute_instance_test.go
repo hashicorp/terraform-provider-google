@@ -1659,12 +1659,11 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	metadata {
-		bar = "baz"
+		bar            = "baz"
+		startup-script = "echo Hello"
 	}
 
 	create_timeout = 5
-
-	metadata_startup_script = "echo Hello"
 
 	labels {
 		only_me = "nothing_else"

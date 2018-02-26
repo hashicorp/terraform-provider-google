@@ -9,7 +9,6 @@ import (
 
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -1253,22 +1252,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("attached_disk")
 	}
 
-	// Attributes which can only be changed if the instance is stopped
-	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
-		o, n := d.GetChange("machine_type")
-		log.Printf("[INFO] machine_type: HasChange %v, Old %v, New %v", d.HasChange("machine_type"), o, n)
-		o, n = d.GetChange("min_cpu_platform")
-		log.Printf("[INFO] min_cpu_platform: HasChange %v, Old %v, New %v", d.HasChange("min_cpu_platform"), o, n)
-		o, n = d.GetChange("service_account")
-		log.Printf("[INFO] service_account: HasChange %v, Old %v, New %v", d.HasChange("service_account"), o, n)
-		oScopes := o.([]interface{})[0].(map[string]interface{})["scopes"]
-		nScopes := n.([]interface{})[0].(map[string]interface{})["scopes"]
-		log.Printf("[INFO] oScopes: %#v", convertStringSet(oScopes.(*schema.Set)))
-		log.Printf("[INFO] nScopes: %#v", convertStringSet(nScopes.(*schema.Set)))
-		oDump := spew.Sdump(o)
-		nDump := spew.Sdump(n)
-		log.Printf("[INFO] oSpew: %s\nnSpew: %s\n", oDump, nDump)
+	// d.HasChange("service_account") is oversensitive: see https://github.com/hashicorp/terraform/issues/17411
+	// Until that's fixed, manually check whether there is a change.
+	o, n := d.GetChange("service_account")
+	oList := o.([]interface{})
+	nList := n.([]interface{})
+	scopesChange := len(oList) != len(nList)
+	// service_account has MaxItems: 1
+	if len(oList) == 1 && len(nList) == 1 {
+		// scopes is a required field and so will always be set
+		oScopes := oList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		nScopes := nList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		scopesChange = !oScopes.Equal(nScopes)
+	}
 
+	// Attributes which can only be changed if the instance is stopped
+	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account.0.email") || scopesChange {
 		if !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
@@ -1324,7 +1323,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("min_cpu_platform")
 		}
 
-		if d.HasChange("service_account") {
+		if d.HasChange("service_account.0.email") || scopesChange {
 			sa := d.Get("service_account").([]interface{})
 			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
 			if len(sa) > 0 {
