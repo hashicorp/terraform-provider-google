@@ -1,17 +1,15 @@
 package google
 
 import (
-	"log"
-
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"log"
 
 	"fmt"
-	"time"
-
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
+	"time"
 )
 
 var RegionInstanceGroupManagerBaseApiVersion = v1
