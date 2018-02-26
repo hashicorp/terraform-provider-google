@@ -16,6 +16,9 @@ IMPROVEMENTS:
 * container: Allow specifying accelerators in cluster node_config. [GH-1115]
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
 
+BUG FIXES:
+* compute: Don't store disk in state if it didn't create [GH-1129]
+
 ## 1.6.0 (February 09, 2018)
 
 Features:
