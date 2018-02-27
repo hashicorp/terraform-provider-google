@@ -18,6 +18,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: Don't store disk in state if it didn't create [GH-1129]
+* compute: Check set equality for service account scope changes [GH-1130]
 
 ## 1.6.0 (February 09, 2018)
 
