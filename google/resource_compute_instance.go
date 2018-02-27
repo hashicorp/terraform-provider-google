@@ -1257,9 +1257,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	o, n := d.GetChange("service_account")
 	oList := o.([]interface{})
 	nList := n.([]interface{})
-	scopesChange := len(oList) != len(nList)
-	// service_account has MaxItems: 1
-	if len(oList) == 1 && len(nList) == 1 {
+	scopesChange := false
+	if len(oList) != len(nList) {
+		scopesChange = true
+	} else if len(oList) == 1 {
+		// service_account has MaxItems: 1
 		// scopes is a required field and so will always be set
 		oScopes := oList[0].(map[string]interface{})["scopes"].(*schema.Set)
 		nScopes := nList[0].(map[string]interface{})["scopes"].(*schema.Set)
@@ -1267,7 +1269,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Attributes which can only be changed if the instance is stopped
-	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account.0.email") || scopesChange {
+	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") {
 		if !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
