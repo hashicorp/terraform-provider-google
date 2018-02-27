@@ -1252,8 +1252,24 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("attached_disk")
 	}
 
+	// d.HasChange("service_account") is oversensitive: see https://github.com/hashicorp/terraform/issues/17411
+	// Until that's fixed, manually check whether there is a change.
+	o, n := d.GetChange("service_account")
+	oList := o.([]interface{})
+	nList := n.([]interface{})
+	scopesChange := false
+	if len(oList) != len(nList) {
+		scopesChange = true
+	} else if len(oList) == 1 {
+		// service_account has MaxItems: 1
+		// scopes is a required field and so will always be set
+		oScopes := oList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		nScopes := nList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		scopesChange = !oScopes.Equal(nScopes)
+	}
+
 	// Attributes which can only be changed if the instance is stopped
-	if d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("service_account") {
+	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") {
 		if !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
@@ -1309,7 +1325,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("min_cpu_platform")
 		}
 
-		if d.HasChange("service_account") {
+		if d.HasChange("service_account.0.email") || scopesChange {
 			sa := d.Get("service_account").([]interface{})
 			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
 			if len(sa) > 0 {
