@@ -26,6 +26,7 @@ import (
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
 	"google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
@@ -55,6 +56,7 @@ type Config struct {
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
+	clientContainerBeta          *containerBeta.Service
 	clientDataproc               *dataproc.Service
 	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service

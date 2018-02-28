@@ -10,6 +10,12 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
+)
+
+var (
+	ContainerNodePoolBaseApiVersion    = v1
+	ContainerNodePoolVersionedFeatures = []Feature{}
 )
 
 func resourceContainerNodePool() *schema.Resource {
@@ -133,6 +139,7 @@ var schemaNodePool = map[string]*schema.Schema{
 }
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
+	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -145,7 +152,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	req := &container.CreateNodePoolRequest{
+	req := &containerBeta.CreateNodePoolRequest{
 		NodePool: nodePool,
 	}
 
@@ -157,14 +164,36 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
 	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
-	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, req).Do()
+	var op interface{}
+	switch containerApiVersion {
+	case v1:
+		reqV1 := &container.CreateNodePoolRequest{}
+		err = Convert(req, reqV1)
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		return fmt.Errorf("Error creating NodePool: %s", err)
+		op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating NodePool: %s", err)
+		}
+	case v1beta1:
+		reqV1Beta := &containerBeta.CreateNodePoolRequest{}
+		err = Convert(req, reqV1Beta)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1Beta).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating NodePool: %s", err)
+		}
 	}
 
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
+
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	waitErr := containerOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
+	waitErr := containerSharedOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -173,12 +202,11 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
-
 	return resourceContainerNodePoolRead(d, meta)
 }
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
+	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -193,10 +221,22 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
-	nodePool, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-		project, zone, cluster, name).Do()
+	var nodePool *containerBeta.NodePool
+	var np interface{}
+	switch containerApiVersion {
+	case v1:
+		np, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
+			project, zone, cluster, name).Do()
+	case v1beta1:
+		np, err = config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Get(
+			project, zone, cluster, name).Do()
+	}
 	if err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
+		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
+	}
+	err = Convert(np, nodePool)
+	if err != nil {
+		return err
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -304,7 +344,7 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool, error) {
+func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodePool, error) {
 	var name string
 	if v, ok := d.GetOk(prefix + "name"); ok {
 		if _, ok := d.GetOk(prefix + "name_prefix"); ok {
@@ -328,7 +368,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		nodeCount = nc.(int)
 	}
 
-	np := &container.NodePool{
+	np := &containerBeta.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
 		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
@@ -336,7 +376,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
-		np.Autoscaling = &container.NodePoolAutoscaling{
+		np.Autoscaling = &containerBeta.NodePoolAutoscaling{
 			Enabled:         true,
 			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
 			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
@@ -346,7 +386,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 
 	if v, ok := d.GetOk(prefix + "management"); ok {
 		managementConfig := v.([]interface{})[0].(map[string]interface{})
-		np.Management = &container.NodeManagement{}
+		np.Management = &containerBeta.NodeManagement{}
 
 		if v, ok := managementConfig["auto_repair"]; ok {
 			np.Management.AutoRepair = v.(bool)
@@ -360,7 +400,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 	return np, nil
 }
 
-func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
+func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.NodePool, prefix string) (map[string]interface{}, error) {
 	// Node pools don't expose the current node count in their API, so read the
 	// instance groups instead. They should all have the same size, but in case a resize
 	// failed or something else strange happened, we'll just use the average size.

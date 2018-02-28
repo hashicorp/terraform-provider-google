@@ -3,7 +3,7 @@ package google
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -134,9 +134,9 @@ var schemaNodeConfig = &schema.Schema{
 	},
 }
 
-func expandNodeConfig(v interface{}) *container.NodeConfig {
+func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 	nodeConfigs := v.([]interface{})
-	nc := &container.NodeConfig{
+	nc := &containerBeta.NodeConfig{
 		// Defaults can't be set on a list/set in the schema, so set the default on create here.
 		OauthScopes: defaultOauthScopes,
 	}
@@ -152,13 +152,13 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["guest_accelerator"]; ok {
 		accels := v.([]interface{})
-		guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
+		guestAccelerators := make([]*containerBeta.AcceleratorConfig, 0, len(accels))
 		for _, raw := range accels {
 			data := raw.(map[string]interface{})
 			if data["count"].(int) == 0 {
 				continue
 			}
-			guestAccelerators = append(guestAccelerators, &container.AcceleratorConfig{
+			guestAccelerators = append(guestAccelerators, &containerBeta.AcceleratorConfig{
 				AcceleratorCount: int64(data["count"].(int)),
 				AcceleratorType:  data["type"].(string),
 			})
@@ -226,7 +226,7 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	return nc
 }
 
-func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
+func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	config := make([]map[string]interface{}, 0, 1)
 
 	if c == nil {
