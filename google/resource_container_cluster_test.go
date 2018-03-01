@@ -165,12 +165,30 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"0.0.0.0/0"}),
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"8.8.8.8/32"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
 					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
 						"master_authorized_networks_config.0.cidr_blocks.#", "1"),
 				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_authorized_networks",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateIdPrefix: "us-central1-a/",
+			},
+			{
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"10.0.0.0/8", "8.8.8.8/32"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_authorized_networks",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateIdPrefix: "us-central1-a/",
 			},
 			{
 				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{}),
@@ -178,14 +196,6 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
 					resource.TestCheckNoResourceAttr("google_container_cluster.with_master_authorized_networks",
 						"master_authorized_networks_config.0.cidr_blocks"),
-				),
-			},
-			{
-				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"8.8.8.8/32"}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerCluster("google_container_cluster.with_master_authorized_networks"),
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
-						"master_authorized_networks_config.0.cidr_blocks.#", "1"),
 				),
 			},
 		},
@@ -1116,12 +1126,15 @@ func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName stri
 	cidrBlocks := ""
 	if len(cidrs) > 0 {
 		var buf bytes.Buffer
+		buf.WriteString("cidr_blocks = [")
 		for _, c := range cidrs {
 			buf.WriteString(fmt.Sprintf(`
-			cidr_blocks {
+			{
 				cidr_block = "%s"
-			}`, c))
+				display_name = "disp-%s"
+			},`, c, c))
 		}
+		buf.WriteString("]")
 		cidrBlocks = buf.String()
 	}
 

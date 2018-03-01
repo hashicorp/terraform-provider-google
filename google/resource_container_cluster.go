@@ -16,6 +16,30 @@ import (
 
 var (
 	instanceGroupManagerURL = regexp.MustCompile("^https://www.googleapis.com/compute/v1/projects/([a-z][a-z0-9-]{5}(?:[-a-z0-9]{0,23}[a-z0-9])?)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)")
+	networkConfig           = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cidr_blocks": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				MaxItems: 10,
+				Elem:     cidrBlockConfig,
+			},
+		},
+	}
+	cidrBlockConfig = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cidr_block": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.CIDRNetwork(0, 32),
+			},
+			"display_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	}
 )
 
 func resourceContainerCluster() *schema.Resource {
@@ -246,29 +270,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"cidr_blocks": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							MaxItems: 10,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"cidr_block": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: validation.CIDRNetwork(0, 32),
-									},
-									"display_name": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem:     networkConfig,
 			},
 
 			"min_master_version": {
@@ -1239,14 +1241,14 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworksConfig) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if c.Enabled && len(c.CidrBlocks) > 0 {
-		cidrBlocks := make([]map[string]interface{}, 0, len(c.CidrBlocks))
+		cidrBlocks := make([]interface{}, 0, len(c.CidrBlocks))
 		for _, v := range c.CidrBlocks {
 			cidrBlocks = append(cidrBlocks, map[string]interface{}{
 				"cidr_block":   v.CidrBlock,
 				"display_name": v.DisplayName,
 			})
 		}
-		result["cidr_blocks"] = cidrBlocks
+		result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
 	}
 	return []map[string]interface{}{result}
 }
