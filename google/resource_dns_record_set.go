@@ -3,10 +3,13 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
+
+	"google.golang.org/api/dns/v1"
+
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/dns/v1"
-	"strings"
 )
 
 func resourceDnsRecordSet() *schema.Resource {
@@ -27,9 +30,10 @@ func resourceDnsRecordSet() *schema.Resource {
 			},
 
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: ValidateDNSRRsetName,
 			},
 
 			"rrdatas": &schema.Schema{
@@ -58,6 +62,163 @@ func resourceDnsRecordSet() *schema.Resource {
 			},
 		},
 	}
+}
+
+// This catches most invalid DNS names, though it might not catch some invlaid non-ASCII names
+// it does not implement the TOASCII functionality defined in https://tools.ietf.org/html/rfc3454
+// See:
+// https://tools.ietf.org/html/rfc1034 DOMAIN NAMES - CONCEPTS AND FACILITIES
+// https://tools.ietf.org/html/rfc3490 Internationalizing Domain Names in Applications (IDNA)
+// https://tools.ietf.org/html/rfc3454 Preparation of Internationalized Strings ('stringprep')
+func ValidateDNSRRsetName(i interface{}, k string) (s []string, errors []error) {
+	name := i.(string)
+	errors = append(errors, checkName(name)...)
+	return
+}
+
+func checkName(name string) (errors []error) {
+
+	if len(name) > 255 {
+		errors = append(errors, fmt.Errorf("DNS name length %d greater than 254",
+			len(name)))
+	}
+
+	// Compile regular expression for use in the loop
+
+	// https://tools.ietf.org/html/rfc3490#section-3.1 Requirements
+	// Whenever dots are used as label separators, the following
+	// characters MUST be recognized as dots: U+002E (full stop),
+	// U+3002 (ideographic full stop), U+FF0E (fullwidth full
+	// stop), U+FF61 (halfwidth ideographic full stop).
+	re, err := regexp.Compile("[\u002e\u3002\uFF0E\uFF61]$")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		re = nil
+	}
+	if re != nil && !re.MatchString(name) {
+		errors = append(errors,
+			fmt.Errorf("DNS name must be fully qualified with a trailing dot"))
+	}
+
+	dotRegexp, err := regexp.Compile("[\u002e\u3002\uFF0E\uFF61]")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		dotRegexp = nil
+	}
+
+	// Normally, if we were not accepting internationalized domain
+	// names, we could just use isAscii here. But that will reject
+	// legal domain names. Since ASCII and UTF-8 have the same
+	// encoding in the range that ASCII covers, we still want to
+	// flag characters that are not valid ASCII in the 0X00-0XFF
+	// range. This regular expression excludes those characters
+	verbotenRegexp, err := regexp.Compile("[\x00-\x2C\x2E-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		verbotenRegexp = nil
+	}
+
+	allDigitRegexp, err := regexp.Compile("^[[:digit:]]+$")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		allDigitRegexp = nil
+	}
+
+	spaceRegexp, err := regexp.Compile("[[:space:]]+")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		spaceRegexp = nil
+	}
+
+	underscoreRegexp, err := regexp.Compile("_+")
+	if err != nil {
+		errors = append(errors, fmt.Errorf("Internal error compiling regexp: %s",
+			err))
+		underscoreRegexp = nil
+	}
+
+	// Split the DNS name into labels, and iterate over them with
+	// precompile regular expressions.
+
+	var labels []string
+	if dotRegexp != nil {
+		labels = dotRegexp.Split(name, -1)
+		if len(labels) < 2 {
+			errors = append(errors,
+				fmt.Errorf("DNS name must not be a top level domain (%s).", name))
+			labels = nil
+		}
+	} else {
+		errors = append(errors, fmt.Errorf("Could not split DNS name."))
+	}
+
+	for index, label := range labels {
+		// First, the simpler checks
+
+		// Only the final label may be empty
+		if index < len(labels)-1 && len(label) < 1 {
+			errors = append(errors, fmt.Errorf("subdomains must not be empty"))
+		}
+		// errors = append(errors, fmt.Errorf("DEBUG: %d label is %s", index, label))
+
+		s := []rune(label)
+		if len(s) > 63 {
+			errors = append(errors,
+				fmt.Errorf("subdomains must not have more than 63 characters: %s - %d.",
+					label, len(s)))
+		}
+
+		if len(s) > 0 {
+			if string(s[0]) == "-" {
+				errors = append(errors, fmt.Errorf("subdomains must not start with a hyphen (%s).",
+					label))
+			}
+			if string(s[len(s)-1]) == "-" {
+				errors = append(errors, fmt.Errorf("subdomains must not end with a hyphen. (%s)",
+					label))
+			}
+
+			if len(s) > 4 && string(s[2:4]) == "--" {
+				errors = append(errors, fmt.Errorf("subdomains must not mask encoded IDNA: %s.",
+					label))
+			}
+			if underscoreRegexp != nil {
+				rest := s[1:]
+				if underscoreRegexp.MatchString(string(rest)) {
+					errors = append(errors,
+						fmt.Errorf("Only the leading character in a subdomain may be a '_' (%s).",
+							label))
+				}
+			}
+		}
+		if spaceRegexp != nil && spaceRegexp.MatchString(label) {
+			errors = append(errors,
+				fmt.Errorf("Subdomain labels cannot contain whitespace: %s",
+					label))
+		}
+
+		if allDigitRegexp != nil && allDigitRegexp.MatchString(label) {
+			errors = append(errors,
+				fmt.Errorf("Subdomain labels cannot all be digits: %s",
+					label))
+		}
+
+		if verbotenRegexp != nil {
+			badCharacters := verbotenRegexp.FindAllStringSubmatch(label, -1)
+			if badCharacters != nil {
+				errors = append(errors,
+					fmt.Errorf("Illegal ASCII character(s) %q  in domain name.",
+						badCharacters))
+			}
+		}
+
+	}
+	return
 }
 
 func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error {

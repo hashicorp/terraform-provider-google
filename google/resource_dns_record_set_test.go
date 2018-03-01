@@ -192,6 +192,39 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 	}
 }
 
+func TestAccCheckDnsRecordSetValid(t *testing.T) {
+	t.Parallel()
+	valid_names := []string{
+		"www.google.com.",
+		"3www.google.com.",
+		"www-5512.google.com.",
+		"Bücher.tld.",
+	}
+	invalid_names := []string{
+		"www.go--ogle.com.",
+		"www.google-.com.",
+		"www.-google.com.",
+		"www.goo gle.com.",
+		"www.google.com",
+		"@.google.com.",
+		"www.goo_gle.com.",
+		"www.1234567890.google.com.",
+	}
+
+	for _, valid := range valid_names {
+		error := checkName(valid)
+		if error != nil {
+			t.Fatalf("Valid DNS name %s rejected: %s", valid, error)
+		}
+	}
+	for _, invalid := range invalid_names {
+		expected_error := checkName(invalid)
+		if expected_error == nil {
+			t.Fatalf("Invalid DNS name %s not rejected", invalid)
+		}
+	}
+}
+
 func testAccDnsRecordSet_basic(zoneName string, addr2 string, ttl int) string {
 	return fmt.Sprintf(`
 	resource "google_dns_managed_zone" "parent-zone" {
