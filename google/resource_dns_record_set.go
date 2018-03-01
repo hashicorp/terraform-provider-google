@@ -40,7 +40,7 @@ func resourceDnsRecordSet() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.Trim(old, `"`) == strings.Trim(new, `"`)
+					return strings.ToLower(strings.Trim(old, `"`)) == strings.ToLower(strings.Trim(new, `"`))
 				},
 			},
 

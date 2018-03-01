@@ -162,6 +162,26 @@ func TestAccDnsRecordSet_quotedTXT(t *testing.T) {
 	})
 }
 
+func TestAccDnsRecordSet_uppercaseMX(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-txt-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDnsRecordSet_uppercaseMX(zoneName, 300),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDnsRecordSetExists(
+						"google_dns_record_set.foobar", zoneName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDnsRecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -292,6 +312,29 @@ func testAccDnsRecordSet_quotedTXT(name string, ttl int) string {
 		name = "test-record.%s.hashicorptest.com."
 		type = "TXT"
 		rrdatas = ["test", "\"quoted test\""]
+		ttl = %d
+	}
+	`, name, name, name, ttl)
+}
+
+func testAccDnsRecordSet_uppercaseMX(name string, ttl int) string {
+	return fmt.Sprintf(`
+	resource "google_dns_managed_zone" "parent-zone" {
+		name = "%s"
+		dns_name = "%s.hashicorptest.com."
+		description = "Test Description"
+	}
+	resource "google_dns_record_set" "foobar" {
+		managed_zone = "${google_dns_managed_zone.parent-zone.name}"
+		name = "test-record.%s.hashicorptest.com."
+		type = "MX"
+		rrdatas = [
+			"1 ASPMX.L.GOOGLE.COM.",
+			"5 ALT1.ASPMX.L.GOOGLE.COM.",
+			"5 ALT2.ASPMX.L.GOOGLE.COM.",
+			"10 ASPMX2.GOOGLEMAIL.COM.",
+			"10 ASPMX3.GOOGLEMAIL.COM.",
+		]
 		ttl = %d
 	}
 	`, name, name, name, ttl)
