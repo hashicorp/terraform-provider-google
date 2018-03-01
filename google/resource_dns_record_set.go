@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
-	"strings"
 )
 
 func resourceDnsRecordSet() *schema.Resource {
@@ -37,6 +38,9 @@ func resourceDnsRecordSet() *schema.Resource {
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.Trim(old, `"`) == strings.Trim(new, `"`)
 				},
 			},
 
