@@ -375,11 +375,17 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
 
 	shouldPass := []string{
+
 		"https://www.googleapis.com/compute/v1/projects/project-id/zones/us-central1/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/123123/zones/us-central1/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/hashicorptest.net:project-123/zones/us-central1/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/123/zones/456/instances/789",
 	}
 
 	shouldFail := []string{
-		"https://www.googleapis.com/compute/v1/projects/project-id/zones/us-central2/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/project#/zones/us-central1/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central#/instances/123",
+		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central1/instances/?",
 	}
 
 	for _, element := range shouldPass {
