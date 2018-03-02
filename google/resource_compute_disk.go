@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	computeDiskUserRegexString = "^(?:https://www.googleapis.com/compute/v1/projects/)?([-_a-zA-Z0-9:.]*)/zones/([-_a-zA-Z0-9]*)/instances/([-_a-zA-Z0-9]*)$"
+	computeDiskUserRegexString = "^(?:https://www.googleapis.com/compute/v1/projects/)?(" + ProjectRegex + ")/zones/([-_a-zA-Z0-9]*)/instances/([-_a-zA-Z0-9]*)$"
 )
 
 var (
