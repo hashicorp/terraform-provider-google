@@ -372,6 +372,30 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
+
+	shouldPass := []string{
+		"https://www.googleapis.com/compute/v1/projects/project-id/zones/us-central1/instances/123",
+	}
+
+	shouldFail := []string{
+		"https://www.googleapis.com/compute/v1/projects/project-id/zones/us-central2/instances/123",
+	}
+
+	for _, element := range shouldPass {
+		if !computeDiskUserRegex.MatchString(element) {
+			t.Error("computeDiskUserRegex should match on '" + element + "' but doesn't")
+		}
+	}
+
+	for _, element := range shouldFail {
+		if computeDiskUserRegex.MatchString(element) {
+			t.Error("computeDiskUserRegex shouldn't match on '" + element + "' but does")
+		}
+	}
+
+}
+
 func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
