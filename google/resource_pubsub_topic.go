@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/pubsub/v1"
@@ -94,12 +95,16 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 func resourcePubsubTopicStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	topicId := regexp.MustCompile("^projects/[^/]+/topics/[^/]+$")
+	if topicId.MatchString(d.Id()) {
+		return []*schema.ResourceData{d}, nil
 	}
 
-	id := fmt.Sprintf("projects/%s/topics/%s", project, d.Id())
+	if config.Project == "" {
+		return nil, fmt.Errorf("The default project for the provider must be set when using the `{name}` id format.")
+	}
+
+	id := fmt.Sprintf("projects/%s/topics/%s", config.Project, d.Id())
 
 	d.SetId(id)
 

@@ -22,9 +22,17 @@ func TestAccPubsubTopic_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccPubsubTopic_basic(topicName),
 			},
+			// Check importing with just the topic name
 			resource.TestStep{
 				ResourceName:            "google_pubsub_topic.foo",
 				ImportStateId:           topicName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			// Check importing with the full resource id
+			resource.TestStep{
+				ResourceName:            "google_pubsub_topic.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
