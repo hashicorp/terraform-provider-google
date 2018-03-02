@@ -215,6 +215,8 @@ to work, cannot be updated, and supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `first_ip_address` - The first IPv4 address of the addresses assigned.
+
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 
 * `ip_address.0.time_to_retire` - The time this IP address will be retired, in RFC
