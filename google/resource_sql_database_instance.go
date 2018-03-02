@@ -257,6 +257,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				},
 			},
 
+			"first_ip_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -729,11 +734,21 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
+
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
-	if err := d.Set("ip_address", flattenIpAddresses(instance.IpAddresses)); err != nil {
+
+	ipAddresses := flattenIpAddresses(instance.IpAddresses)
+	if err := d.Set("ip_address", ipAddresses); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
+	}
+
+	if len(ipAddresses) > 0 {
+		firstIpAddress := ipAddresses[0]["ip_address"]
+		if err := d.Set("first_ip_address", firstIpAddress); err != nil {
+			log.Printf("[WARN] Failed to set SQL Database Instance First IP Address")
+		}
 	}
 
 	if err := d.Set("server_ca_cert", flattenServerCaCert(instance.ServerCaCert)); err != nil {
