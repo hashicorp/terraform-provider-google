@@ -596,7 +596,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	var cluster *containerBeta.Cluster
+	cluster := &containerBeta.Cluster{}
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 		var clust interface{}
 		switch containerApiVersion {
@@ -610,7 +610,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		err = Convert(clust, cluster)
+		err = Convert(&clust, cluster)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
