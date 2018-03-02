@@ -386,6 +386,8 @@ func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
 		"https://www.googleapis.com/compute/v1/projects/project#/zones/us-central1/instances/123",
 		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central#/instances/123",
 		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central1/instances/?",
+		"foo.com:bar:baz",
+		"foo.com:",
 	}
 
 	for _, element := range shouldPass {
