@@ -461,16 +461,16 @@ func expandPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 		job.Args = convertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["python_file_uris"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.PythonFileUris = convertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.JarFileUris = convertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["file_uris"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.FileUris = convertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["archive_uris"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.ArchiveUris = convertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
