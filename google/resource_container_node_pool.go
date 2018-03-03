@@ -369,11 +369,11 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
 		if len(matches) < 4 {
-			return nil, fmt.Errorf("Error reading instance group manage URL '%s'", url)
+			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
 		igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
 		}
 		size += int(igm.TargetSize)
 	}
