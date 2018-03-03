@@ -1,7 +1,7 @@
 # https://cloud.google.com/vpc/docs/shared-vpc
 
 provider "google" {
-  region = "${var.region}"
+  region      = "${var.region}"
   credentials = "${file("${var.credentials_file_path}")}"
 }
 

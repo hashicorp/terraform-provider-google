@@ -16,5 +16,5 @@ variable "billing_account_id" {
 
 variable "credentials_file_path" {
   description = "Location of the credentials to use."
-  default = "~/.gcloud/Terraform.json"
+  default     = "~/.gcloud/Terraform.json"
 }
