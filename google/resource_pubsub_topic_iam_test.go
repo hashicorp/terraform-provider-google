@@ -139,13 +139,14 @@ resource "google_service_account" "test-account-1" {
 }
 
 resource "google_pubsub_topic_iam_binding" "foo" {
+  project = "%s"
   topic   = "${google_pubsub_topic.topic.name}"
   role    = "roles/pubsub.publisher"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
   ]
 }
-`, topic, account)
+`, topic, account, getTestProjectFromEnv())
 }
 
 func testAccPubsubTopicIamBinding_update(topic, account string) string {

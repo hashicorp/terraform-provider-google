@@ -15,6 +15,12 @@ var IamPubsubTopicSchema = map[string]*schema.Schema{
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
+	"project": &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
 }
 
 type PubsubTopicIamUpdater struct {
