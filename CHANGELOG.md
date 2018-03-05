@@ -23,6 +23,7 @@ BUG FIXES:
 * compute: Check set equality for service account scope changes [GH-1130]
 * compute: Disk now accepts project id with '.' and ':' [GH-1145]
 * dataproc: fix typos in pyspark dataproc job resource that led to args not working [GH-1120]
+* spanner: Accepts project id with '.' and ':' [GH-1151]
 
 ## 1.6.0 (February 09, 2018)
 
