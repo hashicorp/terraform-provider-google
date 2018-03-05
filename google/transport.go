@@ -7,9 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"reflect"
-
 	"google.golang.org/api/googleapi"
+	"reflect"
 )
 
 type serializableBody struct {

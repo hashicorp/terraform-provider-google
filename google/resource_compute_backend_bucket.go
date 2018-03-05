@@ -169,7 +169,8 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
-	res, err := Put(config, url, obj)
+	res, err := sendRequest(config, "PUT", url, obj)
+
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
 	}
@@ -222,7 +223,16 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.Set("name", d.Id())
+	config := meta.(*Config)
+	parseImportId([]string{"projects/(?P<project>[^/]+)/global/backendBuckets/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
 	return []*schema.ResourceData{d}, nil
 }
 
