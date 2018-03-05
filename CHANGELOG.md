@@ -13,6 +13,7 @@ IMPROVEMENTS:
 * compute: add support for updating alias ips in instances [GH-1084]
 * compute: allow setting a route resource's `description` attribute [GH-1088]
 * compute: allow lowercase ip protocols in forwarding rules [GH-1118]
+* compute: `google_compute_zones` datasource accepts a `project` parameter [GH-1122]
 * container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
 * container: Allow specifying accelerators in cluster node_config. [GH-1115]
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
