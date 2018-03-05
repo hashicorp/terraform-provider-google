@@ -14,19 +14,19 @@ and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
 
 ## Example usage
-
+### Standard usage
 ```hcl
 resource "google_container_node_pool" "np" {
   name               = "my-node-pool"
   zone               = "us-central1-a"
   cluster            = "${google_container_cluster.primary.name}"
-  initial_node_count = 3
+  node_count         = 3
 }
 
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
   zone               = "us-central1-a"
-  initial_node_count = 3
+  node_count         = 3
 
   additional_zones = [
     "us-central1-b",
@@ -52,7 +52,41 @@ resource "google_container_cluster" "primary" {
   }
 }
 ```
+### Usage with an empty default pool.
+```hcl
+resource "google_container_node_pool" "np" {
+  name               = "my-node-pool"
+  zone               = "us-central1-a"
+  cluster            = "${google_container_cluster.primary.name}"
+  node_count         = 1
+  
+  node_config {
+    preemptible = true
+    machine_type = "n1-standard-1"
+    oauth_scopes = [
+      "compute-rw",
+      "storage-ro",
+      "logging-write",
+      "monitoring", 
+    ]
+  }
+}
 
+resource "google_container_cluster" "primary" {
+  name               = "marcellus-wallace"
+  zone               = "us-central1-a"
+
+  lifecycle {
+    ignore_changes = [
+      "node_pool"
+    ]
+  }
+  
+  node_pool = {
+    name = "default-pool"
+  }
+}
+```
 ## Argument Reference
 
 * `zone` - (Required) The zone in which the cluster resides.
