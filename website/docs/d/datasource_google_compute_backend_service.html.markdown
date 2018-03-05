@@ -1,0 +1,57 @@
+---
+layout: "google"
+page_title: "Google: google_compute_backend_service"
+sidebar_current: "docs-google-datasource-compute-backend-service"
+description: |-
+  Get information about a Backend Service.
+---
+
+# google\_compute\_backend\_service
+
+Provide acces to a Backend Service's attribute. For more information
+see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
+and the [API](https://cloud.google.com/compute/docs/reference/latest/backendServices).
+
+## Example Usage
+
+```tf
+data "google_compute_backend_service" "baz" {
+  name = "foobar"
+}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `name` - (Required) The name of the Backend Service.
+
+- - -
+
+* `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following attributes are exported:
+
+* `connection_draining_timeout_sec` - Time for which instance will be drained (not accept new connections, but still work to finish started ones).
+
+* `description` - Textual description for the Backend Service.
+
+* `enable_cdn` - Whether or not Cloud CDN is enabled on the Backend Service.
+
+* `fingerprint` - The fingerprint of the Backend Service.
+
+* `port_name` - The name of a service that has been added to an instance group in this backend.
+
+* `protocol` - The protocol for incoming requests.
+
+* `self_link` - The URI of the Backend Service.
+
+* `session_affinity` - The Backend Service session stickyness configuration.
+
+* `timeout_sec` - The number of seconds to wait for a backend to respond to a request before considering the request failed.
+
+* `backend` - The list of backends that serve this Backend Service.
+
+* `health_checks` - The list of HTTP/HTTPS health checks used by the Backend Service.
