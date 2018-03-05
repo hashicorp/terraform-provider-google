@@ -92,6 +92,36 @@ func TestImportSpannerInstanceId_invalidMultiSlash(t *testing.T) {
 	expectInvalidSpannerInstanceImport(t, sid, e)
 }
 
+func TestImportSpannerInstanceId_projectId(t *testing.T) {
+	shouldPass := []string{
+		"project-id/instance",
+		"123123/instance",
+		"hashicorptest.net:project-123/instance",
+		"123/456",
+	}
+
+	shouldFail := []string{
+		"project-id#/instance",
+		"project-id/instance#",
+		"hashicorptest.net:project-123:invalid:project/instance",
+		"hashicorptest.net:/instance",
+	}
+
+	for _, element := range shouldPass {
+		_, e := importSpannerInstanceId(element)
+		if e != nil {
+			t.Error("importSpannerInstanceId should pass on '" + element + "' but doesn't")
+		}
+	}
+
+	for _, element := range shouldFail {
+		_, e := importSpannerInstanceId(element)
+		if e == nil {
+			t.Error("importSpannerInstanceId should fail on '" + element + "' but doesn't")
+		}
+	}
+}
+
 func expectInvalidSpannerInstanceImport(t *testing.T, sid *spannerInstanceId, e error) {
 	if sid != nil {
 		t.Errorf("Expected spannerInstanceId to be nil")

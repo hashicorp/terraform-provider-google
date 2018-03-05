@@ -298,7 +298,7 @@ func (s spannerInstanceId) instanceConfigUri(c string) string {
 
 func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
 	if !regexp.MustCompile("^[a-z0-9-]+$").Match([]byte(id)) &&
-		!regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		!regexp.MustCompile("^"+ProjectRegex+"/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner instance specifier. " +
 			"Expecting either {projectId}/{instanceId} OR " +
 			"{instanceId} (where project is to be derived from that specified in provider)")
@@ -315,7 +315,7 @@ func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
 }
 
 func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
-	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
 	}
 	parts := strings.Split(id, "/")

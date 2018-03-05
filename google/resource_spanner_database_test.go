@@ -48,6 +48,37 @@ func TestImportSpannerDatabaseId_ProjectInstanceDB(t *testing.T) {
 	expectEquals(t, "database789", id.Database)
 }
 
+func TestImportSpannerDatabaseId_projectId(t *testing.T) {
+	shouldPass := []string{
+		"project-id/instance/database",
+		"123123/instance/123",
+		"hashicorptest.net:project-123/instance/123",
+		"123/456/789",
+	}
+
+	shouldFail := []string{
+		"project-id#/instance/database",
+		"project-id/instance#/database",
+		"project-id/instance/database#",
+		"hashicorptest.net:project-123:invalid:project/instance/123",
+		"hashicorptest.net:/instance/123",
+	}
+
+	for _, element := range shouldPass {
+		_, e := importSpannerDatabaseId(element)
+		if e != nil {
+			t.Error("importSpannerDatabaseId should pass on '" + element + "' but doesn't")
+		}
+	}
+
+	for _, element := range shouldFail {
+		_, e := importSpannerDatabaseId(element)
+		if e == nil {
+			t.Error("importSpannerDatabaseId should fail on '" + element + "' but doesn't")
+		}
+	}
+}
+
 func TestImportSpannerDatabaseId_invalidLeadingSlash(t *testing.T) {
 	id, e := importSpannerDatabaseId("/instance456/database789")
 	expectInvalidSpannerDbImportId(t, id, e)

@@ -217,7 +217,7 @@ func (s spannerDatabaseId) databaseUri() string {
 
 func importSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
 	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) &&
-		!regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		!regexp.MustCompile("^"+ProjectRegex+"/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner database specifier. " +
 			"Expecting either {projectId}/{instanceId}/{dbId} OR " +
 			"{instanceId}/{dbId} (where project will be derived from the provider)")
@@ -234,7 +234,7 @@ func importSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
 }
 
 func extractSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
-	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}/{databaseId}")
 	}
 	parts := strings.Split(id, "/")
