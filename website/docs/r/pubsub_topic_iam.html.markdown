@@ -64,6 +64,9 @@ The following arguments are supported:
 
 * `topic` - (Required) The topic name or id to bind to attach IAM policy to.
 
+* `project` - (Optional) The project in which the resource belongs. If it
+    is not provided, the provider project is used.
+
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account.
