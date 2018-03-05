@@ -29,6 +29,7 @@ resource "google_compute_instance_group_manager" "foo" {
 
 The following arguments are supported:
 
+* `project` (Optional) - Project from which to list available zones. Defaults to project declared in the provider.
 * `region` (Optional) - Region from which to list available zones. Defaults to region declared in the provider.
 * `status` (Optional) - Allows to filter list of zones based on their current status. Status can be either `UP` or `DOWN`.
   Defaults to no filtering (all available zones - both `UP` and `DOWN`).
