@@ -16,6 +16,7 @@ IMPROVEMENTS:
 * compute: `google_compute_zones` datasource accepts a `project` parameter [GH-1122]
 * container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
 * container: Allow specifying accelerators in cluster node_config. [GH-1115]
+* pubsub: Add project field to iam pubsub topic resources [GH-1154]
 * sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
 * sql: Add SQL DB Instance attribute `first_ip_address` [GH-1050]
 
