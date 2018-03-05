@@ -21,6 +21,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Don't store disk in state if it didn't create [GH-1129]
 * compute: Check set equality for service account scope changes [GH-1130]
+* compute: Disk now accepts project id with '.' and ':' [GH-1145]
 * dataproc: fix typos in pyspark dataproc job resource that led to args not working [GH-1120]
 
 ## 1.6.0 (February 09, 2018)
