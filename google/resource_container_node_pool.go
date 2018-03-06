@@ -221,22 +221,28 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
-	var nodePool *containerBeta.NodePool
-	var np interface{}
+	nodePool := &containerBeta.NodePool{}
 	switch containerApiVersion {
 	case v1:
-		np, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
+		np, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
 			project, zone, cluster, name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
+		}
+		err = Convert(np, nodePool)
+		if err != nil {
+			return err
+		}
 	case v1beta1:
-		np, err = config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Get(
+		np, err := config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Get(
 			project, zone, cluster, name).Do()
-	}
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
-	}
-	err = Convert(np, nodePool)
-	if err != nil {
-		return err
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
+		}
+		err = Convert(np, nodePool)
+		if err != nil {
+			return err
+		}
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
