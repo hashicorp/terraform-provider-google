@@ -151,14 +151,18 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"distribution_policy": &schema.Schema{
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-				Set:      hashZoneFromSelfLinkOrResourceName,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"zone": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+						},
+					},
 				},
 			},
 		},
@@ -183,7 +187,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").([]interface{})),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
-		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy").(*schema.Set)),
+		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy").([]interface{})),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -530,16 +534,16 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionPolicy {
-	if configured.Len() == 0 {
+func expandDistributionPolicy(configured []interface{}) *computeBeta.DistributionPolicy {
+	if len(configured) == 0 {
 		return nil
 	}
 
-	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, configured.Len())
-	for _, raw := range configured.List() {
-		data := raw.(string)
+	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
 		distributionPolicyZoneConfig := computeBeta.DistributionPolicyZoneConfiguration{
-			Zone: "zones/" + data,
+			Zone: "zones/" + data["zone"].(string),
 		}
 
 		distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
@@ -547,18 +551,19 @@ func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionP
 	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs}
 }
 
-func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) *schema.Set {
-	zones := make([]interface{}, 0)
+func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) []map[string]interface{} {
+	policiesSchema := make([]map[string]interface{}, 0)
 
 	if distributionPolicy != nil {
 		for _, zone := range distributionPolicy.Zones {
-			zones = append(zones, zone.Zone)
+			data := map[string]interface{}{
+				"zone": zone.Zone,
+			}
+			policiesSchema = append(policiesSchema, data)
 		}
 	}
 
-	return schema.NewSet(schema.HashSchema(&schema.Schema{
-		Type: schema.TypeString,
-	}), zones)
+	return policiesSchema
 }
 
 func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
