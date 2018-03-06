@@ -3,7 +3,6 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 	"strings"
 )
@@ -30,7 +29,6 @@ var OrderedContainerApiVersions = []ApiVersion{
 // between multiple API versions, as they are strict supersets of one another.
 // item and out are pointers to structs
 func Convert(item, out interface{}) error {
-	log.Printf("*** converting %#v", item)
 	bytes, err := json.Marshal(item)
 	if err != nil {
 		return err

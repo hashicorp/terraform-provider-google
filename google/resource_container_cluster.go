@@ -598,21 +598,27 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	cluster := &containerBeta.Cluster{}
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		var clust interface{}
 		switch containerApiVersion {
 		case v1:
-			clust, err = config.clientContainer.Projects.Zones.Clusters.Get(
+			clust, err := config.clientContainer.Projects.Zones.Clusters.Get(
 				project, zoneName, d.Get("name").(string)).Do()
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			err = Convert(clust, cluster)
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
 		case v1beta1:
-			clust, err = config.clientContainerBeta.Projects.Zones.Clusters.Get(
+			clust, err := config.clientContainerBeta.Projects.Zones.Clusters.Get(
 				project, zoneName, d.Get("name").(string)).Do()
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		err = Convert(&clust, cluster)
-		if err != nil {
-			return resource.NonRetryableError(err)
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			err = Convert(clust, cluster)
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
 		}
 		if cluster.Status != "RUNNING" {
 			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
