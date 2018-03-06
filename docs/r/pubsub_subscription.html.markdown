@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_pubsub_subscription"
-sidebar_current: "docs-google-pubsub-subscription"
+sidebar_current: "docs-google-pubsub-subscription-x"
 description: |-
   Creates a subscription in Google's pubsub  queueing system
 ---

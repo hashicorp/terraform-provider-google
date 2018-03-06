@@ -95,9 +95,9 @@ exported:
 Pubsub topic IAM resources can be imported using the project, topic name, role and member.
 
 ```
-$ terraform import google_pubsub_topic_iam_policy.editor projects/{your-project-id}/topic/{your-topic-name}
+$ terraform import google_pubsub_topic_iam_policy.editor projects/{your-project-id}/topics/{your-topic-name}
 
-$ terraform import google_pubsub_topic_iam_binding.editor "projects/{your-project-id}/topic/{your-topic-name} roles/editor"
+$ terraform import google_pubsub_topic_iam_binding.editor "projects/{your-project-id}/topics/{your-topic-name} roles/editor"
 
-$ terraform import google_pubsub_topic_iam_member.editor "projects/{your-project-id}/topic/{your-topic-name} roles/editor jane@example.com"
+$ terraform import google_pubsub_topic_iam_member.editor "projects/{your-project-id}/topics/{your-topic-name} roles/editor jane@example.com"
 ```
