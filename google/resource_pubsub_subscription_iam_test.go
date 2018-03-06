@@ -91,7 +91,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 				}),
 			},
 			{
-				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
+				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
 				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -137,7 +137,7 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_pubsub_subscription" "subscription" {
-  name = "%s"
+  name  = "%s"
   topic = "${google_pubsub_topic.topic.id}"
 }
 
@@ -148,8 +148,8 @@ resource "google_service_account" "test-account-1" {
 
 resource "google_pubsub_subscription_iam_binding" "foo" {
   subscription = "${google_pubsub_subscription.subscription.id}"
-  role    = "roles/pubsub.subscriber"
-  members = [
+  role         = "roles/pubsub.subscriber"
+  members      = [
     "serviceAccount:${google_service_account.test-account-1.email}",
   ]
 }
@@ -163,7 +163,7 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_pubsub_subscription" "subscription" {
-  name = "%s"
+  name  = "%s"
   topic = "${google_pubsub_topic.topic.id}"
 }
 
@@ -180,8 +180,8 @@ resource "google_service_account" "test-account-2" {
 
 resource "google_pubsub_subscription_iam_binding" "foo" {
   subscription = "${google_pubsub_subscription.subscription.id}"
-  role    = "roles/pubsub.subscriber"
-  members = [
+  role         = "roles/pubsub.subscriber"
+  members      = [
     "serviceAccount:${google_service_account.test-account-1.email}",
     "serviceAccount:${google_service_account.test-account-2.email}",
   ]
@@ -196,7 +196,7 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_pubsub_subscription" "subscription" {
-  name = "%s"
+  name  = "%s"
   topic = "${google_pubsub_topic.topic.id}"
 }
 
@@ -208,8 +208,8 @@ resource "google_service_account" "test-account" {
 
 resource "google_pubsub_subscription_iam_member" "foo" {
   subscription = "${google_pubsub_subscription.subscription.id}"
-  role    = "roles/pubsub.subscriber"
-  member = "serviceAccount:${google_service_account.test-account.email}"
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${google_service_account.test-account.email}"
 }
 `, topic, subscription, account)
 }
@@ -221,7 +221,7 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_pubsub_subscription" "subscription" {
-  name = "%s"
+  name  = "%s"
   topic = "${google_pubsub_topic.topic.id}"
 }
 
@@ -233,14 +233,14 @@ resource "google_service_account" "test-account" {
 
 data "google_iam_policy" "foo" {
 	binding {
-		role = "%s"
+		role    = "%s"
 		members = ["serviceAccount:${google_service_account.test-account.email}"]
 	}
 }
 
 resource "google_pubsub_subscription_iam_policy" "foo" {
   subscription = "${google_pubsub_subscription.subscription.id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  policy_data  = "${data.google_iam_policy.foo.policy_data}"
 }
 `, topic, subscription, account, role)
 }

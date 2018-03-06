@@ -114,18 +114,16 @@ func getComputedTopicName(project, topic string) string {
 	match, _ := regexp.MatchString("projects\\/.*\\/topics\\/.*", topic)
 	if match {
 		return topic
-	} else {
-		return fmt.Sprintf("projects/%s/topics/%s", project, topic)
 	}
+	return fmt.Sprintf("projects/%s/topics/%s", project, topic)
 }
 
 func getComputedSubscriptionName(project, subscription string) string {
 	match, _ := regexp.MatchString("projects\\/.*\\/subscriptions\\/.*", subscription)
 	if match {
 		return subscription
-	} else {
-		return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription)
 	}
+	return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription)
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {

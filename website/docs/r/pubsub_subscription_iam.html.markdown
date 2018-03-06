@@ -31,8 +31,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_pubsub_subscription_iam_policy" "editor" {
-  subscription       = "your-subscription-name"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  subscription = "your-subscription-name"
+  policy_data  = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -40,9 +40,9 @@ resource "google_pubsub_subscription_iam_policy" "editor" {
 
 ```hcl
 resource "google_pubsub_subscription_iam_binding" "editor" {
-  subscription   = "your-subscription-name"
-  role    = "roles/editor"
-  members = [
+  subscription = "your-subscription-name"
+  role         = "roles/editor"
+  members      = [
     "user:jane@example.com",
   ]
 }
@@ -52,9 +52,9 @@ resource "google_pubsub_subscription_iam_binding" "editor" {
 
 ```hcl
 resource "google_pubsub_subscription_iam_member" "editor" {
-  subscription  = "your-subscription-name"
-  role   = "roles/editor"
-  member = "user:jane@example.com"
+  subscription = "your-subscription-name"
+  role         = "roles/editor"
+  member       = "user:jane@example.com"
 }
 ```
 
