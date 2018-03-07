@@ -190,8 +190,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
-
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := containerSharedOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
 	if waitErr != nil {
@@ -201,6 +199,8 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
+
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
 
 	return resourceContainerNodePoolRead(d, meta)
 }
