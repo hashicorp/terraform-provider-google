@@ -1292,6 +1292,12 @@
 			"revisionTime": "2017-10-21T00:03:56Z"
 		},
 		{
+			"checksumSHA1": "zYRNW2YMajEwmcwdj24eELyw9Ro=",
+			"path": "google.golang.org/api/container/v1beta1",
+			"revision": "ab90adb3efa287b869ecb698db42f923cc734972",
+			"revisionTime": "2018-02-22T00:05:01Z"
+		},
+		{
 			"checksumSHA1": "pxXDGWhDrfcAOCQCjgxLfZA4NOw=",
 			"path": "google.golang.org/api/dataflow/v1b3",
 			"revision": "ea28708ab465bb536c27f29a34011f3d5b5bb052",
