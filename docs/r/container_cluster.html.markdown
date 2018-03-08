@@ -94,11 +94,14 @@ output "cluster_ca_certificate" {
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
-
+    Defaults to `true`
+    
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
+    This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)
+    Structure is documented below.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com` and
@@ -121,7 +124,10 @@ output "cluster_ca_certificate" {
     official release (which is not necessarily the latest version).
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
-    should write metrics to. Available options include
+    should write metrics to. 
+    Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
+    VM metrics will be collected by Google Compute Engine regardless of this setting
+    Available options include
     `monitoring.googleapis.com` and `none`. Defaults to
     `monitoring.googleapis.com`
 
@@ -152,9 +158,10 @@ The `addons_config` block supports:
 
 * `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod Autoscaling
     addon, which increases or decreases the number of replica pods a replication controller
-    has based on the resource usage of the existing pods. It is enabled by default;
-    set `disabled = true` to disable.
-
+    has based on the resource usage of the existing pods. 
+    It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
+    It is enabled by default;
+    set `disabled = true` to disable. 
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
