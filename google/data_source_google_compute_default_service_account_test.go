@@ -19,6 +19,7 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 				Config: testAccCheckGoogleComputeDefaultServiceAccount_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "email"),
 				),
 			},
 		},

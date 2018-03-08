@@ -16,17 +16,19 @@ Use this data source to retrieve default service account for this project
 data "google_compute_default_service_account" "default" { }
 
 output "default_account" {
-  value = "${google_compute_default_service_account.default.id}"
+  value = "${google_compute_default_service_account.default.email}"
 } 
 ```
 
 ## Argument Reference
 
-There are no arguments available for this data source.
+The following arguments are supported:
+
+* `project_id` - (Optional) The project ID. If it is not provided, the provider project is used.
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `id` - Email address of the default service account used by VMs running in this project
+* `email` - Email address of the default service account used by VMs running in this project
