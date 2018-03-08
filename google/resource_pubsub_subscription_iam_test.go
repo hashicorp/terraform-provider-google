@@ -92,7 +92,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
+				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.viewer", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
