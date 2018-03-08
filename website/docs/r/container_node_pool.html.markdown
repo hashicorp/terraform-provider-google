@@ -14,13 +14,13 @@ and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
 
 ## Example usage
-
+### Standard usage
 ```hcl
 resource "google_container_node_pool" "np" {
-  name               = "my-node-pool"
-  zone               = "us-central1-a"
-  cluster            = "${google_container_cluster.primary.name}"
-  initial_node_count = 3
+  name       = "my-node-pool"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 3
 }
 
 resource "google_container_cluster" "primary" {
@@ -45,14 +45,50 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
-    guest_accelerator = [{
-      type="nvidia-tesla-k80"
-      count=1
-    }]
+
+    guest_accelerator {
+      type  = "nvidia-tesla-k80"
+      count = 1
+    }
   }
 }
-```
 
+```
+### Usage with an empty default pool.
+```hcl
+resource "google_container_node_pool" "np" {
+  name       = "my-node-pool"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-1"
+
+    oauth_scopes = [
+      "compute-rw",
+      "storage-ro",
+      "logging-write",
+      "monitoring",
+    ]
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name = "marcellus-wallace"
+  zone = "us-central1-a"
+
+  lifecycle {
+    ignore_changes = ["node_pool"]
+  }
+
+  node_pool {
+    name = "default-pool"
+  }
+}
+
+```
 ## Argument Reference
 
 * `zone` - (Required) The zone in which the cluster resides.
