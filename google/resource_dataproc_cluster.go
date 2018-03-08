@@ -953,10 +953,11 @@ func deleteStorageBucketContents(config *Config, bucket string) error {
 			return res.Items, strconv.FormatBool(len(res.Items) == 0), nil
 		}
 		conf := &resource.StateChangeConf{
-			Pending: []string{"false"},
-			Target:  []string{"true"},
-			Refresh: refreshFunc,
-			Timeout: 2 * time.Minute,
+			Pending:                   []string{"false"},
+			Target:                    []string{"true"},
+			Refresh:                   refreshFunc,
+			Timeout:                   5 * time.Minute,
+			ContinuousTargetOccurence: 3,
 		}
 		_, err := conf.WaitForState()
 		if err != nil {
