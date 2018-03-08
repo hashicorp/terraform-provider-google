@@ -833,14 +833,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
-	deleteAutoGenBucket := d.Get("cluster_config.0.delete_autogen_bucket").(bool)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
-
-	if deleteAutoGenBucket {
-		if err := deleteAutogenBucketIfExists(d, meta); err != nil {
-			return err
-		}
-	}
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
 	op, err := config.clientDataproc.Projects.Regions.Clusters.Delete(
@@ -856,6 +849,13 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Dataproc cluster %s has been deleted", d.Id())
+
+	if d.Get("cluster_config.0.delete_autogen_bucket").(bool) {
+		if err := deleteAutogenBucketIfExists(d, meta); err != nil {
+			return err
+		}
+	}
+
 	d.SetId("")
 	return nil
 }
