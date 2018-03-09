@@ -306,7 +306,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 			return err
 		}
 
-		jobCompleteTimeoutMins := 3
+		jobCompleteTimeoutMins := 5
 		waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
 			"Awaiting Dataproc job completion", jobCompleteTimeoutMins, 1)
 		if waitErr != nil {
