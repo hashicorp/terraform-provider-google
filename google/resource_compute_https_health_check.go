@@ -41,6 +41,10 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"check_interval_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -56,10 +60,6 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 				Default:  2,
 			},
 			"host": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
