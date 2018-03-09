@@ -25,6 +25,7 @@ var (
 		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
 		{Version: v1beta1, Item: "private_cluster"},
 		{Version: v1beta1, Item: "master_ipv4_cidr_block"},
+		{Version: v1beta1, Item: "region"},
 	}
 
 	networkConfig = &schema.Resource{
@@ -101,11 +102,19 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"region": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"zone"},
+			},
+
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"region"},
 			},
 
 			"additional_zones": {
@@ -447,7 +456,7 @@ func resourceContainerCluster() *schema.Resource {
 }
 
 func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	containerApiVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -455,10 +464,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName, err := getZone(d, config)
-	if err != nil {
-		return err
-	}
 	clusterName := d.Get("name").(string)
 
 	cluster := &containerBeta.Cluster{
@@ -500,17 +505,27 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	var location string
+	locations := []string{}
+	if regionName, isRegionalCluster := d.GetOk("region"); !isRegionalCluster {
+		location, err = getZone(d, config)
+		if err != nil {
+			return err
+		}
+		locations = append(locations, location)
+	} else {
+		location = regionName.(string)
+	}
+
 	if v, ok := d.GetOk("additional_zones"); ok {
 		locationsList := v.(*schema.Set).List()
-		locations := []string{}
 		for _, v := range locationsList {
-			location := v.(string)
-			locations = append(locations, location)
-			if location == zoneName {
-				return fmt.Errorf("additional_zones should not contain the original 'zone'.")
+			loc := v.(string)
+			locations = append(locations, loc)
+			if loc == location {
+				return fmt.Errorf("additional_zones should not contain the original 'zone'")
 			}
 		}
-		locations = append(locations, zoneName)
 		cluster.Locations = locations
 	}
 
@@ -611,39 +626,36 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Cluster: cluster,
 	}
 
-	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
+	mutexKV.Lock(containerClusterMutexKey(project, location, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
 
 	var op interface{}
-	switch containerApiVersion {
+	switch containerAPIVersion {
 	case v1:
 		reqV1 := &container.CreateClusterRequest{}
 		err = Convert(req, reqV1)
 		if err != nil {
 			return err
 		}
-		op, err = config.clientContainer.Projects.Zones.Clusters.Create(
-			project, zoneName, reqV1).Do()
-		if err != nil {
-			return err
-		}
+		op, err = config.clientContainer.Projects.Zones.Clusters.Create(project, location, reqV1).Do()
 	case v1beta1:
 		reqV1Beta := &containerBeta.CreateClusterRequest{}
 		err = Convert(req, reqV1Beta)
 		if err != nil {
 			return err
 		}
-		op, err = config.clientContainerBeta.Projects.Zones.Clusters.Create(
-			project, zoneName, reqV1Beta).Do()
-		if err != nil {
-			return err
-		}
+
+		parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
+		op, err = config.clientContainerBeta.Projects.Locations.Clusters.Create(parent, reqV1Beta).Do()
+	}
+	if err != nil {
+		return err
 	}
 
 	d.SetId(clusterName)
 
 	// Wait until it's created
-	waitErr := containerSharedOperationWait(config, op, project, zoneName, "creating GKE cluster", timeoutInMinutes, 3)
+	waitErr := containerSharedOperationWait(config, op, project, location, "creating GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -653,11 +665,19 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[INFO] GKE cluster %s has been created", clusterName)
 
 	if d.Get("remove_default_node_pool").(bool) {
-		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(project, zoneName, clusterName, "default-pool").Do()
+		var op interface{}
+		switch containerAPIVersion {
+		case v1:
+			op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
+				project, location, clusterName, "default-pool").Do()
+		case v1beta1:
+			parent := fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", project, location, clusterName, "default-pool")
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(parent).Do()
+		}
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
-		err = containerSharedOperationWait(config, op, project, zoneName, "removing default node pool", timeoutInMinutes, 3)
+		err = containerSharedOperationWait(config, op, project, location, "removing default node pool", timeoutInMinutes, 3)
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
@@ -667,7 +687,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) error {
-	containerApiVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -675,34 +695,35 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	zoneName, err := getZone(d, config)
-	if err != nil {
-		return err
+	var location string
+	locations := []string{}
+	if regionName, isRegionalCluster := d.GetOk("region"); !isRegionalCluster {
+		location, err = getZone(d, config)
+		if err != nil {
+			return err
+		}
+		locations = append(locations, location)
+	} else {
+		location = regionName.(string)
 	}
 
 	cluster := &containerBeta.Cluster{}
+	var clust interface{}
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		switch containerApiVersion {
+		switch containerAPIVersion {
 		case v1:
-			clust, err := config.clientContainer.Projects.Zones.Clusters.Get(
-				project, zoneName, d.Get("name").(string)).Do()
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			err = Convert(clust, cluster)
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
+			clust, err = config.clientContainer.Projects.Zones.Clusters.Get(
+				project, location, d.Get("name").(string)).Do()
 		case v1beta1:
-			clust, err := config.clientContainerBeta.Projects.Zones.Clusters.Get(
-				project, zoneName, d.Get("name").(string)).Do()
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			err = Convert(clust, cluster)
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
+			name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, d.Get("name").(string))
+			clust, err = config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		err = Convert(clust, cluster)
+		if err != nil {
+			return resource.NonRetryableError(err)
 		}
 		if cluster.Status != "RUNNING" {
 			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
@@ -719,7 +740,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("zone", cluster.Zone)
 
-	locations := []string{}
 	if len(cluster.Locations) > 1 {
 		for _, location := range cluster.Locations {
 			if location != cluster.Zone {
@@ -764,7 +784,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
 		return err
 	}
-	d.Set("zone", zoneName)
+	d.Set("zone", location)
 	d.Set("project", project)
 	if cluster.AddonsConfig != nil {
 		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
@@ -799,7 +819,32 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
+func getUpdateFunc(req *container.UpdateClusterRequest, config *Config, apiVersion ApiVersion, project, location, clusterName, updateDescription string, timeoutInMinutes int) func() error {
+	return func() error {
+		var err error
+		var op interface{}
+		switch apiVersion {
+		case v1:
+			op, err = config.clientContainer.Projects.Zones.Clusters.Update(project, location, clusterName, req).Do()
+		case v1beta1:
+			reqV1Beta := &containerBeta.UpdateClusterRequest{}
+			err = Convert(req, reqV1Beta)
+			if err != nil {
+				return err
+			}
+			name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.Update(name, reqV1Beta).Do()
+		}
+		if err != nil {
+			return err
+		}
+		// Wait until it's updated
+		return containerSharedOperationWait(config, op, project, location, updateDescription, timeoutInMinutes, 2)
+	}
+}
+
 func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -807,16 +852,23 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName, err := getZone(d, config)
-	if err != nil {
-		return err
+	var location string
+	locations := []string{}
+	if regionName, isRegionalCluster := d.GetOk("region"); !isRegionalCluster {
+		location, err = getZone(d, config)
+		if err != nil {
+			return err
+		}
+		locations = append(locations, location)
+	} else {
+		location = regionName.(string)
 	}
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
 	d.Partial(true)
 
-	lockKey := containerClusterMutexKey(project, zoneName, clusterName)
+	lockKey := containerClusterMutexKey(project, location, clusterName)
 
 	// The ClusterUpdate object that we use for most of these updates only allows updating one field at a time,
 	// so we have to make separate calls for each field that we want to update. The order here is fairly arbitrary-
@@ -835,15 +887,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			},
 		}
 
-		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
-			if err != nil {
-				return err
-			}
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster master authorized networks", timeoutInMinutes, 2)
-		}
+		updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE cluster master authorized networks", timeoutInMinutes)
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
 		}
@@ -873,17 +917,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				},
 			}
 
-			updateF := func() error {
-				op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-					project, zoneName, clusterName, req).Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return containerOperationWait(config, op, project, zoneName, "updating GKE master version", timeoutInMinutes, 2)
-			}
-
+			updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE master version", timeoutInMinutes)
 			// Call update serially.
 			if err := lockedCall(lockKey, updateF); err != nil {
 				return err
@@ -901,17 +935,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			},
 		}
 
-		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE node version", timeoutInMinutes, 2)
-		}
-
+		updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE node version", timeoutInMinutes)
 		// Call update serially.
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
@@ -935,17 +959,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				},
 			}
 
-			updateF := func() error {
-				op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-					project, zoneName, clusterName, req).Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return containerOperationWait(config, op, project, zoneName, "updating GKE cluster addons", timeoutInMinutes, 2)
-			}
-
+			updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE cluster addons", timeoutInMinutes)
 			// Call update serially.
 			if err := lockedCall(lockKey, updateF); err != nil {
 				return err
@@ -975,14 +989,27 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
-				project, zoneName, clusterName, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetMaintenancePolicyRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetMaintenancePolicy(name, reqV1Beta).Do()
+			}
+
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
+			return containerSharedOperationWait(config, op, project, location, "updating GKE cluster maintenance policy", timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -997,28 +1024,18 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("additional_zones") {
 		azSet := d.Get("additional_zones").(*schema.Set)
-		if azSet.Contains(zoneName) {
-			return fmt.Errorf("additional_zones should not contain the original 'zone'.")
+		if azSet.Contains(location) {
+			return fmt.Errorf("additional_zones should not contain the original 'zone'")
 		}
 		azs := convertStringArr(azSet.List())
-		locations := append(azs, zoneName)
+		locations := append(azs, location)
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredLocations: locations,
 			},
 		}
 
-		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster locations", timeoutInMinutes, 2)
-		}
-
+		updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE cluster locations", timeoutInMinutes)
 		// Call update serially.
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
@@ -1038,15 +1055,27 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		updateF := func() error {
-			log.Println("[DEBUG] emilyye updating enable_legacy_abac")
-			op, err := config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, zoneName, clusterName, req).Do()
+			log.Println("[DEBUG] updating enable_legacy_abac")
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetLegacyAbacRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetLegacyAbac(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			err = containerOperationWait(config, op, project, zoneName, "updating GKE legacy ABAC", timeoutInMinutes, 2)
-			log.Println("[DEBUG] emilyye done updating enable_legacy_abac")
+			err = containerSharedOperationWait(config, op, project, location, "updating GKE legacy ABAC", timeoutInMinutes, 2)
+			log.Println("[DEBUG] done updating enable_legacy_abac")
 			return err
 		}
 
@@ -1068,17 +1097,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				DesiredMonitoringService: desiredMonitoringService,
 			},
 		}
-		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
-			if err != nil {
-				return err
-			}
 
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE cluster monitoring service", timeoutInMinutes, 2)
-		}
-
+		updateF := getUpdateFunc(req, config, containerAPIVersion, project, location, clusterName, "updating GKE cluster monitoring service", timeoutInMinutes)
 		// Call update serially.
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
@@ -1103,14 +1123,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		updateF := func() error {
 			log.Println("[DEBUG] emilyye updating network_policy")
-			op, err := config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
-				project, zoneName, clusterName, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetNetworkPolicyRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetNetworkPolicy(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			err = containerOperationWait(config, op, project, zoneName, "updating GKE cluster network policy", timeoutInMinutes, 2)
+			err = containerSharedOperationWait(config, op, project, location, "updating GKE cluster network policy", timeoutInMinutes, 2)
 			log.Println("[DEBUG] emilyye done updating network_policy")
 			return err
 		}
@@ -1142,14 +1174,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			LoggingService: logging,
 		}
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Logging(
-				project, zoneName, clusterName, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.Logging(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetLoggingServiceRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetLogging(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zoneName, "updating GKE logging service", timeoutInMinutes, 2)
+			return containerSharedOperationWait(config, op, project, location, "updating GKE logging service", timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -1171,13 +1215,12 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Zones.Clusters.Update(
-				project, zoneName, clusterName, req).Do()
+			op, err := config.clientContainerBeta.Projects.Zones.Clusters.Update(project, location, clusterName, req).Do()
 			if err != nil {
 				return err
 			}
 			// Wait until it's updated
-			return containerSharedOperationWait(config, op, project, zoneName, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
+			return containerSharedOperationWait(config, op, project, location, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
 		}
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
@@ -1188,11 +1231,19 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("remove_default_node_pool") && d.Get("remove_default_node_pool").(bool) {
-		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(project, zoneName, clusterName, "default-pool").Do()
+		var op interface{}
+		switch containerAPIVersion {
+		case v1:
+			op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
+				project, location, clusterName, "default-pool").Do()
+		case v1beta1:
+			name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", project, location, clusterName, "default-pool")
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(name).Do()
+		}
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
-		err = containerSharedOperationWait(config, op, project, zoneName, "removing default node pool", timeoutInMinutes, 3)
+		err = containerSharedOperationWait(config, op, project, location, "removing default node pool", timeoutInMinutes, 3)
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
@@ -1204,6 +1255,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) error {
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -1211,24 +1263,39 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	zoneName, err := getZone(d, config)
-	if err != nil {
-		return err
+	var location string
+	locations := []string{}
+	if regionName, isRegionalCluster := d.GetOk("region"); !isRegionalCluster {
+		location, err = getZone(d, config)
+		if err != nil {
+			return err
+		}
+		locations = append(locations, location)
+	} else {
+		location = regionName.(string)
 	}
+
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
-	mutexKV.Lock(containerClusterMutexKey(project, zoneName, clusterName))
-	defer mutexKV.Unlock(containerClusterMutexKey(project, zoneName, clusterName))
-	op, err := config.clientContainer.Projects.Zones.Clusters.Delete(
-		project, zoneName, clusterName).Do()
+	mutexKV.Lock(containerClusterMutexKey(project, location, clusterName))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
+
+	var op interface{}
+	switch containerAPIVersion {
+	case v1:
+		op, err = config.clientContainer.Projects.Zones.Clusters.Delete(project, location, clusterName).Do()
+	case v1beta1:
+		name := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)
+		op, err = config.clientContainerBeta.Projects.Locations.Clusters.Delete(name).Do()
+	}
 	if err != nil {
 		return err
 	}
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, project, zoneName, "deleting GKE cluster", timeoutInMinutes, 3)
+	waitErr := containerSharedOperationWait(config, op, project, location, "deleting GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -1317,7 +1384,7 @@ func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocati
 				ap.ServicesSecondaryRangeName = v.(string)
 			}
 		} else {
-			return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges.")
+			return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges")
 		}
 	}
 
@@ -1509,6 +1576,6 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func containerClusterMutexKey(project, zone, clusterName string) string {
-	return fmt.Sprintf("google-container-cluster/%s/%s/%s", project, zone, clusterName)
+func containerClusterMutexKey(project, location, clusterName string) string {
+	return fmt.Sprintf("google-container-cluster/%s/%s/%s", project, location, clusterName)
 }
