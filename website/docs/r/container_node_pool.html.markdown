@@ -100,8 +100,8 @@ resource "google_container_cluster" "primary" {
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
     the size of the node pool to the current cluster usage. Structure is documented below.
 
-* `initial_node_count` - (Deprecated, Optional) The initial node count for the pool.
-    Use `node_count` instead.
+* `initial_node_count` - (Optional) The initial node count for the pool. Changing this will force
+    recreation of the resource.
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
@@ -115,7 +115,8 @@ resource "google_container_cluster" "primary" {
 * `node_config` - (Optional) The node configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
-* `node_count` - (Optional) The number of nodes per instance group.
+* `node_count` - (Optional) The number of nodes per instance group. This field can be used to
+    update the number of nodes per instance group but should not be used alongside `autoscaling`.
 
 * `project` - (Optional) The project in which to create the node pool. If blank,
     the provider-configured project will be used.
