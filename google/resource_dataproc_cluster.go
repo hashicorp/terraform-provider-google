@@ -93,9 +93,10 @@ func resourceDataprocCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 
 						"delete_autogen_bucket": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:       schema.TypeBool,
+							Optional:   true,
+							Default:    false,
+							Deprecated: "see documentation",
 						},
 
 						"staging_bucket": {
