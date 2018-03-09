@@ -871,15 +871,6 @@ resource "google_compute_http_health_check" "zero" {
 }
 
 func testAccRegionInstanceGroupManager_distributionPolicy(template, igm string, zones []string) string {
-	policies := make([]string, 0, len(zones))
-	for _, zone := range zones {
-		policy := fmt.Sprintf(`
-			{
-					zone = "%s"
-			}`, zone)
-		policies = append(policies, policy)
-	}
-
 	return fmt.Sprintf(`
 resource "google_compute_instance_template" "igm-basic" {
 	name = "%s"
@@ -906,9 +897,7 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 	base_instance_name = "igm-basic"
 	region = "us-central1"
 	target_size = 2
-	distribution_policy = [
-%s
-	]
+	distribution_policy_zones = ["%s"]
 }
-	`, template, igm, strings.Join(policies, ",\n"))
+	`, template, igm, strings.Join(zones, "\",\""))
 }
