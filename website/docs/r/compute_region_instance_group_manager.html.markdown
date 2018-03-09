@@ -37,7 +37,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   base_instance_name         = "app"
   instance_template          = "${google_compute_instance_template.appserver.self_link}"
   region                     = "us-central1"
-  distribution_policy_zoneos = ["us-central1-a", "us-central1-f"]
+  distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
 
   target_pools = ["${google_compute_target_pool.appserver.self_link}"]
   target_size  = 2
