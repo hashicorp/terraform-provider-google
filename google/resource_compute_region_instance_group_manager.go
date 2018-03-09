@@ -1,17 +1,18 @@
 package google
 
 import (
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"log"
 
-	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"strings"
-	"time"
 )
 
 var RegionInstanceGroupManagerBaseApiVersion = v1
@@ -288,7 +289,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
-	d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy))
+	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
+		return err
+	}
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 
 	if d.Get("wait_for_instances").(bool) {
@@ -546,8 +549,8 @@ func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionP
 	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs}
 }
 
-func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) *schema.Set {
-	zones := make([]interface{}, 0)
+func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) []string {
+	zones := make([]string, 0)
 
 	if distributionPolicy != nil {
 		for _, zone := range distributionPolicy.Zones {
@@ -555,9 +558,7 @@ func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolic
 		}
 	}
 
-	return schema.NewSet(schema.HashSchema(&schema.Schema{
-		Type: schema.TypeString,
-	}), zones)
+	return zones
 }
 
 func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
