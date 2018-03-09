@@ -1,19 +1,25 @@
 package google
 
 import (
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"log"
 
-	"fmt"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"time"
 )
 
 var RegionInstanceGroupManagerBaseApiVersion = v1
-var RegionInstanceGroupManagerVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "auto_healing_policies"}}
+var RegionInstanceGroupManagerVersionedFeatures = []Feature{
+	Feature{Version: v0beta, Item: "auto_healing_policies"},
+	Feature{Version: v0beta, Item: "distribution_policy_zones"},
+}
 
 func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
@@ -109,7 +115,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				},
 				Set: selfLinkRelativePathHash,
 			},
-
 			"target_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -145,6 +150,18 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+
+			"distribution_policy_zones": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				Set:      hashZoneFromSelfLinkOrResourceName,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
+			},
 		},
 	}
 }
@@ -167,6 +184,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").([]interface{})),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
+		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy_zones").(*schema.Set)),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -212,6 +230,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 
 	region := d.Get("region").(string)
 	manager := &computeBeta.InstanceGroupManager{}
+
 	switch computeApiVersion {
 	case v1:
 		v1Manager := &compute.InstanceGroupManager{}
@@ -226,7 +245,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 	}
 
 	if err != nil {
-		handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", d.Get("name").(string)))
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", d.Get("name").(string)))
 	}
 	return manager, nil
 }
@@ -270,6 +289,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", manager.InstanceGroup)
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
+	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
+		return err
+	}
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 
 	if d.Get("wait_for_instances").(bool) {
@@ -508,4 +530,40 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
+}
+
+func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionPolicy {
+	if configured.Len() == 0 {
+		return nil
+	}
+
+	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, configured.Len())
+	for _, raw := range configured.List() {
+		data := raw.(string)
+		distributionPolicyZoneConfig := computeBeta.DistributionPolicyZoneConfiguration{
+			Zone: "zones/" + data,
+		}
+
+		distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
+	}
+	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs}
+}
+
+func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) []string {
+	zones := make([]string, 0)
+
+	if distributionPolicy != nil {
+		for _, zone := range distributionPolicy.Zones {
+			zones = append(zones, zone.Zone)
+		}
+	}
+
+	return zones
+}
+
+func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
+	parts := strings.Split(value.(string), "/")
+	resource := parts[len(parts)-1]
+
+	return hashcode.String(resource)
 }
