@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	compute "google.golang.org/api/compute/v1"
@@ -31,6 +32,12 @@ func resourceComputeBackendBucket() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeBackendBucketImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -109,7 +116,10 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	waitErr := computeOperationWait(config.clientCompute, op, project, "Creating BackendBucket")
+	waitErr := computeOperationWaitTime(
+		config.clientCompute, op, project, "Creating BackendBucket",
+		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -169,7 +179,8 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
-	res, err := Put(config, url, obj)
+	res, err := sendRequest(config, "PUT", url, obj)
+
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
 	}
@@ -180,7 +191,10 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Updating BackendBucket")
+	err = computeOperationWaitTime(
+		config.clientCompute, op, project, "Updating BackendBucket",
+		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
 	if err != nil {
 		return err
 	}
@@ -213,7 +227,10 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting BackendBucket")
+	err = computeOperationWaitTime(
+		config.clientCompute, op, project, "Deleting BackendBucket",
+		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+
 	if err != nil {
 		return err
 	}
@@ -222,7 +239,16 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.Set("name", d.Id())
+	config := meta.(*Config)
+	parseImportId([]string{"projects/(?P<project>[^/]+)/global/backendBuckets/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
 	return []*schema.ResourceData{d}, nil
 }
 
