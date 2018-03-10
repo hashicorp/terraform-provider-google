@@ -56,6 +56,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `self_link` - The URI of the created resource.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Backend buckets can be imported using the `name`, e.g.

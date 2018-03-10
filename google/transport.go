@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"reflect"
 	"regexp"
 	"strings"
-
-	"reflect"
 
 	"google.golang.org/api/googleapi"
 )
