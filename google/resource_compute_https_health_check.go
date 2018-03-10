@@ -44,6 +44,7 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"check_interval_sec": {
 				Type:     schema.TypeInt,
@@ -92,6 +93,10 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
