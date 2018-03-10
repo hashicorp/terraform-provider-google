@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * compute: allow lowercase ip protocols in forwarding rules [GH-1118]
 * compute: `google_compute_zones` datasource accepts a `project` parameter [GH-1122]
 * compute: Support `distributionPolicy` when creating regional instance group managers. [GH-1092]
+* compute: Timeout customization for `google_compute_backend_bucket`, `google_compute_http_health_check`, and `google_compute_https_health_check` [GH-1177]
 * container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
 * container: Allow specifying accelerators in cluster node_config. [GH-1115]
 * pubsub: Add project field to iam pubsub topic resources [GH-1154]
