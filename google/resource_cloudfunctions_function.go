@@ -267,7 +267,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		// Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			// Other events are not supported
-			EventType: "providers/cloud.pubsub/eventTypes/topic.publish",
+			EventType: "google.pubsub.topic.publish",
 			// Must be like projects/PROJECT_ID/topics/NAME
 			// Topic must be in same project as function
 			Resource: fmt.Sprintf("projects/%s/topics/%s", project, v.(string)),
@@ -350,7 +350,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if function.EventTrigger != nil {
 		switch function.EventTrigger.EventType {
 		// From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
-		case "providers/cloud.pubsub/eventTypes/topic.publish":
+		case "google.pubsub.topic.publish":
 			d.Set("trigger_topic", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
 		case "providers/cloud.storage/eventTypes/object.change":
 			d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
