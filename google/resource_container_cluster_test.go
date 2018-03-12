@@ -713,7 +713,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 						"services_secondary_range_name": "services",
 					},
 				),
-				ExpectError: regexp.MustCompile("services secondary range \"pods\" not found in subnet"),
+				ExpectError: regexp.MustCompile("services secondary range \"services\" not found in subnet"),
 			},
 		},
 	})

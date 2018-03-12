@@ -83,7 +83,7 @@ func TestAccFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_list_allowSome(org, folder, project),
-				Check:  testAccCheckGoogleFolderOrganizationListPolicyAllowedValues("list", []string{project}),
+				Check:  testAccCheckGoogleFolderOrganizationListPolicyAllowedValues("list", []string{"projects/" + project}),
 			},
 		},
 	})
@@ -293,7 +293,7 @@ resource "google_folder_organization_policy" "list" {
 
   list_policy {
     allow {
-      values = ["%s"]
+      values = ["projects/%s"]
     }
   }
 }
