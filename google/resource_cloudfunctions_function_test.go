@@ -296,8 +296,8 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 			if function.EventTrigger == nil {
 				return fmt.Errorf("Expected EventTrigger to be set")
 			}
-			if strings.Index(function.EventTrigger.EventType, "cloud.pubsub") == -1 {
-				return fmt.Errorf("Expected cloud.pubsub EventType, found %s", function.EventTrigger.EventType)
+			if strings.Index(function.EventTrigger.EventType, "google.pubsub") == -1 {
+				return fmt.Errorf("Expected google.pubsub EventType, found %s", function.EventTrigger.EventType)
 			}
 		default:
 			return fmt.Errorf("testAccCloudFunctionsFunctionTrigger expects only FUNCTION_TRIGGER_HTTP, " +
