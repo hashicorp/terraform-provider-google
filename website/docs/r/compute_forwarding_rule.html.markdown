@@ -53,6 +53,12 @@ The following arguments are supported:
 
 * `port_range` - (Optional) A range e.g. "1024-2048" or a single port "1024"
     (defaults to all ports!). Only used for external load balancing.
+  Some types of forwarding targets have constraints on the acceptable ports:
+  * Target HTTP proxy: 80, 8080
+  * Target HTTPS proxy: 443
+  * Target TCP proxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995, 1883, 5222
+  * Target SSL proxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995, 1883, 5222
+  * Target VPN gateway: 500, 4500
 
 * `ports` - (Optional) A list of ports (maximum of 5) to use for internal load
     balancing. Packets addressed to these ports will be forwarded to the backends

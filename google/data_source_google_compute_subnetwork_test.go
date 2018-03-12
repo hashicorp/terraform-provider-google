@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -16,7 +17,7 @@ func TestAccDataSourceGoogleSubnetwork(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: TestAccDataSourceGoogleSubnetworkConfig,
+				Config: testAccDataSourceGoogleSubnetwork(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork", "google_compute_subnetwork.foobar"),
 				),
@@ -46,8 +47,8 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			"name",
 			"description",
 			"ip_cidr_range",
-			"network",
 			"private_ip_google_access",
+			"secondary_ip_range",
 		}
 
 		for _, attr_to_check := range subnetwork_attrs_to_test {
@@ -61,14 +62,19 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			}
 		}
 
+		if v1RsNetwork := ConvertSelfLinkToV1(rs_attr["network"]); ds_attr["network"] != v1RsNetwork {
+			return fmt.Errorf("network is %s; want %s", ds_attr["network"], v1RsNetwork)
+		}
+
 		return nil
 	}
 }
 
-var TestAccDataSourceGoogleSubnetworkConfig = `
+func testAccDataSourceGoogleSubnetwork() string {
+	return fmt.Sprintf(`
 
 resource "google_compute_network" "foobar" {
-	name = "network-test"
+	name = "%s"
 	description = "my-description"
 }
 resource "google_compute_subnetwork" "foobar" {
@@ -77,9 +83,14 @@ resource "google_compute_subnetwork" "foobar" {
 	ip_cidr_range = "10.0.0.0/24"
 	network  = "${google_compute_network.foobar.self_link}"
 	private_ip_google_access = true
+	secondary_ip_range {
+		range_name = "tf-test-secondary-range"
+		ip_cidr_range = "192.168.1.0/24"
+	}
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {
 	name = "${google_compute_subnetwork.foobar.name}"
 }
-`
+`, acctest.RandomWithPrefix("network-test"))
+}

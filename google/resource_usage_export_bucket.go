@@ -1,0 +1,103 @@
+package google
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v1"
+)
+
+func resourceProjectUsageBucket() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceProjectUsageBucketCreate,
+		Read:   resourceProjectUsageBucketRead,
+		Delete: resourceProjectUsageBucketDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema: map[string]*schema.Schema{
+			"bucket_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"prefix": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	project := d.Id()
+
+	p, err := config.clientCompute.Projects.Get(project).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
+	}
+
+	if p.UsageExportLocation == nil {
+		log.Printf("[WARN] Removing usage export location resource %s because it's not enabled server-side.", project)
+		d.SetId("")
+	}
+
+	d.Set("project", project)
+	d.Set("prefix", p.UsageExportLocation.ReportNamePrefix)
+	d.Set("bucket_name", p.UsageExportLocation.BucketName)
+	return nil
+}
+
+func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
+		ReportNamePrefix: d.Get("prefix").(string),
+		BucketName:       d.Get("bucket_name").(string),
+	}).Do()
+	if err != nil {
+		return err
+	}
+	d.SetId(project)
+	err = computeOperationWait(config.clientCompute, op, project, "Setting usage export bucket.")
+	if err != nil {
+		d.SetId("")
+		return err
+	}
+
+	d.Set("project", project)
+
+	return resourceProjectUsageBucketRead(d, meta)
+}
+
+func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	project := d.Id()
+
+	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, nil).Do()
+	if err != nil {
+		return err
+	}
+	d.SetId(project)
+	err = computeOperationWait(config.clientCompute, op, project, "Setting usage export bucket.")
+	if err != nil {
+		return err
+	}
+	d.SetId("")
+
+	return nil
+}

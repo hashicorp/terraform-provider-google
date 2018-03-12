@@ -77,8 +77,8 @@ The following arguments are supported:
 * `name` - (Required) A unique name for the resource, required by GCE. Changing
     this forces a new resource to be created.
 
-* `ssl_certificates` - (Required) The URLs of the SSL Certificate resources that
-    authenticate connections between users and load balancing.
+* `ssl_certificates` - (Required) The URLs or names of the SSL Certificate resources
+    that authenticate connections between users and load balancing.
 
 * `url_map` - (Required) The URL of a URL Map resource that defines the mapping
     from the URL to the BackendService.
@@ -99,3 +99,11 @@ exported:
 * `proxy_id` - A unique ID assigned by GCE.
 
 * `self_link` - The URI of the created resource.
+
+## Import
+
+Target HTTPS Proxy can be imported using the `name`, e.g.
+
+```
+$ terraform import compute_target_https_proxy.foobar foobar
+```

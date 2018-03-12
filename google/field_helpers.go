@@ -6,11 +6,16 @@ import (
 )
 
 const (
-	globalLinkTemplate          = "projects/%s/global/%s/%s"
-	globalLinkBasePattern       = "projects/(.+)/global/%s/(.+)"
-	zonalLinkTemplate           = "projects/%s/zones/%s/%s/%s"
-	zonalLinkBasePattern        = "projects/(.+)/zones/(.+)/%s/(.+)"
-	zonalPartialLinkBasePattern = "zones/(.+)/%s/(.+)"
+	globalLinkTemplate             = "projects/%s/global/%s/%s"
+	globalLinkBasePattern          = "projects/(.+)/global/%s/(.+)"
+	zonalLinkTemplate              = "projects/%s/zones/%s/%s/%s"
+	zonalLinkBasePattern           = "projects/(.+)/zones/(.+)/%s/(.+)"
+	zonalPartialLinkBasePattern    = "zones/(.+)/%s/(.+)"
+	regionalLinkTemplate           = "projects/%s/regions/%s/%s/%s"
+	regionalLinkBasePattern        = "projects/(.+)/regions/(.+)/%s/(.+)"
+	regionalPartialLinkBasePattern = "regions/(.+)/%s/(.+)"
+	organizationLinkTemplate       = "organizations/%s/%s/%s"
+	organizationBasePattern        = "organizations/(.+)/%s/(.+)"
 )
 
 // ------------------------------------------------------------
@@ -21,12 +26,36 @@ func ParseNetworkFieldValue(network string, d TerraformResourceData, config *Con
 	return parseGlobalFieldValue("networks", network, "project", d, config, true)
 }
 
+func ParseSubnetworkFieldValue(subnetwork string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
+	return parseRegionalFieldValue("subnetworks", subnetwork, "project", "region", "zone", d, config, true)
+}
+
+func ParseSubnetworkFieldValueWithProjectField(subnetwork, projectField string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
+	return parseRegionalFieldValue("subnetworks", subnetwork, projectField, "region", "zone", d, config, true)
+}
+
 func ParseSslCertificateFieldValue(sslCertificate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
 	return parseGlobalFieldValue("sslCertificates", sslCertificate, "project", d, config, false)
 }
 
+func ParseHttpHealthCheckFieldValue(healthCheck string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("httpHealthChecks", healthCheck, "project", d, config, false)
+}
+
 func ParseDiskFieldValue(disk string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
 	return parseZonalFieldValue("disks", disk, "project", "zone", d, config, false)
+}
+
+func ParseOrganizationCustomRoleName(role string) (*OrganizationFieldValue, error) {
+	return parseOrganizationFieldValue("roles", role, false)
+}
+
+func ParseAcceleratorFieldValue(accelerator string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("acceleratorTypes", accelerator, "project", "zone", d, config, false)
+}
+
+func ParseMachineTypesFieldValue(machineType string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("machineTypes", machineType, "project", "zone", d, config, false)
 }
 
 // ------------------------------------------------------------
@@ -164,11 +193,142 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 
 func getProjectFromSchema(projectSchemaField string, d TerraformResourceData, config *Config) (string, error) {
 	res, ok := d.GetOk(projectSchemaField)
-	if !ok || len(projectSchemaField) == 0 {
-		if config.Project != "" {
-			return config.Project, nil
-		}
-		return "", fmt.Errorf("project: required field is not set")
+	if ok && projectSchemaField != "" {
+		return res.(string), nil
 	}
-	return res.(string), nil
+	if config.Project != "" {
+		return config.Project, nil
+	}
+	return "", fmt.Errorf("%s: required field is not set", projectSchemaField)
+}
+
+type OrganizationFieldValue struct {
+	OrgId string
+	Name  string
+
+	resourceType string
+}
+
+func (f OrganizationFieldValue) RelativeLink() string {
+	if len(f.Name) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(organizationLinkTemplate, f.OrgId, f.resourceType, f.Name)
+}
+
+// Parses an organization field with the following formats:
+// - organizations/{my_organizations}/{resource_type}/{resource_name}
+func parseOrganizationFieldValue(resourceType, fieldValue string, isEmptyValid bool) (*OrganizationFieldValue, error) {
+	if len(fieldValue) == 0 {
+		if isEmptyValid {
+			return &OrganizationFieldValue{resourceType: resourceType}, nil
+		}
+		return nil, fmt.Errorf("The organization field for resource %s cannot be empty", resourceType)
+	}
+
+	r := regexp.MustCompile(fmt.Sprintf(organizationBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &OrganizationFieldValue{
+			OrgId: parts[1],
+			Name:  parts[2],
+
+			resourceType: resourceType,
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(organizationLinkTemplate, "{org_id}", resourceType, "{name}"))
+}
+
+type RegionalFieldValue struct {
+	Project string
+	Region  string
+	Name    string
+
+	resourceType string
+}
+
+func (f RegionalFieldValue) RelativeLink() string {
+	if len(f.Name) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(regionalLinkTemplate, f.Project, f.Region, f.resourceType, f.Name)
+}
+
+// Parses a regional field supporting 5 different formats:
+// - https://www.googleapis.com/compute/ANY_VERSION/projects/{my_project}/regions/{region}/{resource_type}/{resource_name}
+// - projects/{my_project}/regions/{region}/{resource_type}/{resource_name}
+// - regions/{region}/{resource_type}/{resource_name}
+// - resource_name
+// - "" (empty string). RelativeLink() returns empty if isEmptyValid is true.
+//
+// If the project is not specified, it first tries to get the project from the `projectSchemaField` and then fallback on the default project.
+// If the region is not specified, see function documentation for `getRegionFromSchema`.
+func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config, isEmptyValid bool) (*RegionalFieldValue, error) {
+	if len(fieldValue) == 0 {
+		if isEmptyValid {
+			return &RegionalFieldValue{resourceType: resourceType}, nil
+		}
+		return nil, fmt.Errorf("The regional field for resource %s cannot be empty.", resourceType)
+	}
+
+	r := regexp.MustCompile(fmt.Sprintf(regionalLinkBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &RegionalFieldValue{
+			Project:      parts[1],
+			Region:       parts[2],
+			Name:         parts[3],
+			resourceType: resourceType,
+		}, nil
+	}
+
+	project, err := getProjectFromSchema(projectSchemaField, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	r = regexp.MustCompile(fmt.Sprintf(regionalPartialLinkBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &RegionalFieldValue{
+			Project:      project,
+			Region:       parts[1],
+			Name:         parts[2],
+			resourceType: resourceType,
+		}, nil
+	}
+
+	region, err := getRegionFromSchema(regionSchemaField, zoneSchemaField, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RegionalFieldValue{
+		Project:      project,
+		Region:       region,
+		Name:         GetResourceNameFromSelfLink(fieldValue),
+		resourceType: resourceType,
+	}, nil
+}
+
+// Infers the region based on the following (in order of priority):
+// - `regionSchemaField` in resource schema
+// - region extracted from the `zoneSchemaField` in resource schema
+// - provider-level region
+// - region extracted from the provider-level zone
+func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config) (string, error) {
+	if v, ok := d.GetOk(regionSchemaField); ok && regionSchemaField != "" {
+		return GetResourceNameFromSelfLink(v.(string)), nil
+	}
+	if v, ok := d.GetOk(zoneSchemaField); ok && zoneSchemaField != "" {
+		return getRegionFromZone(v.(string)), nil
+	}
+	if config.Region != "" {
+		return config.Region, nil
+	}
+	if config.Zone != "" {
+		return getRegionFromZone(config.Zone), nil
+	}
+
+	return "", fmt.Errorf("Cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
 }

@@ -33,9 +33,10 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRFC1035Name(6, 30),
 			},
 			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -48,8 +49,9 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
 			},
 		},
 	}

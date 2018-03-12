@@ -17,9 +17,10 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required
 			"service_account_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
 			},
 			// Optional
 			"key_algorithm": &schema.Schema{
@@ -43,7 +44,7 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 			},
 			"public_key_type": &schema.Schema{
 				Type:         schema.TypeString,
-				Default:      "X509_PEM",
+				Default:      "TYPE_X509_PEM_FILE",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_NONE", "TYPE_X509_PEM_FILE", "TYPE_RAW_PUBLIC_KEY"}, false),

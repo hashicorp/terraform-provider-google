@@ -9,8 +9,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
+	"crypto/md5"
+	"encoding/base64"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
+	"io/ioutil"
 )
 
 func resourceStorageBucketObject() *schema.Resource {
@@ -94,6 +97,46 @@ func resourceStorageBucketObject() *schema.Resource {
 				ConflictsWith: []string{"content"},
 			},
 
+			// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
+			"detect_md5hash": &schema.Schema{
+				Type: schema.TypeString,
+				// This field is not Computed because it needs to trigger a diff.
+				Optional: true,
+				ForceNew: true,
+				// Makes the diff message nicer:
+				// detect_md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
+				// Instead of the more confusing:
+				// detect_md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "" (forces new resource)
+				Default: "different hash",
+				// 1. Compute the md5 hash of the local file
+				// 2. Compare the computed md5 hash with the hash stored in Cloud Storage
+				// 3. Don't suppress the diff iff they don't match
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					localMd5Hash := ""
+					if source, ok := d.GetOkExists("source"); ok {
+						localMd5Hash = getFileMd5Hash(source.(string))
+					}
+
+					if content, ok := d.GetOkExists("content"); ok {
+						localMd5Hash = getContentMd5Hash([]byte(content.(string)))
+					}
+
+					// If `source` or `content` is dynamically set, both field will be empty.
+					// We should not suppress the diff to avoid the following error:
+					// 'Mismatch reason: extra attributes: detect_md5hash'
+					if localMd5Hash == "" {
+						return false
+					}
+
+					// `old` is the md5 hash we retrieved from the server in the ReadFunc
+					if old != localMd5Hash {
+						return false
+					}
+
+					return true
+				},
+			},
+
 			"storage_class": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -124,7 +167,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOk("content"); ok {
 		media = bytes.NewReader([]byte(v.(string)))
 	} else {
-		return fmt.Errorf("Error, either \"content\" or \"string\" must be specified")
+		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
 	objectsService := storage.NewObjectsService(config.clientStorage)
@@ -183,6 +226,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("md5hash", res.Md5Hash)
+	d.Set("detect_md5hash", res.Md5Hash)
 	d.Set("crc32c", res.Crc32c)
 	d.Set("cache_control", res.CacheControl)
 	d.Set("content_disposition", res.ContentDisposition)
@@ -220,4 +264,20 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func getFileMd5Hash(filename string) string {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
+		return ""
+	}
+
+	return getContentMd5Hash(data)
+}
+
+func getContentMd5Hash(content []byte) string {
+	h := md5.New()
+	h.Write(content)
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

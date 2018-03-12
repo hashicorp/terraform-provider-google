@@ -30,9 +30,15 @@ resource "google_project_iam_member" "project" {
 
 The following arguments are supported:
 
-* `member` - (Required) The user that the role should apply to.
+* `member` - (Required) The identity that will be granted the privilege in the `role`.
+  This field can have one of the following values:
+  * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
+  * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
+  * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
+  * **domain:{domain}**: A Google Apps domain name that represents all the users of that domain. For example, google.com or example.com.
 
-* `role` - (Required) The role that should be applied.
+* `role` - (Required) The role that should be applied. Note that custom roles must be of the format
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `project` - (Optional) The project ID. If not specified, uses the
     ID of the project configured with the provider.
@@ -43,3 +49,11 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `etag` - (Computed) The etag of the project's IAM policy.
+
+## Import
+
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `project_id`, role, and account e.g.
+
+```
+$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer foo@example.com"
+```

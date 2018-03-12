@@ -39,8 +39,9 @@ func resourceComputeRoute() *schema.Resource {
 
 			"priority": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Default:  1000,
 			},
 
 			"next_hop_gateway": &schema.Schema{
@@ -51,9 +52,10 @@ func resourceComputeRoute() *schema.Resource {
 			},
 
 			"next_hop_instance": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"next_hop_instance_zone": &schema.Schema{
@@ -75,6 +77,13 @@ func resourceComputeRoute() *schema.Resource {
 			},
 
 			"project": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -159,6 +168,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	// Build the route parameter
 	route := &compute.Route{
 		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
 		DestRange:        d.Get("dest_range").(string),
 		Network:          network.RelativeLink(),
 		NextHopInstance:  nextHopInstance,
@@ -206,16 +216,18 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", route.Name)
+	d.Set("description", route.Description)
 	d.Set("dest_range", route.DestRange)
 	d.Set("network", route.Network)
 	d.Set("priority", route.Priority)
 	d.Set("next_hop_gateway", route.NextHopGateway)
-	d.Set("next_hop_instance", nextHopInstanceFieldValue.Name)
+	d.Set("next_hop_instance", nextHopInstanceFieldValue.RelativeLink())
 	d.Set("next_hop_instance_zone", nextHopInstanceFieldValue.Zone)
 	d.Set("next_hop_ip", route.NextHopIp)
 	d.Set("next_hop_vpn_tunnel", route.NextHopVpnTunnel)
 	d.Set("tags", route.Tags)
 	d.Set("next_hop_network", route.NextHopNetwork)
+	d.Set("project", project)
 	d.Set("self_link", route.SelfLink)
 
 	return nil

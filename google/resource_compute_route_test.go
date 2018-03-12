@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -25,7 +26,14 @@ func TestAccComputeRoute_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
+					resource.TestMatchResourceAttr(
+						"google_compute_route.foobar", "description", regexp.MustCompile("This is a route")),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -48,6 +56,11 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 						"google_compute_route.foobar", &route),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -57,6 +70,7 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 
 	instanceName := "tf" + acctest.RandString(10)
 	zone := "us-central1-b"
+	instanceNameRegexp := regexp.MustCompile(fmt.Sprintf("projects/(.+)/zones/%s/instances/%s$", zone, instanceName))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -68,9 +82,14 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
-					resource.TestCheckResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceName),
-					resource.TestCheckResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceName),
+					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
+					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_route.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -127,22 +146,17 @@ func testAccComputeRoute_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "route-test-%s"
-}
-
-resource "google_compute_subnetwork" "foobar" {
-  name          = "route-test-%s"
-  ip_cidr_range = "10.0.0.0/16"
-  network       = "${google_compute_network.foobar.self_link}"
-  region        = "us-central1"
+	auto_create_subnetworks = false
+	ipv4_range = "10.0.0.0/16"
 }
 
 resource "google_compute_route" "foobar" {
 	name = "route-test-%s"
+	description = "This is a route"
 	dest_range = "15.0.0.0/24"
 	network = "${google_compute_network.foobar.name}"
-	next_hop_ip = "10.154.0.1"
-	priority = 100
-}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+	next_hop_ip = "10.0.1.5"
+}`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeRoute_defaultInternetGateway() string {

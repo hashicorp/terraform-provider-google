@@ -3,11 +3,15 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
+
+var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
 
 func resourceComputeTargetPool() *schema.Resource {
 	return &schema.Resource{
@@ -48,7 +52,11 @@ func resourceComputeTargetPool() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
 			},
 
 			"instances": {
@@ -57,6 +65,25 @@ func resourceComputeTargetPool() *schema.Resource {
 				Computed: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// instances are stored in state as "zone/name"
+					oldParts := strings.Split(old, "/")
+
+					// instances can also be specified in the config as a URL
+					if parts := instancesSelfLinkPattern.FindStringSubmatch(new); len(oldParts) == 2 && len(parts) == 4 {
+						// parts[0] = full match
+						// parts[1] = project
+						// parts[2] = zone
+						// parts[3] = instance name
+
+						oZone, oName := oldParts[0], oldParts[1]
+						nZone, nName := parts[2], parts[3]
+						if oZone == nZone && oName == nName {
+							return true
+						}
+					}
+					return false
+				},
 			},
 
 			"project": {
@@ -89,17 +116,17 @@ func resourceComputeTargetPool() *schema.Resource {
 }
 
 // Healthchecks need to exist before being referred to from the target pool.
-func convertHealthChecks(config *Config, project string, names []string) ([]string, error) {
-	urls := make([]string, len(names))
-	for i, name := range names {
-		// Look up the healthcheck
-		res, err := config.clientCompute.HttpHealthChecks.Get(project, name).Do()
-		if err != nil {
-			return nil, fmt.Errorf("Error reading HealthCheck: %s", err)
-		}
-		urls[i] = res.SelfLink
+func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
+	if healthChecks == nil || len(healthChecks) == 0 {
+		return []string{}, nil
 	}
-	return urls, nil
+
+	hc, err := ParseHttpHealthCheckFieldValue(healthChecks[0].(string), d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return []string{hc.RelativeLink()}, nil
 }
 
 // Instances do not need to exist yet, so we simply generate URLs.
@@ -136,8 +163,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	hchkUrls, err := convertHealthChecks(
-		config, project, convertStringArr(d.Get("health_checks").([]interface{})))
+	hchkUrls, err := convertHealthChecks(d.Get("health_checks").([]interface{}), d, config)
 	if err != nil {
 		return err
 	}
@@ -164,6 +190,9 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	op, err := config.clientCompute.TargetPools.Insert(
 		project, region, tpool).Do()
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 && strings.Contains(gerr.Message, "httpHealthChecks") {
+			return fmt.Errorf("Health check %s is not a valid HTTP health check", d.Get("health_checks").([]interface{})[0])
+		}
 		return fmt.Errorf("Error creating TargetPool: %s", err)
 	}
 
@@ -225,13 +254,11 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("health_checks") {
 
 		from_, to_ := d.GetChange("health_checks")
-		from := convertStringArr(from_.([]interface{}))
-		to := convertStringArr(to_.([]interface{}))
-		fromUrls, err := convertHealthChecks(config, project, from)
+		fromUrls, err := convertHealthChecks(from_.([]interface{}), d, config)
 		if err != nil {
 			return err
 		}
-		toUrls, err := convertHealthChecks(config, project, to)
+		toUrls, err := convertHealthChecks(to_.([]interface{}), d, config)
 		if err != nil {
 			return err
 		}
@@ -354,16 +381,6 @@ func convertInstancesFromUrls(urls []string) []string {
 	return result
 }
 
-func convertHealthChecksFromUrls(urls []string) []string {
-	result := make([]string, 0, len(urls))
-	for _, url := range urls {
-		urlArray := strings.Split(url, "/")
-		healthCheck := fmt.Sprintf("%s", urlArray[len(urlArray)-1])
-		result = append(result, healthCheck)
-	}
-	return result
-}
-
 func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -383,23 +400,18 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
 
-	regionUrl := strings.Split(tpool.Region, "/")
 	d.Set("self_link", tpool.SelfLink)
 	d.Set("backup_pool", tpool.BackupPool)
 	d.Set("description", tpool.Description)
 	d.Set("failover_ratio", tpool.FailoverRatio)
-	if tpool.HealthChecks != nil {
-		d.Set("health_checks", convertHealthChecksFromUrls(tpool.HealthChecks))
-	} else {
-		d.Set("health_checks", nil)
-	}
+	d.Set("health_checks", tpool.HealthChecks)
 	if tpool.Instances != nil {
 		d.Set("instances", convertInstancesFromUrls(tpool.Instances))
 	} else {
 		d.Set("instances", nil)
 	}
 	d.Set("name", tpool.Name)
-	d.Set("region", regionUrl[len(regionUrl)-1])
+	d.Set("region", GetResourceNameFromSelfLink(tpool.Region))
 	d.Set("session_affinity", tpool.SessionAffinity)
 	d.Set("project", project)
 	return nil

@@ -18,7 +18,7 @@ documentation](https://cloud.google.com/resource-manager/docs/organization-polic
 To set policy with a [boolean constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-boolean-constraints):
 
 ```hcl
-resource "google_folder_organization_policy" "serial_port_policy" {
+resource "google_organization_policy" "serial_port_policy" {
   org_id     = "123456789"
   constraint = "compute.disableSerialPortAccess"
 
@@ -32,7 +32,7 @@ resource "google_folder_organization_policy" "serial_port_policy" {
 To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
-resource "google_folder_organization_policy" "services_policy" {
+resource "google_organization_policy" "services_policy" {
   org_id     = "123456789"
   constraint = "serviceuser.services"
 
@@ -48,7 +48,7 @@ resource "google_folder_organization_policy" "services_policy" {
 Or to deny some services, use the following instead:
 
 ```hcl
-resource "google_folder_organization_policy" "services_policy" {
+resource "google_organization_policy" "services_policy" {
   org_id     = "123456789"
   constraint = "serviceuser.services"
 
@@ -104,3 +104,10 @@ exported:
 * `etag` - (Computed) The etag of the organization policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other. 
 
 * `update_time` - (Computed) The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".
+
+## Import
+
+Organization Policies can be imported using the `org_id` and the `contraint`, e.g.
+
+```
+$ terraform import google_organization_policy.services_policy 123456789:constraints/serviceuser.services

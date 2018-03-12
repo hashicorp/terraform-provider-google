@@ -39,18 +39,19 @@ resource "google_sql_user" "users" {
 
 The following arguments are supported:
 
-* `host` - (Required) The host the user can connect from. Can be an IP address.
-    Changing this forces a new resource to be created.
-
 * `instance` - (Required) The name of the Cloud SQL instance. Changing this
     forces a new resource to be created.
 
 * `name` - (Required) The name of the user. Changing this forces a new resource
     to be created.
 
-* `password` - (Required) The users password. Can be updated.
+* `password` - (Optional) The password for the user. Can be updated.
 
 - - -
+
+* `host` - (Optional) The host the user can connect from. This is only supported
+    for first generation SQL instances. Don't set this field for second generation
+    SQL instances. Can be an IP address. Changing this forces a new resource to be created.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -61,7 +62,13 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-SQL users can be imported using the `instance` and `name`, e.g.
+SQL users for 1st generation databases can be imported using the `instance`, `host` and `name`, e.g.
+
+```
+$ terraform import google_sql_user.users master-instance/my-domain.com/me
+```
+
+SQL users for 2nd generation databases can be imported using the `instance` and `name`, e.g.
 
 ```
 $ terraform import google_sql_user.users master-instance/me

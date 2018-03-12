@@ -11,7 +11,7 @@ import (
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
-func TestAccGoogleSqlDatabase_basic(t *testing.T) {
+func TestAccSqlDatabase_basic(t *testing.T) {
 	t.Parallel()
 
 	var database sqladmin.Database
@@ -19,7 +19,7 @@ func TestAccGoogleSqlDatabase_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -35,7 +35,7 @@ func TestAccGoogleSqlDatabase_basic(t *testing.T) {
 	})
 }
 
-func TestAccGoogleSqlDatabase_update(t *testing.T) {
+func TestAccSqlDatabase_update(t *testing.T) {
 	t.Parallel()
 
 	var database sqladmin.Database
@@ -46,7 +46,7 @@ func TestAccGoogleSqlDatabase_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -129,7 +129,7 @@ func testAccCheckGoogleSqlDatabaseExists(n string,
 	}
 }
 
-func testAccGoogleSqlDatabaseDestroy(s *terraform.State) error {
+func testAccSqlDatabaseDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		config := testAccProvider.Meta().(*Config)
 		if rs.Type != "google_sql_database" {

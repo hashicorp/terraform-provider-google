@@ -10,6 +10,12 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
+)
+
+var (
+	ContainerNodePoolBaseApiVersion    = v1
+	ContainerNodePoolVersionedFeatures = []Feature{}
 )
 
 func resourceContainerNodePool() *schema.Resource {
@@ -39,11 +45,13 @@ func resourceContainerNodePool() *schema.Resource {
 				"project": &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
+					Computed: true,
 					ForceNew: true,
 				},
 				"zone": &schema.Schema{
 					Type:     schema.TypeString,
-					Required: true,
+					Optional: true,
+					Computed: true,
 					ForceNew: true,
 				},
 				"cluster": &schema.Schema{
@@ -85,6 +93,28 @@ var schemaNodePool = map[string]*schema.Schema{
 		Deprecated: "Use node_count instead",
 	},
 
+	"management": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"auto_repair": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+
+				"auto_upgrade": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+			},
+		},
+	},
+
 	"name": &schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
@@ -104,11 +134,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		Type:         schema.TypeInt,
 		Optional:     true,
 		Computed:     true,
-		ValidateFunc: validation.IntAtLeast(1),
+		ValidateFunc: validation.IntAtLeast(0),
 	},
 }
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
+	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -121,21 +152,48 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	req := &container.CreateNodePoolRequest{
+	req := &containerBeta.CreateNodePoolRequest{
 		NodePool: nodePool,
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	cluster := d.Get("cluster").(string)
 
-	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, req).Do()
+	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
+	var op interface{}
+	switch containerApiVersion {
+	case v1:
+		reqV1 := &container.CreateNodePoolRequest{}
+		err = Convert(req, reqV1)
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		return fmt.Errorf("Error creating NodePool: %s", err)
+		op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating NodePool: %s", err)
+		}
+	case v1beta1:
+		reqV1Beta := &containerBeta.CreateNodePoolRequest{}
+		err = Convert(req, reqV1Beta)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1Beta).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating NodePool: %s", err)
+		}
 	}
 
+	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
+
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	waitErr := containerOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
+	waitErr := containerSharedOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -144,12 +202,11 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
-
 	return resourceContainerNodePoolRead(d, meta)
 }
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
+	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -157,14 +214,35 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
-	nodePool, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-		project, zone, cluster, name).Do()
-	if err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
+	nodePool := &containerBeta.NodePool{}
+	switch containerApiVersion {
+	case v1:
+		np, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
+			project, zone, cluster, name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
+		}
+		err = Convert(np, nodePool)
+		if err != nil {
+			return err
+		}
+	case v1beta1:
+		np, err := config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Get(
+			project, zone, cluster, name).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
+		}
+		err = Convert(np, nodePool)
+		if err != nil {
+			return err
+		}
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -175,6 +253,9 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	for k, v := range npMap {
 		d.Set(k, v)
 	}
+
+	d.Set("zone", zone)
+	d.Set("project", project)
 
 	return nil
 }
@@ -200,11 +281,16 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	name := d.Get("name").(string)
 	cluster := d.Get("cluster").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
+	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
 	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
 		project, zone, cluster, name).Do()
 	if err != nil {
@@ -232,7 +318,10 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 		return false, err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return false, err
+	}
 	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
@@ -261,9 +350,12 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool, error) {
+func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodePool, error) {
 	var name string
 	if v, ok := d.GetOk(prefix + "name"); ok {
+		if _, ok := d.GetOk(prefix + "name_prefix"); ok {
+			return nil, fmt.Errorf("Cannot specify both name and name_prefix for a node_pool")
+		}
 		name = v.(string)
 	} else if v, ok := d.GetOk(prefix + "name_prefix"); ok {
 		name = resource.PrefixedUniqueId(v.(string))
@@ -281,22 +373,16 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 		nodeCount = nc.(int)
 	}
-	if nodeCount == 0 {
-		return nil, fmt.Errorf("Node pool %s cannot be set with 0 node count", name)
-	}
 
-	np := &container.NodePool{
+	np := &containerBeta.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
-	}
-
-	if v, ok := d.GetOk(prefix + "node_config"); ok {
-		np.Config = expandNodeConfig(v)
+		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
 	}
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
-		np.Autoscaling = &container.NodePoolAutoscaling{
+		np.Autoscaling = &containerBeta.NodePoolAutoscaling{
 			Enabled:         true,
 			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
 			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
@@ -304,10 +390,23 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "management"); ok {
+		managementConfig := v.([]interface{})[0].(map[string]interface{})
+		np.Management = &containerBeta.NodeManagement{}
+
+		if v, ok := managementConfig["auto_repair"]; ok {
+			np.Management.AutoRepair = v.(bool)
+		}
+
+		if v, ok := managementConfig["auto_upgrade"]; ok {
+			np.Management.AutoUpgrade = v.(bool)
+		}
+	}
+
 	return np, nil
 }
 
-func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
+func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.NodePool, prefix string) (map[string]interface{}, error) {
 	// Node pools don't expose the current node count in their API, so read the
 	// instance groups instead. They should all have the same size, but in case a resize
 	// failed or something else strange happened, we'll just use the average size.
@@ -315,9 +414,12 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 	for _, url := range np.InstanceGroupUrls {
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
+		if len(matches) < 4 {
+			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
+		}
 		igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
 		}
 		size += int(igm.TargetSize)
 	}
@@ -338,6 +440,13 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		}
 	}
 
+	nodePool["management"] = []map[string]interface{}{
+		{
+			"auto_repair":  np.Management.AutoRepair,
+			"auto_upgrade": np.Management.AutoUpgrade,
+		},
+	}
+
 	return nodePool, nil
 }
 
@@ -349,8 +458,13 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	npName := d.Get(prefix + "name").(string)
+	lockKey := containerClusterMutexKey(project, zone, clusterName)
 
 	if d.HasChange(prefix + "autoscaling") {
 		update := &container.ClusterUpdate{
@@ -373,16 +487,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.UpdateClusterRequest{
 			Update: update,
 		}
-		op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-			project, zone, clusterName, req).Do()
-		if err != nil {
-			return err
+
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
+				project, zone, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
@@ -397,21 +516,62 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		req := &container.SetNodePoolSizeRequest{
 			NodeCount: newSize,
 		}
-		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
-		if err != nil {
-			return err
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
 		}
 
-		// Wait until it's updated
-		waitErr := containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
-		if waitErr != nil {
-			return waitErr
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
 		}
 
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
 
 		if prefix == "" {
 			d.SetPartial("node_count")
+		}
+	}
+
+	if d.HasChange(prefix + "management") {
+		management := &container.NodeManagement{}
+		if v, ok := d.GetOk(prefix + "management"); ok {
+			managementConfig := v.([]interface{})[0].(map[string]interface{})
+			management.AutoRepair = managementConfig["auto_repair"].(bool)
+			management.AutoUpgrade = managementConfig["auto_upgrade"].(bool)
+			management.ForceSendFields = []string{"AutoRepair", "AutoUpgrade"}
+		}
+		req := &container.SetNodePoolManagementRequest{
+			Management: management,
+		}
+
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
+				project, zone, clusterName, npName, req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool management", timeoutInMinutes, 2)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Updated management in Node Pool %s", npName)
+
+		if prefix == "" {
+			d.SetPartial("management")
 		}
 	}
 

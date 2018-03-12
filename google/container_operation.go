@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
 type ContainerOperationWaiter struct {
@@ -60,4 +61,29 @@ func containerOperationWait(config *Config, op *container.Operation, project, zo
 	}
 
 	return nil
+}
+
+func containerBetaOperationWait(config *Config, op *containerBeta.Operation, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	opV1 := &container.Operation{}
+	err := Convert(op, opV1)
+	if err != nil {
+		return err
+	}
+
+	return containerOperationWait(config, opV1, project, zone, activity, timeoutMinutes, minTimeoutSeconds)
+}
+
+func containerSharedOperationWait(config *Config, op interface{}, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op == nil {
+		panic("Attempted to wait on an Operation that was nil.")
+	}
+
+	switch op.(type) {
+	case *container.Operation:
+		return containerOperationWait(config, op.(*container.Operation), project, zone, activity, timeoutMinutes, minTimeoutSeconds)
+	case *containerBeta.Operation:
+		return containerBetaOperationWait(config, op.(*containerBeta.Operation), project, zone, activity, timeoutMinutes, minTimeoutSeconds)
+	default:
+		panic("Attempted to wait on an Operation of unknown type.")
+	}
 }

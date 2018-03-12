@@ -30,6 +30,13 @@ resource "google_compute_target_pool" "default" {
     "${google_compute_http_health_check.default.name}",
   ]
 }
+
+resource "google_compute_http_health_check" "default" {
+  name               = "default"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
 ```
 
 ## Argument Reference
@@ -49,7 +56,8 @@ The following arguments are supported:
 * `failover_ratio` - (Optional) Ratio (0 to 1) of failed nodes before using the
     backup pool (which must also be set).
 
-* `health_checks` - (Optional) List of zero or one healthcheck names.
+* `health_checks` - (Optional) List of zero or one health check name or self_link. Only
+    legacy `google_compute_http_health_check` is supported.
 
 * `instances` - (Optional) List of instances in the pool. They can be given as
     URLs, or in the form of "zone/name". Note that the instances need not exist

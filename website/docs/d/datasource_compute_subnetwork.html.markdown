@@ -51,4 +51,15 @@ In addition to the arguments listed above, the following attributes are exported
     can access Google services without assigned external IP
     addresses.
 
+* `secondary_ip_range` - An array of configurations for secondary IP ranges for
+    VM instances contained in this subnetwork. Structure is documented below.
+
 * `self_link` - The URI of the created resource.
+
+The `secondary_ip_range` block supports:
+
+* `range_name` - The name associated with this subnetwork secondary range, used
+    when adding an alias IP range to a VM instance.
+
+* `ip_cidr_range` - The range of IP addresses belonging to this subnetwork
+    secondary range.

@@ -18,11 +18,17 @@ func TestAccComputeSslCertificate_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSslCertificate_basic,
+				Config: testAccComputeSslCertificate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_ssl_certificate.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"private_key"},
 			},
 		},
 	})
@@ -37,7 +43,7 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSslCertificate_no_name,
+				Config: testAccComputeSslCertificate_no_name(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
@@ -56,7 +62,7 @@ func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeSslCertificate_name_prefix,
+				Config: testAccComputeSslCertificate_name_prefix(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
@@ -111,7 +117,8 @@ func testAccCheckComputeSslCertificateExists(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccComputeSslCertificate_basic = fmt.Sprintf(`
+func testAccComputeSslCertificate_basic() string {
+	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
 	name = "sslcert-test-%s"
 	description = "very descriptive"
@@ -119,16 +126,20 @@ resource "google_compute_ssl_certificate" "foobar" {
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 `, acctest.RandString(10))
+}
 
-var testAccComputeSslCertificate_no_name = fmt.Sprintf(`
+func testAccComputeSslCertificate_no_name() string {
+	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
 	description = "really descriptive"
 	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 `)
+}
 
-var testAccComputeSslCertificate_name_prefix = fmt.Sprintf(`
+func testAccComputeSslCertificate_name_prefix() string {
+	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
 	name_prefix = "sslcert-test-%s-"
 	description = "extremely descriptive"
@@ -136,3 +147,4 @@ resource "google_compute_ssl_certificate" "foobar" {
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 `, acctest.RandString(10))
+}

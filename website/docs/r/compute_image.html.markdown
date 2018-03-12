@@ -49,15 +49,25 @@ The following arguments are supported: (Note that one of either source_disk or
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
 
-* `source_disk` - The URL of a disk that will be used as the source of the
+- - -
+
+* `description` - (Optional) The description of the image to be created
+
+* `family` - (Optional) The name of the image family to which this image belongs.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the image.
+
+* `source_disk` - (Optional) The URL of a disk that will be used as the source of the
     image. Changing this forces a new resource to be created.
 
-* `raw_disk` - The raw disk that will be used as the source of the image.
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
+    is not provided, the provider project is used.
+
+* `raw_disk` - (Optional) The raw disk that will be used as the source of the image.
     Changing this forces a new resource to be created. Structure is documented
     below.
 
-* `create_timeout` - Configurable timeout in minutes for creating images. Default is 4 minutes.
-    Changing this forces a new resource to be created.
+* `create_timeout` - (Deprecated) Configurable timeout in minutes for creating images. Default is 4 minutes.
 
 The `raw_disk` block supports:
 
@@ -70,17 +80,6 @@ The `raw_disk` block supports:
 * `container_type` - (Optional) The format used to encode and transmit the
     block device. TAR is the only supported type and is the default.
 
-- - -
-
-* `project` - (Optional) The ID of the project in which the resource belongs. If it
-    is not provided, the provider project is used.
-
-* `description` - (Optional) The description of the image to be created
-
-* `family` - (Optional) The name of the image family to which this image belongs.
-
-* `labels` - (Optional) A set of key/value label pairs to assign to the image.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -89,6 +88,15 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `label_fingerprint` - The fingerprint of the assigned labels.
+
+## Timeouts
+
+`google_compute_image` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default `4 minutes`
+- `update` - Default `4 minutes`
+- `delete` - Default `4 minutes`
 
 ## Import
 

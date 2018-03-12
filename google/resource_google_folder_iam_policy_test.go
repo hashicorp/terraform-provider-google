@@ -3,22 +3,20 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"os"
-	"reflect"
-	"testing"
 )
 
-func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
+func TestAccFolderIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	policy := &resourceManagerV2Beta1.Policy{
@@ -38,20 +36,18 @@ func TestAccGoogleFolderIamPolicy_basic(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy),
+				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy),
 			},
 		},
 	})
 }
 
-func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
+func TestAccFolderIamPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t, "GOOGLE_ORG")
-
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := os.Getenv("GOOGLE_ORG")
+	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	policy1 := &resourceManagerV2Beta1.Policy{
@@ -87,11 +83,11 @@ func TestAccGoogleFolderIamPolicy_update(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy1),
+				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy1),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy1),
 			},
 			resource.TestStep{
-				Config: testAccGoogleFolderIamPolicy_basic(folderDisplayName, parent, policy2),
+				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy2),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy2),
 			},
 		},
@@ -150,7 +146,23 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 	}
 }
 
-func testAccGoogleFolderIamPolicy_basic(folder, parent string, policy *resourceManagerV2Beta1.Policy) string {
+// Confirm that a folder has an IAM policy with at least 1 binding
+func testAccFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		c := testAccProvider.Meta().(*Config)
+		var err error
+		originalPolicy, err = getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, c)
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve IAM Policy for folder %q: %s", fname, err)
+		}
+		if len(originalPolicy.Bindings) == 0 {
+			return fmt.Errorf("Refuse to run test against folder with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a folder.")
+		}
+		return nil
+	}
+}
+
+func testAccFolderIamPolicy_basic(folder, parent string, policy *resourceManagerV2Beta1.Policy) string {
 	var bindingBuffer bytes.Buffer
 
 	for _, binding := range policy.Bindings {

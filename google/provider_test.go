@@ -33,6 +33,14 @@ var regionEnvVars = []string{
 	"CLOUDSDK_COMPUTE_REGION",
 }
 
+var orgEnvVars = []string{
+	"GOOGLE_ORG",
+}
+
+var billingAccountEnvVars = []string{
+	"GOOGLE_BILLING_ACCOUNT",
+}
+
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
@@ -70,10 +78,6 @@ func testAccPreCheck(t *testing.T) {
 	if v := multiEnvSearch(regionEnvVars); v != "us-central1" {
 		t.Fatalf("One of %s must be set to us-central1 for acceptance tests", strings.Join(regionEnvVars, ", "))
 	}
-
-	if v := os.Getenv("GOOGLE_XPN_HOST_PROJECT"); v == "" {
-		t.Fatal("GOOGLE_XPN_HOST_PROJECT must be set for acceptance tests")
-	}
 }
 
 func TestProvider_getRegionFromZone(t *testing.T) {
@@ -81,6 +85,30 @@ func TestProvider_getRegionFromZone(t *testing.T) {
 	actual := getRegionFromZone("us-central1-f")
 	if expected != actual {
 		t.Fatalf("Region (%s) did not match expected value: %s", actual, expected)
+	}
+}
+
+func TestProvider_loadCredentialsFromFile(t *testing.T) {
+	ws, es := validateCredentials(testFakeCredentialsPath, "")
+	if len(ws) != 0 {
+		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
+	}
+	if len(es) != 0 {
+		t.Errorf("Expected %d errors, got %v", len(es), es)
+	}
+}
+
+func TestProvider_loadCredentialsFromJSON(t *testing.T) {
+	contents, err := ioutil.ReadFile(testFakeCredentialsPath)
+	if err != nil {
+		t.Fatalf("Unexpected error: %s", err)
+	}
+	ws, es := validateCredentials(string(contents), "")
+	if len(ws) != 0 {
+		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
+	}
+	if len(es) != 0 {
+		t.Errorf("Expected %d errors, got %v", len(es), es)
 	}
 }
 
@@ -106,9 +134,29 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 	return "", fmt.Errorf("%q: required field is not set", "project")
 }
 
-// getTestProjectFromEnv returns the current configured project from environment variables.
+// testAccPreCheck ensures at least one of the project env variables is set.
 func getTestProjectFromEnv() string {
 	return multiEnvSearch(projectEnvVars)
+}
+
+// testAccPreCheck ensures at least one of the credentials env variables is set.
+func getTestCredsFromEnv() string {
+	return multiEnvSearch(credsEnvVars)
+}
+
+// testAccPreCheck ensures at least one of the region env variables is set.
+func getTestRegionFromEnv() string {
+	return multiEnvSearch(regionEnvVars)
+}
+
+func getTestOrgFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, orgEnvVars...)
+	return multiEnvSearch(orgEnvVars)
+}
+
+func getTestBillingAccountFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, billingAccountEnvVars...)
+	return multiEnvSearch(billingAccountEnvVars)
 }
 
 func multiEnvSearch(ks []string) string {

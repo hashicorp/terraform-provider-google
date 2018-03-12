@@ -1,10 +1,11 @@
 package google
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -110,29 +111,6 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 	}
 }
 
-// flattenComputeMetadata transforms a list of MetadataItems (as returned via the GCP client) into a simple map from key
-// to value.
-func flattenComputeMetadata(metadata []*compute.MetadataItems) map[string]string {
-	m := map[string]string{}
-
-	for _, item := range metadata {
-		// check for duplicates
-		if item.Value == nil {
-			continue
-		}
-		if val, ok := m[item.Key]; ok {
-			// warn loudly!
-			log.Printf("[WARN] Key '%s' already has value '%s' when flattening - ignoring incoming value '%s'",
-				item.Key,
-				val,
-				*item.Value)
-		}
-		m[item.Key] = *item.Value
-	}
-
-	return m
-}
-
 // expandComputeMetadata transforms a map representing computing metadata into a list of compute.MetadataItems suitable
 // for the GCP client.
 func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
@@ -148,4 +126,51 @@ func expandComputeMetadata(m map[string]string) []*compute.MetadataItems {
 	}
 
 	return metadata
+}
+
+func flattenMetadataBeta(metadata *computeBeta.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+// This function differs from flattenMetadataBeta only in that it takes
+// compute.metadata rather than computeBeta.metadata as an argument. It should
+// be removed in favour of flattenMetadataBeta if/when all resources using it get
+// beta support.
+func flattenMetadata(metadata *compute.Metadata) map[string]string {
+	metadataMap := make(map[string]string)
+	for _, item := range metadata.Items {
+		metadataMap[item.Key] = *item.Value
+	}
+	return metadataMap
+}
+
+func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
+	m := &computeBeta.Metadata{}
+	mdMap := d.Get("metadata").(map[string]interface{})
+	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
+		if ss, ok := mdMap["startup-script"]; ok && ss != "" {
+			return nil, errors.New("Cannot provide both metadata_startup_script and metadata.startup-script.")
+		}
+		mdMap["startup-script"] = v
+	}
+	if len(mdMap) > 0 {
+		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
+		for key, val := range mdMap {
+			v := val.(string)
+			m.Items = append(m.Items, &computeBeta.MetadataItems{
+				Key:   key,
+				Value: &v,
+			})
+		}
+
+		// Set the fingerprint. If the metadata has never been set before
+		// then this will just be blank.
+		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+	}
+
+	return m, nil
 }

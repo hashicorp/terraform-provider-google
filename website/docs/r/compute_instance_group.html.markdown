@@ -8,9 +8,8 @@ description: |-
 
 # google\_compute\_instance\_group
 
-The Google Compute Engine Instance Group API creates and manages pools
-of homogeneous Compute Engine virtual machine instances from a common instance
-template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/#unmanaged_instance_groups)
+Creates a group of dissimilar Compute Engine virtual machine instances.
+For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/#unmanaged_instance_groups)
 and [API](https://cloud.google.com/compute/docs/reference/latest/instanceGroups)
 
 ## Example Usage
@@ -97,6 +96,15 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `size` - The number of instances in the group.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is `6 minutes`
+- `update` - Default is `6 minutes`
+- `delete` - Default is `6 minutes`
 
 ## Import
 

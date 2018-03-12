@@ -65,6 +65,7 @@ func resourceComputeRegionBackendService() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -83,6 +84,7 @@ func resourceComputeRegionBackendService() *schema.Resource {
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -211,6 +213,8 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	d.Set("self_link", service.SelfLink)
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("health_checks", service.HealthChecks)
+	d.Set("project", project)
+	d.Set("region", region)
 
 	return nil
 }

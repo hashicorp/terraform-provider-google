@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoogleContainerEngineVersions_basic(t *testing.T) {
+func TestAccContainerEngineVersions_basic(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{

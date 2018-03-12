@@ -27,6 +27,12 @@ func TestAccComputeForwardingRule_basic(t *testing.T) {
 						"google_compute_forwarding_rule.foobar"),
 				),
 			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -48,6 +54,11 @@ func TestAccComputeForwardingRule_singlePort(t *testing.T) {
 					testAccCheckComputeForwardingRuleExists(
 						"google_compute_forwarding_rule.foobar"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -71,6 +82,11 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 					testAccCheckComputeForwardingRuleExists(
 						"google_compute_forwarding_rule.foobar"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -98,6 +114,11 @@ func TestAccComputeForwardingRule_internalLoadBalancing(t *testing.T) {
 					testAccCheckComputeForwardingRuleExists(
 						"google_compute_forwarding_rule.foobar2"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

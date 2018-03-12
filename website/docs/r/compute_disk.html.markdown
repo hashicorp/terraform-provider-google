@@ -47,8 +47,14 @@ The following arguments are supported:
     to encrypt this disk.
 
 * `image` - (Optional) The image from which to initialize this disk. This can be
-    one of: the image's `self_link`, of a full name and version, e.g.
-    `debian-8-jessie-v20170523`
+    one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
+    `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
+    `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
+    `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
+    images names must include the family name. If they don't, use the
+    [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+    For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
+    These images can be referred by family name here.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -77,6 +83,15 @@ exported:
 * `users` - The Users of the created resource.
 
 * `label_fingerprint` - The fingerprint of the assigned labels.
+
+## Timeouts
+
+`google_compute_disk` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - (Default `5 minutes`) Used for creating disks.
+- `update` - (Default `5 minutes`) Used for resizing a disk and setting labels on disks.
+- `delete` - (Default `5 minutes`) Used for destroying disks (not including time to detach the disk from instances).
 
 ## Import
 

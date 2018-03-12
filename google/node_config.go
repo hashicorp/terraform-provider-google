@@ -3,8 +3,18 @@ package google
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/container/v1"
+	containerBeta "google.golang.org/api/container/v1beta1"
 )
+
+// Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
+var defaultOauthScopes = []string{
+	"https://www.googleapis.com/auth/devstorage.read_only",
+	"https://www.googleapis.com/auth/logging.write",
+	"https://www.googleapis.com/auth/monitoring",
+	"https://www.googleapis.com/auth/service.management.readonly",
+	"https://www.googleapis.com/auth/servicecontrol",
+	"https://www.googleapis.com/auth/trace.append",
+}
 
 var schemaNodeConfig = &schema.Schema{
 	Type:     schema.TypeList,
@@ -20,6 +30,28 @@ var schemaNodeConfig = &schema.Schema{
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(10),
+			},
+
+			"guest_accelerator": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"count": &schema.Schema{
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"type": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: linkDiffSuppress,
+						},
+					},
+				},
 			},
 
 			"image_type": {
@@ -102,14 +134,36 @@ var schemaNodeConfig = &schema.Schema{
 	},
 }
 
-func expandNodeConfig(v interface{}) *container.NodeConfig {
+func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 	nodeConfigs := v.([]interface{})
-	nodeConfig := nodeConfigs[0].(map[string]interface{})
+	nc := &containerBeta.NodeConfig{
+		// Defaults can't be set on a list/set in the schema, so set the default on create here.
+		OauthScopes: defaultOauthScopes,
+	}
+	if len(nodeConfigs) == 0 {
+		return nc
+	}
 
-	nc := &container.NodeConfig{}
+	nodeConfig := nodeConfigs[0].(map[string]interface{})
 
 	if v, ok := nodeConfig["machine_type"]; ok {
 		nc.MachineType = v.(string)
+	}
+
+	if v, ok := nodeConfig["guest_accelerator"]; ok {
+		accels := v.([]interface{})
+		guestAccelerators := make([]*containerBeta.AcceleratorConfig, 0, len(accels))
+		for _, raw := range accels {
+			data := raw.(map[string]interface{})
+			if data["count"].(int) == 0 {
+				continue
+			}
+			guestAccelerators = append(guestAccelerators, &containerBeta.AcceleratorConfig{
+				AcceleratorCount: int64(data["count"].(int)),
+				AcceleratorType:  data["type"].(string),
+			})
+		}
+		nc.Accelerators = guestAccelerators
 	}
 
 	if v, ok := nodeConfig["disk_size_gb"]; ok {
@@ -172,7 +226,7 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	return nc
 }
 
-func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
+func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	config := make([]map[string]interface{}, 0, 1)
 
 	if c == nil {
@@ -180,16 +234,17 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	}
 
 	config = append(config, map[string]interface{}{
-		"machine_type":     c.MachineType,
-		"disk_size_gb":     c.DiskSizeGb,
-		"local_ssd_count":  c.LocalSsdCount,
-		"service_account":  c.ServiceAccount,
-		"metadata":         c.Metadata,
-		"image_type":       c.ImageType,
-		"labels":           c.Labels,
-		"tags":             c.Tags,
-		"preemptible":      c.Preemptible,
-		"min_cpu_platform": c.MinCpuPlatform,
+		"machine_type":      c.MachineType,
+		"disk_size_gb":      c.DiskSizeGb,
+		"guest_accelerator": c.Accelerators,
+		"local_ssd_count":   c.LocalSsdCount,
+		"service_account":   c.ServiceAccount,
+		"metadata":          c.Metadata,
+		"image_type":        c.ImageType,
+		"labels":            c.Labels,
+		"tags":              c.Tags,
+		"preemptible":       c.Preemptible,
+		"min_cpu_platform":  c.MinCpuPlatform,
 	})
 
 	if len(c.OauthScopes) > 0 {

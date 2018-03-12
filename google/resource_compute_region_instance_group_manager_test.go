@@ -204,6 +204,32 @@ func TestAccRegionInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	})
 }
 
+func TestAccRegionInstanceGroupManager_distributionPolicy(t *testing.T) {
+	t.Parallel()
+
+	var manager computeBeta.InstanceGroupManager
+
+	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	zones := []string{"us-central1-a", "us-central1-b"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccRegionInstanceGroupManager_distributionPolicy(template, igm, zones),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRegionInstanceGroupManagerBetaExists(
+						"google_compute_region_instance_group_manager.igm-basic", &manager),
+					testAccCheckRegionInstanceGroupManagerDistributionPolicy("google_compute_region_instance_group_manager.igm-basic", zones),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRegionInstanceGroupManagerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -306,8 +332,7 @@ func testAccCheckRegionInstanceGroupManagerUpdated(n string, size int64, targetP
 
 		tpNames := make([]string, 0, len(manager.TargetPools))
 		for _, targetPool := range manager.TargetPools {
-			targetPoolParts := strings.Split(targetPool, "/")
-			tpNames = append(tpNames, targetPoolParts[len(targetPoolParts)-1])
+			tpNames = append(tpNames, GetResourceNameFromSelfLink(targetPool))
 		}
 
 		sort.Strings(tpNames)
@@ -402,6 +427,51 @@ func testAccCheckRegionInstanceGroupManagerAutoHealingPolicies(n, hck string, in
 	}
 }
 
+func testAccCheckRegionInstanceGroupManagerDistributionPolicy(n string, zones []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		manager, err := config.clientComputeBeta.RegionInstanceGroupManagers.Get(
+			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if manager.DistributionPolicy == nil {
+			return fmt.Errorf("Expected distribution policy to exist")
+		}
+
+		zoneConfigs := manager.DistributionPolicy.Zones
+		if len(zoneConfigs) != len(zones) {
+			return fmt.Errorf("Expected number of zones in distribution policy to match; had %d, expected %d", len(zoneConfigs), len(zones))
+		}
+
+		sort.Strings(zones)
+		sortedExisting := make([]string, 0)
+		for _, zone := range zoneConfigs {
+			sortedExisting = append(sortedExisting, zone.Zone)
+		}
+		sort.Strings(sortedExisting)
+
+		for i := 0; i < len(zones); i++ {
+			if !strings.HasSuffix(sortedExisting[i], zones[i]) {
+				return fmt.Errorf("found mismatched zone configuration: expected entry #%d as '%s', got %s", i, zones[i], sortedExisting[i])
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckRegionInstanceGroupManagerTemplateTags(n string, tags []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -423,7 +493,7 @@ func testAccCheckRegionInstanceGroupManagerTemplateTags(n string, tags []string)
 
 		// check that the instance template updated
 		instanceTemplate, err := config.clientCompute.InstanceTemplates.Get(
-			config.Project, resourceSplitter(manager.InstanceTemplate)).Do()
+			config.Project, GetResourceNameFromSelfLink(manager.InstanceTemplate)).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading instance template: %s", err)
 		}
@@ -798,4 +868,36 @@ resource "google_compute_http_health_check" "zero" {
 	timeout_sec        = 1
 }
 	`, template, target, igm, hck)
+}
+
+func testAccRegionInstanceGroupManager_distributionPolicy(template, igm string, zones []string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-basic" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+	network_interface {
+		network = "default"
+	}
+	metadata {
+		foo = "bar"
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name = "%s"
+	instance_template = "${google_compute_instance_template.igm-basic.self_link}"
+	base_instance_name = "igm-basic"
+	region = "us-central1"
+	target_size = 2
+	distribution_policy_zones = ["%s"]
+}
+	`, template, igm, strings.Join(zones, "\",\""))
 }

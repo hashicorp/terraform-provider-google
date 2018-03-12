@@ -2,13 +2,12 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
-	"os"
 )
 
 func TestKeyRingIdParsing(t *testing.T) {
@@ -67,17 +66,10 @@ func TestKeyRingIdParsing(t *testing.T) {
 	}
 }
 
-func TestAccGoogleKmsKeyRing_basic(t *testing.T) {
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
+func TestAccKmsKeyRing_basic(t *testing.T) {
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

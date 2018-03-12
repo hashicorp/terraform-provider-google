@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -85,11 +86,57 @@ func TestAccComputeAddress_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeAddress_basic,
+				Config: testAccComputeAddress_basic(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeAddressExists(
 						"google_compute_address.foobar", &addr),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_address.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeAddress_internal(t *testing.T) {
+	var addr computeBeta.Address
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeAddress_internal(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaAddressExists("google_compute_address.internal", &addr),
+					testAccCheckComputeBetaAddressExists("google_compute_address.internal_with_subnet", &addr),
+					testAccCheckComputeBetaAddressExists("google_compute_address.internal_with_subnet_and_address", &addr),
+					resource.TestCheckResourceAttr("google_compute_address.internal", "address_type", "INTERNAL"),
+					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet", "address_type", "INTERNAL"),
+					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address_type", "INTERNAL"),
+					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address", "10.0.42.42"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -146,7 +193,83 @@ func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.
 	}
 }
 
-var testAccComputeAddress_basic = fmt.Sprintf(`
+func testAccCheckComputeBetaAddressExists(n string, addr *computeBeta.Address) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+
+		found, err := config.clientComputeBeta.Addresses.Get(
+			config.Project, addressId.Region, addressId.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != addressId.Name {
+			return fmt.Errorf("Addr not found")
+		}
+
+		*addr = *found
+
+		return nil
+	}
+}
+
+func testAccComputeAddress_basic(i string) string {
+	return fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
 	name = "address-test-%s"
-}`, acctest.RandString(10))
+}`, i)
+}
+
+func testAccComputeAddress_internal(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_address" "internal" {
+  name         = "address-test-internal-%s"
+  address_type = "INTERNAL"
+  region       = "us-east1"
+}
+
+resource "google_compute_network" "default" {
+  name = "network-test-%s"
+}
+
+resource "google_compute_subnetwork" "foo" {
+  name          = "subnetwork-test-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-east1"
+  network       = "${google_compute_network.default.self_link}"
+}
+
+resource "google_compute_address" "internal_with_subnet" {
+  name         = "address-test-internal-with-subnet-%s"
+  subnetwork   = "${google_compute_subnetwork.foo.self_link}"
+  address_type = "INTERNAL"
+  region       = "us-east1"
+}
+
+// We can't test the address alone, because we don't know what IP range the
+// default subnetwork uses.
+resource "google_compute_address" "internal_with_subnet_and_address" {
+  name         = "address-test-internal-with-subnet-and-address-%s"
+  subnetwork   = "${google_compute_subnetwork.foo.self_link}"
+  address_type = "INTERNAL"
+  address      = "10.0.42.42"
+  region       = "us-east1"
+}`,
+		i, // google_compute_address.internal name
+		i, // google_compute_network.default name
+		i, // google_compute_subnetwork.foo name
+		i, // google_compute_address.internal_with_subnet_name
+		i, // google_compute_address.internal_with_subnet_and_address name
+	)
+}

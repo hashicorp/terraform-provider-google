@@ -89,6 +89,7 @@ func resourceSpannerInstance() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -164,11 +165,12 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Spanner instance %s", id.terraformId()))
 	}
 
-	d.Set("config", extractInstanceConfigFromUri(instance.Config))
+	d.Set("config", GetResourceNameFromSelfLink(instance.Config))
 	d.Set("labels", instance.Labels)
 	d.Set("display_name", instance.DisplayName)
 	d.Set("num_nodes", instance.NodeCount)
 	d.Set("state", instance.State)
+	d.Set("project", id.Project)
 
 	return nil
 }
@@ -269,14 +271,6 @@ func buildSpannerInstanceId(d *schema.ResourceData, config *Config) (*spannerIns
 	}, nil
 }
 
-func extractInstanceConfigFromUri(configUri string) string {
-	return extractLastResourceFromUri(configUri)
-}
-
-func extractInstanceNameFromUri(nameUri string) string {
-	return extractLastResourceFromUri(nameUri)
-}
-
 func genSpannerInstanceName() string {
 	return resource.PrefixedUniqueId("tfgen-spanid-")[:30]
 }
@@ -304,7 +298,7 @@ func (s spannerInstanceId) instanceConfigUri(c string) string {
 
 func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
 	if !regexp.MustCompile("^[a-z0-9-]+$").Match([]byte(id)) &&
-		!regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+		!regexp.MustCompile("^"+ProjectRegex+"/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner instance specifier. " +
 			"Expecting either {projectId}/{instanceId} OR " +
 			"{instanceId} (where project is to be derived from that specified in provider)")
@@ -321,7 +315,7 @@ func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
 }
 
 func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
-	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
 	}
 	parts := strings.Split(id, "/")

@@ -17,30 +17,6 @@ import (
 
 // Unit Tests
 
-func TestExtractInstanceConfigFromUri_withFullPath(t *testing.T) {
-	actual := extractInstanceConfigFromUri("projects/project123/instanceConfigs/conf987")
-	expected := "conf987"
-	expectEquals(t, expected, actual)
-}
-
-func TestExtractInstanceConfigFromUri_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromUri("conf987")
-	expected := "conf987"
-	expectEquals(t, expected, actual)
-}
-
-func TestExtractInstanceNameFromUri_withFullPath(t *testing.T) {
-	actual := extractInstanceNameFromUri("projects/project123/instances/instance456")
-	expected := "instance456"
-	expectEquals(t, expected, actual)
-}
-
-func TestExtractInstanceNameFromUri_withNoPath(t *testing.T) {
-	actual := extractInstanceConfigFromUri("instance456")
-	expected := "instance456"
-	expectEquals(t, expected, actual)
-}
-
 func TestSpannerInstanceId_instanceUri(t *testing.T) {
 	id := spannerInstanceId{
 		Project:  "project123",
@@ -114,6 +90,36 @@ func TestImportSpannerInstanceId_invalidSingleSlash(t *testing.T) {
 func TestImportSpannerInstanceId_invalidMultiSlash(t *testing.T) {
 	sid, e := importSpannerInstanceId("project123/instance456/db789")
 	expectInvalidSpannerInstanceImport(t, sid, e)
+}
+
+func TestImportSpannerInstanceId_projectId(t *testing.T) {
+	shouldPass := []string{
+		"project-id/instance",
+		"123123/instance",
+		"hashicorptest.net:project-123/instance",
+		"123/456",
+	}
+
+	shouldFail := []string{
+		"project-id#/instance",
+		"project-id/instance#",
+		"hashicorptest.net:project-123:invalid:project/instance",
+		"hashicorptest.net:/instance",
+	}
+
+	for _, element := range shouldPass {
+		_, e := importSpannerInstanceId(element)
+		if e != nil {
+			t.Error("importSpannerInstanceId should pass on '" + element + "' but doesn't")
+		}
+	}
+
+	for _, element := range shouldFail {
+		_, e := importSpannerInstanceId(element)
+		if e == nil {
+			t.Error("importSpannerInstanceId should fail on '" + element + "' but doesn't")
+		}
+	}
 }
 
 func expectInvalidSpannerInstanceImport(t *testing.T, sid *spannerInstanceId, e error) {
@@ -308,8 +314,8 @@ func testAccCheckSpannerInstanceExists(n string, instance *spanner.Instance) res
 			return err
 		}
 
-		fName := extractInstanceNameFromUri(found.Name)
-		if fName != extractInstanceNameFromUri(rs.Primary.ID) {
+		fName := GetResourceNameFromSelfLink(found.Name)
+		if fName != GetResourceNameFromSelfLink(rs.Primary.ID) {
 			return fmt.Errorf("Spanner instance %s not found, found %s instead", rs.Primary.ID, fName)
 		}
 

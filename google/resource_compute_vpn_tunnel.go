@@ -85,12 +85,14 @@ func resourceComputeVpnTunnel() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -220,6 +222,8 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("remote_traffic_selector", remoteTrafficSelectors)
 
 	d.Set("detailed_status", vpnTunnel.DetailedStatus)
+	d.Set("project", project)
+	d.Set("region", region)
 	d.Set("self_link", vpnTunnel.SelfLink)
 
 	d.SetId(name)
@@ -357,18 +361,4 @@ func getVpnTunnelLink(config *Config, project string, region string, tunnel stri
 
 	return tunnel, nil
 
-}
-
-func getVpnTunnelName(vpntunnel string) (string, error) {
-
-	if strings.HasPrefix(vpntunnel, "https://www.googleapis.com/compute/") {
-		// extract the VPN tunnel name from SelfLink URL
-		vpntunnelName := vpntunnel[strings.LastIndex(vpntunnel, "/")+1:]
-		if vpntunnelName == "" {
-			return "", fmt.Errorf("VPN tunnel url not valid")
-		}
-		return vpntunnelName, nil
-	}
-
-	return vpntunnel, nil
 }

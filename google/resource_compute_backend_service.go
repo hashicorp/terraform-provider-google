@@ -1,13 +1,11 @@
 package google
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
@@ -132,6 +130,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -236,7 +235,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("iap", flattenIap(service.Iap))
-
+	d.Set("project", project)
 	d.Set("health_checks", service.HealthChecks)
 
 	return nil
@@ -310,16 +309,17 @@ func expandIap(configured []interface{}) *compute.BackendServiceIAP {
 }
 
 func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
-	if iap == nil {
-		return make([]map[string]interface{}, 1, 1)
+	result := make([]map[string]interface{}, 0, 1)
+	if iap == nil || !iap.Enabled {
+		return result
 	}
 
-	iapMap := map[string]interface{}{
-		"enabled":              iap.Enabled,
+	result = append(result, map[string]interface{}{
 		"oauth2_client_id":     iap.Oauth2ClientId,
 		"oauth2_client_secret": iap.Oauth2ClientSecretSha256,
-	}
-	return []map[string]interface{}{iapMap}
+	})
+
+	return result
 }
 
 func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
@@ -342,18 +342,26 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 		}
 		if v, ok := data["capacity_scaler"]; ok {
 			b.CapacityScaler = v.(float64)
+			b.ForceSendFields = append(b.ForceSendFields, "CapacityScaler")
 		}
 		if v, ok := data["description"]; ok {
 			b.Description = v.(string)
 		}
 		if v, ok := data["max_rate"]; ok {
 			b.MaxRate = int64(v.(int))
+			if b.MaxRate == 0 {
+				b.NullFields = append(b.NullFields, "MaxRate")
+			}
 		}
 		if v, ok := data["max_rate_per_instance"]; ok {
 			b.MaxRatePerInstance = v.(float64)
+			if b.MaxRatePerInstance == 0 {
+				b.NullFields = append(b.NullFields, "MaxRatePerInstance")
+			}
 		}
 		if v, ok := data["max_utilization"]; ok {
 			b.MaxUtilization = v.(float64)
+			b.ForceSendFields = append(b.ForceSendFields, "MaxUtilization")
 		}
 
 		backends = append(backends, &b)
@@ -392,7 +400,7 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 	// the IAP configuration block (and providing the client id
 	// and secret). We are force sending the three required API fields
 	// to enable/disable IAP at all times here, and relying on Golang's
-	// type defaults to enable or disable IAP in the existance or absense
+	// type defaults to enable or disable IAP in the existence or absence
 	// of the block, instead of checking if the block exists, zeroing out
 	// fields, etc.
 	service := &compute.BackendService{
@@ -447,37 +455,4 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 	service.ConnectionDraining = connectionDraining
 
 	return service, nil
-}
-
-func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
-	if v == nil {
-		return 0
-	}
-
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-
-	group, _ := getRelativePath(m["group"].(string))
-	buf.WriteString(fmt.Sprintf("%s-", group))
-
-	if v, ok := m["balancing_mode"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-	if v, ok := m["capacity_scaler"]; ok {
-		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
-	}
-	if v, ok := m["description"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-	if v, ok := m["max_rate"]; ok {
-		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
-	}
-	if v, ok := m["max_rate_per_instance"]; ok {
-		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
-	}
-	if v, ok := m["max_rate_per_instance"]; ok {
-		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
-	}
-
-	return hashcode.String(buf.String())
 }

@@ -7,6 +7,100 @@ import (
 	"strings"
 )
 
+var schemaOrganizationPolicy = map[string]*schema.Schema{
+	"constraint": {
+		Type:             schema.TypeString,
+		Required:         true,
+		ForceNew:         true,
+		DiffSuppressFunc: linkDiffSuppress,
+	},
+	"boolean_policy": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"list_policy"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"enforced": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+			},
+		},
+	},
+	"list_policy": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"boolean_policy"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"allow": {
+					Type:          schema.TypeList,
+					Optional:      true,
+					MaxItems:      1,
+					ConflictsWith: []string{"list_policy.0.deny"},
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"all": {
+								Type:          schema.TypeBool,
+								Optional:      true,
+								Default:       false,
+								ConflictsWith: []string{"list_policy.0.allow.0.values"},
+							},
+							"values": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+								Set:      schema.HashString,
+							},
+						},
+					},
+				},
+				"deny": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"all": {
+								Type:          schema.TypeBool,
+								Optional:      true,
+								Default:       false,
+								ConflictsWith: []string{"list_policy.0.deny.0.values"},
+							},
+							"values": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+								Set:      schema.HashString,
+							},
+						},
+					},
+				},
+				"suggested_value": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"version": {
+		Type:     schema.TypeInt,
+		Optional: true,
+		Computed: true,
+	},
+	"etag": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"update_time": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+}
+
 func resourceGoogleOrganizationPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleOrganizationPolicyCreate,
@@ -18,103 +112,15 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 			State: resourceGoogleOrganizationPolicyImportState,
 		},
 
-		Schema: map[string]*schema.Schema{
-			"org_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"constraint": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
-			},
-			"boolean_policy": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				ConflictsWith: []string{"list_policy"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enforced": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-					},
+		Schema: mergeSchemas(
+			schemaOrganizationPolicy,
+			map[string]*schema.Schema{
+				"org_id": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
 				},
-			},
-			"list_policy": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				ConflictsWith: []string{"boolean_policy"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"allow": {
-							Type:          schema.TypeList,
-							Optional:      true,
-							MaxItems:      1,
-							ConflictsWith: []string{"list_policy.0.deny"},
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"all": {
-										Type:          schema.TypeBool,
-										Optional:      true,
-										Default:       false,
-										ConflictsWith: []string{"list_policy.0.allow.0.values"},
-									},
-									"values": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Set:      schema.HashString,
-									},
-								},
-							},
-						},
-						"deny": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"all": {
-										Type:          schema.TypeBool,
-										Optional:      true,
-										Default:       false,
-										ConflictsWith: []string{"list_policy.0.deny.0.values"},
-									},
-									"values": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Set:      schema.HashString,
-									},
-								},
-							},
-						},
-						"suggested_value": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"version": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-			"etag": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+			}),
 	}
 }
 

@@ -19,14 +19,35 @@ a restricted host and strong password.
 
 ## Example Usage
 
-Example creating a SQL Database.
+### SQL First Generation
 
 ```hcl
 resource "google_sql_database_instance" "master" {
   name = "master-instance"
+  database_version = "MYSQL_5_6"
+  # First-generation instance regions are not the conventional
+  # Google Compute Engine regions. See argument reference below.
+  region = "us-central"
 
   settings {
     tier = "D0"
+  }
+}
+```
+
+
+### SQL Second generation
+
+```hcl
+resource "google_sql_database_instance" "master" {
+  name = "master-instance"
+  database_version = "POSTGRES_9_6"
+  region = "us-central1"
+
+  settings {
+    # Second-generation instance tiers are based on the machine
+    # type. See argument reference below.
+    tier = "db-f1-micro"
   }
 }
 ```
@@ -81,6 +102,9 @@ The required `settings` block supports:
 
 * `authorized_gae_applications` - (Optional) A list of Google App Engine (GAE)
     project names that are allowed to access this instance.
+
+* `availability_type` - (Optional) This specifies whether a PostgreSQL instance
+    should be set up for high availability (`REGIONAL`) or single zone (`ZONAL`).
 
 * `crash_safe_replication` - (Optional) Specific to read instances, indicates
     when crash-safe replication flags are enabled.
@@ -190,6 +214,10 @@ to work, cannot be updated, and supports:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `first_ip_address` - The first IPv4 address of the addresses assigned. This is
+is to support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
+when the resource is configured with a `count`.
 
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 

@@ -7,9 +7,10 @@ import (
 	"log"
 	"strings"
 
-	"regexp"
+	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -19,21 +20,7 @@ import (
 )
 
 var InstanceBaseApiVersion = v1
-var InstanceVersionedFeatures = []Feature{
-	{
-		Version: v0beta,
-		Item:    "guest_accelerator",
-	},
-	{
-		Version: v0beta,
-		Item:    "min_cpu_platform",
-	},
-}
-
-func stringScopeHashcode(v interface{}) int {
-	v = canonicalizeServiceScope(v.(string))
-	return schema.HashString(v)
-}
+var InstanceVersionedFeatures = []Feature{}
 
 func resourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
@@ -41,10 +28,22 @@ func resourceComputeInstance() *schema.Resource {
 		Read:   resourceComputeInstanceRead,
 		Update: resourceComputeInstanceUpdate,
 		Delete: resourceComputeInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeInstanceImportState,
+		},
 
-		SchemaVersion: 5,
+		SchemaVersion: 6,
 		MigrateState:  resourceComputeInstanceMigrateState,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
+		},
+
+		// A compute instance is more or less a superset of a compute instance
+		// template. Please attempt to maintain consistency with the
+		// resource_compute_instance_template schema when updating this one.
 		Schema: map[string]*schema.Schema{
 			"boot_disk": &schema.Schema{
 				Type:     schema.TypeList,
@@ -82,6 +81,7 @@ func resourceComputeInstance() *schema.Resource {
 						"initialize_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -89,6 +89,7 @@ func resourceComputeInstance() *schema.Resource {
 									"size": &schema.Schema{
 										Type:         schema.TypeInt,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -96,14 +97,17 @@ func resourceComputeInstance() *schema.Resource {
 									"type": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 									},
 
 									"image": &schema.Schema{
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: diskImageDiffSuppress,
 									},
 								},
 							},
@@ -220,6 +224,13 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"mode": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "READ_WRITE",
+							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+						},
+
 						"disk_encryption_key_raw": &schema.Schema{
 							Type:      schema.TypeString,
 							Optional:  true,
@@ -237,7 +248,6 @@ func resourceComputeInstance() *schema.Resource {
 			"machine_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"name": &schema.Schema{
@@ -253,7 +263,8 @@ func resourceComputeInstance() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -328,6 +339,14 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"network_ip": &schema.Schema{
+							Type:       schema.TypeString,
+							Optional:   true,
+							ForceNew:   true,
+							Computed:   true,
+							Deprecated: "Please use address",
+						},
+
 						"access_config": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -336,8 +355,12 @@ func resourceComputeInstance() *schema.Resource {
 									"nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 
+									// It's unclear why this field exists, as
+									// nat_ip can be both optional and computed.
+									// Consider deprecating it.
 									"assigned_nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Computed: true,
@@ -348,20 +371,18 @@ func resourceComputeInstance() *schema.Resource {
 
 						"alias_ip_range": &schema.Schema{
 							Type:     schema.TypeList,
+							MaxItems: 1,
 							Optional: true,
-							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_cidr_range": &schema.Schema{
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
 									},
 									"subnetwork_range_name": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -410,6 +431,7 @@ func resourceComputeInstance() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -451,12 +473,10 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": &schema.Schema{
 							Type:     schema.TypeString,
-							ForceNew: true,
 							Optional: true,
 							Computed: true,
 						},
@@ -464,7 +484,6 @@ func resourceComputeInstance() *schema.Resource {
 						"scopes": &schema.Schema{
 							Type:     schema.TypeSet,
 							Required: true,
-							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								StateFunc: func(v interface{}) string {
@@ -480,6 +499,7 @@ func resourceComputeInstance() *schema.Resource {
 			"guest_accelerator": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -506,7 +526,6 @@ func resourceComputeInstance() *schema.Resource {
 			"min_cpu_platform": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"tags": &schema.Schema{
@@ -528,55 +547,77 @@ func resourceComputeInstance() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"allow_stopping_for_update": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"label_fingerprint": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
 			"create_timeout": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  4,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Default:    4,
+				Deprecated: "Use timeouts block instead.",
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.If(
+				func(d *schema.ResourceDiff, meta interface{}) bool {
+					return d.HasChange("guest_accelerator")
+				},
+				suppressEmptyGuestAcceleratorDiff,
+			),
+		),
 	}
 }
 
 func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance, error) {
-	computeApiVersion := getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures)
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
 	}
-
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
 	instance := &computeBeta.Instance{}
-	switch computeApiVersion {
+	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
 	case v1:
-		instanceV1, err := config.clientCompute.Instances.Get(
-			project, zone, d.Id()).Do()
+		instanceV1, err := config.clientCompute.Instances.Get(project, zone, d.Id()).Do()
 		if err != nil {
 			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 		}
-
-		err = Convert(instanceV1, instance)
-		if err != nil {
+		if err := Convert(instanceV1, instance); err != nil {
 			return nil, err
 		}
 	case v0beta:
-		var err error
-		instance, err = config.clientComputeBeta.Instances.Get(
-			project, zone, d.Id()).Do()
+		instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
 		if err != nil {
 			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 		}
 	}
-
 	return instance, nil
 }
 
+func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.Disk, error) {
+	source, err := ParseDiskFieldValue(diskUri, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := config.clientCompute.Disks.Get(source.Project, source.Zone, source.Name).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return disk, err
+}
+
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -585,12 +626,16 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Get the zone
-	log.Printf("[DEBUG] Loading zone: %s", d.Get("zone").(string))
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Loading zone: %s", z)
 	zone, err := config.clientCompute.Zones.Get(
-		project, d.Get("zone").(string)).Do()
+		project, z).Do()
 	if err != nil {
 		return fmt.Errorf(
-			"Error loading zone '%s': %s", d.Get("zone").(string), err)
+			"Error loading zone '%s': %s", z, err)
 	}
 
 	// Get the machine type
@@ -632,78 +677,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		disks = append(disks, disk)
 	}
 
-	// Build up the list of networkInterfaces
-	networkInterfacesCount := d.Get("network_interface.#").(int)
-	networkInterfaces := make([]*computeBeta.NetworkInterface, 0, networkInterfacesCount)
-	for i := 0; i < networkInterfacesCount; i++ {
-		prefix := fmt.Sprintf("network_interface.%d", i)
-		// Load up the name of this network_interface
-		networkName := d.Get(prefix + ".network").(string)
-		subnetworkName := d.Get(prefix + ".subnetwork").(string)
-		address := d.Get(prefix + ".address").(string)
-		var networkLink, subnetworkLink string
-
-		if networkName != "" && subnetworkName != "" {
-			return fmt.Errorf("Cannot specify both network and subnetwork values.")
-		} else if networkName != "" {
-			networkLink, err = getNetworkLink(d, config, prefix+".network")
-			if err != nil {
-				return fmt.Errorf(
-					"Error referencing network '%s': %s",
-					networkName, err)
-			}
-		} else {
-			subnetworkLink, err = getSubnetworkLink(d, config, prefix+".subnetwork", prefix+".subnetwork_project", "zone")
-			if err != nil {
-				return err
-			}
-		}
-
-		// Build the networkInterface
-		var iface computeBeta.NetworkInterface
-		iface.Network = networkLink
-		iface.Subnetwork = subnetworkLink
-		iface.NetworkIP = address
-		iface.AliasIpRanges = expandAliasIpRanges(d.Get(prefix + ".alias_ip_range").([]interface{}))
-
-		// Handle access_config structs
-		accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
-		iface.AccessConfigs = make([]*computeBeta.AccessConfig, accessConfigsCount)
-		for j := 0; j < accessConfigsCount; j++ {
-			acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-			iface.AccessConfigs[j] = &computeBeta.AccessConfig{
-				Type:  "ONE_TO_ONE_NAT",
-				NatIP: d.Get(acPrefix + ".nat_ip").(string),
-			}
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
-	serviceAccountsCount := d.Get("service_account.#").(int)
-	serviceAccounts := make([]*computeBeta.ServiceAccount, 0, serviceAccountsCount)
-	for i := 0; i < serviceAccountsCount; i++ {
-		prefix := fmt.Sprintf("service_account.%d", i)
-
-		scopesSet := d.Get(prefix + ".scopes").(*schema.Set)
-		scopes := make([]string, scopesSet.Len())
-		for i, v := range scopesSet.List() {
-			scopes[i] = canonicalizeServiceScope(v.(string))
-		}
-
-		email := "default"
-		if v := d.Get(prefix + ".email"); v != nil {
-			email = v.(string)
-		}
-
-		serviceAccount := &computeBeta.ServiceAccount{
-			Email:  email,
-			Scopes: scopes,
-		}
-
-		serviceAccounts = append(serviceAccounts, serviceAccount)
-	}
-
 	prefix := "scheduling.0"
 	scheduling := &computeBeta.Scheduling{}
 
@@ -721,18 +694,29 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	// Read create timeout
-	var createTimeout int
-	if v, ok := d.GetOk("create_timeout"); ok {
+	// Until "create_timeout" is removed, use that timeout if set.
+	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
 		createTimeout = v.(int)
 	}
 
-	metadata, err := resourceBetaInstanceMetadata(d)
+	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
 		return fmt.Errorf("Error creating metadata: %s", err)
 	}
 
+	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return fmt.Errorf("Error creating network interfaces: %s", err)
+	}
+
+	accels, err := expandInstanceGuestAccelerators(d, config)
+	if err != nil {
+		return fmt.Errorf("Error creating guest accelerators: %s", err)
+	}
+
 	// Create the instance information
-	instance := computeBeta.Instance{
+	instance := &computeBeta.Instance{
 		CanIpForward:      d.Get("can_ip_forward").(bool),
 		Description:       d.Get("description").(string),
 		Disks:             disks,
@@ -740,31 +724,26 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Metadata:          metadata,
 		Name:              d.Get("name").(string),
 		NetworkInterfaces: networkInterfaces,
-		Tags:              resourceBetaInstanceTags(d),
+		Tags:              resourceInstanceTags(d),
 		Labels:            expandLabels(d),
-		ServiceAccounts:   serviceAccounts,
-		GuestAccelerators: expandGuestAccelerators(zone.Name, d.Get("guest_accelerator").([]interface{})),
+		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
+		GuestAccelerators: accels,
 		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
 		Scheduling:        scheduling,
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
 	var op interface{}
-	switch computeApiVersion {
+	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
 	case v1:
 		instanceV1 := &compute.Instance{}
-		err = Convert(instance, instanceV1)
-		if err != nil {
+		if err := Convert(instance, instanceV1); err != nil {
 			return err
 		}
-
-		op, err = config.clientCompute.Instances.Insert(
-			project, zone.Name, instanceV1).Do()
+		op, err = config.clientCompute.Instances.Insert(project, zone.Name, instanceV1).Do()
 	case v0beta:
-		op, err = config.clientComputeBeta.Instances.Insert(
-			project, zone.Name, &instance).Do()
+		op, err = config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
 	}
-
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -786,21 +765,30 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	instance, err := getInstance(config, d)
 	if err != nil || instance == nil {
 		return err
 	}
 
-	md := flattenBetaMetadata(instance.Metadata)
+	md := flattenMetadataBeta(instance.Metadata)
+	existingMetadata := d.Get("metadata").(map[string]interface{})
 
-	if _, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+	// If the existing config specifies "metadata.startup-script" instead of "metadata_startup_script",
+	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
+	// we should.
+	if ss, ok := existingMetadata["startup-script"]; !ok || ss == "" {
 		d.Set("metadata_startup_script", md["startup-script"])
 		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
 		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
 		delete(md, "startup-script")
+	} else if _, ok := d.GetOk("metadata_startup_script"); ok {
+		delete(md, "startup-script")
 	}
-
-	existingMetadata := d.Get("metadata").(map[string]interface{})
 
 	// Delete any keys not explicitly set in our config file
 	for k := range md {
@@ -814,60 +802,13 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("can_ip_forward", instance.CanIpForward)
-
-	machineTypeResource := strings.Split(instance.MachineType, "/")
-	machineType := machineTypeResource[len(machineTypeResource)-1]
-	d.Set("machine_type", machineType)
-
-	// Set the service accounts
-	serviceAccounts := make([]map[string]interface{}, 0, 1)
-	for _, serviceAccount := range instance.ServiceAccounts {
-		serviceAccounts = append(serviceAccounts, map[string]interface{}{
-			"email":  serviceAccount.Email,
-			"scopes": schema.NewSet(stringScopeHashcode, convertStringArrToInterface(serviceAccount.Scopes)),
-		})
-	}
-	d.Set("service_account", serviceAccounts)
+	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
-	externalIP := ""
-	internalIP := ""
-
-	networkInterfaces := make([]map[string]interface{}, 0, 1)
-	for i, iface := range instance.NetworkInterfaces {
-		// The first non-empty ip is left in natIP
-		var natIP string
-		accessConfigs := make(
-			[]map[string]interface{}, 0, len(iface.AccessConfigs))
-		for j, config := range iface.AccessConfigs {
-			accessConfigs = append(accessConfigs, map[string]interface{}{
-				"nat_ip":          d.Get(fmt.Sprintf("network_interface.%d.access_config.%d.nat_ip", i, j)),
-				"assigned_nat_ip": config.NatIP,
-			})
-
-			if natIP == "" {
-				natIP = config.NatIP
-			}
-		}
-
-		if externalIP == "" {
-			externalIP = natIP
-		}
-
-		if internalIP == "" {
-			internalIP = iface.NetworkIP
-		}
-
-		networkInterfaces = append(networkInterfaces, map[string]interface{}{
-			"name":               iface.Name,
-			"address":            iface.NetworkIP,
-			"network":            iface.Network,
-			"subnetwork":         iface.Subnetwork,
-			"subnetwork_project": getProjectFromSubnetworkLink(iface.Subnetwork),
-			"access_config":      accessConfigs,
-			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
-		})
+	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
+	if err != nil {
+		return err
 	}
 	d.Set("network_interface", networkInterfaces)
 
@@ -893,6 +834,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
 		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
+		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
 	}
 
 	if len(instance.Labels) > 0 {
@@ -919,7 +861,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk))
+			d.Set("boot_disk", flattenBootDisk(d, disk, config))
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 			sIndex++
@@ -932,6 +874,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			di := map[string]interface{}{
 				"source":      disk.Source,
 				"device_name": disk.DeviceName,
+				"mode":        disk.Mode,
 			}
 			if key := disk.DiskEncryptionKey; key != nil {
 				if inConfig {
@@ -948,14 +891,18 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	attachedDisks = append(attachedDisks, extraAttachedDisks...)
 
+	d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
 	d.Set("attached_disk", attachedDisks)
 	d.Set("scratch_disk", scratchDisks)
-	d.Set("scheduling", flattenBetaScheduling(instance.Scheduling))
-	d.Set("guest_accelerator", flattenGuestAccelerators(instance.Zone, instance.GuestAccelerators))
+	d.Set("scheduling", flattenScheduling(instance.Scheduling))
+	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
+	d.Set("project", project)
+	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
+	d.Set("name", instance.Name)
 	d.SetId(instance.Name)
 
 	return nil
@@ -969,11 +916,16 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
-
-	instance, err := getInstance(config, d)
+	zone, err := getZone(d, config)
 	if err != nil {
 		return err
+	}
+
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
 
 	// Enable partial mode for the resource since it is possible
@@ -982,11 +934,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// If the Metadata has changed, then update that.
 	if d.HasChange("metadata") {
 		o, n := d.GetChange("metadata")
-		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
+		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists && script != "" {
 			if _, ok := n.(map[string]interface{})["startup-script"]; ok {
 				return fmt.Errorf("Only one of metadata.startup-script and metadata_startup_script may be defined")
 			}
 
+			if err = d.Set("metadata", n); err != nil {
+				return err
+			}
 			n.(map[string]interface{})["startup-script"] = script
 		}
 
@@ -1017,27 +972,33 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error updating metadata: %s", err)
 			}
 
-			opErr := computeOperationWait(config.clientCompute, op, project, "metadata to update")
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 			if opErr != nil {
 				return opErr
 			}
 
 			d.SetPartial("metadata")
+
 			return nil
 		}
 
 		MetadataRetryWrapper(updateMD)
+
 	}
 
 	if d.HasChange("tags") {
 		tags := resourceInstanceTags(d)
+		tagsV1 := &compute.Tags{}
+		if err := Convert(tags, tagsV1); err != nil {
+			return err
+		}
 		op, err := config.clientCompute.Instances.SetTags(
-			project, zone, d.Id(), tags).Do()
+			project, zone, d.Id(), tagsV1).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "tags to update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "tags to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -1055,7 +1016,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "labels to update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "labels to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -1085,7 +1046,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWait(config.clientCompute, op, project, "scheduling policy update")
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "scheduling policy update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
@@ -1125,7 +1086,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error deleting old access_config: %s", err)
 				}
-				opErr := computeOperationWait(config.clientCompute, op, project, "old access_config to delete")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "old access_config to delete", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
 					return opErr
 				}
@@ -1144,7 +1105,51 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
-				opErr := computeOperationWait(config.clientCompute, op, project, "new access_config to add")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				if opErr != nil {
+					return opErr
+				}
+			}
+		}
+
+		if d.HasChange(prefix + ".alias_ip_range") {
+			rereadFingerprint := false
+
+			// Alias IP ranges cannot be updated; they must be removed and then added.
+			if len(instNetworkInterface.AliasIpRanges) > 0 {
+				ni := &computeBeta.NetworkInterface{
+					Fingerprint:     instNetworkInterface.Fingerprint,
+					ForceSendFields: []string{"AliasIpRanges"},
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
+				if opErr != nil {
+					return opErr
+				}
+				rereadFingerprint = true
+			}
+
+			ranges := d.Get(prefix + ".alias_ip_range").([]interface{})
+			if len(ranges) > 0 {
+				if rereadFingerprint {
+					instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+					if err != nil {
+						return err
+					}
+					instNetworkInterface = instance.NetworkInterfaces[i]
+				}
+				ni := &computeBeta.NetworkInterface{
+					AliasIpRanges: expandAliasIpRanges(ranges),
+					Fingerprint:   instNetworkInterface.Fingerprint,
+				}
+				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, d.Id(), networkName, ni).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
+				}
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "updaing alias ip ranges")
 				if opErr != nil {
 					return opErr
 				}
@@ -1222,7 +1227,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return errwrap.Wrapf("Error detaching disk: %s", err)
 				}
 
-				opErr := computeOperationWait(config.clientCompute, op, project, "detaching disk")
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "detaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
 					return opErr
 				}
@@ -1237,7 +1242,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return errwrap.Wrapf("Error attaching disk : {{err}}", err)
 			}
 
-			opErr := computeOperationWait(config.clientCompute, op, project, "attaching disk")
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "attaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 			if opErr != nil {
 				return opErr
 			}
@@ -1245,6 +1250,109 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetPartial("attached_disk")
+	}
+
+	// d.HasChange("service_account") is oversensitive: see https://github.com/hashicorp/terraform/issues/17411
+	// Until that's fixed, manually check whether there is a change.
+	o, n := d.GetChange("service_account")
+	oList := o.([]interface{})
+	nList := n.([]interface{})
+	scopesChange := false
+	if len(oList) != len(nList) {
+		scopesChange = true
+	} else if len(oList) == 1 {
+		// service_account has MaxItems: 1
+		// scopes is a required field and so will always be set
+		oScopes := oList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		nScopes := nList[0].(map[string]interface{})["scopes"].(*schema.Set)
+		scopesChange = !oScopes.Equal(nScopes)
+	}
+
+	// Attributes which can only be changed if the instance is stopped
+	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") {
+		if !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+		}
+		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		}
+
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		if d.HasChange("machine_type") {
+			mt, err := ParseMachineTypesFieldValue(d.Get("machine_type").(string), d, config)
+			if err != nil {
+				return err
+			}
+			req := &compute.InstancesSetMachineTypeRequest{
+				MachineType: mt.RelativeLink(),
+			}
+			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating machinetype", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("machine_type")
+		}
+
+		if d.HasChange("min_cpu_platform") {
+			minCpuPlatform, ok := d.GetOk("min_cpu_platform")
+			// Even though you don't have to set minCpuPlatform on create, you do have to set it to an
+			// actual value on update. "Automatic" is the default. This will be read back from the API as empty,
+			// so we don't need to worry about diffs.
+			if !ok {
+				minCpuPlatform = "Automatic"
+			}
+			req := &compute.InstancesSetMinCpuPlatformRequest{
+				MinCpuPlatform: minCpuPlatform.(string),
+			}
+			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating min cpu platform", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("min_cpu_platform")
+		}
+
+		if d.HasChange("service_account.0.email") || scopesChange {
+			sa := d.Get("service_account").([]interface{})
+			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
+			if len(sa) > 0 {
+				saMap := sa[0].(map[string]interface{})
+				req.Email = saMap["email"].(string)
+				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
+			}
+			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating service account", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("service_account")
+		}
+
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error starting instance: {{err}}", err)
+		}
+
+		opErr = computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
 	}
 
 	// We made it, disable partial mode
@@ -1265,6 +1373,10 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		Source: source.RelativeLink(),
 	}
 
+	if v, ok := diskConfig["mode"]; ok {
+		disk.Mode = v.(string)
+	}
+
 	if v, ok := diskConfig["device_name"]; ok {
 		disk.DeviceName = v.(string)
 	}
@@ -1277,6 +1389,75 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 	return disk, nil
 }
 
+// See comment on expandInstanceTemplateGuestAccelerators regarding why this
+// code is duplicated.
+func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*computeBeta.AcceleratorConfig, error) {
+	configs, ok := d.GetOk("guest_accelerator")
+	if !ok {
+		return nil, nil
+	}
+	accels := configs.([]interface{})
+	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	for _, raw := range accels {
+		data := raw.(map[string]interface{})
+		if data["count"].(int) == 0 {
+			continue
+		}
+		at, err := ParseAcceleratorFieldValue(data["type"].(string), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
+		}
+		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			AcceleratorType:  at.RelativeLink(),
+		})
+	}
+
+	return guestAccelerators, nil
+}
+
+// suppressEmptyGuestAcceleratorDiff is used to work around perpetual diff
+// issues when a count of `0` guest accelerators is desired. This may occur when
+// guest_accelerator support is controlled via a module variable. E.g.:
+//
+// 		guest_accelerators {
+//      	count = "${var.enable_gpu ? var.gpu_count : 0}"
+//          ...
+// 		}
+// After reconciling the desired and actual state, we would otherwise see a
+// perpetual resembling:
+// 		[] != [{"count":0, "type": "nvidia-tesla-k80"}]
+func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{}) error {
+	oldi, newi := d.GetChange("guest_accelerator")
+
+	old, ok := oldi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected old guest accelerator diff to be a slice")
+	}
+
+	new, ok := newi.([]interface{})
+	if !ok {
+		return fmt.Errorf("Expected new guest accelerator diff to be a slice")
+	}
+
+	if len(old) != 0 && len(new) != 1 {
+		return nil
+	}
+
+	firstAccel, ok := new[0].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("Unable to type assert guest accelerator")
+	}
+
+	if firstAccel["count"].(int) == 0 {
+		if err := d.Clear("guest_accelerator"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -1285,7 +1466,10 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone := d.Get("zone").(string)
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
 	op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
 	if err != nil {
@@ -1293,7 +1477,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config.clientCompute, op, project, "instance to delete")
+	opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if opErr != nil {
 		return opErr
 	}
@@ -1302,86 +1486,18 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func resourceInstanceMetadata(d *schema.ResourceData) (*compute.Metadata, error) {
-	m := &compute.Metadata{}
-	mdMap := d.Get("metadata").(map[string]interface{})
-	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
-		mdMap["startup-script"] = v
-	}
-	if len(mdMap) > 0 {
-		m.Items = make([]*compute.MetadataItems, 0, len(mdMap))
-		for key, val := range mdMap {
-			v := val.(string)
-			m.Items = append(m.Items, &compute.MetadataItems{
-				Key:   key,
-				Value: &v,
-			})
-		}
+func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
 
-		// Set the fingerprint. If the metadata has never been set before
-		// then this will just be blank.
-		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
 	}
 
-	return m, nil
-}
+	d.Set("project", parts[0])
+	d.Set("zone", parts[1])
+	d.SetId(parts[2])
 
-func resourceBetaInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
-	m := &computeBeta.Metadata{}
-	mdMap := d.Get("metadata").(map[string]interface{})
-	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
-		mdMap["startup-script"] = v
-	}
-	if len(mdMap) > 0 {
-		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
-		for key, val := range mdMap {
-			v := val.(string)
-			m.Items = append(m.Items, &computeBeta.MetadataItems{
-				Key:   key,
-				Value: &v,
-			})
-		}
-
-		// Set the fingerprint. If the metadata has never been set before
-		// then this will just be blank.
-		m.Fingerprint = d.Get("metadata_fingerprint").(string)
-	}
-
-	return m, nil
-}
-
-func resourceInstanceTags(d *schema.ResourceData) *compute.Tags {
-	// Calculate the tags
-	var tags *compute.Tags
-	if v := d.Get("tags"); v != nil {
-		vs := v.(*schema.Set)
-		tags = new(compute.Tags)
-		tags.Items = make([]string, vs.Len())
-		for i, v := range vs.List() {
-			tags.Items[i] = v.(string)
-		}
-
-		tags.Fingerprint = d.Get("tags_fingerprint").(string)
-	}
-
-	return tags
-}
-
-func resourceBetaInstanceTags(d *schema.ResourceData) *computeBeta.Tags {
-	// Calculate the tags
-	var tags *computeBeta.Tags
-	if v := d.Get("tags"); v != nil {
-		vs := v.(*schema.Set)
-		tags = new(computeBeta.Tags)
-		tags.Items = make([]string, vs.Len())
-		for i, v := range vs.List() {
-			tags.Items[i] = v.(string)
-		}
-
-		tags.Fingerprint = d.Get("tags_fingerprint").(string)
-	}
-
-	return tags
+	return []*schema.ResourceData{d}, nil
 }
 
 func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) (*computeBeta.AttachedDisk, error) {
@@ -1438,7 +1554,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, config *Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -1447,14 +1563,29 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk) []m
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
 	}
+
+	diskDetails, err := getDisk(disk.Source, d, config)
+	if err != nil {
+		log.Printf("[WARN] Cannot retrieve boot disk details: %s", err)
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
+			// If we can't read the disk details due to permission for instance,
+			// copy the initialize_params from what the user originally specified to avoid diffs.
+			m := d.Get("boot_disk.0.initialize_params")
+			result["initialize_params"] = m
+		}
+	} else {
+		result["initialize_params"] = []map[string]interface{}{{
+			"type": GetResourceNameFromSelfLink(diskDetails.Type),
+			// If the config specifies a family name that doesn't match the image name, then
+			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
+			"image": diskDetails.SourceImage,
+			"size":  diskDetails.SizeGb,
+		}}
+	}
+
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
-	}
-	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		// initialize_params is not returned from the API, so copy it from what the user
-		// originally specified to avoid diffs.
-		m := d.Get("boot_disk.0.initialize_params")
-		result["initialize_params"] = m
 	}
 
 	return []map[string]interface{}{result}
@@ -1489,83 +1620,6 @@ func flattenScratchDisk(disk *computeBeta.AttachedDisk) map[string]interface{} {
 	return result
 }
 
-func expandGuestAccelerators(zone string, configs []interface{}) []*computeBeta.AcceleratorConfig {
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(configs))
-	for _, raw := range configs {
-		data := raw.(map[string]interface{})
-		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
-			AcceleratorCount: int64(data["count"].(int)),
-			AcceleratorType:  createAcceleratorPartialUrl(zone, data["type"].(string)),
-		})
-	}
-
-	return guestAccelerators
-}
-
-func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
-	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
-	for _, raw := range ranges {
-		data := raw.(map[string]interface{})
-		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
-			IpCidrRange:         data["ip_cidr_range"].(string),
-			SubnetworkRangeName: data["subnetwork_range_name"].(string),
-		})
-	}
-	return ipRanges
-}
-
-func flattenGuestAccelerators(zone string, accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
-	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
-	for _, accelerator := range accelerators {
-		acceleratorsSchema = append(acceleratorsSchema, map[string]interface{}{
-			"count": accelerator.AcceleratorCount,
-			"type":  accelerator.AcceleratorType,
-		})
-	}
-	return acceleratorsSchema
-}
-
-func flattenBetaMetadata(metadata *computeBeta.Metadata) map[string]string {
-	metadataMap := make(map[string]string)
-	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
-	}
-	return metadataMap
-}
-
-func flattenBetaScheduling(scheduling *computeBeta.Scheduling) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, 1)
-	schedulingMap := map[string]interface{}{
-		"on_host_maintenance": scheduling.OnHostMaintenance,
-		"preemptible":         scheduling.Preemptible,
-	}
-	if scheduling.AutomaticRestart != nil {
-		schedulingMap["automatic_restart"] = *scheduling.AutomaticRestart
-	}
-	result = append(result, schedulingMap)
-	return result
-}
-
-func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
-	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
-	for _, ipRange := range ranges {
-		rangesSchema = append(rangesSchema, map[string]interface{}{
-			"ip_cidr_range":         ipRange.IpCidrRange,
-			"subnetwork_range_name": ipRange.SubnetworkRangeName,
-		})
-	}
-	return rangesSchema
-}
-
-func getProjectFromSubnetworkLink(subnetwork string) string {
-	r := regexp.MustCompile(SubnetworkLinkRegex)
-	if !r.MatchString(subnetwork) {
-		return ""
-	}
-
-	return r.FindStringSubmatch(subnetwork)[1]
-}
-
 func hash256(raw string) (string, error) {
 	decoded, err := base64.StdEncoding.DecodeString(raw)
 	if err != nil {
@@ -1573,8 +1627,4 @@ func hash256(raw string) (string, error) {
 	}
 	h := sha256.Sum256(decoded)
 	return base64.StdEncoding.EncodeToString(h[:]), nil
-}
-
-func createAcceleratorPartialUrl(zone, accelerator string) string {
-	return fmt.Sprintf("zones/%s/acceleratorTypes/%s", zone, accelerator)
 }

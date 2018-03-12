@@ -75,6 +75,15 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is `6 minutes`
+- `update` - Default is `6 minutes`
+- `delete` - Default is `6 minutes`
+
 ## Import
 
 Subnetwork can be imported using the `region` and `name`, e.g.

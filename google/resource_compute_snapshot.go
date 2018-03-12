@@ -14,7 +14,6 @@ func resourceComputeSnapshot() *schema.Resource {
 		Create: resourceComputeSnapshotCreate,
 		Read:   resourceComputeSnapshotRead,
 		Delete: resourceComputeSnapshotDelete,
-		Exists: resourceComputeSnapshotExists,
 		Update: resourceComputeSnapshotUpdate,
 
 		Schema: map[string]*schema.Schema{
@@ -26,7 +25,8 @@ func resourceComputeSnapshot() *schema.Resource {
 
 			"zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -68,6 +68,7 @@ func resourceComputeSnapshot() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -116,8 +117,13 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		snapshot.SourceDiskEncryptionKey.RawKey = v.(string)
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	op, err := config.clientCompute.Disks.CreateSnapshot(
-		project, d.Get("zone").(string), source_disk, snapshot).Do()
+		project, zone, source_disk, snapshot).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating snapshot: %s", err)
 	}
@@ -154,6 +160,11 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+
 	snapshot, err := config.clientCompute.Snapshots.Get(
 		project, d.Id()).Do()
 	if err != nil {
@@ -174,6 +185,8 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 
 	d.Set("labels", snapshot.Labels)
 	d.Set("label_fingerprint", snapshot.LabelFingerprint)
+	d.Set("project", project)
+	d.Set("zone", zone)
 
 	return nil
 }
@@ -230,29 +243,6 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 
 	d.SetId("")
 	return nil
-}
-
-func resourceComputeSnapshotExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return false, err
-	}
-
-	_, err = config.clientCompute.Snapshots.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Removing Snapshot %q because it's gone", d.Get("name").(string))
-			// The resource doesn't exist anymore
-			d.SetId("")
-
-			return false, err
-		}
-		return true, err
-	}
-	return true, nil
 }
 
 func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string) error {

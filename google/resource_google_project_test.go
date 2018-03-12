@@ -16,16 +16,12 @@ import (
 )
 
 var (
-	org = multiEnvSearch([]string{
-		"GOOGLE_ORG",
-	})
-
 	pname          = "Terraform Acceptance Tests"
 	originalPolicy *cloudresourcemanager.Policy
 )
 
 // Test that a Project resource can be created without an organization
-func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
+func TestAccProject_createWithoutOrg(t *testing.T) {
 	t.Parallel()
 
 	creds := multiEnvSearch(credsEnvVars)
@@ -40,7 +36,7 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			resource.TestStep{
-				Config: testAccGoogleProject_createWithoutOrg(pid, pname),
+				Config: testAccProject_createWithoutOrg(pid, pname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -51,15 +47,10 @@ func TestAccGoogleProject_createWithoutOrg(t *testing.T) {
 
 // Test that a Project resource can be created and an IAM policy
 // associated
-func TestAccGoogleProject_create(t *testing.T) {
+func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-		}...,
-	)
-
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -67,7 +58,7 @@ func TestAccGoogleProject_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -78,17 +69,12 @@ func TestAccGoogleProject_create(t *testing.T) {
 
 // Test that a Project resource can be created with an associated
 // billing account
-func TestAccGoogleProject_createBilling(t *testing.T) {
+func TestAccProject_billing(t *testing.T) {
 	t.Parallel()
-
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	org := getTestOrgFromEnv(t)
+	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
+	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
+	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -96,78 +82,27 @@ func TestAccGoogleProject_createBilling(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_createBilling(pid, pname, org, billingId),
+				Config: testAccProject_createBilling(pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
 				),
 			},
-		},
-	})
-}
-
-// Test that a Project resource can be created with labels
-func TestAccGoogleProject_createLabels(t *testing.T) {
-	t.Parallel()
-
-	pid := "terraform-" + acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccGoogleProject_createLabels(pid, pname, org, "test", "that"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"test": "that"}),
-				),
-			},
-		},
-	})
-}
-
-// Test that a Project resource can be created and updated
-// with billing account information
-func TestAccGoogleProject_updateBilling(t *testing.T) {
-	t.Parallel()
-
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-			"GOOGLE_BILLING_ACCOUNT_2",
-		}...,
-	)
-
-	billingId := os.Getenv("GOOGLE_BILLING_ACCOUNT")
-	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
-	pid := "terraform-" + acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// This step creates a new project without a billing account
+			// Make sure import supports billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
-			},
-			// Update to include a billing account
-			resource.TestStep{
-				Config: testAccGoogleProject_createBilling(pid, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
-				),
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Update to a different  billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_createBilling(pid, pname, org, billingId2),
+				Config: testAccProject_createBilling(pid, pname, org, billingId2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId2),
 				),
 			},
 			// Unlink the billing account
 			resource.TestStep{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, ""),
 				),
@@ -176,71 +111,39 @@ func TestAccGoogleProject_updateBilling(t *testing.T) {
 	})
 }
 
-// Test that a Project resource merges the IAM policies that already
-// exist, and won't lock people out.
-func TestAccGoogleProject_merge(t *testing.T) {
+// Test that a Project resource can be created with labels
+func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			// when policy_data is set, merge
 			{
-				Config: testAccGoogleProject_toMerge(pid, pname, org),
+				Config: testAccProject_labels(pid, pname, org, map[string]string{"test": "that"}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					testAccCheckGoogleProjectHasMoreBindingsThan(pid, 1),
+					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
 			},
-			// when policy_data is unset, restore to what it was
+			// Make sure import supports labels
 			{
-				Config: testAccGoogleProject_mergeEmpty(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					testAccCheckGoogleProjectHasMoreBindingsThan(pid, 0),
-				),
-			},
-		},
-	})
-}
-
-// Test that a Project resource can be updated with labels
-func TestAccGoogleProject_updateLabels(t *testing.T) {
-	t.Parallel()
-
-	pid := "terraform-" + acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// create project without labels
-			{
-				Config: testAccGoogleProject_create(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// update project with labels
 			{
-				Config: testAccGoogleProject_updateLabels(pid, pname, org, map[string]string{"label": "label-value"}),
+				Config: testAccProject_labels(pid, pname, org, map[string]string{"label": "label-value"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"label": "label-value"}),
 				),
 			},
-			// update project with other labels
-			{
-				Config: testAccGoogleProject_updateLabels(pid, pname, org, map[string]string{"empty-label": ""}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					testAccCheckGoogleProjectHasLabels("google_project.acceptance", pid, map[string]string{"empty-label": ""}),
-				),
-			},
 			// update project delete labels
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasNoLabels("google_project.acceptance", pid),
@@ -290,19 +193,6 @@ func testAccCheckGoogleProjectHasBillingAccount(r, pid, billingId string) resour
 		}
 		if billingId != strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/") {
 			return fmt.Errorf("Billing ID returned by API (%s) did not match expected value (%s)", ba.BillingAccountName, billingId)
-		}
-		return nil
-	}
-}
-
-func testAccCheckGoogleProjectHasMoreBindingsThan(pid string, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		policy, err := getProjectIamPolicy(pid, testAccProvider.Meta().(*Config))
-		if err != nil {
-			return err
-		}
-		if len(policy.Bindings) <= count {
-			return fmt.Errorf("Expected more than %d bindings, got %d: %#v", count, len(policy.Bindings), policy.Bindings)
 		}
 		return nil
 	}
@@ -379,51 +269,7 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 	}
 }
 
-func testAccGoogleProject_toMerge(pid, name, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-}
-
-resource "google_project_iam_policy" "acceptance" {
-    project = "${google_project.acceptance.project_id}"
-    policy_data = "${data.google_iam_policy.acceptance.policy_data}"
-}
-
-data "google_iam_policy" "acceptance" {
-    binding {
-        role = "roles/storage.objectViewer"
-	members = [
-	  "user:evanbrown@google.com",
-	]
-    }
-}`, pid, name, org)
-}
-
-func testAccGoogleProject_mergeEmpty(pid, name, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-}`, pid, name, org)
-}
-
-func testAccGoogleProject_createLabels(pid, name, org, key, value string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-	labels {
-		"%s" = "%s"
-	}
-}`, pid, name, org, key, value)
-}
-
-func testAccGoogleProject_updateLabels(pid, name, org string, labels map[string]string) string {
+func testAccProject_labels(pid, name, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"

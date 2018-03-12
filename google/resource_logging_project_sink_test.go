@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
+	"strconv"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/logging/v2"
-	"strconv"
-	"testing"
 )
 
 func TestAccLoggingProjectSink_basic(t *testing.T) {
@@ -24,7 +25,7 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_basic(sinkName, bucketName),
+				Config: testAccLoggingProjectSink_basic(sinkName, getTestProjectFromEnv(), bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.basic", &sink),
 					testAccCheckLoggingProjectSink(&sink, "google_logging_project_sink.basic"),
@@ -165,10 +166,11 @@ func testAccCheckLoggingProjectSink(sink *logging.LogSink, n string) resource.Te
 	}
 }
 
-func testAccLoggingProjectSink_basic(name, bucketName string) string {
+func testAccLoggingProjectSink_basic(name, project, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "basic" {
 	name = "%s"
+	project = "%s"
 	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 	unique_writer_identity = false
@@ -176,7 +178,7 @@ resource "google_logging_project_sink" "basic" {
 
 resource "google_storage_bucket" "log-bucket" {
 	name     = "%s"
-}`, name, getTestProjectFromEnv(), bucketName)
+}`, name, project, project, bucketName)
 }
 
 func testAccLoggingProjectSink_uniqueWriter(name, bucketName string) string {

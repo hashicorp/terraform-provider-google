@@ -12,9 +12,10 @@ import (
 )
 
 // Test that an IAM binding can be applied to a project
-func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
+func TestAccProjectIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -22,14 +23,14 @@ func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingBasic(pid, pname, org),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -42,9 +43,10 @@ func TestAccGoogleProjectIamBinding_basic(t *testing.T) {
 }
 
 // Test that multiple IAM bindings can be applied to a project, one at a time
-func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
+func TestAccProjectIamBinding_multiple(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -52,14 +54,14 @@ func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingBasic(pid, pname, org),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -69,7 +71,7 @@ func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 			},
 			// Apply another IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingMultiple(pid, pname, org),
+				Config: testAccProjectAssociateBindingMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.multiple", &cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
@@ -86,9 +88,10 @@ func TestAccGoogleProjectIamBinding_multiple(t *testing.T) {
 }
 
 // Test that multiple IAM bindings can be applied to a project all at once
-func TestAccGoogleProjectIamBinding_multipleAtOnce(t *testing.T) {
+func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -96,14 +99,14 @@ func TestAccGoogleProjectIamBinding_multipleAtOnce(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingMultiple(pid, pname, org),
+				Config: testAccProjectAssociateBindingMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -120,9 +123,10 @@ func TestAccGoogleProjectIamBinding_multipleAtOnce(t *testing.T) {
 }
 
 // Test that an IAM binding can be updated once applied to a project
-func TestAccGoogleProjectIamBinding_update(t *testing.T) {
+func TestAccProjectIamBinding_update(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -130,14 +134,14 @@ func TestAccGoogleProjectIamBinding_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingBasic(pid, pname, org),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.acceptance", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -147,7 +151,7 @@ func TestAccGoogleProjectIamBinding_update(t *testing.T) {
 			},
 			// Apply an updated IAM binding
 			{
-				Config: testAccGoogleProjectAssociateBindingUpdated(pid, pname, org),
+				Config: testAccProjectAssociateBindingUpdated(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.updated", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -157,7 +161,7 @@ func TestAccGoogleProjectIamBinding_update(t *testing.T) {
 			},
 			// Drop the original member
 			{
-				Config: testAccGoogleProjectAssociateBindingDropMemberFromBasic(pid, pname, org),
+				Config: testAccProjectAssociateBindingDropMemberFromBasic(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.dropped", &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -170,9 +174,10 @@ func TestAccGoogleProjectIamBinding_update(t *testing.T) {
 }
 
 // Test that an IAM binding can be removed from a project
-func TestAccGoogleProjectIamBinding_remove(t *testing.T) {
+func TestAccProjectIamBinding_remove(t *testing.T) {
 	t.Parallel()
 
+	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -180,14 +185,14 @@ func TestAccGoogleProjectIamBinding_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 			// Apply multiple IAM bindings
 			{
-				Config: testAccGoogleProjectAssociateBindingMultiple(pid, pname, org),
+				Config: testAccProjectAssociateBindingMultiple(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamBindingExists("google_project_iam_binding.multiple", &cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
@@ -201,9 +206,9 @@ func TestAccGoogleProjectIamBinding_remove(t *testing.T) {
 			},
 			// Remove the bindings
 			{
-				Config: testAccGoogleProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccGoogleProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(pid),
 				),
 			},
 		},
@@ -242,7 +247,7 @@ func testAccCheckGoogleProjectIamBindingExists(key string, expected *cloudresour
 	}
 }
 
-func testAccGoogleProjectAssociateBindingBasic(pid, name, org string) string {
+func testAccProjectAssociateBindingBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -258,7 +263,7 @@ resource "google_project_iam_binding" "acceptance" {
 `, pid, name, org)
 }
 
-func testAccGoogleProjectAssociateBindingMultiple(pid, name, org string) string {
+func testAccProjectAssociateBindingMultiple(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -280,7 +285,7 @@ resource "google_project_iam_binding" "multiple" {
 `, pid, name, org)
 }
 
-func testAccGoogleProjectAssociateBindingUpdated(pid, name, org string) string {
+func testAccProjectAssociateBindingUpdated(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -296,7 +301,7 @@ resource "google_project_iam_binding" "acceptance" {
 `, pid, name, org)
 }
 
-func testAccGoogleProjectAssociateBindingDropMemberFromBasic(pid, name, org string) string {
+func testAccProjectAssociateBindingDropMemberFromBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"

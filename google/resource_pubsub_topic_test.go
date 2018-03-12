@@ -9,8 +9,10 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccPubsubTopicCreate(t *testing.T) {
+func TestAccPubsubTopic_basic(t *testing.T) {
 	t.Parallel()
+
+	topicName := acctest.RandomWithPrefix("tf-test-topic")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,11 +20,22 @@ func TestAccPubsubTopicCreate(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubTopicDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccPubsubTopic,
-				Check: resource.ComposeTestCheckFunc(
-					testAccPubsubTopicExists(
-						"google_pubsub_topic.foobar"),
-				),
+				Config: testAccPubsubTopic_basic(topicName),
+			},
+			// Check importing with just the topic name
+			resource.TestStep{
+				ResourceName:            "google_pubsub_topic.foo",
+				ImportStateId:           topicName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			// Check importing with the full resource id
+			resource.TestStep{
+				ResourceName:            "google_pubsub_topic.foo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -44,27 +57,9 @@ func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccPubsubTopicExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-		_, err := config.clientPubsub.Projects.Topics.Get(rs.Primary.ID).Do()
-		if err != nil {
-			return fmt.Errorf("Topic does not exist")
-		}
-
-		return nil
-	}
+func testAccPubsubTopic_basic(name string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+	name = "%s"
+}`, name)
 }
-
-var testAccPubsubTopic = fmt.Sprintf(`
-resource "google_pubsub_topic" "foobar" {
-	name = "pstopic-test-%s"
-}`, acctest.RandString(10))

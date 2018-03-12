@@ -17,7 +17,7 @@ and
 ## Example Usage
 
 ```hcl
-resource "google_compute_backend_bucket" "foobar" {
+resource "google_compute_backend_bucket" "image_backend" {
   name        = "image-backend-bucket"
   description = "Contains beautiful images"
   bucket_name = "${google_storage_bucket.image_bucket.name}"
@@ -52,4 +52,23 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `creation_timestamp` -  Creation timestamp in RFC3339 text format.
+
 * `self_link` - The URI of the created resource.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
+## Import
+
+Backend buckets can be imported using the `name`, e.g.
+
+```
+$ terraform import google_compute_backend_bucket.image_backend image-backend-bucket
+```

@@ -45,6 +45,7 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -125,6 +126,7 @@ func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{
 	d.Set("target", scaler.Target)
 	d.Set("region", GetResourceNameFromSelfLink(scaler.Region))
 	d.Set("description", scaler.Description)
+	d.Set("project", project)
 	if scaler.AutoscalingPolicy != nil {
 		d.Set("autoscaling_policy", flattenAutoscalingPolicy(scaler.AutoscalingPolicy))
 	}

@@ -14,13 +14,13 @@ and
 [API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
 
 ## Example usage
-
+### Standard usage
 ```hcl
 resource "google_container_node_pool" "np" {
-  name               = "my-node-pool"
-  zone               = "us-central1-a"
-  cluster            = "${google_container_cluster.primary.name}"
-  initial_node_count = 3
+  name       = "my-node-pool"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 3
 }
 
 resource "google_container_cluster" "primary" {
@@ -45,15 +45,55 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+
+    guest_accelerator {
+      type  = "nvidia-tesla-k80"
+      count = 1
+    }
   }
 }
-```
 
+```
+### Usage with an empty default pool.
+```hcl
+resource "google_container_node_pool" "np" {
+  name       = "my-node-pool"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-1"
+
+    oauth_scopes = [
+      "compute-rw",
+      "storage-ro",
+      "logging-write",
+      "monitoring",
+    ]
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name = "marcellus-wallace"
+  zone = "us-central1-a"
+
+  lifecycle {
+    ignore_changes = ["node_pool"]
+  }
+
+  node_pool {
+    name = "default-pool"
+  }
+}
+
+```
 ## Argument Reference
 
 * `zone` - (Required) The zone in which the cluster resides.
 
-* `cluster` - (Required) The cluster to create the node pool for.
+* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for this resource.
 
 - - -
 
@@ -63,6 +103,9 @@ resource "google_container_cluster" "primary" {
 * `initial_node_count` - (Deprecated, Optional) The initial node count for the pool.
     Use `node_count` instead.
 
+* `management` - (Optional) Node management configuration, wherein auto-repair and
+    auto-upgrade is configured. Structure is documented below.
+
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
@@ -70,7 +113,7 @@ resource "google_container_cluster" "primary" {
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) The node configuration of the pool. See
-    [google_container_cluster](container_cluster.html for schema.
+    [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group.
 
@@ -83,6 +126,12 @@ The `autoscaling` block supports:
     <= `max_node_count`.
 
 * `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
+
+The `management` block supports:
+
+* `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
+
+* `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
 
 ## Import
 

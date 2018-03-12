@@ -9,7 +9,7 @@ import (
 )
 
 // Test importing a first generation database
-func TestAccGoogleSqlDatabaseInstance_importBasic(t *testing.T) {
+func TestAccSqlDatabaseInstance_importBasic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_sql_database_instance.instance"
@@ -18,7 +18,7 @@ func TestAccGoogleSqlDatabaseInstance_importBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
@@ -35,7 +35,7 @@ func TestAccGoogleSqlDatabaseInstance_importBasic(t *testing.T) {
 }
 
 // Test importing a second generation database
-func TestAccGoogleSqlDatabaseInstance_importBasic3(t *testing.T) {
+func TestAccSqlDatabaseInstance_importBasic3(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_sql_database_instance.instance"
@@ -44,7 +44,7 @@ func TestAccGoogleSqlDatabaseInstance_importBasic3(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccGoogleSqlDatabaseInstanceDestroy,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(

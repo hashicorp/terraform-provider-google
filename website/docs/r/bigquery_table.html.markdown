@@ -73,6 +73,9 @@ The following arguments are supported:
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is documented below.
 
+* `view` - (Optional) If specified, configures this table as a view.
+    Structure is documented below.
+
 The `time_partitioning` block supports:
 
 * `expiration_ms` -  (Optional) Number of milliseconds for which to keep the
@@ -80,6 +83,13 @@ The `time_partitioning` block supports:
 
 * `type` - (Required) The only type supported is DAY, which will generate
     one partition per day based on data loading time.
+
+The `view` block supports:
+
+* `query` - (Required) A query that BigQuery executes when the view is referenced.
+
+* `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
+    The default value is true. If set to false, the view will use BigQuery's standard SQL.
 
 ## Attributes Reference
 

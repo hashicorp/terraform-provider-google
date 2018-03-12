@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleComputeNetwork() *schema.Resource {
@@ -53,16 +52,10 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	network, err := config.clientCompute.Networks.Get(
-		project, d.Get("name").(string)).Do()
+	name := d.Get("name").(string)
+	network, err := config.clientCompute.Networks.Get(project, name).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			// The resource doesn't exist anymore
-
-			return fmt.Errorf("Network Not Found : %s", d.Get("name"))
-		}
-
-		return fmt.Errorf("Error reading network: %s", err)
+		return handleNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name))
 	}
 	d.Set("gateway_ipv4", network.GatewayIPv4)
 	d.Set("self_link", network.SelfLink)

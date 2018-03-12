@@ -3,26 +3,44 @@ layout: "google"
 page_title: "Google: google_compute_shared_vpc_service_project"
 sidebar_current: "docs-google-compute-shared-vpc-service-project"
 description: |-
- Allows enabling and disabling Shared VPC for a service Google Cloud Platform project.
+ Enables the Google Compute Engine Shared VPC feature for a project, assigning it as a service project.
 ---
 
-# google\_compute\_shared\_vpc\_service\_project
+# google_compute_shared_vpc_service_project
 
-Allows enabling and disabling Shared VPC for a service Google Cloud Platform project. For more information see
-[the official documentation](https://cloud.google.com/compute/docs/shared-vpc)
-and
-[API](https://cloud.google.com/compute/docs/reference/latest/projects).
+Enables the Google Compute Engine
+[Shared VPC](https://cloud.google.com/compute/docs/shared-vpc)
+feature for a project, assigning it as a Shared VPC service project associated
+with a given host project.
+
+For more information, see,
+[the Project API documentation](https://cloud.google.com/compute/docs/reference/latest/projects),
+where the Shared VPC feature is referred to by its former name "XPN".
 
 ## Example Usage
 
 ```hcl
-resource "google_compute_shared_vpc_host_project" "host" {
-  project     = "your-project-id"
+resource "google_compute_shared_vpc_service_project" "service1" {
+  host_project    = "host-project-id"
+  service_project = "service-project-id-1"
 }
 ```
 
+For a complete Shared VPC example with both host and service projects, see
+[`google_compute_shared_vpc_host_project`](/docs/providers/google/r/compute_shared_vpc_host_project.html).
+
 ## Argument Reference
 
-The following arguments are supported:
+The following arguments are expected:
 
-* `project` - (Required) The host project ID.
+* `host_project` - (Required) The ID of a host project to associate.
+
+* `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
+
+## Import
+
+Google Compute Engine Shared VPC service project feature can be imported using the `host_project` and `service_project`, e.g.
+
+```
+$ terraform import google_compute_shared_vpc_service_project.service1 host-project-id/service-project-id-1
+```

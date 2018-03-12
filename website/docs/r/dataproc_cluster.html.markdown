@@ -33,47 +33,49 @@ resource "google_dataproc_cluster" "mycluster" {
 
     cluster_config {
         delete_autogen_bucket = true
+        staging_bucket        = "dataproc-staging-bucket"
 
-    	master_config {
-	        num_instances     = 1
-	        machine_type      = "n1-standard-1"
+        master_config {
+            num_instances     = 1
+            machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_size_gb = 10
             }
         }
 
-    worker_config {
-        num_instances     = 2
-        machine_type      = "n1-standard-1"
-        disk_config {
-            boot_disk_size_gb = 10
-            num_local_ssds    = 1
+        worker_config {
+            num_instances     = 2
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+                num_local_ssds    = 1
+            }
         }
-    }
 
-    preemptible_worker_config {
-        num_instances     = 0
-    }
-
-    # Override or set some custom properties
-    software_config {
-        image_version       = "preview"
-        override_properties = {
-            "dataproc:dataproc.allow.zero.workers" = "true"
+        preemptible_worker_config {
+            num_instances     = 0
         }
-    }
 
-    gce_cluster_config {
-        #network = "${google_compute_network.dataproc_network.name}"
-        tags    = ["foo", "bar"]
-    }
+        # Override or set some custom properties
+        software_config {
+            image_version       = "preview"
+            override_properties = {
+                "dataproc:dataproc.allow.zero.workers" = "true"
+            }
+        }
 
-    # You can define multiple initialization_action blocks
-    initialization_action {
-        script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
-        timeout_sec = 500
-    }
+        gce_cluster_config {
+            #network = "${google_compute_network.dataproc_network.name}"
+            tags    = ["foo", "bar"]
+        }
 
+        # You can define multiple initialization_action blocks
+        initialization_action {
+            script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+            timeout_sec = 500
+        }
+
+    }
 }
 ```
 
@@ -184,7 +186,7 @@ The **cluster_config.gce_cluster_config** block supports:
 * `service_account` - (Optional) The service account to be used by the Node VMs.
 	If not specified, the "default" service account is used.
 
-* `service_scopes` - (Optional, Computed) The set of Google API scopes to be made available
+* `service_account_scopes` - (Optional, Computed) The set of Google API scopes to be made available
 	on all of the node VMs under the `service_account` specified. These can be
 	either FQDNs, or scope aliases. The following scopes are necessary to ensure
 	the correct functioning of the cluster:
@@ -196,6 +198,11 @@ The **cluster_config.gce_cluster_config** block supports:
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.
 
+* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses, 
+   and will have ephemeral external IP addresses assigned to each instance. If set to true, all 
+   instances in the cluster will only have internal IP addresses. Note: Private Google Access 
+   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster 
+   will be launched in.
 - - -
 
 The **cluster_config.master_config** block supports:

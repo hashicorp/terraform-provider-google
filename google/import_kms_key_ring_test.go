@@ -1,27 +1,19 @@
 package google
 
 import (
+	"fmt"
 	"testing"
 
-	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"os"
 )
 
-func TestAccGoogleKmsKeyRing_importBasic(t *testing.T) {
-	skipIfEnvNotSet(t,
-		[]string{
-			"GOOGLE_ORG",
-			"GOOGLE_BILLING_ACCOUNT",
-		}...,
-	)
-
+func TestAccKmsKeyRing_importBasic(t *testing.T) {
 	resourceName := "google_kms_key_ring.key_ring"
 
 	projectId := "terraform-" + acctest.RandString(10)
-	projectOrg := os.Getenv("GOOGLE_ORG")
-	projectBillingAccount := os.Getenv("GOOGLE_BILLING_ACCOUNT")
+	projectOrg := getTestOrgFromEnv(t)
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{

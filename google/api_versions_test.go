@@ -1,16 +1,25 @@
 package google
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 type ExpectedApiVersions struct {
-	Create     ComputeApiVersion
-	ReadDelete ComputeApiVersion
-	Update     ComputeApiVersion
+	Create     ApiVersion
+	ReadDelete ApiVersion
+	Update     ApiVersion
 }
 
-func TestComputeApiVersion(t *testing.T) {
+func TestApiVersion(t *testing.T) {
 	baseVersion := v1
 	betaVersion := v0beta
+	maxTestApiVersion := func(versionsInUse map[ApiVersion]struct{}) ApiVersion {
+		if _, ok := versionsInUse[betaVersion]; ok {
+			return betaVersion
+		}
+		return baseVersion
+	}
 
 	cases := map[string]struct {
 		Features         []Feature
@@ -173,7 +182,7 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsWithHasChange: keys,
 		}
 
-		apiVersion := getComputeApiVersion(d, v1, tc.Features)
+		apiVersion := getApiVersion(d, v1, tc.Features, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.Create {
 			t.Errorf("bad: %s, Expected to see version %v for create, got version %v", tn, tc.ExpectedApiVersions.Create, apiVersion)
 		}
@@ -184,7 +193,7 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsInSchema: tc.FieldsInSchema,
 		}
 
-		apiVersion = getComputeApiVersion(d, v1, tc.Features)
+		apiVersion = getApiVersion(d, v1, tc.Features, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.ReadDelete {
 			t.Errorf("bad: %s, Expected to see version %v for read/delete, got version %v", tn, tc.ExpectedApiVersions.ReadDelete, apiVersion)
 		}
@@ -196,16 +205,90 @@ func TestComputeApiVersion(t *testing.T) {
 			FieldsWithHasChange: tc.UpdatedFields,
 		}
 
-		apiVersion = getComputeApiVersionUpdate(d, v1, tc.Features, tc.UpdateOnlyFields)
+		apiVersion = getApiVersionUpdate(d, v1, tc.Features, tc.UpdateOnlyFields, maxTestApiVersion)
 		if apiVersion != tc.ExpectedApiVersions.Update {
 			t.Errorf("bad: %s, Expected to see version %v for update, got version %v", tn, tc.ExpectedApiVersions.Update, apiVersion)
 		}
 	}
 }
 
+func TestSetOmittedFields(t *testing.T) {
+	type Inner struct {
+		InnerNotOmitted string   `json:"notOmitted"`
+		InnerOmitted    []string `json:"-"`
+	}
+	type InputOuter struct {
+		NotOmitted      string   `json:"notOmitted"`
+		Omitted         []string `json:"-"`
+		Struct          Inner
+		Pointer         *Inner
+		StructSlice     []Inner
+		PointerSlice    []*Inner
+		Unset           *Inner
+		OnlyInInputType *Inner
+	}
+	type OutputOuter struct {
+		NotOmitted       string   `json:"notOmitted"`
+		Omitted          []string `json:"-"`
+		Struct           Inner
+		Pointer          *Inner
+		StructSlice      []Inner
+		PointerSlice     []*Inner
+		Unset            *Inner
+		OnlyInOutputType *Inner
+	}
+
+	input := &InputOuter{
+		NotOmitted: "foo",
+		Omitted:    []string{"foo"},
+		Struct: Inner{
+			InnerNotOmitted: "foo",
+			InnerOmitted:    []string{"foo"},
+		},
+		Pointer: &Inner{
+			InnerNotOmitted: "foo",
+			InnerOmitted:    []string{"foo"},
+		},
+		StructSlice: []Inner{
+			{
+				InnerNotOmitted: "foo",
+				InnerOmitted:    []string{"foo"},
+			}, {
+				InnerNotOmitted: "bar",
+				InnerOmitted:    []string{"bar"},
+			},
+		},
+		PointerSlice: []*Inner{
+			{
+				InnerNotOmitted: "foo",
+				InnerOmitted:    []string{"foo"},
+			}, {
+				InnerNotOmitted: "bar",
+				InnerOmitted:    []string{"bar"},
+			},
+		},
+		OnlyInInputType: &Inner{
+			InnerNotOmitted: "foo",
+			InnerOmitted:    []string{"foo"},
+		},
+	}
+	output := &OutputOuter{}
+	Convert(input, output)
+	if input.NotOmitted != output.NotOmitted ||
+		!reflect.DeepEqual(input.Omitted, output.Omitted) ||
+		!reflect.DeepEqual(input.Struct, output.Struct) ||
+		!reflect.DeepEqual(input.Pointer, output.Pointer) ||
+		!reflect.DeepEqual(input.StructSlice, output.StructSlice) ||
+		!reflect.DeepEqual(input.PointerSlice, output.PointerSlice) ||
+		!(input.Unset == nil && output.Unset == nil) {
+		t.Errorf("Structs were not equivalent after conversion:\nInput:%#v\nOutput: %#v", input, output)
+	}
+}
+
 type ResourceDataMock struct {
 	FieldsInSchema      map[string]interface{}
 	FieldsWithHasChange []string
+	id                  string
 }
 
 func (d *ResourceDataMock) HasChange(key string) bool {
@@ -227,4 +310,17 @@ func (d *ResourceDataMock) GetOk(key string) (interface{}, bool) {
 	}
 
 	return nil, false
+}
+
+func (d *ResourceDataMock) Set(key string, value interface{}) error {
+	d.FieldsInSchema[key] = value
+	return nil
+}
+
+func (d *ResourceDataMock) SetId(v string) {
+	d.id = v
+}
+
+func (d *ResourceDataMock) Id() string {
+	return d.id
 }

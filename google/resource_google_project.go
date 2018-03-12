@@ -289,7 +289,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		// Do Update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating project %q: %s", p.Name, err)
+			return fmt.Errorf("Error updating project %q: %s", project_name, err)
 		}
 	}
 	d.Partial(false)

@@ -5,7 +5,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -27,18 +26,26 @@ func getRegionFromZone(zone string) string {
 	return ""
 }
 
-// getRegion reads the "region" field from the given resource data and falls
-// back to the provider's value if not given. If the provider's value is not
-// given, an error is returned.
-func getRegion(d *schema.ResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("region")
+// Infers the region based on the following (in order of priority):
+// - `region` field in resource schema
+// - region extracted from the `zone` field in resource schema
+// - provider-level region
+// - region extracted from the provider-level zone
+func getRegion(d TerraformResourceData, config *Config) (string, error) {
+	return getRegionFromSchema("region", "zone", d, config)
+}
+
+// getZone reads the "zone" value from the given resource data and falls back
+// to provider's value if not given.  If neither is provided, returns an error.
+func getZone(d TerraformResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("zone")
 	if !ok {
-		if config.Region != "" {
-			return config.Region, nil
+		if config.Zone != "" {
+			return config.Zone, nil
 		}
-		return "", fmt.Errorf("region: required field is not set")
+		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
 	}
-	return res.(string), nil
+	return GetResourceNameFromSelfLink(res.(string)), nil
 }
 
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
@@ -58,7 +65,7 @@ func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (st
 // getProject reads the "project" field from the given resource data and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
-func getProject(d *schema.ResourceData, config *Config) (string, error) {
+func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
 }
 
@@ -124,97 +131,16 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-// getNetworkLink reads the "network" field from the given resource data and if the value:
-// - is a resource URL, returns the string unchanged
-// - is the network name only, then looks up the resource URL using the google client
-func getNetworkLink(d *schema.ResourceData, config *Config, field string) (string, error) {
-	if v, ok := d.GetOk(field); ok {
-		network := v.(string)
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return "", err
-		}
-
-		if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-			// Network value provided is just the name, lookup the network SelfLink
-			networkData, err := config.clientCompute.Networks.Get(
-				project, network).Do()
-			if err != nil {
-				return "", fmt.Errorf("Error reading network: %s", err)
-			}
-			network = networkData.SelfLink
-		}
-
-		return network, nil
-
-	} else {
-		return "", nil
-	}
-}
-
-// Reads the "subnetwork" fields from the given resource data and if the value is:
-// - a resource URL, returns the string unchanged
-// - a subnetwork name, looks up the resource URL using the google client.
-//
-// If `subnetworkField` is a resource url, `subnetworkProjectField` cannot be set.
-// If `subnetworkField` is a subnetwork name, `subnetworkProjectField` will be used
-// 	as the project if set. If not, we fallback on the default project.
-func getSubnetworkLink(d *schema.ResourceData, config *Config, subnetworkField, subnetworkProjectField, zoneField string) (string, error) {
-	if v, ok := d.GetOk(subnetworkField); ok {
-		subnetwork := v.(string)
-		r := regexp.MustCompile(SubnetworkLinkRegex)
-		if r.MatchString(subnetwork) {
-			return subnetwork, nil
-		}
-
-		var project string
-		if subnetworkProject, ok := d.GetOk(subnetworkProjectField); ok {
-			project = subnetworkProject.(string)
-		} else {
-			var err error
-			project, err = getProject(d, config)
-			if err != nil {
-				return "", err
-			}
-		}
-
-		region := getRegionFromZone(d.Get(zoneField).(string))
-
-		subnet, err := config.clientCompute.Subnetworks.Get(project, region, subnetwork).Do()
-		if err != nil {
-			return "", fmt.Errorf(
-				"Error referencing subnetwork '%s' in region '%s': %s",
-				subnetwork, region, err)
-		}
-
-		return subnet.SelfLink, nil
-	}
-	return "", nil
-}
-
-// getNetworkName reads the "network" field from the given resource data and if the value:
-// - is a resource URL, extracts the network name from the URL and returns it
-// - is the network name only (i.e not prefixed with http://www.googleapis.com/compute/...), is returned unchanged
-func getNetworkName(d *schema.ResourceData, field string) (string, error) {
-	if v, ok := d.GetOk(field); ok {
-		network := v.(string)
-		return getNetworkNameFromSelfLink(network)
-	}
-	return "", nil
-}
-
 func getNetworkNameFromSelfLink(network string) (string, error) {
-	if strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		// extract the network name from SelfLink URL
-		networkName := network[strings.LastIndex(network, "/")+1:]
-		if networkName == "" {
-			return "", fmt.Errorf("network url not valid")
-		}
-		return networkName, nil
+	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
+		return network, nil
 	}
-
-	return network, nil
+	// extract the network name from SelfLink URL
+	networkName := network[strings.LastIndex(network, "/")+1:]
+	if networkName == "" {
+		return "", fmt.Errorf("network url not valid")
+	}
+	return networkName, nil
 }
 
 func getRouterLockName(region string, router string) string {
@@ -246,8 +172,7 @@ func isConflictError(err error) bool {
 }
 
 func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	parts := strings.Split(old, "/")
-	if parts[len(parts)-1] == new {
+	if GetResourceNameFromSelfLink(old) == new {
 		return true
 	}
 	return false
@@ -256,6 +181,12 @@ func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return prefix+old == new || prefix+new == old
+	}
+}
+
+func emptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
 	}
 }
 
@@ -288,6 +219,15 @@ func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // `new` can be either a single port or a port range.
 func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if old == new+"-"+new {
+		return true
+	}
+	return false
+}
+
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
+// Assume either value could be in either format.
+func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
 		return true
 	}
 	return false
@@ -332,11 +272,6 @@ func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []str
 	return arr
 }
 
-func extractLastResourceFromUri(uri string) string {
-	rUris := strings.Split(uri, "/")
-	return rUris[len(rUris)-1]
-}
-
 func convertStringArrToInterface(strs []string) []interface{} {
 	arr := make([]interface{}, len(strs))
 	for i, str := range strs {
@@ -351,14 +286,6 @@ func convertStringSet(set *schema.Set) []string {
 		s = append(s, v.(string))
 	}
 	return s
-}
-
-func convertArrToMap(ifaceArr []interface{}) map[string]struct{} {
-	sm := make(map[string]struct{})
-	for _, s := range ifaceArr {
-		sm[s.(string)] = struct{}{}
-	}
-	return sm
 }
 
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
@@ -376,7 +303,11 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 }
 
 func retry(retryFunc func() error) error {
-	return resource.Retry(1*time.Minute, func() *resource.RetryError {
+	return retryTime(retryFunc, 1)
+}
+
+func retryTime(retryFunc func() error, minutes int) error {
+	return resource.Retry(time.Duration(minutes)*time.Minute, func() *resource.RetryError {
 		err := retryFunc()
 		if err == nil {
 			return nil
@@ -386,4 +317,19 @@ func retry(retryFunc func() error) error {
 		}
 		return resource.NonRetryableError(err)
 	})
+}
+
+func extractFirstMapConfig(m []interface{}) map[string]interface{} {
+	if len(m) == 0 {
+		return map[string]interface{}{}
+	}
+
+	return m[0].(map[string]interface{})
+}
+
+func lockedCall(lockKey string, f func() error) error {
+	mutexKV.Lock(lockKey)
+	defer mutexKV.Unlock(lockKey)
+
+	return f()
 }

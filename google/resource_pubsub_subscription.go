@@ -43,6 +43,7 @@ func resourcePubsubSubscription() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -82,7 +83,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	name := fmt.Sprintf("projects/%s/subscriptions/%s", project, d.Get("name").(string))
+	name := getComputedSubscriptionName(project, d.Get("name").(string))
 	computed_topic_name := getComputedTopicName(project, d.Get("topic").(string))
 
 	//  process optional parameters
@@ -109,19 +110,29 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	return resourcePubsubSubscriptionRead(d, meta)
 }
 
-func getComputedTopicName(project string, topic string) string {
-	computed_topic_name := ""
+func getComputedTopicName(project, topic string) string {
 	match, _ := regexp.MatchString("projects\\/.*\\/topics\\/.*", topic)
 	if match {
-		computed_topic_name = topic
-	} else {
-		computed_topic_name = fmt.Sprintf("projects/%s/topics/%s", project, topic)
+		return topic
 	}
-	return computed_topic_name
+	return fmt.Sprintf("projects/%s/topics/%s", project, topic)
+}
+
+func getComputedSubscriptionName(project, subscription string) string {
+	match, _ := regexp.MatchString("projects\\/.*\\/subscriptions\\/.*", subscription)
+	if match {
+		return subscription
+	}
+	return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription)
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	name := d.Id()
 	subscription, err := config.clientPubsub.Projects.Subscriptions.Get(name).Do()
@@ -134,6 +145,7 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("ack_deadline_seconds", subscription.AckDeadlineSeconds)
 	d.Set("path", subscription.Name)
 	d.Set("push_config", flattenPubsubSubscriptionPushConfig(subscription.PushConfig))
+	d.Set("project", project)
 
 	return nil
 }
@@ -149,7 +161,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		}).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating subscription '%s': %s", d.Get("name"), err)
+			return fmt.Errorf("Error updating subscription %q: %s", d.Get("name"), err)
 		}
 	}
 

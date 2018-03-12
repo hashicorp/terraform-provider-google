@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_pubsub_subscription"
-sidebar_current: "docs-google-pubsub-subscription"
+sidebar_current: "docs-google-pubsub-subscription-x"
 description: |-
   Creates a subscription in Google's pubsub  queueing system
 ---
@@ -27,7 +27,7 @@ resource "google_pubsub_subscription" "default" {
   ack_deadline_seconds = 20
 
   push_config {
-    endpoint = "https://example.com/push"
+    push_endpoint = "https://example.com/push"
 
     attributes {
       x-goog-version = "v1"

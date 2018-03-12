@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/terraform"
@@ -56,7 +56,14 @@ func resourceComputeInstanceMigrateState(
 		if err != nil {
 			return is, err
 		}
-		// when adding case 5, make sure to turn this into a fallthrough
+		fallthrough
+	case 5:
+		log.Println("[INFO] Found Compute Instance State v5; migrating to v6")
+		is, err = migrateStateV5toV6(is)
+		if err != nil {
+			return is, err
+		}
+		// when adding case 6, make sure to turn this into a fallthrough
 		return is, err
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
@@ -228,8 +235,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 
 			for _, disk := range instance.Disks {
 				if disk.Boot {
-					sourceUrl := strings.Split(disk.Source, "/")
-					is.Attributes["boot_disk.0.source"] = sourceUrl[len(sourceUrl)-1]
+					is.Attributes["boot_disk.0.source"] = GetResourceNameFromSelfLink(disk.Source)
 					is.Attributes["boot_disk.0.device_name"] = disk.DeviceName
 					break
 				}
@@ -238,7 +244,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 			is.Attributes["boot_disk.0.disk_encryption_key_raw"] = is.Attributes["disk.0.disk_encryption_key_raw"]
 			is.Attributes["boot_disk.0.disk_encryption_key_sha256"] = is.Attributes["disk.0.disk_encryption_key_sha256"]
 
-			if is.Attributes["disk.0.size"] != "" {
+			if is.Attributes["disk.0.size"] != "" && is.Attributes["disk.0.size"] != "0" {
 				is.Attributes["boot_disk.0.initialize_params.#"] = "1"
 				is.Attributes["boot_disk.0.initialize_params.0.size"] = is.Attributes["disk.0.size"]
 			}
@@ -446,8 +452,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			sourceUrl := strings.Split(disk.Source, "/")
-			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
+			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
 			sourceImage, err := getRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err
@@ -472,8 +477,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			sourceUrl := strings.Split(disk.Source, "/")
-			fullDisk := allDisks[sourceUrl[len(sourceUrl)-1]]
+			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
 			sourceImage, err := getRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err
@@ -488,4 +492,21 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 	}
 
 	return nil, fmt.Errorf("could not find attached disk with image %q", image)
+}
+
+func migrateStateV5toV6(is *terraform.InstanceState) (*terraform.InstanceState, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
+	if is.Attributes["boot_disk.0.initialize_params.#"] == "1" {
+		if (is.Attributes["boot_disk.0.initialize_params.0.size"] == "0" ||
+			is.Attributes["boot_disk.0.initialize_params.0.size"] == "") &&
+			is.Attributes["boot_disk.0.initialize_params.0.type"] == "" &&
+			is.Attributes["boot_disk.0.initialize_params.0.image"] == "" {
+			is.Attributes["boot_disk.0.initialize_params.#"] = "0"
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.size")
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.type")
+			delete(is.Attributes, "boot_disk.0.initialize_params.0.image")
+		}
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", is.Attributes)
+	return is, nil
 }

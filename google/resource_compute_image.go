@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -17,7 +18,13 @@ func resourceComputeImage() *schema.Resource {
 		Update: resourceComputeImageUpdate,
 		Delete: resourceComputeImageDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceComputeImageImportState,
+			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(computeImageCreateTimeoutDefault * time.Minute),
+			Update: schema.DefaultTimeout(computeImageCreateTimeoutDefault * time.Minute),
+			Delete: schema.DefaultTimeout(computeImageCreateTimeoutDefault * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -44,6 +51,7 @@ func resourceComputeImage() *schema.Resource {
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -86,9 +94,9 @@ func resourceComputeImage() *schema.Resource {
 			},
 
 			"create_timeout": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  computeImageCreateTimeoutDefault,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "Use timeouts block instead. See https://www.terraform.io/docs/configuration/resources.html#timeouts.",
 			},
 
 			"labels": &schema.Schema{
@@ -154,6 +162,8 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	var createTimeout int
 	if v, ok := d.GetOk("create_timeout"); ok {
 		createTimeout = v.(int)
+	} else {
+		createTimeout = int(d.Timeout(schema.TimeoutCreate).Minutes())
 	}
 
 	// Insert the image
@@ -204,6 +214,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("self_link", image.SelfLink)
 	d.Set("labels", image.Labels)
 	d.Set("label_fingerprint", image.LabelFingerprint)
+	d.Set("project", project)
 
 	return nil
 }
@@ -235,7 +246,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 
 		d.SetPartial("labels")
 
-		err = computeOperationWaitTime(config.clientCompute, op, project, "Setting labels", 4)
+		err = computeOperationWaitTime(config.clientCompute, op, project, "Setting labels", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -268,21 +279,11 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error deleting image: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting image")
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting image", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}
 
 	d.SetId("")
 	return nil
-}
-
-func resourceComputeImageImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	// `create_timeout` field is specific to this Terraform resource implementation. Thus, this value cannot be
-	// imported from the Google Cloud REST API.
-	// Setting to default value otherwise Terraform requires a ForceNew to change the resource to match the
-	// default `create_timeout`.
-	d.Set("create_timeout", computeImageCreateTimeoutDefault)
-
-	return []*schema.ResourceData{d}, nil
 }
