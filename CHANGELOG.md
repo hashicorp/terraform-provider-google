@@ -1,36 +1,36 @@
-## 1.7.0 (Unreleased)
+## 1.7.0 (March 12, 2018)
 
 Features:
-* **New Data Source** `google_compute_forwarding_rule` [GH-1078]
-* **New Data Source** `google_compute_vpn_gateway` [GH-1071]
-* **New Data Source** `google_project` [GH-1111]
-* **New Data Source** `google_compute_backend_service` [GH-1150]
-* **New Data Source** `google_storage_project_service_account` [GH-1110]
-* **New Data Source** `google_compute_default_service_account` [GH-1119]
-* **New Resource** `google_folder_iam_binding` [GH-1076]
-* **New Resource** `google_folder_iam_member` [GH-1076]
-* **New Resource** `google_project_usage_export_bucket` [GH-1080]
+* **New Data Source** `google_compute_forwarding_rule` ([#1078](https://github.com/terraform-providers/terraform-provider-google/issues/1078))
+* **New Data Source** `google_compute_vpn_gateway` ([#1071](https://github.com/terraform-providers/terraform-provider-google/issues/1071))
+* **New Data Source** `google_project` ([#1111](https://github.com/terraform-providers/terraform-provider-google/issues/1111))
+* **New Data Source** `google_compute_backend_service` ([#1150](https://github.com/terraform-providers/terraform-provider-google/issues/1150))
+* **New Data Source** `google_storage_project_service_account` ([#1110](https://github.com/terraform-providers/terraform-provider-google/issues/1110))
+* **New Data Source** `google_compute_default_service_account` ([#1119](https://github.com/terraform-providers/terraform-provider-google/issues/1119))
+* **New Resource** `google_folder_iam_binding` ([#1076](https://github.com/terraform-providers/terraform-provider-google/issues/1076))
+* **New Resource** `google_folder_iam_member` ([#1076](https://github.com/terraform-providers/terraform-provider-google/issues/1076))
+* **New Resource** `google_project_usage_export_bucket` ([#1080](https://github.com/terraform-providers/terraform-provider-google/issues/1080))
 
 IMPROVEMENTS:
-* compute: add support for updating alias ips in instances [GH-1084]
-* compute: allow setting a route resource's `description` attribute [GH-1088]
-* compute: allow lowercase ip protocols in forwarding rules [GH-1118]
-* compute: `google_compute_zones` datasource accepts a `project` parameter [GH-1122]
-* compute: Support `distributionPolicy` when creating regional instance group managers. [GH-1092]
-* compute: Timeout customization for `google_compute_backend_bucket`, `google_compute_http_health_check`, and `google_compute_https_health_check` [GH-1177]
-* container: Fail if the ip_allocation_policy doesn't specify secondary range names [GH-1065]
-* container: Allow specifying accelerators in cluster node_config. [GH-1115]
-* pubsub: Add project field to iam pubsub topic resources [GH-1154]
-* sql: Support multiple users with the same name for different host for 1st gen SQL instances. [GH-1066]
-* sql: Add SQL DB Instance attribute `first_ip_address` [GH-1050]
+* compute: add support for updating alias ips in instances ([#1084](https://github.com/terraform-providers/terraform-provider-google/issues/1084))
+* compute: allow setting a route resource's `description` attribute ([#1088](https://github.com/terraform-providers/terraform-provider-google/issues/1088))
+* compute: allow lowercase ip protocols in forwarding rules ([#1118](https://github.com/terraform-providers/terraform-provider-google/issues/1118))
+* compute: `google_compute_zones` datasource accepts a `project` parameter ([#1122](https://github.com/terraform-providers/terraform-provider-google/issues/1122))
+* compute: Support `distributionPolicy` when creating regional instance group managers. ([#1092](https://github.com/terraform-providers/terraform-provider-google/issues/1092))
+* compute: Timeout customization for `google_compute_backend_bucket`, `google_compute_http_health_check`, and `google_compute_https_health_check` ([#1177](https://github.com/terraform-providers/terraform-provider-google/issues/1177))
+* container: Fail if the ip_allocation_policy doesn't specify secondary range names ([#1065](https://github.com/terraform-providers/terraform-provider-google/issues/1065))
+* container: Allow specifying accelerators in cluster node_config. ([#1115](https://github.com/terraform-providers/terraform-provider-google/issues/1115))
+* pubsub: Add project field to iam pubsub topic resources ([#1154](https://github.com/terraform-providers/terraform-provider-google/issues/1154))
+* sql: Support multiple users with the same name for different host for 1st gen SQL instances. ([#1066](https://github.com/terraform-providers/terraform-provider-google/issues/1066))
+* sql: Add SQL DB Instance attribute `first_ip_address` ([#1050](https://github.com/terraform-providers/terraform-provider-google/issues/1050))
 
 BUG FIXES:
-* compute: Don't store disk in state if it didn't create [GH-1129]
-* compute: Check set equality for service account scope changes [GH-1130]
-* compute: Disk now accepts project id with '.' and ':' [GH-1145]
-* dataproc: fix typos in pyspark dataproc job resource that led to args not working [GH-1120]
-* dns: fix perpetual diffs when names aren't all uppercase or if TXT records aren't quoted [GH-1141]
-* spanner: Accepts project id with '.' and ':' [GH-1151]
+* compute: Don't store disk in state if it didn't create ([#1129](https://github.com/terraform-providers/terraform-provider-google/issues/1129))
+* compute: Check set equality for service account scope changes ([#1130](https://github.com/terraform-providers/terraform-provider-google/issues/1130))
+* compute: Disk now accepts project id with '.' and ':' ([#1145](https://github.com/terraform-providers/terraform-provider-google/issues/1145))
+* dataproc: fix typos in pyspark dataproc job resource that led to args not working ([#1120](https://github.com/terraform-providers/terraform-provider-google/issues/1120))
+* dns: fix perpetual diffs when names aren't all uppercase or if TXT records aren't quoted ([#1141](https://github.com/terraform-providers/terraform-provider-google/issues/1141))
+* spanner: Accepts project id with '.' and ':' ([#1151](https://github.com/terraform-providers/terraform-provider-google/issues/1151))
 
 ## 1.6.0 (February 09, 2018)
 
