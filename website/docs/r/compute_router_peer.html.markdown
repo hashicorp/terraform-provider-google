@@ -51,7 +51,7 @@ The following arguments are supported:
 * `advertised_route_priority` - (Optional) The priority of routes advertised to this BGP peer.
     Changing this forces a new peer to be created.
 
-* `project` - (Optional) The project in which this peer's router belongs. If it
+* `project` - (Optional) The ID of the project in which this peer's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new peer to be created.
 
 * `region` - (Optional) The region this peer's router sits in. If not specified,

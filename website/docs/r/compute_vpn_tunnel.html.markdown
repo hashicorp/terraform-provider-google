@@ -127,7 +127,7 @@ The following arguments are supported:
     to be used for dynamic routing. Refer to Google documentation for more
     information.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `region` - (Optional) The region this tunnel should sit in. If not specified,

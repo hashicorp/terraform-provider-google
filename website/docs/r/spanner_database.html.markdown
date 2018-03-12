@@ -40,7 +40,7 @@ The following arguments are supported:
 
 - - -
 
-* `project` - (Optional) The project in which to look for the `instance` specified. If it
+* `project` - (Optional) The ID of the project in which to look for the `instance` specified. If it
     is not provided, the provider project is used.
 
 * `ddl` - (Optional) An optional list of DDL statements to run inside the newly created

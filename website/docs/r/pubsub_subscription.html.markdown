@@ -66,7 +66,7 @@ The following arguments are supported:
     subscriber has to acknowledge a received message, otherwise the message is
     redelivered. Changing this forces a new resource to be created.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `push_config` - (Optional) Block configuration for push options. More

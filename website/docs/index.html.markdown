@@ -20,7 +20,7 @@ Use the navigation to the left to read about the available resources.
 // Configure the Google Cloud provider
 provider "google" {
   credentials = "${file("account.json")}"
-  project     = "my-gce-project"
+  project     = "my-gce-project-id"
   region      = "us-central1"
 }
 

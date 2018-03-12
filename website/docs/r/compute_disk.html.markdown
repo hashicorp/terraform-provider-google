@@ -56,7 +56,7 @@ The following arguments are supported:
     For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
     These images can be referred by family name here.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it
