@@ -23,11 +23,11 @@ data "google_compute_network" "my-network" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the network.
-    
+
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 ## Attributes Reference
@@ -35,7 +35,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following attributes are exported:
 
 * `network` - The network name or resource link to the parent
-    network of this network. 
+    network of this network.
 
 * `description` - Description of this network.
 

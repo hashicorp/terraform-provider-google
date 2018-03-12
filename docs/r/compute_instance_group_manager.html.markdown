@@ -84,7 +84,7 @@ The following arguments are supported:
 * `named_port` - (Optional) The named port configuration. See the section below
     for details on configuration.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `update_strategy` - (Optional, Default `"RESTART"`) If the `instance_template`

@@ -60,7 +60,7 @@ The following arguments are supported: (Note that one of either source_disk or
 * `source_disk` - (Optional) The URL of a disk that will be used as the source of the
     image. Changing this forces a new resource to be created.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `raw_disk` - (Optional) The raw disk that will be used as the source of the image.
@@ -79,7 +79,6 @@ The `raw_disk` block supports:
 
 * `container_type` - (Optional) The format used to encode and transmit the
     block device. TAR is the only supported type and is the default.
-
 
 ## Attributes Reference
 

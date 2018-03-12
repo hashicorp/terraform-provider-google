@@ -29,7 +29,7 @@ The following arguments are supported:
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 ## Attributes Reference
@@ -40,7 +40,7 @@ The following arguments are exported:
 
 * `instances` - List of instances in the group.
 
-* `named_port` - List of named ports in the group. 
+* `named_port` - List of named ports in the group.
 
 * `network` - The URL of the network the instance group is in.
 

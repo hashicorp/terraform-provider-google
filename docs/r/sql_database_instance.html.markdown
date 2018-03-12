@@ -56,8 +56,8 @@ resource "google_sql_database_instance" "master" {
 
 The following arguments are supported:
 
-* `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance 
-    regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not 
+* `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance
+    regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not
     available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
 
 * `settings` - (Required) The settings to use for the database. The
@@ -82,7 +82,7 @@ The following arguments are supported:
     the master in the replication setup. Note, this requires the master to have
     `binary_log_enabled` set, as well as existing backups.
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `replica_configuration` - (Optional) The configuration for replication. The

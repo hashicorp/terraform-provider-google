@@ -40,10 +40,10 @@ The following arguments are supported:
 
 - - -
 
-* `ip_range` - (Optional) IP address and range of the interface. The IP range must be 
+* `ip_range` - (Optional) IP address and range of the interface. The IP range must be
     in the RFC3927 link-local IP space. Changing this forces a new interface to be created.
 
-* `project` - (Optional) The project in which this interface's router belongs. If it
+* `project` - (Optional) The ID of the project in which this interface's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new interface to be created.
 
 * `region` - (Optional) The region this interface's router sits in. If not specified,

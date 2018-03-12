@@ -96,7 +96,7 @@ The following arguments are supported:
   * Target SSL proxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995, 1883, 5222
   * Target VPN gateway: 500, 4500
 
-* `project` - (Optional) The project in which the resource belongs. If it
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `ip_version` - (Optional)
