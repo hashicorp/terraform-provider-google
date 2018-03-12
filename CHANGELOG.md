@@ -5,6 +5,7 @@ Features:
 * **New Data Source** `google_compute_vpn_gateway` [GH-1071]
 * **New Data Source** `google_project` [GH-1111]
 * **New Data Source** `google_storage_project_service_account` [GH-1110]
+* **New Data Source** `google_compute_default_service_account` [GH-1119]
 * **New Resource** `google_folder_iam_binding` [GH-1076]
 * **New Resource** `google_folder_iam_member` [GH-1076]
 * **New Resource** `google_project_usage_export_bucket` [GH-1080]
