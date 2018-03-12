@@ -12,7 +12,7 @@ func dataSourceGoogleComputeDefaultServiceAccount() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"project_id": {
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -28,10 +28,6 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	if v, ok := d.GetOk("project_id"); ok {
-		project = v.(string)
-	}
-
 	projectCompResource, err := config.clientCompute.Projects.Get(project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, "GCE service account not found")
@@ -39,6 +35,6 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 
 	d.SetId(projectCompResource.DefaultServiceAccount)
 	d.Set("email", projectCompResource.DefaultServiceAccount)
-	d.Set("project_id", project)
+	d.Set("project", project)
 	return nil
 }

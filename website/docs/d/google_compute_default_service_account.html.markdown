@@ -24,7 +24,7 @@ output "default_account" {
 
 The following arguments are supported:
 
-* `project_id` - (Optional) The project ID. If it is not provided, the provider project is used.
+* `project` - (Optional) The project ID. If it is not provided, the provider project is used.
 
 
 ## Attributes Reference
