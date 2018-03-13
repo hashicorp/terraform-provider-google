@@ -8,33 +8,23 @@ description: |-
 
 # google\_compute\_image
 
-Get information about a Google Compute Image. Check that your service account has the `compute.imageUser` role if you want to share [custom images](https://cloud.google.com/compute/docs/images/sharing-images-across-projects) from another project. If you want to use [public images](https://cloud.google.com/compute/docs/images#os-compute-support), do not forget to specify the dedicated project. For more information see
+Get information about a Google Compute Image. Check that your service account has the `compute.imageUser` role if you want to share [custom images](https://cloud.google.com/compute/docs/images/sharing-images-across-projects) from another project. If you want to use [public images][pubimg], do not forget to specify the dedicated project. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/images) and its [API](https://cloud.google.com/compute/docs/reference/latest/images).
 
 ## Example Usage
 
 ```hcl
 data "google_compute_image" "my_image" {
-  name = "image"
-  # could also use family = "family-name"
+  name    = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "default" {
-  name         = "test"
-  machine_type = "n1-standard-1"
-  zone         = "us-central1-a"
+  # ...
 
   boot_disk {
     initialize_params {
       image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
-
-  network_interface {
-    network = "default"
-
-    access_config {
-      // Ephemeral IP
     }
   }
 }
@@ -51,8 +41,9 @@ that is part of an image family and is not deprecated.
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The project in which the resource belongs. If it is not
+  provided, the provider project is used. If you are using a
+  [public base image][pubimg], be sure to specify the correct Image Project.
 
 ## Attributes Reference
 
@@ -80,3 +71,5 @@ exported:
 * `label_fingerprint` - A fingerprint for the labels being applied to this image.
 * `licenses` - A list of applicable license URI.
 * `status` - The status of the image. Possible values are **FAILED**, **PENDING**, or **READY**.
+
+[pubimg]: https://cloud.google.com/compute/docs/images#os-compute-support "Google Cloud Public Base Images"
