@@ -1,4 +1,11 @@
 ## 1.7.1 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES / NOTES:
+* `google_dataproc_cluster.delete_autogen_bucket` is now deprecated [GH-1171]
+
+IMPROVEMENTS:
+* container: un-deprecate `initial_node_count` [GH-1176]
+
 ## 1.7.0 (March 12, 2018)
 
 Features:
