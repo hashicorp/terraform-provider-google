@@ -457,8 +457,6 @@ resource "google_dataproc_cluster" "basic" {
 	region                = "us-central1"
 
 	cluster_config {
-		delete_autogen_bucket = true
-
 		# Keep the costs down with smallest config we can get away with
 		software_config {
 			override_properties = {

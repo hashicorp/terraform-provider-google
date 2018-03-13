@@ -97,7 +97,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_basic(rnd),
@@ -144,7 +144,7 @@ func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd),
@@ -167,7 +167,7 @@ func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_basicWithMetadata(rnd),
@@ -182,32 +182,6 @@ func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_basicWithAutogenDeleteTrue(t *testing.T) {
-	t.Parallel()
-
-	var cluster dataproc.Cluster
-	rnd := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(true),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
-					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.bucket"),
-				),
-			},
-			{
-				// Force an explicit destroy
-				Config: emptyTFDefinition,
-				Check:  testAccCheckDataprocAutogenBucketDeleted(&cluster),
-			},
-		},
-	})
-}
-
 func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
@@ -216,7 +190,7 @@ func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_singleNodeCluster(rnd),
@@ -243,7 +217,7 @@ func TestAccDataprocCluster_updatable(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_updatable(rnd, 2, 1),
@@ -275,7 +249,7 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName),
@@ -306,7 +280,7 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withInitAction(rnd, bucketName, objectName),
@@ -329,7 +303,7 @@ func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withConfigOverrides(rnd),
@@ -354,7 +328,7 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withServiceAcc(sa, rnd),
@@ -382,7 +356,7 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withImageVersion(rnd),
@@ -403,7 +377,7 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withLabels(rnd),
@@ -434,7 +408,7 @@ func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy(false),
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withNetworkRefs(rnd, netName),
@@ -448,7 +422,7 @@ func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 	})
 }
 
-func testAccCheckDataprocClusterDestroy(expectedBucketDestroy bool) resource.TestCheckFunc {
+func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
@@ -462,28 +436,23 @@ func testAccCheckDataprocClusterDestroy(expectedBucketDestroy bool) resource.Tes
 			}
 
 			attributes := rs.Primary.Attributes
-			computedBucket := attributes["cluster_config.0.bucket"]
 			project, err := getTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
 
-			// 1. Verify actual cluster deleted
-			if err := validateClusterDeleted(project, attributes["region"], rs.Primary.ID, config); err != nil {
-				return err
-			}
+			_, err = config.clientDataproc.Projects.Regions.Clusters.Get(
+				project, attributes["region"], rs.Primary.ID).Do()
 
-			// 2. Depending on delete_autogen_bucket setting, check if
-			//    autogen bucket is deleted
-			if expectedBucketDestroy {
-				return validateBucketDoesNotExist(computedBucket, config)
+			if err != nil {
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
+					return nil
+				} else if ok {
+					return fmt.Errorf("Error validating cluster deleted. Code: %d. Message: %s", gerr.Code, gerr.Message)
+				}
+				return fmt.Errorf("Error validating cluster deleted. %s", err.Error())
 			}
-
-			// 3. Many of the tests use the default delete_autogen_bucket setting (false)
-			//    Clean up to avoid dangling resources after test.
-			if err := emptyAndDeleteStorageBucket(config, computedBucket); err != nil {
-				return fmt.Errorf("Error occured trying to clean up autogenerate bucket after test %v", err)
-			}
+			return fmt.Errorf("Dataproc cluster still exists")
 		}
 
 		return nil
@@ -499,35 +468,6 @@ func testAccCheckDataprocClusterHasServiceScopes(t *testing.T, cluster *dataproc
 		}
 		return nil
 	}
-}
-
-func validateClusterDeleted(project, region, clusterName string, config *Config) error {
-	_, err := config.clientDataproc.Projects.Regions.Clusters.Get(
-		project, region, clusterName).Do()
-
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-			return nil
-		} else if ok {
-			return fmt.Errorf("Error validating cluster deleted. Code: %d. Message: %s", gerr.Code, gerr.Message)
-		}
-		return fmt.Errorf("Error validating cluster deleted. %s", err.Error())
-	}
-	return fmt.Errorf("Dataproc cluster still exists")
-}
-
-func validateBucketDoesNotExist(bucket string, config *Config) error {
-	_, err := config.clientStorage.Buckets.Get(bucket).Do()
-
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-			return nil
-		} else if ok {
-			return fmt.Errorf("Error validating bucket does not exist: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
-		}
-		return fmt.Errorf("Error validating bucket does not exist: %s", err.Error())
-	}
-	return fmt.Errorf("Storage bucket %s still exists", bucket)
 }
 
 func validateBucketExists(bucket string, config *Config) (bool, error) {
@@ -559,13 +499,6 @@ func testAccCheckDataprocStagingBucketExists(bucketName string) resource.TestChe
 		return nil
 	}
 
-}
-
-func testAccCheckDataprocAutogenBucketDeleted(cluster *dataproc.Cluster) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		return validateBucketDoesNotExist(cluster.Config.ConfigBucket, config)
-	}
 }
 
 func testAccCheckDataprocClusterInitActionSucceeded(bucket, object string) resource.TestCheckFunc {
@@ -776,19 +709,6 @@ resource "google_dataproc_cluster" "basic" {
 				baz = "qux"
 			}
 		}
-	}
-}
-`, rnd)
-}
-
-func testAccDataprocCluster_basicWithAutogenDeleteTrue(rnd string) string {
-	return fmt.Sprintf(`
-resource "google_dataproc_cluster" "basic" {
-	name                  = "dproc-cluster-test-%s"
-	region                = "us-central1"
-
-	cluster_config {
-		delete_autogen_bucket = true
 	}
 }
 `, rnd)
