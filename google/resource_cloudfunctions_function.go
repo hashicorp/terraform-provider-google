@@ -26,6 +26,10 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
+// For now CloudFunctions are allowed only in us-central1
+// Please see https://cloud.google.com/about/locations/
+var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1"}, true)
+
 const functionDefaultAllowedMemoryMb = 256
 
 type cloudFunctionId struct {
@@ -201,13 +205,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				// For now CloudFunctions are allowed only in us-central1
-				// Please see https://cloud.google.com/about/locations/
-				ValidateFunc: validation.StringInSlice([]string{"us-central1"}, true),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validCloudFunctionRegion,
 			},
 		},
 	}
@@ -224,6 +226,12 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
+	}
+	// We do this extra validation here since most regions are not valid, and the
+	// error message that Cloud Functions has for "wrong region" is not specific.
+	_, errs := validCloudFunctionRegion(region, "region")
+	if len(errs) > 0 {
+		return errs[0]
 	}
 
 	cloudFuncId := &cloudFunctionId{
