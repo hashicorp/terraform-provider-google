@@ -86,11 +86,10 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 
 	"initial_node_count": &schema.Schema{
-		Type:       schema.TypeInt,
-		Optional:   true,
-		ForceNew:   true,
-		Computed:   true,
-		Deprecated: "Use node_count instead",
+		Type:     schema.TypeInt,
+		Optional: true,
+		ForceNew: true,
+		Computed: true,
 	},
 
 	"management": {
