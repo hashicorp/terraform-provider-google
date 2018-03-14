@@ -341,7 +341,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				// Remove update support for now: https://issuetracker.google.com/74063492
+				// Disable update support for now: https://issuetracker.google.com/74063492
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1090,7 +1090,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("logging_service")
 	}
 
-	// Remove update support for now: https://issuetracker.google.com/74063492
+	// Disable update support for now: https://issuetracker.google.com/74063492
 	// if d.HasChange("pod_security_policy_config") {
 	// 	c := d.Get("pod_security_policy_config")
 	// 	req := &containerBeta.UpdateClusterRequest{
@@ -1381,12 +1381,11 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 }
 
 func flattenPodSecurityPolicyConfig(c *containerBeta.PodSecurityPolicyConfig) []map[string]interface{} {
-	d := []map[string]interface{}{
+	return []map[string]interface{}{
 		{
 			"enabled": c.Enabled,
 		},
 	}
-	return d
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
