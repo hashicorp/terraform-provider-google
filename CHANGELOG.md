@@ -3,6 +3,9 @@
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * `google_dataproc_cluster.delete_autogen_bucket` is now deprecated [GH-1171]
 
+FEATURES:
+* **New Resource** `google_organization_iam_policy` (see docs for caveats) [GH-1196]
+
 IMPROVEMENTS:
 * container: un-deprecate `google_container_node_pool.initial_node_count` [GH-1176]
 * container: Add support for pod security policy [GH-1192]
