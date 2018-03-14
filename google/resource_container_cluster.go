@@ -341,7 +341,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				// Disable update support for now: https://issuetracker.google.com/74063492
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1089,32 +1088,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			logging)
 		d.SetPartial("logging_service")
 	}
-
-	// Disable update support for now: https://issuetracker.google.com/74063492
-	// if d.HasChange("pod_security_policy_config") {
-	// 	c := d.Get("pod_security_policy_config")
-	// 	req := &containerBeta.UpdateClusterRequest{
-	// 		Update: &containerBeta.ClusterUpdate{
-	// 			DesiredPodSecurityPolicyConfig: expandPodSecurityPolicyConfig(c),
-	// 		},
-	// 	}
-
-	// 	updateF := func() error {
-	// 		op, err := config.clientContainerBeta.Projects.Zones.Clusters.Update(
-	// 			project, zoneName, clusterName, req).Do()
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		// Wait until it's updated
-	// 		return containerSharedOperationWait(config, op, project, zoneName, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
-	// 	}
-	// 	if err := lockedCall(lockKey, updateF); err != nil {
-	// 		return err
-	// 	}
-	// 	log.Printf("[INFO] GKE cluster %s pod security policy config has been updated", d.Id())
-
-	// 	d.SetPartial("pod_security_policy_config")
-	// }
 
 	d.Partial(false)
 
