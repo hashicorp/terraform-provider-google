@@ -738,6 +738,13 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 						"pod_security_policy_config.0.enabled", "true"),
 				),
 			},
+			{
+				Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_pod_security_policy"),
+				),
+			},
 		},
 	})
 }
