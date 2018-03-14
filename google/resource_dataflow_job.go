@@ -184,9 +184,15 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-	d.SetId("")
 
-	return nil
+	// Only remove the job from state if it's actually successfully canceled.
+	if _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok {
+		d.SetId("")
+		return nil
+	}
+
+	return fmt.Errorf("There was a problem canceling the dataflow job '%s' - the final state was %s.", d.Id(), d.Get("state").(string))
+
 }
 
 func mapOnDelete(policy string) (string, error) {
