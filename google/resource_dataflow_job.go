@@ -177,16 +177,20 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 				// If we have an error and it's not a google-specific error, we should go ahead and return.
 				return err
 			} else if err_ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
-				time.Sleep(5 * time.Second)
+				// We'll sleep below to wait for the job to be ready to cancel.
 			} else {
 				return err
 			}
 		}
+
 		err = resourceDataflowJobRead(d, meta)
-		if _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; !ok {
+		postReadState := d.Get("state").(string)
+		log.Printf("[DEBUG] Job state: '%s'.", postReadState)
+		if _, ok := dataflowTerminalStatesMap[postReadState]; !ok {
+			// If we're not yet in a terminal state, we need to sleep a few seconds so we don't
+			// exhaust our update quota with repeated attempts.
 			time.Sleep(5 * time.Second)
 		}
-		log.Printf("[DEBUG] Job state: '%s'.", d.Get("state").(string))
 		if err != nil {
 			return err
 		}
