@@ -148,6 +148,10 @@ output "cluster_ca_certificate" {
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version.
 
+* `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
+    [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
+    Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -291,6 +295,11 @@ The `guest_accelerator` block supports:
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
+The `pod_security_policy_config` block supports:
+
+* `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
+    If enabled, pods must be valid under a PodSecurityPolicy to be created.
 
 ## Attributes Reference
 
