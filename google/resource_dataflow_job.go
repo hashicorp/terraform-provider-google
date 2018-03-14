@@ -139,14 +139,15 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
+	d.Set("state", job.CurrentState)
+	d.Set("name", job.Name)
+	d.Set("project", project)
+
 	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
 		d.SetId("")
 		return nil
 	}
-	d.Set("state", job.CurrentState)
-	d.Set("name", job.Name)
-	d.Set("project", project)
 	d.SetId(job.Id)
 
 	return nil
@@ -165,21 +166,27 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	for _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok; _, ok = dataflowTerminalStatesMap[d.Get("state").(string)] {
+	for _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; !ok; _, ok = dataflowTerminalStatesMap[d.Get("state").(string)] {
 		job := &dataflow.Job{
 			RequestedState: requestedState,
 		}
 
 		_, err = config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
-		if gerr, ok := err.(*googleapi.Error); !ok {
-			// If we have an error and it's not a google-specific error, we should go ahead and return.
-			return err
-		} else if ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
-			time.Sleep(5 * time.Second)
-		} else {
-			return err
+		if err != nil {
+			if gerr, err_ok := err.(*googleapi.Error); !err_ok {
+				// If we have an error and it's not a google-specific error, we should go ahead and return.
+				return err
+			} else if err_ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
+				time.Sleep(5 * time.Second)
+			} else {
+				return err
+			}
 		}
 		err = resourceDataflowJobRead(d, meta)
+		if _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; !ok {
+			time.Sleep(5 * time.Second)
+		}
+		log.Printf("[DEBUG] Job state: '%s'.", d.Get("state").(string))
 		if err != nil {
 			return err
 		}
