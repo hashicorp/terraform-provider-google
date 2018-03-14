@@ -587,6 +587,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	d.SetId(clusterName)
+
 	// Wait until it's created
 	waitErr := containerSharedOperationWait(config, op, project, zoneName, "creating GKE cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
@@ -596,8 +598,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[INFO] GKE cluster %s has been created", clusterName)
-
-	d.SetId(clusterName)
 
 	return resourceContainerClusterRead(d, meta)
 }
