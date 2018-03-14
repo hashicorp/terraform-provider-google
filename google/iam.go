@@ -2,10 +2,12 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudresourcemanager/v1"
+	"google.golang.org/api/googleapi"
 )
 
 // The ResourceIamUpdater interface is implemented for each GCP resource supporting IAM policy.
@@ -47,11 +49,14 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	mutexKV.Lock(mutexKey)
 	defer mutexKV.Unlock(mutexKey)
 
+	backoff := time.Second
 	for {
-		backoff := time.Second
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
-		if err != nil {
+		if e, ok := err.(*googleapi.Error); ok && e.Code == 429 {
+			time.Sleep(backoff)
+			continue
+		} else if err != nil {
 			return err
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
@@ -64,6 +69,36 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 		log.Printf("[DEBUG]: Setting policy for %s to %+v\n", updater.DescribeResource(), p)
 		err = updater.SetResourceIamPolicy(p)
 		if err == nil {
+			fetchBackoff := 5 * time.Second
+			for successfulFetches := 0; successfulFetches < 2; {
+				time.Sleep(fetchBackoff)
+				new_p, err := updater.GetResourceIamPolicy()
+				if err != nil {
+					// Quota for Read is pretty limited, so watch out for running out of quota.
+					if e, ok := err.(*googleapi.Error); ok && e.Code == 429 {
+						fetchBackoff = fetchBackoff * 2
+					} else {
+						return err
+					}
+				}
+				modified_p := new_p
+				// This relies on the fact that `modify` is idempotent: since other changes might have
+				// happened between the call to set the policy and now, we just need to make sure that
+				// our change has been made.  'modify(p) == p' is our check for whether this has been
+				// correctly applied.
+				err = modify(modified_p)
+				if err != nil {
+					return err
+				}
+				if modified_p == new_p {
+					successfulFetches += 1
+				} else {
+					fetchBackoff = fetchBackoff * 2
+					if fetchBackoff > 30*time.Second {
+						return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
+					}
+				}
+			}
 			break
 		}
 		if isConflictError(err) {
