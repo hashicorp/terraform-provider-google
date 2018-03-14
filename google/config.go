@@ -167,6 +167,13 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientContainer.UserAgent = userAgent
 
+	log.Printf("[INFO] Instantiating GKE Beta client...")
+	c.clientContainerBeta, err = containerBeta.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientContainerBeta.UserAgent = userAgent
+
 	log.Printf("[INFO] Instantiating Google Cloud DNS client...")
 	c.clientDns, err = dns.New(client)
 	if err != nil {

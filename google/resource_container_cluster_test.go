@@ -719,6 +719,37 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_pod_security_policy"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_pod_security_policy",
+						"pod_security_policy_config.0.enabled", "true"),
+				),
+			},
+			// Remove update support for now: https://issuetracker.google.com/74063492
+			// {
+			// 	Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, false),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testAccCheckContainerCluster(
+			// 			"google_container_cluster.with_pod_security_policy"),
+			// 	),
+			// },
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1642,4 +1673,17 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 	    %s
 	}
 }`, acctest.RandString(10), secondaryRanges.String(), cluster, ipAllocationPolicy.String())
+}
+
+func testAccContainerCluster_withPodSecurityPolicy(clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_pod_security_policy" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	pod_security_policy_config {
+		enabled = %v
+	}
+}`, clusterName, enabled)
 }

@@ -18,7 +18,7 @@ import (
 var (
 	instanceGroupManagerURL           = regexp.MustCompile("^https://www.googleapis.com/compute/v1/projects/([a-z][a-z0-9-]{5}(?:[-a-z0-9]{0,23}[a-z0-9])?)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)")
 	ContainerClusterBaseApiVersion    = v1
-	ContainerClusterVersionedFeatures = []Feature{}
+	ContainerClusterVersionedFeatures = []Feature{Feature{Version: v1beta1, Item: "pod_security_policy_config"}}
 
 	networkConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -337,6 +337,23 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 			},
 
+			"pod_security_policy_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				// Remove update support for now: https://issuetracker.google.com/74063492
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -534,6 +551,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if v, ok := d.GetOk("pod_security_policy_config"); ok {
+		cluster.PodSecurityPolicyConfig = expandPodSecurityPolicyConfig(v)
+	}
+
 	req := &containerBeta.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -699,6 +720,12 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else {
 		d.Set("instance_group_urls", igUrls)
+	}
+
+	if cluster.PodSecurityPolicyConfig != nil {
+		if err := d.Set("pod_security_policy_config", flattenPodSecurityPolicyConfig(cluster.PodSecurityPolicyConfig)); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -1063,6 +1090,32 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("logging_service")
 	}
 
+	// Remove update support for now: https://issuetracker.google.com/74063492
+	// if d.HasChange("pod_security_policy_config") {
+	// 	c := d.Get("pod_security_policy_config")
+	// 	req := &containerBeta.UpdateClusterRequest{
+	// 		Update: &containerBeta.ClusterUpdate{
+	// 			DesiredPodSecurityPolicyConfig: expandPodSecurityPolicyConfig(c),
+	// 		},
+	// 	}
+
+	// 	updateF := func() error {
+	// 		op, err := config.clientContainerBeta.Projects.Zones.Clusters.Update(
+	// 			project, zoneName, clusterName, req).Do()
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		// Wait until it's updated
+	// 		return containerSharedOperationWait(config, op, project, zoneName, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
+	// 	}
+	// 	if err := lockedCall(lockKey, updateF); err != nil {
+	// 		return err
+	// 	}
+	// 	log.Printf("[INFO] GKE cluster %s pod security policy config has been updated", d.Id())
+
+	// 	d.SetPartial("pod_security_policy_config")
+	// }
+
 	d.Partial(false)
 
 	return resourceContainerClusterRead(d, meta)
@@ -1229,6 +1282,16 @@ func expandNetworkPolicy(configured interface{}) *containerBeta.NetworkPolicy {
 	return result
 }
 
+func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
+	result := &containerBeta.PodSecurityPolicyConfig{}
+	if len(configured.([]interface{})) > 0 {
+		config := configured.([]interface{})[0].(map[string]interface{})
+		result.Enabled = config["enabled"].(bool)
+		result.ForceSendFields = []string{"Enabled"}
+	}
+	return result
+}
+
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -1315,6 +1378,15 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 		result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
 	}
 	return []map[string]interface{}{result}
+}
+
+func flattenPodSecurityPolicyConfig(c *containerBeta.PodSecurityPolicyConfig) []map[string]interface{} {
+	d := []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
+		},
+	}
+	return d
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
