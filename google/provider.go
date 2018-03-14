@@ -171,6 +171,7 @@ func Provider() terraform.ResourceProvider {
 			"google_organization_iam_binding":              ResourceIamBindingWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_custom_role":          resourceGoogleOrganizationIamCustomRole(),
 			"google_organization_iam_member":               ResourceIamMemberWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_policy":               ResourceIamPolicyWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_policy":                   resourceGoogleOrganizationPolicy(),
 			"google_project":                               resourceGoogleProject(),
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
