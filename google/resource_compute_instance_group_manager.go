@@ -241,9 +241,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	_, ok := d.GetOk("rolling_update_policy")
-
-	if d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
 		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
 	}
 
@@ -443,8 +441,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	d.Partial(true)
 
-	_, ok := d.GetOk("rolling_update_policy")
-	if d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
 		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
 	}
 
