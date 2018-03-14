@@ -15,7 +15,9 @@ Allows management of the entire IAM policy for an existing Google Cloud Platform
    The safest alternative is to use multiple `google_organization_iam_binding`
    resources.  It is easy to use this resource to remove your own access to
    an organization, which will require a call to Google Support to have
-   fixed, and can take multiple days to resolve.
+   fixed, and can take multiple days to resolve.  If you do use this resource,
+   the best way to be sure that you are not making dangerous changes is to start
+   by importing your existing policy, and examining the diff very closely.
 
 ~> **Note:** This resource __must not__ be used in conjunction with
    `google_organization_iam_member` or `google_organization_iam_binding`
