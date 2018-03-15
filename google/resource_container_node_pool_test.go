@@ -92,6 +92,26 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withWorkloadMetadataConfig(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withWorkloadMetadataConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerNodePoolMatches("google_container_node_pool.with_workload_metadata_config"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withGPU(t *testing.T) {
 	t.Parallel()
 
@@ -615,6 +635,38 @@ resource "google_container_node_pool" "np_with_node_config" {
 		min_cpu_platform = "Intel Broadwell"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccContainerNodePool_withWorkloadMetadataConfig() string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "tf-cluster-nodepool-test-%s"
+  zone               = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+}
+
+resource "google_container_node_pool" "with_workload_metadata_config" {
+  name = "tf-nodepool-test-%s"
+  zone = "us-central1-a"
+  cluster = "${google_container_cluster.cluster.name}"
+  initial_node_count = 1
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring"
+    ]
+
+    workload_metadata_config {
+      node_metadata = "SECURE"
+    }
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccContainerNodePool_withGPU() string {

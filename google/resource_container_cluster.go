@@ -18,7 +18,10 @@ import (
 var (
 	instanceGroupManagerURL           = regexp.MustCompile("^https://www.googleapis.com/compute/v1/projects/([a-z][a-z0-9-]{5}(?:[-a-z0-9]{0,23}[a-z0-9])?)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)")
 	ContainerClusterBaseApiVersion    = v1
-	ContainerClusterVersionedFeatures = []Feature{Feature{Version: v1beta1, Item: "pod_security_policy_config"}}
+	ContainerClusterVersionedFeatures = []Feature{
+		{Version: v1beta1, Item: "pod_security_policy_config"},
+		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
+	}
 
 	networkConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -697,7 +700,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("monitoring_service", cluster.MonitoringService)
 	d.Set("network", cluster.Network)
 	d.Set("subnetwork", cluster.Subnetwork)
-	d.Set("node_config", flattenNodeConfig(cluster.NodeConfig))
+	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
+		return err
+	}
 	d.Set("zone", zoneName)
 	d.Set("project", project)
 	if cluster.AddonsConfig != nil {

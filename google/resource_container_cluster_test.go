@@ -369,6 +369,27 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withWorkloadMetadataConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckContainerCluster(
+						"google_container_cluster.with_workload_metadata_config"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_network(t *testing.T) {
 	t.Parallel()
 
@@ -1323,6 +1344,33 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
 		oauth_scopes = [ "compute-rw", "storage-ro", "logging-write", "monitoring" ]
 	}
 }`, acctest.RandString(10))
+}
+
+func testAccContainerCluster_withWorkloadMetadataConfig() string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_workload_metadata_config" {
+  name               = "cluster-test-%s"
+  zone               = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+  node_version       = "${data.google_container_engine_versions.central1a.latest_node_version}"
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring"
+    ]
+
+    workload_metadata_config {
+      node_metadata = "SECURE"
+    }
+  }
+}
+`, acctest.RandString(10))
 }
 
 func testAccContainerCluster_networkRef() string {
