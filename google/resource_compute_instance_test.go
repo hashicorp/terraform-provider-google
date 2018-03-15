@@ -243,6 +243,29 @@ func TestAccComputeInstance_GenerateIP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_networkTier(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_networkTier(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+					testAccCheckComputeInstanceHasAssignedIP,
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	t.Parallel()
 
@@ -1850,6 +1873,29 @@ resource "google_compute_instance" "foobar" {
 
 	metadata {
 		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_networkTier(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			network_tier = "STANDARD"
+		}
 	}
 }
 `, instance)
