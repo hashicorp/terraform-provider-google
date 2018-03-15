@@ -15,7 +15,9 @@ import (
 
 var (
 	ContainerNodePoolBaseApiVersion    = v1
-	ContainerNodePoolVersionedFeatures = []Feature{}
+	ContainerNodePoolVersionedFeatures = []Feature{
+		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
+	}
 )
 
 func resourceContainerNodePool() *schema.Resource {
