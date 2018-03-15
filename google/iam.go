@@ -69,8 +69,8 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 		log.Printf("[DEBUG]: Setting policy for %s to %+v\n", updater.DescribeResource(), p)
 		err = updater.SetResourceIamPolicy(p)
 		if err == nil {
-			fetchBackoff := 5 * time.Second
-			for successfulFetches := 0; successfulFetches < 2; {
+			fetchBackoff := 1 * time.Second
+			for successfulFetches := 0; successfulFetches < 3; {
 				time.Sleep(fetchBackoff)
 				new_p, err := updater.GetResourceIamPolicy()
 				if err != nil {
