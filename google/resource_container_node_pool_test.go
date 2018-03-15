@@ -46,9 +46,10 @@ func TestAccContainerNodePool_namePrefix(t *testing.T) {
 				Config: testAccContainerNodePool_namePrefix(cluster, "tf-np-"),
 			},
 			resource.TestStep{
-				ResourceName:      "google_container_node_pool.np",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
 			},
 		},
 	})
@@ -118,6 +119,11 @@ func TestAccContainerNodePool_withWorkloadMetadataConfig(t *testing.T) {
 				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Import always uses the v1 API, so beta features don't get imported.
+				ImportStateVerifyIgnore: []string{
+					"node_config.0.workload_metadata_config.#",
+					"node_config.0.workload_metadata_config.0.node_metadata",
+				},
 			},
 		},
 	})
@@ -261,6 +267,9 @@ func TestAccContainerNodePool_autoscaling(t *testing.T) {
 				ResourceName:      "google_container_node_pool.np",
 				ImportState:       true,
 				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#"},
 			},
 		},
 	})

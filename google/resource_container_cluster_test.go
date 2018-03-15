@@ -336,10 +336,11 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 				Config: testAccContainerCluster_withVersion(clusterName),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_version",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            "google_container_cluster.with_version",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 		},
 	})
@@ -441,6 +442,13 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
+				// Import always uses the v1 API, so beta features don't get imported.
+				ImportStateVerifyIgnore: []string{
+					"node_config.0.workload_metadata_config.#",
+					"node_config.0.workload_metadata_config.0.node_metadata",
+					"node_pool.0.node_config.0.workload_metadata_config.#",
+					"node_pool.0.node_config.0.workload_metadata_config.0.node_metadata",
+					"min_master_version"},
 			},
 		},
 	})
@@ -702,7 +710,7 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name_prefix"},
+				ImportStateVerifyIgnore: []string{"node_pool.0.name_prefix"},
 			},
 		},
 	})

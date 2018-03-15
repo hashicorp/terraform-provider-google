@@ -240,7 +240,7 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
-	if v, ok := nodeConfig["workload_metadata_config"]; ok {
+	if v, ok := nodeConfig["workload_metadata_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.WorkloadMetadataConfig = &containerBeta.WorkloadMetadataConfig{
 			NodeMetadata: conf["node_metadata"].(string),
