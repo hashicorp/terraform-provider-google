@@ -110,10 +110,14 @@ func TestAccContainerNodePool_withWorkloadMetadataConfig(t *testing.T) {
 			{
 				Config: testAccContainerNodePool_withWorkloadMetadataConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContainerNodePoolMatches("google_container_node_pool.with_workload_metadata_config"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
 						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
 				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
