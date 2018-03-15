@@ -602,6 +602,11 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
+			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+			// expect those values to be provided by user as part of the call
+			// or provide their own defaults without respecting what was previously set on UpdateManager.
+			// To follow the same logic, we provide policy values on relevant update change only.
 			manager := &computeBeta.InstanceGroupManager{
 				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
 			}
