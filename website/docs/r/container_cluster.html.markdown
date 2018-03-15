@@ -169,10 +169,13 @@ The `addons_config` block supports:
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
-
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is enabled by default; set `disabled = true` to disable.
+* `network_policy_config` - (Optional) Whether we should enable the network policy addon
+    for the master.  This must be enabled in order to enable network policy for the nodes.
+    It can only be disabled if the nodes already do not have network policies enabled.
+    Set `disabled = true` to disable.
 
 This example `addons_config` disables two addons:
 
