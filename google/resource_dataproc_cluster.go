@@ -802,7 +802,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
 	disk := map[string]interface{}{}
 	data := map[string]interface{}{
-	//"instance_names": []string{},
+		//"instance_names": []string{},
 	}
 
 	if icg != nil {
