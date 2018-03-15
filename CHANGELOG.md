@@ -9,6 +9,7 @@ FEATURES:
 IMPROVEMENTS:
 * container: un-deprecate `google_container_node_pool.initial_node_count` [GH-1176]
 * container: Add support for pod security policy [GH-1192]
+* compute: Rolling update support for instance group manager [GH-1137]
 
 ## 1.7.0 (March 12, 2018)
 
