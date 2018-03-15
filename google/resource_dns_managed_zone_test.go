@@ -82,6 +82,6 @@ func testAccDnsManagedZone_basic() string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
 	name = "mzone-test-%s"
-	dns_name = "hashicorptest.com."
-}`, acctest.RandString(10))
+	dns_name = "tf-acctest-%s.hashicorptest.com."
+}`, acctest.RandString(10), acctest.RandString(10))
 }
