@@ -169,7 +169,20 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				ImportStateVerify:   true,
 			},
 			{
-				Config:             testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
+				Config: testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_network_policy_enabled",
+						"addons_config.0.network_policy_config.0.disabled", "true"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config:             testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 			},
@@ -1092,6 +1105,11 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 		enabled = true
 		provider = "CALICO"
 	}	
+	addons_config {
+		network_policy_config {
+			disabled = false
+		}
+	}
 }`, clusterName)
 }
 
@@ -1112,6 +1130,22 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	initial_node_count = 1
 
 	network_policy = {}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_network_policy_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	network_policy = {}
+	addons_config {
+		network_policy_config {
+			disabled = true
+		}
+	}
 }`, clusterName)
 }
 
