@@ -130,6 +130,23 @@ var schemaNodeConfig = &schema.Schema{
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			"workload_metadata_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"node_metadata": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "SECURE", "EXPOSE"}, false),
+						},
+					},
+				},
+			},
 		},
 	},
 }
@@ -223,6 +240,13 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
+	if v, ok := nodeConfig["workload_metadata_config"]; ok {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.WorkloadMetadataConfig = &containerBeta.WorkloadMetadataConfig{
+			NodeMetadata: conf["node_metadata"].(string),
+		}
+	}
+
 	return nc
 }
 
@@ -234,17 +258,18 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	}
 
 	config = append(config, map[string]interface{}{
-		"machine_type":      c.MachineType,
-		"disk_size_gb":      c.DiskSizeGb,
-		"guest_accelerator": c.Accelerators,
-		"local_ssd_count":   c.LocalSsdCount,
-		"service_account":   c.ServiceAccount,
-		"metadata":          c.Metadata,
-		"image_type":        c.ImageType,
-		"labels":            c.Labels,
-		"tags":              c.Tags,
-		"preemptible":       c.Preemptible,
-		"min_cpu_platform":  c.MinCpuPlatform,
+		"machine_type":             c.MachineType,
+		"disk_size_gb":             c.DiskSizeGb,
+		"guest_accelerator":        c.Accelerators,
+		"local_ssd_count":          c.LocalSsdCount,
+		"service_account":          c.ServiceAccount,
+		"metadata":                 c.Metadata,
+		"image_type":               c.ImageType,
+		"labels":                   c.Labels,
+		"tags":                     c.Tags,
+		"preemptible":              c.Preemptible,
+		"min_cpu_platform":         c.MinCpuPlatform,
+		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
 	})
 
 	if len(c.OauthScopes) > 0 {
@@ -252,4 +277,14 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	}
 
 	return config
+}
+
+func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"node_metadata": c.NodeMetadata,
+		})
+	}
+	return result
 }
