@@ -1495,19 +1495,24 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
-	op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
-	if err != nil {
-		return fmt.Errorf("Error deleting instance: %s", err)
-	}
 
-	// Wait for the operation to complete
-	opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
-	if opErr != nil {
-		return opErr
-	}
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("Cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \"terraform apply\" before attempting to delete it.", d.Id())
+	} else {
+		op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting instance: %s", err)
+		}
 
-	d.SetId("")
-	return nil
+		// Wait for the operation to complete
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetId("")
+		return nil
+	}
 }
 
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
