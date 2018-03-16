@@ -79,6 +79,8 @@ The following arguments are supported:
 
 * `iap` - (Optional) Specification for the Identity-Aware proxy. Disabled if not specified. Structure is documented below.
 
+* `cdn_policy` - (Optional) Cloud CDN configuration for this BackendService. Structure is documented below.
+
 * `description` - (Optional) The textual description for the backend service.
 
 * `enable_cdn` - (Optional) Whether or not to enable the Cloud CDN on the backend service.
@@ -127,6 +129,29 @@ The `backend` block supports:
 * `max_utilization` - (Optional) The target CPU utilization for the group as a
     float in the range [0.0, 1.0]. This flag can only be provided when the
     balancing mode is `UTILIZATION`. Defaults to `0.8`.
+
+The `cdn_policy` block supports:
+
+* `cache_key_policy` - (Optional) The CacheKeyPolicy for this CdnPolicy.
+    Structure is documented below.
+
+The `cache_key_policy` block supports:
+
+* `include_host` - (Optional) If true, requests to different hosts will be cached separately.
+
+* `include_protocol` - (Optional) If true, http and https requests will be cached separately.
+
+* `include_query_string` - (Optional) If true, include query string parameters in the cache key
+    according to `query_string_whitelist` and `query_string_blacklist`. If neither is set, the entire
+    query string will be included. If false, the query string will be excluded from the cache key entirely.
+
+* `query_string_blacklist` - (Optional) Names of query string parameters to exclude in cache keys.
+    All other parameters will be included. Either specify `query_string_whitelist` or
+    `query_string_blacklist`, not both. '&' and '=' will be percent encoded and not treated as delimiters.
+
+* `query_string_whitelist` - (Optional) Names of query string parameters to include in cache keys.
+    All other parameters will be excluded. Either specify `query_string_whitelist` or
+    `query_string_blacklist`, not both. '&' and '=' will be percent encoded and not treated as delimiters.
 
 The `iap` block supports:
 

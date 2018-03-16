@@ -117,11 +117,11 @@ func resourceComputeBackendService() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"include_protocol": &schema.Schema{
+									"include_host": &schema.Schema{
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
-									"include_host": &schema.Schema{
+									"include_protocol": &schema.Schema{
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
@@ -129,17 +129,17 @@ func resourceComputeBackendService() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
-									"query_string_whitelist": &schema.Schema{
-										Type:          schema.TypeSet,
-										Optional:      true,
-										Elem:          &schema.Schema{Type: schema.TypeString},
-										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_blacklist"},
-									},
 									"query_string_blacklist": &schema.Schema{
 										Type:          schema.TypeSet,
 										Optional:      true,
 										Elem:          &schema.Schema{Type: schema.TypeString},
 										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_whitelist"},
+									},
+									"query_string_whitelist": &schema.Schema{
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_blacklist"},
 									},
 								},
 							},
@@ -529,11 +529,11 @@ func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy 
 
 	return &compute.BackendServiceCdnPolicy{
 		CacheKeyPolicy: &compute.CacheKeyPolicy{
-			IncludeProtocol:      ckpData["include_protocol"].(bool),
 			IncludeHost:          ckpData["include_host"].(bool),
+			IncludeProtocol:      ckpData["include_protocol"].(bool),
 			IncludeQueryString:   ckpData["include_query_string"].(bool),
-			QueryStringWhitelist: convertStringSet(ckpData["query_string_whitelist"].(*schema.Set)),
 			QueryStringBlacklist: convertStringSet(ckpData["query_string_blacklist"].(*schema.Set)),
+			QueryStringWhitelist: convertStringSet(ckpData["query_string_whitelist"].(*schema.Set)),
 			ForceSendFields:      []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
 		},
 	}
@@ -548,11 +548,11 @@ func flattenCdnPolicy(pol *compute.BackendServiceCdnPolicy) []map[string]interfa
 	return append(result, map[string]interface{}{
 		"cache_key_policy": []map[string]interface{}{
 			{
-				"include_protocol":       pol.CacheKeyPolicy.IncludeProtocol,
 				"include_host":           pol.CacheKeyPolicy.IncludeHost,
+				"include_protocol":       pol.CacheKeyPolicy.IncludeProtocol,
 				"include_query_string":   pol.CacheKeyPolicy.IncludeQueryString,
-				"query_string_whitelist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringWhitelist)),
 				"query_string_blacklist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringBlacklist)),
+				"query_string_whitelist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringWhitelist)),
 			},
 		},
 	})
