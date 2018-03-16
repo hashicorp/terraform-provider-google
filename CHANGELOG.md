@@ -13,6 +13,7 @@ IMPROVEMENTS:
 * container: Add support for GKE network policy config addon. [GH-1200]
 * compute: Rolling update support for instance group manager [GH-1137]
 * compute: Add `cdn_policy` field to backend service [GH-1208]
+* compute: Add support for deletion protection. [GH-1205]
 * all: IAM resources now wait for propagation before reporting created. [GH-1197]
 
 ## 1.7.0 (March 12, 2018)
