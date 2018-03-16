@@ -90,6 +90,8 @@ The following arguments are supported:
 
 * `description` - (Optional) A brief description of this resource.
 
+* `deletion_protection` - (Optional) Enable deletion protection on this instance. Defaults to false.
+
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
