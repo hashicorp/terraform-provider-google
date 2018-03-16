@@ -240,7 +240,7 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
-	if v, ok := nodeConfig["workload_metadata_config"]; ok {
+	if v, ok := nodeConfig["workload_metadata_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.WorkloadMetadataConfig = &containerBeta.WorkloadMetadataConfig{
 			NodeMetadata: conf["node_metadata"].(string),
@@ -260,7 +260,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	config = append(config, map[string]interface{}{
 		"machine_type":             c.MachineType,
 		"disk_size_gb":             c.DiskSizeGb,
-		"guest_accelerator":        c.Accelerators,
+		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
 		"service_account":          c.ServiceAccount,
 		"metadata":                 c.Metadata,
@@ -277,6 +277,17 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	}
 
 	return config
+}
+
+func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	for _, accel := range c {
+		result = append(result, map[string]interface{}{
+			"count": accel.AcceleratorCount,
+			"type":  accel.AcceleratorType,
+		})
+	}
+	return result
 }
 
 func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []map[string]interface{} {
