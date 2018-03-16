@@ -105,6 +105,49 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
+			"cdn_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_key_policy": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_protocol": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"include_host": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"include_query_string": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"query_string_whitelist": &schema.Schema{
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_blacklist"},
+									},
+									"query_string_blacklist": &schema.Schema{
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_whitelist"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -237,6 +280,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("iap", flattenIap(service.Iap))
 	d.Set("project", project)
 	d.Set("health_checks", service.HealthChecks)
+	if err := d.Set("cdn_policy", flattenCdnPolicy(service.CdnPolicy)); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -409,6 +455,11 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 		Iap: &compute.BackendServiceIAP{
 			ForceSendFields: []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
 		},
+		CdnPolicy: &compute.BackendServiceCdnPolicy{
+			CacheKeyPolicy: &compute.CacheKeyPolicy{
+				ForceSendFields: []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
+			},
+		},
 	}
 
 	if v, ok := d.GetOk("iap"); ok {
@@ -454,5 +505,55 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 
 	service.ConnectionDraining = connectionDraining
 
+	if v, ok := d.GetOk("cdn_policy"); ok {
+		c := expandCdnPolicy(v.([]interface{}))
+		if c != nil {
+			service.CdnPolicy = c
+		}
+	}
+
 	return service, nil
+}
+
+func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy {
+	if len(configured) == 0 {
+		return nil
+	}
+	data := configured[0].(map[string]interface{})
+
+	ckp := data["cache_key_policy"].([]interface{})
+	if len(ckp) == 0 {
+		return nil
+	}
+	ckpData := ckp[0].(map[string]interface{})
+
+	return &compute.BackendServiceCdnPolicy{
+		CacheKeyPolicy: &compute.CacheKeyPolicy{
+			IncludeProtocol:      ckpData["include_protocol"].(bool),
+			IncludeHost:          ckpData["include_host"].(bool),
+			IncludeQueryString:   ckpData["include_query_string"].(bool),
+			QueryStringWhitelist: convertStringSet(ckpData["query_string_whitelist"].(*schema.Set)),
+			QueryStringBlacklist: convertStringSet(ckpData["query_string_blacklist"].(*schema.Set)),
+			ForceSendFields:      []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
+		},
+	}
+}
+
+func flattenCdnPolicy(pol *compute.BackendServiceCdnPolicy) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if pol == nil || pol.CacheKeyPolicy == nil {
+		return result
+	}
+
+	return append(result, map[string]interface{}{
+		"cache_key_policy": []map[string]interface{}{
+			{
+				"include_protocol":       pol.CacheKeyPolicy.IncludeProtocol,
+				"include_host":           pol.CacheKeyPolicy.IncludeHost,
+				"include_query_string":   pol.CacheKeyPolicy.IncludeQueryString,
+				"query_string_whitelist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringWhitelist)),
+				"query_string_blacklist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringBlacklist)),
+			},
+		},
+	})
 }
