@@ -106,6 +106,32 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 	}
 }
 
+func TestAccLoggingFolderSink_heredoc(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	folderName := "tf-test-folder-" + acctest.RandString(10)
+
+	var sink logging.LogSink
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, "organizations/"+org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.heredoc", &sink),
+					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.heredoc"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingFolderSinkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -205,6 +231,33 @@ resource "google_logging_folder_sink" "basic" {
 	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 	include_children = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+	name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+	display_name = "%s"
+    parent       = "%s"
+}`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "heredoc" {
+	name             = "%s"
+	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+	filter           = <<EOS
+
+	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+AND severity>=ERROR
+
+
+
+  EOS
+	include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {

@@ -76,6 +76,31 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	}
 }
 
+func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+
+	var sink logging.LogSink
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBillingAccountSink_heredoc(sinkName, bucketName, billingAccount),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.heredoc", &sink),
+					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.heredoc"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingBillingAccountSinkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -157,6 +182,27 @@ resource "google_logging_billing_account_sink" "update" {
 	billing_account = "%s"
 	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+
+resource "google_storage_bucket" "log-bucket" {
+	name     = "%s"
+}`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingBillingAccountSink_heredoc(name, bucketName, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_logging_billing_account_sink" "heredoc" {
+	name = "%s"
+	billing_account = "%s"
+	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+	filter = <<EOS
+
+	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+AND severity>=ERROR
+
+
+
+  EOS
 }
 
 resource "google_storage_bucket" "log-bucket" {
