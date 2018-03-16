@@ -68,6 +68,7 @@ func TestAccSqlUser_secondGen(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:            "google_sql_user.user",
+				ImportStateId:           instance + "/admin",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},

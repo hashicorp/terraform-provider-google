@@ -87,7 +87,7 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 			"user %s into instance %s: %s", name, instance, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", instance, name))
+	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
 	err = sqladminOperationWait(config, op, project, "Insert User")
 
@@ -109,7 +109,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	instance := d.Get("instance").(string)
 	name := d.Get("name").(string)
-	host := d.Get("host").(string)
+	host, hostOk := d.GetOk("host")
 
 	users, err := config.clientSqlAdmin.Users.List(project, instance).Do()
 
@@ -119,7 +119,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
-		if currentUser.Name == name && currentUser.Host == host {
+		if currentUser.Name == name && (!hostOk || currentUser.Host == host.(string)) {
 			user = currentUser
 			break
 		}
@@ -136,6 +136,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("instance", user.Instance)
 	d.Set("name", user.Name)
 	d.Set("project", project)
+	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 	return nil
 }
 
@@ -225,7 +226,6 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 		d.Set("instance", parts[0])
 		d.Set("host", parts[1])
 		d.Set("name", parts[2])
-		d.SetId(fmt.Sprintf("%s/%s", parts[0], parts[2]))
 	} else {
 		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for 2nd generation instance and {instance}/{host}/{name} for 1st generation instance")
 	}
