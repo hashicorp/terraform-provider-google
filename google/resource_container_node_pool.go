@@ -94,6 +94,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed: true,
 	},
 
+	"instance_group_urls": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+
 	"management": {
 		Type:     schema.TypeList,
 		Optional: true,
@@ -425,11 +431,12 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		size += int(igm.TargetSize)
 	}
 	nodePool := map[string]interface{}{
-		"name":               np.Name,
-		"name_prefix":        d.Get(prefix + "name_prefix"),
-		"initial_node_count": np.InitialNodeCount,
-		"node_count":         size / len(np.InstanceGroupUrls),
-		"node_config":        flattenNodeConfig(np.Config),
+		"name":                np.Name,
+		"name_prefix":         d.Get(prefix + "name_prefix"),
+		"initial_node_count":  np.InitialNodeCount,
+		"node_count":          size / len(np.InstanceGroupUrls),
+		"node_config":         flattenNodeConfig(np.Config),
+		"instance_group_urls": np.InstanceGroupUrls,
 	}
 
 	if np.Autoscaling != nil && np.Autoscaling.Enabled {
