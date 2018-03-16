@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * container: Add support for pod security policy [GH-1192]
 * container: Add support for GKE metadata concealment [GH-1199]
 * container: Add support for GKE network policy config addon. [GH-1200]
+* container: Add support for `instance_group_url` in `google_container_nodel_pool` [GH-1207]
 * compute: Rolling update support for instance group manager [GH-1137]
 * compute: Add `cdn_policy` field to backend service [GH-1208]
 * compute: Add support for deletion protection. [GH-1205]
