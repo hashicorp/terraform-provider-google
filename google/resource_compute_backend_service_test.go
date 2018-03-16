@@ -699,9 +699,9 @@ resource "google_compute_backend_service" "foobar" {
 
   cdn_policy {
     cache_key_policy {
-      include_protocol = true
-      include_host = true
-      include_query_string = true
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
       query_string_whitelist = ["foo", "bar"]
     }
   }
