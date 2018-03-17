@@ -121,6 +121,10 @@ func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 					testAccCheckLoggingProjectSinkExists("google_logging_project_sink.heredoc", &sink),
 					testAccCheckLoggingProjectSink(&sink, "google_logging_project_sink.heredoc"),
 				),
+			}, {
+				ResourceName:      "google_logging_project_sink.heredoc",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
