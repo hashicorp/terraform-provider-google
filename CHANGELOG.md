@@ -1,4 +1,8 @@
 ## 1.8.1 (Unreleased)
+
+BUG FIXES:
+* storage: Set force_destroy when importing storage buckets [GH-1223]
+
 ## 1.8.0 (March 19, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
