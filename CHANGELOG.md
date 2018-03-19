@@ -19,9 +19,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: Properly set `image_id` field on `data_google_compute_image` in state [GH-1217]
-* compute: Properly set `backend` field on `google_compute_backend_service` in state [GH-1217]
 * compute: Properly set `project` field on `google_compute_project_metadata` in state [GH-1217]
-* compute: Properly set `backend` field on `google_compute_region_backend_service` in state [GH-1217]
 * dataproc: Properly set `cluster_config.0.intiialization_action` on `google_dataproc_cluster` in state [GH-1217]
 
 ## 1.7.0 (March 12, 2018)
