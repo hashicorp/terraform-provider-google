@@ -701,7 +701,10 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	d.Set("cluster_config", cfg)
+	err = d.Set("cluster_config", cfg)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -724,7 +727,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		if err != nil {
 			return nil, err
 		}
-		data["intialization_action"] = val
+		data["initialization_action"] = val
 	}
 	return []map[string]interface{}{data}, nil
 }

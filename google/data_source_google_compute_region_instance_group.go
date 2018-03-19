@@ -3,13 +3,14 @@ package google
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	compute "google.golang.org/api/compute/v1"
-	"google.golang.org/api/googleapi"
 	"log"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 func dataSourceGoogleComputeRegionInstanceGroup() *schema.Resource {
@@ -137,7 +138,6 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	} else {
 		d.Set("instances", flattenInstancesWithNamedPorts(members.Items))
 	}
-	d.Set("kind", instanceGroup.Kind)
 	d.SetId(strconv.FormatUint(instanceGroup.Id, 16))
 	d.Set("self_link", instanceGroup.SelfLink)
 	d.Set("name", name)
