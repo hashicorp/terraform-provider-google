@@ -2,21 +2,23 @@ package google
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
 )
 
 func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	t.Parallel()
+	name := "acctest-" + acctest.RandString(6)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceRegionInstanceGroup_basic("foobarbaz"),
+				Config: testAccDataSourceRegionInstanceGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", "foobarbaz"),
+					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", getTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "instances.#", "10")),
 			},

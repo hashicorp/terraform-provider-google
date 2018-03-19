@@ -417,8 +417,8 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	return backends, nil
 }
 
-func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(backends))
+func flattenBackends(backends []*compute.Backend) *schema.Set {
+	result := make([]interface{}, 0, len(backends))
 
 	for _, b := range backends {
 		data := make(map[string]interface{})
@@ -433,7 +433,7 @@ func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
 		result = append(result, data)
 	}
 
-	return result
+	return schema.NewSet(resourceGoogleComputeBackendServiceBackendHash, result)
 }
 
 func expandBackendService(d *schema.ResourceData) (*compute.BackendService, error) {

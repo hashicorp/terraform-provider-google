@@ -211,7 +211,10 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("fingerprint", service.Fingerprint)
 	d.Set("self_link", service.SelfLink)
-	d.Set("backend", flattenBackends(service.Backends))
+	err = d.Set("backend", flattenRegionBackends(service.Backends))
+	if err != nil {
+		return err
+	}
 	d.Set("health_checks", service.HealthChecks)
 	d.Set("project", project)
 	d.Set("region", region)
@@ -334,4 +337,18 @@ func resourceGoogleComputeRegionBackendServiceBackendHash(v interface{}) int {
 	}
 
 	return hashcode.String(buf.String())
+}
+
+func flattenRegionBackends(backends []*compute.Backend) *schema.Set {
+	result := make([]interface{}, 0, len(backends))
+
+	for _, b := range backends {
+		data := make(map[string]interface{})
+
+		data["description"] = b.Description
+		data["group"] = b.Group
+		result = append(result, data)
+	}
+
+	return schema.NewSet(resourceGoogleComputeRegionBackendServiceBackendHash, result)
 }

@@ -119,7 +119,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
-	d.Set("project", project)
+	d.Set("project", projectID)
 	d.SetId("common_metadata")
 
 	return nil

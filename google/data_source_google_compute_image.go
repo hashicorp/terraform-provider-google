@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -149,7 +150,7 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("creation_timestamp", image.CreationTimestamp)
 	d.Set("description", image.Description)
 	d.Set("disk_size_gb", image.DiskSizeGb)
-	d.Set("image_id", image.Id)
+	d.Set("image_id", strconv.FormatUint(image.Id, 10))
 	d.Set("image_encryption_key_sha256", ieks256)
 	d.Set("label_fingerprint", image.LabelFingerprint)
 	d.Set("labels", image.Labels)
