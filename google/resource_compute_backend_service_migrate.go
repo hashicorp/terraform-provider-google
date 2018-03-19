@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"bytes"
+
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -112,7 +113,7 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 	if v, ok := m["max_rate"]; ok {
-		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
