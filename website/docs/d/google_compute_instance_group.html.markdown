@@ -23,14 +23,15 @@ data "google_compute_instance_group" "all" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the instance group.
-
-* `zone` - (Required) The zone of the instance group.
-
-- - -
+* `name` - (Optional) The name of the instance group. Either `name` or `self_link` must be provided.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `self_link` - (Optional) The self link of the instance group. Either `name` or `self_link` must be provided.
+
+* `zone` - (Optional) The zone of the instance group. If referencing the instance group by name
+    and `zone` is not provided, the provider zone is used.
 
 ## Attributes Reference
 
