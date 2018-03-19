@@ -1,4 +1,4 @@
-## 1.7.1 (Unreleased)
+## 1.8.0 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * `google_dataproc_cluster.delete_autogen_bucket` is now deprecated [GH-1171]
@@ -16,6 +16,13 @@ IMPROVEMENTS:
 * compute: Add `cdn_policy` field to backend service [GH-1208]
 * compute: Add support for deletion protection. [GH-1205]
 * all: IAM resources now wait for propagation before reporting created. [GH-1197]
+
+BUG FIXES:
+* compute: Properly set `image_id` field on `data_google_compute_image` in state [GH-1217]
+* compute: Properly set `backend` field on `google_compute_backend_service` in state [GH-1217]
+* compute: Properly set `project` field on `google_compute_project_metadata` in state [GH-1217]
+* compute: Properly set `backend` field on `google_compute_region_backend_service` in state [GH-1217]
+* dataproc: Properly set `cluster_config.0.intiialization_action` on `google_dataproc_cluster` in state [GH-1217]
 
 ## 1.7.0 (March 12, 2018)
 
