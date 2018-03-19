@@ -339,8 +339,8 @@ func resourceGoogleComputeRegionBackendServiceBackendHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func flattenRegionBackends(backends []*compute.Backend) *schema.Set {
-	result := make([]interface{}, 0, len(backends))
+func flattenRegionBackends(backends []*compute.Backend) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(backends))
 
 	for _, b := range backends {
 		data := make(map[string]interface{})
@@ -350,5 +350,5 @@ func flattenRegionBackends(backends []*compute.Backend) *schema.Set {
 		result = append(result, data)
 	}
 
-	return schema.NewSet(resourceGoogleComputeRegionBackendServiceBackendHash, result)
+	return result
 }
