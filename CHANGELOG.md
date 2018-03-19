@@ -1,3 +1,4 @@
+## 1.8.1 (Unreleased)
 ## 1.8.0 (March 19, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
