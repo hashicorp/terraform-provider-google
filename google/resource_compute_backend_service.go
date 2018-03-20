@@ -344,15 +344,19 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 }
 
 func expandIap(configured []interface{}) *compute.BackendServiceIAP {
-	data := configured[0].(map[string]interface{})
-	iap := &compute.BackendServiceIAP{
-		Enabled:            true,
-		Oauth2ClientId:     data["oauth2_client_id"].(string),
-		Oauth2ClientSecret: data["oauth2_client_secret"].(string),
-		ForceSendFields:    []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+	if len(configured) == 0 {
+		return nil
+	}
+	if data, ok := configured[0].(map[string]interface{}); ok {
+		return &compute.BackendServiceIAP{
+			Enabled:            true,
+			Oauth2ClientId:     data["oauth2_client_id"].(string),
+			Oauth2ClientSecret: data["oauth2_client_secret"].(string),
+			ForceSendFields:    []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+		}
 	}
 
-	return iap
+	return nil
 }
 
 func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
