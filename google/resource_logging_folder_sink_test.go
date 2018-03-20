@@ -127,10 +127,6 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.heredoc", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.heredoc"),
 				),
-			}, {
-				ResourceName:      "google_logging_folder_sink.heredoc",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})

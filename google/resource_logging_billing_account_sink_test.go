@@ -96,10 +96,6 @@ func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.heredoc", &sink),
 					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.heredoc"),
 				),
-			}, {
-				ResourceName:      "google_logging_billing_account_sink.heredoc",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
