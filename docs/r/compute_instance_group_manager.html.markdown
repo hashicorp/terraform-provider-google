@@ -101,6 +101,10 @@ The following arguments are supported:
     instances in the group are added. Updating the target pools attribute does
     not affect existing instances.
 
+* `wait_for_instances` - (Optional) Whether to wait for all instances to be created/updated before
+    returning. Note that if this is set to true and the operation does not succeed, Terraform will
+    continue trying until it times out.
+
 ---
 
 * `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
