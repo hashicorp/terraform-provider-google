@@ -16,7 +16,7 @@ Use this data source to retrieve default service account for this project
 data "google_compute_default_service_account" "default" { }
 
 output "default_account" {
-  value = "${google_compute_default_service_account.default.email}"
+  value = "${data.google_compute_default_service_account.default.email}"
 } 
 ```
 
