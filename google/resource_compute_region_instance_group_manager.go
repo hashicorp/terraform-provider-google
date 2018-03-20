@@ -219,7 +219,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 
 type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBeta.InstanceGroupManager, error)
 
-func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
+func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
@@ -257,17 +257,17 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceDat
 			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
 			return nil, "error", err
 		}
-		if creatingCount := m.CurrentActions.Creating + m.CurrentActions.CreatingWithoutRetries; creatingCount > 0 {
-			return creatingCount, "creating", nil
+		if done := m.CurrentActions.None; done < m.TargetSize {
+			return done, "creating", nil
 		} else {
-			return creatingCount, "created", nil
+			return done, "created", nil
 		}
 	}
 }
 
 func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	manager, err := getManager(d, meta)
+	manager, err := getRegionalManager(d, meta)
 	if err != nil {
 		return err
 	}
@@ -298,12 +298,13 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		conf := resource.StateChangeConf{
 			Pending: []string{"creating", "error"},
 			Target:  []string{"created"},
-			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
+			Refresh: waitForInstancesRefreshFunc(getRegionalManager, d, meta),
 			Timeout: d.Timeout(schema.TimeoutCreate),
 		}
 		_, err := conf.WaitForState()
-		// If err is nil, success.
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

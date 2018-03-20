@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
@@ -197,6 +198,11 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			"wait_for_instances": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 		},
 	}
 }
@@ -312,18 +318,18 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 
 }
 
-func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseApiVersion, InstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	manager := &computeBeta.InstanceGroupManager{}
@@ -339,7 +345,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
-				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+				return nil, handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
@@ -348,7 +354,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			resource, e = getZonalResourceFromRegion(getInstanceGroupManager, region, config.clientCompute, project)
 
 			if e != nil {
-				return e
+				return nil, e
 			}
 
 			v1Manager = resource.(*compute.InstanceGroupManager)
@@ -359,12 +365,12 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 			// The resource doesn't exist anymore
 			d.SetId("")
-			return nil
+			return nil, nil
 		}
 
 		err = Convert(v1Manager, manager)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	case v0beta:
@@ -378,7 +384,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
-				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+				return nil, handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
@@ -386,7 +392,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			var resource interface{}
 			resource, e = getZonalBetaResourceFromRegion(getInstanceGroupManager, region, config.clientComputeBeta, project)
 			if e != nil {
-				return e
+				return nil, e
 			}
 
 			v0betaManager = resource.(*computeBeta.InstanceGroupManager)
@@ -397,10 +403,24 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 			// The resource doesn't exist anymore
 			d.SetId("")
-			return nil
+			return nil, nil
 		}
 
 		manager = v0betaManager
+	}
+	return manager, nil
+}
+
+func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	manager, err := getManager(d, meta)
+	if err != nil {
+		return err
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
@@ -421,6 +441,19 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 	d.Set("update_strategy", update_strategy.(string))
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
+
+	if d.Get("wait_for_instances").(bool) {
+		conf := resource.StateChangeConf{
+			Pending: []string{"creating", "error"},
+			Target:  []string{"created"},
+			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
+			Timeout: d.Timeout(schema.TimeoutCreate),
+		}
+		_, err := conf.WaitForState()
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
