@@ -77,6 +77,31 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 	}
 }
 
+func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+
+	var sink logging.LogSink
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingOrganizationSinkExists("google_logging_organization_sink.heredoc", &sink),
+					testAccCheckLoggingOrganizationSink(&sink, "google_logging_organization_sink.heredoc"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingOrganizationSinkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -176,5 +201,27 @@ resource "google_logging_organization_sink" "update" {
 
 resource "google_storage_bucket" "log-bucket" {
 	name     = "%s"
+}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "heredoc" {
+	name             = "%s"
+	org_id           = "%s"
+	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+	filter           = <<EOS
+
+	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+AND severity>=ERROR
+
+
+
+  EOS
+	include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+	name = "%s"
 }`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }

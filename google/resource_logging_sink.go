@@ -19,8 +19,9 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 		},
 
 		"filter": {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:             schema.TypeString,
+			Optional:         true,
+			DiffSuppressFunc: optionalSurroundingSpacesSuppress,
 		},
 
 		"writer_identity": {
