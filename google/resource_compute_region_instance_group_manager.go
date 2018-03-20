@@ -302,8 +302,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 			Timeout: d.Timeout(schema.TimeoutCreate),
 		}
 		_, err := conf.WaitForState()
-		// If err is nil, success.
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
