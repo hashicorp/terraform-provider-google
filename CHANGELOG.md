@@ -1,5 +1,8 @@
 ## 1.8.1 (Unreleased)
 
+IMPROVEMENTS:
+* compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
+
 BUG FIXES:
 * storage: Set force_destroy when importing storage buckets [GH-1223]
 
