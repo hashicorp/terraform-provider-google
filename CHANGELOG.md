@@ -4,6 +4,7 @@ IMPROVEMENTS:
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
 
 BUG FIXES:
+* compute: fix panic when setting empty iap block [GH-1232]
 * storage: Set force_destroy when importing storage buckets [GH-1223]
 
 ## 1.8.0 (March 19, 2018)
