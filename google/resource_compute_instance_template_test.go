@@ -33,6 +33,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "goog-partner-creation-tool", "terraform"),
 				),
 			},
 			resource.TestStep{
