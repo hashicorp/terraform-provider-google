@@ -78,6 +78,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_region_instance_group":   dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_compute_vpn_gateway":             dataSourceGoogleComputeVpnGateway(),
 			"google_compute_forwarding_rule":         dataSourceGoogleComputeForwardingRule(),
+			"google_compute_ssl_policy":              dataSourceGoogleComputeSslPolicy(),
 			"google_container_cluster":               dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":       dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_repository":   dataSourceGoogleContainerRepo(),
