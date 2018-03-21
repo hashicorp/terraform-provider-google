@@ -27,7 +27,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 		Update: resourceComputeInstanceGroupManagerUpdate,
 		Delete: resourceComputeInstanceGroupManagerDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceInstanceGroupManagerStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -201,7 +201,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"wait_for_instances": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 		},
 	}
@@ -901,4 +901,9 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroup
 		autoHealingPoliciesSchema = append(autoHealingPoliciesSchema, data)
 	}
 	return autoHealingPoliciesSchema
+}
+
+func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("wait_for_instances", false)
+	return []*schema.ResourceData{d}, nil
 }

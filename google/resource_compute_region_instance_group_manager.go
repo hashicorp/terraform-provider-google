@@ -28,7 +28,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 		Update: resourceComputeRegionInstanceGroupManagerUpdate,
 		Delete: resourceComputeRegionInstanceGroupManagerDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceRegionInstanceGroupManagerStateImporter,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -567,4 +567,9 @@ func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
 	resource := parts[len(parts)-1]
 
 	return hashcode.String(resource)
+}
+
+func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("wait_for_instances", false)
+	return []*schema.ResourceData{d}, nil
 }
