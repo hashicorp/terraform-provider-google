@@ -69,10 +69,10 @@ output "cluster_ca_certificate" {
 * `name` - (Required) The name of the cluster, unique within the project and
     zone.
 
-* `zone` - (Required) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in.
-
 - - -
+
+* `zone` - (Optional) The zone that the master and the number of nodes specified
+    in `initial_node_count` should be created in.
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
