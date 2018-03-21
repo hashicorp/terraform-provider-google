@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -10,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
-	"os"
 )
 
 func TestDiskImageDiffSuppress(t *testing.T) {
@@ -372,6 +372,61 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	mgrName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foo", &disk),
+				),
+			},
+			// this needs to be a second step so we refresh and see the instance
+			// listed as attached to the disk; the instance is created after the
+			// disk. and the disk's properties aren't refreshed unless there's
+			// another step
+			resource.TestStep{
+				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foo", &disk),
+					testAccCheckComputeDiskInstances(
+						"google_compute_disk.foo", &disk),
+				),
+			},
+			// Change the disk name to recreate the instances
+			resource.TestStep{
+				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foo", &disk),
+				),
+			},
+			// Add the extra step like before
+			resource.TestStep{
+				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foo", &disk),
+					testAccCheckComputeDiskInstances(
+						"google_compute_disk.foo", &disk),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
 
 	shouldPass := []string{
@@ -636,4 +691,41 @@ resource "google_compute_instance" "bar" {
 		network = "default"
 	}
 }`, diskName, instanceName)
+}
+
+func testAccComputeDisk_deleteDetachIGM(diskName, mgrName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foo" {
+	name = "%s"
+	image = "debian-8-jessie-v20170523"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "template" {
+	machine_type = "g1-small"
+
+	disk {
+		boot        = true
+		source      = "${google_compute_disk.foo.name}"
+		auto_delete = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_instance_group_manager" "manager" {
+  name               = "%s"
+  base_instance_name = "disk-igm"
+  instance_template  = "${google_compute_instance_template.template.self_link}"
+  zone               = "us-central1-a"
+  target_size        = 1
+}`, diskName, mgrName)
 }
