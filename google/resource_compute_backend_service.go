@@ -6,9 +6,14 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	computeBeta "google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v1"
 )
+
+var BackendServiceBaseApiVersion = v1
+var BackendServiceVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "security_policy"}}
 
 func resourceComputeBackendService() *schema.Resource {
 	return &schema.Resource{
@@ -32,7 +37,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"health_checks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Set:      selfLinkRelativePathHash,
 				Required: true,
 				MinItems: 1,
 				MaxItems: 1,
@@ -191,6 +196,12 @@ func resourceComputeBackendService() *schema.Resource {
 				Removed:  "region has been removed as it was never used. For internal load balancing, use google_compute_region_backend_service",
 			},
 
+			"security_policy": &schema.Schema{
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -250,10 +261,26 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		return waitErr
 	}
 
+	if v, ok := d.GetOk("security_policy"); ok {
+		pol, err := ParseSecurityPolicyFieldValue(v.(string), d, config)
+		op, err := config.clientComputeBeta.BackendServices.SetSecurityPolicy(
+			project, service.Name, &computeBeta.SecurityPolicyReference{
+				SecurityPolicy: pol.RelativeLink(),
+			}).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+		}
+		waitErr := computeSharedOperationWait(config.clientCompute, op, project, "Adding Backend Service Security Policy")
+		if waitErr != nil {
+			return waitErr
+		}
+	}
+
 	return resourceComputeBackendServiceRead(d, meta)
 }
 
 func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, BackendServiceBaseApiVersion, BackendServiceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -261,10 +288,25 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	service, err := config.clientCompute.BackendServices.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+	service := &computeBeta.BackendService{}
+	switch computeApiVersion {
+	case v1:
+		v1Service, err := config.clientCompute.BackendServices.Get(
+			project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+		}
+		err = Convert(v1Service, service)
+		if err != nil {
+			return err
+		}
+	case v0beta:
+		var err error
+		service, err = config.clientComputeBeta.BackendServices.Get(
+			project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+		}
 	}
 
 	d.Set("name", service.Name)
@@ -284,6 +326,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("cdn_policy", flattenCdnPolicy(service.CdnPolicy)); err != nil {
 		return err
 	}
+	d.Set("security_policy", service.SecurityPolicy)
 
 	return nil
 }
@@ -309,11 +352,27 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
 
-	d.SetId(service.Name)
-
 	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("security_policy") {
+		pol, err := ParseSecurityPolicyFieldValue(d.Get("security_policy").(string), d, config)
+		if err != nil {
+			return err
+		}
+		op, err := config.clientComputeBeta.BackendServices.SetSecurityPolicy(
+			project, service.Name, &computeBeta.SecurityPolicyReference{
+				SecurityPolicy: pol.RelativeLink(),
+			}).Do()
+		if err != nil {
+			return err
+		}
+		waitErr := computeSharedOperationWait(config.clientCompute, op, project, "Adding Backend Service Security Policy")
+		if waitErr != nil {
+			return waitErr
+		}
 	}
 
 	return resourceComputeBackendServiceRead(d, meta)
@@ -359,7 +418,7 @@ func expandIap(configured []interface{}) *compute.BackendServiceIAP {
 	return nil
 }
 
-func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
+func flattenIap(iap *computeBeta.BackendServiceIAP) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 	if iap == nil || !iap.Enabled {
 		return result
@@ -421,7 +480,7 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	return backends, nil
 }
 
-func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
+func flattenBackends(backends []*computeBeta.Backend) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(backends))
 
 	for _, b := range backends {
@@ -544,7 +603,7 @@ func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy 
 	}
 }
 
-func flattenCdnPolicy(pol *compute.BackendServiceCdnPolicy) []map[string]interface{} {
+func flattenCdnPolicy(pol *computeBeta.BackendServiceCdnPolicy) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if pol == nil || pol.CacheKeyPolicy == nil {
 		return result
