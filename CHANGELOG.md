@@ -9,6 +9,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: fix panic when setting empty iap block [GH-1232]
+* compute: protect against an instance getting deleted by an igm while the disk is being detached [GH-1241]
 * storage: Set force_destroy when importing storage buckets [GH-1223]
 
 ## 1.8.0 (March 19, 2018)
