@@ -15,7 +15,7 @@ import (
 func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 	t.Parallel()
 
-	folder := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-test")
 
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
@@ -25,12 +25,12 @@ func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
-				Config: testAccProjectOrganizationPolicy_boolean(org, folder, true),
+				Config: testAccProjectOrganizationPolicy_boolean(org, projectId, true),
 				Check:  testAccCheckGoogleProjectOrganizationBooleanPolicy("bool", true),
 			},
 			{
 				// Test update from enforced to not
-				Config: testAccProjectOrganizationPolicy_boolean(org, folder, false),
+				Config: testAccProjectOrganizationPolicy_boolean(org, projectId, false),
 				Check:  testAccCheckGoogleProjectOrganizationBooleanPolicy("bool", false),
 			},
 			{
@@ -39,12 +39,12 @@ func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 			},
 			{
 				// Test creation of a not enforced boolean policy
-				Config: testAccProjectOrganizationPolicy_boolean(org, folder, false),
+				Config: testAccProjectOrganizationPolicy_boolean(org, projectId, false),
 				Check:  testAccCheckGoogleProjectOrganizationBooleanPolicy("bool", false),
 			},
 			{
 				// Test update from not enforced to enforced
-				Config: testAccProjectOrganizationPolicy_boolean(org, folder, true),
+				Config: testAccProjectOrganizationPolicy_boolean(org, projectId, true),
 				Check:  testAccCheckGoogleProjectOrganizationBooleanPolicy("bool", true),
 			},
 		},
@@ -54,16 +54,16 @@ func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 func TestAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 	t.Parallel()
 
-	folder := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-test")
 
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectOrganizationPolicy_list_allowAll(org, folder),
+				Config: testAccProjectOrganizationPolicy_list_allowAll(org, projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyAll("list", "ALLOW"),
 			},
 		},
@@ -73,16 +73,16 @@ func TestAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 func TestAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
-	folder := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	project := getTestProjectFromEnv()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectOrganizationPolicy_list_allowSome(org, folder, project),
+				Config: testAccProjectOrganizationPolicy_list_allowSome(org, projectId, project),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyAllowedValues("list", []string{project}),
 			},
 		},
@@ -92,15 +92,15 @@ func TestAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 func TestAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
-	folder := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectOrganizationPolicy_list_denySome(org, folder),
+				Config: testAccProjectOrganizationPolicy_list_denySome(org, projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
@@ -110,19 +110,19 @@ func TestAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 func TestAccProjectOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
-	folder := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-test")
 	org := getTestOrgFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectOrganizationPolicy_list_allowAll(org, folder),
+				Config: testAccProjectOrganizationPolicy_list_allowAll(org, projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyAll("list", "ALLOW"),
 			},
 			{
-				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
+				Config: testAccProjectOrganizationPolicy_list_denySome(org, projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
 		},
@@ -133,13 +133,13 @@ func testAccCheckGoogleProjectOrganizationPolicyDestroy(s *terraform.State) erro
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_folder_organization_policy" {
+		if rs.Type != "google_project_organization_policy" {
 			continue
 		}
 
-		folder := canonicalFolderId(rs.Primary.Attributes["folder"])
+		projectId := rs.Primary.Attributes["projectId"]
 		constraint := canonicalOrgPolicyConstraint(rs.Primary.Attributes["constraint"])
-		policy, err := config.clientResourceManager.Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
+		policy, err := config.clientResourceManager.Projects.GetOrgPolicy(projectId, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: constraint,
 		}).Do()
 

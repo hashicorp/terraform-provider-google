@@ -19,7 +19,7 @@ To set policy with a [boolean constraint](https://cloud.google.com/resource-mana
 
 ```hcl
 resource "google_project_organization_policy" "serial_port_policy" {
-  project    = "123456789"
+  project    = "your-project-id"
   constraint = "compute.disableSerialPortAccess"
 
   boolean_policy {
@@ -33,7 +33,7 @@ To set a policy with a [list contraint](https://cloud.google.com/resource-manage
 
 ```hcl
 resource "google_project_organization_policy" "services_policy" {
-  project    = "123456789"
+  project    = "your-project-id"
   constraint = "serviceuser.services"
 
   list_policy {
@@ -49,7 +49,7 @@ Or to deny some services, use the following instead:
 
 ```hcl
 resource "google_project_organization_policy" "services_policy" {
-  project    = "folders/123456789"
+  project    = "your-project-id"
   constraint = "serviceuser.services"
 
   list_policy {
@@ -66,7 +66,7 @@ resource "google_project_organization_policy" "services_policy" {
 
 The following arguments are supported:
 
-* `project` - (Required) The project id of the project to set the policy for. Its format is simply {project_id}.
+* `project` - (Required) The project id of the project to set the policy for.
 
 * `constraint` - (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
 
