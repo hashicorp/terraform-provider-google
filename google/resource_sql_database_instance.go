@@ -685,10 +685,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// replica, then any users are inherited from the master instance and should be left alone.
 	if !sqlResourceIsReplica(d) {
 		var users *sqladmin.UsersListResponse
-		err = retry(func() error {
+		err = retryTime(func() error {
 			users, err = config.clientSqlAdmin.Users.List(project, instance.Name).Do()
 			return err
-		})
+		}, 3)
 		if err != nil {
 			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}

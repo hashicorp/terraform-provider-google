@@ -1,11 +1,14 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -87,6 +90,8 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 			"user %s into instance %s: %s", name, instance, err)
 	}
 
+	// This will include a double-slash (//) for 2nd generation instances,
+	// for which user.Host is an empty string.  That's okay.
 	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
 	err = sqladminOperationWait(config, op, project, "Insert User")
@@ -109,17 +114,30 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	instance := d.Get("instance").(string)
 	name := d.Get("name").(string)
-	host, hostOk := d.GetOk("host")
+	host := d.Get("host").(string)
 
-	users, err := config.clientSqlAdmin.Users.List(project, instance).Do()
+	var users *sqladmin.UsersListResponse
+	backoff := 1 * time.Second
+	err = nil
+	for users == nil || err != nil {
+		users, err = config.clientSqlAdmin.Users.List(project, instance).Do()
 
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
+		if e, ok := err.(*googleapi.Error); ok && (e.Code == 429 || e.Code == 503) {
+			backoff = backoff * 2
+			if backoff > 30*time.Second {
+				return errors.New("Too many quota / service unavailable errors waiting for operation.")
+			}
+			time.Sleep(backoff)
+		} else if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
+		}
 	}
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
-		if currentUser.Name == name && (!hostOk || currentUser.Host == host.(string)) {
+		// The second part of this conditional is irrelevant for 2nd generation instances because
+		// host and currentUser.Host will always both be empty.
+		if currentUser.Name == name && currentUser.Host == host {
 			user = currentUser
 			break
 		}

@@ -2,7 +2,6 @@ package google
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -20,26 +19,12 @@ type SqlAdminOperationWaiter struct {
 
 func (w *SqlAdminOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var op *sqladmin.Operation
-		var err error
-		backoff := 1 * time.Second
-
 		log.Printf("[DEBUG] self_link: %s", w.Op.SelfLink)
-		for {
-			op, err = w.Service.Operations.Get(w.Project, w.Op.Name).Do()
+		op, err := w.Service.Operations.Get(w.Project, w.Op.Name).Do()
 
-			if e, ok := err.(*googleapi.Error); ok && (e.Code == 429 || e.Code == 503) {
-				backoff = backoff * 2
-				if backoff > 30*time.Second {
-					return nil, "", errors.New("Too many quota / service unavailable errors waiting for operation.")
-				}
-				time.Sleep(backoff)
-				continue
-			} else {
-				break
-			}
-		}
-		if err != nil {
+		if e, ok := err.(*googleapi.Error); ok && (e.Code == 429 || e.Code == 503) {
+			return w.Op, "PENDING", nil
+		} else if err != nil {
 			return nil, "", err
 		}
 
