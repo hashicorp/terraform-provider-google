@@ -81,6 +81,9 @@ The following arguments are supported:
 
 * `cdn_policy` - (Optional) Cloud CDN configuration for this BackendService. Structure is documented below.
 
+* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
+but still work to finish started ones). Defaults to `300`.
+
 * `description` - (Optional) The textual description for the backend service.
 
 * `enable_cdn` - (Optional) Whether or not to enable the Cloud CDN on the backend service.
@@ -94,15 +97,15 @@ The following arguments are supported:
 * `protocol` - (Optional) The protocol for incoming requests. Defaults to
     `HTTP`.
 
+* `security_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Name or URI of a
+    [security policy](https://cloud.google.com/armor/docs/security-policy-concepts) to add to the backend service.
+
 * `session_affinity` - (Optional) How to distribute load. Options are `NONE` (no
     affinity), `CLIENT_IP` (hash of the source/dest addresses / ports), and
     `GENERATED_COOKIE` (distribute load using a generated session cookie).
 
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
-
-* `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
-but still work to finish started ones). Defaults to `300`.
 
 The `backend` block supports:
 
