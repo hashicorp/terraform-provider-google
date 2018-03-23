@@ -155,6 +155,8 @@ output "cluster_ca_certificate" {
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+* `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
+
 * `subnetwork` - (Optional) The name of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
