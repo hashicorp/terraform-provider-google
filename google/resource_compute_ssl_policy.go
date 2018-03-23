@@ -122,12 +122,13 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating SSL Policy: %s", err)
 	}
 
-	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutDelete).Minutes()), "Creating SSL Policy")
+	d.SetId(sslPolicy.Name)
+
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "Creating SSL Policy")
 	if err != nil {
+		d.SetId("") // if insert fails, remove from state
 		return err
 	}
-
-	d.SetId(sslPolicy.Name)
 
 	return resourceComputeSslPolicyRead(d, meta)
 }
@@ -140,12 +141,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	name := d.Get("name").(string)
-
-	// handle resource inputs when only the resource id (name) is given
-	if name == "" {
-		name = d.Id()
-	}
+	name := d.Id()
 
 	sslPolicy, err := config.clientComputeBeta.SslPolicies.Get(project, name).Do()
 	if err != nil {
@@ -180,66 +176,22 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 
 	name := d.Get("name").(string)
 
-	d.Partial(true)
-
-	if d.HasChange("min_tls_version") {
-		sslPolicy := &computeBeta.SslPolicy{
-			MinTlsVersion: d.Get("min_tls_version").(string),
-			Fingerprint:   d.Get("fingerprint").(string),
-		}
-
-		op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating SSL Policy: %s", err)
-		}
-
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Updating SSL Policy")
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("min_tls_version")
+	sslPolicy := &computeBeta.SslPolicy{
+		Fingerprint:    d.Get("fingerprint").(string),
+		Profile:        d.Get("profile").(string),
+		MinTlsVersion:  d.Get("min_tls_version").(string),
+		CustomFeatures: convCustomFeaturesListToSlice(d.Get("custom_features").([]interface{})),
 	}
 
-	if d.HasChange("profile") {
-		sslPolicy := &computeBeta.SslPolicy{
-			Profile:     d.Get("profile").(string),
-			Fingerprint: d.Get("fingerprint").(string),
-		}
-
-		op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating SSL Policy: %s", err)
-		}
-
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Updating SSL Policy")
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("profile")
+	op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
+	if err != nil {
+		return fmt.Errorf("Error updating SSL Policy: %s", err)
 	}
 
-	if d.HasChange("custom_features") {
-		sslPolicy := &computeBeta.SslPolicy{
-			CustomFeatures: convCustomFeaturesListToSlice(d.Get("custom_features").([]interface{})),
-			Fingerprint:    d.Get("fingerprint").(string),
-		}
-
-		op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating SSL Policy: %s", err)
-		}
-
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Updating SSL Policy")
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("custom_features")
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "Updating SSL Policy")
+	if err != nil {
+		return err
 	}
-
-	d.Partial(false)
 
 	return resourceComputeSslPolicyRead(d, meta)
 }
