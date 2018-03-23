@@ -783,6 +783,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	lockKey := containerClusterMutexKey(project, zoneName, clusterName)
 
+	// The ClusterUpdate object that we use for most of these updates only allows updating one field at a time,
+	// so we have to make separate calls for each field that we want to update. The order here is fairly arbitrary-
+	// if the order of updating fields does matter, it is called out explicitly.
+
 	if d.HasChange("master_authorized_networks_config") {
 		c := d.Get("master_authorized_networks_config")
 		conf := &container.MasterAuthorizedNetworksConfig{}
