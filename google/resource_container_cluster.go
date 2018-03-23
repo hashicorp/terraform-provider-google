@@ -359,13 +359,11 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -785,6 +783,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	lockKey := containerClusterMutexKey(project, zoneName, clusterName)
 
+	// The ClusterUpdate object that we use for most of these updates only allows updating one field at a time,
+	// so we have to make separate calls for each field that we want to update. The order here is fairly arbitrary-
+	// if the order of updating fields does matter, it is called out explicitly.
+
 	if d.HasChange("master_authorized_networks_config") {
 		c := d.Get("master_authorized_networks_config")
 		conf := &container.MasterAuthorizedNetworksConfig{}
@@ -1123,6 +1125,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s: logging service has been updated to %s", d.Id(),
 			logging)
 		d.SetPartial("logging_service")
+	}
+
+	if d.HasChange("pod_security_policy_config") {
+		c := d.Get("pod_security_policy_config")
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredPodSecurityPolicyConfig: expandPodSecurityPolicyConfig(c),
+			},
+		}
+
+		updateF := func() error {
+			op, err := config.clientContainerBeta.Projects.Zones.Clusters.Update(
+				project, zoneName, clusterName, req).Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerSharedOperationWait(config, op, project, zoneName, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s pod security policy config has been updated", d.Id())
+
+		d.SetPartial("pod_security_policy_config")
 	}
 
 	if d.HasChange("remove_default_node_pool") && d.Get("remove_default_node_pool").(bool) {

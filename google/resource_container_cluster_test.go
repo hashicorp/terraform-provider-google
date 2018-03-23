@@ -941,6 +941,21 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 				// Import always uses the v1 API, so beta features don't get imported.
 				ImportStateVerifyIgnore: []string{"pod_security_policy_config.#", "pod_security_policy_config.0.enabled"},
 			},
+			{
+				Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_pod_security_policy",
+						"pod_security_policy_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_pod_security_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				// Import always uses the v1 API, so beta features don't get imported.
+				ImportStateVerifyIgnore: []string{"pod_security_policy_config.#", "pod_security_policy_config.0.enabled"},
+			},
 		},
 	})
 }
