@@ -1,14 +1,11 @@
 package google
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -117,20 +114,13 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	host := d.Get("host").(string)
 
 	var users *sqladmin.UsersListResponse
-	backoff := 1 * time.Second
 	err = nil
-	for users == nil || err != nil {
+	err = retry(func() error {
 		users, err = config.clientSqlAdmin.Users.List(project, instance).Do()
-
-		if e, ok := err.(*googleapi.Error); ok && (e.Code == 429 || e.Code == 503) {
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return errors.New("Too many quota / service unavailable errors waiting for operation.")
-			}
-			time.Sleep(backoff)
-		} else if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
-		}
+		return err
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
 	}
 
 	var user *sqladmin.User
