@@ -52,6 +52,8 @@ type Config struct {
 	client    *http.Client
 	userAgent string
 
+	tokenSource oauth2.TokenSource
+
 	clientBilling                *cloudbilling.Service
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
@@ -134,6 +136,8 @@ func (c *Config) loadAndValidate() error {
 			return err
 		}
 	}
+
+	c.tokenSource = tokenSource
 
 	client.Transport = logging.NewTransport("Google", client.Transport)
 
