@@ -28,10 +28,17 @@ func resourceComputeSslPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
 			"custom_features": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 
 			"description": &schema.Schema{
@@ -40,22 +47,11 @@ func resourceComputeSslPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"fingerprint": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"min_tls_version": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "TLS_1_0",
 				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", "TLS_1_3"}, false),
-			},
-
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 
 			"profile": &schema.Schema{
@@ -70,6 +66,11 @@ func resourceComputeSslPolicy() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+
+			"fingerprint": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			"self_link": &schema.Schema{
@@ -114,7 +115,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		Description:    d.Get("description").(string),
 		Profile:        d.Get("profile").(string),
 		MinTlsVersion:  d.Get("min_tls_version").(string),
-		CustomFeatures: convCustomFeaturesListToSlice(d.Get("custom_features").([]interface{})),
+		CustomFeatures: convertStringSet(d.Get("custom_features").(*schema.Set)),
 	}
 
 	op, err := config.clientComputeBeta.SslPolicies.Insert(project, sslPolicy).Do()
@@ -180,7 +181,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 		Fingerprint:    d.Get("fingerprint").(string),
 		Profile:        d.Get("profile").(string),
 		MinTlsVersion:  d.Get("min_tls_version").(string),
-		CustomFeatures: convCustomFeaturesListToSlice(d.Get("custom_features").([]interface{})),
+		CustomFeatures: convertStringSet(d.Get("custom_features").(*schema.Set)),
 	}
 
 	op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
@@ -220,14 +221,4 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	d.SetId("")
 
 	return nil
-}
-
-func convCustomFeaturesListToSlice(customFeaturesList []interface{}) []string {
-	customFeaturesSlice := make([]string, 0, len(customFeaturesList))
-
-	for _, v := range customFeaturesList {
-		customFeaturesSlice = append(customFeaturesSlice, v.(string))
-	}
-
-	return customFeaturesSlice
 }
