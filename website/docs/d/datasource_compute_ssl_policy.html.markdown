@@ -1,4 +1,3 @@
-
 ---
 layout: "google"
 page_title: "Google: google_compute_ssl_policy"
@@ -16,7 +15,7 @@ Gets an SSL Policy within GCE from its name, for use with Target HTTPS and Targe
 
 ```tf
 data "google_compute_ssl_policy" "my-ssl-policy" {
-  name   = "production-ssl-policy"
+  name = "production-ssl-policy"
 }
 ```
 
@@ -43,7 +42,7 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `custom_features` - If the `profile` is `CUSTOM`, these are the custom encryption
     ciphers supported by the profile. If the `profile` is *not* `CUSTOM`, this
-    attribute will be nil.
+    attribute will be empty.
 
 * `fingerprint` - Fingerprint of this resource.
 
