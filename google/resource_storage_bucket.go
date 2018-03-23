@@ -498,6 +498,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	d.Set("name", d.Id())
+	d.Set("force_destroy", false)
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -15,7 +15,9 @@ import (
 
 var (
 	ContainerNodePoolBaseApiVersion    = v1
-	ContainerNodePoolVersionedFeatures = []Feature{}
+	ContainerNodePoolVersionedFeatures = []Feature{
+		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
+	}
 )
 
 func resourceContainerNodePool() *schema.Resource {
@@ -90,6 +92,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		Optional: true,
 		ForceNew: true,
 		Computed: true,
+	},
+
+	"instance_group_urls": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
 	},
 
 	"management": {
@@ -423,11 +431,12 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		size += int(igm.TargetSize)
 	}
 	nodePool := map[string]interface{}{
-		"name":               np.Name,
-		"name_prefix":        d.Get(prefix + "name_prefix"),
-		"initial_node_count": np.InitialNodeCount,
-		"node_count":         size / len(np.InstanceGroupUrls),
-		"node_config":        flattenNodeConfig(np.Config),
+		"name":                np.Name,
+		"name_prefix":         d.Get(prefix + "name_prefix"),
+		"initial_node_count":  np.InitialNodeCount,
+		"node_count":          size / len(np.InstanceGroupUrls),
+		"node_config":         flattenNodeConfig(np.Config),
+		"instance_group_urls": np.InstanceGroupUrls,
 	}
 
 	if np.Autoscaling != nil && np.Autoscaling.Enabled {

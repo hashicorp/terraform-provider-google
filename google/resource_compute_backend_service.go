@@ -6,9 +6,14 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	computeBeta "google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v1"
 )
+
+var BackendServiceBaseApiVersion = v1
+var BackendServiceVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "security_policy"}}
 
 func resourceComputeBackendService() *schema.Resource {
 	return &schema.Resource{
@@ -32,7 +37,7 @@ func resourceComputeBackendService() *schema.Resource {
 			"health_checks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Set:      selfLinkRelativePathHash,
 				Required: true,
 				MinItems: 1,
 				MaxItems: 1,
@@ -105,6 +110,50 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
+			"cdn_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_key_policy": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_host": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"include_protocol": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"include_query_string": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"query_string_blacklist": &schema.Schema{
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_whitelist"},
+									},
+									"query_string_whitelist": &schema.Schema{
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_blacklist"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -145,6 +194,12 @@ func resourceComputeBackendService() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Removed:  "region has been removed as it was never used. For internal load balancing, use google_compute_region_backend_service",
+			},
+
+			"security_policy": &schema.Schema{
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"self_link": &schema.Schema{
@@ -206,10 +261,26 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		return waitErr
 	}
 
+	if v, ok := d.GetOk("security_policy"); ok {
+		pol, err := ParseSecurityPolicyFieldValue(v.(string), d, config)
+		op, err := config.clientComputeBeta.BackendServices.SetSecurityPolicy(
+			project, service.Name, &computeBeta.SecurityPolicyReference{
+				SecurityPolicy: pol.RelativeLink(),
+			}).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+		}
+		waitErr := computeSharedOperationWait(config.clientCompute, op, project, "Adding Backend Service Security Policy")
+		if waitErr != nil {
+			return waitErr
+		}
+	}
+
 	return resourceComputeBackendServiceRead(d, meta)
 }
 
 func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, BackendServiceBaseApiVersion, BackendServiceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -217,10 +288,25 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	service, err := config.clientCompute.BackendServices.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+	service := &computeBeta.BackendService{}
+	switch computeApiVersion {
+	case v1:
+		v1Service, err := config.clientCompute.BackendServices.Get(
+			project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+		}
+		err = Convert(v1Service, service)
+		if err != nil {
+			return err
+		}
+	case v0beta:
+		var err error
+		service, err = config.clientComputeBeta.BackendServices.Get(
+			project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
+		}
 	}
 
 	d.Set("name", service.Name)
@@ -237,6 +323,10 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("iap", flattenIap(service.Iap))
 	d.Set("project", project)
 	d.Set("health_checks", service.HealthChecks)
+	if err := d.Set("cdn_policy", flattenCdnPolicy(service.CdnPolicy)); err != nil {
+		return err
+	}
+	d.Set("security_policy", service.SecurityPolicy)
 
 	return nil
 }
@@ -262,11 +352,27 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
 
-	d.SetId(service.Name)
-
 	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("security_policy") {
+		pol, err := ParseSecurityPolicyFieldValue(d.Get("security_policy").(string), d, config)
+		if err != nil {
+			return err
+		}
+		op, err := config.clientComputeBeta.BackendServices.SetSecurityPolicy(
+			project, service.Name, &computeBeta.SecurityPolicyReference{
+				SecurityPolicy: pol.RelativeLink(),
+			}).Do()
+		if err != nil {
+			return err
+		}
+		waitErr := computeSharedOperationWait(config.clientCompute, op, project, "Adding Backend Service Security Policy")
+		if waitErr != nil {
+			return waitErr
+		}
 	}
 
 	return resourceComputeBackendServiceRead(d, meta)
@@ -297,18 +403,22 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 }
 
 func expandIap(configured []interface{}) *compute.BackendServiceIAP {
-	data := configured[0].(map[string]interface{})
-	iap := &compute.BackendServiceIAP{
-		Enabled:            true,
-		Oauth2ClientId:     data["oauth2_client_id"].(string),
-		Oauth2ClientSecret: data["oauth2_client_secret"].(string),
-		ForceSendFields:    []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+	if len(configured) == 0 {
+		return nil
+	}
+	if data, ok := configured[0].(map[string]interface{}); ok {
+		return &compute.BackendServiceIAP{
+			Enabled:            true,
+			Oauth2ClientId:     data["oauth2_client_id"].(string),
+			Oauth2ClientSecret: data["oauth2_client_secret"].(string),
+			ForceSendFields:    []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+		}
 	}
 
-	return iap
+	return nil
 }
 
-func flattenIap(iap *compute.BackendServiceIAP) []map[string]interface{} {
+func flattenIap(iap *computeBeta.BackendServiceIAP) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 	if iap == nil || !iap.Enabled {
 		return result
@@ -370,7 +480,7 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 	return backends, nil
 }
 
-func flattenBackends(backends []*compute.Backend) []map[string]interface{} {
+func flattenBackends(backends []*computeBeta.Backend) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(backends))
 
 	for _, b := range backends {
@@ -408,6 +518,11 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 		HealthChecks: healthChecks,
 		Iap: &compute.BackendServiceIAP{
 			ForceSendFields: []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
+		},
+		CdnPolicy: &compute.BackendServiceCdnPolicy{
+			CacheKeyPolicy: &compute.CacheKeyPolicy{
+				ForceSendFields: []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
+			},
 		},
 	}
 
@@ -454,5 +569,55 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 
 	service.ConnectionDraining = connectionDraining
 
+	if v, ok := d.GetOk("cdn_policy"); ok {
+		c := expandCdnPolicy(v.([]interface{}))
+		if c != nil {
+			service.CdnPolicy = c
+		}
+	}
+
 	return service, nil
+}
+
+func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy {
+	if len(configured) == 0 {
+		return nil
+	}
+	data := configured[0].(map[string]interface{})
+
+	ckp := data["cache_key_policy"].([]interface{})
+	if len(ckp) == 0 {
+		return nil
+	}
+	ckpData := ckp[0].(map[string]interface{})
+
+	return &compute.BackendServiceCdnPolicy{
+		CacheKeyPolicy: &compute.CacheKeyPolicy{
+			IncludeHost:          ckpData["include_host"].(bool),
+			IncludeProtocol:      ckpData["include_protocol"].(bool),
+			IncludeQueryString:   ckpData["include_query_string"].(bool),
+			QueryStringBlacklist: convertStringSet(ckpData["query_string_blacklist"].(*schema.Set)),
+			QueryStringWhitelist: convertStringSet(ckpData["query_string_whitelist"].(*schema.Set)),
+			ForceSendFields:      []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
+		},
+	}
+}
+
+func flattenCdnPolicy(pol *computeBeta.BackendServiceCdnPolicy) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if pol == nil || pol.CacheKeyPolicy == nil {
+		return result
+	}
+
+	return append(result, map[string]interface{}{
+		"cache_key_policy": []map[string]interface{}{
+			{
+				"include_host":           pol.CacheKeyPolicy.IncludeHost,
+				"include_protocol":       pol.CacheKeyPolicy.IncludeProtocol,
+				"include_query_string":   pol.CacheKeyPolicy.IncludeQueryString,
+				"query_string_blacklist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringBlacklist)),
+				"query_string_whitelist": schema.NewSet(schema.HashString, convertStringArrToInterface(pol.CacheKeyPolicy.QueryStringWhitelist)),
+			},
+		},
+	})
 }

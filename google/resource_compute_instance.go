@@ -552,6 +552,12 @@ func resourceComputeInstance() *schema.Resource {
 				Optional: true,
 			},
 
+			"deletion_protection": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"label_fingerprint": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -717,19 +723,20 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Create the instance information
 	instance := &computeBeta.Instance{
-		CanIpForward:      d.Get("can_ip_forward").(bool),
-		Description:       d.Get("description").(string),
-		Disks:             disks,
-		MachineType:       machineType.SelfLink,
-		Metadata:          metadata,
-		Name:              d.Get("name").(string),
-		NetworkInterfaces: networkInterfaces,
-		Tags:              resourceInstanceTags(d),
-		Labels:            expandLabels(d),
-		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
-		GuestAccelerators: accels,
-		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
-		Scheduling:        scheduling,
+		CanIpForward:       d.Get("can_ip_forward").(bool),
+		Description:        d.Get("description").(string),
+		Disks:              disks,
+		MachineType:        machineType.SelfLink,
+		Metadata:           metadata,
+		Name:               d.Get("name").(string),
+		NetworkInterfaces:  networkInterfaces,
+		Tags:               resourceInstanceTags(d),
+		Labels:             expandLabels(d),
+		ServiceAccounts:    expandServiceAccounts(d.Get("service_account").([]interface{})),
+		GuestAccelerators:  accels,
+		MinCpuPlatform:     d.Get("min_cpu_platform").(string),
+		Scheduling:         scheduling,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
@@ -898,6 +905,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
+	d.Set("deletion_protection", instance.DeletionProtection)
 	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.Set("project", project)
@@ -1268,6 +1276,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		scopesChange = !oScopes.Equal(nScopes)
 	}
 
+	if d.HasChange("deletion_protection") {
+		nDeletionProtection := d.Get("deletion_protection").(bool)
+
+		op, err := config.clientCompute.Instances.SetDeletionProtection(project, zone, d.Id()).DeletionProtection(nDeletionProtection).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating deletion protection flag: %s", err)
+		}
+
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "deletion protection to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetPartial("deletion_protection")
+	}
+
 	// Attributes which can only be changed if the instance is stopped
 	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") {
 		if !d.Get("allow_stopping_for_update").(bool) {
@@ -1471,19 +1495,24 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
-	op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
-	if err != nil {
-		return fmt.Errorf("Error deleting instance: %s", err)
-	}
 
-	// Wait for the operation to complete
-	opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
-	if opErr != nil {
-		return opErr
-	}
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("Cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \"terraform apply\" before attempting to delete it.", d.Id())
+	} else {
+		op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting instance: %s", err)
+		}
 
-	d.SetId("")
-	return nil
+		// Wait for the operation to complete
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetId("")
+		return nil
+	}
 }
 
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

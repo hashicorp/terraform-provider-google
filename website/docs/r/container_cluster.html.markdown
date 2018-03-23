@@ -69,10 +69,10 @@ output "cluster_ca_certificate" {
 * `name` - (Required) The name of the cluster, unique within the project and
     zone.
 
-* `zone` - (Required) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in.
-
 - - -
+
+* `zone` - (Optional) The zone that the master and the number of nodes specified
+    in `initial_node_count` should be created in.
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
@@ -169,10 +169,13 @@ The `addons_config` block supports:
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
-
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is enabled by default; set `disabled = true` to disable.
+* `network_policy_config` - (Optional) Whether we should enable the network policy addon
+    for the master.  This must be enabled in order to enable network policy for the nodes.
+    It can only be disabled if the nodes already do not have network policies enabled.
+    Set `disabled = true` to disable.
 
 This example `addons_config` disables two addons:
 
@@ -290,6 +293,9 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
+* `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
+    Structure is documented below.
+
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
@@ -300,6 +306,14 @@ The `pod_security_policy_config` block supports:
 
 * `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
     If enabled, pods must be valid under a PodSecurityPolicy to be created.
+
+The `workload_metadata_config` block supports:
+
+* `node_metadata` (Required) How to expose the node metadata to the workload running on the node.
+    Accepted values are:
+    * UNSPECIFIED: Not Set
+    * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
+    * EXPOSE: Expose all VM metadata to pods.
 
 ## Attributes Reference
 

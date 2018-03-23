@@ -1274,10 +1274,10 @@
 			"revisionTime": "2017-09-12T00:03:44Z"
 		},
 		{
-			"checksumSHA1": "xIL4sQObOZib3wMDNpK6ck29uuo=",
+			"checksumSHA1": "kasq8gGLFuCh5Li1MgvYSOr1C20=",
 			"path": "google.golang.org/api/compute/v0.beta",
-			"revision": "17b5f22a248d6d3913171c1a557552ace0d9c806",
-			"revisionTime": "2017-11-21T19:49:26Z"
+			"revision": "8dd9492f46214d3ecd264e970de1cf530c51c12e",
+			"revisionTime": "2018-03-07T00:03:37Z"
 		},
 		{
 			"checksumSHA1": "mAsa+xKdihWif0c4tJ6hOwpDuhk=",

@@ -58,6 +58,14 @@ func ParseMachineTypesFieldValue(machineType string, d TerraformResourceData, co
 	return parseZonalFieldValue("machineTypes", machineType, "project", "zone", d, config, false)
 }
 
+func ParseInstanceGroupFieldValue(instanceGroup string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("instanceGroups", instanceGroup, "project", "zone", d, config, false)
+}
+
+func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("securityPolicies", securityPolicy, "project", d, config, true)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------

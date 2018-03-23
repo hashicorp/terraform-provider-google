@@ -48,18 +48,35 @@ func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceGoogleComputeInstanceGroup_fromIGM(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_compute_instance_group.test", "instances.#", "10"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataSourceGoogleComputeInstanceGroup(dataSourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		dsFullName := "data.google_compute_instance_group.test"
 		rsFullName := "google_compute_instance_group.test"
 		ds, ok := s.RootModule().Resources[dsFullName]
 		if !ok {
-			return fmt.Errorf("cant' find resource called %s in state", dsFullName)
+			return fmt.Errorf("cant' find data source called %s in state", dsFullName)
 		}
 
 		rs, ok := s.RootModule().Resources[rsFullName]
 		if !ok {
-			return fmt.Errorf("can't find data source called %s in state", rsFullName)
+			return fmt.Errorf("can't find resource called %s in state", rsFullName)
 		}
 
 		dsAttrs := ds.Primary.Attributes
@@ -258,4 +275,37 @@ data "google_compute_instance_group" "test" {
   zone = "${google_compute_instance_group.test.zone}"
 }
 `, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM() string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-basic" {
+  name = "%s"
+  machine_type = "n1-standard-1"
+
+  disk {
+    source_image = "debian-cloud/debian-8-jessie-v20160803"
+    auto_delete = true
+    boot = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_group_manager" "igm" {
+  name = "%s"
+  instance_template = "${google_compute_instance_template.igm-basic.self_link}"
+  base_instance_name = "igm"
+  zone = "us-central1-a"
+  target_size = 10
+
+  wait_for_instances = true
+}
+
+data "google_compute_instance_group" "test" {
+  self_link = "${google_compute_instance_group_manager.igm.instance_group}"
+}
+`, acctest.RandomWithPrefix("test-igm"), acctest.RandomWithPrefix("test-igm"))
 }

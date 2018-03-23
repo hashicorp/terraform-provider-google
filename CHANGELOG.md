@@ -1,11 +1,39 @@
-## 1.7.1 (Unreleased)
+## 1.9.0 (Unreleased)
 
-BACKWARDS INCOMPATIBILITIES / NOTES:
-* `google_dataproc_cluster.delete_autogen_bucket` is now deprecated [GH-1171]
+FEATURES:
+* **New Resource** `google_compute_security_policy` [GH-1242]
 
 IMPROVEMENTS:
-* container: un-deprecate `google_container_node_pool.initial_node_count` [GH-1176]
-* container: Add support for pod security policy [GH-1192]
+* compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
+* compute: add support for security policies in backend services [GH-1243]
+
+BUG FIXES:
+* compute: fix panic when setting empty iap block [GH-1232]
+* storage: Set force_destroy when importing storage buckets [GH-1223]
+
+## 1.8.0 (March 19, 2018)
+
+BACKWARDS INCOMPATIBILITIES / NOTES:
+* `google_dataproc_cluster.delete_autogen_bucket` is now deprecated ([#1171](https://github.com/terraform-providers/terraform-provider-google/issues/1171))
+
+FEATURES:
+* **New Resource** `google_organization_iam_policy` (see docs for caveats) ([#1196](https://github.com/terraform-providers/terraform-provider-google/issues/1196))
+
+IMPROVEMENTS:
+* container: un-deprecate `google_container_node_pool.initial_node_count` ([#1176](https://github.com/terraform-providers/terraform-provider-google/issues/1176))
+* container: Add support for pod security policy ([#1192](https://github.com/terraform-providers/terraform-provider-google/issues/1192))
+* container: Add support for GKE metadata concealment ([#1199](https://github.com/terraform-providers/terraform-provider-google/issues/1199))
+* container: Add support for GKE network policy config addon. ([#1200](https://github.com/terraform-providers/terraform-provider-google/issues/1200))
+* container: Add support for `instance_group_urls` in `google_container_node_pool` ([#1207](https://github.com/terraform-providers/terraform-provider-google/issues/1207))
+* compute: Rolling update support for instance group manager ([#1137](https://github.com/terraform-providers/terraform-provider-google/issues/1137))
+* compute: Add `cdn_policy` field to backend service ([#1208](https://github.com/terraform-providers/terraform-provider-google/issues/1208))
+* compute: Add support for deletion protection. ([#1205](https://github.com/terraform-providers/terraform-provider-google/issues/1205))
+* all: IAM resources now wait for propagation before reporting created. ([#1197](https://github.com/terraform-providers/terraform-provider-google/issues/1197))
+
+BUG FIXES:
+* compute: Properly set `image_id` field on `data_google_compute_image` in state ([#1217](https://github.com/terraform-providers/terraform-provider-google/issues/1217))
+* compute: Properly set `project` field on `google_compute_project_metadata` in state ([#1217](https://github.com/terraform-providers/terraform-provider-google/issues/1217))
+* dataproc: Properly set `cluster_config.0.initialization_action` on `google_dataproc_cluster` in state ([#1217](https://github.com/terraform-providers/terraform-provider-google/issues/1217))
 
 ## 1.7.0 (March 12, 2018)
 

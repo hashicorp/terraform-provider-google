@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -180,6 +181,62 @@ func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
 						"google_compute_instance_group_manager.igm-update-strategy", &manager),
 					testAccCheckInstanceGroupManagerUpdateStrategy(
 						"google_compute_instance_group_manager.igm-update-strategy", "NONE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
+	t.Parallel()
+
+	var manager computeBeta.InstanceGroupManager
+
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceGroupManager_rollingUpdatePolicy(igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceGroupManagerBetaExists(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", &manager),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "update_strategy", "ROLLING_UPDATE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.type", "PROACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.minimal_action", "REPLACE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_surge_percent", "50"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_unavailable_percent", "50"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "20"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccInstanceGroupManager_rollingUpdatePolicy2(igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceGroupManagerBetaExists(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", &manager),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "update_strategy", "ROLLING_UPDATE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.type", "PROACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.minimal_action", "REPLACE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_surge_fixed", "2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_unavailable_fixed", "2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "20"),
+					testAccCheckInstanceGroupManagerRollingUpdatePolicy(
+						&manager, "google_compute_instance_group_manager.igm-rolling-update-policy"),
 				),
 			},
 		},
@@ -521,6 +578,50 @@ func testAccCheckInstanceGroupManagerUpdateStrategy(n, strategy string) resource
 	}
 }
 
+func testAccCheckInstanceGroupManagerRollingUpdatePolicy(manager *computeBeta.InstanceGroupManager, resource string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[resource]
+
+		updatePolicy := manager.UpdatePolicy
+
+		surgeFixed, _ := strconv.ParseInt(rs.Primary.Attributes["rolling_update_policy.0.max_surge_fixed"], 10, 64)
+		if updatePolicy.MaxSurge.Fixed != surgeFixed {
+			return fmt.Errorf("Expected update policy MaxSurge to be %d, got %d", surgeFixed, updatePolicy.MaxSurge.Fixed)
+		}
+
+		surgePercent, _ := strconv.ParseInt(rs.Primary.Attributes["rolling_update_policy.0.max_surge_percent"], 10, 64)
+		if updatePolicy.MaxSurge.Percent != surgePercent {
+			return fmt.Errorf("Expected update policy MaxSurge to be %d, got %d", surgePercent, updatePolicy.MaxSurge.Percent)
+		}
+
+		unavailableFixed, _ := strconv.ParseInt(rs.Primary.Attributes["rolling_update_policy.0.max_unavailable_fixed"], 10, 64)
+		if updatePolicy.MaxUnavailable.Fixed != unavailableFixed {
+			return fmt.Errorf("Expected update policy MaxUnavailable to be %d, got %d", unavailableFixed, updatePolicy.MaxUnavailable.Fixed)
+		}
+
+		unavailablePercent, _ := strconv.ParseInt(rs.Primary.Attributes["rolling_update_policy.0.max_unavailable_percent"], 10, 64)
+		if updatePolicy.MaxUnavailable.Percent != unavailablePercent {
+			return fmt.Errorf("Expected update policy MaxUnavailable to be %d, got %d", unavailablePercent, updatePolicy.MaxUnavailable.Percent)
+		}
+
+		policyType := rs.Primary.Attributes["rolling_update_policy.0.type"]
+		if updatePolicy.Type != policyType {
+			return fmt.Errorf("Expected  update policy Type to be  \"%s\", got \"%s\"", policyType, updatePolicy.Type)
+		}
+
+		policyAction := rs.Primary.Attributes["rolling_update_policy.0.minimal_action"]
+		if updatePolicy.MinimalAction != policyAction {
+			return fmt.Errorf("Expected  update policy MinimalAction to be  \"%s\", got \"%s\"", policyAction, updatePolicy.MinimalAction)
+		}
+
+		minReadySec, _ := strconv.ParseInt(rs.Primary.Attributes["rolling_update_policy.0.min_ready_sec"], 10, 64)
+		if updatePolicy.MinReadySec != minReadySec {
+			return fmt.Errorf("Expected update policy MinReadySec to be %d, got %d", minReadySec, updatePolicy.MinReadySec)
+		}
+		return nil
+	}
+}
+
 func testAccInstanceGroupManager_basic(template, target, igm1, igm2 string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_instance_template" "igm-basic" {
@@ -826,6 +927,98 @@ func testAccInstanceGroupManager_updateStrategy(igm string) string {
 			port = 8080
 		}
 	}`, igm)
+}
+
+func testAccInstanceGroupManager_rollingUpdatePolicy(igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["terraform-testing"]
+
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
+	description = "Terraform test instance group manager"
+	name = "%s"
+	instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
+	base_instance_name = "igm-rolling-update-policy"
+	zone = "us-central1-c"
+	target_size = 3
+	update_strategy = "ROLLING_UPDATE"
+	rolling_update_policy {
+		type = "PROACTIVE"
+		minimal_action = "REPLACE"
+		max_surge_percent = 50
+		max_unavailable_percent = 50
+		min_ready_sec = 20
+	}
+	named_port {
+		name = "customhttp"
+		port = 8080
+	}
+}`, igm)
+}
+
+func testAccInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["terraform-testing"]
+
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
+	description = "Terraform test instance group manager"
+	name = "%s"
+	instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
+	base_instance_name = "igm-rolling-update-policy"
+	zone = "us-central1-c"
+	target_size = 3
+	update_strategy = "ROLLING_UPDATE"
+	rolling_update_policy {
+		type = "PROACTIVE"
+		minimal_action = "REPLACE"
+		max_surge_fixed = 2
+		max_unavailable_fixed = 2
+		min_ready_sec = 20
+	}
+	named_port {
+		name = "customhttp"
+		port = 8080
+	}
+}`, igm)
 }
 
 func testAccInstanceGroupManager_separateRegions(igm1, igm2 string) string {

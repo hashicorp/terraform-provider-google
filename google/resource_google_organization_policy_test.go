@@ -90,7 +90,7 @@ func TestAccOrganizationPolicy_list_allowSome(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicy_list_allowSome(org, project),
-				Check:  testAccCheckGoogleOrganizationListPolicyAllowedValues("list", []string{"projects/" + project}),
+				Check:  testAccCheckGoogleOrganizationListPolicyAllowedValues("list", []string{"projects/" + project, "projects/debian-cloud"}),
 			},
 			{
 				ResourceName:      "google_organization_policy.list",
@@ -294,6 +294,7 @@ resource "google_organization_policy" "list" {
 		allow {
 			values = [
 				"projects/%s",
+				"projects/debian-cloud"
 			]
 		}
   }

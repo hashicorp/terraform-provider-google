@@ -701,7 +701,10 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	d.Set("cluster_config", cfg)
+	err = d.Set("cluster_config", cfg)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -724,7 +727,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		if err != nil {
 			return nil, err
 		}
-		data["intialization_action"] = val
+		data["initialization_action"] = val
 	}
 	return []map[string]interface{}{data}, nil
 }
@@ -801,9 +804,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 
 func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
 	disk := map[string]interface{}{}
-	data := map[string]interface{}{
-	//"instance_names": []string{},
-	}
+	data := map[string]interface{}{}
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances

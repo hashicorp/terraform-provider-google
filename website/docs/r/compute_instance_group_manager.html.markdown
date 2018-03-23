@@ -90,8 +90,8 @@ The following arguments are supported:
 * `update_strategy` - (Optional, Default `"RESTART"`) If the `instance_template`
     resource is modified, a value of `"NONE"` will prevent any of the managed
     instances from being restarted by Terraform. A value of `"RESTART"` will
-    restart all of the instances at once. In the future, as the GCE API matures
-    we will support `"ROLLING_UPDATE"` as well.
+    restart all of the instances at once. `"ROLLING_UPDATE"` is supported as [Beta feature].
+    A value of `"ROLLING_UPDATE"` requires `rolling_update_policy` block to be set
 
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
@@ -101,18 +101,52 @@ The following arguments are supported:
     instances in the group are added. Updating the target pools attribute does
     not affect existing instances.
 
+* `wait_for_instances` - (Optional) Whether to wait for all instances to be created/updated before
+    returning. Note that if this is set to true and the operation does not succeed, Terraform will
+    continue trying until it times out.
+
 ---
 
 * `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-The `named_port` block supports: (Include a `named_port` block for each named-port required).
+* `rolling_update_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
+
+The **rolling_update_policy** block supports:
+
+```hcl
+rolling_update_policy{
+  type = "PROACTIVE"
+  minimal_action = "REPLACE"
+  max_surge_percent = 20
+  max_unavailable_fixed = 2
+  min_ready_sec = 50
+}
+```
+
+* `minimal_action` - (Required) - Minimal action to be taken on an instance. Valid values are `"RESTART"`, `"REPLACE"`
+
+* `type` - (Required) - The type of update. Valid values are `"OPPORTUNISTIC"`, `"PROACTIVE"`
+
+* `max_surge_fixed` - (Optional), The maximum number of instances that can be created above the specified targetSize during the update process. Conflicts with `max_surge_percent`. If neither is set, defaults to 1
+
+* `max_surge_percent` - (Optional), The maximum number of instances(calculated as percentage) that can be created above the specified targetSize during the update process. Conflicts with `max_surge_fixed`.
+
+* `max_unavailable_fixed` - (Optional), The maximum number of instances that can be unavailable during the update process. Conflicts with `max_unavailable_percent`. If neither is set, defaults to 1
+
+* `max_unavailable_percent` - (Optional), The maximum number of instances(calculated as percentage) that can be unavailable during the update process. Conflicts with `max_unavailable_fixed`.
+
+* `min_ready_sec` - (Optional), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
+- - -
+
+The **named_port** block supports: (Include a `named_port` block for each named-port required).
 
 * `name` - (Required) The name of the port.
 
 * `port` - (Required) The port number.
+- - -
 
-The `auto_healing_policies` block supports:
+The **auto_healing_policies** block supports:
 
 * `health_check` - (Required) The health check resource that signals autohealing.
 

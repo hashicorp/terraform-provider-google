@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
@@ -14,7 +15,10 @@ import (
 )
 
 var InstanceGroupManagerBaseApiVersion = v1
-var InstanceGroupManagerVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "auto_healing_policies"}}
+var InstanceGroupManagerVersionedFeatures = []Feature{
+	Feature{Version: v0beta, Item: "auto_healing_policies"},
+	Feature{Version: v0beta, Item: "rolling_update_policy"},
+}
 
 func resourceComputeInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
@@ -23,7 +27,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 		Update: resourceComputeInstanceGroupManagerUpdate,
 		Delete: resourceComputeInstanceGroupManagerDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceInstanceGroupManagerStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -102,7 +106,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "RESTART",
-				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE", "ROLLING_UPDATE"}, false),
 			},
 
 			"target_pools": &schema.Schema{
@@ -139,6 +143,65 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 						},
 					},
 				},
+			},
+			"rolling_update_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"minimal_action": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
+						},
+
+						"type": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OPPORTUNISTIC", "PROACTIVE"}, false),
+						},
+
+						"max_surge_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       1,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_percent"},
+						},
+
+						"max_surge_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"max_unavailable_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       1,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_percent"},
+						},
+
+						"max_unavailable_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"min_ready_sec": &schema.Schema{
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 3600),
+						},
+					},
+				},
+			},
+			"wait_for_instances": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 		},
 	}
@@ -182,6 +245,10 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	zone, err := getZone(d, config)
 	if err != nil {
 		return err
+	}
+
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
 	}
 
 	// Build the parameter
@@ -251,18 +318,18 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 
 }
 
-func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	computeApiVersion := getComputeApiVersion(d, InstanceGroupManagerBaseApiVersion, InstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	manager := &computeBeta.InstanceGroupManager{}
@@ -278,7 +345,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			v1Manager, e = config.clientCompute.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
-				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+				return nil, handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
@@ -287,7 +354,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			resource, e = getZonalResourceFromRegion(getInstanceGroupManager, region, config.clientCompute, project)
 
 			if e != nil {
-				return e
+				return nil, e
 			}
 
 			v1Manager = resource.(*compute.InstanceGroupManager)
@@ -298,12 +365,12 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 			// The resource doesn't exist anymore
 			d.SetId("")
-			return nil
+			return nil, nil
 		}
 
 		err = Convert(v1Manager, manager)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	case v0beta:
@@ -317,7 +384,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			v0betaManager, e = config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, d.Id()).Do()
 
 			if e != nil {
-				return handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
+				return nil, handleNotFoundError(e, d, fmt.Sprintf("Instance Group Manager %q", d.Get("name").(string)))
 			}
 		} else {
 			// If the resource was imported, the only info we have is the ID. Try to find the resource
@@ -325,7 +392,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			var resource interface{}
 			resource, e = getZonalBetaResourceFromRegion(getInstanceGroupManager, region, config.clientComputeBeta, project)
 			if e != nil {
-				return e
+				return nil, e
 			}
 
 			v0betaManager = resource.(*computeBeta.InstanceGroupManager)
@@ -336,10 +403,24 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 			// The resource doesn't exist anymore
 			d.SetId("")
-			return nil
+			return nil, nil
 		}
 
 		manager = v0betaManager
+	}
+	return manager, nil
+}
+
+func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	manager, err := getManager(d, meta)
+	if err != nil {
+		return err
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
@@ -361,6 +442,19 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("update_strategy", update_strategy.(string))
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 
+	if d.Get("wait_for_instances").(bool) {
+		conf := resource.StateChangeConf{
+			Pending: []string{"creating", "error"},
+			Target:  []string{"created"},
+			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
+			Timeout: d.Timeout(schema.TimeoutCreate),
+		}
+		_, err := conf.WaitForState()
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -379,6 +473,10 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	}
 
 	d.Partial(true)
+
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
+	}
 
 	// If target_pools changes then update
 	if d.HasChange("target_pools") {
@@ -531,6 +629,28 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 			// Wait for the operation to complete
 			err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
+			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+			// expect those values to be provided by user as part of the call
+			// or provide their own defaults without respecting what was previously set on UpdateManager.
+			// To follow the same logic, we provide policy values on relevant update change only.
+			manager := &computeBeta.InstanceGroupManager{
+				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.Patch(
+				project, zone, d.Id(), manager).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating managed group instances: %s", err)
+			}
+
+			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
 			if err != nil {
 				return err
 			}
@@ -732,6 +852,44 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 	return autoHealingPolicies
 }
 
+func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {
+	updatePolicy := &computeBeta.InstanceGroupManagerUpdatePolicy{}
+
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+
+		updatePolicy.MinimalAction = data["minimal_action"].(string)
+		updatePolicy.Type = data["type"].(string)
+
+		// percent and fixed values are conflicting
+		// when the percent values are set, the fixed values will be ignored
+		if v := data["max_surge_percent"]; v.(int) > 0 {
+			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+				Percent: int64(v.(int)),
+			}
+		} else {
+			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+				Fixed: int64(data["max_surge_fixed"].(int)),
+			}
+		}
+
+		if v := data["max_unavailable_percent"]; v.(int) > 0 {
+			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+				Percent: int64(v.(int)),
+			}
+		} else {
+			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+				Fixed: int64(data["max_unavailable_fixed"].(int)),
+			}
+		}
+
+		if v, ok := data["min_ready_sec"]; ok {
+			updatePolicy.MinReadySec = int64(v.(int))
+		}
+	}
+	return updatePolicy
+}
+
 func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
 	autoHealingPoliciesSchema := make([]map[string]interface{}, 0, len(autoHealingPolicies))
 	for _, autoHealingPolicy := range autoHealingPolicies {
@@ -743,4 +901,9 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroup
 		autoHealingPoliciesSchema = append(autoHealingPoliciesSchema, data)
 	}
 	return autoHealingPoliciesSchema
+}
+
+func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("wait_for_instances", false)
+	return []*schema.ResourceData{d}, nil
 }

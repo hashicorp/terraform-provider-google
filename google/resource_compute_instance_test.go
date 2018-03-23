@@ -35,6 +35,10 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
+					// by default, DeletionProtection is implicitly false. This should be false on any
+					// instance resource without an explicit deletion_protection = true declaration.
+					// Other tests check explicit true/false configs: TestAccComputeInstance_deletionProtectionExplicit[True | False]
+					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
 				),
 			},
 			resource.TestStep{
@@ -951,6 +955,67 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_deletionProtectionExplicitFalse(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_basic_deletionProtectionFalse(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_deletionProtectionExplicitTrueAndUpdateFalse(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_basic_deletionProtectionTrue(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, true),
+				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_instance.foobar",
+				ImportState:             true,
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
+				ImportStateVerifyIgnore: []string{"create_timeout"},
+			},
+			// Update deletion_protection to false, otherwise the test harness can't delete the instance
+			resource.TestStep{
+				Config: testAccComputeInstance_basic_deletionProtectionFalse(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
@@ -1466,6 +1531,16 @@ func testAccCheckComputeInstanceHasAssignedIP(s *terraform.State) error {
 	return nil
 }
 
+func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *compute.Instance, configuredDeletionProtection bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.DeletionProtection != configuredDeletionProtection {
+			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foobar" {
@@ -1474,6 +1549,7 @@ resource "google_compute_instance" "foobar" {
 	zone           = "us-central1-a"
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
+	//deletion_protection = false is implicit in this config due to default value
 
 	boot_disk {
 		initialize_params{
@@ -1591,6 +1667,60 @@ resource "google_compute_instance" "foobar" {
 	zone           = "us-central1-a"
 	can_ip_forward = false
 	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_basic_deletionProtectionFalse(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name                 = "%s"
+	machine_type         = "n1-standard-1"
+	zone                 = "us-central1-a"
+	can_ip_forward       = false
+	tags                 = ["foo", "bar"]
+	deletion_protection  = false
+
+	boot_disk {
+		initialize_params{
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_basic_deletionProtectionTrue(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name                 = "%s"
+	machine_type         = "n1-standard-1"
+	zone                 = "us-central1-a"
+	can_ip_forward       = false
+	tags                 = ["foo", "bar"]
+	deletion_protection  = true
 
 	boot_disk {
 		initialize_params{

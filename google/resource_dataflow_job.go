@@ -139,14 +139,15 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
+	d.Set("state", job.CurrentState)
+	d.Set("name", job.Name)
+	d.Set("project", project)
+
 	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
 		d.SetId("")
 		return nil
 	}
-	d.Set("state", job.CurrentState)
-	d.Set("name", job.Name)
-	d.Set("project", project)
 	d.SetId(job.Id)
 
 	return nil
@@ -165,28 +166,44 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	for _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok; _, ok = dataflowTerminalStatesMap[d.Get("state").(string)] {
+	for _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; !ok; _, ok = dataflowTerminalStatesMap[d.Get("state").(string)] {
 		job := &dataflow.Job{
 			RequestedState: requestedState,
 		}
 
 		_, err = config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
-		if gerr, ok := err.(*googleapi.Error); !ok {
-			// If we have an error and it's not a google-specific error, we should go ahead and return.
-			return err
-		} else if ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
-			time.Sleep(5 * time.Second)
-		} else {
-			return err
+		if err != nil {
+			if gerr, err_ok := err.(*googleapi.Error); !err_ok {
+				// If we have an error and it's not a google-specific error, we should go ahead and return.
+				return err
+			} else if err_ok && strings.Contains(gerr.Message, "not yet ready for canceling") {
+				// We'll sleep below to wait for the job to be ready to cancel.
+			} else {
+				return err
+			}
 		}
+
 		err = resourceDataflowJobRead(d, meta)
+		postReadState := d.Get("state").(string)
+		log.Printf("[DEBUG] Job state: '%s'.", postReadState)
+		if _, ok := dataflowTerminalStatesMap[postReadState]; !ok {
+			// If we're not yet in a terminal state, we need to sleep a few seconds so we don't
+			// exhaust our update quota with repeated attempts.
+			time.Sleep(5 * time.Second)
+		}
 		if err != nil {
 			return err
 		}
 	}
-	d.SetId("")
 
-	return nil
+	// Only remove the job from state if it's actually successfully canceled.
+	if _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok {
+		d.SetId("")
+		return nil
+	}
+
+	return fmt.Errorf("There was a problem canceling the dataflow job '%s' - the final state was %s.", d.Id(), d.Get("state").(string))
+
 }
 
 func mapOnDelete(policy string) (string, error) {

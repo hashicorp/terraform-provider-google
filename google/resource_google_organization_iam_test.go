@@ -17,6 +17,7 @@ import (
 // them to see the new diff instead of blindly overriding the policy stored in GCP. This desired
 // behavior however induces flakiness in our acceptance tests, hence the need for running them
 // serially.
+// Policies are *not tested*, because testing them will ruin changes made to the test org.
 func TestAccOrganizationIam(t *testing.T) {
 	t.Parallel()
 
