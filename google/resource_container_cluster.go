@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -421,6 +422,11 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+
+			"remove_default_node_pool": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -615,6 +621,17 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[INFO] GKE cluster %s has been created", clusterName)
+
+	if d.Get("remove_default_node_pool").(bool) {
+		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(project, zoneName, clusterName, "default-pool").Do()
+		if err != nil {
+			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+		}
+		err = containerSharedOperationWait(config, op, project, zoneName, "removing default node pool", timeoutInMinutes, 3)
+		if err != nil {
+			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+		}
+	}
 
 	return resourceContainerClusterRead(d, meta)
 }
@@ -1106,6 +1123,17 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s: logging service has been updated to %s", d.Id(),
 			logging)
 		d.SetPartial("logging_service")
+	}
+
+	if d.HasChange("remove_default_node_pool") && d.Get("remove_default_node_pool").(bool) {
+		op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(project, zoneName, clusterName, "default-pool").Do()
+		if err != nil {
+			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+		}
+		err = containerSharedOperationWait(config, op, project, zoneName, "removing default node pool", timeoutInMinutes, 3)
+		if err != nil {
+			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+		}
 	}
 
 	d.Partial(false)
