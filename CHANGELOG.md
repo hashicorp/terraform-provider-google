@@ -6,9 +6,11 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
 * compute: add support for security policies in backend services [GH-1243]
+* container: add ability to delete the default node pool [GH-1245]
 
 BUG FIXES:
 * compute: fix panic when setting empty iap block [GH-1232]
+* compute: protect against an instance getting deleted by an igm while the disk is being detached [GH-1241]
 * storage: Set force_destroy when importing storage buckets [GH-1223]
 
 ## 1.8.0 (March 19, 2018)
