@@ -440,10 +440,9 @@ func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 
 func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interface{} {
 	result := map[string]interface{}{"type": tp.Type}
-	result["field"] = tp.Type
 
-	if tp.Type != "" {
-		result["field"] = tp.Type
+	if tp.Field != "" {
+		result["field"] = tp.Field
 	}
 
 	if tp.ExpirationMs != 0 {
