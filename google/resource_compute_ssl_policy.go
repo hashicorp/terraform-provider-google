@@ -44,7 +44,7 @@ func resourceComputeSslPolicy() *schema.Resource {
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: true, // currently, the beta patch API call does not allow updating the description
 			},
 
 			"min_tls_version": &schema.Schema{
