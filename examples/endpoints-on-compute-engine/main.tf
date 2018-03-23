@@ -30,7 +30,7 @@ resource "google_endpoints_service" "endpoints_service" {
   service_name = "echo-api.endpoints.${google_project.endpoints_project.project_id}.cloud.goog"
   project      = "${google_project.endpoints_project.project_id}"
 
-  config_text = <<EOF
+  openapi_config = <<EOF
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
