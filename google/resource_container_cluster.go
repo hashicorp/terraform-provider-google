@@ -23,6 +23,8 @@ var (
 		{Version: v1beta1, Item: "pod_security_policy_config"},
 		{Version: v1beta1, Item: "node_config.*.taint"},
 		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
+		{Version: v1beta1, Item: "private_cluster"},
+		{Version: v1beta1, Item: "master_ipv4_cidr"},
 	}
 
 	networkConfig = &schema.Resource{
@@ -426,6 +428,20 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+
+			"private_cluster": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
+
+			"master_ipv4_cidr": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.CIDRNetwork(28, 28),
+			},
 		},
 	}
 }
@@ -574,6 +590,21 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("pod_security_policy_config"); ok {
 		cluster.PodSecurityPolicyConfig = expandPodSecurityPolicyConfig(v)
+	}
+
+	if v, ok := d.GetOk("master_ipv4_cidr"); ok {
+		cluster.MasterIpv4CidrBlock = v.(string)
+	}
+
+	if v, ok := d.GetOk("private_cluster"); ok {
+		if cluster.PrivateCluster = v.(bool); cluster.PrivateCluster {
+			if cluster.MasterIpv4CidrBlock == "" {
+				return fmt.Errorf("master_ipv4_cidr is mandatory when private_cluster=true")
+			}
+			if cluster.IpAllocationPolicy == nil {
+				return fmt.Errorf("ip_allocation_policy is mandatory when private_cluster=true")
+			}
+		}
 	}
 
 	req := &containerBeta.CreateClusterRequest{
@@ -761,6 +792,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 	}
+
+	d.Set("private_cluster", cluster.PrivateCluster)
+	d.Set("master_ipv4_cidr", cluster.MasterIpv4CidrBlock)
 
 	return nil
 }
