@@ -94,6 +94,11 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 				),
 			},
 			resource.TestStep{
+				ResourceName:      "google_compute_ssl_policy.update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: testAccComputeSslUpdate2(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -196,6 +201,11 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 				),
 			},
 			resource.TestStep{
+				ResourceName:      "google_compute_ssl_policy.update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: testAccComputeSslUpdate3(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -236,6 +246,11 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_1"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_ssl_policy.update",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
