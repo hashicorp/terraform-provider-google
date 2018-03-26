@@ -12,7 +12,7 @@ func dataSourceGoogleComputeSslPolicy() *schema.Resource {
 	addRequiredFieldsToSchema(dsSchema, "name")
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "custom_features", "description", "min_tls_version", "profile", "project")
+	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   datasourceComputeSslPolicyRead,
