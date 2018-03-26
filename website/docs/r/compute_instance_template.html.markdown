@@ -137,7 +137,9 @@ The following arguments are supported:
     created from this template.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to instances
-    created from this template,
+    created from this template. Note that an additional label will be added,
+    with the value `goog-partner-creation-tool=terraform`, for the purpose of
+    tracking resource usage
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within instances created from this template.
