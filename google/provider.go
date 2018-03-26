@@ -180,6 +180,7 @@ func Provider() terraform.ResourceProvider {
 			"google_project_iam_member":                    ResourceIamMemberWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
 			"google_project_service":                       resourceGoogleProjectService(),
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
+			"google_project_organization_policy":           resourceGoogleProjectOrganizationPolicy(),
 			"google_project_usage_export_bucket":           resourceProjectUsageBucket(),
 			"google_project_services":                      resourceGoogleProjectServices(),
 			"google_pubsub_topic":                          resourcePubsubTopic(),
