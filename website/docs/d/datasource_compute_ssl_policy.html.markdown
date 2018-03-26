@@ -34,6 +34,8 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following attributes are exported:
 
+* `enabled_features` - The set of enabled encryption ciphers as a result of the policy config
+
 * `description` - Description of this SSL Policy.
 
 * `min_tls_version` - The minimum supported TLS version of this policy.

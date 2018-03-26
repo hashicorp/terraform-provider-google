@@ -68,6 +68,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `enabled_features` - The set of enabled encryption ciphers as a result of the policy config
+
 * `fingerprint` - Fingerprint of this resource.
 
 * `self_link` - The URI of the created resource.
