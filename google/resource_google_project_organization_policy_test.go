@@ -12,8 +12,6 @@ import (
 )
 
 func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
-	t.Parallel()
-
 	projectId := getTestProjectFromEnv()
 
 	resource.Test(t, resource.TestCase{
@@ -50,8 +48,6 @@ func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 }
 
 func TestAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
-	t.Parallel()
-
 	projectId := getTestProjectFromEnv()
 
 	resource.Test(t, resource.TestCase{
@@ -68,8 +64,6 @@ func TestAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 }
 
 func TestAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
-	t.Parallel()
-
 	project := getTestProjectFromEnv()
 	canonicalProject := canonicalProjectId(project)
 	resource.Test(t, resource.TestCase{
@@ -86,8 +80,6 @@ func TestAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 }
 
 func TestAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
-	t.Parallel()
-
 	projectId := getTestProjectFromEnv()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -103,8 +95,6 @@ func TestAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 }
 
 func TestAccProjectOrganizationPolicy_list_update(t *testing.T) {
-	t.Parallel()
-
 	projectId := getTestProjectFromEnv()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
