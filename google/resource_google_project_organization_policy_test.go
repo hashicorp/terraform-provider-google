@@ -11,6 +11,14 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
+/*
+Tests for `google_project_organization_policy`
+
+These are *not* run in parallel, as they all use the same project
+and I end up with 409 Conflict errors from the API when they are
+run in parallel.
+*/
+
 func TestAccProjectOrganizationPolicy_boolean(t *testing.T) {
 	projectId := getTestProjectFromEnv()
 
