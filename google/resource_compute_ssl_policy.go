@@ -186,15 +186,9 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	name := d.Get("name").(string)
 
 	sslPolicy := &computeBeta.SslPolicy{
-		Fingerprint: d.Get("fingerprint").(string),
-	}
-
-	if v, ok := d.GetOk("profile"); ok {
-		sslPolicy.Profile = v.(string)
-	}
-
-	if v, ok := d.GetOk("min_tls_version"); ok {
-		sslPolicy.MinTlsVersion = v.(string)
+		Fingerprint:   d.Get("fingerprint").(string),
+		Profile:       d.Get("profile").(string),
+		MinTlsVersion: d.Get("min_tls_version").(string),
 	}
 
 	if v, ok := d.Get("custom_features").(*schema.Set); ok {
