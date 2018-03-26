@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"strings"
 )
 
 var IamProjectSchema = map[string]*schema.Schema{
@@ -71,11 +70,4 @@ func (u *ProjectIamUpdater) GetMutexKey() string {
 
 func (u *ProjectIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("project %q", u.resourceId)
-}
-
-func canonicalProjectId(project string) string {
-	if strings.HasPrefix(project, "projects/") {
-		return project
-	}
-	return fmt.Sprintf("projects/%s", project)
 }

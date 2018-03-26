@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -294,4 +295,11 @@ resource "google_project_organization_policy" "list" {
   }
 }
 `, pid)
+}
+
+func canonicalProjectId(project string) string {
+	if strings.HasPrefix(project, "projects/") {
+		return project
+	}
+	return fmt.Sprintf("projects/%s", project)
 }
