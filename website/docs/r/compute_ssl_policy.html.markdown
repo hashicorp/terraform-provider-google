@@ -49,7 +49,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `min_tls_version` - (Optional) The minimum TLS version to support. Must be one of `TLS_1_0`, `TLS_1_1`, `TLS_1_2`, or `TLS_1_3`. 
+* `min_tls_version` - (Optional) The minimum TLS version to support. Must be one of `TLS_1_0`, `TLS_1_1`, or `TLS_1_2`. 
     Default is `TLS_1_0`.
 
 * `profile` - (Optional) The Google-curated SSL profile to use. Must be one of `COMPATIBLE`, `MODERN`, 

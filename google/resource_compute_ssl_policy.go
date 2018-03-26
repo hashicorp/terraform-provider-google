@@ -48,10 +48,12 @@ func resourceComputeSslPolicy() *schema.Resource {
 			},
 
 			"min_tls_version": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "TLS_1_0",
-				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", "TLS_1_3"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "TLS_1_0",
+				// Although compute-gen.go says that TLS_1_3 is a valid value, the API currently (26 Mar 2018)
+				// responds with an HTTP 200 but doesn't actually create/update the policy.
+				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2"}, false),
 			},
 
 			"profile": &schema.Schema{
