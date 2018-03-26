@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/encryption"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -17,10 +18,9 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required
 			"service_account_id": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			// Optional
 			"key_algorithm": &schema.Schema{
@@ -89,6 +89,9 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	config := meta.(*Config)
 
 	serviceAccount := d.Get("service_account_id").(string)
+	if !strings.HasPrefix(serviceAccount, "projects/") {
+		serviceAccount = "projects/-/serviceAccounts/" + serviceAccount
+	}
 
 	r := &iam.CreateServiceAccountKeyRequest{
 		KeyAlgorithm:   d.Get("key_algorithm").(string),

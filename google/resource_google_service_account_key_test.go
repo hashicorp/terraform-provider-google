@@ -34,6 +34,30 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccountKey_fromEmail(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_service_account_key.acceptance"
+	accountID := "a" + acctest.RandString(10)
+	displayName := "Terraform Test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccServiceAccountKey_fromEmail(accountID, displayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleServiceAccountKeyExists(resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_after"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_before"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_key"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccServiceAccountKey_pgp(t *testing.T) {
 	t.Parallel()
 	resourceName := "google_service_account_key.acceptance"
@@ -86,7 +110,21 @@ resource "google_service_account" "acceptance" {
 }
 
 resource "google_service_account_key" "acceptance" {
-	service_account_id = "${google_service_account.acceptance.id}"
+	service_account_id = "${google_service_account.acceptance.name}"
+	public_key_type = "TYPE_X509_PEM_FILE"
+}
+`, account, name)
+}
+
+func testAccServiceAccountKey_fromEmail(account, name string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+	account_id = "%s"
+	display_name = "%s"
+}
+
+resource "google_service_account_key" "acceptance" {
+	service_account_id = "${google_service_account.acceptance.email}"
 	public_key_type = "TYPE_X509_PEM_FILE"
 }
 `, account, name)
@@ -100,7 +138,7 @@ resource "google_service_account" "acceptance" {
 }
 
 resource "google_service_account_key" "acceptance" {
-	service_account_id = "${google_service_account.acceptance.id}"
+	service_account_id = "${google_service_account.acceptance.name}"
 	public_key_type = "TYPE_X509_PEM_FILE"
 	pgp_key = <<EOF
 %s
