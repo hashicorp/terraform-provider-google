@@ -2,6 +2,7 @@
 
 FEATURES:
 * **New Resource** `google_compute_security_policy` [GH-1242]
+* **New Resource** `google_project_organization_policy` [GH-1226]
 
 IMPROVEMENTS:
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
