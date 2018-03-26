@@ -137,10 +137,11 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
 			},
 			{
 				Config: testAccContainerCluster_removeNetworkPolicy(clusterName),
@@ -150,10 +151,11 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
@@ -163,10 +165,11 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -176,10 +179,11 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
 			},
 			{
 				Config:             testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -787,6 +791,30 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withDefaultNodePoolRemoved(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDefaultNodePoolRemoved(),
+				Check: resource.TestCheckResourceAttr(
+					"google_container_cluster.with_default_node_pool_removed", "node_pool.#", "0"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_default_node_pool_removed",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandString(10)
@@ -903,6 +931,21 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_pod_security_policy",
 						"pod_security_policy_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_pod_security_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				// Import always uses the v1 API, so beta features don't get imported.
+				ImportStateVerifyIgnore: []string{"pod_security_policy_config.#", "pod_security_policy_config.0.enabled"},
+			},
+			{
+				Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_pod_security_policy",
+						"pod_security_policy_config.0.enabled", "false"),
 				),
 			},
 			{
@@ -1100,6 +1143,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
+	remove_default_node_pool = true
 
 	network_policy {
 		enabled = true
@@ -1119,6 +1163,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
+	remove_default_node_pool = true
 }`, clusterName)
 }
 
@@ -1128,6 +1173,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
+	remove_default_node_pool = true
 
 	network_policy = {}
 }`, clusterName)
@@ -1139,6 +1185,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
+	remove_default_node_pool = true
 
 	network_policy = {}
 	addons_config {
@@ -1630,6 +1677,18 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 
 }
 `, testId, testId)
+}
+
+func testAccContainerCluster_withDefaultNodePoolRemoved() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_default_node_pool_removed" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	remove_default_node_pool = true
+}
+`, acctest.RandString(10))
 }
 
 func testAccContainerCluster_withMaintenanceWindow(clusterName string, startTime string) string {

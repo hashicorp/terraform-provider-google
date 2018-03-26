@@ -87,7 +87,9 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 			"user %s into instance %s: %s", name, instance, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", instance, name))
+	// This will include a double-slash (//) for 2nd generation instances,
+	// for which user.Host is an empty string.  That's okay.
+	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
 	err = sqladminOperationWait(config, op, project, "Insert User")
 
@@ -111,14 +113,20 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
 
-	users, err := config.clientSqlAdmin.Users.List(project, instance).Do()
-
+	var users *sqladmin.UsersListResponse
+	err = nil
+	err = retry(func() error {
+		users, err = config.clientSqlAdmin.Users.List(project, instance).Do()
+		return err
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
 	}
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
+		// The second part of this conditional is irrelevant for 2nd generation instances because
+		// host and currentUser.Host will always both be empty.
 		if currentUser.Name == name && currentUser.Host == host {
 			user = currentUser
 			break
@@ -136,6 +144,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("instance", user.Instance)
 	d.Set("name", user.Name)
 	d.Set("project", project)
+	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 	return nil
 }
 
@@ -225,7 +234,6 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 		d.Set("instance", parts[0])
 		d.Set("host", parts[1])
 		d.Set("name", parts[2])
-		d.SetId(fmt.Sprintf("%s/%s", parts[0], parts[2]))
 	} else {
 		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for 2nd generation instance and {instance}/{host}/{name} for 1st generation instance")
 	}

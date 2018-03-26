@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -18,13 +19,12 @@ type SqlAdminOperationWaiter struct {
 
 func (w *SqlAdminOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var op *sqladmin.Operation
-		var err error
-
 		log.Printf("[DEBUG] self_link: %s", w.Op.SelfLink)
-		op, err = w.Service.Operations.Get(w.Project, w.Op.Name).Do()
+		op, err := w.Service.Operations.Get(w.Project, w.Op.Name).Do()
 
-		if err != nil {
+		if e, ok := err.(*googleapi.Error); ok && (e.Code == 429 || e.Code == 503) {
+			return w.Op, "PENDING", nil
+		} else if err != nil {
 			return nil, "", err
 		}
 
