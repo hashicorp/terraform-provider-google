@@ -12,7 +12,7 @@ Manages a project-level logging sink. For more information see
 [the official documentation](https://cloud.google.com/logging/docs/),
 [Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs)
 and
-[API](https://cloud.google.com/compute/docs/reference/latest/instances).
+[API](https://cloud.google.com/logging/docs/reference/v2/rest/).
 
 Note that you must have the "Logs Configuration Writer" IAM role (`roles/logging.configWriter`)
 granted to the credentials used with terraform.
