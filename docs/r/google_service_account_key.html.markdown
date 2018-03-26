@@ -20,7 +20,7 @@ resource "google_service_account" "acceptance" {
 }
 
 resource "google_service_account_key" "acceptance" {
-  service_account_id = "${google_service_account.acceptance.id}"
+  service_account_id = "${google_service_account.acceptance.name}"
   public_key_type = "TYPE_X509_PEM_FILE"
 }
 ```
@@ -33,7 +33,7 @@ resource "google_service_account" "myaccount" {
   display_name = "My Service Account"
 }
 resource "google_service_account_key" "mykey" {
-  service_account_id = "${google_service_account.myaccount.id}"
+  service_account_id = "${google_service_account.myaccount.name}"
 }
 resource "kubernetes_secret" "google-application-credentials" {
   metadata {
@@ -54,7 +54,7 @@ resource "google_service_account" "acceptance" {
 }
 
 resource "google_service_account_key" "acceptance" {
-  service_account_id = "${google_service_account.acceptance.id}"
+  service_account_id = "${google_service_account.acceptance.name}"
   pgp_key = "keybase:keybaseusername"
   public_key_type = "TYPE_X509_PEM_FILE"
 }
@@ -64,7 +64,9 @@ resource "google_service_account_key" "acceptance" {
 
 The following arguments are supported:
 
-* `service_account_id` - (Required) The Service account id of the Key Pair.
+* `service_account_id` - (Required) The Service account id of the Key Pair. This can be a string in the format
+`{ACCOUNT}` or `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`, where `{ACCOUNT}` is the email address or
+unique id of the service account. If the `{ACCOUNT}` syntax is used, the project will be inferred from the account.
 
 * `key_algorithm` - (Optional) The algorithm used to generate the key. KEY_ALG_RSA_2048 is the default algorithm.
 Valid values are listed at
