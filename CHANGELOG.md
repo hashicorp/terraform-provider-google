@@ -1,7 +1,9 @@
 ## 1.9.0 (Unreleased)
 
 FEATURES:
+* **New Data Source** `google_compute_ssl_policy` [GH-1247]
 * **New Resource** `google_compute_security_policy` [GH-1242]
+* **New Resource** `google_compute_ssl_policy` [GH-1247]
 * **New Resource** `google_project_organization_policy` [GH-1226]
 
 IMPROVEMENTS:
