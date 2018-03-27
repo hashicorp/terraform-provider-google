@@ -16,6 +16,7 @@ import (
 var (
 	ContainerNodePoolBaseApiVersion    = v1
 	ContainerNodePoolVersionedFeatures = []Feature{
+		{Version: v1beta1, Item: "node_config.*.taint"},
 		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
 	}
 )

@@ -21,6 +21,7 @@ var (
 	ContainerClusterBaseApiVersion    = v1
 	ContainerClusterVersionedFeatures = []Feature{
 		{Version: v1beta1, Item: "pod_security_policy_config"},
+		{Version: v1beta1, Item: "node_config.*.taint"},
 		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
 	}
 

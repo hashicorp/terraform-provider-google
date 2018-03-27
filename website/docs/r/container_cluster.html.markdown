@@ -295,6 +295,10 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
+* `taint` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of
+    [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+    to apply to each node. Structure is documented below.
+
 * `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
 
@@ -308,6 +312,14 @@ The `pod_security_policy_config` block supports:
 
 * `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
     If enabled, pods must be valid under a PodSecurityPolicy to be created.
+
+The `taint` block supports:
+
+* `key` (Required) Key for taint.
+
+* `value` (Required) Value for taint.
+
+* `effect` (Required) Effect for taint. Accepted values are `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, and `NO_EXECUTE`.
 
 The `workload_metadata_config` block supports:
 

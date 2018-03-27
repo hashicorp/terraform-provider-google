@@ -439,6 +439,26 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodeConfigTaints(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigTaints(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_config", "node_config.0.taint.#", "2"),
+				),
+			},
+			// Don't include an import step because beta features can't yet be imported.
+			// Once taints are in GA, consider merging this test with the _withNodeConfig test.
+		},
+	})
+}
+
 func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 	t.Parallel()
 
@@ -1373,6 +1393,28 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
 		machine_type = "g1-small"
 		disk_size_gb = 15
 		oauth_scopes = [ "compute-rw", "storage-ro", "logging-write", "monitoring" ]
+	}
+}`, acctest.RandString(10))
+}
+
+func testAccContainerCluster_withNodeConfigTaints() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config" {
+	name = "cluster-test-%s"
+	zone = "us-central1-f"
+	initial_node_count = 1
+
+	node_config {
+		taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+		taint {
+			key = "taint_key2"
+			value = "taint_value2"
+			effect = "NO_EXECUTE"
+		}
 	}
 }`, acctest.RandString(10))
 }
