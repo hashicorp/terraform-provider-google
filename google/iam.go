@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/googleapi"
 )
 
 // The ResourceIamUpdater interface is implemented for each GCP resource supporting IAM policy.
@@ -53,7 +53,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	for {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
-		if e, ok := err.(*googleapi.Error); ok && e.Code == 429 {
+		if isGoogleApiErrorWithCode(err, 429) {
 			time.Sleep(backoff)
 			continue
 		} else if err != nil {
@@ -75,7 +75,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				new_p, err := updater.GetResourceIamPolicy()
 				if err != nil {
 					// Quota for Read is pretty limited, so watch out for running out of quota.
-					if e, ok := err.(*googleapi.Error); ok && e.Code == 429 {
+					if isGoogleApiErrorWithCode(err, 429) {
 						fetchBackoff = fetchBackoff * 2
 					} else {
 						return err
@@ -110,7 +110,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			}
 			continue
 		}
-		return fmt.Errorf("Error applying IAM policy for %s: %v", updater.DescribeResource(), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for %s: {{err}}", updater.DescribeResource()), err)
 	}
 	log.Printf("[DEBUG]: Set policy for %s", updater.DescribeResource())
 	return nil

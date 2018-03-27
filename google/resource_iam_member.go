@@ -107,6 +107,11 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		eMember := getResourceIamMember(d)
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Binding of member %q with role %q does not exist for non-existant resource %s, removing from state.", eMember.Members[0], eMember.Role, updater.DescribeResource())
+				d.SetId("")
+				return nil
+			}
 			return err
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
@@ -188,6 +193,10 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 			return nil
 		})
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist for non-existant resource %q.", member.Members[0], member.Role, updater.GetResourceId())
+				return nil
+			}
 			return err
 		}
 

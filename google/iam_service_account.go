@@ -38,7 +38,7 @@ func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager
 	p, err := u.Config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	cloudResourcePolicy, err := iamToResourceManagerPolicy(p)
@@ -60,7 +60,7 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return nil
@@ -82,7 +82,7 @@ func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, er
 	out := &iam.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 policy to a iam policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a iam policy: {{err}}", err)
 	}
 	return out, nil
 }
@@ -91,7 +91,7 @@ func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, er
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a iam policy to a v1 policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a iam policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
 }

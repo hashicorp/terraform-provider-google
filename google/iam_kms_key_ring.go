@@ -26,7 +26,7 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	keyRingId, err := parseKmsKeyRingId(keyRing, config)
 
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing resource ID for for %s: %s", keyRing, err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for for %s: {{err}}", keyRing), err)
 	}
 
 	return &KmsKeyRingIamUpdater{
@@ -44,13 +44,13 @@ func (u *KmsKeyRingIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Pol
 	p, err := u.Config.clientKms.Projects.Locations.KeyRings.GetIamPolicy(u.resourceId).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	cloudResourcePolicy, err := kmsToResourceManagerPolicy(p)
 
 	if err != nil {
-		return nil, fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return cloudResourcePolicy, nil
@@ -60,7 +60,7 @@ func (u *KmsKeyRingIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager
 	kmsPolicy, err := resourceManagerToKmsPolicy(policy)
 
 	if err != nil {
-		return fmt.Errorf("Invalid IAM policy for %s: %s", u.DescribeResource(), err)
+		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	_, err = u.Config.clientKms.Projects.Locations.KeyRings.SetIamPolicy(u.resourceId, &cloudkms.SetIamPolicyRequest{
@@ -68,7 +68,7 @@ func (u *KmsKeyRingIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func resourceManagerToKmsPolicy(p *cloudresourcemanager.Policy) (*cloudkms.Polic
 	out := &cloudkms.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 policy to a kms policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a kms policy: {{err}}", err)
 	}
 	return out, nil
 }
@@ -99,7 +99,7 @@ func kmsToResourceManagerPolicy(p *cloudkms.Policy) (*cloudresourcemanager.Polic
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(p, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a kms policy to a v1 policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a kms policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
 }
