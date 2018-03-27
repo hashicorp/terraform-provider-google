@@ -28,8 +28,9 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 			},
 
 			"url_map": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 
 			"description": &schema.Schema{
