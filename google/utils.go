@@ -148,7 +148,7 @@ func getRouterLockName(region string, router string) string {
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+	if isGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[WARN] Removing %s because it's gone", resource)
 		// The resource doesn't exist anymore
 		d.SetId("")
@@ -157,6 +157,11 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 	}
 
 	return fmt.Errorf("Error reading %s: %s", resource, err)
+}
+
+func isGoogleApiErrorWithCode(err error, errCode int) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	return ok && gerr != nil && gerr.Code == errCode
 }
 
 func isConflictError(err error) bool {
