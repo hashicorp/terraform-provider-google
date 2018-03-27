@@ -51,7 +51,7 @@ func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 	p, err := u.Config.clientPubsub.Projects.Topics.GetIamPolicy(u.topic).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	v1Policy, err := pubsubToResourceManagerPolicy(p)
@@ -73,7 +73,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return nil
@@ -96,7 +96,7 @@ func resourceManagerToPubsubPolicy(in *cloudresourcemanager.Policy) (*pubsub.Pol
 	out := &pubsub.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 policy to a pubsub policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a pubsub policy: {{err}}", err)
 	}
 	return out, nil
 }
@@ -105,7 +105,7 @@ func pubsubToResourceManagerPolicy(in *pubsub.Policy) (*cloudresourcemanager.Pol
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a pubsub policy to a v1 policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a pubsub policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
 }

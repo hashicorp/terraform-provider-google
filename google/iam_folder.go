@@ -51,7 +51,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error setting IAM policy for %s.", u.DescribeResource()), err)
+		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return nil
@@ -82,7 +82,7 @@ func v1PolicyToV2Beta(in *cloudresourcemanager.Policy) (*resourceManagerV2Beta1.
 	out := &resourceManagerV2Beta1.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v1 policy to a v2beta policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a v2beta policy: {{err}}", err)
 	}
 	return out, nil
 }
@@ -91,7 +91,7 @@ func v2BetaPolicyToV1(in *resourceManagerV2Beta1.Policy) (*cloudresourcemanager.
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(in, out)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot convert a v2beta policy to a v1 policy: %s", err)
+		return nil, errwrap.Wrapf("Cannot convert a v2beta policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
 }
@@ -102,7 +102,7 @@ func getFolderIamPolicyByFolderName(folderName string, config *Config) (*cloudre
 		&resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for folder %q: %s", folderName, err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for folder %q: {{err}}", folderName), err)
 	}
 
 	v1Policy, err := v2BetaPolicyToV1(p)
@@ -120,11 +120,11 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 	}
 	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			return nil, fmt.Errorf("Folder Not Found: %s,%s", parent, displayName)
+		if isGoogleApiErrorWithCode(err, 404) {
+			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
 		}
 
-		return nil, fmt.Errorf("Error reading folders: %s", err)
+		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
 	}
 
 	folders := searchResponse.Folders
