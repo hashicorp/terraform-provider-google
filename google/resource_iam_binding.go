@@ -82,6 +82,11 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		eBinding := getResourceIamBinding(d)
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Binding for role %q not found for non-existant resource %s, removing from state file.\n", updater.DescribeResource(), eBinding.Role)
+				return nil
+			}
+
 			return err
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
@@ -197,6 +202,10 @@ func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.D
 			return nil
 		})
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
+				return nil
+			}
 			return err
 		}
 

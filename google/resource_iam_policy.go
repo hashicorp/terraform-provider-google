@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	"log"
 )
 
 var IamPolicyBaseSchema = map[string]*schema.Schema{
@@ -82,6 +83,10 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 
 		policy, err := updater.GetResourceIamPolicy()
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Policy does not exist for non-existant resource %q", updater.GetResourceId())
+				return nil
+			}
 			return err
 		}
 
