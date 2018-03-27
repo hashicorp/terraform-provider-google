@@ -131,6 +131,32 @@ var schemaNodeConfig = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"taint": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"effect": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NO_SCHEDULE", "PREFER_NO_SCHEDULE", "NO_EXECUTE"}, false),
+						},
+					},
+				},
+			},
+
 			"workload_metadata_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -240,6 +266,21 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
+	if v, ok := nodeConfig["taint"]; ok && len(v.([]interface{})) > 0 {
+		taints := v.([]interface{})
+		nodeTaints := make([]*containerBeta.NodeTaint, 0, len(taints))
+		for _, raw := range taints {
+			data := raw.(map[string]interface{})
+			taint := &containerBeta.NodeTaint{
+				Key:    data["key"].(string),
+				Value:  data["value"].(string),
+				Effect: data["effect"].(string),
+			}
+			nodeTaints = append(nodeTaints, taint)
+		}
+		nc.Taints = nodeTaints
+	}
+
 	if v, ok := nodeConfig["workload_metadata_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.WorkloadMetadataConfig = &containerBeta.WorkloadMetadataConfig{
@@ -269,6 +310,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 		"tags":                     c.Tags,
 		"preemptible":              c.Preemptible,
 		"min_cpu_platform":         c.MinCpuPlatform,
+		"taint":                    flattenTaints(c.Taints),
 		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
 	})
 
@@ -285,6 +327,18 @@ func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []m
 		result = append(result, map[string]interface{}{
 			"count": accel.AcceleratorCount,
 			"type":  accel.AcceleratorType,
+		})
+	}
+	return result
+}
+
+func flattenTaints(c []*containerBeta.NodeTaint) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	for _, taint := range c {
+		result = append(result, map[string]interface{}{
+			"key":    taint.Key,
+			"value":  taint.Value,
+			"effect": taint.Effect,
 		})
 	}
 	return result
