@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"google.golang.org/api/googleapi"
 )
 
 var IamFolderSchema = map[string]*schema.Schema{
