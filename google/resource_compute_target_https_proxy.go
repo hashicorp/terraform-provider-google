@@ -41,8 +41,9 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 			},
 
 			"url_map": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"description": &schema.Schema{
