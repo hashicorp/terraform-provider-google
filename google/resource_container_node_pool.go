@@ -143,6 +143,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed:     true,
 		ValidateFunc: validation.IntAtLeast(0),
 	},
+
+	"version": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
 }
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
@@ -385,6 +391,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
 		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
+		Version:          d.Get("version").(string),
 	}
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
@@ -437,6 +444,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		"node_count":          size / len(np.InstanceGroupUrls),
 		"node_config":         flattenNodeConfig(np.Config),
 		"instance_group_urls": np.InstanceGroupUrls,
+		"version":             np.Version,
 	}
 
 	if np.Autoscaling != nil && np.Autoscaling.Enabled {
@@ -580,6 +588,34 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 
 		if prefix == "" {
 			d.SetPartial("management")
+		}
+	}
+
+	if d.HasChange(prefix + "version") {
+		req := &container.UpdateNodePoolRequest{
+			NodeVersion: d.Get("version").(string),
+		}
+		updateF := func() error {
+			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Update(
+				project, zone, clusterName, npName, req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, zone, "updating GKE node pool version", timeoutInMinutes, 2)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Updated version in Node Pool %s", npName)
+
+		if prefix == "" {
+			d.SetPartial("version")
 		}
 	}
 

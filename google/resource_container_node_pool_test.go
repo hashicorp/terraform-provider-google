@@ -312,6 +312,45 @@ func TestAccContainerNodePool_resize(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_version(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_version(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_updateVersion(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_version(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -599,4 +638,50 @@ resource "google_container_node_pool" "np_with_node_config_scope_alias" {
 		oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccContainerNodePool_version(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+	min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+
+	version = "${data.google_container_engine_versions.central1a.valid_node_versions.1}"
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_updateVersion(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+	min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+
+	version = "${data.google_container_engine_versions.central1a.valid_node_versions.0}"
+}`, cluster, np)
 }

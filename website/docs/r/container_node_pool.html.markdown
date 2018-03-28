@@ -121,6 +121,10 @@ resource "google_container_cluster" "primary" {
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
+* `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
+    and `auto_upgrade` are both specified, they will fight each other for what the node version should
+    be, so setting both is highly discouraged.
+
 The `autoscaling` block supports:
 
 * `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
