@@ -13,17 +13,24 @@ func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "terraform-test-" + acctest.RandString(10)
+	suffix := acctest.RandString(10)
+	folderResource := "google_folder.foobar"
+	dataSource := "data.google_active_folder.my_folder"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform-test-"+suffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
-					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder_space", "google_folder.foobar_space"),
+					testAccDataSourceGoogleActiveFolderCheck(dataSource, folderResource),
+				),
+			},
+			resource.TestStep{
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform test "+suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleActiveFolderCheck(dataSource, folderResource),
 				),
 			},
 		},
@@ -71,15 +78,5 @@ data "google_active_folder" "my_folder" {
   parent = "${google_folder.foobar.parent}"
   display_name = "${google_folder.foobar.display_name}"
 }
-
-resource "google_folder" "foobar_space" {
-  parent = "%s"
-  display_name = "Space %s"
-}
-
-data "google_active_folder" "my_folder_space" {
-  parent = "${google_folder.foobar_space.parent}"
-  display_name = "${google_folder.foobar_space.display_name}"
-}
-`, parent, displayName, parent, displayName)
+`, parent, displayName)
 }
