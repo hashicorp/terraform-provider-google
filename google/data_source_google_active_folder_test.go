@@ -81,5 +81,5 @@ data "google_active_folder" "my_folder_space" {
   parent = "${google_folder.foobar_space.parent}"
   display_name = "${google_folder.foobar_space.display_name}"
 }
-`, parent, displayName)
+`, parent, displayName, parent, displayName)
 }
