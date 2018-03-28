@@ -23,6 +23,7 @@ func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
 				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
+					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder_space", "google_folder.foobar_space"),
 				),
 			},
 		},
@@ -69,6 +70,16 @@ resource "google_folder" "foobar" {
 data "google_active_folder" "my_folder" {
   parent = "${google_folder.foobar.parent}"
   display_name = "${google_folder.foobar.display_name}"
+}
+
+resource "google_folder" "foobar_space" {
+  parent = "%s"
+  display_name = "Space %s"
+}
+
+data "google_active_folder" "my_folder_space" {
+  parent = "${google_folder.foobar_space.parent}"
+  display_name = "${google_folder.foobar_space.display_name}"
 }
 `, parent, displayName)
 }
