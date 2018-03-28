@@ -14,39 +14,39 @@ func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	suffix := acctest.RandString(10)
-	folderResource := "google_folder.foobar"
-	dataSource := "data.google_active_folder.my_folder"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform-test-"+suffix),
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform-test-"+suffix, "default"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleActiveFolderCheck(dataSource, folderResource),
+					testAccDataSourceGoogleActiveFolderCheck("default"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform test "+suffix),
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, "terraform test "+suffix, "space"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleActiveFolderCheck(dataSource, folderResource),
+					testAccDataSourceGoogleActiveFolderCheck("space"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
+func testAccDataSourceGoogleActiveFolderCheck(resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		ds, ok := s.RootModule().Resources[data_source_name]
+		ds_name := "data.google_active_folder." + resource_name
+		ds, ok := s.RootModule().Resources[ds_name]
 		if !ok {
-			return fmt.Errorf("root module has no resource called %s", data_source_name)
+			return fmt.Errorf("root module has no resource called %s", ds_name)
 		}
 
-		rs, ok := s.RootModule().Resources[resource_name]
+		rs_name := "google_folder." + resource_name
+		rs, ok := s.RootModule().Resources[rs_name]
 		if !ok {
-			return fmt.Errorf("can't find %s in state", resource_name)
+			return fmt.Errorf("can't find %s in state", rs_name)
 		}
 
 		ds_attr := ds.Primary.Attributes
@@ -67,16 +67,16 @@ func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_
 	}
 }
 
-func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string) string {
+func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string, resourceName string) string {
 	return fmt.Sprintf(`
-resource "google_folder" "foobar" {
+resource "google_folder" "%s" {
   parent = "%s"
   display_name = "%s"
 }
 
-data "google_active_folder" "my_folder" {
-  parent = "${google_folder.foobar.parent}"
-  display_name = "${google_folder.foobar.display_name}"
+data "google_active_folder" "%s" {
+  parent = "${google_folder.%s.parent}"
+  display_name = "${google_folder.%s.display_name}"
 }
-`, parent, displayName)
+`, resourceName, parent, displayName, resourceName, resourceName, resourceName)
 }
