@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * all: Read `GOOGLE_CLOUD_PROJECT` environment variable also [GH-1271]
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
 * compute: add support for security policies in backend services [GH-1243]
+* compute: regional instance group managers now support rolling updates [GH-1260]
 * container: add ability to delete the default node pool [GH-1245]
 * container: Add update support for pod security policy [GH-1195]
 * container: Add gke node taints [GH-1264]
