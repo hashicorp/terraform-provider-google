@@ -28,6 +28,10 @@ func TestAccOrganizationPolicy(t *testing.T) {
 	}
 
 	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			tc(t)
