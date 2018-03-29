@@ -33,6 +33,7 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_PROJECT",
+					"GOOGLE_CLOUD_PROJECT",
 					"GCLOUD_PROJECT",
 					"CLOUDSDK_CORE_PROJECT",
 				}, nil),
