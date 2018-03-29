@@ -36,21 +36,7 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 						"google_bigquery_table.test"),
 				),
 			},
-		},
-	})
-}
 
-func TestAccBigQueryTable_TimePartitioningField(t *testing.T) {
-	t.Parallel()
-
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
-		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableWithTimePartitioningField(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
