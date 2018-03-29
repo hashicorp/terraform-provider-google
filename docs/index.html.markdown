@@ -65,6 +65,7 @@ The following keys can be used to configure the provider.
   in order of precedence):
 
     * `GOOGLE_PROJECT`
+    * `GOOGLE_CLOUD_PROJECT`
     * `GCLOUD_PROJECT`
     * `CLOUDSDK_CORE_PROJECT`
 
@@ -75,11 +76,11 @@ The following keys can be used to configure the provider.
     * `GOOGLE_REGION`
     * `GCLOUD_REGION`
     * `CLOUDSDK_COMPUTE_REGION`
-    
+
 * `zone` - (Optional) The zone to operate under, if not specified by a given resource.
   This can also be specified using any of the following environment variables (listed in order of
   precedence):
-  
+
     * `GOOGLE_ZONE`
     * `GCLOUD_ZONE`
     * `CLOUDSDK_COMPUTE_ZONE`
