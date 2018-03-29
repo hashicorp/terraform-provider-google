@@ -13,6 +13,7 @@ import (
 func TestAccBigQueryTable_Basic(t *testing.T) {
 	t.Parallel()
 
+	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -24,25 +25,28 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 			{
 				Config: testAccBigQueryTable(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(
-						"google_bigquery_table.test"),
+					testAccBigQueryTableExists(resourceName),
 				),
 			},
 
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(
-						"google_bigquery_table.test"),
+					testAccBigQueryTableExists(resourceName),
 				),
 			},
 
 			{
 				Config: testAccBigQueryTableWithTimePartitioningField(datasetID, tableID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(
-						"google_bigquery_table.test"),
+					testAccBigQueryTableExists(resourceName),
 				),
+			},
+
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
