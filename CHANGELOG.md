@@ -13,6 +13,7 @@ IMPROVEMENTS:
 * container: add ability to delete the default node pool [GH-1245]
 * container: Add update support for pod security policy [GH-1195]
 * container: Add gke node taints [GH-1264]
+* container: Add support for node pool versions [GH-1266]
 * iam: allow setting service account email as id for service account keys [GH-1256]
 
 BUG FIXES:
