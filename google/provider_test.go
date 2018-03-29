@@ -37,6 +37,10 @@ var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
 
+var orgTargetEnvVars = []string{
+	"GOOGLE_ORG_2",
+}
+
 var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
@@ -152,6 +156,11 @@ func getTestRegionFromEnv() string {
 func getTestOrgFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvVars...)
 	return multiEnvSearch(orgEnvVars)
+}
+
+func getTestOrgTargetFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, orgTargetEnvVars...)
+	return multiEnvSearch(orgTargetEnvVars)
 }
 
 func getTestBillingAccountFromEnv(t *testing.T) string {
