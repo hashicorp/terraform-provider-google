@@ -19,6 +19,7 @@ var RegionInstanceGroupManagerBaseApiVersion = v1
 var RegionInstanceGroupManagerVersionedFeatures = []Feature{
 	Feature{Version: v0beta, Item: "auto_healing_policies"},
 	Feature{Version: v0beta, Item: "distribution_policy_zones"},
+	Feature{Version: v0beta, Item: "rolling_update_policy"},
 }
 
 func resourceComputeRegionInstanceGroupManager() *schema.Resource {
@@ -107,6 +108,13 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Computed: true,
 			},
 
+			"update_strategy": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "NONE",
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "ROLLING_UPDATE"}, false),
+			},
+
 			"target_pools": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -162,6 +170,61 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
+
+			"rolling_update_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"minimal_action": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
+						},
+
+						"type": &schema.Schema{
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OPPORTUNISTIC", "PROACTIVE"}, false),
+						},
+
+						"max_surge_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       0,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_percent"},
+						},
+
+						"max_surge_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_surge_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"max_unavailable_fixed": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Default:       0,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_percent"},
+						},
+
+						"max_unavailable_percent": &schema.Schema{
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"rolling_update_policy.0.max_unavailable_fixed"},
+							ValidateFunc:  validation.IntBetween(0, 100),
+						},
+
+						"min_ready_sec": &schema.Schema{
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 3600),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -173,6 +236,10 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
+	}
+
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
 	}
 
 	manager := &computeBeta.InstanceGroupManager{
@@ -323,6 +390,10 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	d.Partial(true)
 
+	if _, ok := d.GetOk("rolling_update_policy"); d.Get("update_strategy") == "ROLLING_UPDATE" && !ok {
+		return fmt.Errorf("[rolling_update_policy] must be set when 'update_strategy' is set to 'ROLLING_UPDATE'")
+	}
+
 	if d.HasChange("target_pools") {
 		targetPools := convertStringSet(d.Get("target_pools").(*schema.Set))
 
@@ -403,6 +474,28 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating InstanceGroupManager")
 		if err != nil {
 			return err
+		}
+
+		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
+			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+			// expect those values to be provided by user as part of the call
+			// or provide their own defaults without respecting what was previously set on UpdateManager.
+			// To follow the same logic, we provide policy values on relevant update change only.
+			manager := &computeBeta.InstanceGroupManager{
+				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
+			}
+
+			op, err = config.clientComputeBeta.RegionInstanceGroupManagers.Patch(
+				project, region, d.Id(), manager).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating managed group instances: %s", err)
+			}
+
+			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
+			if err != nil {
+				return err
+			}
 		}
 
 		d.SetPartial("instance_template")

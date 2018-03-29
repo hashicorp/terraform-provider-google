@@ -151,6 +151,85 @@ func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
 	})
 }
 
+func TestAccRegionInstanceGroupManager_updateStrategy(t *testing.T) {
+	t.Parallel()
+
+	var manager compute.InstanceGroupManager
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccRegionInstanceGroupManager_updateStrategy(igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRegionInstanceGroupManagerExists(
+						"google_compute_region_instance_group_manager.igm-update-strategy", &manager),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-update-strategy", "update_strategy", "NONE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
+	t.Parallel()
+
+	var manager computeBeta.InstanceGroupManager
+
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRegionInstanceGroupManagerBetaExists(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", &manager),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "update_strategy", "ROLLING_UPDATE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.type", "PROACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.minimal_action", "REPLACE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_surge_fixed", "2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_unavailable_fixed", "2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "20"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRegionInstanceGroupManagerBetaExists(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", &manager),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "update_strategy", "ROLLING_UPDATE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.type", "PROACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.minimal_action", "REPLACE"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_surge_fixed", "2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.max_unavailable_fixed", "0"),
+					resource.TestCheckResourceAttr(
+						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "10"),
+					testAccCheckInstanceGroupManagerRollingUpdatePolicy(
+						&manager, "google_compute_region_instance_group_manager.igm-rolling-update-policy"),
+				),
+			},
+		},
+	})
+}
 func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
 	t.Parallel()
 
@@ -900,4 +979,142 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 	distribution_policy_zones = ["%s"]
 }
 	`, template, igm, strings.Join(zones, "\",\""))
+}
+
+func testAccRegionInstanceGroupManager_updateStrategy(igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-update-strategy" {
+	machine_type   = "n1-standard-1"
+	can_ip_forward = false
+	tags           = ["terraform-testing"]
+
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete  = true
+		boot         = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-update-strategy" {
+	description                = "Terraform test instance group manager"
+	name                       = "%s"
+	instance_template          = "${google_compute_instance_template.igm-update-strategy.self_link}"
+	base_instance_name         = "rigm-update-strategy"
+	region                     = "us-central1"
+	target_size                = 2
+	update_strategy            = "NONE"
+	named_port {
+		name = "customhttp"
+		port = 8080
+	}
+}`, igm)
+}
+
+func testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+	machine_type   = "n1-standard-1"
+	can_ip_forward = false
+	tags           = ["terraform-testing"]
+
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete  = true
+		boot         = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-rolling-update-policy" {
+	description        = "Terraform test instance group manager"
+	name               = "%s"
+	instance_template  = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
+	base_instance_name = "igm-rolling-update-policy"
+	region             = "us-central1"
+	target_size        = 4
+	distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
+	update_strategy = "ROLLING_UPDATE"
+
+	rolling_update_policy {
+		type                  = "PROACTIVE"
+		minimal_action        = "REPLACE"
+		max_surge_fixed       = 2
+		max_unavailable_fixed = 2
+		min_ready_sec         = 20
+	}
+
+	named_port {
+		name = "customhttp"
+		port = 8080
+	}
+}`, igm)
+}
+
+func testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+	machine_type   = "n1-standard-1"
+	can_ip_forward = false
+	tags           = ["terraform-testing"]
+
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete  = true
+		boot         = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-rolling-update-policy" {
+	description                = "Terraform test instance group manager"
+	name                       = "%s"
+	instance_template          = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
+	base_instance_name         = "igm-rolling-update-policy"
+	region                     = "us-central1"
+	distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
+	target_size                = 3
+	update_strategy            = "ROLLING_UPDATE"
+
+	rolling_update_policy {
+		type                  = "PROACTIVE"
+		minimal_action        = "REPLACE"
+		max_surge_fixed       = 2
+		max_unavailable_fixed = 0
+		min_ready_sec         = 10
+	}
+	named_port {
+		name = "customhttp"
+		port = 8080
+	}
+}`, igm)
 }
