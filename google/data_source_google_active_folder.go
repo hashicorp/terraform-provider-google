@@ -44,12 +44,12 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", displayName))
 	}
 
-	folders := searchResponse.Folders
-	if len(folders) != 1 {
-		return fmt.Errorf("More than one folder found")
+	for _, folder := range searchResponse.Folders {
+		if folder.DisplayName == displayName {
+			d.SetId(folder.Name)
+			d.Set("name", folder.Name)
+			return nil
+		}
 	}
-
-	d.SetId(folders[0].Name)
-	d.Set("name", folders[0].Name)
-	return nil
+	return fmt.Errorf("Folder not found")
 }
