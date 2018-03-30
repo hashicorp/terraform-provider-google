@@ -322,6 +322,9 @@ func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
+				ImportStateVerifyIgnore: []string{
+					"private_cluster",
+					"master_ipv4_cidr_block"},
 			},
 		},
 	})
@@ -1847,10 +1850,11 @@ resource "google_compute_network" "container_network" {
 }
 
 resource "google_compute_subnetwork" "container_subnetwork" {
-	name          = "${google_compute_network.container_network.name}"
-	network       = "${google_compute_network.container_network.name}"
-	ip_cidr_range = "10.0.36.0/24"
-	region        = "us-central1"
+	name                     = "${google_compute_network.container_network.name}"
+	network                  = "${google_compute_network.container_network.name}"
+	ip_cidr_range            = "10.0.36.0/24"
+	region                   = "us-central1"
+	private_ip_google_access = true
 
 	secondary_ip_range {
 		range_name    = "pod"
@@ -1872,10 +1876,10 @@ resource "google_container_cluster" "with_private_cluster" {
 	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
 
 	private_cluster = true
-	master_ipv4_cidr = "10.42.0.0/28"
+	master_ipv4_cidr_block = "10.42.0.0/28"
 	ip_allocation_policy {
-		cluster_secondary_range_name  = "${google_compute_subnetwork.container_network.secondary_ip_range.0.range_name}"
-		services_secondary_range_name = "${google_compute_subnetwork.container_network.secondary_ip_range.1.range_name}"
+		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
+		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
 	}
 }`, clusterName, clusterName)
 }
