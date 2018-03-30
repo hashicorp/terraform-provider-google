@@ -15,6 +15,7 @@ IMPROVEMENTS:
 * container: Add update support for pod security policy [GH-1195]
 * container: Add gke node taints [GH-1264]
 * container: Add support for node pool versions [GH-1266]
+* container: Add support for private clusters [GH-1250]
 * iam: allow setting service account email as id for service account keys [GH-1256]
 
 BUG FIXES:
