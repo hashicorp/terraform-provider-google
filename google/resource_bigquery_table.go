@@ -148,6 +148,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"field": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
