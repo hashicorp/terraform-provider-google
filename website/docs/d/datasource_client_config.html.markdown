@@ -22,10 +22,8 @@ output "project" {
 
 ## Example Usage: Configure Kubernetes provider with OAuth2 access token
 
-```
-data "google_client_config" "default" {
-
-}
+```tf
+data "google_client_config" "default" {}
 
 data "google_container_cluster" "my_cluster" {
   name   = "my-cluster"
