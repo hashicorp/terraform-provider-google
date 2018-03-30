@@ -37,13 +37,6 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 			},
 
 			{
-				Config: testAccBigQueryTableWithTimePartitioningField(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(resourceName),
-				),
-			},
-
-			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -209,10 +202,15 @@ resource "google_bigquery_table" "test" {
 
   time_partitioning {
     type = "DAY"
+    field = "ts"	
   }
 
   schema = <<EOH
 [
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
   {
     "name": "city",
     "type": "RECORD",
@@ -232,44 +230,6 @@ resource "google_bigquery_table" "test" {
         ]
       }
     ]
-  }
-]
-EOH
-}`, datasetID, tableID)
-}
-
-func testAccBigQueryTableWithTimePartitioningField(datasetID, tableID string) string {
-	return fmt.Sprintf(`
-resource "google_bigquery_dataset" "test" {
-  dataset_id = "%s"
-}
-
-resource "google_bigquery_table" "test" {
-  table_id   = "%s"
-  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
-
-  time_partitioning {
-    type = "DAY"
-    field = "ts"	
-  }
-
-  schema = <<EOH
-[
-  {
-    "name": "ts",
-    "type": "TIMESTAMP"
-  },
-  {
-    "name": "column1",
-    "type": "STRING"
-  },
-  {
-    "name": "column2",
-    "type": "INTEGER"
-  },
-  {
-    "name": "column4",
-    "type": "STRING"
   }
 ]
 EOH
