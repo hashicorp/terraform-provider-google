@@ -81,6 +81,10 @@ The `time_partitioning` block supports:
 * `expiration_ms` -  (Optional) Number of milliseconds for which to keep the
     storage for a partition.
 
+* `field` - (Optional) The field used to determine how to create a time-based
+    partition. If time-based partitioning is enabled without this value, the
+    table is partitioned based on the load time.
+
 * `type` - (Required) The only type supported is DAY, which will generate
     one partition per day based on data loading time.
 
