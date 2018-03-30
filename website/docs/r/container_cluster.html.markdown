@@ -117,6 +117,10 @@ output "cluster_ca_certificate" {
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
     external access (except the cluster node IPs, which GKE automatically whitelists).
 
+* `master_ipv4_cidr_block` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a private
+    [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
+    The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
+
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
     current master version--use the read-only `master_version` field to obtain that.
@@ -151,6 +155,11 @@ output "cluster_ca_certificate" {
 * `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
+
+* `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
+    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, which makes
+    the master inaccessible from the public internet and nodes do not get public IP addresses either. It is mandatory to specify
+    `master_ipv4_cidr_block` and `ip_allocation_policy` with this option.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
