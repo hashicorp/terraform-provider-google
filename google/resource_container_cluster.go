@@ -206,7 +206,7 @@ func resourceContainerCluster() *schema.Resource {
 			"enable_legacy_abac": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 
 			"initial_node_count": {
