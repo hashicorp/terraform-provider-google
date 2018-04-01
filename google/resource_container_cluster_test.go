@@ -372,7 +372,7 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 	Since GKE disables legacy ABAC by default in Kubernetes version 1.8+, and the default Kubernetes
 	version for GKE is also 1.8+, this test will ensure that legacy ABAC is disabled by default to be
 	more consistent with default settings in the Cloud Console
- */
+*/
 func TestAccContainerCluster_withDefaultLegacyAbac(t *testing.T) {
 	t.Parallel()
 
