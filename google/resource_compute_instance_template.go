@@ -594,9 +594,13 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	instanceProperties.GuestAccelerators = expandInstanceTemplateGuestAccelerators(d, config)
 
 	instanceProperties.Tags = resourceInstanceTags(d)
+
 	if _, ok := d.GetOk("labels"); ok {
 		instanceProperties.Labels = expandLabels(d)
+	} else {
+		instanceProperties.Labels = map[string]string{}
 	}
+	instanceProperties.Labels["goog-partner-creation-tool"] = "terraform"
 
 	var itName string
 	if v, ok := d.GetOk("name"); ok {
@@ -717,8 +721,12 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	}
+	labels := instanceTemplate.Properties.Labels
+	if _, ok := labels["goog-partner-creation-tool"]; ok {
+		delete(labels, "goog-partner-creation-tool")
+	}
 	if instanceTemplate.Properties.Labels != nil {
-		d.Set("labels", instanceTemplate.Properties.Labels)
+		d.Set("labels", labels)
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)

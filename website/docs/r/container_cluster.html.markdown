@@ -64,6 +64,9 @@ output "cluster_ca_certificate" {
 }
 ```
 
+~> **Note:** One resource label will be added to the cluster with the value 
+`goog-partner-creation-tool=terraform`, for the purpose of tracking resource usage
+
 ## Argument Reference
 
 * `name` - (Required) The name of the cluster, unique within the project and

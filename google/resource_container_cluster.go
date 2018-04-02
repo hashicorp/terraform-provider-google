@@ -466,6 +466,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		InitialNodeCount: int64(d.Get("initial_node_count").(int)),
 	}
 
+	cluster.ResourceLabels = map[string]string{
+		"goog-partner-creation-tool": "terraform",
+	}
+
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	if v, ok := d.GetOk("maintenance_policy"); ok {
