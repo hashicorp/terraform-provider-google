@@ -377,8 +377,11 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `zone`, and `name`, e.g.
+GKE clusters can be imported using the `project` , `zone`, and `name`. If 
+the project is omitted, the default provider value will be used. Examples:
 
 ```
+$ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/my-cluster
+
 $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
 ```
