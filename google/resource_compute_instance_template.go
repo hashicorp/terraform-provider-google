@@ -40,6 +40,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			"name_prefix": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/instanceTemplates#resource
@@ -51,6 +52,8 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					}
 					return
 				},
+				Deprecated: "Use the random provider instead. See migration instructions at " +
+					"https://github.com/terraform-providers/terraform-provider-google/issues/1054#issuecomment-377390209",
 			},
 
 			"disk": &schema.Schema{

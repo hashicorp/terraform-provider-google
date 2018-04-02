@@ -133,7 +133,10 @@ var schemaNodePool = map[string]*schema.Schema{
 	"name_prefix": &schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
+		Computed: true,
 		ForceNew: true,
+		Deprecated: "Use the random provider instead. See migration instructions at " +
+			"https://github.com/terraform-providers/terraform-provider-google/issues/1054#issuecomment-377390209",
 	},
 
 	"node_config": schemaNodeConfig,
