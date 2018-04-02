@@ -1,5 +1,8 @@
 ## 1.9.0 (Unreleased)
 
+BACKWARDS INCOMPATIBILITIES / NOTES:
+* `name_prefix` is now deprecated in all resources that support it [GH-1035]
+
 FEATURES:
 * **New Data Source** `google_compute_ssl_policy` [GH-1247]
 * **New Resource** `google_compute_security_policy` [GH-1242]
