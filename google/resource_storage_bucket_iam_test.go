@@ -40,6 +40,35 @@ func TestAccStorageBucketIamBinding(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucketIamPolicy(t *testing.T) {
+	t.Parallel()
+
+	bucket := acctest.RandomWithPrefix("tf-test")
+	account := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				// Test IAM Policy creation
+				Config: testAccStorageBucketIamPolicy_basic(bucket, account),
+				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+				}),
+			},
+			{
+				// Test IAM Policy update
+				Config: testAccStorageBucketIamPolicy_update(bucket, account),
+				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+				}),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucketIamMember(t *testing.T) {
 	t.Parallel()
 
@@ -84,6 +113,73 @@ func testAccCheckGoogleStorageBucketIam(bucket, role string, members []string) r
 
 		return fmt.Errorf("No binding for role %q", role)
 	}
+}
+
+func testAccStorageBucketIamPolicy_update(bucket, account string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_service_account" "test-account-1" {
+  account_id   = "%s-1"
+  display_name = "Iam Testing Account"
+}
+
+resource "google_service_account" "test-account-2" {
+  account_id   = "%s-2"
+  display_name = "Iam Testing Account"
+}
+
+
+data "google_iam_policy" "fooPolicy" {
+  binding {
+    role = "roles/storage.objectViewer"
+
+    members = [
+      "serviceAccount:${google_service_account.test-account-1.email}",
+      "serviceAccount:${google_service_account.test-account-2.email}"
+    ]
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "bucketBinding" {
+  bucket      = "${google_storage_bucket.bucket.name}"
+  policy_data = "${data.google_iam_policy.fooPolicy.policy_data}"
+}
+
+`, bucket, account, account)
+}
+
+func testAccStorageBucketIamPolicy_basic(bucket, account string) string {
+	return fmt.Sprintf(`
+
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_service_account" "test-account-1" {
+  account_id   = "%s-1"
+  display_name = "Iam Testing Account"
+}
+
+
+data "google_iam_policy" "fooPolicy" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "serviceAccount:${google_service_account.test-account-1.email}",
+    ]
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "bucketBinding" {
+  bucket      = "${google_storage_bucket.bucket.name}"
+  policy_data = "${data.google_iam_policy.fooPolicy.policy_data}"
+}
+
+
+`, bucket, account)
 }
 
 func testAccStorageBucketIamBinding_basic(bucket, account string) string {
