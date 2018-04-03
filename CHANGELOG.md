@@ -21,6 +21,7 @@ IMPROVEMENTS:
 * container: Add support for node pool versions [GH-1266]
 * container: Add support for private clusters [GH-1250]
 * iam: allow setting service account email as id for service account keys [GH-1256]
+* sql: add custom timeouts support for sql database instance [GH-1288]
 
 BUG FIXES:
 * compute: fix panic when setting empty iap block [GH-1232]
