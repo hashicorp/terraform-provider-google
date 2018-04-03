@@ -229,7 +229,6 @@ when the resource is configured with a `count`.
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
 
-<a id="timeouts"></a>
 ## Timeouts
 
 `google_sql_database_instance` provides the following
