@@ -4,8 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/servicemanagement/v1"
+	"log"
 )
 
 func resourceEndpointsService() *schema.Resource {
@@ -14,6 +17,11 @@ func resourceEndpointsService() *schema.Resource {
 		Read:   resourceEndpointsServiceRead,
 		Delete: resourceEndpointsServiceDelete,
 		Update: resourceEndpointsServiceUpdate,
+
+		// Migrates protoc_output -> protoc_output_base64.
+		SchemaVersion: 1,
+		MigrateState:  migrateEndpointsService,
+
 		Schema: map[string]*schema.Schema{
 			"service_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -23,13 +31,13 @@ func resourceEndpointsService() *schema.Resource {
 			"openapi_config": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"grpc_config", "protoc_output"},
+				ConflictsWith: []string{"grpc_config", "protoc_output_base64"},
 			},
 			"grpc_config": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"protoc_output": &schema.Schema{
+			"protoc_output_base64": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -111,6 +119,20 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
+func migrateEndpointsService(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
+	if v == 0 {
+		if is.Attributes["protoc_output"] == "" {
+			log.Println("[DEBUG] Nothing to migrate to V1.")
+			return is, nil
+		}
+		is.Attributes["protoc_output_base64"] = base64.StdEncoding.EncodeToString([]byte(is.Attributes["protoc_output"]))
+		is.Attributes["protoc_output"] = ""
+		return is, nil
+	} else {
+		return nil, fmt.Errorf("Unexpected schema version: %d", v)
+	}
+}
+
 func getOpenAPIConfigSource(configText string) servicemanagement.ConfigSource {
 	// We need to provide a ConfigSource object to the API whenever submitting a
 	// new config.  A ConfigSource contains a ConfigFile which contains the b64
@@ -134,7 +156,7 @@ func getGRPCConfigSource(serviceConfig, protoConfig string) servicemanagement.Co
 		FilePath:     "heredoc.yaml",
 	}
 	protoConfigfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(protoConfig)),
+		FileContents: protoConfig,
 		FileType:     "FILE_DESCRIPTOR_SET_PROTO",
 		FilePath:     "api_def.pb",
 	}
@@ -193,11 +215,11 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 		source = getOpenAPIConfigSource(openapiConfig.(string))
 	} else {
 		grpcConfig, gok := d.GetOk("grpc_config")
-		protocOutput, pok := d.GetOk("protoc_output")
+		protocOutput, pok := d.GetOk("protoc_output_base64")
 		if gok && pok {
 			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
 		} else {
-			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output.")
+			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output_base64.")
 		}
 	}
 
