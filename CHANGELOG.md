@@ -12,6 +12,7 @@ FEATURES:
 IMPROVEMENTS:
 * all: Read `GOOGLE_CLOUD_PROJECT` environment variable also [GH-1271]
 * bigquery: Add time partitioning field to `google_bigquery_table` resource [GH-1240]
+* config: Add OAuth access token to `google_client_config` data source [GH-1277] 
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
 * compute: add support for security policies in backend services [GH-1243]
 * compute: regional instance group managers now support rolling updates [GH-1260]
