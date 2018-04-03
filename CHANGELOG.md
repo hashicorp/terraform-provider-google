@@ -28,6 +28,7 @@ BUG FIXES:
 * compute: protect against an instance getting deleted by an igm while the disk is being detached [GH-1241]
 * compute: Add DiffSuppress for URL maps on Target HTTP(S) Proxies [GH-1263]
 * storage: Set force_destroy when importing storage buckets [GH-1223]
+* storage: Delete all object version when deleting all objects in a bucket [GH-1285]
 
 ## 1.8.0 (March 19, 2018)
 
