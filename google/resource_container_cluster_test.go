@@ -32,22 +32,6 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
-		},
-	})
-}
-
-func TestAccContainerCluster_importWithProject(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_basic(clusterName),
-			},
 			{
 				ResourceName:        "google_container_cluster.primary",
 				ImportStateIdPrefix: fmt.Sprintf("%s/us-central1-a/", getTestProjectFromEnv()),
