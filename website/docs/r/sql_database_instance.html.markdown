@@ -229,6 +229,16 @@ when the resource is configured with a `count`.
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
 
+<a id="timeouts"></a>
+## Timeouts
+
+`google_sql_database_instance` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
+
 ## Import
 
 Database instances can be imported using the `name`, e.g.
