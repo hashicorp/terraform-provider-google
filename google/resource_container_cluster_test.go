@@ -32,6 +32,12 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
+			{
+				ResourceName:        "google_container_cluster.primary",
+				ImportStateIdPrefix: fmt.Sprintf("%s/us-central1-a/", getTestProjectFromEnv()),
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
