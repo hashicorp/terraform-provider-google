@@ -1126,7 +1126,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			// Wait until it's updated
 			err = containerSharedOperationWait(config, op, project, location, "updating GKE cluster network policy", timeoutInMinutes, 2)
-			log.Println("[DEBUG] emilyye done updating network_policy")
+			log.Println("[DEBUG] done updating network_policy")
 			return err
 		}
 
@@ -1545,11 +1545,19 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 
 	switch len(parts) {
 	case 2:
-		d.Set("zone", parts[0])
+		if loc := parts[0]; isZone(loc) {
+			d.Set("zone", loc)
+		} else {
+			d.Set("region", loc)
+		}
 		d.Set("name", parts[1])
 	case 3:
 		d.Set("project", parts[0])
-		d.Set("zone", parts[1])
+		if loc := parts[1]; isZone(loc) {
+			d.Set("zone", loc)
+		} else {
+			d.Set("region", loc)
+		}
 		d.Set("name", parts[2])
 	default:
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")

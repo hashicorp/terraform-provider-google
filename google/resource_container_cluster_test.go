@@ -262,6 +262,12 @@ func TestAccContainerCluster_regional(t *testing.T) {
 			{
 				Config: testAccContainerCluster_regional(clusterName),
 			},
+			{
+				ResourceName:        "google_container_cluster.regional",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
@@ -1299,11 +1305,11 @@ resource "google_container_cluster" "with_master_authorized_networks" {
 
 func testAccContainerCluster_regional(clusterName string) string {
 	return fmt.Sprintf(`
-		resource "google_container_cluster" "with_additional_zones" {
-			name = "%s"
-			region = "us-central1"
-			initial_node_count = 1
-		}`, clusterName)
+resource "google_container_cluster" "regional" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+}`, clusterName)
 }
 
 func testAccContainerCluster_withAdditionalZones(clusterName string) string {
