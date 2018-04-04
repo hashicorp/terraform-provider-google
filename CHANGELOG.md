@@ -21,6 +21,7 @@ IMPROVEMENTS:
 * container: Add gke node taints [GH-1264]
 * container: Add support for node pool versions [GH-1266]
 * container: Add support for private clusters [GH-1250]
+* container: Updates container_cluster to set `enable_legacy_abac` to false by default [GH-1281]
 * iam: allow setting service account email as id for service account keys [GH-1256]
 * sql: add custom timeouts support for sql database instance [GH-1288]
 * sql: Retry on 429 and 503 errors on sql admin operation [GH-1212]
