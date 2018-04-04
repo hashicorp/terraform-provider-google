@@ -94,7 +94,7 @@ output "cluster_ca_certificate" {
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
-    Defaults to `true`
+    Defaults to `false`
     
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
