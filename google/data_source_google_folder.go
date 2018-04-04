@@ -1,7 +1,6 @@
 package google
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
@@ -16,38 +15,23 @@ func dataSourceGoogleFolder() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"folder": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ConflictsWith: []string{
-					"name",
-					"parent",
-					"display_name",
-					"lifecycle_state",
-					"create_time",
-				},
+				Required: true,
 			},
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder"},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"parent": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder"},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"display_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder"},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"lifecycle_state": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder"},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"create_time": {
 				Type:     schema.TypeString,
@@ -69,33 +53,12 @@ func dataSourceGoogleFolder() *schema.Resource {
 func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	var folder *resourceManagerV2Beta1.Folder
+	folderName := d.Get("folder").(string)
 
-	if queryString, ok := generateFolderReadQueryString(d); ok {
-		searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
-			Query: queryString,
-		}
-		searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
-		if err != nil || (err == nil && len(searchResponse.Folders) == 0) {
-			return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found With Query : %s", queryString))
-		}
+	folder, err := config.clientResourceManagerV2Beta1.Folders.Get(canonicalFolderName(folderName)).Do()
 
-		folders := searchResponse.Folders
-		if len(folders) > 1 {
-			return fmt.Errorf("More than one folder found")
-		}
-
-		folder = folders[0]
-	} else if v, ok := d.GetOk("folder"); ok {
-		resp, err := config.clientResourceManagerV2Beta1.Folders.Get(canonicalFolderName(v.(string))).Do()
-
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", v))
-		}
-
-		folder = resp
-	} else {
-		return fmt.Errorf("at least one of folder, name, parent, display_name, lifecycle_state must be set")
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", folderName))
 	}
 
 	d.SetId(GetResourceNameFromSelfLink(folder.Name))
@@ -116,41 +79,6 @@ func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
-}
-
-func generateFolderReadQueryString(d *schema.ResourceData) (string, bool) {
-	var buffer bytes.Buffer
-
-	conditionals := map[string]string{
-		"name":            "name",
-		"parent":          "parent",
-		"display_name":    "displayName",
-		"lifecycle_state": "lifecycleState",
-	}
-
-	firstConditional := true
-
-	for conditionalInput, conditionalQueryColumn := range conditionals {
-		if v, ok := d.GetOk(conditionalInput); ok {
-			if !firstConditional {
-				buffer.WriteString(" AND ")
-			}
-
-			conditional := fmt.Sprintf("%s=%s", conditionalQueryColumn, v.(string))
-
-			buffer.WriteString(conditional)
-
-			if firstConditional {
-				firstConditional = false
-			}
-		}
-	}
-
-	queryString := buffer.String()
-
-	ok := len(queryString) > 0
-
-	return queryString, ok
 }
 
 func canonicalFolderName(ba string) string {

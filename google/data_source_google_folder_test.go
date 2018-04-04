@@ -70,34 +70,33 @@ func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceGoogleFolder_byParentQueryStringNotFound(t *testing.T) {
-	parent := "folders/" + acctest.RandString(16)
+func TestAccDataSourceGoogleFolder_byFullNameNotFound(t *testing.T) {
+	name := "folders/" + acctest.RandString(16)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccCheckGoogleFolder_byParent(parent),
-				ExpectError: regexp.MustCompile("Error reading Folder Not Found With Query : parent=" + parent),
+				Config:      testAccCheckGoogleFolder_byName(name),
+				ExpectError: regexp.MustCompile("Folder Not Found : " + name),
 			},
 		},
 	})
 }
 
-func TestAccDataSourceGoogleFolder_byMultipleFields(t *testing.T) {
+func TestAccDataSourceGoogleFolder_attributesCheck(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform-test-" + acctest.RandString(10)
-	lifecycleState := "ACTIVE"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckGoogleFolder_byMultipleFields(lifecycleState, parent, displayName),
+				Config: testAccCheckGoogleFolder_attributesCheckConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleFolderCheck("data.google_folder.folder", "google_folder.foobar"),
 				),
@@ -151,14 +150,7 @@ data "google_folder" "folder" {
 }`, name)
 }
 
-func testAccCheckGoogleFolder_byParent(parent string) string {
-	return fmt.Sprintf(`
-data "google_folder" "folder" {
-  parent = "%s"
-}`, parent)
-}
-
-func testAccCheckGoogleFolder_byMultipleFields(lifecycleState string, parent string, displayName string) string {
+func testAccCheckGoogleFolder_attributesCheckConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
   parent = "%s"
@@ -166,8 +158,6 @@ resource "google_folder" "foobar" {
 }
 
 data "google_folder" "folder" {
-  lifecycle_state = "%s"
-  parent = "${google_folder.foobar.parent}"
-  display_name = "${google_folder.foobar.display_name}"
-}`, parent, displayName, lifecycleState)
+  folder = "${google_folder.foobar.name}"
+}`, parent, displayName)
 }
