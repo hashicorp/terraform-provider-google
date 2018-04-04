@@ -387,6 +387,12 @@ func TestAccContainerCluster_withDefaultLegacyAbac(t *testing.T) {
 					resource.TestCheckResourceAttr("google_container_cluster.default_legacy_abac", "enable_legacy_abac", "false"),
 				),
 			},
+			{
+				ResourceName:        "google_container_cluster.default_legacy_abac",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
