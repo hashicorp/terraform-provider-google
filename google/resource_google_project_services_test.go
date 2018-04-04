@@ -224,11 +224,11 @@ func testAccProjectAssociateServicesBasic(services []string, pid, name, org stri
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
 resource "google_project_services" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project  = "${google_project.acceptance.project_id}"
   services = [%s]
 }
 `, pid, name, org, testStringsToString(services))
@@ -237,14 +237,15 @@ resource "google_project_services" "acceptance" {
 func testAccProjectAssociateServicesBasic_withBilling(services []string, pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-  project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
   billing_account = "%s"
 }
 resource "google_project_services" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
-  services = [%s]
+  project            = "${google_project.acceptance.project_id}"
+  services           = [%s]
+  disable_on_destroy = false
 }
 `, pid, name, org, billing, testStringsToString(services))
 }

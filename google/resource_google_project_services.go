@@ -30,6 +30,11 @@ func resourceGoogleProjectServices() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"disable_on_destroy": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 		},
 	}
 }
@@ -105,6 +110,13 @@ func resourceGoogleProjectServicesUpdate(d *schema.ResourceData, meta interface{
 
 func resourceGoogleProjectServicesDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Deleting google_project_services")
+
+	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {
+		log.Printf("Not disabling service '%s', because disable_on_destroy is false.", d.Id())
+		d.SetId("")
+		return nil
+	}
+
 	config := meta.(*Config)
 	services := resourceServices(d)
 	for _, s := range services {
