@@ -24,6 +24,14 @@ type ContainerBetaOperationWaiter struct {
 	Location string
 }
 
+func (w *ContainerOperationWaiter) Conf() *resource.StateChangeConf {
+	return &resource.StateChangeConf{
+		Pending: []string{"PENDING", "RUNNING"},
+		Target:  []string{"DONE"},
+		Refresh: w.RefreshFunc(),
+	}
+}
+
 func (w *ContainerBetaOperationWaiter) Conf() *resource.StateChangeConf {
 	return &resource.StateChangeConf{
 		Pending: []string{"PENDING", "RUNNING"},
@@ -32,11 +40,10 @@ func (w *ContainerBetaOperationWaiter) Conf() *resource.StateChangeConf {
 	}
 }
 
-func (w *ContainerBetaOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
+func (w *ContainerOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		name := fmt.Sprintf("projects/%s/locations/%s/operations/%s",
-			w.Project, w.Location, w.Op.Name)
-		resp, err := w.Service.Projects.Locations.Operations.Get(name).Do()
+		resp, err := w.Service.Projects.Zones.Operations.Get(
+			w.Project, w.Zone, w.Op.Name).Do()
 
 		if err != nil {
 			return nil, "", err
@@ -52,18 +59,11 @@ func (w *ContainerBetaOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
-func (w *ContainerOperationWaiter) Conf() *resource.StateChangeConf {
-	return &resource.StateChangeConf{
-		Pending: []string{"PENDING", "RUNNING"},
-		Target:  []string{"DONE"},
-		Refresh: w.RefreshFunc(),
-	}
-}
-
-func (w *ContainerOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
+func (w *ContainerBetaOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := w.Service.Projects.Zones.Operations.Get(
-			w.Project, w.Zone, w.Op.Name).Do()
+		name := fmt.Sprintf("projects/%s/locations/%s/operations/%s",
+			w.Project, w.Location, w.Op.Name)
+		resp, err := w.Service.Projects.Locations.Operations.Get(name).Do()
 
 		if err != nil {
 			return nil, "", err
@@ -91,16 +91,6 @@ func containerOperationWait(config *Config, op *container.Operation, project, zo
 	return waitForState(state, activity, timeoutMinutes, minTimeoutSeconds)
 }
 
-func waitForState(state *resource.StateChangeConf, activity string, timeoutMinutes, minTimeoutSeconds int) error {
-	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
-	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
-	_, err := state.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
-	}
-	return nil
-}
-
 func containerBetaOperationWait(config *Config, op *containerBeta.Operation, project, location, activity string, timeoutMinutes, minTimeoutSeconds int) error {
 	w := &ContainerBetaOperationWaiter{
 		Service:  config.clientContainerBeta,
@@ -111,6 +101,16 @@ func containerBetaOperationWait(config *Config, op *containerBeta.Operation, pro
 
 	state := w.Conf()
 	return waitForState(state, activity, timeoutMinutes, minTimeoutSeconds)
+}
+
+func waitForState(state *resource.StateChangeConf, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
+	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
+	_, err := state.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+	}
+	return nil
 }
 
 func containerSharedOperationWait(config *Config, op interface{}, project, location, activity string, timeoutMinutes, minTimeoutSeconds int) error {
