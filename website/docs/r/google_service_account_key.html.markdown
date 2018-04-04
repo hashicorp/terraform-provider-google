@@ -75,7 +75,7 @@ Valid values are listed at
 
 * `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
 
-* `private_key_type` (Optional) The output format of the private key. GOOGLE_CREDENTIALS_FILE is the default output format.
+* `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
 * `pgp_key` – (Optional) An optional PGP key to encrypt the resulting private
 key material. Only used when creating or importing a new key pair. May either be
