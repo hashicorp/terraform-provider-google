@@ -86,6 +86,7 @@ func Provider() terraform.ResourceProvider {
 			"google_container_registry_image":        dataSourceGoogleContainerImage(),
 			"google_iam_policy":                      dataSourceGoogleIamPolicy(),
 			"google_kms_secret":                      dataSourceGoogleKmsSecret(),
+			"google_folder":                          dataSourceGoogleFolder(),
 			"google_organization":                    dataSourceGoogleOrganization(),
 			"google_storage_object_signed_url":       dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account": dataSourceGoogleStorageProjectServiceAccount(),
