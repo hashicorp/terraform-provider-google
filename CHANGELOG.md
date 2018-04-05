@@ -1,39 +1,39 @@
-## 1.9.0 (Unreleased)
+## 1.9.0 (April 05, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
-* `name_prefix` is now deprecated in all resources that support it [GH-1035]
+* `name_prefix` is now deprecated in all resources that support it ([#1035](https://github.com/terraform-providers/terraform-provider-google/issues/1035))
 
 FEATURES:
-* **New Data Source** `google_compute_ssl_policy` [GH-1247]
-* **New Resource** `google_compute_security_policy` [GH-1242]
-* **New Resource** `google_compute_ssl_policy` [GH-1247]
-* **New Resource** `google_project_organization_policy` [GH-1226]
+* **New Data Source** `google_compute_ssl_policy` ([#1247](https://github.com/terraform-providers/terraform-provider-google/issues/1247))
+* **New Resource** `google_compute_security_policy` ([#1242](https://github.com/terraform-providers/terraform-provider-google/issues/1242))
+* **New Resource** `google_compute_ssl_policy` ([#1247](https://github.com/terraform-providers/terraform-provider-google/issues/1247))
+* **New Resource** `google_project_organization_policy` ([#1226](https://github.com/terraform-providers/terraform-provider-google/issues/1226))
 
 IMPROVEMENTS:
-* all: Read `GOOGLE_CLOUD_PROJECT` environment variable also [GH-1271]
-* bigquery: Add time partitioning field to `google_bigquery_table` resource [GH-1240]
-* config: Add OAuth access token to `google_client_config` data source [GH-1277] 
-* compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source [GH-1222]
-* compute: add support for security policies in backend services [GH-1243]
-* compute: regional instance group managers now support rolling updates [GH-1260]
-* container: add ability to delete the default node pool [GH-1245]
-* container: Add update support for pod security policy [GH-1195]
-* container: Add gke node taints [GH-1264]
-* container: Add support for node pool versions [GH-1266]
-* container: Add support for private clusters [GH-1250]
-* container: Updates container_cluster to set `enable_legacy_abac` to false by default [GH-1281]
-* container: Add support for regional GKE clusters in `google_container_cluster` [GH-1181]
-* iam: allow setting service account email as id for service account keys [GH-1256]
-* sql: add custom timeouts support for sql database instance [GH-1288]
-* sql: Retry on 429 and 503 errors on sql admin operation [GH-1212]
-* project: Add disable_on_destroy flag to `google_project_services` [GH-1293]
+* all: Read `GOOGLE_CLOUD_PROJECT` environment variable also ([#1271](https://github.com/terraform-providers/terraform-provider-google/issues/1271))
+* bigquery: Add time partitioning field to `google_bigquery_table` resource ([#1240](https://github.com/terraform-providers/terraform-provider-google/issues/1240))
+* config: Add OAuth access token to `google_client_config` data source [[#1277](https://github.com/terraform-providers/terraform-provider-google/issues/1277)] 
+* compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source ([#1222](https://github.com/terraform-providers/terraform-provider-google/issues/1222))
+* compute: add support for security policies in backend services ([#1243](https://github.com/terraform-providers/terraform-provider-google/issues/1243))
+* compute: regional instance group managers now support rolling updates ([#1260](https://github.com/terraform-providers/terraform-provider-google/issues/1260))
+* container: add ability to delete the default node pool ([#1245](https://github.com/terraform-providers/terraform-provider-google/issues/1245))
+* container: Add update support for pod security policy ([#1195](https://github.com/terraform-providers/terraform-provider-google/issues/1195))
+* container: Add gke node taints ([#1264](https://github.com/terraform-providers/terraform-provider-google/issues/1264))
+* container: Add support for node pool versions ([#1266](https://github.com/terraform-providers/terraform-provider-google/issues/1266))
+* container: Add support for private clusters ([#1250](https://github.com/terraform-providers/terraform-provider-google/issues/1250))
+* container: Updates container_cluster to set `enable_legacy_abac` to false by default ([#1281](https://github.com/terraform-providers/terraform-provider-google/issues/1281))
+* container: Add support for regional GKE clusters in `google_container_cluster` ([#1181](https://github.com/terraform-providers/terraform-provider-google/issues/1181))
+* iam: allow setting service account email as id for service account keys ([#1256](https://github.com/terraform-providers/terraform-provider-google/issues/1256))
+* sql: add custom timeouts support for sql database instance ([#1288](https://github.com/terraform-providers/terraform-provider-google/issues/1288))
+* sql: Retry on 429 and 503 errors on sql admin operation ([#1212](https://github.com/terraform-providers/terraform-provider-google/issues/1212))
+* project: Add disable_on_destroy flag to `google_project_services` ([#1293](https://github.com/terraform-providers/terraform-provider-google/issues/1293))
 
 BUG FIXES:
-* compute: fix panic when setting empty iap block [GH-1232]
-* compute: protect against an instance getting deleted by an igm while the disk is being detached [GH-1241]
-* compute: Add DiffSuppress for URL maps on Target HTTP(S) Proxies [GH-1263]
-* storage: Set force_destroy when importing storage buckets [GH-1223]
-* storage: Delete all object version when deleting all objects in a bucket [GH-1285]
+* compute: fix panic when setting empty iap block ([#1232](https://github.com/terraform-providers/terraform-provider-google/issues/1232))
+* compute: protect against an instance getting deleted by an igm while the disk is being detached ([#1241](https://github.com/terraform-providers/terraform-provider-google/issues/1241))
+* compute: Add DiffSuppress for URL maps on Target HTTP(S) Proxies ([#1263](https://github.com/terraform-providers/terraform-provider-google/issues/1263))
+* storage: Set force_destroy when importing storage buckets ([#1223](https://github.com/terraform-providers/terraform-provider-google/issues/1223))
+* storage: Delete all object version when deleting all objects in a bucket ([#1285](https://github.com/terraform-providers/terraform-provider-google/issues/1285))
 
 ## 1.8.0 (March 19, 2018)
 
