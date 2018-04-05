@@ -72,7 +72,12 @@ output "cluster_ca_certificate" {
 - - -
 
 * `zone` - (Optional) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in.
+    in `initial_node_count` should be created in. Only one of `zone` and `region`
+    may be set. If neither zone nor region are set, the provider zone is used.
+
+* `region` (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+    The region to create the cluster in, for
+    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
@@ -377,7 +382,7 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `project` , `zone`, and `name`. If 
+GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If
 the project is omitted, the default provider value will be used. Examples:
 
 ```
