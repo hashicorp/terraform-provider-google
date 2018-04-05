@@ -511,19 +511,16 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("additional_zones"); ok {
-		locationsList := v.(*schema.Set).List()
-		locations := []string{}
-		for _, v := range locationsList {
-			loc := v.(string)
-			locations = append(locations, loc)
-			if loc == location {
-				return fmt.Errorf("additional_zones should not contain the original 'zone'")
-			}
+		locationsSet := v.(*schema.Set)
+		if locationsSet.Contains(location) {
+			return fmt.Errorf("additional_zones should not contain the original 'zone'")
 		}
 		if isZone(location) {
-			locations = append(locations, location)
+			// GKE requires a full list of locations (including the original zone),
+			// but our schema only asks for additional zones, so append the original.
+			locationsSet.Add(location)
 		}
-		cluster.Locations = locations
+		cluster.Locations = convertStringSet(locationsSet)
 	}
 
 	if v, ok := d.GetOk("cluster_ipv4_cidr"); ok {
@@ -730,14 +727,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("zone", cluster.Zone)
 
-	locations := []string{}
-	if len(cluster.Locations) > 1 {
-		for _, location := range cluster.Locations {
-			if location != cluster.Zone {
-				locations = append(locations, location)
-			}
-		}
-	}
+	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
+	locations.Remove(cluster.Zone) // Remove the original zone since we only store additional zones
 	d.Set("additional_zones", locations)
 
 	d.Set("endpoint", cluster.Endpoint)
@@ -1010,11 +1001,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if azSet.Contains(location) {
 			return fmt.Errorf("additional_zones should not contain the original 'zone'")
 		}
-		azs := convertStringArr(azSet.List())
-		locations := append(azs, location)
+		azSet.Add(location)
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredLocations: locations,
+				DesiredLocations: convertStringSet(azSet),
 			},
 		}
 
@@ -1024,8 +1014,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(),
-			locations)
+		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(), azSet.List())
 
 		d.SetPartial("additional_zones")
 	}
