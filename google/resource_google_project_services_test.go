@@ -183,9 +183,34 @@ func TestAccProjectServices_manyServices(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{
-		"servicemanagement.googleapis.com",
-		"compute.googleapis.com",
+		"bigquery-json.googleapis.com",
+		"cloudbuild.googleapis.com",
+		"cloudfunctions.googleapis.com",
 		"cloudresourcemanager.googleapis.com",
+		"cloudtrace.googleapis.com",
+		"compute.googleapis.com",
+		"container.googleapis.com",
+		"containerregistry.googleapis.com",
+		"dataflow.googleapis.com",
+		"dataproc.googleapis.com",
+		"deploymentmanager.googleapis.com",
+		"dns.googleapis.com",
+		"endpoints.googleapis.com",
+		"iam.googleapis.com",
+		"logging.googleapis.com",
+		"ml.googleapis.com",
+		"monitoring.googleapis.com",
+		"pubsub.googleapis.com",
+		"replicapool.googleapis.com",
+		"replicapoolupdater.googleapis.com",
+		"resourceviews.googleapis.com",
+		"runtimeconfig.googleapis.com",
+		"servicecontrol.googleapis.com",
+		"servicemanagement.googleapis.com",
+		"sourcerepo.googleapis.com",
+		"spanner.googleapis.com",
+		"storage-api.googleapis.com",
+		"storage-component.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
