@@ -37,7 +37,7 @@ output "my_folder_2_parent" {
 The following arguments are supported:
 
 * `folder` (Required) - The name of the Folder in the form `{folder_id}` or `folders/{folder_id}`.
-* `lookup_organization` (Optional) - `true` to find the organization that the folder belongs, `false` to avoid the lookup. It searches up the tree.
+* `lookup_organization` (Optional) - `true` to find the organization that the folder belongs, `false` to avoid the lookup. It searches up the tree. (defaults to `false`)
 
 ## Attributes Reference
 

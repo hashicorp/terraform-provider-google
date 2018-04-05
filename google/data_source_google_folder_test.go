@@ -11,18 +11,19 @@ import (
 )
 
 func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
-	folderId := getTestFolderFromEnv(t)
-	name := "folders/" + folderId
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleFolder_byName(name),
+				Config: testAccCheckGoogleFolder_byFullNameConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_folder.folder", "id", folderId),
-					resource.TestCheckResourceAttr("data.google_folder.folder", "name", name),
+					testAccDataSourceGoogleFolderCheck("data.google_folder.folder", "google_folder.foobar"),
 				),
 			},
 		},
@@ -30,18 +31,19 @@ func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
-	folderId := getTestFolderFromEnv(t)
-	name := "folders/" + folderId
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleFolder_byName(folderId),
+				Config: testAccCheckGoogleFolder_byShortNameConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_folder.folder", "id", folderId),
-					resource.TestCheckResourceAttr("data.google_folder.folder", "name", name),
+					testAccDataSourceGoogleFolderCheck("data.google_folder.folder", "google_folder.foobar"),
 				),
 			},
 		},
@@ -49,21 +51,20 @@ func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
-	orgId := getTestOrgFromEnv(t)
-	orgName := "organizations/" + orgId
-	folderId := getTestFolderFromEnv(t)
-	name := "folders/" + folderId
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleFolder_lookupOrganization(folderId),
+				Config: testAccCheckGoogleFolder_lookupOrganizationConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_folder.folder", "id", folderId),
-					resource.TestCheckResourceAttr("data.google_folder.folder", "name", name),
-					resource.TestCheckResourceAttr("data.google_folder.folder", "organization", orgName),
+					testAccDataSourceGoogleFolderCheck("data.google_folder.folder", "google_folder.foobar"),
+					resource.TestCheckResourceAttr("data.google_folder.folder", "organization", parent),
 				),
 			},
 		},
@@ -78,28 +79,8 @@ func TestAccDataSourceGoogleFolder_byFullNameNotFound(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccCheckGoogleFolder_byName(name),
+				Config:      testAccCheckGoogleFolder_byFullNameNotFoundConfig(name),
 				ExpectError: regexp.MustCompile("Folder Not Found : " + name),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceGoogleFolder_attributesCheck(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-
-	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "terraform-test-" + acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckGoogleFolder_attributesCheckConfig(parent, displayName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleFolderCheck("data.google_folder.folder", "google_folder.foobar"),
-				),
 			},
 		},
 	})
@@ -135,22 +116,7 @@ func testAccDataSourceGoogleFolderCheck(data_source_name string, resource_name s
 	}
 }
 
-func testAccCheckGoogleFolder_byName(name string) string {
-	return fmt.Sprintf(`
-data "google_folder" "folder" {
-  folder = "%s"
-}`, name)
-}
-
-func testAccCheckGoogleFolder_lookupOrganization(name string) string {
-	return fmt.Sprintf(`
-data "google_folder" "folder" {
-  folder = "%s"
-  lookup_organization = true
-}`, name)
-}
-
-func testAccCheckGoogleFolder_attributesCheckConfig(parent string, displayName string) string {
+func testAccCheckGoogleFolder_byFullNameConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
   parent = "%s"
@@ -160,4 +126,36 @@ resource "google_folder" "foobar" {
 data "google_folder" "folder" {
   folder = "${google_folder.foobar.name}"
 }`, parent, displayName)
+}
+
+func testAccCheckGoogleFolder_byShortNameConfig(parent string, displayName string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "foobar" {
+  parent = "%s"
+  display_name = "%s"
+}
+
+data "google_folder" "folder" {
+  folder = "${replace(google_folder.foobar.name, "folders/", "")}"
+}`, parent, displayName)
+}
+
+func testAccCheckGoogleFolder_lookupOrganizationConfig(parent string, displayName string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "foobar" {
+  parent = "%s"
+  display_name = "%s"
+}
+
+data "google_folder" "folder" {
+  folder = "${google_folder.foobar.name}"
+  lookup_organization = true
+}`, parent, displayName)
+}
+
+func testAccCheckGoogleFolder_byFullNameNotFoundConfig(name string) string {
+	return fmt.Sprintf(`
+data "google_folder" "folder" {
+  folder = "%s"
+}`, name)
 }
