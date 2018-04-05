@@ -51,6 +51,13 @@ func TestAccProjectServices_basic(t *testing.T) {
 					testProjectServicesMatch(services2, pid),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_project_services.acceptance",
+				ImportState:             true,
+				ImportStateId:           pid,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+			},
 		},
 	})
 }
@@ -228,8 +235,9 @@ resource "google_project" "acceptance" {
   org_id     = "%s"
 }
 resource "google_project_services" "acceptance" {
-  project  = "${google_project.acceptance.project_id}"
-  services = [%s]
+  project            = "${google_project.acceptance.project_id}"
+  services           = [%s]
+  disable_on_destroy = true
 }
 `, pid, name, org, testStringsToString(services))
 }
