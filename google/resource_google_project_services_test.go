@@ -51,6 +51,13 @@ func TestAccProjectServices_basic(t *testing.T) {
 					testProjectServicesMatch(services2, pid),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_project_services.acceptance",
+				ImportState:             true,
+				ImportStateId:           pid,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+			},
 		},
 	})
 }
@@ -176,34 +183,9 @@ func TestAccProjectServices_manyServices(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{
-		"bigquery-json.googleapis.com",
-		"cloudbuild.googleapis.com",
-		"cloudfunctions.googleapis.com",
-		"cloudresourcemanager.googleapis.com",
-		"cloudtrace.googleapis.com",
-		"compute.googleapis.com",
-		"container.googleapis.com",
-		"containerregistry.googleapis.com",
-		"dataflow.googleapis.com",
-		"dataproc.googleapis.com",
-		"deploymentmanager.googleapis.com",
-		"dns.googleapis.com",
-		"endpoints.googleapis.com",
-		"iam.googleapis.com",
-		"logging.googleapis.com",
-		"ml.googleapis.com",
-		"monitoring.googleapis.com",
-		"pubsub.googleapis.com",
-		"replicapool.googleapis.com",
-		"replicapoolupdater.googleapis.com",
-		"resourceviews.googleapis.com",
-		"runtimeconfig.googleapis.com",
-		"servicecontrol.googleapis.com",
 		"servicemanagement.googleapis.com",
-		"sourcerepo.googleapis.com",
-		"spanner.googleapis.com",
-		"storage-api.googleapis.com",
-		"storage-component.googleapis.com",
+		"compute.googleapis.com",
+		"cloudresourcemanager.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -228,8 +210,9 @@ resource "google_project" "acceptance" {
   org_id     = "%s"
 }
 resource "google_project_services" "acceptance" {
-  project  = "${google_project.acceptance.project_id}"
-  services = [%s]
+  project            = "${google_project.acceptance.project_id}"
+  services           = [%s]
+  disable_on_destroy = true
 }
 `, pid, name, org, testStringsToString(services))
 }
