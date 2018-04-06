@@ -1,4 +1,8 @@
 ## 1.9.1 (Unreleased)
+
+FEATURES:
+* **New Data Source** `google_folder` [GH-1280]
+
 ## 1.9.0 (April 05, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
