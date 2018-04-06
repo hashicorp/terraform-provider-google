@@ -3,10 +3,11 @@ package google
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var iamBindingSchema = map[string]*schema.Schema{
