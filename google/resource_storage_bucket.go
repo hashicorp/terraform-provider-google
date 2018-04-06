@@ -15,6 +15,7 @@ import (
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
+
 )
 
 func resourceStorageBucket() *schema.Resource {
@@ -299,6 +300,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	err = retry(func() error {
 		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
+
 		return err
 	})
 
