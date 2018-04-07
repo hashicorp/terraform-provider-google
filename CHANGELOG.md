@@ -2,6 +2,9 @@
 
 FEATURES:
 * **New Data Source** `google_folder` [GH-1280]
+* **New Resource** `google_compute_subnetwork_iam_binding` [GH-1305]
+* **New Resource** `google_compute_subnetwork_iam_member` [GH-1305]
+* **New Resource** `google_compute_subnetwork_iam_policy` [GH-1305]
 
 ## 1.9.0 (April 05, 2018)
 
