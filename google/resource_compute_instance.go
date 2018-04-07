@@ -855,6 +855,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	attachedDiskSources := make(map[string]int)
 	for i, v := range d.Get("attached_disk").([]interface{}) {
 		if v == nil {
+			// There was previously a bug in this code that, when triggered,
+			// would cause some nil values to end up in the list of attached disks.
+			// Check for this case to make sure we don't try to parse the nil disk.
 			continue
 		}
 		disk := v.(map[string]interface{})
