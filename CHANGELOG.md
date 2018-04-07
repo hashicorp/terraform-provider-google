@@ -1,10 +1,13 @@
-## 1.9.1 (Unreleased)
+## 1.10.0 (Unreleased)
 
 FEATURES:
 * **New Data Source** `google_folder` [GH-1280]
 * **New Resource** `google_compute_subnetwork_iam_binding` [GH-1305]
 * **New Resource** `google_compute_subnetwork_iam_member` [GH-1305]
 * **New Resource** `google_compute_subnetwork_iam_policy` [GH-1305]
+
+BUG FIXES:
+* compute: fix error introduced when attached disks are deleted out of band [GH-1301]
 
 ## 1.9.0 (April 05, 2018)
 
