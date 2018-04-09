@@ -73,7 +73,7 @@ resource "google_dns_managed_zone" "prod" {
 }
 ```
 
-### Adding a MX record
+### Adding an MX record
 
 ```hcl
 resource "google_dns_record_set" "mx" {
@@ -97,7 +97,7 @@ resource "google_dns_managed_zone" "prod" {
 }
 ```
 
-### Adding a SPF record
+### Adding an SPF record
 
 `\"` must be added around your `rrdatas` for a SPF record. Otherwise `rrdatas` string gets split on spaces.
 
