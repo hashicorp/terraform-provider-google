@@ -40,7 +40,7 @@ resource "google_dns_record_set" "dns" {
 
 The following attributes are exported:
 
-* `dns_name` - The DNS name of this zone, e.g. "terraform.io".
+* `dns_name` - The fully qualified DNS name of this zone, e.g. `terraform.io.`.
 
 * `description` - A textual description field.
 
