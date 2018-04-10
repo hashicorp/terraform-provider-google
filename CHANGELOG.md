@@ -8,6 +8,7 @@ FEATURES:
 
 BUG FIXES:
 * compute: fix error introduced when attached disks are deleted out of band [GH-1301]
+* container: Use correct project id regex in `google_container_cluster` [GH-1311]
 * folder: Escape the display name in active folder data source (in case of spaces, etc) [GH-1261]
 
 ## 1.9.0 (April 05, 2018)
