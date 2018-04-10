@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	instanceGroupManagerURL           = regexp.MustCompile("^https://www.googleapis.com/compute/v1/projects/([a-z][a-z0-9-]{5}(?:[-a-z0-9]{0,23}[a-z0-9])?)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)")
+	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/v1/projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", ProjectRegex))
+
 	ContainerClusterBaseApiVersion    = v1
 	ContainerClusterVersionedFeatures = []Feature{
 		{Version: v1beta1, Item: "pod_security_policy_config"},
