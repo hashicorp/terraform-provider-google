@@ -338,7 +338,8 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	// Explicitly set to default as a workaround for `ImportStateVerify` tests.
+	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
+	// don't see a diff immediately after import.
 	d.Set("auto_create_network", true)
 	return []*schema.ResourceData{d}, nil
 }
