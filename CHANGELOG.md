@@ -6,6 +6,9 @@ FEATURES:
 * **New Resource** `google_compute_subnetwork_iam_member` [GH-1305]
 * **New Resource** `google_compute_subnetwork_iam_policy` [GH-1305]
 
+IMPROVEMENTS:
+* compute: Add timeouts to `google_compute_snapshot` [GH-1309]
+
 BUG FIXES:
 * compute: fix error introduced when attached disks are deleted out of band [GH-1301]
 * container: Use correct project id regex in `google_container_cluster` [GH-1311]
