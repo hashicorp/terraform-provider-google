@@ -24,20 +24,20 @@ func TestAccComputeSubnetworkIamBinding(t *testing.T) {
 				Config: testAccComputeSubnetworkIamBinding_basic(account, region, subnetwork, role),
 			},
 			resource.TestStep{
-				ResourceName:  "google_compute_subnetwork_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s/%s %s", region, subnetwork, role),
-				ImportState:   true,
-				// ImportStateVerify: true, https://github.com/terraform-providers/terraform-provider-google/issues/1296
+				ResourceName:      "google_compute_subnetwork_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s", region, subnetwork, role),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test Iam Binding update
 				Config: testAccComputeSubnetworkIamBinding_update(account, region, subnetwork, role),
 			},
 			resource.TestStep{
-				ResourceName:  "google_compute_subnetwork_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s/%s %s", region, subnetwork, role),
-				ImportState:   true,
-				// ImportStateVerify: true, https://github.com/terraform-providers/terraform-provider-google/issues/1296
+				ResourceName:      "google_compute_subnetwork_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s", region, subnetwork, role),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -61,10 +61,10 @@ func TestAccComputeSubnetworkIamMember(t *testing.T) {
 				Config: testAccComputeSubnetworkIamMember_basic(account, region, subnetwork, role),
 			},
 			resource.TestStep{
-				ResourceName:  "google_compute_subnetwork_iam_member.foo",
-				ImportStateId: fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", region, subnetwork, role, account, project),
-				ImportState:   true,
-				// ImportStateVerify: true, https://github.com/terraform-providers/terraform-provider-google/issues/1296
+				ResourceName:      "google_compute_subnetwork_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", region, subnetwork, role, account, project),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
