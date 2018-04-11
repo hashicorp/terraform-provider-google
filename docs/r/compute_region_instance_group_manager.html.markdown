@@ -114,6 +114,7 @@ group. You can specify only one value. Structure is documented below. For more i
 
 * `distribution_policy_zones` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
+- - -
 
 The **rolling_update_policy** block supports:
 
