@@ -37,6 +37,11 @@ func resourceEndpointsService() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"protoc_output": &schema.Schema{
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "Please use protoc_output_base64 instead.",
+			},
 			"protoc_output_base64": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
