@@ -13,14 +13,6 @@ import (
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
-var (
-	ContainerNodePoolBaseApiVersion    = v1
-	ContainerNodePoolVersionedFeatures = []Feature{
-		{Version: v1beta1, Item: "node_config.*.taint"},
-		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
-	}
-)
-
 func resourceContainerNodePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerNodePoolCreate,
@@ -59,7 +51,12 @@ func resourceContainerNodePool() *schema.Resource {
 				},
 				"cluster": &schema.Schema{
 					Type:     schema.TypeString,
-					Required: true,
+					Optional: true,
+					ForceNew: true,
+				},
+				"location": &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
 					ForceNew: true,
 				},
 			}),
@@ -155,111 +152,126 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 }
 
-func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
-	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
-	config := meta.(*Config)
+func getNodePoolLocation(d TerraformResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("location")
+	if !ok {
+		if config.Zone != "" {
+			return config.Zone, nil
+		}
+		return "", fmt.Errorf("need to set location")
+	}
+	return GetResourceNameFromSelfLink(res.(string)), nil
+}
 
+func generateLocation(d TerraformResourceData, config *Config) (string, error) {
+	location, _ := getNodePoolLocation(d, config)
+	zone, _ := getZone(d, config)
+
+	if location == "" && zone == "" {
+		return "", fmt.Errorf("need to set location or zone")
+	}
+
+	if location != "" && zone != "" {
+		return "", fmt.Errorf("must only set location or zone (deprecated)")
+	}
+
+	if location != "" {
+		return location, nil
+	}
+	return zone, nil
+}
+
+type NodePoolInformation struct {
+	project  string
+	nodePool *containerBeta.NodePool
+	location string
+	cluster  string
+}
+
+func (nodePool *NodePoolInformation) parent() string {
+	return fmt.Sprintf("projects/%s/locations/%s/clusters/%s", nodePool.project, nodePool.location, nodePool.cluster)
+}
+
+func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	nodePool, err := expandNodePool(d, "")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	req := &containerBeta.CreateNodePoolRequest{
-		NodePool: nodePool,
+	location, err := generateLocation(d, config)
+	if err != nil {
+		return nil, err
 	}
 
-	zone, err := getZone(d, config)
+	return &NodePoolInformation{
+		project:  project,
+		nodePool: nodePool,
+		location: location,
+		cluster:  d.Get("cluster").(string),
+	}, nil
+}
+
+func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
 	}
-	cluster := d.Get("cluster").(string)
 
-	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
-	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
-	var op interface{}
-	switch containerApiVersion {
-	case v1:
-		reqV1 := &container.CreateNodePoolRequest{}
-		err = Convert(req, reqV1)
-		if err != nil {
-			return err
-		}
+	mutexKV.Lock(nodePoolInfo.parent())
+	defer mutexKV.Unlock(nodePoolInfo.parent())
+	d.SetId(nodePoolInfo.nodePool.Name)
 
-		op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating NodePool: %s", err)
-		}
-	case v1beta1:
-		reqV1Beta := &containerBeta.CreateNodePoolRequest{}
-		err = Convert(req, reqV1Beta)
-		if err != nil {
-			return err
-		}
-
-		op, err = config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Create(project, zone, cluster, reqV1Beta).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating NodePool: %s", err)
-		}
+	req := &containerBeta.CreateNodePoolRequest{
+		NodePool: nodePoolInfo.nodePool,
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", zone, cluster, nodePool.Name))
+	operation, err := config.clientContainerBeta.
+		Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+
+	if err != nil {
+		return fmt.Errorf("error creating NodePool: %s", err)
+	}
 
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	waitErr := containerSharedOperationWait(config, op, project, zone, "creating GKE NodePool", timeoutInMinutes, 3)
+
+	waitErr := containerSharedOperationWait(config,
+		operation, nodePoolInfo.project,
+		nodePoolInfo.location, "timeout creating GKE NodePool", timeoutInMinutes, 3)
+
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
 	}
 
-	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
+	log.Printf("[INFO] GKE NodePool %s has been created", nodePoolInfo.nodePool.Name)
 
 	return resourceContainerNodePoolRead(d, meta)
 }
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
-	containerApiVersion := getContainerApiVersion(d, ContainerNodePoolBaseApiVersion, ContainerNodePoolVersionedFeatures)
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
 	}
 
-	zone, err := getZone(d, config)
-	if err != nil {
-		return err
-	}
-	cluster := d.Get("cluster").(string)
-	name := getNodePoolName(d.Id())
-
+	name := nodePoolInfo.nodePool.Name
 	nodePool := &containerBeta.NodePool{}
-	switch containerApiVersion {
-	case v1:
-		np, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-			project, zone, cluster, name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
-		}
-		err = Convert(np, nodePool)
-		if err != nil {
-			return err
-		}
-	case v1beta1:
-		np, err := config.clientContainerBeta.Projects.Zones.Clusters.NodePools.Get(
-			project, zone, cluster, name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, cluster))
-		}
-		err = Convert(np, nodePool)
-		if err != nil {
-			return err
-		}
+
+	np, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(name).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
+	}
+	err = Convert(np, nodePool)
+	if err != nil {
+		return err
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -271,8 +283,12 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set(k, v)
 	}
 
-	d.Set("zone", zone)
-	d.Set("project", project)
+	//This is duplicated because location can either be zone (deprecated) or location.
+	//One or the other will be an empty string which should act as empty to TF.
+	d.Set("zone", nodePoolInfo.location)
+	d.Set("location", nodePoolInfo.location)
+
+	d.Set("project", nodePoolInfo.project)
 
 	return nil
 }

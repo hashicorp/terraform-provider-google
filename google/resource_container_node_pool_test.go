@@ -390,6 +390,29 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	return nil
 }
 
+func TestAccContainerNodePool_regionalClusters(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_regionalClusters(cluster, np),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccContainerNodePool_basic(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
@@ -405,6 +428,32 @@ resource "google_container_node_pool" "np" {
 	initial_node_count = 2
 }`, cluster, np)
 }
+
+func testAccContainerNodePool_regionalClusters(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	cluster = "regional-test"
+	location = "us-central1"
+	initial_node_count = 1
+}`, np)
+}
+
+//parent = "projects/*/locations/*/clusters/*/nodePools/*"
+
+//resource "google_container_cluster" "cluster" {
+//name = "%s"
+//region = "us-central1"
+//initial_node_count = 3
+//}
+
+//resource "google_container_node_pool" "np" {
+//name = "%s"
+//zone = "us-central1"
+//cluster = "${google_container_cluster.cluster.name}"
+//parent = "projects/*/locations/*/clusters/*/nodePools/*"
+//initial_node_count = 2
+//}
 
 func testAccContainerNodePool_namePrefix(cluster, np string) string {
 	return fmt.Sprintf(`

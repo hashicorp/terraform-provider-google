@@ -48,6 +48,17 @@ func getZone(d TerraformResourceData, config *Config) (string, error) {
 	return GetResourceNameFromSelfLink(res.(string)), nil
 }
 
+func getParent(d TerraformResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("portal")
+	if !ok {
+		if config.Zone != "" {
+			return config.Zone, nil
+		}
+		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
+	}
+	return GetResourceNameFromSelfLink(res.(string)), nil
+}
+
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
 	res, ok := is.Attributes["region"]
 
