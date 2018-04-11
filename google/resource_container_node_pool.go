@@ -223,8 +223,8 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	mutexKV.Lock(nodePoolInfo.parent())
-	defer mutexKV.Unlock(nodePoolInfo.parent())
+	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 	d.SetId(nodePoolInfo.nodePool.Name)
 
 	req := &containerBeta.CreateNodePoolRequest{
@@ -283,10 +283,11 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set(k, v)
 	}
 
-	//This is duplicated because location can either be zone (deprecated) or location.
-	//One or the other will be an empty string which should act as empty to TF.
-	d.Set("zone", nodePoolInfo.location)
-	d.Set("location", nodePoolInfo.location)
+	if isZone(nodePoolInfo.location) {
+		d.Set("zone", nodePoolInfo.location)
+	} else {
+		d.Set("location", nodePoolInfo.location)
+	}
 
 	d.Set("project", nodePoolInfo.project)
 

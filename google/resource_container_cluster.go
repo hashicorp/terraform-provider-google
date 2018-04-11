@@ -1574,7 +1574,3 @@ func getLocation(d *schema.ResourceData, config *Config) (string, error) {
 		return getZone(d, config)
 	}
 }
-
-func isZone(location string) bool {
-	return len(strings.Split(location, "-")) == 3
-}
