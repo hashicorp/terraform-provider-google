@@ -119,7 +119,7 @@ The following arguments are supported:
     This can be specified multiple times for multiple disks. Structure is
     documented below.
 
-* `machine_type` - (Required) The machine type to create.
+* `machine_type` - (Required) The machine type to create. To create a custom                                                          machine type, value should be formatted like `custom-4-5120[-ext]` ([GCP docs here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType))
 
 - - -
 * `name` - (Optional) The name of the instance template. If you leave
