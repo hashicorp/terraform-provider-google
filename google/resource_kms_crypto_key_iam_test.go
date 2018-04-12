@@ -20,6 +20,11 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingId := &kmsKeyRingId{
+		Project:  projectId,
+		Location: DEFAULT_KMS_TEST_LOCATION,
+		Name:     keyRingName,
+	}
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -34,12 +39,24 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 				}),
 			},
 			{
+				ResourceName:      "google_kms_crypto_key_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.terraformId(), cryptoKeyName, roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Test Iam Binding update
 				Config: testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
 				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.terraformId(), cryptoKeyName, roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -54,6 +71,11 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingId := &kmsKeyRingId{
+		Project:  projectId,
+		Location: DEFAULT_KMS_TEST_LOCATION,
+		Name:     keyRingName,
+	}
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -66,6 +88,12 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 				Check: testAccCheckGoogleKmsCryptoKeyIamMemberExists("foo", roleId,
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.terraformId(), cryptoKeyName, roleId, account, projectId),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
