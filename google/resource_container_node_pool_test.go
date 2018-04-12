@@ -433,8 +433,8 @@ func testAccContainerNodePool_regionalClusters(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_node_pool" "np" {
 	name = "%s"
-	cluster = "regional-test"
-	location = "us-central1"
+	cluster = "regional-test-2"
+	region = "us-central1"
 	initial_node_count = 1
 }`, np)
 }

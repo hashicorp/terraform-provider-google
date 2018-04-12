@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/container/v1"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
@@ -54,7 +53,7 @@ func resourceContainerNodePool() *schema.Resource {
 					Optional: true,
 					ForceNew: true,
 				},
-				"location": &schema.Schema{
+				"region": &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
 					ForceNew: true,
@@ -152,31 +151,31 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 }
 
-func getNodePoolLocation(d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("location")
+func getNodePoolRegion(d TerraformResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("region")
 	if !ok {
 		if config.Zone != "" {
 			return config.Zone, nil
 		}
-		return "", fmt.Errorf("need to set location")
+		return "", fmt.Errorf("need to set region")
 	}
 	return GetResourceNameFromSelfLink(res.(string)), nil
 }
 
 func generateLocation(d TerraformResourceData, config *Config) (string, error) {
-	location, _ := getNodePoolLocation(d, config)
+	region, _ := getNodePoolRegion(d, config)
 	zone, _ := getZone(d, config)
 
-	if location == "" && zone == "" {
-		return "", fmt.Errorf("need to set location or zone")
+	if region == "" && zone == "" {
+		return "", fmt.Errorf("need to set region or zone")
 	}
 
-	if location != "" && zone != "" {
-		return "", fmt.Errorf("must only set location or zone (deprecated)")
+	if region != "" && zone != "" {
+		return "", fmt.Errorf("must only set region or zone")
 	}
 
-	if location != "" {
-		return location, nil
+	if region != "" {
+		return region, nil
 	}
 	return zone, nil
 }
@@ -188,8 +187,27 @@ type NodePoolInformation struct {
 	cluster  string
 }
 
-func (nodePool *NodePoolInformation) parent() string {
-	return fmt.Sprintf("projects/%s/locations/%s/clusters/%s", nodePool.project, nodePool.location, nodePool.cluster)
+func (nodePoolInformation *NodePoolInformation) name() string {
+	return nodePoolInformation.nodePool.Name
+}
+
+func (nodePoolInformation *NodePoolInformation) fullyQualifiedName() string {
+	return fmt.Sprintf(
+		"projects/%s/locations/%s/clusters/%s/nodePools/%s",
+		nodePoolInformation.project,
+		nodePoolInformation.location,
+		nodePoolInformation.cluster,
+		nodePoolInformation.name(),
+	)
+}
+
+func (nodePoolInformation *NodePoolInformation) parent() string {
+	return fmt.Sprintf(
+		"projects/%s/locations/%s/clusters/%s",
+		nodePoolInformation.project,
+		nodePoolInformation.location,
+		nodePoolInformation.cluster,
+	)
 }
 
 func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
@@ -225,7 +243,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
-	d.SetId(nodePoolInfo.nodePool.Name)
 
 	req := &containerBeta.CreateNodePoolRequest{
 		NodePool: nodePoolInfo.nodePool,
@@ -240,7 +257,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
-	waitErr := containerSharedOperationWait(config,
+	waitErr := containerBetaOperationWait(config,
 		operation, nodePoolInfo.project,
 		nodePoolInfo.location, "timeout creating GKE NodePool", timeoutInMinutes, 3)
 
@@ -250,7 +267,9 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return waitErr
 	}
 
-	log.Printf("[INFO] GKE NodePool %s has been created", nodePoolInfo.nodePool.Name)
+	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePoolInfo.name()))
+
+	log.Printf("[INFO] GKE NodePool %s has been created", nodePoolInfo.name())
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -262,16 +281,9 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	name := nodePoolInfo.nodePool.Name
-	nodePool := &containerBeta.NodePool{}
-
-	np, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(name).Do()
+	nodePool, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
-	}
-	err = Convert(np, nodePool)
-	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", nodePoolInfo.name(), nodePoolInfo.cluster))
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -286,7 +298,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	if isZone(nodePoolInfo.location) {
 		d.Set("zone", nodePoolInfo.location)
 	} else {
-		d.Set("location", nodePoolInfo.location)
+		d.Set("region", nodePoolInfo.location)
 	}
 
 	d.Set("project", nodePoolInfo.project)
@@ -310,29 +322,23 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
 	}
 
-	zone, err := getZone(d, config)
-	if err != nil {
-		return err
-	}
-	name := d.Get("name").(string)
-	cluster := d.Get("cluster").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
-	mutexKV.Lock(containerClusterMutexKey(project, zone, cluster))
-	defer mutexKV.Unlock(containerClusterMutexKey(project, zone, cluster))
-	op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
-		project, zone, cluster, name).Do()
+	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
+	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
+
+	op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, project, zone, "deleting GKE NodePool", timeoutInMinutes, 2)
+	waitErr := containerBetaOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", timeoutInMinutes, 2)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -347,22 +353,18 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return false, err
 	}
 
-	zone, err := getZone(d, config)
 	if err != nil {
 		return false, err
 	}
-	cluster := d.Get("cluster").(string)
-	name := getNodePoolName(d.Id())
 
-	_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-		project, zone, cluster, name).Do()
+	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName()).Do()
 	if err != nil {
-		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", nodePoolInfo.name())); err == nil {
 			return false, nil
 		}
 		// There was some other error in reading the resource
@@ -490,50 +492,47 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefix string, timeoutInMinutes int) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	zone, err := getZone(d, config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
 	}
 
 	npName := d.Get(prefix + "name").(string)
-	lockKey := containerClusterMutexKey(project, zone, clusterName)
+	lockKey := containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, clusterName)
 
 	if d.HasChange(prefix + "autoscaling") {
-		update := &container.ClusterUpdate{
+		update := &containerBeta.ClusterUpdate{
 			DesiredNodePoolId: npName,
 		}
 		if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 			autoscaling := v.([]interface{})[0].(map[string]interface{})
-			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+			update.DesiredNodePoolAutoscaling = &containerBeta.NodePoolAutoscaling{
 				Enabled:         true,
 				MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
 				MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
 				ForceSendFields: []string{"MinNodeCount"},
 			}
 		} else {
-			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
+			update.DesiredNodePoolAutoscaling = &containerBeta.NodePoolAutoscaling{
 				Enabled: false,
 			}
 		}
 
-		req := &container.UpdateClusterRequest{
+		req := &containerBeta.UpdateClusterRequest{
 			Update: update,
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.Update(
-				project, zone, clusterName, req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.fullyQualifiedName(), req).Do()
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zone, "updating GKE node pool", timeoutInMinutes, 2)
+			return containerBetaOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location, "updating GKE node pool",
+				timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -550,18 +549,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 
 	if d.HasChange(prefix + "node_count") {
 		newSize := int64(d.Get(prefix + "node_count").(int))
-		req := &container.SetNodePoolSizeRequest{
+		req := &containerBeta.SetNodePoolSizeRequest{
 			NodeCount: newSize,
 		}
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetSize(project, zone, clusterName, npName, req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(), req).Do()
 
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zone, "updating GKE node pool size", timeoutInMinutes, 2)
+			return containerBetaOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location, "updating GKE node pool size",
+				timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -577,27 +579,29 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	if d.HasChange(prefix + "management") {
-		management := &container.NodeManagement{}
+		management := &containerBeta.NodeManagement{}
 		if v, ok := d.GetOk(prefix + "management"); ok {
 			managementConfig := v.([]interface{})[0].(map[string]interface{})
 			management.AutoRepair = managementConfig["auto_repair"].(bool)
 			management.AutoUpgrade = managementConfig["auto_upgrade"].(bool)
 			management.ForceSendFields = []string{"AutoRepair", "AutoUpgrade"}
 		}
-		req := &container.SetNodePoolManagementRequest{
+		req := &containerBeta.SetNodePoolManagementRequest{
 			Management: management,
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.SetManagement(
-				project, zone, clusterName, npName, req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.
+				Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(), req).Do()
 
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zone, "updating GKE node pool management", timeoutInMinutes, 2)
+			return containerBetaOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location, "updating GKE node pool management", timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -613,19 +617,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	if d.HasChange(prefix + "version") {
-		req := &container.UpdateNodePoolRequest{
+		req := &containerBeta.UpdateNodePoolRequest{
 			NodeVersion: d.Get("version").(string),
 		}
 		updateF := func() error {
-			op, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Update(
-				project, zone, clusterName, npName, req).Do()
+			op, err := config.clientContainerBeta.Projects.
+				Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(), req).Do()
 
 			if err != nil {
 				return err
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, project, zone, "updating GKE node pool version", timeoutInMinutes, 2)
+			return containerBetaOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location, "updating GKE node pool version", timeoutInMinutes, 2)
 		}
 
 		// Call update serially.
@@ -641,9 +647,4 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	return nil
-}
-
-func getNodePoolName(id string) string {
-	// name can be specified with name, name_prefix, or neither, so read it from the id.
-	return strings.Split(id, "/")[2]
 }
