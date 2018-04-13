@@ -379,7 +379,13 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name}")
 	}
 
-	d.Set("zone", parts[0])
+	location := parts[0]
+	if isZone(location) {
+		d.Set("zone", location)
+	} else {
+		d.Set("region", location)
+	}
+
 	d.Set("cluster", parts[1])
 	d.Set("name", parts[2])
 

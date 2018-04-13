@@ -433,16 +433,15 @@ func testAccContainerNodePool_regionalClusters(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_node_pool" "np" {
 	name = "%s"
-	cluster = "regional-test-2"
+	cluster = "regional-test"
 	region = "us-central1"
-	initial_node_count = 1
 }`, np)
 }
 
 //parent = "projects/*/locations/*/clusters/*/nodePools/*"
 
 //resource "google_container_cluster" "cluster" {
-//name = "%s"
+//name = "%s"Cannot set both initial_node_count and node_count
 //region = "us-central1"
 //initial_node_count = 3
 //}
