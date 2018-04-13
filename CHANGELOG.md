@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * compute: Add timeouts to `google_compute_snapshot` [GH-1309]
 * compute: un-deprecate name_prefix for instance templates [GH-1328]
 * all: Maintain parity with GCP Console UI by allowing removal of default project networks.  [GH-1316]
+* all: Use standard user-agent header [GH-1332]
 
 BUG FIXES:
 * compute: fix error introduced when attached disks are deleted out of band [GH-1301]
