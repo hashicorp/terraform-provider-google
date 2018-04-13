@@ -852,26 +852,29 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("label_fingerprint", instance.LabelFingerprint)
 	}
 
-	attachedDisksCount := d.Get("attached_disk.#").(int)
-	attachedDiskSources := make(map[string]int, attachedDisksCount)
-	for i := 0; i < attachedDisksCount; i++ {
-		source, err := ParseDiskFieldValue(d.Get(fmt.Sprintf("attached_disk.%d.source", i)).(string), d, config)
+	attachedDiskSources := make(map[string]int)
+	for i, v := range d.Get("attached_disk").([]interface{}) {
+		if v == nil {
+			// There was previously a bug in this code that, when triggered,
+			// would cause some nil values to end up in the list of attached disks.
+			// Check for this case to make sure we don't try to parse the nil disk.
+			continue
+		}
+		disk := v.(map[string]interface{})
+		source, err := ParseDiskFieldValue(disk["source"].(string), d, config)
 		if err != nil {
 			return err
 		}
 		attachedDiskSources[source.RelativeLink()] = i
 	}
 
-	sIndex := 0
-	attachedDisks := make([]map[string]interface{}, attachedDisksCount)
+	attachedDisks := make([]map[string]interface{}, d.Get("attached_disk.#").(int))
 	scratchDisks := []map[string]interface{}{}
-	extraAttachedDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
 			d.Set("boot_disk", flattenBootDisk(d, disk, config))
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
-			sIndex++
 		} else {
 			source, err := ParseDiskFieldValue(disk.Source, d, config)
 			if err != nil {
@@ -889,17 +892,26 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				}
 				di["disk_encryption_key_sha256"] = key.Sha256
 			}
+			// We want the disks to remain in the order we set in the config, so if a disk
+			// is present in the config, make sure it's at the correct index. Otherwise, append it.
 			if inConfig {
 				attachedDisks[adIndex] = di
 			} else {
-				extraAttachedDisks = append(extraAttachedDisks, di)
+				attachedDisks = append(attachedDisks, di)
 			}
 		}
 	}
-	attachedDisks = append(attachedDisks, extraAttachedDisks...)
+	// Remove nils from map in case there were disks in the config that were not present on read;
+	// i.e. a disk was detached out of band
+	ads := []map[string]interface{}{}
+	for _, d := range attachedDisks {
+		if d != nil {
+			ads = append(ads, d)
+		}
+	}
 
 	d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
-	d.Set("attached_disk", attachedDisks)
+	d.Set("attached_disk", ads)
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))

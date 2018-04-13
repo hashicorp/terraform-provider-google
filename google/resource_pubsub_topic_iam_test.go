@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccPubsubTopicIamBinding(t *testing.T) {
@@ -36,9 +37,10 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_topic_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(getTestProjectFromEnv(), topic)),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_topic_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(getTestProjectFromEnv(), topic)),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -63,9 +65,10 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_topic_iam_member.foo",
-				ImportStateId: fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", getComputedTopicName(getTestProjectFromEnv(), topic), accountEmail),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_topic_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", getComputedTopicName(getTestProjectFromEnv(), topic), accountEmail),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -94,9 +97,10 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_topic_iam_policy.foo",
-				ImportStateId: getComputedTopicName(getTestProjectFromEnv(), topic),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_topic_iam_policy.foo",
+				ImportStateId:     getComputedTopicName(getTestProjectFromEnv(), topic),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

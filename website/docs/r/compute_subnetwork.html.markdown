@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_compute_subnetwork"
-sidebar_current: "docs-google-compute-subnetwork"
+sidebar_current: "docs-google-compute-subnetwork-x"
 description: |-
   Manages a subnetwork within GCE.
 ---

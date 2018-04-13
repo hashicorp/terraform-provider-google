@@ -1,7 +1,21 @@
-## 1.9.1 (Unreleased)
+## 1.10.0 (Unreleased)
 
 FEATURES:
 * **New Data Source** `google_folder` [GH-1280]
+* **New Resource** `google_compute_subnetwork_iam_binding` [GH-1305]
+* **New Resource** `google_compute_subnetwork_iam_member` [GH-1305]
+* **New Resource** `google_compute_subnetwork_iam_policy` [GH-1305]
+
+IMPROVEMENTS:
+* compute: Add timeouts to `google_compute_snapshot` [GH-1309]
+* compute: un-deprecate name_prefix for instance templates [GH-1328]
+* all: Maintain parity with GCP Console UI by allowing removal of default project networks.  [GH-1316]
+* all: Use standard user-agent header [GH-1332]
+
+BUG FIXES:
+* compute: fix error introduced when attached disks are deleted out of band [GH-1301]
+* container: Use correct project id regex in `google_container_cluster` [GH-1311]
+* folder: Escape the display name in active folder data source (in case of spaces, etc) [GH-1261]
 
 ## 1.9.0 (April 05, 2018)
 

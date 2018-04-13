@@ -125,7 +125,7 @@ The following arguments are supported:
 * `name` - (Optional) The name of the instance template. If you leave
   this blank, Terraform will auto-generate a unique name.
 
-* `name_prefix` - (Deprecated, Optional) Creates a unique name beginning with the specified
+* `name_prefix` - (Optional) Creates a unique name beginning with the specified
   prefix. Conflicts with `name`.
 
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of

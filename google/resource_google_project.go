@@ -25,7 +25,7 @@ func resourceGoogleProject() *schema.Resource {
 		Delete: resourceGoogleProjectDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceProjectImportState,
 		},
 		MigrateState: resourceGoogleProjectMigrateState,
 
@@ -39,6 +39,11 @@ func resourceGoogleProject() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+			"auto_create_network": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -136,7 +141,28 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	return resourceGoogleProjectRead(d, meta)
+	err = resourceGoogleProjectRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	// There's no such thing as "don't auto-create network", only "delete the network
+	// post-creation" - but that's what it's called in the UI and let's not confuse
+	// people if we don't have to.  The GCP Console is doing the same thing - creating
+	// a network and deleting it in the background.
+	if !d.Get("auto_create_network").(bool) {
+		op, err := config.clientCompute.Networks.Delete(
+			project.Name, "default").Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting network: %s", err)
+		}
+
+		err = computeOperationWaitTime(config.clientCompute, op, project.Name, "Deleting Network", 10)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
@@ -309,4 +335,11 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
+	// don't see a diff immediately after import.
+	d.Set("auto_create_network", true)
+	return []*schema.ResourceData{d}, nil
 }
