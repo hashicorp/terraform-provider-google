@@ -181,7 +181,7 @@ func generateLocation(d TerraformResourceData, config *Config) (string, error) {
 }
 
 type NodePoolInformation struct {
-	project string
+	project  string
 	location string
 	cluster  string
 }
