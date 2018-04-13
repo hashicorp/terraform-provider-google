@@ -380,8 +380,23 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 		}
 
 		attributes := rs.Primary.Attributes
-		_, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-			config.Project, attributes["zone"], attributes["cluster"], attributes["name"]).Do()
+		zone := attributes["zone"]
+
+		var err error
+		if zone != "" {
+			_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
+				config.Project, attributes["zone"], attributes["cluster"], attributes["name"]).Do()
+		} else {
+			name := fmt.Sprintf(
+				"projects/%s/locations/%s/clusters/%s/nodePools/%s",
+				config.Project,
+				attributes["region"],
+				attributes["cluster"],
+				attributes["name"],
+			)
+			_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(name).Do()
+		}
+
 		if err == nil {
 			return fmt.Errorf("NodePool still exists")
 		}
@@ -431,28 +446,19 @@ resource "google_container_node_pool" "np" {
 
 func testAccContainerNodePool_regionalClusters(cluster, np string) string {
 	return fmt.Sprintf(`
-resource "google_container_node_pool" "np" {
+resource "google_container_cluster" "cluster" {
 	name = "%s"
-	cluster = "regional-test"
 	region = "us-central1"
-}`, np)
+	initial_node_count = 3
 }
 
-//parent = "projects/*/locations/*/clusters/*/nodePools/*"
-
-//resource "google_container_cluster" "cluster" {
-//name = "%s"Cannot set both initial_node_count and node_count
-//region = "us-central1"
-//initial_node_count = 3
-//}
-
-//resource "google_container_node_pool" "np" {
-//name = "%s"
-//zone = "us-central1"
-//cluster = "${google_container_cluster.cluster.name}"
-//parent = "projects/*/locations/*/clusters/*/nodePools/*"
-//initial_node_count = 2
-//}
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	cluster = "${google_container_cluster.cluster.name}"
+	region = "us-central1"
+	initial_node_count = 2
+}`, cluster, np)
+}
 
 func testAccContainerNodePool_namePrefix(cluster, np string) string {
 	return fmt.Sprintf(`

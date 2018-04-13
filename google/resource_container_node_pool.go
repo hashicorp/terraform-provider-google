@@ -181,23 +181,18 @@ func generateLocation(d TerraformResourceData, config *Config) (string, error) {
 }
 
 type NodePoolInformation struct {
-	project  string
-	nodePool *containerBeta.NodePool
+	project string
 	location string
 	cluster  string
 }
 
-func (nodePoolInformation *NodePoolInformation) name() string {
-	return nodePoolInformation.nodePool.Name
-}
-
-func (nodePoolInformation *NodePoolInformation) fullyQualifiedName() string {
+func (nodePoolInformation *NodePoolInformation) fullyQualifiedName(nodeName string) string {
 	return fmt.Sprintf(
 		"projects/%s/locations/%s/clusters/%s/nodePools/%s",
 		nodePoolInformation.project,
 		nodePoolInformation.location,
 		nodePoolInformation.cluster,
-		nodePoolInformation.name(),
+		nodeName,
 	)
 }
 
@@ -216,11 +211,6 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 		return nil, err
 	}
 
-	nodePool, err := expandNodePool(d, "")
-	if err != nil {
-		return nil, err
-	}
-
 	location, err := generateLocation(d, config)
 	if err != nil {
 		return nil, err
@@ -228,7 +218,6 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 
 	return &NodePoolInformation{
 		project:  project,
-		nodePool: nodePool,
 		location: location,
 		cluster:  d.Get("cluster").(string),
 	}, nil
@@ -241,11 +230,16 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	nodePool, err := expandNodePool(d, "")
+	if err != nil {
+		return err
+	}
+
 	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 
 	req := &containerBeta.CreateNodePoolRequest{
-		NodePool: nodePoolInfo.nodePool,
+		NodePool: nodePool,
 	}
 
 	operation, err := config.clientContainerBeta.
@@ -267,9 +261,9 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return waitErr
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePoolInfo.name()))
+	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
-	log.Printf("[INFO] GKE NodePool %s has been created", nodePoolInfo.name())
+	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -277,13 +271,17 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
+
+	name := getNodePoolName(d.Id())
+
 	if err != nil {
 		return err
 	}
 
-	nodePool, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName()).Do()
+	nodePool, err := config.clientContainerBeta.
+		Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", nodePoolInfo.name(), nodePoolInfo.cluster))
+		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -327,12 +325,15 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	name := getNodePoolName(d.Id())
+
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
 
-	op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName()).Do()
+	op, err := config.clientContainerBeta.Projects.Locations.
+		Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
@@ -350,21 +351,41 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
+func getNodePoolName(id string) string {
+	// name can be specified with name, name_prefix, or neither, so read it from the id.
+	return strings.Split(id, "/")[2]
+}
+
 func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	config := meta.(*Config)
 
-	nodePoolInfo, err := extractNodePoolInformation(d, config)
+	project, err := getProject(d, config)
 	if err != nil {
 		return false, err
 	}
+
+	location, err := getLocation(d, config)
+	if err != nil {
+		return false, err
+	}
+
+	cluster := d.Get("cluster").(string)
+	name := getNodePoolName(d.Id())
+
+	fullyQualifiedName := fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s",
+		project, location, cluster, name)
 
 	if err != nil {
 		return false, err
 	}
 
-	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName()).Do()
 	if err != nil {
-		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", nodePoolInfo.name())); err == nil {
+		return false, err
+	}
+
+	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(fullyQualifiedName).Do()
+	if err != nil {
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
 		}
 		// There was some other error in reading the resource
@@ -460,7 +481,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		if len(matches) < 4 {
 			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
-		igm, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		igm, err := config.clientComputeBeta.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
 			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
 		}
@@ -504,6 +525,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	npName := d.Get(prefix + "name").(string)
+
+	name := getNodePoolName(d.Id())
+
 	lockKey := containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, clusterName)
 
 	if d.HasChange(prefix + "autoscaling") {
@@ -529,7 +553,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.fullyQualifiedName(), req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.fullyQualifiedName(name), req).Do()
 			if err != nil {
 				return err
 			}
@@ -559,7 +583,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 			NodeCount: newSize,
 		}
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(), req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name), req).Do()
 
 			if err != nil {
 				return err
@@ -598,7 +622,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 
 		updateF := func() error {
 			op, err := config.clientContainerBeta.Projects.Locations.
-				Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(), req).Do()
+				Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name), req).Do()
 
 			if err != nil {
 				return err
@@ -628,7 +652,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		}
 		updateF := func() error {
 			op, err := config.clientContainerBeta.Projects.
-				Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(), req).Do()
+				Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req).Do()
 
 			if err != nil {
 				return err
