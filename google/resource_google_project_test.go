@@ -153,6 +153,29 @@ func TestAccProject_labels(t *testing.T) {
 	})
 }
 
+func TestAccProject_deleteDefaultNetwork(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	billingId := getTestBillingAccountFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_deleteDefaultNetwork(pid, pname, org, billingId),
+			},
+			// Make sure import supports labels
+			{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -284,6 +307,17 @@ resource "google_project" "acceptance" {
 
 	l += fmt.Sprintf("}\n}")
 	return r + l
+}
+
+func testAccProject_deleteDefaultNetwork(pid, name, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+	billing_account = "%s" # requires billing to enable compute API
+	auto_create_network = false
+}`, pid, name, org, billing)
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {

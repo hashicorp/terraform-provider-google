@@ -100,7 +100,8 @@ The following arguments are supported:
 * `auto_create_network` - (Optional) Create the 'default' network automatically.  Default true.
     Note: this might be more accurately described as "Delete Default Network", since the network
     is created automatically then deleted before project creation returns, but we choose this
-    name to match the GCP Console UI.
+    name to match the GCP Console UI. Setting this field to false will enable the Compute Engine
+    API which is required to delete the network.
 
 ## Attributes Reference
 
