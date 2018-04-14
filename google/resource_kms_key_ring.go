@@ -158,12 +158,12 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 		}, nil
 	}
 
-	if parts := keyRingRelativeLinkRegex.FindStringSubmatch(s); parts != nil {
+	if parts := keyRingRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &kmsKeyRingId{
-			project:  parts[1],
+			Project:  parts[1],
 			Location: parts[2],
 			Name:     parts[3],
-		}
+		}, nil
 	}
 	return nil, fmt.Errorf("Invalid KeyRing id format, expecting `{projectId}/{locationId}/{keyRingName}` or `{locationId}/{keyRingName}.`")
 }
