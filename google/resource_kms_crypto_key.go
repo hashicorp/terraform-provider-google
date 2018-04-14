@@ -220,6 +220,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 
 	cryptoKeyIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
 	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &kmsCryptoKeyId{
@@ -247,5 +248,15 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 		}, nil
 	}
 
+	if parts := cryptoKeyRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
+		return &kmsCryptoKeyId{
+			KeyRingId: kmsKeyRingId{
+				Project:  parts[1],
+				Location: parts[2],
+				Name:     parts[3],
+			},
+			Name: parts[4],
+		}, nil
+	}
 	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}.`")
 }
