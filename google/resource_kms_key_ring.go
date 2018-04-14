@@ -80,7 +80,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
 
-	d.SetId(keyRingId.terraformId())
+	d.SetId(keyRingId.keyRingId())
 
 	return resourceKmsKeyRingRead(d, meta)
 }
@@ -183,7 +183,7 @@ func resourceKmsKeyRingImportState(d *schema.ResourceData, meta interface{}) ([]
 		d.Set("project", keyRingId.Project)
 	}
 
-	d.SetId(keyRingId.terraformId())
+	d.SetId(keyRingId.keyRingId())
 
 	return []*schema.ResourceData{d}, nil
 }

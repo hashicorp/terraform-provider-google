@@ -95,7 +95,7 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Created CryptoKey %s", cryptoKey.Name)
 
-	d.SetId(cryptoKeyId.terraformId())
+	d.SetId(cryptoKeyId.cryptoKeyId())
 
 	return resourceKmsCryptoKeyRead(d, meta)
 }
@@ -118,7 +118,7 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", cryptoKeyId.Name)
 	d.Set("rotation_period", cryptoKey.RotationPeriod)
 
-	d.SetId(cryptoKeyId.terraformId())
+	d.SetId(cryptoKeyId.cryptoKeyId())
 
 	return nil
 }
