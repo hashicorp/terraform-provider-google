@@ -156,14 +156,8 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
 		}
 
-		op, err := config.clientCompute.Networks.Delete(project.ProjectId, "default").Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting network: %s", err)
-		}
-
-		err = computeOperationWaitTime(config.clientCompute, op, project.ProjectId, "Deleting Network", 10)
-		if err != nil {
-			return err
+		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
+			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
 		}
 	}
 	return nil
@@ -346,4 +340,36 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 	// don't see a diff immediately after import.
 	d.Set("auto_create_network", true)
 	return []*schema.ResourceData{d}, nil
+}
+
+// Delete a compute network along with the firewall rules inside it.
+func forceDeleteComputeNetwork(projectId, networkName string, config *Config) error {
+	networkLink := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, networkName)
+
+	token := ""
+	for paginate := true; paginate; {
+		filter := fmt.Sprintf("network eq %s", networkLink)
+		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
+		if err != nil {
+			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+		}
+
+		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
+
+		for _, firewall := range resp.Items {
+			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
+			if err != nil {
+				return fmt.Errorf("Error deleting firewall: %s", err)
+			}
+			err = computeSharedOperationWait(config.clientCompute, op, projectId, "Deleting Firewall")
+			if err != nil {
+				return err
+			}
+		}
+
+		token = resp.NextPageToken
+		paginate = token != ""
+	}
+
+	return deleteComputeNetwork(projectId, networkName, config)
 }

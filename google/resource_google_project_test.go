@@ -166,12 +166,6 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 			{
 				Config: testAccProject_deleteDefaultNetwork(pid, pname, org, billingId),
 			},
-			// Make sure import supports labels
-			{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
