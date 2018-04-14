@@ -31,7 +31,7 @@ func NewKmsCryptoKeyIamUpdater(d *schema.ResourceData, config *Config) (Resource
 	}
 
 	return &KmsCryptoKeyIamUpdater{
-		resourceId: cryptoKeyId.terraformId(),
+		resourceId: cryptoKeyId.cryptoKeyId(),
 		Config:     config,
 	}, nil
 }
@@ -41,8 +41,8 @@ func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	d.Set("crypto_key_id", cryptoKeyId.terraformId())
-	d.SetId(cryptoKeyId.terraformId())
+	d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId())
+	d.SetId(cryptoKeyId.cryptoKeyId())
 	return nil
 }
 
