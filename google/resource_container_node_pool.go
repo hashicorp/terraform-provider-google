@@ -176,6 +176,11 @@ func (nodePoolInformation *NodePoolInformation) parent() string {
 	)
 }
 
+func (nodePoolInformation *NodePoolInformation) lockKey() string {
+	return containerClusterMutexKey(nodePoolInformation.project,
+		nodePoolInformation.location, nodePoolInformation.cluster)
+}
+
 func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
 	project, err := getProject(d, config)
 	if err != nil {
@@ -206,8 +211,8 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
-	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
+	mutexKV.Lock(nodePoolInfo.lockKey())
+	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
 	req := &containerBeta.CreateNodePoolRequest{
 		NodePool: nodePool,
@@ -300,8 +305,8 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
-	mutexKV.Lock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
-	defer mutexKV.Unlock(containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster))
+	mutexKV.Lock(nodePoolInfo.lockKey())
+	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
 	op, err := config.clientContainerBeta.Projects.Locations.
 		Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
@@ -473,15 +478,13 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 		return err
 	}
 
-	npName := d.Get(prefix + "name").(string)
-
 	name := getNodePoolName(d.Id())
 
-	lockKey := containerClusterMutexKey(nodePoolInfo.project, nodePoolInfo.location, clusterName)
+	lockKey := nodePoolInfo.lockKey()
 
 	if d.HasChange(prefix + "autoscaling") {
 		update := &containerBeta.ClusterUpdate{
-			DesiredNodePoolId: npName,
+			DesiredNodePoolId: name,
 		}
 		if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 			autoscaling := v.([]interface{})[0].(map[string]interface{})
@@ -550,7 +553,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 			return err
 		}
 
-		log.Printf("[INFO] GKE node pool %s size has been updated to %d", npName, newSize)
+		log.Printf("[INFO] GKE node pool %s size has been updated to %d", name, newSize)
 
 		if prefix == "" {
 			d.SetPartial("node_count")
@@ -588,7 +591,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 			return err
 		}
 
-		log.Printf("[INFO] Updated management in Node Pool %s", npName)
+		log.Printf("[INFO] Updated management in Node Pool %s", name)
 
 		if prefix == "" {
 			d.SetPartial("management")
@@ -618,7 +621,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 			return err
 		}
 
-		log.Printf("[INFO] Updated version in Node Pool %s", npName)
+		log.Printf("[INFO] Updated version in Node Pool %s", name)
 
 		if prefix == "" {
 			d.SetPartial("version")
