@@ -50,7 +50,7 @@ func resourceContainerNodePool() *schema.Resource {
 				},
 				"cluster": &schema.Schema{
 					Type:     schema.TypeString,
-					Optional: true,
+					Required: true,
 					ForceNew: true,
 				},
 				"region": &schema.Schema{
@@ -151,35 +151,6 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 }
 
-func getNodePoolRegion(d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("region")
-	if !ok {
-		if config.Zone != "" {
-			return config.Zone, nil
-		}
-		return "", fmt.Errorf("need to set region")
-	}
-	return GetResourceNameFromSelfLink(res.(string)), nil
-}
-
-func generateLocation(d TerraformResourceData, config *Config) (string, error) {
-	region, _ := getNodePoolRegion(d, config)
-	zone, _ := getZone(d, config)
-
-	if region == "" && zone == "" {
-		return "", fmt.Errorf("need to set region or zone")
-	}
-
-	if region != "" && zone != "" {
-		return "", fmt.Errorf("must only set region or zone")
-	}
-
-	if region != "" {
-		return region, nil
-	}
-	return zone, nil
-}
-
 type NodePoolInformation struct {
 	project  string
 	location string
@@ -211,7 +182,7 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 		return nil, err
 	}
 
-	location, err := generateLocation(d, config)
+	location, err := getLocation(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -249,19 +220,19 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
 
+	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
+
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	waitErr := containerBetaOperationWait(config,
 		operation, nodePoolInfo.project,
-		nodePoolInfo.location, "timeout creating GKE NodePool", timeoutInMinutes, 3)
+		nodePoolInfo.location, "creating GKE NodePool", timeoutInMinutes, 3)
 
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
 	}
-
-	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
@@ -351,39 +322,17 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func getNodePoolName(id string) string {
-	// name can be specified with name, name_prefix, or neither, so read it from the id.
-	return strings.Split(id, "/")[2]
-}
-
 func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return false, err
 	}
 
-	location, err := getLocation(d, config)
-	if err != nil {
-		return false, err
-	}
-
-	cluster := d.Get("cluster").(string)
 	name := getNodePoolName(d.Id())
 
-	fullyQualifiedName := fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s",
-		project, location, cluster, name)
-
-	if err != nil {
-		return false, err
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(fullyQualifiedName).Do()
+	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
 	if err != nil {
 		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
@@ -677,4 +626,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	}
 
 	return nil
+}
+
+func getNodePoolName(id string) string {
+	// name can be specified with name, name_prefix, or neither, so read it from the id.
+	return strings.Split(id, "/")[2]
 }

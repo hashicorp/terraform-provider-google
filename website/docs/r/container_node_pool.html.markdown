@@ -95,13 +95,13 @@ resource "google_container_cluster" "primary" {
 ```hcl
 
 resource "google_container_cluster" "regional" {
-  name = "marcellus-wallace"
+  name   = "marcellus-wallace"
   region = "us-central1"
 }
 
 resource "google_container_node_pool" "regional-np" {
   name       = "my-node-pool"
-  region       = "us-central1"
+  region     = "us-central1"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 }

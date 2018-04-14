@@ -1564,14 +1564,3 @@ func containerClusterMutexKey(project, location, clusterName string) string {
 func containerClusterFullName(project, location, cluster string) string {
 	return fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, cluster)
 }
-
-func getLocation(d *schema.ResourceData, config *Config) (string, error) {
-	if v, isRegionalCluster := d.GetOk("region"); isRegionalCluster {
-		return v.(string), nil
-	} else {
-		// If region is not explicitly set, use "zone" (or fall back to the provider-level zone).
-		// For now, to avoid confusion, we require region to be set in the config to create a regional
-		// cluster rather than falling back to the provider-level region.
-		return getZone(d, config)
-	}
-}
