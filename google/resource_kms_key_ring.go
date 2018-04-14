@@ -136,7 +136,7 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 
 	keyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	keyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
 
 	if keyRingIdRegex.MatchString(id) {
 		return &kmsKeyRingId{

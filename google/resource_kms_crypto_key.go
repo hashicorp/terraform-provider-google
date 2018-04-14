@@ -220,7 +220,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 
 	cryptoKeyIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
 	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
-	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &kmsCryptoKeyId{
