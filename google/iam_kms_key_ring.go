@@ -31,7 +31,7 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	}
 
 	return &KmsKeyRingIamUpdater{
-		resourceId: keyRingId.keyRingId(),
+		resourceId: keyRingId.terraformId(),
 		Config:     config,
 	}, nil
 }
@@ -42,7 +42,7 @@ func KeyRingIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("key_ring_id", keyRingId.keyRingId())
+	d.Set("key_ring_id", keyRingId.terraformId())
 	d.SetId(keyRingId.keyRingId())
 	return nil
 }
