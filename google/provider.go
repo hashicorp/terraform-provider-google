@@ -96,6 +96,7 @@ func Provider() terraform.ResourceProvider {
 			"google_bigtable_instance":                     resourceBigtableInstance(),
 			"google_bigtable_table":                        resourceBigtableTable(),
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
+			"google_cloudbuild_trigger":                    resourceCloudBuildTrigger(),
 			"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
 			"google_compute_autoscaler":                    resourceComputeAutoscaler(),
 			"google_compute_address":                       resourceComputeAddress(),
