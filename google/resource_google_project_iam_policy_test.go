@@ -594,6 +594,7 @@ func TestIamMergeBindings(t *testing.T) {
 						"member-2",
 					},
 				},
+				{Role: "empty-role", Members: []string{}},
 			},
 			expect: []cloudresourcemanager.Binding{
 				{
