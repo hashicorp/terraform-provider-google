@@ -303,6 +303,14 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.
 		v1Manager := &compute.InstanceGroupManager{}
 		v1Manager, err = config.clientCompute.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
 
+		if v1Manager == nil {
+			log.Printf("[WARN] Removing Region Instance Group Manager %q because it's gone", d.Get("name").(string))
+
+			// The resource doesn't exist anymore
+			d.SetId("")
+			return nil, nil
+		}
+
 		err = Convert(v1Manager, manager)
 		if err != nil {
 			return nil, err
@@ -335,7 +343,7 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceDat
 func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	manager, err := getRegionalManager(d, meta)
-	if err != nil {
+	if err != nil || manager == nil {
 		return err
 	}
 
