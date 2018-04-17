@@ -254,8 +254,24 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	nodePool, err := config.clientContainerBeta.
-		Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
+	var nodePool = &containerBeta.NodePool{}
+	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
+		nodePool, err = config.clientContainerBeta.
+			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
+
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if nodePool.Status != "RUNNING" {
+			return resource.RetryableError(fmt.Errorf("Nodepool %q has status %q with message %q", d.Get("name"), nodePool.Status, nodePool.StatusMessage))
+		}
+		return nil
+	})
+
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
 	}
@@ -308,8 +324,23 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(nodePoolInfo.lockKey())
 	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
-	op, err := config.clientContainerBeta.Projects.Locations.
-		Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
+	var op = &containerBeta.Operation{}
+	var count = 0
+	err = resource.Retry(30*time.Second, func() *resource.RetryError {
+		count++
+		op, err = config.clientContainerBeta.Projects.Locations.
+			Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
+
+		if err != nil {
+			return resource.RetryableError(err)
+		}
+
+		if count == 3 {
+			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete node pool %s", name))
+		}
+		return nil
+	})
+
 	if err != nil {
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
