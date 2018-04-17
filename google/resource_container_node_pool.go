@@ -508,8 +508,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefi
 	if err != nil {
 		return err
 	}
-
-	name := getNodePoolName(d.Id())
+	// We must override the cluster name to allow the function to work with inline node pools created in clusters
+	nodePoolInfo.cluster = clusterName
+	name := d.Get(prefix + "name").(string)
 
 	lockKey := nodePoolInfo.lockKey()
 
