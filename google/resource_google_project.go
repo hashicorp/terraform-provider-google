@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudbilling/v1"
@@ -126,18 +127,10 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Set the billing account
-	if v, ok := d.GetOk("billing_account"); ok {
-		name := v.(string)
-		ba := cloudbilling.ProjectBillingInfo{
-			BillingAccountName: "billingAccounts/" + name,
-		}
-		_, err = config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+	if _, ok := d.GetOk("billing_account"); ok {
+		err = updateProjectBillingAccount(d, config)
 		if err != nil {
-			d.Set("billing_account", "")
-			if _err, ok := err.(*googleapi.Error); ok {
-				return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
-			}
-			return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
+			return err
 		}
 	}
 
@@ -151,15 +144,13 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	// people if we don't have to.  The GCP Console is doing the same thing - creating
 	// a network and deleting it in the background.
 	if !d.Get("auto_create_network").(bool) {
-		op, err := config.clientCompute.Networks.Delete(
-			project.Name, "default").Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting network: %s", err)
+		// The compute API has to be enabled before we can delete a network.
+		if err = enableService("compute.googleapis.com", project.ProjectId, config); err != nil {
+			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
 		}
 
-		err = computeOperationWaitTime(config.clientCompute, op, project.Name, "Deleting Network", 10)
-		if err != nil {
-			return err
+		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
+			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
 		}
 	}
 	return nil
@@ -293,18 +284,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Billing account has changed
 	if ok := d.HasChange("billing_account"); ok {
-		billing_name := d.Get("billing_account").(string)
-		ba := cloudbilling.ProjectBillingInfo{}
-		if billing_name != "" {
-			ba.BillingAccountName = "billingAccounts/" + billing_name
-		}
-		_, err = config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+		err = updateProjectBillingAccount(d, config)
 		if err != nil {
-			d.Set("billing_account", "")
-			if _err, ok := err.(*googleapi.Error); ok {
-				return fmt.Errorf("Error updating billing account %q for project %q: %v", billing_name, prefixedProject(pid), _err)
-			}
-			return fmt.Errorf("Error updating billing account %q for project %q: %v", billing_name, prefixedProject(pid), err)
+			return err
 		}
 	}
 
@@ -342,4 +324,69 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 	// don't see a diff immediately after import.
 	d.Set("auto_create_network", true)
 	return []*schema.ResourceData{d}, nil
+}
+
+// Delete a compute network along with the firewall rules inside it.
+func forceDeleteComputeNetwork(projectId, networkName string, config *Config) error {
+	networkLink := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, networkName)
+
+	token := ""
+	for paginate := true; paginate; {
+		filter := fmt.Sprintf("network eq %s", networkLink)
+		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
+		if err != nil {
+			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+		}
+
+		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
+
+		for _, firewall := range resp.Items {
+			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
+			if err != nil {
+				return fmt.Errorf("Error deleting firewall: %s", err)
+			}
+			err = computeSharedOperationWait(config.clientCompute, op, projectId, "Deleting Firewall")
+			if err != nil {
+				return err
+			}
+		}
+
+		token = resp.NextPageToken
+		paginate = token != ""
+	}
+
+	return deleteComputeNetwork(projectId, networkName, config)
+}
+
+func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
+	pid := d.Id()
+	name := d.Get("billing_account").(string)
+	ba := cloudbilling.ProjectBillingInfo{}
+	// If we're unlinking an existing billing account, an empty request does that, not an empty-string billing account.
+	if name != "" {
+		ba.BillingAccountName = "billingAccounts/" + name
+	}
+	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+	if err != nil {
+		d.Set("billing_account", "")
+		if _err, ok := err.(*googleapi.Error); ok {
+			return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
+		}
+		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
+	}
+	for retries := 0; retries < 3; retries++ {
+		err = resourceGoogleProjectRead(d, config)
+		if err != nil {
+			return err
+		}
+		if d.Get("billing_account").(string) == name {
+			break
+		}
+		time.Sleep(3)
+	}
+	if d.Get("billing_account").(string) != name {
+		return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
+			d.Get("billding_account").(string), name)
+	}
+	return nil
 }
