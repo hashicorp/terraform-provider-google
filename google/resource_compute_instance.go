@@ -365,6 +365,11 @@ func resourceComputeInstance() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+
+									"public_ptr_domain_name": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -1119,6 +1124,10 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				ac := &compute.AccessConfig{
 					Type:  "ONE_TO_ONE_NAT",
 					NatIP: d.Get(acPrefix + ".nat_ip").(string),
+				}
+				if ptr, ok := d.GetOk(acPrefix + ".public_ptr_domain_name"); ok {
+					ac.SetPublicPtr = true
+					ac.PublicPtrDomainName = ptr.(string)
 				}
 				op, err := config.clientCompute.Instances.AddAccessConfig(
 					project, zone, d.Id(), networkName, ac).Do()
