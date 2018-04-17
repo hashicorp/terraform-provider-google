@@ -4,11 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/servicemanagement/v1"
-	"log"
 )
 
 func resourceEndpointsService() *schema.Resource {
@@ -124,20 +121,6 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func migrateEndpointsService(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
-	if v == 0 {
-		if is.Attributes["protoc_output"] == "" {
-			log.Println("[DEBUG] Nothing to migrate to V1.")
-			return is, nil
-		}
-		is.Attributes["protoc_output_base64"] = base64.StdEncoding.EncodeToString([]byte(is.Attributes["protoc_output"]))
-		is.Attributes["protoc_output"] = ""
-		return is, nil
-	} else {
-		return nil, fmt.Errorf("Unexpected schema version: %d", v)
-	}
-}
-
 func getOpenAPIConfigSource(configText string) servicemanagement.ConfigSource {
 	// We need to provide a ConfigSource object to the API whenever submitting a
 	// new config.  A ConfigSource contains a ConfigFile which contains the b64
@@ -221,6 +204,15 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		grpcConfig, gok := d.GetOk("grpc_config")
 		protocOutput, pok := d.GetOk("protoc_output_base64")
+
+		// Support conversion from raw file -> base64 until the field is totally removed.
+		if !pok {
+			protocOutput, pok = d.GetOk("protoc_output")
+			if pok {
+				protocOutput = base64.StdEncoding.EncodeToString([]byte(protocOutput.(string)))
+			}
+		}
+
 		if gok && pok {
 			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
 		} else {
