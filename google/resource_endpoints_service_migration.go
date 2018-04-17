@@ -17,8 +17,6 @@ func migrateEndpointsService(v int, is *terraform.InstanceState, meta interface{
 		is.Attributes["protoc_output_base64"] = base64.StdEncoding.EncodeToString([]byte(is.Attributes["protoc_output"]))
 		is.Attributes["protoc_output"] = ""
 		return is, nil
-	case 1:
-		return is, nil
 	default:
 		return nil, fmt.Errorf("Unexpected schema version: %d", v)
 	}
