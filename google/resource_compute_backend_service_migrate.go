@@ -117,6 +117,9 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	if v, ok := m["max_rate_per_instance"]; ok {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
+	if v, ok := m["max_connections_per_instance"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
+	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
