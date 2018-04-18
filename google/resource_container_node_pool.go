@@ -335,7 +335,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 			return resource.RetryableError(err)
 		}
 
-		if count == 3 {
+		if count == 10 {
 			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete node pool %s", name))
 		}
 		return nil
