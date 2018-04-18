@@ -297,11 +297,16 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	cluster := d.Get("cluster").(string)
+	config := meta.(*Config)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
-	if err := nodePoolUpdate(d, meta, cluster, "", timeoutInMinutes); err != nil {
+	if err := nodePoolUpdate(d, meta, nodePoolInfo, "", timeoutInMinutes); err != nil {
 		return err
 	}
 	d.Partial(false)
@@ -501,15 +506,9 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 	return nodePool, nil
 }
 
-func nodePoolUpdate(d *schema.ResourceData, meta interface{}, clusterName, prefix string, timeoutInMinutes int) error {
+func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *NodePoolInformation, prefix string, timeoutInMinutes int) error {
 	config := meta.(*Config)
 
-	nodePoolInfo, err := extractNodePoolInformation(d, config)
-	if err != nil {
-		return err
-	}
-	// We must override the cluster name to allow the function to work with inline node pools created in clusters
-	nodePoolInfo.cluster = clusterName
 	name := d.Get(prefix + "name").(string)
 
 	lockKey := nodePoolInfo.lockKey()

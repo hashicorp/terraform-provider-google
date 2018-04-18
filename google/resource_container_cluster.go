@@ -1133,7 +1133,12 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
-			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
+			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
+			if err != nil {
+				return err
+			}
+
+			if err := nodePoolUpdate(d, meta, nodePoolInfo, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
 				return err
 			}
 		}
@@ -1563,4 +1568,22 @@ func containerClusterMutexKey(project, location, clusterName string) string {
 
 func containerClusterFullName(project, location, cluster string) string {
 	return fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, cluster)
+}
+
+func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *Config, clusterName string) (*NodePoolInformation, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	location, err := getLocation(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &NodePoolInformation{
+		project:  project,
+		location: location,
+		cluster:  d.Get("name").(string),
+	}, nil
 }
