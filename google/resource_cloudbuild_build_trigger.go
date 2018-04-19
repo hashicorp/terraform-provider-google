@@ -223,13 +223,16 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	d.Set("description", buildTrigger.Description)
 
 	if buildTrigger.TriggerTemplate != nil {
-		d.Set("trigger_template", flattenTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
+		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
+	}
+	if buildTrigger.Build != nil {
+		d.Set("build", flattenCloudbuildBuildTriggerBuild(d, config, buildTrigger.Build))
 	}
 
 	return nil
 }
 
-func flattenTriggerTemplate(d *schema.ResourceData, config *Config, t *cloudbuild.RepoSource) []map[string]interface{} {
+func flattenCloudbuildBuildTriggerTemplate(d *schema.ResourceData, config *Config, t *cloudbuild.RepoSource) []map[string]interface{} {
 	flattened := make([]map[string]interface{}, 1)
 
 	flattened[0] = map[string]interface{}{
@@ -239,6 +242,30 @@ func flattenTriggerTemplate(d *schema.ResourceData, config *Config, t *cloudbuil
 		"project":     t.ProjectId,
 		"repo_name":   t.RepoName,
 		"tag_name":    t.TagName,
+	}
+
+	return flattened
+}
+
+func flattenCloudbuildBuildTriggerBuild(d *schema.ResourceData, config *Config, b *cloudbuild.Build) []map[string]interface{} {
+	flattened := make([]map[string]interface{}, 1)
+
+	flattened[0] = map[string]interface{}{}
+
+	if b.Images != nil {
+		flattened[0]["images"] = convertStringArrToInterface(b.Images)
+	}
+	if b.Tags != nil {
+		flattened[0]["tags"] = convertStringArrToInterface(b.Tags)
+	}
+	if b.Steps != nil {
+		steps := make([]map[string]interface{}, len(b.Steps))
+		for i, step := range b.Steps {
+			steps[i] = map[string]interface{}{}
+			steps[i]["name"] = step.Name
+			steps[i]["args"] = strings.Join(step.Args, " ")
+		}
+		flattened[0]["step"] = steps
 	}
 
 	return flattened
