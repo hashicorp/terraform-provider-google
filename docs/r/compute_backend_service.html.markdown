@@ -129,6 +129,17 @@ The `backend` block supports:
 * `max_rate_per_instance` - (Optional) The maximum per-instance requests per
     second (RPS).
 
+* `max_connections` - (Optional) The max number of simultaneous connections for the
+    group. Can be used with either CONNECTION or UTILIZATION balancing
+    modes. For CONNECTION mode, either maxConnections or
+    maxConnectionsPerInstance must be set.
+
+* `max_connections_per_instance` - (Optional) The max number of simultaneous connections
+    that a single backend instance can handle. This is used to calculate
+    the capacity of the group. Can be used in either CONNECTION or
+    UTILIZATION balancing modes. For CONNECTION mode, either
+    maxConnections or maxConnectionsPerInstance must be set.
+
 * `max_utilization` - (Optional) The target CPU utilization for the group as a
     float in the range [0.0, 1.0]. This flag can only be provided when the
     balancing mode is `UTILIZATION`. Defaults to `0.8`.
