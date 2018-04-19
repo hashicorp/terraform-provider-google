@@ -129,7 +129,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
-    tags = ["team a", "service b"]
+    tags = ["team-a", "service-b"]
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = "cp gs://mybucket/remotefile.zip localfile.zip "
