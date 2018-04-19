@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
@@ -35,8 +36,14 @@ func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIa
 	}, nil
 }
 
-func KeyRingIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("key_ring_id", d.Id())
+func KeyRingIdParseFunc(d *schema.ResourceData, config *Config) error {
+	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
+	if err != nil {
+		return err
+	}
+
+	d.Set("key_ring_id", keyRingId.keyRingId())
+	d.SetId(keyRingId.keyRingId())
 	return nil
 }
 
