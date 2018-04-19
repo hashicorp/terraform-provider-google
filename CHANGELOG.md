@@ -9,6 +9,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Add timeouts to `google_compute_snapshot` [GH-1309]
 * compute: un-deprecate name_prefix for instance templates [GH-1328]
+* compute: Add `default_cluster_version` field to `data_source_google_container_engine_versions`. [GH-1355]
 * all: Maintain parity with GCP Console UI by allowing removal of default project networks.  [GH-1316]
 * all: Use standard user-agent header [GH-1332]
 
