@@ -1007,7 +1007,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		// Since we can't add & remove zones in the same request, first add all the
 		// zones, then remove the ones we aren't using anymore.
 		azSet := azSetOld.Union(azSetNew)
-		azSet.Add(location)
+
+		if isZone(location) {
+			azSet.Add(location)
+		}
 
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
@@ -1021,7 +1024,9 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		azSetNew.Add(location)
+		if isZone(location) {
+			azSetNew.Add(location)
+		}
 		if !azSet.Equal(azSetNew) {
 			req = &container.UpdateClusterRequest{
 				Update: &container.ClusterUpdate{
