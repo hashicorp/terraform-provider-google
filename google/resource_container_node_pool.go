@@ -536,7 +536,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.fullyQualifiedName(name), req).Do()
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req).Do()
 			if err != nil {
 				return err
 			}
