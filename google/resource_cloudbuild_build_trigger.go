@@ -15,9 +15,12 @@ import (
 
 func resourceCloudBuildTrigger() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudBuildTriggerCreate,
-		Read:   resourceCloudBuildTriggerRead,
-		Delete: resourceCloudBuildTriggerDelete,
+		Create: resourceCloudbuildBuildTriggerCreate,
+		Read:   resourceCloudbuildBuildTriggerRead,
+		Delete: resourceCloudbuildBuildTriggerDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -33,11 +36,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"build": &schema.Schema{
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				ForceNew: true,
+			"build": {
+				Type:        schema.TypeList,
+				Description: "Contents of the build template.",
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"images": &schema.Schema{
@@ -123,7 +127,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 	}
 }
 
-func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -199,10 +203,10 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 
 	d.SetId(trigger.Id)
 
-	return resourceCloudBuildTriggerRead(d, meta)
+	return resourceCloudbuildBuildTriggerRead(d, meta)
 }
 
-func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -240,7 +244,7 @@ func flattenTriggerTemplate(d *schema.ResourceData, config *Config, t *cloudbuil
 	return flattened
 }
 
-func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudbuildBuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
