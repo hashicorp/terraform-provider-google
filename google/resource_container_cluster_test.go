@@ -1364,7 +1364,6 @@ resource "google_container_cluster" "with_additional_zones" {
 
 	additional_zones = [
 		"us-central1-f",
-		"us-central1-b",
 		"us-central1-c",
 	]
 }`, clusterName)
