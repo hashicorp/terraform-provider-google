@@ -19,8 +19,7 @@ layout: "google"
 page_title: "Google: google_compute_http_health_check"
 sidebar_current: "docs-google-compute-http-health-check"
 description: |-
-  An HttpHealthCheck resource. This resource defines a template for how
----
+  An HttpHealthCheck resource.---
 
 # google\_compute\_http\_health\_check
 
