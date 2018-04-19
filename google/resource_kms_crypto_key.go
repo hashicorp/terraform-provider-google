@@ -28,9 +28,10 @@ func resourceKmsCryptoKey() *schema.Resource {
 				ForceNew: true,
 			},
 			"key_ring": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: kmsCryptoKeyRingsEquivalent,
 			},
 			"rotation_period": &schema.Schema{
 				Type:         schema.TypeString,
@@ -40,6 +41,16 @@ func resourceKmsCryptoKey() *schema.Resource {
 			},
 		},
 	}
+}
+
+func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) bool {
+	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	normalizedKeyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	if matches := keyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
+		normMatches := normalizedKeyRingIdRegex.FindStringSubmatch(old)
+		return normMatches != nil && normMatches[1] == matches[1] && normMatches[2] == matches[2] && normMatches[3] == matches[3]
+	}
+	return false
 }
 
 type kmsCryptoKeyId struct {
