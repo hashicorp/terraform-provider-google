@@ -998,11 +998,17 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("additional_zones") {
-		azSet := d.Get("additional_zones").(*schema.Set)
-		if azSet.Contains(location) {
+		azSetOldI, azSetNewI := d.GetChange("additional_zones")
+		azSetNew := azSetNewI.(*schema.Set)
+		azSetOld := azSetOldI.(*schema.Set)
+		if azSetNew.Contains(location) {
 			return fmt.Errorf("additional_zones should not contain the original 'zone'")
 		}
+		// Since we can't add & remove zones in the same request, first add all the
+		// zones, then remove the ones we aren't using anymore.
+		azSet := azSetOld.Union(azSetNew)
 		azSet.Add(location)
+
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredLocations: convertStringSet(azSet),
@@ -1013,6 +1019,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		// Call update serially.
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
+		}
+
+		azSetNew.Add(location)
+		if !azSet.Equal(azSetNew) {
+			req = &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredLocations: convertStringSet(azSetNew),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster locations")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
 		}
 
 		log.Printf("[INFO] GKE cluster %s locations have been updated to %v", d.Id(), azSet.List())
