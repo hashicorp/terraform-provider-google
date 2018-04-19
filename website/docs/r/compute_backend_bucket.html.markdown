@@ -20,7 +20,7 @@ page_title: "Google: google_compute_backend_bucket"
 sidebar_current: "docs-google-compute-backend-bucket"
 description: |-
   Backend buckets allow you to use Google Cloud Storage buckets with HTTP(S)
----
+load balancing.---
 
 # google\_compute\_backend\_bucket
 
