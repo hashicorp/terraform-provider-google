@@ -419,7 +419,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 
 	manager, err := getManager(d, meta)
-	if err != nil {
+	if err != nil || manager == nil {
 		return err
 	}
 

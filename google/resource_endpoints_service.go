@@ -14,6 +14,11 @@ func resourceEndpointsService() *schema.Resource {
 		Read:   resourceEndpointsServiceRead,
 		Delete: resourceEndpointsServiceDelete,
 		Update: resourceEndpointsServiceUpdate,
+
+		// Migrates protoc_output -> protoc_output_base64.
+		SchemaVersion: 1,
+		MigrateState:  migrateEndpointsService,
+
 		Schema: map[string]*schema.Schema{
 			"service_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -23,13 +28,18 @@ func resourceEndpointsService() *schema.Resource {
 			"openapi_config": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"grpc_config", "protoc_output"},
+				ConflictsWith: []string{"grpc_config", "protoc_output_base64"},
 			},
 			"grpc_config": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"protoc_output": &schema.Schema{
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "Please use protoc_output_base64 instead.",
+			},
+			"protoc_output_base64": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -134,7 +144,7 @@ func getGRPCConfigSource(serviceConfig, protoConfig string) servicemanagement.Co
 		FilePath:     "heredoc.yaml",
 	}
 	protoConfigfile := servicemanagement.ConfigFile{
-		FileContents: base64.StdEncoding.EncodeToString([]byte(protoConfig)),
+		FileContents: protoConfig,
 		FileType:     "FILE_DESCRIPTOR_SET_PROTO",
 		FilePath:     "api_def.pb",
 	}
@@ -193,11 +203,20 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 		source = getOpenAPIConfigSource(openapiConfig.(string))
 	} else {
 		grpcConfig, gok := d.GetOk("grpc_config")
-		protocOutput, pok := d.GetOk("protoc_output")
+		protocOutput, pok := d.GetOk("protoc_output_base64")
+
+		// Support conversion from raw file -> base64 until the field is totally removed.
+		if !pok {
+			protocOutput, pok = d.GetOk("protoc_output")
+			if pok {
+				protocOutput = base64.StdEncoding.EncodeToString([]byte(protocOutput.(string)))
+			}
+		}
+
 		if gok && pok {
 			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
 		} else {
-			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output.")
+			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output_base64.")
 		}
 	}
 
