@@ -874,7 +874,7 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone               = "us-central1-f"
   target_size        = 1
   auto_healing_policies {
-    health_check = "${google_compute_http_health_check.default.self_link}"
+    health_check = "${google_compute_health_check.default.self_link}"
     initial_delay_sec = "10"
   }
 }
@@ -927,7 +927,7 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone               = "us-central1-f"
   target_size        = 1
   auto_healing_policies {
-    health_check = "${google_compute_http_health_check.default.self_link}"
+    health_check = "${google_compute_health_check.default.self_link}"
     initial_delay_sec = "10"
   }
 }
