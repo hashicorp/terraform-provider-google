@@ -1,4 +1,8 @@
 ## 1.10.1 (Unreleased)
+
+IMPROVEMENTS:
+* compute: Add `public_ptr_domain_name` to `google_compute_instance`.  [GH-1349]
+
 ## 1.10.0 (April 20, 2018)
 
 FEATURES:
