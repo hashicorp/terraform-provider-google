@@ -233,19 +233,3 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 	d.SetId("")
 	return nil
 }
-
-func expandSslCertificates(d *schema.ResourceData, config *Config) ([]string, error) {
-	configured := d.Get("ssl_certificates").([]interface{})
-	certs := make([]string, 0, len(configured))
-
-	for _, sslCertificate := range configured {
-		sslCertificateFieldValue, err := ParseSslCertificateFieldValue(sslCertificate.(string), d, config)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid ssl certificate: %s", err)
-		}
-
-		certs = append(certs, sslCertificateFieldValue.RelativeLink())
-	}
-
-	return certs, nil
-}

@@ -1,22 +1,29 @@
-## 1.10.0 (Unreleased)
-
-FEATURES:
-* **New Data Source** `google_folder` [GH-1280]
-* **New Resource** `google_compute_subnetwork_iam_binding` [GH-1305]
-* **New Resource** `google_compute_subnetwork_iam_member` [GH-1305]
-* **New Resource** `google_compute_subnetwork_iam_policy` [GH-1305]
+## 1.10.1 (Unreleased)
 
 IMPROVEMENTS:
-* compute: Add timeouts to `google_compute_snapshot` [GH-1309]
-* compute: un-deprecate name_prefix for instance templates [GH-1328]
-* all: Maintain parity with GCP Console UI by allowing removal of default project networks.  [GH-1316]
-* all: Use standard user-agent header [GH-1332]
+* compute: Add `public_ptr_domain_name` to `google_compute_instance`.  [GH-1349]
+
+## 1.10.0 (April 20, 2018)
+
+FEATURES:
+* **New Data Source** `google_folder` ([#1280](https://github.com/terraform-providers/terraform-provider-google/issues/1280))
+* **New Resource** `google_compute_subnetwork_iam_binding` ([#1305](https://github.com/terraform-providers/terraform-provider-google/issues/1305))
+* **New Resource** `google_compute_subnetwork_iam_member` ([#1305](https://github.com/terraform-providers/terraform-provider-google/issues/1305))
+* **New Resource** `google_compute_subnetwork_iam_policy` ([#1305](https://github.com/terraform-providers/terraform-provider-google/issues/1305))
+
+IMPROVEMENTS:
+* compute: Add timeouts to `google_compute_snapshot` ([#1309](https://github.com/terraform-providers/terraform-provider-google/issues/1309))
+* compute: un-deprecate name_prefix for instance templates ([#1328](https://github.com/terraform-providers/terraform-provider-google/issues/1328))
+* compute: Add `default_cluster_version` field to `data_source_google_container_engine_versions`. ([#1355](https://github.com/terraform-providers/terraform-provider-google/issues/1355))
+* compute: Add `max_connections` and `max_connections_per_instance` to `resource_compute_backend_service` ([#1353](https://github.com/terraform-providers/terraform-provider-google/issues/1353))
+* all: Maintain parity with GCP Console UI by allowing removal of default project networks.  ([#1316](https://github.com/terraform-providers/terraform-provider-google/issues/1316))
+* all: Use standard user-agent header ([#1332](https://github.com/terraform-providers/terraform-provider-google/issues/1332))
 
 BUG FIXES:
-* compute: fix error introduced when attached disks are deleted out of band [GH-1301]
-* container: Use correct project id regex in `google_container_cluster` [GH-1311]
-* folder: Escape the display name in active folder data source (in case of spaces, etc) [GH-1261]
-* project: Fix auto-delete default network in google_project [GH-1336]
+* compute: fix error introduced when attached disks are deleted out of band ([#1301](https://github.com/terraform-providers/terraform-provider-google/issues/1301))
+* container: Use correct project id regex in `google_container_cluster` ([#1311](https://github.com/terraform-providers/terraform-provider-google/issues/1311))
+* folder: Escape the display name in active folder data source (in case of spaces, etc) ([#1261](https://github.com/terraform-providers/terraform-provider-google/issues/1261))
+* project: Fix auto-delete default network in google_project ([#1336](https://github.com/terraform-providers/terraform-provider-google/issues/1336))
 
 ## 1.9.0 (April 05, 2018)
 

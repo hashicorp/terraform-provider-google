@@ -186,6 +186,41 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_PTRRecord(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var ptrName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var ipName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_PTRRecord(ptrName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasPTR(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			resource.TestStep{
+				Config: testAccComputeInstance_ip(ipName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_GenerateIP(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -1148,6 +1183,20 @@ func testAccCheckComputeInstanceAccessConfigHasIP(instance *compute.Instance) re
 	}
 }
 
+func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			for _, c := range i.AccessConfigs {
+				if c.PublicPtrDomainName == "" {
+					return fmt.Errorf("no PTR Record")
+				}
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, delete bool, boot bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Disks == nil {
@@ -1748,6 +1797,34 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, ip, instance)
+}
+
+func testAccComputeInstance_PTRRecord(record, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			public_ptr_domain_name = "test-record.%s.hashicorptest.com."
+		}
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance, record)
 }
 
 func testAccComputeInstance_generateIp(instance string) string {

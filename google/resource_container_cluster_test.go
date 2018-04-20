@@ -328,6 +328,38 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_regionalAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_regionalUpdateAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 	t.Parallel()
 
@@ -1401,6 +1433,34 @@ resource "google_container_cluster" "with_additional_zones" {
 	additional_zones = [
 		"us-central1-f",
 		"us-central1-c",
+	]
+}`, clusterName)
+}
+
+func testAccContainerCluster_regionalAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-c",
+	]
+}`, clusterName)
+}
+
+func testAccContainerCluster_regionalUpdateAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-b",
 	]
 }`, clusterName)
 }
