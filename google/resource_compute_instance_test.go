@@ -206,6 +206,16 @@ func TestAccComputeInstance_PTRRecord(t *testing.T) {
 					testAccCheckComputeInstanceAccessConfigHasPTR(&instance),
 				),
 			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			resource.TestStep{
+				Config: testAccComputeInstance_ip(ipName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
 }
