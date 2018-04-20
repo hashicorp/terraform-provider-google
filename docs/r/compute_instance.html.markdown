@@ -220,6 +220,11 @@ The `access_config` block supports:
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
 
+* `public_ptr_domain_name` - (Optional) The DNS domain name for the public PTR record.
+    To set this field on an instance, you must be verified as the owner of the domain.
+    See [the docs](https://cloud.google.com/compute/docs/instances/create-ptr-record) for how
+    to become verified as a domain owner.
+
 The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
