@@ -191,6 +191,7 @@ func TestAccComputeInstance_PTRRecord(t *testing.T) {
 
 	var instance compute.Instance
 	var ptrName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var ipName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
