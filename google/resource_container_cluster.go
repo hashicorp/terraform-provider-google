@@ -1461,6 +1461,12 @@ func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface
 			"enabled":  c.Enabled,
 			"provider": c.Provider,
 		})
+	} else {
+		// Explicitly set the network policy to the default.
+		result = append(result, map[string]interface{}{
+			"enabled":  false,
+			"provider": "PROVIDER_UNSPECIFIED",
+		})
 	}
 	return result
 }
