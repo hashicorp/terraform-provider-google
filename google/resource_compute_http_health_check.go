@@ -110,16 +110,53 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	checkIntervalSecProp, err := expandComputeHttpHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
+	if err != nil {
+		return err
+	}
+	descriptionProp, err := expandComputeHttpHealthCheckDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	}
+	healthyThresholdProp, err := expandComputeHttpHealthCheckHealthyThreshold(d.Get("healthy_threshold"), d, config)
+	if err != nil {
+		return err
+	}
+	hostProp, err := expandComputeHttpHealthCheckHost(d.Get("host"), d, config)
+	if err != nil {
+		return err
+	}
+	nameProp, err := expandComputeHttpHealthCheckName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	}
+	portProp, err := expandComputeHttpHealthCheckPort(d.Get("port"), d, config)
+	if err != nil {
+		return err
+	}
+	requestPathProp, err := expandComputeHttpHealthCheckRequestPath(d.Get("request_path"), d, config)
+	if err != nil {
+		return err
+	}
+	timeoutSecProp, err := expandComputeHttpHealthCheckTimeoutSec(d.Get("timeout_sec"), d, config)
+	if err != nil {
+		return err
+	}
+	unhealthyThresholdProp, err := expandComputeHttpHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold"), d, config)
+	if err != nil {
+		return err
+	}
+
 	obj := map[string]interface{}{
-		"checkIntervalSec":   expandComputeHttpHealthCheckCheckIntervalSec(d.Get("check_interval_sec")),
-		"description":        expandComputeHttpHealthCheckDescription(d.Get("description")),
-		"healthyThreshold":   expandComputeHttpHealthCheckHealthyThreshold(d.Get("healthy_threshold")),
-		"host":               expandComputeHttpHealthCheckHost(d.Get("host")),
-		"name":               expandComputeHttpHealthCheckName(d.Get("name")),
-		"port":               expandComputeHttpHealthCheckPort(d.Get("port")),
-		"requestPath":        expandComputeHttpHealthCheckRequestPath(d.Get("request_path")),
-		"timeoutSec":         expandComputeHttpHealthCheckTimeoutSec(d.Get("timeout_sec")),
-		"unhealthyThreshold": expandComputeHttpHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold")),
+		"checkIntervalSec":   checkIntervalSecProp,
+		"description":        descriptionProp,
+		"healthyThreshold":   healthyThresholdProp,
+		"host":               hostProp,
+		"name":               nameProp,
+		"port":               portProp,
+		"requestPath":        requestPathProp,
+		"timeoutSec":         timeoutSecProp,
+		"unhealthyThreshold": unhealthyThresholdProp,
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/httpHealthChecks")
@@ -201,16 +238,53 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	checkIntervalSecProp, err := expandComputeHttpHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
+	if err != nil {
+		return err
+	}
+	descriptionProp, err := expandComputeHttpHealthCheckDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	}
+	healthyThresholdProp, err := expandComputeHttpHealthCheckHealthyThreshold(d.Get("healthy_threshold"), d, config)
+	if err != nil {
+		return err
+	}
+	hostProp, err := expandComputeHttpHealthCheckHost(d.Get("host"), d, config)
+	if err != nil {
+		return err
+	}
+	nameProp, err := expandComputeHttpHealthCheckName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	}
+	portProp, err := expandComputeHttpHealthCheckPort(d.Get("port"), d, config)
+	if err != nil {
+		return err
+	}
+	requestPathProp, err := expandComputeHttpHealthCheckRequestPath(d.Get("request_path"), d, config)
+	if err != nil {
+		return err
+	}
+	timeoutSecProp, err := expandComputeHttpHealthCheckTimeoutSec(d.Get("timeout_sec"), d, config)
+	if err != nil {
+		return err
+	}
+	unhealthyThresholdProp, err := expandComputeHttpHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold"), d, config)
+	if err != nil {
+		return err
+	}
+
 	obj := map[string]interface{}{
-		"checkIntervalSec":   expandComputeHttpHealthCheckCheckIntervalSec(d.Get("check_interval_sec")),
-		"description":        expandComputeHttpHealthCheckDescription(d.Get("description")),
-		"healthyThreshold":   expandComputeHttpHealthCheckHealthyThreshold(d.Get("healthy_threshold")),
-		"host":               expandComputeHttpHealthCheckHost(d.Get("host")),
-		"name":               expandComputeHttpHealthCheckName(d.Get("name")),
-		"port":               expandComputeHttpHealthCheckPort(d.Get("port")),
-		"requestPath":        expandComputeHttpHealthCheckRequestPath(d.Get("request_path")),
-		"timeoutSec":         expandComputeHttpHealthCheckTimeoutSec(d.Get("timeout_sec")),
-		"unhealthyThreshold": expandComputeHttpHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold")),
+		"checkIntervalSec":   checkIntervalSecProp,
+		"description":        descriptionProp,
+		"healthyThreshold":   healthyThresholdProp,
+		"host":               hostProp,
+		"name":               nameProp,
+		"port":               portProp,
+		"requestPath":        requestPathProp,
+		"timeoutSec":         timeoutSecProp,
+		"unhealthyThreshold": unhealthyThresholdProp,
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/httpHealthChecks/{{name}}")
@@ -332,38 +406,38 @@ func flattenComputeHttpHealthCheckUnhealthyThreshold(v interface{}) interface{} 
 	return v
 }
 
-func expandComputeHttpHealthCheckCheckIntervalSec(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckDescription(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckHealthyThreshold(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckHost(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckName(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckPort(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckRequestPath(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckTimeoutSec(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeHttpHealthCheckUnhealthyThreshold(v interface{}) interface{} {
-	return v
+func expandComputeHttpHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

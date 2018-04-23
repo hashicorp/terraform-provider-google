@@ -85,11 +85,28 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
+	if err != nil {
+		return err
+	}
+	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	}
+	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	}
+	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	}
+
 	obj := map[string]interface{}{
-		"bucketName":  expandComputeBackendBucketBucketName(d.Get("bucket_name")),
-		"description": expandComputeBackendBucketDescription(d.Get("description")),
-		"enableCdn":   expandComputeBackendBucketEnableCdn(d.Get("enable_cdn")),
-		"name":        expandComputeBackendBucketName(d.Get("name")),
+		"bucketName":  bucketNameProp,
+		"description": descriptionProp,
+		"enableCdn":   enableCdnProp,
+		"name":        nameProp,
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets")
@@ -166,11 +183,28 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
+	if err != nil {
+		return err
+	}
+	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	}
+	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	}
+	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	}
+
 	obj := map[string]interface{}{
-		"bucketName":  expandComputeBackendBucketBucketName(d.Get("bucket_name")),
-		"description": expandComputeBackendBucketDescription(d.Get("description")),
-		"enableCdn":   expandComputeBackendBucketEnableCdn(d.Get("enable_cdn")),
-		"name":        expandComputeBackendBucketName(d.Get("name")),
+		"bucketName":  bucketNameProp,
+		"description": descriptionProp,
+		"enableCdn":   enableCdnProp,
+		"name":        nameProp,
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")
@@ -272,18 +306,18 @@ func flattenComputeBackendBucketName(v interface{}) interface{} {
 	return v
 }
 
-func expandComputeBackendBucketBucketName(v interface{}) interface{} {
-	return v
+func expandComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeBackendBucketDescription(v interface{}) interface{} {
-	return v
+func expandComputeBackendBucketDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeBackendBucketEnableCdn(v interface{}) interface{} {
-	return v
+func expandComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeBackendBucketName(v interface{}) interface{} {
-	return v
+func expandComputeBackendBucketName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
