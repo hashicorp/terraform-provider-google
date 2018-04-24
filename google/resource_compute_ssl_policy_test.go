@@ -7,13 +7,13 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeSslPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -45,7 +45,7 @@ func TestAccComputeSslPolicy_basic(t *testing.T) {
 func TestAccComputeSslPolicy_profile(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -74,7 +74,7 @@ func TestAccComputeSslPolicy_profile(t *testing.T) {
 func TestAccComputeSslPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -121,7 +121,7 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 func TestAccComputeSslPolicy_tls_version(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -150,7 +150,7 @@ func TestAccComputeSslPolicy_tls_version(t *testing.T) {
 func TestAccComputeSslPolicy_custom(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -181,7 +181,7 @@ func TestAccComputeSslPolicy_custom(t *testing.T) {
 func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -228,7 +228,7 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	t.Parallel()
 
-	var sslPolicy computeBeta.SslPolicy
+	var sslPolicy compute.SslPolicy
 	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -272,7 +272,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSslPolicyExists(n string, sslPolicy *computeBeta.SslPolicy) resource.TestCheckFunc {
+func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -292,7 +292,7 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *computeBeta.SslPoli
 
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.clientComputeBeta.SslPolicies.Get(
+		found, err := config.clientCompute.SslPolicies.Get(
 			project, name).Do()
 		if err != nil {
 			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)
@@ -316,7 +316,7 @@ func testAccCheckComputeSslPolicyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientComputeBeta.SslPolicies.Get(
+		_, err := config.clientCompute.SslPolicies.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
 			return fmt.Errorf("SSL Policy still exists")
