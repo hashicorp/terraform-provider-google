@@ -89,13 +89,13 @@ func resourceComputeHttpHealthCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
