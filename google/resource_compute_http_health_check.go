@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -367,6 +368,12 @@ func resourceComputeHttpHealthCheckImport(d *schema.ResourceData, meta interface
 }
 
 func flattenComputeHttpHealthCheckCheckIntervalSec(v interface{}) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 
@@ -379,6 +386,12 @@ func flattenComputeHttpHealthCheckDescription(v interface{}) interface{} {
 }
 
 func flattenComputeHttpHealthCheckHealthyThreshold(v interface{}) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 
@@ -391,6 +404,12 @@ func flattenComputeHttpHealthCheckName(v interface{}) interface{} {
 }
 
 func flattenComputeHttpHealthCheckPort(v interface{}) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 
@@ -399,10 +418,22 @@ func flattenComputeHttpHealthCheckRequestPath(v interface{}) interface{} {
 }
 
 func flattenComputeHttpHealthCheckTimeoutSec(v interface{}) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 
 func flattenComputeHttpHealthCheckUnhealthyThreshold(v interface{}) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 
