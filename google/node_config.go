@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -359,11 +358,9 @@ func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []ma
 }
 
 func taintDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	log.Printf("k: %s, old: %s, new: %s", k, old, new)
 	if strings.HasSuffix(k, "#") {
 		oldCount, oldErr := strconv.Atoi(old)
 		newCount, newErr := strconv.Atoi(new)
-		log.Printf("newCount: %s oldCount: %s", newCount, oldCount)
 		// If either of them isn't a number somehow, or if there's one that we didn't have before.
 		return oldErr != nil || newErr != nil || oldCount == newCount+1
 	} else {
