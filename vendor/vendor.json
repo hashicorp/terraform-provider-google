@@ -1280,10 +1280,10 @@
 			"revisionTime": "2018-03-26T00:03:39Z"
 		},
 		{
-			"checksumSHA1": "aAUKwislYt7nWiu0O9UTKZz9Xnc=",
+			"checksumSHA1": "5ZmxWSE3+bfzxX6IJDmTtmjurJU=",
 			"path": "google.golang.org/api/compute/v1",
-			"revision": "e4126357c891acdef6dcd7805daa4c6533be6544",
-			"revisionTime": "2018-03-26T00:03:39Z"
+			"revision": "8b8c1d4168b3aa7d5fbdb9eb159a1a7ac0cc146d",
+			"revisionTime": "2018-04-24T00:04:29Z"
 		},
 		{
 			"checksumSHA1": "acuDPZa9rxUvFhdijdVfG4jy+rw=",
