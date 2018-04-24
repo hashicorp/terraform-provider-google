@@ -4,6 +4,9 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
+	"log"
+	"strconv"
+	"strings"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -132,9 +135,10 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeList,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: taintDiffSuppress,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
@@ -352,4 +356,23 @@ func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []ma
 		})
 	}
 	return result
+}
+
+func taintDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	log.Printf("k: %s, old: %s, new: %s", k, old, new)
+	if strings.HasSuffix(k, "#") {
+		oldCount, oldErr := strconv.Atoi(old)
+		newCount, newErr := strconv.Atoi(new)
+		log.Printf("newCount: %s oldCount: %s", newCount, oldCount)
+		// If either of them isn't a number somehow, or if there's one that we didn't have before.
+		return oldErr != nil || newErr != nil || oldCount == newCount+1
+	} else {
+		lastDot := strings.LastIndex(k, ".")
+		taintKey := d.Get(k[:lastDot] + ".key").(string)
+		if taintKey == "nvidia.com/gpu" {
+			return true
+		} else {
+			return false
+		}
+	}
 }
