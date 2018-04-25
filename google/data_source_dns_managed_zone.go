@@ -1,6 +1,12 @@
 package google
 
-import "github.com/hashicorp/terraform/helper/schema"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	dns "google.golang.org/api/dns/v1"
+)
 
 func dataSourceDnsManagedZone() *schema.Resource {
 	return &schema.Resource{
@@ -9,12 +15,12 @@ func dataSourceDnsManagedZone() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"dns_name": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"description": &schema.Schema{
@@ -43,18 +49,38 @@ func dataSourceDnsManagedZone() *schema.Resource {
 func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	d.SetId(d.Get("name").(string))
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	zone, err := config.clientDns.ManagedZones.Get(
-		project, d.Id()).Do()
-	if err != nil {
-		return err
+	name := d.Get("name").(string)
+	dnsName := d.Get("dns_name").(string)
+	if name == "" && dnsName == "" {
+		return errors.New("Either name or dns_name must be provided.")
 	}
+
+	var zone *dns.ManagedZone
+
+	if name != "" {
+		zone, err = config.clientDns.ManagedZones.Get(project, name).Do()
+		if err != nil {
+			return err
+		}
+	} else {
+		zones, err := config.clientDns.ManagedZones.List(project).DnsName(dnsName).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(zones.ManagedZones) == 0 {
+			return fmt.Errorf("No DNS Managed Zones found for %s DNS Name", dnsName)
+		}
+
+		zone = zones.ManagedZones[0]
+	}
+
+	d.SetId(zone.Name)
 
 	d.Set("name_servers", zone.NameServers)
 	d.Set("name", zone.Name)

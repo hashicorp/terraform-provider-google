@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"testing"
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
@@ -18,7 +19,10 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccDataSourceDnsManagedZone_basic(),
-				Check:  testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.qa", "google_dns_managed_zone.foo"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.foo", "google_dns_managed_zone.foo"),
+					testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.bar", "google_dns_managed_zone.bar"),
+				),
 			},
 		},
 	})
@@ -60,13 +64,23 @@ func testAccDataSourceDnsManagedZoneCheck(dsName, rsName string) resource.TestCh
 func testAccDataSourceDnsManagedZone_basic() string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
-	name		= "qa-zone-%s"
-	dns_name	= "qa.test.com."
-	description	= "QA DNS zone"
+	name		= "foo-zone-%s"
+	dns_name	= "foo.test.com."
+	description	= "Foo DNS zone"
 }
 
-data "google_dns_managed_zone" "qa" {
+data "google_dns_managed_zone" "foo" {
 	name	= "${google_dns_managed_zone.foo.name}"
 }
-`, acctest.RandString(10))
+
+resource "google_dns_managed_zone" "bar" {
+	name		= "bar-zone-%s"
+	dns_name	= "bar.test.com."
+	description	= "Bar DNS zone"
+}
+
+data "google_dns_managed_zone" "bar" {
+	dns_name = "${google_dns_managed_zone.bar.dns_name}"
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
