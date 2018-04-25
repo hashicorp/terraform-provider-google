@@ -35,19 +35,6 @@ func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
 }
 
-// getZone reads the "zone" value from the given resource data and falls back
-// to provider's value if not given.  If neither is provided, returns an error.
-func getZone(d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("zone")
-	if !ok {
-		if config.Zone != "" {
-			return config.Zone, nil
-		}
-		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
-	}
-	return GetResourceNameFromSelfLink(res.(string)), nil
-}
-
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
 	res, ok := is.Attributes["region"]
 

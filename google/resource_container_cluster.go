@@ -1159,7 +1159,12 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
-			if err := nodePoolUpdate(d, meta, clusterName, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
+			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
+			if err != nil {
+				return err
+			}
+
+			if err := nodePoolUpdate(d, meta, nodePoolInfo, fmt.Sprintf("node_pool.%d.", i), timeoutInMinutes); err != nil {
 				return err
 			}
 		}
@@ -1254,7 +1259,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -1282,15 +1286,26 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
 
 	var op interface{}
-	switch containerAPIVersion {
-	case v1:
-		op, err = config.clientContainer.Projects.Zones.Clusters.Delete(project, location, clusterName).Do()
-	case v1beta1:
+	var count = 0
+	err = resource.Retry(30*time.Second, func() *resource.RetryError {
+		count++
+
 		name := containerClusterFullName(project, location, clusterName)
 		op, err = config.clientContainerBeta.Projects.Locations.Clusters.Delete(name).Do()
-	}
+
+		if err != nil {
+			log.Printf("[WARNING] Cluster is still not ready to delete, retrying %s", clusterName)
+			return resource.RetryableError(err)
+		}
+
+		if count == 15 {
+			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
+		}
+		return nil
+	})
+
 	if err != nil {
-		return err
+		return fmt.Errorf("Error deleting Cluster: %s", err)
 	}
 
 	// Wait until it's deleted
@@ -1597,17 +1612,20 @@ func containerClusterFullName(project, location, cluster string) string {
 	return fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, cluster)
 }
 
-func getLocation(d *schema.ResourceData, config *Config) (string, error) {
-	if v, isRegionalCluster := d.GetOk("region"); isRegionalCluster {
-		return v.(string), nil
-	} else {
-		// If region is not explicitly set, use "zone" (or fall back to the provider-level zone).
-		// For now, to avoid confusion, we require region to be set in the config to create a regional
-		// cluster rather than falling back to the provider-level region.
-		return getZone(d, config)
+func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *Config, clusterName string) (*NodePoolInformation, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
 	}
-}
 
-func isZone(location string) bool {
-	return len(strings.Split(location, "-")) == 3
+	location, err := getLocation(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &NodePoolInformation{
+		project:  project,
+		location: location,
+		cluster:  d.Get("name").(string),
+	}, nil
 }

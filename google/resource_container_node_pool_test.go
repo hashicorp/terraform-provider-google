@@ -241,6 +241,61 @@ func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 	})
 }
 
+//This test exists to validate a regional node pool *and* and update to it.
+func TestAccContainerNodePool_regionalAutoscaling(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_regionalAutoscaling(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count", "3"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_updateAutoscaling(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count", "5"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_basic(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_autoscaling(t *testing.T) {
 	t.Parallel()
 
@@ -380,14 +435,52 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 		}
 
 		attributes := rs.Primary.Attributes
-		_, err := config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
-			config.Project, attributes["zone"], attributes["cluster"], attributes["name"]).Do()
+		zone := attributes["zone"]
+
+		var err error
+		if zone != "" {
+			_, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Get(
+				config.Project, attributes["zone"], attributes["cluster"], attributes["name"]).Do()
+		} else {
+			name := fmt.Sprintf(
+				"projects/%s/locations/%s/clusters/%s/nodePools/%s",
+				config.Project,
+				attributes["region"],
+				attributes["cluster"],
+				attributes["name"],
+			)
+			_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(name).Do()
+		}
+
 		if err == nil {
 			return fmt.Errorf("NodePool still exists")
 		}
 	}
 
 	return nil
+}
+
+func TestAccContainerNodePool_regionalClusters(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccContainerNodePool_regionalClusters(cluster, np),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccContainerNodePool_basic(cluster, np string) string {
@@ -402,6 +495,22 @@ resource "google_container_node_pool" "np" {
 	name = "%s"
 	zone = "us-central1-a"
 	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_regionalClusters(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	cluster = "${google_container_cluster.cluster.name}"
+	region = "us-central1"
 	initial_node_count = 2
 }`, cluster, np)
 }
@@ -435,6 +544,26 @@ resource "google_container_node_pool" "np" {
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
 }`, cluster)
+}
+
+func testAccContainerNodePool_regionalAutoscaling(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np" {
+	name = "%s"
+	region = "us-central1"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+	autoscaling {
+		min_node_count = 1
+		max_node_count = 3
+	}
+}`, cluster, np)
 }
 
 func testAccContainerNodePool_autoscaling(cluster, np string) string {
