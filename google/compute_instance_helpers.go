@@ -106,7 +106,7 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 			Type:  "ONE_TO_ONE_NAT",
 			NatIP: data["nat_ip"].(string),
 		}
-		if ptr, ok := data["public_ptr_domain_name"]; ok {
+		if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
 			acs[i].SetPublicPtr = true
 			acs[i].PublicPtrDomainName = ptr.(string)
 		}
