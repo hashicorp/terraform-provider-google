@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -19,11 +18,6 @@ const (
 var (
 	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
-	AddressBaseApiVersion    = v1
-	AddressVersionedFeatures = []Feature{
-		{Version: v0beta, Item: "address_type", DefaultValue: addressTypeExternal},
-		{Version: v0beta, Item: "subnetwork"},
-	}
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -96,7 +90,6 @@ func resourceComputeAddress() *schema.Resource {
 }
 
 func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -110,30 +103,14 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Build the address parameter
-	v0BetaAddress := &computeBeta.Address{
+	address := &compute.Address{
 		Name:        d.Get("name").(string),
 		AddressType: d.Get("address_type").(string),
 		Subnetwork:  d.Get("subnetwork").(string),
+		Address:     d.Get("address").(string),
 	}
 
-	if desired, ok := d.GetOk("address"); ok {
-		v0BetaAddress.Address = desired.(string)
-	}
-
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		v1Address := &compute.Address{}
-		err = Convert(v0BetaAddress, v1Address)
-		if err != nil {
-			return err
-		}
-		op, err = config.clientCompute.Addresses.Insert(
-			project, region, v1Address).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.Addresses.Insert(
-			project, region, v0BetaAddress).Do()
-	}
+	op, err := config.clientCompute.Addresses.Insert(project, region, address).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating address: %s", err)
 	}
@@ -142,7 +119,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(computeAddressId{
 		Project: project,
 		Region:  region,
-		Name:    v0BetaAddress.Name,
+		Name:    address.Name,
 	}.canonicalId())
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Address")
@@ -154,7 +131,6 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	addressId, err := parseComputeAddressId(d.Id(), config)
@@ -162,28 +138,10 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	addr := &computeBeta.Address{}
-	switch computeApiVersion {
-	case v1:
-		v1Address, err := config.clientCompute.Addresses.Get(
-			addressId.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
-		}
-
-		err = Convert(v1Address, addr)
-		if err != nil {
-			return err
-		}
-
-	case v0beta:
-		var err error
-		addr, err = config.clientComputeBeta.Addresses.Get(
-			addressId.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
-		}
-
+	addr, err := config.clientCompute.Addresses.Get(
+		addressId.Project, addressId.Region, addressId.Name).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
 	}
 
 	// The v1 API does not include an AddressType field, as it only supports
@@ -204,7 +162,6 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, AddressBaseApiVersion, AddressVersionedFeatures)
 	config := meta.(*Config)
 
 	addressId, err := parseComputeAddressId(d.Id(), config)
@@ -213,20 +170,10 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Delete the address
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		op, err = config.clientCompute.Addresses.Delete(
-			addressId.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting address: %s", err)
-		}
-	case v0beta:
-		op, err = config.clientComputeBeta.Addresses.Delete(
-			addressId.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting address: %s", err)
-		}
+	op, err := config.clientCompute.Addresses.Delete(
+		addressId.Project, addressId.Region, addressId.Name).Do()
+	if err != nil {
+		return fmt.Errorf("Error deleting address: %s", err)
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, addressId.Project, "Deleting Address")
