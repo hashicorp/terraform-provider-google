@@ -89,11 +89,34 @@ resource "google_container_cluster" "primary" {
 }
 
 ```
+
+### Usage with a regional cluster
+
+```hcl
+
+resource "google_container_cluster" "regional" {
+  name   = "marcellus-wallace"
+  region = "us-central1"
+}
+
+resource "google_container_node_pool" "regional-np" {
+  name       = "my-node-pool"
+  region     = "us-central1"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+}
+
+```
+
 ## Argument Reference
 
-* `zone` - (Required) The zone in which the cluster resides.
+* `zone` - (Optional) The zone in which the cluster resides.
 
-* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for this resource.
+* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+
+* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
+
+Note: You must be provide region for regional clusters and zone for zonal clusters
 
 - - -
 
