@@ -1125,7 +1125,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					Type:  "ONE_TO_ONE_NAT",
 					NatIP: d.Get(acPrefix + ".nat_ip").(string),
 				}
-				if ptr, ok := d.GetOk(acPrefix + ".public_ptr_domain_name"); ok {
+				if ptr, ok := d.GetOk(acPrefix + ".public_ptr_domain_name"); ok && ptr != "" {
 					ac.SetPublicPtr = true
 					ac.PublicPtrDomainName = ptr.(string)
 				}
