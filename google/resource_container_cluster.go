@@ -282,6 +282,24 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew: true,
 						},
 
+						"client_certificate_config": {
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							DiffSuppressFunc: masterAuthClientCertCfgSuppress,
+							ForceNew:         true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"issue_client_certificate": {
+										Type:             schema.TypeBool,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: masterAuthClientCertCfgSuppress,
+									},
+								},
+							},
+						},
+
 						"client_certificate": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -489,6 +507,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.MasterAuth = &containerBeta.MasterAuth{
 			Password: masterAuth["password"].(string),
 			Username: masterAuth["username"].(string),
+		}
+		if certConfigV, ok := masterAuth["client_certificate_config"]; ok {
+			certConfigs := certConfigV.([]interface{})
+			if len(certConfigs) > 0 {
+				certConfig := certConfigs[0].(map[string]interface{})
+				cluster.MasterAuth.ClientCertificateConfig = &containerBeta.ClientCertificateConfig{
+					IssueClientCertificate: certConfig["issue_client_certificate"].(bool),
+				}
+			}
 		}
 	}
 
@@ -746,6 +773,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			"client_key":             cluster.MasterAuth.ClientKey,
 			"cluster_ca_certificate": cluster.MasterAuth.ClusterCaCertificate,
 		},
+	}
+	if len(cluster.MasterAuth.ClientCertificate) == 0 {
+		masterAuth[0]["client_certificate_config"] = []map[string]interface{}{
+			{"issue_client_certificate": false},
+		}
 	}
 	d.Set("master_auth", masterAuth)
 
@@ -1628,4 +1660,28 @@ func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *Confi
 		location: location,
 		cluster:  d.Get("name").(string),
 	}, nil
+}
+
+// We want to suppress diffs for empty or default client certificate configs, i.e:
+// 	[{ "issue_client_certificate": true}] --> []
+//  [] -> [{ "issue_client_certificate": true}]
+func masterAuthClientCertCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
+	var clientConfig map[string]interface{}
+	if v, ok := r.GetOk("master_auth"); ok {
+		masterAuths := v.([]interface{})
+		masterAuth := masterAuths[0].(map[string]interface{})
+		cfgs := masterAuth["client_certificate_config"].([]interface{})
+		if len(cfgs) > 0 {
+			clientConfig = cfgs[0].(map[string]interface{})
+		}
+	}
+
+	if strings.HasSuffix(k, "client_certificate_config.#") && old == "0" && new == "1" {
+		// nil --> { "issue_client_certificate": true }
+		if issueCert, ok := clientConfig["issue_client_certificate"]; ok {
+			return issueCert.(bool)
+		}
+	}
+
+	return strings.HasSuffix(k, ".issue_client_certificate") && old == "" && new == "true"
 }

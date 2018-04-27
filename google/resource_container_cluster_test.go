@@ -104,7 +104,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withMasterAuth(t *testing.T) {
+func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -115,8 +115,32 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 			{
 				Config: testAccContainerCluster_withMasterAuth(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        "google_container_cluster.with_master_auth",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthNoCert(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth_no_cert", "master_auth.0.client_certificate", ""),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_auth_no_cert",
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
@@ -1296,6 +1320,40 @@ resource "google_container_cluster" "with_master_auth" {
 	master_auth {
 		username = "mr.yoda"
 		password = "adoy.rm.123456789"
+	}
+}`, acctest.RandString(10))
+}
+
+func testAccContainerCluster_updateMasterAuthNoCert() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm.123456789"
+		client_certificate_config {
+			issue_client_certificate = false
+		}
+	}
+}`, acctest.RandString(10))
+}
+
+func testAccContainerCluster_withMasterAuthNoCert() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth_no_cert" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm.123456789"
+		client_certificate_config {
+			issue_client_certificate = false
+		}
 	}
 }`, acctest.RandString(10))
 }
