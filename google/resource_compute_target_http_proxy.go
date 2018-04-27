@@ -184,6 +184,8 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 	var res map[string]interface{}
 	op := &compute.Operation{}
 
+	d.Partial(true)
+
 	if d.HasChange("url_map") {
 		descriptionProp, err := expandComputeTargetHttpProxyDescription(d.Get("description"), d, config)
 		if err != nil {
@@ -224,7 +226,11 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 		if err != nil {
 			return err
 		}
+
+		d.SetPartial("url_map")
 	}
+
+	d.Partial(false)
 
 	return resourceComputeTargetHttpProxyRead(d, meta)
 }
