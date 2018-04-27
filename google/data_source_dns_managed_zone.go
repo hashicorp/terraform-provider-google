@@ -15,6 +15,7 @@ func dataSourceDnsManagedZone() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"dns_name": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 
