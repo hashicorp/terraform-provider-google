@@ -20,7 +20,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDataSourceDnsManagedZone_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.foo", "google_dns_managed_zone.foo"),
+					testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.qa", "google_dns_managed_zone.foo"),
 					testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.bar", "google_dns_managed_zone.bar"),
 				),
 			},
@@ -64,12 +64,12 @@ func testAccDataSourceDnsManagedZoneCheck(dsName, rsName string) resource.TestCh
 func testAccDataSourceDnsManagedZone_basic() string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
-	name		= "foo-zone-%s"
-	dns_name	= "foo.test.com."
-	description	= "Foo DNS zone"
+	name		= "qa-zone-%s"
+	dns_name	= "qa.test.com."
+	description	= "QA DNS zone"
 }
 
-data "google_dns_managed_zone" "foo" {
+data "google_dns_managed_zone" "qa" {
 	name	= "${google_dns_managed_zone.foo.name}"
 }
 
