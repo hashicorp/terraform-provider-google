@@ -163,14 +163,27 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
 	}
-
-	d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"]))
-	d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"]))
-	d.Set("description", flattenComputeBackendBucketDescription(res["description"]))
-	d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"]))
-	d.Set("name", flattenComputeBackendBucketName(res["name"]))
-	d.Set("self_link", res["selfLink"])
-	d.Set("project", project)
+	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"])); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"])); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"])); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"])); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("name", flattenComputeBackendBucketName(res["name"])); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
 
 	return nil
 }

@@ -214,19 +214,42 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpsHealthCheck %q", d.Id()))
 	}
-
-	d.Set("check_interval_sec", flattenComputeHttpsHealthCheckCheckIntervalSec(res["checkIntervalSec"]))
-	d.Set("creation_timestamp", flattenComputeHttpsHealthCheckCreationTimestamp(res["creationTimestamp"]))
-	d.Set("description", flattenComputeHttpsHealthCheckDescription(res["description"]))
-	d.Set("healthy_threshold", flattenComputeHttpsHealthCheckHealthyThreshold(res["healthyThreshold"]))
-	d.Set("host", flattenComputeHttpsHealthCheckHost(res["host"]))
-	d.Set("name", flattenComputeHttpsHealthCheckName(res["name"]))
-	d.Set("port", flattenComputeHttpsHealthCheckPort(res["port"]))
-	d.Set("request_path", flattenComputeHttpsHealthCheckRequestPath(res["requestPath"]))
-	d.Set("timeout_sec", flattenComputeHttpsHealthCheckTimeoutSec(res["timeoutSec"]))
-	d.Set("unhealthy_threshold", flattenComputeHttpsHealthCheckUnhealthyThreshold(res["unhealthyThreshold"]))
-	d.Set("self_link", res["selfLink"])
-	d.Set("project", project)
+	if err := d.Set("check_interval_sec", flattenComputeHttpsHealthCheckCheckIntervalSec(res["checkIntervalSec"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("creation_timestamp", flattenComputeHttpsHealthCheckCreationTimestamp(res["creationTimestamp"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("description", flattenComputeHttpsHealthCheckDescription(res["description"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("healthy_threshold", flattenComputeHttpsHealthCheckHealthyThreshold(res["healthyThreshold"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("host", flattenComputeHttpsHealthCheckHost(res["host"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("name", flattenComputeHttpsHealthCheckName(res["name"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("port", flattenComputeHttpsHealthCheckPort(res["port"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("request_path", flattenComputeHttpsHealthCheckRequestPath(res["requestPath"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("timeout_sec", flattenComputeHttpsHealthCheckTimeoutSec(res["timeoutSec"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("unhealthy_threshold", flattenComputeHttpsHealthCheckUnhealthyThreshold(res["unhealthyThreshold"])); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+	}
 
 	return nil
 }

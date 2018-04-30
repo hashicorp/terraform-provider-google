@@ -160,14 +160,27 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpProxy %q", d.Id()))
 	}
-
-	d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"]))
-	d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"]))
-	d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"]))
-	d.Set("name", flattenComputeTargetHttpProxyName(res["name"]))
-	d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"]))
-	d.Set("self_link", res["selfLink"])
-	d.Set("project", project)
+	if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
 
 	return nil
 }
