@@ -186,16 +186,33 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetSslProxy %q", d.Id()))
 	}
-
-	d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"]))
-	d.Set("description", flattenComputeTargetSslProxyDescription(res["description"]))
-	d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"]))
-	d.Set("name", flattenComputeTargetSslProxyName(res["name"]))
-	d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"]))
-	d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"]))
-	d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"]))
-	d.Set("self_link", res["selfLink"])
-	d.Set("project", project)
+	if err := d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("description", flattenComputeTargetSslProxyDescription(res["description"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("name", flattenComputeTargetSslProxyName(res["name"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
 
 	return nil
 }
