@@ -99,7 +99,7 @@ resource "google_dns_managed_zone" "prod" {
 
 ### Adding an SPF record
 
-`\"` must be added around your `rrdatas` for a SPF record. Otherwise `rrdatas` string gets split on spaces.
+Quotes (`""`) must be added around your `rrdatas` for a SPF record. Otherwise `rrdatas` string gets split on spaces.
 
 ```hcl
 resource "google_dns_record_set" "spf" {
