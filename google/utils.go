@@ -118,18 +118,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-func getNetworkNameFromSelfLink(network string) (string, error) {
-	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		return network, nil
-	}
-	// extract the network name from SelfLink URL
-	networkName := network[strings.LastIndex(network, "/")+1:]
-	if networkName == "" {
-		return "", fmt.Errorf("network url not valid")
-	}
-	return networkName, nil
-}
-
 func getRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
 }
