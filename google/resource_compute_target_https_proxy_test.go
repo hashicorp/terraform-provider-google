@@ -10,6 +10,10 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+const (
+	canonicalSslCertificateTemplate = "https://www.googleapis.com/compute/v1/projects/%s/global/sslCertificates/%s"
+)
+
 func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 	t.Parallel()
 
