@@ -136,7 +136,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return waitErr
+		return fmt.Errorf("Error waiting to create GlobalAddress: %s", waitErr)
 	}
 
 	return resourceComputeGlobalAddressRead(d, meta)
