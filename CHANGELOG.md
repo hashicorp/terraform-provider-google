@@ -1,4 +1,8 @@
 ## 1.11.1 (Unreleased)
+
+IMPROVEMENTS:
+* compute: Autogenerate `google_vpn_gateway` [GH-1409]
+
 ## 1.11.0 (May 01, 2018)
 
 IMPROVEMENTS:
