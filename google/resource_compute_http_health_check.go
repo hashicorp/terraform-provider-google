@@ -191,7 +191,7 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return waitErr
+		return fmt.Errorf("Error waiting to create HttpHealthCheck: %s", waitErr)
 	}
 
 	return resourceComputeHttpHealthCheckRead(d, meta)

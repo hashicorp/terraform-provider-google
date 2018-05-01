@@ -140,7 +140,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return waitErr
+		return fmt.Errorf("Error waiting to create BackendBucket: %s", waitErr)
 	}
 
 	return resourceComputeBackendBucketRead(d, meta)
