@@ -16,10 +16,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-const emptyTFDefinition = `
-# empty def
-`
-
 func TestExtractInitTimeout(t *testing.T) {
 	t.Parallel()
 
