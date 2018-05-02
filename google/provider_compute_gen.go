@@ -22,7 +22,6 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_http_health_check":  resourceComputeHttpHealthCheck(),
 	"google_compute_https_health_check": resourceComputeHttpsHealthCheck(),
 	"google_compute_target_http_proxy":  resourceComputeTargetHttpProxy(),
-	"google_compute_target_https_proxy": resourceComputeTargetHttpsProxy(),
 	"google_compute_target_ssl_proxy":   resourceComputeTargetSslProxy(),
 	"google_compute_target_tcp_proxy":   resourceComputeTargetTcpProxy(),
 	"google_compute_vpn_gateway":        resourceComputeVpnGateway(),
