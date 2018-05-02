@@ -118,18 +118,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-func getNetworkNameFromSelfLink(network string) (string, error) {
-	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		return network, nil
-	}
-	// extract the network name from SelfLink URL
-	networkName := network[strings.LastIndex(network, "/")+1:]
-	if networkName == "" {
-		return "", fmt.Errorf("network url not valid")
-	}
-	return networkName, nil
-}
-
 func getRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
 }
@@ -286,6 +274,20 @@ func convertStringSet(set *schema.Set) []string {
 
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
+
+	for k, v := range a {
+		merged[k] = v
+	}
+
+	for k, v := range b {
+		merged[k] = v
+	}
+
+	return merged
+}
+
+func mergeResourceMaps(a, b map[string]*schema.Resource) map[string]*schema.Resource {
+	merged := make(map[string]*schema.Resource)
 
 	for k, v := range a {
 		merged[k] = v

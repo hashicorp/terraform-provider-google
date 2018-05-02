@@ -91,6 +91,10 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 		users, err := config.clientSqlAdmin.Users.List(config.Project,
 			instance).Do()
 
+		if err != nil {
+			return err
+		}
+
 		for _, user := range users.Items {
 			if user.Name == name && user.Host == host {
 				return nil

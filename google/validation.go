@@ -20,6 +20,10 @@ const (
 
 	RFC1035NameTemplate = "[a-z](?:[-a-z0-9]{%d,%d}[a-z0-9])"
 	CloudIoTIdRegex     = "^[a-zA-Z][-a-zA-Z0-9._+~%]{2,254}$"
+
+	// Format of default Compute service accounts created by Google
+	// ${PROJECT_ID}-compute@developer.gserviceaccount.com where PROJECT_ID is an int64 (max 20 digits)
+	ComputeServiceAccountNameRegex = "[0-9]{1,20}-compute@developer.gserviceaccount.com"
 )
 
 var (
@@ -29,8 +33,20 @@ var (
 	// 4 and 28 since the first and last character are excluded.
 	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
 
-	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
-	ServiceAccountLinkRegex   = "projects/" + ProjectRegex + "/serviceAccounts/" + ServiceAccountNameRegex + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
+	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegex + "/serviceAccounts/"
+	PossibleServiceAccountNames   = []string{
+		AppEngineServiceAccountNameRegex,
+		ComputeServiceAccountNameRegex,
+		CreatedServiceAccountNameRegex,
+	}
+	ServiceAccountLinkRegex = ServiceAccountLinkRegexPrefix + "(" + strings.Join(PossibleServiceAccountNames, "|") + ")"
+
+	// Format of service accounts created through the API
+	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
+	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"
+
+	// Format of default App Engine service accounts created by Google
+	AppEngineServiceAccountNameRegex = ProjectRegex + "@appspot.gserviceaccount.com"
 )
 
 var rfc1918Networks = []string{

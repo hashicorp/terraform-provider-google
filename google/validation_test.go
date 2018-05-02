@@ -117,6 +117,8 @@ func TestValidateServiceAccountLink(t *testing.T) {
 		{TestName: "valid with dash", Value: "projects/my-project/serviceAccounts/svcacct@my-project.iam.gserviceaccount.com"},
 		{TestName: "valid with colon", Value: "projects/my:project/serviceAccounts/svcacct@project.my.iam.gserviceaccount.com"},
 		{TestName: "valid with dot and colon", Value: "projects/my.thing:project/serviceAccounts/svcacct@project.my.thing.iam.gserviceaccount.com"},
+		{TestName: "valid with compute default service account", Value: "projects/my-project/serviceAccounts/123456-compute@developer.gserviceaccount.com"},
+		{TestName: "valid with app engine default service account", Value: "projects/my-project/serviceAccounts/my-project@appspot.gserviceaccount.com"},
 
 		// Errors
 		{TestName: "multiple colons", Value: "projects/my:project:thing/serviceAccounts/svcacct@thing.project.my.iam.gserviceaccount.com", ExpectError: true},
