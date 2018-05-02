@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	compute "google.golang.org/api/compute/v1"
 )
 
@@ -67,9 +68,10 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 				ForceNew: true,
 			},
 			"proxy_header": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "NONE",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+				Default:      "NONE",
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
@@ -161,7 +163,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return waitErr
+		return fmt.Errorf("Error waiting to create TargetSslProxy: %s", waitErr)
 	}
 
 	return resourceComputeTargetSslProxyRead(d, meta)
@@ -184,16 +186,33 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetSslProxy %q", d.Id()))
 	}
-
-	d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"]))
-	d.Set("description", flattenComputeTargetSslProxyDescription(res["description"]))
-	d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"]))
-	d.Set("name", flattenComputeTargetSslProxyName(res["name"]))
-	d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"]))
-	d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"]))
-	d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"]))
-	d.Set("self_link", res["selfLink"])
-	d.Set("project", project)
+	if err := d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("description", flattenComputeTargetSslProxyDescription(res["description"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("name", flattenComputeTargetSslProxyName(res["name"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"])); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
 
 	return nil
 }
@@ -210,34 +229,16 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	var res map[string]interface{}
 	op := &compute.Operation{}
 
+	d.Partial(true)
+
 	if d.HasChange("proxy_header") {
-		descriptionProp, err := expandComputeTargetSslProxyDescription(d.Get("description"), d, config)
-		if err != nil {
-			return err
-		}
-		nameProp, err := expandComputeTargetSslProxyName(d.Get("name"), d, config)
-		if err != nil {
-			return err
-		}
 		proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
-		if err != nil {
-			return err
-		}
-		serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
-		if err != nil {
-			return err
-		}
-		sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
 		}
 
 		obj := map[string]interface{}{
-			"description":     descriptionProp,
-			"name":            nameProp,
-			"proxyHeader":     proxyHeaderProp,
-			"service":         serviceProp,
-			"sslCertificates": sslCertificatesProp,
+			"proxyHeader": proxyHeaderProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setProxyHeader")
 		if err != nil {
@@ -260,35 +261,17 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+
+		d.SetPartial("proxy_header")
 	}
 	if d.HasChange("backend_service") {
-		descriptionProp, err := expandComputeTargetSslProxyDescription(d.Get("description"), d, config)
-		if err != nil {
-			return err
-		}
-		nameProp, err := expandComputeTargetSslProxyName(d.Get("name"), d, config)
-		if err != nil {
-			return err
-		}
-		proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
-		if err != nil {
-			return err
-		}
 		serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
-		if err != nil {
-			return err
-		}
-		sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
 		}
 
 		obj := map[string]interface{}{
-			"description":     descriptionProp,
-			"name":            nameProp,
-			"proxyHeader":     proxyHeaderProp,
-			"service":         serviceProp,
-			"sslCertificates": sslCertificatesProp,
+			"service": serviceProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setBackendService")
 		if err != nil {
@@ -311,34 +294,16 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+
+		d.SetPartial("backend_service")
 	}
 	if d.HasChange("ssl_certificates") {
-		descriptionProp, err := expandComputeTargetSslProxyDescription(d.Get("description"), d, config)
-		if err != nil {
-			return err
-		}
-		nameProp, err := expandComputeTargetSslProxyName(d.Get("name"), d, config)
-		if err != nil {
-			return err
-		}
-		proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
-		if err != nil {
-			return err
-		}
-		serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
-		if err != nil {
-			return err
-		}
 		sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
 		}
 
 		obj := map[string]interface{}{
-			"description":     descriptionProp,
-			"name":            nameProp,
-			"proxyHeader":     proxyHeaderProp,
-			"service":         serviceProp,
 			"sslCertificates": sslCertificatesProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setSslCertificates")
@@ -362,7 +327,11 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+
+		d.SetPartial("ssl_certificates")
 	}
+
+	d.Partial(false)
 
 	return resourceComputeTargetSslProxyRead(d, meta)
 }

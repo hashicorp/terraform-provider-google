@@ -59,6 +59,7 @@ func testAccDataSourceGoogleContainerClusterCheck(dataSourceName string, resourc
 			"master_auth",
 			"master_auth.0.password",
 			"master_auth.0.username",
+			"master_auth.0.client_certificate_config.0.issue_client_certificate",
 			"master_auth.0.client_certificate",
 			"master_auth.0.client_key",
 			"master_auth.0.cluster_ca_certificate",
