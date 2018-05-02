@@ -6,12 +6,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
-
-var InstanceTemplateBaseApiVersion = v1
-var InstanceTemplateVersionedFeatures = []Feature{}
 
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -610,17 +606,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	var op interface{}
-	switch getComputeApiVersion(d, InstanceTemplateBaseApiVersion, InstanceGroupManagerVersionedFeatures) {
-	case v1:
-		instanceTemplateV1 := &compute.InstanceTemplate{}
-		if err := Convert(instanceTemplate, instanceTemplateV1); err != nil {
-			return err
-		}
-		op, err = config.clientCompute.InstanceTemplates.Insert(project, instanceTemplateV1).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
-	}
+	op, err := config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -670,22 +656,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	instanceTemplate := &computeBeta.InstanceTemplate{}
-	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
-	case v1:
-		instanceTemplateV1, err := config.clientCompute.InstanceTemplates.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
-		}
-		if err := Convert(instanceTemplateV1, instanceTemplate); err != nil {
-			return err
-		}
-	case v0beta:
-		var err error
-		instanceTemplate, err = config.clientComputeBeta.InstanceTemplates.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
-		}
+	instanceTemplate, err := config.clientComputeBeta.InstanceTemplates.Get(project, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
 
 	// Set the metadata fingerprint if there is one.

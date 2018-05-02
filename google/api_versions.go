@@ -117,10 +117,6 @@ func getApiVersion(d TerraformResourceData, resourceVersion ApiVersion, features
 	return maxVersionFunc(versions)
 }
 
-func getComputeApiVersion(d TerraformResourceData, resourceVersion ApiVersion, features []Feature) ApiVersion {
-	return getApiVersion(d, resourceVersion, features, maxComputeVersion)
-}
-
 func getContainerApiVersion(d TerraformResourceData, resourceVersion ApiVersion, features []Feature) ApiVersion {
 	return getApiVersion(d, resourceVersion, features, maxContainerVersion)
 }
@@ -144,10 +140,6 @@ func getApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, fe
 	}
 
 	return maxVersionFunc(versions)
-}
-
-func getComputeApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, features, updateOnlyFields []Feature) ApiVersion {
-	return getApiVersionUpdate(d, resourceVersion, features, updateOnlyFields, maxComputeVersion)
 }
 
 func getContainerApiVersionUpdate(d TerraformResourceData, resourceVersion ApiVersion, features, updateOnlyFields []Feature) ApiVersion {
@@ -243,10 +235,6 @@ func maxVersion(versionsInUse map[ApiVersion]struct{}, orderedVersions []ApiVers
 
 	// Fallback to the final, most stable version
 	return orderedVersions[len(orderedVersions)-1]
-}
-
-func maxComputeVersion(versionsInUse map[ApiVersion]struct{}) ApiVersion {
-	return maxVersion(versionsInUse, OrderedComputeApiVersions)
 }
 
 func maxContainerVersion(versionsInUse map[ApiVersion]struct{}) ApiVersion {

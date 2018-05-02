@@ -19,9 +19,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-var InstanceBaseApiVersion = v1
-var InstanceVersionedFeatures = []Feature{}
-
 func resourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
@@ -595,21 +592,9 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	if err != nil {
 		return nil, err
 	}
-	instance := &computeBeta.Instance{}
-	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
-	case v1:
-		instanceV1, err := config.clientCompute.Instances.Get(project, zone, d.Id()).Do()
-		if err != nil {
-			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
-		}
-		if err := Convert(instanceV1, instance); err != nil {
-			return nil, err
-		}
-	case v0beta:
-		instance, err = config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
-		if err != nil {
-			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
-		}
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
 	return instance, nil
 }
@@ -745,17 +730,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	var op interface{}
-	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
-	case v1:
-		instanceV1 := &compute.Instance{}
-		if err := Convert(instance, instanceV1); err != nil {
-			return err
-		}
-		op, err = config.clientCompute.Instances.Insert(project, zone.Name, instanceV1).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
-	}
+	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
