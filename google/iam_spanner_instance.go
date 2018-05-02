@@ -110,21 +110,3 @@ func (u *SpannerInstanceIamUpdater) GetMutexKey() string {
 func (u *SpannerInstanceIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Spanner Instance: %s/%s", u.project, u.instance)
 }
-
-func resourceManagerToSpannerPolicy(p *cloudresourcemanager.Policy) (*spanner.Policy, error) {
-	out := &spanner.Policy{}
-	err := Convert(p, out)
-	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a resourcemanager policy to a spanner policy: {{err}}", err)
-	}
-	return out, nil
-}
-
-func spannerToResourceManagerPolicy(p *spanner.Policy) (*cloudresourcemanager.Policy, error) {
-	out := &cloudresourcemanager.Policy{}
-	err := Convert(p, out)
-	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a spanner policy to a resourcemanager policy: {{err}}", err)
-	}
-	return out, nil
-}
