@@ -56,6 +56,11 @@ The following arguments are supported:
     can access Google services without assigned external IP
     addresses.
 
+* `enable_flow_logs` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+    Set to `true` to enable [flow logs](https://cloud.google.com/vpc/docs/using-flow-logs)
+    for this subnetwork.
+
+
 - - -
 
 * `secondary_ip_range` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) An array of configurations for secondary IP ranges for VM instances contained in this subnetwork. Structure is documented below.
