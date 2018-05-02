@@ -51,17 +51,15 @@ func resourceGoogleProject() *schema.Resource {
 				Required: true,
 			},
 			"org_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"folder_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"org_id"},
-				StateFunc:     parseFolderId,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Computed:  true,
+				StateFunc: parseFolderId,
 			},
 			"policy_data": &schema.Schema{
 				Type:     schema.TypeString,
@@ -105,7 +103,9 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		Name:      d.Get("name").(string),
 	}
 
-	getParentResourceId(d, project)
+	if err := getParentResourceId(d, project); err != nil {
+		return err
+	}
 
 	if _, ok := d.GetOk("labels"); ok {
 		project.Labels = expandLabels(d)
@@ -215,20 +215,27 @@ func prefixedProject(pid string) string {
 }
 
 func getParentResourceId(d *schema.ResourceData, p *cloudresourcemanager.Project) error {
-	if v, ok := d.GetOk("org_id"); ok {
-		org_id := v.(string)
+	orgId, orgOk := d.GetOk("org_id")
+	folderId, folderOk := d.GetOk("folder_id")
+
+	if orgOk && folderOk && orgId != "" && folderId != "" {
+		return fmt.Errorf("'org_id' and 'folder_id' cannot be both set.")
+	}
+
+	if orgOk && orgId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   org_id,
+			Id:   orgId.(string),
 			Type: "organization",
 		}
 	}
 
-	if v, ok := d.GetOk("folder_id"); ok {
+	if folderOk && folderId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   parseFolderId(v),
+			Id:   parseFolderId(folderId),
 			Type: "folder",
 		}
 	}
+
 	return nil
 }
 
@@ -271,7 +278,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Project parent has changed
 	if d.HasChange("org_id") || d.HasChange("folder_id") {
-		getParentResourceId(d, p)
+		if err := getParentResourceId(d, p); err != nil {
+			return err
+		}
 
 		// Do update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
