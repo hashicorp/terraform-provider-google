@@ -1,4 +1,6 @@
 ## 1.11.1 (Unreleased)
+FEATURES:
+* spanner: New resources to manage IAM for Spanner Databases: google_spanner_database_iam_binding, google_spanner_database_iam_member, and google_spanner_database_iam_policy [GH-1386]
 
 IMPROVEMENTS:
 * compute: Autogenerate `google_vpn_gateway` [GH-1409]
