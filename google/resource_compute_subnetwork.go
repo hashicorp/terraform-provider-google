@@ -3,22 +3,22 @@ package google
 import (
 	"fmt"
 	"log"
-
+	"net"
 	"strings"
+	"time"
 
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"net"
-	"time"
 )
 
 var (
 	SubnetworkBaseApiVersion    = v1
 	SubnetworkVersionedFeatures = []Feature{
 		{Version: v0beta, Item: "secondary_ip_range"},
+		{Version: v0beta, Item: "enable_flow_logs"},
 	}
 )
 
@@ -112,6 +112,11 @@ func resourceComputeSubnetwork() *schema.Resource {
 				},
 			},
 
+			"enable_flow_logs": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -125,6 +130,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 }
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
@@ -142,18 +148,32 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Build the subnetwork parameters
-	subnetwork := &compute.Subnetwork{
+	subnetwork := &computeBeta.Subnetwork{
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
 		IpCidrRange:           d.Get("ip_cidr_range").(string),
 		PrivateIpGoogleAccess: d.Get("private_ip_google_access").(bool),
-		SecondaryIpRanges:     expandSecondaryRanges(d.Get("secondary_ip_range").([]interface{})),
+		SecondaryIpRanges:     expandSecondaryRangesV0Beta(d.Get("secondary_ip_range").([]interface{})),
 		Network:               network.RelativeLink(),
+		EnableFlowLogs:        d.Get("enable_flow_logs").(bool),
 	}
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)
 
-	op, err := config.clientCompute.Subnetworks.Insert(project, region, subnetwork).Do()
+	subnetworkV1 := &compute.Subnetwork{}
+	err = Convert(subnetwork, subnetworkV1)
+	if err != nil {
+		return err
+	}
+	subnetworkV1.ForceSendFields = subnetwork.ForceSendFields
+
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		op, err = config.clientCompute.Subnetworks.Insert(project, region, subnetworkV1).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.Subnetworks.Insert(project, region, subnetwork).Do()
+	}
 
 	if err != nil {
 		return fmt.Errorf("Error creating subnetwork: %s", err)
@@ -164,8 +184,9 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	// "When creating a new subnetwork, its name has to be unique in that project for that region, even across networks.
 	// The same name can appear twice in a project, as long as each one is in a different region."
 	// https://cloud.google.com/compute/docs/subnetworks
+	subnetworkV1.Region = region
 	subnetwork.Region = region
-	d.SetId(createSubnetID(subnetwork))
+	d.SetId(createSubnetID(subnetworkV1))
 
 	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "Creating Subnetwork")
 	if err != nil {
@@ -243,6 +264,7 @@ func resourceComputeSubnetworkReadV0Beta(d *schema.ResourceData, meta interface{
 	d.Set("secondary_ip_range", flattenSecondaryRangesV0Beta(subnetwork.SecondaryIpRanges))
 	d.Set("project", project)
 	d.Set("region", region)
+	d.Set("enable_flow_logs", subnetwork.EnableFlowLogs)
 	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
 	d.Set("fingerprint", subnetwork.Fingerprint)
 
@@ -306,24 +328,31 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		d.SetPartial("ip_cidr_range")
 	}
 
-	if d.HasChange("secondary_ip_range") && computeApiVersion == v0beta {
+	if (d.HasChange("secondary_ip_range") || d.HasChange("enable_flow_logs")) && computeApiVersion == v0beta {
 		v0BetaSubnetwork := &computeBeta.Subnetwork{
-			SecondaryIpRanges: expandSecondaryRangesV0Beta(d.Get("secondary_ip_range").([]interface{})),
-			Fingerprint:       d.Get("fingerprint").(string),
+			Fingerprint: d.Get("fingerprint").(string),
+		}
+		if d.HasChange("secondary_ip_range") {
+			v0BetaSubnetwork.SecondaryIpRanges = expandSecondaryRangesV0Beta(d.Get("secondary_ip_range").([]interface{}))
+		}
+		if d.HasChange("enable_flow_logs") {
+			v0BetaSubnetwork.EnableFlowLogs = d.Get("enable_flow_logs").(bool)
+			v0BetaSubnetwork.ForceSendFields = append(v0BetaSubnetwork.ForceSendFields, "EnableFlowLogs")
 		}
 
 		op, err := config.clientComputeBeta.Subnetworks.Patch(
 			project, region, d.Get("name").(string), v0BetaSubnetwork).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating subnetwork SecondaryIpRanges: %s", err)
+			return fmt.Errorf("Error updating subnetwork %q: %s", d.Id(), err)
 		}
 
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Updating Subnetwork SecondaryIpRanges")
+		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "Updating Subnetwork")
 		if err != nil {
 			return err
 		}
 
 		d.SetPartial("secondary_ip_range")
+		d.SetPartial("enable_flow_logs")
 	}
 
 	d.Partial(false)
