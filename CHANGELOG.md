@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Autogenerate `google_vpn_gateway` [GH-1409]
 * compute: add `enable_flow_logs` field to subnetwork [GH-1385]
+* project: Don't fail if `folder_id` and `org_id` are set but one is empty for `google_project` [GH-1425]
 
 ## 1.11.0 (May 01, 2018)
 
