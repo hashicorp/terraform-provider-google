@@ -292,9 +292,11 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 					testAccCheckInstanceGroupManagerAutoHealingPolicies("google_compute_instance_group_manager.igm-basic", hck, 10),
 				),
 			},
-			// TODO: Add import test for auto healing policies
-			// Import doesn't work for auto healing policies because import is not supported
-			// for beta features. See https://github.com/terraform-providers/terraform-provider-google/issues/694
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_group_manager.igm-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -121,5 +122,9 @@ func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange)
 }
 
 func createSubnetID(s *compute.Subnetwork) string {
+	return fmt.Sprintf("%s/%s", s.Region, s.Name)
+}
+
+func createSubnetIDBeta(s *computeBeta.Subnetwork) string {
 	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }
