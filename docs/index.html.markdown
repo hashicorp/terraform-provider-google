@@ -112,5 +112,6 @@ deprecation policy, and no SLA, but are otherwise considered to be feature-compl
 with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
 is publicly announced, and is when they generally become publicly available.
 
-Resources will automatically be provisioned using Beta APIs when you specify a feature
-marked Beta in your Terraform config file.
+Terraform resources that support beta features will always use the Beta APIs to provision
+the resource. Importing a resource that supports beta features will always import those
+features, even if the resource was created in a matter that was not explicitly beta.
