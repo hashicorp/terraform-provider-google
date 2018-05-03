@@ -215,21 +215,21 @@ func prefixedProject(pid string) string {
 }
 
 func getParentResourceId(d *schema.ResourceData, p *cloudresourcemanager.Project) error {
-	orgId, orgOk := d.GetOk("org_id")
-	folderId, folderOk := d.GetOk("folder_id")
+	orgId := d.Get("org_id").(string)
+	folderId := d.Get("folder_id").(string)
 
-	if orgOk && folderOk && orgId != "" && folderId != "" {
+	if orgId != "" && folderId != "" {
 		return fmt.Errorf("'org_id' and 'folder_id' cannot be both set.")
 	}
 
-	if orgOk && orgId != "" {
+	if orgId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   orgId.(string),
+			Id:   orgId,
 			Type: "organization",
 		}
 	}
 
-	if folderOk && folderId != "" {
+	if folderId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
 			Id:   parseFolderId(folderId),
 			Type: "folder",
