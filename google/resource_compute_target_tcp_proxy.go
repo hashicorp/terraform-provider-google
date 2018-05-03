@@ -347,7 +347,7 @@ func flattenComputeTargetTcpProxyDescription(v interface{}) interface{} {
 func flattenComputeTargetTcpProxyProxyId(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
