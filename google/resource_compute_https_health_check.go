@@ -393,7 +393,7 @@ func resourceComputeHttpsHealthCheckImport(d *schema.ResourceData, meta interfac
 func flattenComputeHttpsHealthCheckCheckIntervalSec(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -411,7 +411,7 @@ func flattenComputeHttpsHealthCheckDescription(v interface{}) interface{} {
 func flattenComputeHttpsHealthCheckHealthyThreshold(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -429,7 +429,7 @@ func flattenComputeHttpsHealthCheckName(v interface{}) interface{} {
 func flattenComputeHttpsHealthCheckPort(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -443,7 +443,7 @@ func flattenComputeHttpsHealthCheckRequestPath(v interface{}) interface{} {
 func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -453,7 +453,7 @@ func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}) interface{} {
 func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.Atoi(strVal); err == nil {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
