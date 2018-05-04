@@ -17,14 +17,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-type TerraformResourceData interface {
-	HasChange(string) bool
-	GetOk(string) (interface{}, bool)
-	Set(string, interface{}) error
-	SetId(string)
-	Id() string
-}
-
 // getRegionFromZone returns the region from a zone for Google cloud.
 func getRegionFromZone(zone string) string {
 	if zone != "" && len(zone) > 2 {
