@@ -12,11 +12,22 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"google.golang.org/api/container/v1"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/v1/projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", ProjectRegex))
+
+	ContainerClusterBaseApiVersion    = v1
+	ContainerClusterVersionedFeatures = []Feature{
+		{Version: v1beta1, Item: "pod_security_policy_config"},
+		{Version: v1beta1, Item: "node_config.*.taint"},
+		{Version: v1beta1, Item: "node_config.*.workload_metadata_config"},
+		{Version: v1beta1, Item: "private_cluster"},
+		{Version: v1beta1, Item: "master_ipv4_cidr_block"},
+		{Version: v1beta1, Item: "region"},
+	}
 
 	networkConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -464,6 +475,7 @@ func resourceContainerCluster() *schema.Resource {
 }
 
 func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) error {
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -639,8 +651,25 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	mutexKV.Lock(containerClusterMutexKey(project, location, clusterName))
 	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
 
-	parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
-	op, err := config.clientContainerBeta.Projects.Locations.Clusters.Create(parent, req).Do()
+	var op interface{}
+	switch containerAPIVersion {
+	case v1:
+		reqV1 := &container.CreateClusterRequest{}
+		err = Convert(req, reqV1)
+		if err != nil {
+			return err
+		}
+		op, err = config.clientContainer.Projects.Zones.Clusters.Create(project, location, reqV1).Do()
+	case v1beta1:
+		reqV1Beta := &containerBeta.CreateClusterRequest{}
+		err = Convert(req, reqV1Beta)
+		if err != nil {
+			return err
+		}
+
+		parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
+		op, err = config.clientContainerBeta.Projects.Locations.Clusters.Create(parent, reqV1Beta).Do()
+	}
 	if err != nil {
 		return err
 	}
@@ -658,8 +687,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[INFO] GKE cluster %s has been created", clusterName)
 
 	if d.Get("remove_default_node_pool").(bool) {
-		parent := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
-		op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(parent).Do()
+		var op interface{}
+		switch containerAPIVersion {
+		case v1:
+			op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
+				project, location, clusterName, "default-pool").Do()
+		case v1beta1:
+			parent := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(parent).Do()
+		}
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
@@ -673,6 +709,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) error {
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -686,9 +723,20 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	cluster := &containerBeta.Cluster{}
+	var clust interface{}
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		name := containerClusterFullName(project, location, d.Get("name").(string))
-		cluster, err = config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+		switch containerAPIVersion {
+		case v1:
+			clust, err = config.clientContainer.Projects.Zones.Clusters.Get(
+				project, location, d.Get("name").(string)).Do()
+		case v1beta1:
+			name := containerClusterFullName(project, location, d.Get("name").(string))
+			clust, err = config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		err = Convert(clust, cluster)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -786,6 +834,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	containerAPIVersion := getContainerApiVersion(d, ContainerClusterBaseApiVersion, ContainerClusterVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -805,10 +854,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	lockKey := containerClusterMutexKey(project, location, clusterName)
 
-	updateFunc := func(req *containerBeta.UpdateClusterRequest, updateDescription string) func() error {
+	updateFunc := func(req *container.UpdateClusterRequest, updateDescription string) func() error {
 		return func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+			var err error
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.Update(project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.UpdateClusterRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := containerClusterFullName(project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.Update(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
@@ -822,9 +883,14 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	// if the order of updating fields does matter, it is called out explicitly.
 	if d.HasChange("master_authorized_networks_config") {
 		c := d.Get("master_authorized_networks_config")
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
-				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
+		conf := &container.MasterAuthorizedNetworksConfig{}
+		err := Convert(expandMasterAuthorizedNetworksConfig(c), conf)
+		if err != nil {
+			return err
+		}
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredMasterAuthorizedNetworksConfig: conf,
 			},
 		}
 
@@ -852,8 +918,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		// Only upgrade the master if the current version is lower than the desired version
 		if cur.LessThan(des) {
-			req := &containerBeta.UpdateClusterRequest{
-				Update: &containerBeta.ClusterUpdate{
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
 					DesiredMasterVersion: desiredMasterVersion,
 				},
 			}
@@ -870,8 +936,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("node_version") {
 		desiredNodeVersion := d.Get("node_version").(string)
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
 				DesiredNodeVersion: desiredNodeVersion,
 			},
 		}
@@ -889,9 +955,14 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("addons_config") {
 		if ac, ok := d.GetOk("addons_config"); ok {
-			req := &containerBeta.UpdateClusterRequest{
-				Update: &containerBeta.ClusterUpdate{
-					DesiredAddonsConfig: expandClusterAddonsConfig(ac),
+			conf := &container.AddonsConfig{}
+			err := Convert(expandClusterAddonsConfig(ac), conf)
+			if err != nil {
+				return err
+			}
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredAddonsConfig: conf,
 				},
 			}
 
@@ -908,20 +979,37 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("maintenance_policy") {
-		var req *containerBeta.SetMaintenancePolicyRequest
+		var req *container.SetMaintenancePolicyRequest
 		if mp, ok := d.GetOk("maintenance_policy"); ok {
-			req = &containerBeta.SetMaintenancePolicyRequest{
-				MaintenancePolicy: expandMaintenancePolicy(mp),
+			pol := &container.MaintenancePolicy{}
+			err := Convert(expandMaintenancePolicy(mp), pol)
+			if err != nil {
+				return err
+			}
+			req = &container.SetMaintenancePolicyRequest{
+				MaintenancePolicy: pol,
 			}
 		} else {
-			req = &containerBeta.SetMaintenancePolicyRequest{
+			req = &container.SetMaintenancePolicyRequest{
 				NullFields: []string{"MaintenancePolicy"},
 			}
 		}
 
 		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetMaintenancePolicy(name, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.SetMaintenancePolicy(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetMaintenancePolicyRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := containerClusterFullName(project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetMaintenancePolicy(name, reqV1Beta).Do()
+			}
 
 			if err != nil {
 				return err
@@ -956,8 +1044,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			azSet.Add(location)
 		}
 
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
 				DesiredLocations: convertStringSet(azSet),
 			},
 		}
@@ -972,8 +1060,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			azSetNew.Add(location)
 		}
 		if !azSet.Equal(azSetNew) {
-			req = &containerBeta.UpdateClusterRequest{
-				Update: &containerBeta.ClusterUpdate{
+			req = &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
 					DesiredLocations: convertStringSet(azSetNew),
 				},
 			}
@@ -992,15 +1080,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("enable_legacy_abac") {
 		enabled := d.Get("enable_legacy_abac").(bool)
-		req := &containerBeta.SetLegacyAbacRequest{
+		req := &container.SetLegacyAbacRequest{
 			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		}
 
 		updateF := func() error {
 			log.Println("[DEBUG] updating enable_legacy_abac")
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetLegacyAbac(name, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.LegacyAbac(project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetLegacyAbacRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := containerClusterFullName(project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetLegacyAbac(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
@@ -1024,8 +1123,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("monitoring_service") {
 		desiredMonitoringService := d.Get("monitoring_service").(string)
 
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
 				DesiredMonitoringService: desiredMonitoringService,
 			},
 		}
@@ -1043,14 +1142,32 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("network_policy") {
 		np := d.Get("network_policy")
-		req := &containerBeta.SetNetworkPolicyRequest{
-			NetworkPolicy: expandNetworkPolicy(np),
+
+		pol := &container.NetworkPolicy{}
+		err := Convert(expandNetworkPolicy(np), pol)
+		if err != nil {
+			return err
+		}
+		req := &container.SetNetworkPolicyRequest{
+			NetworkPolicy: pol,
 		}
 
 		updateF := func() error {
 			log.Println("[DEBUG] updating network_policy")
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetNetworkPolicy(name, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.SetNetworkPolicy(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetNetworkPolicyRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := containerClusterFullName(project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetNetworkPolicy(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
@@ -1089,12 +1206,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("logging_service") {
 		logging := d.Get("logging_service").(string)
 
-		req := &containerBeta.SetLoggingServiceRequest{
+		req := &container.SetLoggingServiceRequest{
 			LoggingService: logging,
 		}
 		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetLogging(name, req).Do()
+			var op interface{}
+			switch containerAPIVersion {
+			case v1:
+				op, err = config.clientContainer.Projects.Zones.Clusters.Logging(
+					project, location, clusterName, req).Do()
+			case v1beta1:
+				reqV1Beta := &containerBeta.SetLoggingServiceRequest{}
+				err = Convert(req, reqV1Beta)
+				if err != nil {
+					return err
+				}
+				name := containerClusterFullName(project, location, clusterName)
+				op, err = config.clientContainerBeta.Projects.Locations.Clusters.SetLogging(name, reqV1Beta).Do()
+			}
 			if err != nil {
 				return err
 			}
@@ -1138,8 +1267,15 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("remove_default_node_pool") && d.Get("remove_default_node_pool").(bool) {
-		name := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
-		op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(name).Do()
+		var op interface{}
+		switch containerAPIVersion {
+		case v1:
+			op, err = config.clientContainer.Projects.Zones.Clusters.NodePools.Delete(
+				project, location, clusterName, "default-pool").Do()
+		case v1beta1:
+			name := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(name).Do()
+		}
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}

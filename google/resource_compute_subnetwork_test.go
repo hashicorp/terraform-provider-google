@@ -193,11 +193,7 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 						"enable_flow_logs", "true"),
 				),
 			},
-			{
-				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
+			// no import, as import currently doesn't work for beta
 			{
 				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, false),
 				Check: resource.ComposeTestCheckFunc(
@@ -206,11 +202,6 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
 						"enable_flow_logs", "false"),
 				),
-			},
-			{
-				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})

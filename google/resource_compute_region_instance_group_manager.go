@@ -12,7 +12,15 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
+
+var RegionInstanceGroupManagerBaseApiVersion = v1
+var RegionInstanceGroupManagerVersionedFeatures = []Feature{
+	Feature{Version: v0beta, Item: "auto_healing_policies"},
+	Feature{Version: v0beta, Item: "distribution_policy_zones"},
+	Feature{Version: v0beta, Item: "rolling_update_policy"},
+}
 
 func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
@@ -222,6 +230,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 }
 
 func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -247,7 +256,19 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		ForceSendFields: []string{"TargetSize"},
 	}
 
-	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Insert(project, d.Get("region").(string), manager).Do()
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		managerV1 := &compute.InstanceGroupManager{}
+		err = Convert(manager, managerV1)
+		if err != nil {
+			return err
+		}
+		managerV1.ForceSendFields = manager.ForceSendFields
+		op, err = config.clientCompute.RegionInstanceGroupManagers.Insert(project, d.Get("region").(string), managerV1).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.RegionInstanceGroupManagers.Insert(project, d.Get("region").(string), manager).Do()
+	}
 
 	if err != nil {
 		return fmt.Errorf("Error creating RegionInstanceGroupManager: %s", err)
@@ -266,6 +287,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBeta.InstanceGroupManager, error)
 
 func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
+	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -274,12 +296,32 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.
 	}
 
 	region := d.Get("region").(string)
+	manager := &computeBeta.InstanceGroupManager{}
 
-	manager, err := config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
+	switch computeApiVersion {
+	case v1:
+		v1Manager := &compute.InstanceGroupManager{}
+		v1Manager, err = config.clientCompute.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
+
+		if v1Manager == nil {
+			log.Printf("[WARN] Removing Region Instance Group Manager %q because it's gone", d.Get("name").(string))
+
+			// The resource doesn't exist anymore
+			d.SetId("")
+			return nil, nil
+		}
+
+		err = Convert(v1Manager, manager)
+		if err != nil {
+			return nil, err
+		}
+	case v0beta:
+		manager, err = config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, d.Id()).Do()
+	}
+
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", d.Get("name").(string)))
 	}
-
 	return manager, nil
 }
 
@@ -344,6 +386,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 }
 
 func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersionUpdate(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -368,8 +411,27 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			TargetPools: targetPools,
 		}
 
-		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.SetTargetPools(
-			project, region, d.Id(), setTargetPools).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setTargetPoolsV1 := &compute.RegionInstanceGroupManagersSetTargetPoolsRequest{}
+			err = Convert(setTargetPools, setTargetPoolsV1)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.RegionInstanceGroupManagers.SetTargetPools(
+				project, region, d.Id(), setTargetPoolsV1).Do()
+		case v0beta:
+			setTargetPoolsV0beta := &computeBeta.RegionInstanceGroupManagersSetTargetPoolsRequest{}
+			err = Convert(setTargetPools, setTargetPoolsV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.RegionInstanceGroupManagers.SetTargetPools(
+				project, region, d.Id(), setTargetPoolsV0beta).Do()
+		}
 
 		if err != nil {
 			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
@@ -390,8 +452,27 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			InstanceTemplate: d.Get("instance_template").(string),
 		}
 
-		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.SetInstanceTemplate(
-			project, region, d.Id(), setInstanceTemplate).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setInstanceTemplateV1 := &compute.RegionInstanceGroupManagersSetTemplateRequest{}
+			err = Convert(setInstanceTemplate, setInstanceTemplateV1)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.RegionInstanceGroupManagers.SetInstanceTemplate(
+				project, region, d.Id(), setInstanceTemplateV1).Do()
+		case v0beta:
+			setInstanceTemplateV0beta := &computeBeta.RegionInstanceGroupManagersSetTemplateRequest{}
+			err = Convert(setInstanceTemplate, setInstanceTemplateV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.RegionInstanceGroupManagers.SetInstanceTemplate(
+				project, region, d.Id(), setInstanceTemplateV0beta).Do()
+		}
 
 		if err != nil {
 			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
@@ -436,8 +517,27 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		}
 
 		// Make the request:
-		op, err := config.clientComputeBeta.RegionInstanceGroups.SetNamedPorts(
-			project, region, d.Id(), setNamedPorts).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			setNamedPortsV1 := &compute.RegionInstanceGroupsSetNamedPortsRequest{}
+			err = Convert(setNamedPorts, setNamedPortsV1)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientCompute.RegionInstanceGroups.SetNamedPorts(
+				project, region, d.Id(), setNamedPortsV1).Do()
+		case v0beta:
+			setNamedPortsV0beta := &computeBeta.RegionInstanceGroupsSetNamedPortsRequest{}
+			err = Convert(setNamedPorts, setNamedPortsV0beta)
+			if err != nil {
+				return err
+			}
+
+			op, err = config.clientComputeBeta.RegionInstanceGroups.SetNamedPorts(
+				project, region, d.Id(), setNamedPortsV0beta).Do()
+		}
 
 		if err != nil {
 			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
@@ -454,8 +554,15 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("target_size") {
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Resize(
-			project, region, d.Id(), targetSize).Do()
+		var op interface{}
+		switch computeApiVersion {
+		case v1:
+			op, err = config.clientCompute.RegionInstanceGroupManagers.Resize(
+				project, region, d.Id(), targetSize).Do()
+		case v0beta:
+			op, err = config.clientComputeBeta.RegionInstanceGroupManagers.Resize(
+				project, region, d.Id(), targetSize).Do()
+		}
 
 		if err != nil {
 			return fmt.Errorf("Error resizing RegionInstanceGroupManager: %s", err)
@@ -498,6 +605,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 }
 
 func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, RegionInstanceGroupManagerBaseApiVersion, RegionInstanceGroupManagerVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -507,7 +615,13 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	region := d.Get("region").(string)
 
-	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Delete(project, region, d.Id()).Do()
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		op, err = config.clientCompute.RegionInstanceGroupManagers.Delete(project, region, d.Id()).Do()
+	case v0beta:
+		op, err = config.clientComputeBeta.RegionInstanceGroupManagers.Delete(project, region, d.Id()).Do()
+	}
 
 	if err != nil {
 		return fmt.Errorf("Error deleting region instance group manager: %s", err)
