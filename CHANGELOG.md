@@ -1,15 +1,15 @@
-## 1.12.0 (Unreleased)
+## 1.12.0 (May 04, 2018)
 FEATURES:
-* spanner: New resources to manage IAM for Spanner Databases: google_spanner_database_iam_binding, google_spanner_database_iam_member, and google_spanner_database_iam_policy [GH-1386]
-* spanner: New resources to manage IAM for Spanner Instances: google_spanner_instance_iam_binding, google_spanner_instance_iam_member, and google_spanner_instance_iam_policy [GH-1387]
+* spanner: New resources to manage IAM for Spanner Databases: google_spanner_database_iam_binding, google_spanner_database_iam_member, and google_spanner_database_iam_policy ([#1386](https://github.com/terraform-providers/terraform-provider-google/issues/1386))
+* spanner: New resources to manage IAM for Spanner Instances: google_spanner_instance_iam_binding, google_spanner_instance_iam_member, and google_spanner_instance_iam_policy ([#1387](https://github.com/terraform-providers/terraform-provider-google/issues/1387))
 
 IMPROVEMENTS:
-* compute: Autogenerate `google_vpn_gateway` [GH-1409]
-* compute: add `enable_flow_logs` field to subnetwork [GH-1385]
-* project: Don't fail if `folder_id` and `org_id` are set but one is empty for `google_project` [GH-1425]
+* compute: Autogenerate `google_vpn_gateway` ([#1409](https://github.com/terraform-providers/terraform-provider-google/issues/1409))
+* compute: add `enable_flow_logs` field to subnetwork ([#1385](https://github.com/terraform-providers/terraform-provider-google/issues/1385))
+* project: Don't fail if `folder_id` and `org_id` are set but one is empty for `google_project` ([#1425](https://github.com/terraform-providers/terraform-provider-google/issues/1425))
 
 BUG FIXES:
-* compute: Always parse fixed64 string to int64 even on 32 bits platform to prevent out-of-range crash. [GH-1429]
+* compute: Always parse fixed64 string to int64 even on 32 bits platform to prevent out-of-range crash. ([#1429](https://github.com/terraform-providers/terraform-provider-google/issues/1429))
 
 ## 1.11.0 (May 01, 2018)
 
