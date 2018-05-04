@@ -143,6 +143,10 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("address_type", addr.AddressType)
+	// The API returns an empty AddressType for EXTERNAL address.
+	if addr.AddressType == "" {
+		d.Set("address_type", addressTypeExternal)
+	}
 	d.Set("subnetwork", addr.Subnetwork)
 	d.Set("address", addr.Address)
 	d.Set("self_link", addr.SelfLink)
