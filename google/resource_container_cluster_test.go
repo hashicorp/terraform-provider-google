@@ -431,9 +431,6 @@ func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
-				ImportStateVerifyIgnore: []string{
-					"private_cluster",
-					"master_ipv4_cidr_block"},
 			},
 		},
 	})
@@ -642,17 +639,11 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        "google_container_cluster.with_workload_metadata_config",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-				// Import always uses the v1 API, so beta features don't get imported.
-				ImportStateVerifyIgnore: []string{
-					"node_config.0.workload_metadata_config.#",
-					"node_config.0.workload_metadata_config.0.node_metadata",
-					"node_pool.0.node_config.0.workload_metadata_config.#",
-					"node_pool.0.node_config.0.workload_metadata_config.0.node_metadata",
-					"min_master_version"},
+				ResourceName:            "google_container_cluster.with_workload_metadata_config",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 		},
 	})
@@ -1125,8 +1116,6 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
-				// Import always uses the v1 API, so beta features don't get imported.
-				ImportStateVerifyIgnore: []string{"pod_security_policy_config.#", "pod_security_policy_config.0.enabled"},
 			},
 			{
 				Config: testAccContainerCluster_withPodSecurityPolicy(clusterName, false),
@@ -1140,8 +1129,6 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
-				// Import always uses the v1 API, so beta features don't get imported.
-				ImportStateVerifyIgnore: []string{"pod_security_policy_config.#", "pod_security_policy_config.0.enabled"},
 			},
 		},
 	})
