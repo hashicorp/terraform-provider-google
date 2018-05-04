@@ -32,8 +32,6 @@ func resourceComputeAddress() *schema.Resource {
 		SchemaVersion: 1,
 		MigrateState:  resourceComputeAddressMigrateState,
 
-		// These fields mostly correlate to the fields in the beta Address
-		// resource. See https://cloud.google.com/compute/docs/reference/beta/addresses#resource
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -144,16 +142,10 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
 	}
 
-	// The v1 API does not include an AddressType field, as it only supports
-	// external addresses. An empty AddressType implies a v1 address that has
-	// been converted to v0beta, and thus an EXTERNAL address.
 	d.Set("address_type", addr.AddressType)
-	if addr.AddressType == "" {
-		d.Set("address_type", addressTypeExternal)
-	}
-	d.Set("subnetwork", ConvertSelfLinkToV1(addr.Subnetwork))
+	d.Set("subnetwork", addr.Subnetwork)
 	d.Set("address", addr.Address)
-	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
+	d.Set("self_link", addr.SelfLink)
 	d.Set("name", addr.Name)
 	d.Set("project", addressId.Project)
 	d.Set("region", GetResourceNameFromSelfLink(addr.Region))
