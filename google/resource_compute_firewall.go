@@ -10,7 +10,11 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
+
+var FirewallBaseApiVersion = v1
+var FirewallVersionedFeatures = []Feature{}
 
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -189,6 +193,7 @@ func resourceComputeFirewallRuleHash(v interface{}) int {
 }
 
 func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, FirewallBaseApiVersion, FirewallVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -201,9 +206,30 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	op, err := config.clientComputeBeta.Firewalls.Insert(project, firewall).Do()
-	if err != nil {
-		return fmt.Errorf("Error creating firewall: %s", err)
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		firewallV1 := &compute.Firewall{}
+		err = Convert(firewall, firewallV1)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientCompute.Firewalls.Insert(project, firewallV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating firewall: %s", err)
+		}
+	case v0beta:
+		firewallV0Beta := &computeBeta.Firewall{}
+		err = Convert(firewall, firewallV0Beta)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientComputeBeta.Firewalls.Insert(project, firewallV0Beta).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating firewall: %s", err)
+		}
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -242,6 +268,7 @@ func flattenFirewallDenied(denied []*computeBeta.FirewallDenied) []map[string]in
 }
 
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, FirewallBaseApiVersion, FirewallVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -249,9 +276,28 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	firewall, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Firewall %q", d.Get("name").(string)))
+	firewall := &computeBeta.Firewall{}
+	switch computeApiVersion {
+	case v1:
+		firewallV1, err := config.clientCompute.Firewalls.Get(project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Firewall %q", d.Get("name").(string)))
+		}
+
+		err = Convert(firewallV1, firewall)
+		if err != nil {
+			return err
+		}
+	case v0beta:
+		firewallV0Beta, err := config.clientComputeBeta.Firewalls.Get(project, d.Id()).Do()
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Firewall %q", d.Get("name").(string)))
+		}
+
+		err = Convert(firewallV0Beta, firewall)
+		if err != nil {
+			return err
+		}
 	}
 
 	d.Set("self_link", ConvertSelfLinkToV1(firewall.SelfLink))
@@ -273,6 +319,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersionUpdate(d, FirewallBaseApiVersion, FirewallVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -287,9 +334,30 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	op, err := config.clientComputeBeta.Firewalls.Update(project, d.Id(), firewall).Do()
-	if err != nil {
-		return fmt.Errorf("Error updating firewall: %s", err)
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		firewallV1 := &compute.Firewall{}
+		err = Convert(firewall, firewallV1)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientCompute.Firewalls.Update(project, d.Id(), firewallV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating firewall: %s", err)
+		}
+	case v0beta:
+		firewallV0Beta := &computeBeta.Firewall{}
+		err = Convert(firewall, firewallV0Beta)
+		if err != nil {
+			return err
+		}
+
+		op, err = config.clientComputeBeta.Firewalls.Update(project, d.Id(), firewallV0Beta).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating firewall: %s", err)
+		}
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Firewall")
@@ -303,6 +371,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
+	computeApiVersion := getComputeApiVersion(d, FirewallBaseApiVersion, FirewallVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -311,9 +380,18 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Delete the firewall
-	op, err := config.clientComputeBeta.Firewalls.Delete(project, d.Id()).Do()
-	if err != nil {
-		return fmt.Errorf("Error deleting firewall: %s", err)
+	var op interface{}
+	switch computeApiVersion {
+	case v1:
+		op, err = config.clientCompute.Firewalls.Delete(project, d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting firewall: %s", err)
+		}
+	case v0beta:
+		op, err = config.clientComputeBeta.Firewalls.Delete(project, d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting firewall: %s", err)
+		}
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting Firewall")
