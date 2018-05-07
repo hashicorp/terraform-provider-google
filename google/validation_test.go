@@ -247,24 +247,22 @@ func TestOrEmpty(t *testing.T) {
 		ExpectValidationErrors bool
 	}{
 		"accept empty value": {
-			Value:                  "",
-			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			Value: "",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is accepted when valid": {
-			Value:                  "foo",
-			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			Value: "valid",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is rejected if invalid": {
-			Value:                  "bar",
-			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			Value: "invalid",
 			ExpectValidationErrors: true,
 		},
 	}
 
 	for tn, tc := range cases {
-		_, errors := tc.ValidateFunc(tc.Value, tn)
+		validateFunc := orEmpty(validation.StringInSlice([]string{"valid"}, false))
+		_, errors := validateFunc(tc.Value, tn)
 		if len(errors) > 0 && !tc.ExpectValidationErrors {
 			t.Errorf("%s: unexpected errors %s", tn, errors)
 		} else if len(errors) == 0 && tc.ExpectValidationErrors {
