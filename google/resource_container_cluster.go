@@ -193,11 +193,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"cluster_ipv4_cidr": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validateRFC1918Network(8, 32),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 
 			"description": {
