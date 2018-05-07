@@ -197,7 +197,7 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRFC1918Network(8, 32),
+				ValidateFunc: orEmpty(validateRFC1918Network(8, 32)),
 			},
 
 			"description": {
