@@ -3,10 +3,11 @@ package google
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var iamBindingSchema = map[string]*schema.Schema{
@@ -82,9 +83,15 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		eBinding := getResourceIamBinding(d)
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Binding for role %q not found for non-existant resource %s, removing from state file.", updater.DescribeResource(), eBinding.Role)
+				d.SetId("")
+				return nil
+			}
+
 			return err
 		}
-		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
+		log.Printf("[DEBUG]: Retrieved policy for %s: %+v", updater.DescribeResource(), p)
 
 		var binding *cloudresourcemanager.Binding
 		for _, b := range p.Bindings {
@@ -95,7 +102,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 			break
 		}
 		if binding == nil {
-			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, removing from state file.\n", eBinding.Role, updater.DescribeResource())
+			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, removing from state file.", eBinding.Role, updater.DescribeResource())
 			d.SetId("")
 			return nil
 		}
@@ -118,12 +125,18 @@ func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
 		}
 		id, role := s[0], s[1]
+
+		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
 		d.Set("role", role)
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
 		}
+
+		// Set the ID again so that the ID matches the ID it would have if it had been created via TF.
+		// Use the current ID in case it changed in the resourceIdParserFunc.
+		d.SetId(d.Id() + "/" + role)
 		// It is possible to return multiple bindings, since we can learn about all the bindings
 		// for this resource here.  Unfortunately, `terraform import` has some messy behavior here -
 		// there's no way to know at this point which resource is being imported, so it's not possible
@@ -197,6 +210,10 @@ func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.D
 			return nil
 		})
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
+				return nil
+			}
 			return err
 		}
 

@@ -3,10 +3,11 @@ package google
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/cloudresourcemanager/v1"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var IamMemberBaseSchema = map[string]*schema.Schema{
@@ -38,6 +39,8 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role username'.", s)
 		}
 		id, role, member := s[0], s[1], s[2]
+
+		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
 		d.Set("role", role)
 		d.Set("member", member)
@@ -45,6 +48,10 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		if err != nil {
 			return nil, err
 		}
+
+		// Set the ID again so that the ID matches the ID it would have if it had been created via TF.
+		// Use the current ID in case it changed in the resourceIdParserFunc.
+		d.SetId(d.Id() + "/" + role + "/" + member)
 		return []*schema.ResourceData{d}, nil
 	}
 }
@@ -107,6 +114,11 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		eMember := getResourceIamMember(d)
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Binding of member %q with role %q does not exist for non-existant resource %s, removing from state.", eMember.Members[0], eMember.Role, updater.DescribeResource())
+				d.SetId("")
+				return nil
+			}
 			return err
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
@@ -188,6 +200,10 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 			return nil
 		})
 		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist for non-existant resource %q.", member.Members[0], member.Role, updater.GetResourceId())
+				return nil
+			}
 			return err
 		}
 

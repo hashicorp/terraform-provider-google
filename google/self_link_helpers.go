@@ -70,6 +70,10 @@ func GetResourceNameFromSelfLink(link string) string {
 	return parts[len(parts)-1]
 }
 
+func NameFromSelfLinkStateFunc(v interface{}) string {
+	return GetResourceNameFromSelfLink(v.(string))
+}
+
 func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
 }

@@ -57,6 +57,10 @@ func (e SqlAdminOperationError) Error() string {
 }
 
 func sqladminOperationWait(config *Config, op *sqladmin.Operation, project, activity string) error {
+	return sqladminOperationWaitTime(config, op, project, activity, 10)
+}
+
+func sqladminOperationWaitTime(config *Config, op *sqladmin.Operation, project, activity string, timeoutMinutes int) error {
 	w := &SqlAdminOperationWaiter{
 		Service: config.clientSqlAdmin,
 		Op:      op,
@@ -64,7 +68,7 @@ func sqladminOperationWait(config *Config, op *sqladmin.Operation, project, acti
 	}
 
 	state := w.Conf()
-	state.Timeout = 10 * time.Minute
+	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
 	state.MinTimeout = 2 * time.Second
 	state.Delay = 5 * time.Second
 	opRaw, err := state.WaitForState()

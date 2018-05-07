@@ -9,11 +9,31 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccDataSourceGoogleActiveFolder(t *testing.T) {
+func TestAccDataSourceGoogleActiveFolder_default(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform-test-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceGoogleActiveFolder_space(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform test " + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

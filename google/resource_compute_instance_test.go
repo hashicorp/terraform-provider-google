@@ -13,6 +13,22 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+func computeInstanceImportStep(zone, instanceName string, additionalImportIgnores []string) resource.TestStep {
+	// create_timeout has a default value, but it's deprecated so don't worry about it
+	// metadata is only read into state if set in the config
+	// since importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
+	// it guesses metadata_startup_script
+	ignores := []string{"create_timeout", "metadata.%", "metadata.startup-script", "metadata_startup_script"}
+
+	return resource.TestStep{
+		ResourceName:            "google_compute_instance.foobar",
+		ImportState:             true,
+		ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), zone, instanceName),
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: append(ignores, additionalImportIgnores...),
+	}
+}
+
 func TestAccComputeInstance_basic1(t *testing.T) {
 	t.Parallel()
 
@@ -41,12 +57,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
 				),
 			},
-			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"create_timeout"},
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
 }
@@ -175,6 +186,41 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_PTRRecord(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var ptrName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var ipName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstance_PTRRecord(ptrName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasPTR(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			resource.TestStep{
+				Config: testAccComputeInstance_ip(ipName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_GenerateIP(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -256,11 +302,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -285,11 +327,7 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -314,12 +352,7 @@ func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
-			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"boot_disk.0.initialize_params"},
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -397,11 +430,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 					testAccCheckComputeInstanceBootDisk(&instance, diskName),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -426,11 +455,7 @@ func TestAccComputeInstance_bootDisk_sourceUrl(t *testing.T) {
 					testAccCheckComputeInstanceBootDisk(&instance, diskName),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -478,11 +503,7 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -571,11 +592,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 						"google_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			// Check that updating them works
 			resource.TestStep{
 				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
@@ -584,11 +601,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 						"google_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			// Check that removing them works
 			resource.TestStep{
 				Config: testAccComputeInstance_stopInstanceToUpdate3(instanceName),
@@ -597,11 +610,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 						"google_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -630,11 +639,7 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 						"https://www.googleapis.com/auth/userinfo.email"),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -657,11 +662,7 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 						"google_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -685,11 +686,7 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -713,11 +710,7 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -838,12 +831,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 				),
 				ExpectNonEmptyPlan: true,
 			},
-			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"create_timeout"},
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
 }
@@ -868,11 +856,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 					testAccCheckComputeInstanceHasMultiNic(&instance),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -895,11 +879,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
 
@@ -946,11 +926,7 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
 		},
 	})
 }
@@ -997,12 +973,7 @@ func TestAccComputeInstance_deletionProtectionExplicitTrueAndUpdateFalse(t *test
 					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, true),
 				),
 			},
-			resource.TestStep{
-				ResourceName:            "google_compute_instance.foobar",
-				ImportState:             true,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-central1-a", instanceName),
-				ImportStateVerifyIgnore: []string{"create_timeout"},
-			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.foo"}),
 			// Update deletion_protection to false, otherwise the test harness can't delete the instance
 			resource.TestStep{
 				Config: testAccComputeInstance_basic_deletionProtectionFalse(instanceName),
@@ -1034,11 +1005,7 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "/24"),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
 		},
 	})
 }
@@ -1063,11 +1030,7 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "inst-test-secondary", "172.16.0.0/24"),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
 			resource.TestStep{
 				Config: testAccComputeInstance_secondaryAliasIpRangeUpdate(networkName, subnetName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
@@ -1075,11 +1038,7 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 					testAccCheckComputeInstanceHasAliasIpRange(&instance, "", "10.0.1.0/24"),
 				),
 			},
-			resource.TestStep{
-				ResourceName:  "google_compute_instance.foobar",
-				ImportState:   true,
-				ImportStateId: fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), "us-east1-d", instanceName),
-			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
 		},
 	})
 }
@@ -1216,6 +1175,20 @@ func testAccCheckComputeInstanceAccessConfigHasIP(instance *compute.Instance) re
 			for _, c := range i.AccessConfigs {
 				if c.NatIP == "" {
 					return fmt.Errorf("no NAT IP")
+				}
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			for _, c := range i.AccessConfigs {
+				if c.PublicPtrDomainName == "" {
+					return fmt.Errorf("no PTR Record")
 				}
 			}
 		}
@@ -1704,10 +1677,6 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 	}
-
-	metadata {
-		foo = "bar"
-	}
 }
 `, instance)
 }
@@ -1730,10 +1699,6 @@ resource "google_compute_instance" "foobar" {
 
 	network_interface {
 		network = "default"
-	}
-
-	metadata {
-		foo = "bar"
 	}
 }
 `, instance)
@@ -1832,6 +1797,34 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, ip, instance)
+}
+
+func testAccComputeInstance_PTRRecord(record, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+	tags         = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "debian-8-jessie-v20160803"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			public_ptr_domain_name = "test-record.%s.hashicorptest.com."
+		}
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}
+`, instance, record)
 }
 
 func testAccComputeInstance_generateIp(instance string) string {

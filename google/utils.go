@@ -35,19 +35,6 @@ func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
 }
 
-// getZone reads the "zone" value from the given resource data and falls back
-// to provider's value if not given.  If neither is provided, returns an error.
-func getZone(d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("zone")
-	if !ok {
-		if config.Zone != "" {
-			return config.Zone, nil
-		}
-		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
-	}
-	return GetResourceNameFromSelfLink(res.(string)), nil
-}
-
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
 	res, ok := is.Attributes["region"]
 
@@ -131,24 +118,12 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-func getNetworkNameFromSelfLink(network string) (string, error) {
-	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		return network, nil
-	}
-	// extract the network name from SelfLink URL
-	networkName := network[strings.LastIndex(network, "/")+1:]
-	if networkName == "" {
-		return "", fmt.Errorf("network url not valid")
-	}
-	return networkName, nil
-}
-
 func getRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+	if isGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[WARN] Removing %s because it's gone", resource)
 		// The resource doesn't exist anymore
 		d.SetId("")
@@ -157,6 +132,11 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 	}
 
 	return fmt.Errorf("Error reading %s: %s", resource, err)
+}
+
+func isGoogleApiErrorWithCode(err error, errCode int) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	return ok && gerr != nil && gerr.Code == errCode
 }
 
 func isConflictError(err error) bool {
@@ -294,6 +274,20 @@ func convertStringSet(set *schema.Set) []string {
 
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
+
+	for k, v := range a {
+		merged[k] = v
+	}
+
+	for k, v := range b {
+		merged[k] = v
+	}
+
+	return merged
+}
+
+func mergeResourceMaps(a, b map[string]*schema.Resource) map[string]*schema.Resource {
+	merged := make(map[string]*schema.Resource)
 
 	for k, v := range a {
 		merged[k] = v

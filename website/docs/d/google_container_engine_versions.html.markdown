@@ -44,3 +44,4 @@ The following attributes are exported:
 * `valid_node_versions` - A list of versions available in the given zone for use with node instances.
 * `latest_master_version` - The latest version available in the given zone for use with master instances.
 * `latest_node_version` - The latest version available in the given zone for use with node instances.
+* `default_cluster_version` - Version of Kubernetes the service deploys by default.

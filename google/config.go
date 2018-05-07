@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/version"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -52,6 +51,8 @@ type Config struct {
 
 	client    *http.Client
 	userAgent string
+
+	tokenSource oauth2.TokenSource
 
 	clientBilling                *cloudbilling.Service
 	clientBuild                  *cloudbuild.Service
@@ -137,11 +138,13 @@ func (c *Config) loadAndValidate() error {
 		}
 	}
 
+	c.tokenSource = tokenSource
+
 	client.Transport = logging.NewTransport("Google", client.Transport)
 
-	versionString := terraform.VersionString()
-	userAgent := fmt.Sprintf(
-		"(%s %s) Terraform/%s", runtime.GOOS, runtime.GOARCH, versionString)
+	projectURL := "https://www.terraform.io"
+	userAgent := fmt.Sprintf("Terraform/%s (+%s)",
+		version.String(), projectURL)
 
 	c.client = client
 	c.userAgent = userAgent

@@ -4,6 +4,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
+	"strconv"
+	"strings"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -131,6 +133,33 @@ var schemaNodeConfig = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"taint": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: taintDiffSuppress,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"effect": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NO_SCHEDULE", "PREFER_NO_SCHEDULE", "NO_EXECUTE"}, false),
+						},
+					},
+				},
+			},
+
 			"workload_metadata_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -240,6 +269,21 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
+	if v, ok := nodeConfig["taint"]; ok && len(v.([]interface{})) > 0 {
+		taints := v.([]interface{})
+		nodeTaints := make([]*containerBeta.NodeTaint, 0, len(taints))
+		for _, raw := range taints {
+			data := raw.(map[string]interface{})
+			taint := &containerBeta.NodeTaint{
+				Key:    data["key"].(string),
+				Value:  data["value"].(string),
+				Effect: data["effect"].(string),
+			}
+			nodeTaints = append(nodeTaints, taint)
+		}
+		nc.Taints = nodeTaints
+	}
+
 	if v, ok := nodeConfig["workload_metadata_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.WorkloadMetadataConfig = &containerBeta.WorkloadMetadataConfig{
@@ -269,6 +313,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 		"tags":                     c.Tags,
 		"preemptible":              c.Preemptible,
 		"min_cpu_platform":         c.MinCpuPlatform,
+		"taint":                    flattenTaints(c.Taints),
 		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
 	})
 
@@ -290,6 +335,18 @@ func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []m
 	return result
 }
 
+func flattenTaints(c []*containerBeta.NodeTaint) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	for _, taint := range c {
+		result = append(result, map[string]interface{}{
+			"key":    taint.Key,
+			"value":  taint.Value,
+			"effect": taint.Effect,
+		})
+	}
+	return result
+}
+
 func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -298,4 +355,21 @@ func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []ma
 		})
 	}
 	return result
+}
+
+func taintDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if strings.HasSuffix(k, "#") {
+		oldCount, oldErr := strconv.Atoi(old)
+		newCount, newErr := strconv.Atoi(new)
+		// If either of them isn't a number somehow, or if there's one that we didn't have before.
+		return oldErr != nil || newErr != nil || oldCount == newCount+1
+	} else {
+		lastDot := strings.LastIndex(k, ".")
+		taintKey := d.Get(k[:lastDot] + ".key").(string)
+		if taintKey == "nvidia.com/gpu" {
+			return true
+		} else {
+			return false
+		}
+	}
 }

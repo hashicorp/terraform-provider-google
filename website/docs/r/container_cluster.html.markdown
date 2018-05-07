@@ -72,7 +72,12 @@ output "cluster_ca_certificate" {
 - - -
 
 * `zone` - (Optional) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in.
+    in `initial_node_count` should be created in. Only one of `zone` and `region`
+    may be set. If neither zone nor region are set, the provider zone is used.
+
+* `region` (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+    The region to create the cluster in, for
+    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
@@ -94,7 +99,7 @@ output "cluster_ca_certificate" {
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
-    Defaults to `true`
+    Defaults to `false`
     
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
@@ -116,6 +121,10 @@ output "cluster_ca_certificate" {
 * `master_authorized_networks_config` - (Optional) The desired configuration options
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
     external access (except the cluster node IPs, which GKE automatically whitelists).
+
+* `master_ipv4_cidr_block` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a private
+    [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
+    The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -151,6 +160,11 @@ output "cluster_ca_certificate" {
 * `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
+
+* `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
+    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, which makes
+    the master inaccessible from the public internet and nodes do not get public IP addresses either. It is mandatory to specify
+    `master_ipv4_cidr_block` and `ip_allocation_policy` with this option.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -295,6 +309,10 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
+* `taint` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of
+    [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+    to apply to each node. Structure is documented below.
+
 * `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
 
@@ -308,6 +326,14 @@ The `pod_security_policy_config` block supports:
 
 * `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
     If enabled, pods must be valid under a PodSecurityPolicy to be created.
+
+The `taint` block supports:
+
+* `key` (Required) Key for taint.
+
+* `value` (Required) Value for taint.
+
+* `effect` (Required) Effect for taint. Accepted values are `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, and `NO_EXECUTE`.
 
 The `workload_metadata_config` block supports:
 
@@ -356,8 +382,11 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `zone`, and `name`, e.g.
+GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If
+the project is omitted, the default provider value will be used. Examples:
 
 ```
+$ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/my-cluster
+
 $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
 ```

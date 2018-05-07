@@ -96,7 +96,7 @@ The `allow` block supports:
 
 The `deny` block supports:
 
-* `protocol` - (Required) The name of the protocol to allow. This value can either be one of the following well
+* `protocol` - (Required) The name of the protocol to deny. This value can either be one of the following well
     known protocol strings (tcp, udp, icmp, esp, ah, sctp), or the IP protocol number, or `all`.
 
 * `ports` - (Optional) List of ports and/or port ranges to allow. This can

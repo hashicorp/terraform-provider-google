@@ -6,8 +6,16 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/cloudresourcemanager/v1"
 )
+
+func projectIamMemberImportStep(resourceName, pid, role, member string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      resourceName,
+		ImportStateId:     fmt.Sprintf("%s %s %s", pid, role, member),
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
 
 // Test that an IAM binding can be applied to a project
 func TestAccProjectIamMember_basic(t *testing.T) {
@@ -15,6 +23,9 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
+	resourceName := "google_project_iam_member.acceptance"
+	role := "roles/compute.instanceAdmin"
+	member := "user:admin@hashicorptest.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -28,14 +39,9 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateMemberBasic(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
-						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com"},
-					}, pid),
-				),
+				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, member),
 			},
+			projectIamMemberImportStep(resourceName, pid, role, member),
 		},
 	})
 }
@@ -48,6 +54,12 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := "terraform-" + acctest.RandString(10)
+	resourceName := "google_project_iam_member.acceptance"
+	resourceName2 := "google_project_iam_member.multiple"
+	role := "roles/compute.instanceAdmin"
+	member := "user:admin@hashicorptest.com"
+	member2 := "user:paddy@hashicorp.com"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -61,24 +73,16 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateMemberBasic(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
-						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com"},
-					}, pid),
-				),
+				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, member),
 			},
+			projectIamMemberImportStep(resourceName, pid, role, member),
+
 			// Apply another IAM binding
 			{
-				Config: testAccProjectAssociateMemberMultiple(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.multiple", &cloudresourcemanager.Binding{
-						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
-					}, pid),
-				),
+				Config: testAccProjectAssociateMemberMultiple(pid, pname, org, role, member, role, member2),
 			},
+			projectIamMemberImportStep(resourceName, pid, role, member),
+			projectIamMemberImportStep(resourceName2, pid, role, member2),
 		},
 	})
 }
@@ -91,6 +95,11 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := "terraform-" + acctest.RandString(10)
+	resourceName := "google_project_iam_member.acceptance"
+	role := "roles/compute.instanceAdmin"
+	member := "user:admin@hashicorptest.com"
+	member2 := "user:paddy@hashicorp.com"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -102,16 +111,14 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 					testAccProjectExistingPolicy(pid),
 				),
 			},
+
 			// Apply multiple IAM bindings
 			{
-				Config: testAccProjectAssociateMemberMultiple(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamBindingExists("google_project_iam_member.acceptance", &cloudresourcemanager.Binding{
-						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
-					}, pid),
-				),
+				Config: testAccProjectAssociateMemberMultiple(pid, pname, org, role, member, role, member2),
 			},
+			projectIamMemberImportStep(resourceName, pid, role, member),
+			projectIamMemberImportStep(resourceName, pid, role, member2),
+
 			// Remove the bindings
 			{
 				Config: testAccProject_create(pid, pname, org),
@@ -123,7 +130,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	})
 }
 
-func testAccProjectAssociateMemberBasic(pid, name, org string) string {
+func testAccProjectAssociateMemberBasic(pid, name, org, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -133,13 +140,13 @@ resource "google_project" "acceptance" {
 
 resource "google_project_iam_member" "acceptance" {
   project = "${google_project.acceptance.project_id}"
-  member  = "user:admin@hashicorptest.com"
-  role    = "roles/compute.instanceAdmin"
+  role    = "%s"
+  member  = "%s"
 }
-`, pid, name, org)
+`, pid, name, org, role, member)
 }
 
-func testAccProjectAssociateMemberMultiple(pid, name, org string) string {
+func testAccProjectAssociateMemberMultiple(pid, name, org, role, member, role2, member2 string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -149,14 +156,14 @@ resource "google_project" "acceptance" {
 
 resource "google_project_iam_member" "acceptance" {
   project = "${google_project.acceptance.project_id}"
-  member  = "user:admin@hashicorptest.com"
-  role    = "roles/compute.instanceAdmin"
+  role    = "%s"
+  member  = "%s"
 }
 
 resource "google_project_iam_member" "multiple" {
   project = "${google_project.acceptance.project_id}"
-  member  = "user:paddy@hashicorp.com"
-  role    = "roles/compute.instanceAdmin"
+  role    = "%s"
+  member  = "%s"
 }
-`, pid, name, org)
+`, pid, name, org, role, member, role2, member2)
 }

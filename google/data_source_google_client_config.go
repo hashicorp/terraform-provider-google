@@ -19,6 +19,12 @@ func dataSourceGoogleClientConfig() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"access_token": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
 		},
 	}
 }
@@ -29,6 +35,12 @@ func dataSourceClientConfigRead(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(time.Now().UTC().String())
 	d.Set("project", config.Project)
 	d.Set("region", config.Region)
+
+	token, err := config.tokenSource.Token()
+	if err != nil {
+		return err
+	}
+	d.Set("access_token", token.AccessToken)
 
 	return nil
 }

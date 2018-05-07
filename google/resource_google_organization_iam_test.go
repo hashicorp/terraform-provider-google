@@ -36,6 +36,12 @@ func TestAccOrganizationIam(t *testing.T) {
 				}),
 			},
 			{
+				ResourceName:      "google_organization_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s organizations/%s/roles/%s", org, org, roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Test Iam Binding update
 				Config: testAccOrganizationIamBinding_update(account, roleId, org),
 				Check: testAccCheckGoogleOrganizationIamBindingExists("foo", "test-role", []string{
@@ -44,11 +50,23 @@ func TestAccOrganizationIam(t *testing.T) {
 				}),
 			},
 			{
+				ResourceName:      "google_organization_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s organizations/%s/roles/%s", org, org, roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccOrganizationIamMember_basic(account, org),
 				Check: testAccCheckGoogleOrganizationIamMemberExists("foo", "roles/browser",
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				),
+			},
+			{
+				ResourceName:      "google_organization_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s roles/browser serviceAccount:%s@%s.iam.gserviceaccount.com", org, account, getTestProjectFromEnv()),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
