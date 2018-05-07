@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"regexp"
 	"strings"
 	"testing"
@@ -236,5 +237,38 @@ func TestValidateCloudIoTID(t *testing.T) {
 	es := testStringValidationCases(x, validateCloudIoTID)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate CloudIoT ID names: %v", es)
+	}
+}
+
+func TestOrEmpty(t *testing.T) {
+	cases := map[string]struct {
+		Value                  string
+		ValidateFunc           schema.SchemaValidateFunc
+		ExpectValidationErrors bool
+	}{
+		"accept empty value": {
+			Value:                  "",
+			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			ExpectValidationErrors: false,
+		},
+		"non empty value is accepted when valid": {
+			Value:                  "foo",
+			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			ExpectValidationErrors: false,
+		},
+		"non empty value is rejected if invalid": {
+			Value:                  "bar",
+			ValidateFunc:           orEmpty(validation.StringInSlice([]string{"foo"}, false)),
+			ExpectValidationErrors: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		_, errors := tc.ValidateFunc(tc.Value, tn)
+		if len(errors) > 0 && !tc.ExpectValidationErrors {
+			t.Errorf("%s: unexpected errors %s", tn, errors)
+		} else if len(errors) == 0 && tc.ExpectValidationErrors {
+			t.Errorf("%s: expected errors but got none", tn)
+		}
 	}
 }

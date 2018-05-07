@@ -147,3 +147,13 @@ func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []er
 	}
 	return
 }
+
+func orEmpty(f schema.SchemaValidateFunc) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) ([]string, []error) {
+		v, ok := i.(string)
+		if ok && v == "" {
+			return nil, nil
+		}
+		return f(i, k)
+	}
+}
