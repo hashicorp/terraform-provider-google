@@ -153,6 +153,40 @@ func TestAccProject_labels(t *testing.T) {
 	})
 }
 
+func TestAccProject_deleteDefaultNetwork(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	billingId := getTestBillingAccountFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_deleteDefaultNetwork(pid, pname, org, billingId),
+			},
+		},
+	})
+}
+
+func TestAccProject_parentFolder(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_parentFolder(pid, pname, folderDisplayName, org),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -284,6 +318,35 @@ resource "google_project" "acceptance" {
 
 	l += fmt.Sprintf("}\n}")
 	return r + l
+}
+
+func testAccProject_deleteDefaultNetwork(pid, name, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+	billing_account = "%s" # requires billing to enable compute API
+	auto_create_network = false
+}`, pid, name, org, billing)
+}
+
+func testAccProject_parentFolder(pid, projectName, folderName, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  # ensures we can set both org_id and folder_id as long as only one is not empty.
+  org_id     = ""                            
+  folder_id  = "${google_folder.folder1.id}"
+}
+
+resource "google_folder" "folder1" {
+  display_name = "%s"
+  parent       = "organizations/%s"
+}
+
+`, pid, projectName, folderName, org)
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {

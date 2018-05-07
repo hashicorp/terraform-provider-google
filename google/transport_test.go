@@ -55,11 +55,29 @@ func TestReplaceVars(t *testing.T) {
 			},
 			Expected: "projects/project1/regions/region1/subnetworks/subnetwork1",
 		},
+		"regional schema self-link region": {
+			Template: "projects/{{project}}/regions/{{region}}/subnetworks/{{name}}",
+			SchemaValues: map[string]interface{}{
+				"project": "project1",
+				"region":  "https://www.googleapis.com/compute/v1/projects/project1/regions/region1",
+				"name":    "subnetwork1",
+			},
+			Expected: "projects/project1/regions/region1/subnetworks/subnetwork1",
+		},
 		"zonal schema values": {
 			Template: "projects/{{project}}/zones/{{zone}}/instances/{{name}}",
 			SchemaValues: map[string]interface{}{
 				"project": "project1",
 				"zone":    "zone1",
+				"name":    "instance1",
+			},
+			Expected: "projects/project1/zones/zone1/instances/instance1",
+		},
+		"zonal schema self-link zone": {
+			Template: "projects/{{project}}/zones/{{zone}}/instances/{{name}}",
+			SchemaValues: map[string]interface{}{
+				"project": "project1",
+				"zone":    "https://www.googleapis.com/compute/v1/projects/project1/zones/zone1",
 				"name":    "instance1",
 			},
 			Expected: "projects/project1/zones/zone1/instances/instance1",

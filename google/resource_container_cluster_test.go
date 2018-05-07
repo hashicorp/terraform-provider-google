@@ -32,6 +32,12 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
+			{
+				ResourceName:        "google_container_cluster.primary",
+				ImportStateIdPrefix: fmt.Sprintf("%s/us-central1-a/", getTestProjectFromEnv()),
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
@@ -98,7 +104,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withMasterAuth(t *testing.T) {
+func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -109,8 +115,32 @@ func TestAccContainerCluster_withMasterAuth(t *testing.T) {
 			{
 				Config: testAccContainerCluster_withMasterAuth(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        "google_container_cluster.with_master_auth",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthNoCert(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth_no_cert", "master_auth.0.client_certificate", ""),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_auth_no_cert",
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
@@ -243,6 +273,53 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_regional(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-regional-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_regional(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.regional",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_regionalWithNodePool(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-regional-%s", acctest.RandString(10))
+	npName := fmt.Sprintf("tf-cluster-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_regionalWithNodePool(clusterName, npName),
+			},
+			{
+				ResourceName:        "google_container_cluster.regional",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	t.Parallel()
 
@@ -275,6 +352,38 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_regionalAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_regionalUpdateAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 	t.Parallel()
 
@@ -296,6 +405,35 @@ func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPrivateCluster(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_private_cluster", "private_cluster", "true"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_private_cluster",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateVerifyIgnore: []string{
+					"private_cluster",
+					"master_ipv4_cidr_block"},
 			},
 		},
 	})
@@ -331,6 +469,35 @@ func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
 			},
 			{
 				ResourceName:        "google_container_cluster.with_legacy_abac",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+/*
+	Since GKE disables legacy ABAC by default in Kubernetes version 1.8+, and the default Kubernetes
+	version for GKE is also 1.8+, this test will ensure that legacy ABAC is disabled by default to be
+	more consistent with default settings in the Cloud Console
+*/
+func TestAccContainerCluster_withDefaultLegacyAbac(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_defaultLegacyAbac(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.default_legacy_abac", "enable_legacy_abac", "false"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.default_legacy_abac",
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
@@ -1157,6 +1324,40 @@ resource "google_container_cluster" "with_master_auth" {
 }`, acctest.RandString(10))
 }
 
+func testAccContainerCluster_updateMasterAuthNoCert() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm.123456789"
+		client_certificate_config {
+			issue_client_certificate = false
+		}
+	}
+}`, acctest.RandString(10))
+}
+
+func testAccContainerCluster_withMasterAuthNoCert() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth_no_cert" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm.123456789"
+		client_certificate_config {
+			issue_client_certificate = false
+		}
+	}
+}`, acctest.RandString(10))
+}
+
 func testAccContainerCluster_withNetworkPolicyEnabled(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_network_policy_enabled" {
@@ -1245,6 +1446,27 @@ resource "google_container_cluster" "with_master_authorized_networks" {
 }`, clusterName, cidrBlocks)
 }
 
+func testAccContainerCluster_regional(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "regional" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+}`, clusterName)
+}
+
+func testAccContainerCluster_regionalWithNodePool(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "regional" {
+	name   = "%s"
+	region = "us-central1"
+
+	node_pool {
+		name = "%s"
+	}
+}`, cluster, nodePool)
+}
+
 func testAccContainerCluster_withAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
@@ -1268,8 +1490,35 @@ resource "google_container_cluster" "with_additional_zones" {
 
 	additional_zones = [
 		"us-central1-f",
-		"us-central1-b",
 		"us-central1-c",
+	]
+}`, clusterName)
+}
+
+func testAccContainerCluster_regionalAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-c",
+	]
+}`, clusterName)
+}
+
+func testAccContainerCluster_regionalUpdateAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	region = "us-central1"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-f",
+		"us-central1-b",
 	]
 }`, clusterName)
 }
@@ -1282,6 +1531,15 @@ resource "google_container_cluster" "with_kubernetes_alpha" {
 	initial_node_count = 1
 
 	enable_kubernetes_alpha = true
+}`, clusterName)
+}
+
+func testAccContainerCluster_defaultLegacyAbac(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "default_legacy_abac" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
 }`, clusterName)
 }
 
@@ -1811,4 +2069,46 @@ resource "google_container_cluster" "with_pod_security_policy" {
 		enabled = %v
 	}
 }`, clusterName, enabled)
+}
+
+func testAccContainerCluster_withPrivateCluster(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+	name = "container-net-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+	name                     = "${google_compute_network.container_network.name}"
+	network                  = "${google_compute_network.container_network.name}"
+	ip_cidr_range            = "10.0.36.0/24"
+	region                   = "us-central1"
+	private_ip_google_access = true
+
+	secondary_ip_range {
+		range_name    = "pod"
+		ip_cidr_range = "10.0.0.0/19"
+	}
+
+	secondary_ip_range {
+		range_name    = "svc"
+		ip_cidr_range = "10.0.32.0/22"
+	}
+}
+
+resource "google_container_cluster" "with_private_cluster" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	network = "${google_compute_network.container_network.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+
+	private_cluster = true
+	master_ipv4_cidr_block = "10.42.0.0/28"
+	ip_allocation_policy {
+		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
+		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
+	}
+}`, clusterName, clusterName)
 }

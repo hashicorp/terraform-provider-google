@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudbilling/v1"
@@ -25,7 +26,7 @@ func resourceGoogleProject() *schema.Resource {
 		Delete: resourceGoogleProjectDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceProjectImportState,
 		},
 		MigrateState: resourceGoogleProjectMigrateState,
 
@@ -40,22 +41,25 @@ func resourceGoogleProject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"auto_create_network": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"org_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"folder_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"folder_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"org_id"},
-				StateFunc:     parseFolderId,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Computed:  true,
+				StateFunc: parseFolderId,
 			},
 			"policy_data": &schema.Schema{
 				Type:     schema.TypeString,
@@ -99,7 +103,9 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		Name:      d.Get("name").(string),
 	}
 
-	getParentResourceId(d, project)
+	if err := getParentResourceId(d, project); err != nil {
+		return err
+	}
 
 	if _, ok := d.GetOk("labels"); ok {
 		project.Labels = expandLabels(d)
@@ -121,22 +127,33 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Set the billing account
-	if v, ok := d.GetOk("billing_account"); ok {
-		name := v.(string)
-		ba := cloudbilling.ProjectBillingInfo{
-			BillingAccountName: "billingAccounts/" + name,
-		}
-		_, err = config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+	if _, ok := d.GetOk("billing_account"); ok {
+		err = updateProjectBillingAccount(d, config)
 		if err != nil {
-			d.Set("billing_account", "")
-			if _err, ok := err.(*googleapi.Error); ok {
-				return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
-			}
-			return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
+			return err
 		}
 	}
 
-	return resourceGoogleProjectRead(d, meta)
+	err = resourceGoogleProjectRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	// There's no such thing as "don't auto-create network", only "delete the network
+	// post-creation" - but that's what it's called in the UI and let's not confuse
+	// people if we don't have to.  The GCP Console is doing the same thing - creating
+	// a network and deleting it in the background.
+	if !d.Get("auto_create_network").(bool) {
+		// The compute API has to be enabled before we can delete a network.
+		if err = enableService("compute.googleapis.com", project.ProjectId, config); err != nil {
+			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
+		}
+
+		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
+			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+		}
+	}
+	return nil
 }
 
 func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
@@ -198,20 +215,27 @@ func prefixedProject(pid string) string {
 }
 
 func getParentResourceId(d *schema.ResourceData, p *cloudresourcemanager.Project) error {
-	if v, ok := d.GetOk("org_id"); ok {
-		org_id := v.(string)
+	orgId := d.Get("org_id").(string)
+	folderId := d.Get("folder_id").(string)
+
+	if orgId != "" && folderId != "" {
+		return fmt.Errorf("'org_id' and 'folder_id' cannot be both set.")
+	}
+
+	if orgId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   org_id,
+			Id:   orgId,
 			Type: "organization",
 		}
 	}
 
-	if v, ok := d.GetOk("folder_id"); ok {
+	if folderId != "" {
 		p.Parent = &cloudresourcemanager.ResourceId{
-			Id:   parseFolderId(v),
+			Id:   parseFolderId(folderId),
 			Type: "folder",
 		}
 	}
+
 	return nil
 }
 
@@ -254,7 +278,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Project parent has changed
 	if d.HasChange("org_id") || d.HasChange("folder_id") {
-		getParentResourceId(d, p)
+		if err := getParentResourceId(d, p); err != nil {
+			return err
+		}
 
 		// Do update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
@@ -267,18 +293,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Billing account has changed
 	if ok := d.HasChange("billing_account"); ok {
-		billing_name := d.Get("billing_account").(string)
-		ba := cloudbilling.ProjectBillingInfo{}
-		if billing_name != "" {
-			ba.BillingAccountName = "billingAccounts/" + billing_name
-		}
-		_, err = config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+		err = updateProjectBillingAccount(d, config)
 		if err != nil {
-			d.Set("billing_account", "")
-			if _err, ok := err.(*googleapi.Error); ok {
-				return fmt.Errorf("Error updating billing account %q for project %q: %v", billing_name, prefixedProject(pid), _err)
-			}
-			return fmt.Errorf("Error updating billing account %q for project %q: %v", billing_name, prefixedProject(pid), err)
+			return err
 		}
 	}
 
@@ -308,5 +325,77 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	d.SetId("")
+	return nil
+}
+
+func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
+	// don't see a diff immediately after import.
+	d.Set("auto_create_network", true)
+	return []*schema.ResourceData{d}, nil
+}
+
+// Delete a compute network along with the firewall rules inside it.
+func forceDeleteComputeNetwork(projectId, networkName string, config *Config) error {
+	networkLink := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, networkName)
+
+	token := ""
+	for paginate := true; paginate; {
+		filter := fmt.Sprintf("network eq %s", networkLink)
+		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
+		if err != nil {
+			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+		}
+
+		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
+
+		for _, firewall := range resp.Items {
+			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
+			if err != nil {
+				return fmt.Errorf("Error deleting firewall: %s", err)
+			}
+			err = computeSharedOperationWait(config.clientCompute, op, projectId, "Deleting Firewall")
+			if err != nil {
+				return err
+			}
+		}
+
+		token = resp.NextPageToken
+		paginate = token != ""
+	}
+
+	return deleteComputeNetwork(projectId, networkName, config)
+}
+
+func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
+	pid := d.Id()
+	name := d.Get("billing_account").(string)
+	ba := cloudbilling.ProjectBillingInfo{}
+	// If we're unlinking an existing billing account, an empty request does that, not an empty-string billing account.
+	if name != "" {
+		ba.BillingAccountName = "billingAccounts/" + name
+	}
+	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+	if err != nil {
+		d.Set("billing_account", "")
+		if _err, ok := err.(*googleapi.Error); ok {
+			return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
+		}
+		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
+	}
+	for retries := 0; retries < 3; retries++ {
+		err = resourceGoogleProjectRead(d, config)
+		if err != nil {
+			return err
+		}
+		if d.Get("billing_account").(string) == name {
+			break
+		}
+		time.Sleep(3)
+	}
+	if d.Get("billing_account").(string) != name {
+		return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
+			d.Get("billding_account").(string), name)
+	}
 	return nil
 }

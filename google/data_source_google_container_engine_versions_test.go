@@ -88,6 +88,11 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 			}
 		}
 
+		_, ok = rs.Primary.Attributes["default_cluster_version"]
+		if !ok {
+			return errors.New("Didn't get a default cluster version.")
+		}
+
 		return nil
 	}
 }

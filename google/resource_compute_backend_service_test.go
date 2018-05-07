@@ -502,6 +502,92 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 	}
 }
 
+func TestAccComputeBackendService_withMaxConnections(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	var svc compute.BackendService
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeBackendService_withMaxConnections(
+					serviceName, igName, itName, checkName, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.lipsum", &svc),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeBackendService_withMaxConnections(
+					serviceName, igName, itName, checkName, 20),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.lipsum", &svc),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+	if svc.Backends[0].MaxConnections != 20 {
+		t.Errorf("Expected MaxConnections == 20, got %d", svc.Backends[0].MaxConnections)
+	}
+}
+
+func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	var svc compute.BackendService
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
+					serviceName, igName, itName, checkName, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.lipsum", &svc),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
+					serviceName, igName, itName, checkName, 20),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBackendServiceExists(
+						"google_compute_backend_service.lipsum", &svc),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+	if svc.Backends[0].MaxConnectionsPerInstance != 20 {
+		t.Errorf("Expected MaxConnectionsPerInstance == 20, got %d", svc.Backends[0].MaxConnectionsPerInstance)
+	}
+}
+
 func testAccComputeBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -762,4 +848,110 @@ resource "google_compute_security_policy" "policy" {
 	description = "basic security policy"
 }
 `, serviceName, checkName, polName)
+}
+
+func testAccComputeBackendService_withMaxConnections(
+	serviceName, igName, itName, checkName string, maxConnections int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "TCP"
+
+  backend {
+    group = "${google_compute_instance_group_manager.foobar.instance_group}"
+    max_connections = %v
+  }
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+}
+
+resource "google_compute_instance_group_manager" "foobar" {
+  name               = "%s"
+  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  base_instance_name = "foobar"
+  zone               = "us-central1-f"
+  target_size        = 1
+  auto_healing_policies {
+    health_check = "${google_compute_health_check.default.self_link}"
+    initial_delay_sec = "10"
+  }
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+
+  network_interface {
+    network = "default"
+  }
+
+  disk {
+    source_image = "debian-8-jessie-v20160803"
+    auto_delete  = true
+    boot         = true
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  tcp_health_check {
+      port = "110"
+  }
+}
+`, serviceName, maxConnections, igName, itName, checkName)
+}
+
+func testAccComputeBackendService_withMaxConnectionsPerInstance(
+	serviceName, igName, itName, checkName string, maxConnectionsPerInstance int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "TCP"
+
+  backend {
+    group = "${google_compute_instance_group_manager.foobar.instance_group}"
+    max_connections_per_instance = %v
+  }
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+}
+
+resource "google_compute_instance_group_manager" "foobar" {
+  name               = "%s"
+  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  base_instance_name = "foobar"
+  zone               = "us-central1-f"
+  target_size        = 1
+  auto_healing_policies {
+    health_check = "${google_compute_health_check.default.self_link}"
+    initial_delay_sec = "10"
+  }
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+
+  network_interface {
+    network = "default"
+  }
+
+  disk {
+    source_image = "debian-8-jessie-v20160803"
+    auto_delete  = true
+    boot         = true
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  tcp_health_check {
+      port = "110"
+  }
+}
+`, serviceName, maxConnectionsPerInstance, igName, itName, checkName)
 }

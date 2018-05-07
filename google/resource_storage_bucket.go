@@ -446,7 +446,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	bucket := d.Get("name").(string)
 
 	for {
-		res, err := config.clientStorage.Objects.List(bucket).Do()
+		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
 		if err != nil {
 			fmt.Printf("Error Objects.List failed: %v", err)
 			return err
@@ -459,7 +459,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 				for _, object := range res.Items {
 					log.Printf("[DEBUG] Found %s", object.Name)
-					if err := config.clientStorage.Objects.Delete(bucket, object.Name).Do(); err != nil {
+					if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
 						log.Fatalf("Error trying to delete object: %s %s\n\n", object.Name, err)
 					} else {
 						log.Printf("Object deleted: %s \n\n", object.Name)

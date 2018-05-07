@@ -89,11 +89,34 @@ resource "google_container_cluster" "primary" {
 }
 
 ```
+
+### Usage with a regional cluster
+
+```hcl
+
+resource "google_container_cluster" "regional" {
+  name   = "marcellus-wallace"
+  region = "us-central1"
+}
+
+resource "google_container_node_pool" "regional-np" {
+  name       = "my-node-pool"
+  region     = "us-central1"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+}
+
+```
+
 ## Argument Reference
 
-* `zone` - (Required) The zone in which the cluster resides.
+* `zone` - (Optional) The zone in which the cluster resides.
 
-* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for this resource.
+* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+
+* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
+
+Note: You must be provide region for regional clusters and zone for zonal clusters
 
 - - -
 
@@ -109,7 +132,7 @@ resource "google_container_cluster" "primary" {
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
-* `name_prefix` - (Optional) Creates a unique name for the node pool beginning
+* `name_prefix` - (Deprecated, Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) The node configuration of the pool. See
@@ -120,6 +143,10 @@ resource "google_container_cluster" "primary" {
 
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
+
+* `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
+    and `auto_upgrade` are both specified, they will fight each other for what the node version should
+    be, so setting both is highly discouraged.
 
 The `autoscaling` block supports:
 

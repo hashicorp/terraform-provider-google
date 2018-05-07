@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Google: google_compute_subnetwork"
-sidebar_current: "docs-google-compute-subnetwork"
+sidebar_current: "docs-google-compute-subnetwork-x"
 description: |-
   Manages a subnetwork within GCE.
 ---
@@ -55,6 +55,11 @@ The following arguments are supported:
 * `private_ip_google_access` - (Optional) Whether the VMs in this subnet
     can access Google services without assigned external IP
     addresses.
+
+* `enable_flow_logs` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+    Set to `true` to enable [flow logs](https://cloud.google.com/vpc/docs/using-flow-logs)
+    for this subnetwork.
+
 
 - - -
 

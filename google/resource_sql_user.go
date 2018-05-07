@@ -115,10 +115,10 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var users *sqladmin.UsersListResponse
 	err = nil
-	err = retry(func() error {
+	err = retryTime(func() error {
 		users, err = config.clientSqlAdmin.Users.List(project, instance).Do()
 		return err
-	})
+	}, 5)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
 	}

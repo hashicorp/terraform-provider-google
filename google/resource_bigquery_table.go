@@ -141,6 +141,15 @@ func resourceBigQueryTable() *schema.Resource {
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DAY"}, false),
 						},
+
+						// Type: [Optional] The field used to determine how to create a time-based
+						// partition. If time-based partitioning is enabled without this value, the
+						// table is partitioned based on the load time.
+						"field": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -419,6 +428,10 @@ func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 	raw := configured.([]interface{})[0].(map[string]interface{})
 	tp := &bigquery.TimePartitioning{Type: raw["type"].(string)}
 
+	if v, ok := raw["field"]; ok {
+		tp.Field = v.(string)
+	}
+
 	if v, ok := raw["expiration_ms"]; ok {
 		tp.ExpirationMs = int64(v.(int))
 	}
@@ -428,6 +441,10 @@ func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 
 func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interface{} {
 	result := map[string]interface{}{"type": tp.Type}
+
+	if tp.Field != "" {
+		result["field"] = tp.Field
+	}
 
 	if tp.ExpirationMs != 0 {
 		result["expiration_ms"] = tp.ExpirationMs

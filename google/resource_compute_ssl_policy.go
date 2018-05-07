@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v1"
 )
 
 func resourceComputeSslPolicy() *schema.Resource {
@@ -120,7 +120,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	sslPolicy := &computeBeta.SslPolicy{
+	sslPolicy := &compute.SslPolicy{
 		Name:           d.Get("name").(string),
 		Description:    d.Get("description").(string),
 		Profile:        d.Get("profile").(string),
@@ -128,7 +128,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		CustomFeatures: convertStringSet(d.Get("custom_features").(*schema.Set)),
 	}
 
-	op, err := config.clientComputeBeta.SslPolicies.Insert(project, sslPolicy).Do()
+	op, err := config.clientCompute.SslPolicies.Insert(project, sslPolicy).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating SSL Policy: %s", err)
 	}
@@ -154,7 +154,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 
 	name := d.Id()
 
-	sslPolicy, err := config.clientComputeBeta.SslPolicies.Get(project, name).Do()
+	sslPolicy, err := config.clientCompute.SslPolicies.Get(project, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SSL Policy %q", name))
 	}
@@ -185,7 +185,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 
 	name := d.Get("name").(string)
 
-	sslPolicy := &computeBeta.SslPolicy{
+	sslPolicy := &compute.SslPolicy{
 		Fingerprint:   d.Get("fingerprint").(string),
 		Profile:       d.Get("profile").(string),
 		MinTlsVersion: d.Get("min_tls_version").(string),
@@ -199,7 +199,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	op, err := config.clientComputeBeta.SslPolicies.Patch(project, name, sslPolicy).Do()
+	op, err := config.clientCompute.SslPolicies.Patch(project, name, sslPolicy).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating SSL Policy: %s", err)
 	}
@@ -223,7 +223,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 
 	name := d.Get("name").(string)
 
-	op, err := config.clientComputeBeta.SslPolicies.Delete(project, name).Do()
+	op, err := config.clientCompute.SslPolicies.Delete(project, name).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting SSL Policy: %s", err)
 	}

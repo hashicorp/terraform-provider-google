@@ -51,6 +51,9 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 			"nat_ip":          ac.NatIP,
 			"assigned_nat_ip": ac.NatIP,
 		}
+		if ac.SetPublicPtr {
+			flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
+		}
 		if natIP == "" {
 			natIP = ac.NatIP
 		}
@@ -102,6 +105,10 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 		acs[i] = &computeBeta.AccessConfig{
 			Type:  "ONE_TO_ONE_NAT",
 			NatIP: data["nat_ip"].(string),
+		}
+		if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
+			acs[i].SetPublicPtr = true
+			acs[i].PublicPtrDomainName = ptr.(string)
 		}
 	}
 	return acs

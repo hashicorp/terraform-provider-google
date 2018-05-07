@@ -13,7 +13,7 @@ Platform project. Services in an existing project that are not defined
 in the config will be removed.
 
 For a list of services available, visit the
-[API library page](https://console.cloud.google.com/apis/library) or run `gcloud service-management list`.
+[API library page](https://console.cloud.google.com/apis/library) or run `gcloud services list`.
 
 ~> **Note:** This resource attempts to be the authoritative source on which APIs are enabled, which can
 	lead to conflicts when certain APIs or actions enable other APIs. To just ensure that a specific

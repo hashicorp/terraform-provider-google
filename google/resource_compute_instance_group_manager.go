@@ -419,7 +419,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 
 	manager, err := getManager(d, meta)
-	if err != nil {
+	if err != nil || manager == nil {
 		return err
 	}
 
@@ -870,6 +870,8 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 		} else {
 			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
 				Fixed: int64(data["max_surge_fixed"].(int)),
+				// allow setting this value to 0
+				ForceSendFields: []string{"Fixed"},
 			}
 		}
 
@@ -880,6 +882,8 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 		} else {
 			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
 				Fixed: int64(data["max_unavailable_fixed"].(int)),
+				// allow setting this value to 0
+				ForceSendFields: []string{"Fixed"},
 			}
 		}
 

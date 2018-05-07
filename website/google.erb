@@ -95,6 +95,9 @@
       <li<%= sidebar_current("docs-google-datasource-organization") %>>
       <a href="/docs/providers/google/d/google_organization.html">google_organization</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-folder") %>>
+      <a href="/docs/providers/google/d/google_folder.html">google_folder</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-signed_url") %>>
         <a href="/docs/providers/google/d/signed_url.html">google_storage_object_signed_url</a>
       </li>
@@ -122,6 +125,15 @@
       <a href="/docs/providers/google/r/bigtable_instance.html">google_bigtable_instance</a>
       <li<%= sidebar_current("docs-google-bigtable-table") %>>
       <a href="/docs/providers/google/r/bigtable_table.html">google_bigtable_table</a>
+      </li>
+    </ul>
+    </li>
+
+    <li<%= sidebar_current("docs-google-cloudbuild") %>>
+    <a href="#">Google Cloud Build Resources</a>
+    <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-cloudbuild-trigger") %>>
+      <a href="/docs/providers/google/r/cloudbuild_trigger.html">google_cloudbuild_trigger</a>
       </li>
     </ul>
     </li>
@@ -353,8 +365,20 @@
       <a href="/docs/providers/google/r/compute_ssl_policy.html">google_compute_ssl_policy</a>
       </li>
 
-      <li<%= sidebar_current("docs-google-compute-subnetwork") %>>
+      <li<%= sidebar_current("docs-google-compute-subnetwork-x") %>>
       <a href="/docs/providers/google/r/compute_subnetwork.html">google_compute_subnetwork</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
+        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_binding</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
+        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_member</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
+        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_policy</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-target-http-proxy") %>>
@@ -505,12 +529,30 @@
     <li<%= sidebar_current("docs-google-spanner") %>>
     <a href="#">Google Spanner Resources</a>
     <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-spanner-database") %>>
+      <a href="/docs/providers/google/r/spanner_database.html">google_spanner_database</a>
+      </li>
+      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
+      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_binding</a>
+      </li>
+      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
+      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_member</a>
+      </li>
+      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
+      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_policy</a>
+      </li>
+
       <li<%= sidebar_current("docs-google-spanner-instance") %>>
       <a href="/docs/providers/google/r/spanner_instance.html">google_spanner_instance</a>
       </li>
-
-      <li<%= sidebar_current("docs-google-spanner-database") %>>
-      <a href="/docs/providers/google/r/spanner_database.html">google_spanner_database</a>
+      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
+      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_binding</a>
+      </li>
+      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
+      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_member</a>
+      </li>
+      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
+      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_policy</a>
       </li>
     </ul>
     </li>

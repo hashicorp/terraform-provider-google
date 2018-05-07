@@ -360,6 +360,40 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_forceDestroyWithVersioning(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_forceDestroyWithVersioning(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_forceDestroyWithVersioning(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketPutItem(bucketName),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_forceDestroyWithVersioning(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketPutItem(bucketName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_versioning(t *testing.T) {
 	t.Parallel()
 
@@ -763,6 +797,18 @@ resource "google_storage_bucket" "bucket" {
 	  method = ["z9z"]
 	  response_header = ["000"]
 	  max_age_seconds = 5
+	}
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_forceDestroyWithVersioning(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	force_destroy = "true"
+	versioning = {
+		enabled = "true"
 	}
 }
 `, bucketName)

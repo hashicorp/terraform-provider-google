@@ -144,6 +144,7 @@ func testAccComputeGlobalAddress_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
 	name = "address-test-%s"
+	description = "Created for Terraform acceptance testing"
 }`, acctest.RandString(10))
 }
 
@@ -151,6 +152,7 @@ func testAccComputeGlobalAddress_ipv6() string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
 	name = "address-test-%s"
+	description = "Created for Terraform acceptance testing"
 	ip_version = "IPV6"
 }`, acctest.RandString(10))
 }

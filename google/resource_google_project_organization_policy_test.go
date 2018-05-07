@@ -169,6 +169,10 @@ func testAccCheckGoogleProjectOrganizationListPolicyAll(n, policyType string) re
 			return err
 		}
 
+		if policy.ListPolicy == nil {
+			return nil
+		}
+
 		if len(policy.ListPolicy.AllowedValues) > 0 || len(policy.ListPolicy.DeniedValues) > 0 {
 			return fmt.Errorf("The `values` field shouldn't be set")
 		}
