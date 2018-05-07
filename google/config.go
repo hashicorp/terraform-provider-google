@@ -17,6 +17,7 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudiot/v1"
 	"google.golang.org/api/cloudkms/v1"
@@ -54,6 +55,7 @@ type Config struct {
 	tokenSource oauth2.TokenSource
 
 	clientBilling                *cloudbilling.Service
+	clientBuild                  *cloudbuild.Service
 	clientCompute                *compute.Service
 	clientComputeBeta            *computeBeta.Service
 	clientContainer              *container.Service
@@ -267,6 +269,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientBilling.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Build Client...")
+	c.clientBuild, err = cloudbuild.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientBuild.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery Client...")
 	c.clientBigQuery, err = bigquery.New(client)
