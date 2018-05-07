@@ -3,6 +3,9 @@
 FEATURES:
 * **New Resource**: Added `google_cloudbuild_trigger`. [GH-1357]
 
+IMPROVEMENTS:
+* container: Add support for regional cluster in `google_container` datasource [GH-1441]
+
 ## 1.12.0 (May 04, 2018)
 FEATURES:
 * spanner: New resources to manage IAM for Spanner Databases: google_spanner_database_iam_binding, google_spanner_database_iam_member, and google_spanner_database_iam_policy ([#1386](https://github.com/terraform-providers/terraform-provider-google/issues/1386))
