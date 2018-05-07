@@ -142,54 +142,8 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		buildTrigger.Description = v.(string)
 	}
 
-	if d.Get("build.#").(int) > 0 {
-		build := &cloudbuild.Build{}
-		if v, ok := d.GetOk("build.0.images"); ok {
-			build.Images = convertStringArr(v.([]interface{}))
-		}
-		if v, ok := d.GetOk("build.0.tags"); ok {
-			build.Tags = convertStringArr(v.([]interface{}))
-		}
-		stepCount := d.Get("build.0.step.#").(int)
-		if stepCount > 0 {
-			build.Steps = make([]*cloudbuild.BuildStep, stepCount)
-		}
-		for s := 0; s < stepCount; s++ {
-			step := &cloudbuild.BuildStep{
-				Name: d.Get(fmt.Sprintf("build.0.step.%d.name", s)).(string),
-			}
-			if v, ok := d.GetOk(fmt.Sprintf("build.0.step.%d.args", s)); ok {
-				step.Args = strings.Split(v.(string), " ")
-			}
-			build.Steps[s] = step
-		}
-		buildTrigger.Build = build
-	}
-
-	if d.Get("trigger_template.#").(int) > 0 {
-		tmpl := &cloudbuild.RepoSource{}
-		if v, ok := d.GetOk("project"); ok {
-			tmpl.ProjectId = v.(string)
-		} else {
-			tmpl.ProjectId = project
-		}
-		if v, ok := d.GetOk("trigger_template.0.branch_name"); ok {
-			tmpl.BranchName = v.(string)
-		}
-		if v, ok := d.GetOk("trigger_template.0.commit_sha"); ok {
-			tmpl.CommitSha = v.(string)
-		}
-		if v, ok := d.GetOk("trigger_template.0.dir"); ok {
-			tmpl.Dir = v.(string)
-		}
-		if v, ok := d.GetOk("trigger_template.0.repo_name"); ok {
-			tmpl.RepoName = v.(string)
-		}
-		if v, ok := d.GetOk("trigger_template.0.tag_name"); ok {
-			tmpl.TagName = v.(string)
-		}
-		buildTrigger.TriggerTemplate = tmpl
-	}
+	buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
+	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
 
 	tstr, err := json.Marshal(buildTrigger)
 	if err != nil {
@@ -232,6 +186,34 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
+func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string) *cloudbuild.RepoSource {
+	if d.Get("trigger_template.#").(int) == 0 {
+		return nil
+	}
+	tmpl := &cloudbuild.RepoSource{}
+	if v, ok := d.GetOk("project"); ok {
+		tmpl.ProjectId = v.(string)
+	} else {
+		tmpl.ProjectId = project
+	}
+	if v, ok := d.GetOk("trigger_template.0.branch_name"); ok {
+		tmpl.BranchName = v.(string)
+	}
+	if v, ok := d.GetOk("trigger_template.0.commit_sha"); ok {
+		tmpl.CommitSha = v.(string)
+	}
+	if v, ok := d.GetOk("trigger_template.0.dir"); ok {
+		tmpl.Dir = v.(string)
+	}
+	if v, ok := d.GetOk("trigger_template.0.repo_name"); ok {
+		tmpl.RepoName = v.(string)
+	}
+	if v, ok := d.GetOk("trigger_template.0.tag_name"); ok {
+		tmpl.TagName = v.(string)
+	}
+	return tmpl
+}
+
 func flattenCloudbuildBuildTriggerTemplate(d *schema.ResourceData, config *Config, t *cloudbuild.RepoSource) []map[string]interface{} {
 	flattened := make([]map[string]interface{}, 1)
 
@@ -245,6 +227,32 @@ func flattenCloudbuildBuildTriggerTemplate(d *schema.ResourceData, config *Confi
 	}
 
 	return flattened
+}
+
+func expandCloudbuildBuildTriggerBuild(d *schema.ResourceData) *cloudbuild.Build {
+	if d.Get("build.#").(int) == 0 {
+		return nil
+	}
+
+	build := &cloudbuild.Build{}
+	if v, ok := d.GetOk("build.0.images"); ok {
+		build.Images = convertStringArr(v.([]interface{}))
+	}
+	if v, ok := d.GetOk("build.0.tags"); ok {
+		build.Tags = convertStringArr(v.([]interface{}))
+	}
+	stepCount := d.Get("build.0.step.#").(int)
+	build.Steps = make([]*cloudbuild.BuildStep, 0, stepCount)
+	for s := 0; s < stepCount; s++ {
+		step := &cloudbuild.BuildStep{
+			Name: d.Get(fmt.Sprintf("build.0.step.%d.name", s)).(string),
+		}
+		if v, ok := d.GetOk(fmt.Sprintf("build.0.step.%d.args", s)); ok {
+			step.Args = strings.Split(v.(string), " ")
+		}
+		build.Steps = append(build.Steps, step)
+	}
+	return build
 }
 
 func flattenCloudbuildBuildTriggerBuild(d *schema.ResourceData, config *Config, b *cloudbuild.Build) []map[string]interface{} {
