@@ -222,7 +222,6 @@ func Provider() terraform.ResourceProvider {
 				"google_storage_notification":       resourceStorageNotification(),
 			},
 		),
->>>>>>> master
 
 		ConfigureFunc: providerConfigure,
 	}
