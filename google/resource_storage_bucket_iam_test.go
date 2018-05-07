@@ -45,6 +45,7 @@ func TestAccStorageBucketIamPolicy(t *testing.T) {
 
 	bucket := acctest.RandomWithPrefix("tf-test")
 	account := acctest.RandomWithPrefix("tf-test")
+	serviceAcct := getTestServiceAccountFromEnv(t)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -52,14 +53,14 @@ func TestAccStorageBucketIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Policy creation
-				Config: testAccStorageBucketIamPolicy_basic(bucket, account),
+				Config: testAccStorageBucketIamPolicy_basic(bucket, account, serviceAcct),
 				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Policy update
-				Config: testAccStorageBucketIamPolicy_update(bucket, account),
+				Config: testAccStorageBucketIamPolicy_update(bucket, account, serviceAcct),
 				Check: testAccCheckGoogleStorageBucketIam(bucket, "roles/storage.objectViewer", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
@@ -115,7 +116,7 @@ func testAccCheckGoogleStorageBucketIam(bucket, role string, members []string) r
 	}
 }
 
-func testAccStorageBucketIamPolicy_update(bucket, account string) string {
+func testAccStorageBucketIamPolicy_update(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
@@ -138,9 +139,16 @@ data "google_iam_policy" "fooPolicy" {
 
     members = [
       "serviceAccount:${google_service_account.test-account-1.email}",
-      "serviceAccount:${google_service_account.test-account-2.email}"
+      "serviceAccount:${google_service_account.test-account-2.email}",
     ]
   }
+
+	binding {
+		role = "roles/storage.admin"
+		members = [
+			"serviceAccount:%s",
+		]
+	}
 }
 
 resource "google_storage_bucket_iam_policy" "bucketBinding" {
@@ -148,10 +156,10 @@ resource "google_storage_bucket_iam_policy" "bucketBinding" {
   policy_data = "${data.google_iam_policy.fooPolicy.policy_data}"
 }
 
-`, bucket, account, account)
+`, bucket, account, account, serviceAcct)
 }
 
-func testAccStorageBucketIamPolicy_basic(bucket, account string) string {
+func testAccStorageBucketIamPolicy_basic(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
 
 resource "google_storage_bucket" "bucket" {
@@ -171,6 +179,13 @@ data "google_iam_policy" "fooPolicy" {
       "serviceAccount:${google_service_account.test-account-1.email}",
     ]
   }
+
+	binding {
+		role = "roles/storage.admin"
+		members = [
+			"serviceAccount:%s",
+		]
+	}
 }
 
 resource "google_storage_bucket_iam_policy" "bucketBinding" {
@@ -179,7 +194,7 @@ resource "google_storage_bucket_iam_policy" "bucketBinding" {
 }
 
 
-`, bucket, account)
+`, bucket, account, serviceAcct)
 }
 
 func testAccStorageBucketIamBinding_basic(bucket, account string) string {
