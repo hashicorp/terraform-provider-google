@@ -114,9 +114,10 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:      "google_compute_region_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"update_strategy"},
 			},
 		},
 	})
