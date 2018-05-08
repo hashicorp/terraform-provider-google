@@ -14,14 +14,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-var (
-	SubnetworkBaseApiVersion    = v1
-	SubnetworkVersionedFeatures = []Feature{
-		{Version: v0beta, Item: "secondary_ip_range"},
-		{Version: v0beta, Item: "enable_flow_logs"},
-	}
-)
-
 func resourceComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSubnetworkCreate,
@@ -130,7 +122,6 @@ func resourceComputeSubnetwork() *schema.Resource {
 }
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
@@ -160,21 +151,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Subnetwork insert request: %#v", subnetwork)
 
-	subnetworkV1 := &compute.Subnetwork{}
-	err = Convert(subnetwork, subnetworkV1)
-	if err != nil {
-		return err
-	}
-	subnetworkV1.ForceSendFields = subnetwork.ForceSendFields
-
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		op, err = config.clientCompute.Subnetworks.Insert(project, region, subnetworkV1).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.Subnetworks.Insert(project, region, subnetwork).Do()
-	}
-
+	op, err := config.clientComputeBeta.Subnetworks.Insert(project, region, subnetwork).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating subnetwork: %s", err)
 	}
@@ -184,9 +161,8 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	// "When creating a new subnetwork, its name has to be unique in that project for that region, even across networks.
 	// The same name can appear twice in a project, as long as each one is in a different region."
 	// https://cloud.google.com/compute/docs/subnetworks
-	subnetworkV1.Region = region
 	subnetwork.Region = region
-	d.SetId(createSubnetID(subnetworkV1))
+	d.SetId(createSubnetIDBeta(subnetwork))
 
 	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "Creating Subnetwork")
 	if err != nil {
@@ -197,45 +173,6 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
-	if computeApiVersion == v0beta {
-		return resourceComputeSubnetworkReadV0Beta(d, meta)
-	}
-
-	config := meta.(*Config)
-
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
-	}
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	name := d.Get("name").(string)
-
-	subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, name).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork %q", name))
-	}
-
-	d.Set("name", subnetwork.Name)
-	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
-	d.Set("network", subnetwork.Network)
-	d.Set("description", subnetwork.Description)
-	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
-	d.Set("gateway_address", subnetwork.GatewayAddress)
-	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
-	d.Set("project", project)
-	d.Set("region", region)
-	d.Set("self_link", ConvertSelfLinkToV1(subnetwork.SelfLink))
-
-	return nil
-}
-
-func resourceComputeSubnetworkReadV0Beta(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -272,7 +209,6 @@ func resourceComputeSubnetworkReadV0Beta(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, SubnetworkBaseApiVersion, SubnetworkVersionedFeatures)
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -328,7 +264,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		d.SetPartial("ip_cidr_range")
 	}
 
-	if (d.HasChange("secondary_ip_range") || d.HasChange("enable_flow_logs")) && computeApiVersion == v0beta {
+	if d.HasChange("secondary_ip_range") || d.HasChange("enable_flow_logs") {
 		v0BetaSubnetwork := &computeBeta.Subnetwork{
 			Fingerprint: d.Get("fingerprint").(string),
 		}

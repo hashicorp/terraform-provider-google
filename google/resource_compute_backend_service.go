@@ -12,9 +12,6 @@ import (
 	compute "google.golang.org/api/compute/v1"
 )
 
-var BackendServiceBaseApiVersion = v1
-var BackendServiceVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "security_policy"}}
-
 func resourceComputeBackendService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeBackendServiceCreate,
@@ -288,7 +285,6 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, BackendServiceBaseApiVersion, BackendServiceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -296,25 +292,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	service := &computeBeta.BackendService{}
-	switch computeApiVersion {
-	case v1:
-		v1Service, err := config.clientCompute.BackendServices.Get(
-			project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
-		}
-		err = Convert(v1Service, service)
-		if err != nil {
-			return err
-		}
-	case v0beta:
-		var err error
-		service, err = config.clientComputeBeta.BackendServices.Get(
-			project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
-		}
+	service, err := config.clientComputeBeta.BackendServices.Get(project, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
 	}
 
 	d.Set("name", service.Name)
