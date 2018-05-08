@@ -862,7 +862,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			}
 			adIndex, inConfig := attachedDiskSources[source.RelativeLink()]
 			di := map[string]interface{}{
-				"source":      disk.Source,
+				"source":      ConvertSelfLinkToV1(disk.Source),
 				"device_name": disk.DeviceName,
 				"mode":        disk.Mode,
 			}
@@ -1583,7 +1583,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
-		"source":      disk.Source,
+		"source":      ConvertSelfLinkToV1(disk.Source),
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),

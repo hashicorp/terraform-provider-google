@@ -351,7 +351,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
-	d.Set("instance_template", manager.InstanceTemplate)
+	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
 	d.Set("name", manager.Name)
 	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
 	d.Set("description", manager.Description)
@@ -360,7 +360,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("target_pools", manager.TargetPools)
 	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
 	d.Set("fingerprint", manager.Fingerprint)
-	d.Set("instance_group", manager.InstanceGroup)
+	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 	update_strategy, ok := d.GetOk("update_strategy")
 	if !ok {
