@@ -215,6 +215,7 @@ func Provider() terraform.ResourceProvider {
 				// google_storage_bucket_iam_policy resource.
 				"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater),
 				"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+				"google_storage_bucket_iam_policy":  ResourceIamPolicy(IamStorageBucketSchema, NewStorageBucketIamUpdater),
 				"google_storage_bucket_object":      resourceStorageBucketObject(),
 				"google_storage_object_acl":         resourceStorageObjectAcl(),
 				"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
