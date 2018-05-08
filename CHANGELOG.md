@@ -2,6 +2,7 @@
 
 FEATURES:
 * **New Resource**: Added `google_cloudbuild_trigger`. [GH-1357]
+* **New Resource**: Added `google_storage_bucket_iam_policy` [GH-1190]
 
 IMPROVEMENTS:
 * container: Add support for regional cluster in `google_container` datasource [GH-1441]
