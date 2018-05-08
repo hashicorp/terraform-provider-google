@@ -8,11 +8,12 @@ import (
 	"testing"
 
 	"archive/zip"
+	"io/ioutil"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/cloudfunctions/v1"
-	"io/ioutil"
 )
 
 const (
@@ -189,6 +190,28 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"available_memory_mb", "128"),
+					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
+					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_BUCKET, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"timeout", "61"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"entry_point", "helloGCS"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"trigger_bucket", bucketName),
+				),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudFunctionsFunction_bucketNoRetry(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						funcResourceName, &function),
@@ -443,10 +466,36 @@ resource "google_cloudfunctions_function" "function" {
   trigger_topic         = "${google_pubsub_topic.sub.name}"
   timeout               = 61
   entry_point           = "helloPubSub"
+  retry_on_failure      = true
 }`, bucketName, zipFilePath, topic, functionName)
 }
 
 func testAccCloudFunctionsFunction_bucket(functionName string, bucketName string,
+	zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_bucket        = "${google_storage_bucket.bucket.name}"
+  timeout               = 61
+  entry_point           = "helloGCS"
+  retry_on_failure      = true
+}`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_bucketNoRetry(functionName string, bucketName string,
 	zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {

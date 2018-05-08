@@ -69,6 +69,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
+* `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
