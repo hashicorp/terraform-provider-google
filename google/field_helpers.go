@@ -188,7 +188,10 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 
 	zone, ok := d.GetOk(zoneSchemaField)
 	if !ok {
-		return nil, fmt.Errorf("A zone must be specified")
+		zone = config.Zone
+		if zone == "" {
+			return nil, fmt.Errorf("A zone must be specified")
+		}
 	}
 
 	return &ZonalFieldValue{
