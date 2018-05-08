@@ -49,9 +49,17 @@ When applying a policy that does not include the roles listed below, you lose th
 If this happens only an entity with `roles/storage.admin` privileges can repair this bucket's policies. It is recommended to include the above roles in policies to get the same behaviour as with the other two options.
 
 ```hcl
+data "google_iam_policy" "foo-policy" {
+  binding {
+    role = "roles/your-role"
+
+    members = [ "group:yourgroup@example.com" ]
+  }
+}
+
 resource "google_storage_bucket_iam_policy" "member" {
   bucket = "your-bucket-name"
-  policy_data = "policy_data"
+  policy_data = "${data.google_iam_policy.foo-policy.policy_data}"
 }
 ```
 
