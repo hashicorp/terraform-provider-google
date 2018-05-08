@@ -295,7 +295,10 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.
 		return nil, err
 	}
 
-	region := d.Get("region").(string)
+	region, err := getRegion(d, config)
+	if err != nil {
+		return nil, err
+	}
 	manager := &computeBeta.InstanceGroupManager{}
 
 	switch computeApiVersion {
