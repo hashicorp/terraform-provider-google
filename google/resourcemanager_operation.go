@@ -37,13 +37,13 @@ func (w *ResourceManagerOperationWaiter) Conf() *resource.StateChangeConf {
 	}
 }
 
-func resourceManagerOperationWait(config *Config, op *cloudresourcemanager.Operation, activity string) error {
-	return resourceManagerOperationWaitTime(config, op, activity, 4)
+func resourceManagerOperationWait(service *cloudresourcemanager.Service, op *cloudresourcemanager.Operation, activity string) error {
+	return resourceManagerOperationWaitTime(service, op, activity, 4)
 }
 
-func resourceManagerOperationWaitTime(config *Config, op *cloudresourcemanager.Operation, activity string, timeoutMin int) error {
+func resourceManagerOperationWaitTime(service *cloudresourcemanager.Service, op *cloudresourcemanager.Operation, activity string, timeoutMin int) error {
 	w := &ResourceManagerOperationWaiter{
-		Service: config.clientResourceManager,
+		Service: service,
 		Op:      op,
 	}
 
@@ -64,16 +64,16 @@ func resourceManagerOperationWaitTime(config *Config, op *cloudresourcemanager.O
 	return nil
 }
 
-func resourceManagerV2Beta1OperationWait(config *Config, op *resourceManagerV2Beta1.Operation, activity string) error {
-	return resourceManagerV2Beta1OperationWaitTime(config, op, activity, 4)
+func resourceManagerV2Beta1OperationWait(service *cloudresourcemanager.Service, op *resourceManagerV2Beta1.Operation, activity string) error {
+	return resourceManagerV2Beta1OperationWaitTime(service, op, activity, 4)
 }
 
-func resourceManagerV2Beta1OperationWaitTime(config *Config, op *resourceManagerV2Beta1.Operation, activity string, timeoutMin int) error {
+func resourceManagerV2Beta1OperationWaitTime(service *cloudresourcemanager.Service, op *resourceManagerV2Beta1.Operation, activity string, timeoutMin int) error {
 	opV1 := &cloudresourcemanager.Operation{}
 	err := Convert(op, opV1)
 	if err != nil {
 		return err
 	}
 
-	return resourceManagerOperationWaitTime(config, opV1, activity, timeoutMin)
+	return resourceManagerOperationWaitTime(service, opV1, activity, timeoutMin)
 }
