@@ -879,7 +879,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-k80", 1),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
 
