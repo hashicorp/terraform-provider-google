@@ -234,6 +234,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									"nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										ForceNew: true,
 										Computed: true,
 									},
 									// Instance templates will never have an
