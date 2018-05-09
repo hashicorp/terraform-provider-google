@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource**: Added `google_storage_bucket_iam_policy` [GH-1190]
 
 IMPROVEMENTS:
+* cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
 * container: Add support for regional cluster in `google_container` datasource [GH-1441]
 
 ## 1.12.0 (May 04, 2018)
