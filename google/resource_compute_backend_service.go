@@ -12,9 +12,6 @@ import (
 	compute "google.golang.org/api/compute/v1"
 )
 
-var BackendServiceBaseApiVersion = v1
-var BackendServiceVersionedFeatures = []Feature{Feature{Version: v0beta, Item: "security_policy"}}
-
 func resourceComputeBackendService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeBackendServiceCreate,
@@ -288,7 +285,6 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, BackendServiceBaseApiVersion, BackendServiceVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -296,25 +292,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	service := &computeBeta.BackendService{}
-	switch computeApiVersion {
-	case v1:
-		v1Service, err := config.clientCompute.BackendServices.Get(
-			project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
-		}
-		err = Convert(v1Service, service)
-		if err != nil {
-			return err
-		}
-	case v0beta:
-		var err error
-		service, err = config.clientComputeBeta.BackendServices.Get(
-			project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
-		}
+	service, err := config.clientComputeBeta.BackendServices.Get(project, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Backend Service %q", d.Get("name").(string)))
 	}
 
 	d.Set("name", service.Name)
@@ -325,7 +305,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("session_affinity", service.SessionAffinity)
 	d.Set("timeout_sec", service.TimeoutSec)
 	d.Set("fingerprint", service.Fingerprint)
-	d.Set("self_link", service.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(service.SelfLink))
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("iap", flattenIap(service.Iap))
