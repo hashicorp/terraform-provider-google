@@ -51,7 +51,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -423,7 +423,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	region := d.Get("region").(string)
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
 	databaseVersion := d.Get("database_version").(string)
 
 	_settingsList := d.Get("settings").([]interface{})
