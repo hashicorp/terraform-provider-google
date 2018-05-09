@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -118,6 +119,8 @@ func resourceComputeDisk() *schema.Resource {
 				Computed: true,
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.ForceNewIfChange("size", isDiskShrinkage)),
 	}
 }
 
@@ -408,6 +411,15 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId("")
 	return nil
+}
+
+// Is the new disk size smaller than the old one?
+func isDiskShrinkage(old, new, _ interface{}) bool {
+	// It's okay to remove size entirely.
+	if old == nil || new == nil {
+		return false
+	}
+	return new.(int) < old.(int)
 }
 
 // We cannot suppress the diff for the case when family name is not part of the image name since we can't
