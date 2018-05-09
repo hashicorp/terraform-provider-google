@@ -156,6 +156,7 @@ resource "google_compute_target_https_proxy" "foobar" {
 	name = "httpsproxy-test-%s"
 	url_map = "${google_compute_url_map.foobar.self_link}"
 	ssl_certificates = ["${google_compute_ssl_certificate.foobar1.self_link}"]
+	ssl_policy = "${google_compute_ssl_policy.foobar.self_link}"
 }
 
 resource "google_compute_backend_service" "foobar" {
@@ -192,6 +193,13 @@ resource "google_compute_url_map" "foobar" {
 	}
 }
 
+resource "google_compute_ssl_policy" "foobar" {
+	name            = "sslproxy-test-%s"
+	description     = "my-description"
+	min_tls_version = "TLS_1_2"
+	profile         = "MODERN"
+}
+
 resource "google_compute_ssl_certificate" "foobar1" {
 	name = "httpsproxy-test-cert1-%s"
 	description = "very descriptive"
@@ -205,7 +213,7 @@ resource "google_compute_ssl_certificate" "foobar2" {
 	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
-`, id, id, id, id, id, id)
+`, id, id, id, id, id, id, id)
 }
 
 func testAccComputeTargetHttpsProxy_basic2(id string) string {
@@ -254,6 +262,13 @@ resource "google_compute_url_map" "foobar" {
 	}
 }
 
+resource "google_compute_ssl_policy" "foobar" {
+	name            = "sslproxy-test-%s"
+	description     = "my-description"
+	min_tls_version = "TLS_1_2"
+	profile         = "MODERN"
+}
+
 resource "google_compute_ssl_certificate" "foobar1" {
 	name = "httpsproxy-test-cert1-%s"
 	description = "very descriptive"
@@ -267,5 +282,5 @@ resource "google_compute_ssl_certificate" "foobar2" {
 	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
 	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
-`, id, id, id, id, id, id)
+`, id, id, id, id, id, id, id)
 }

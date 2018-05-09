@@ -65,6 +65,11 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"ssl_policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -111,12 +116,17 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := map[string]interface{}{
 		"description":     descriptionProp,
 		"name":            nameProp,
 		"sslCertificates": sslCertificatesProp,
 		"urlMap":          urlMapProp,
+		"sslPolicy":       sslPolicyProp,
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies")
@@ -189,6 +199,9 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeTargetHttpsProxyUrlMap(res["urlMap"])); err != nil {
+		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+	}
+	if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"])); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("self_link", res["selfLink"]); err != nil {
@@ -281,6 +294,39 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 
 		d.SetPartial("url_map")
 	}
+	if d.HasChange("ssl_policy") {
+		sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
+		if err != nil {
+			return err
+		}
+
+		obj := map[string]interface{}{
+			"sslPolicy": sslPolicyProp,
+		}
+		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
+		if err != nil {
+			return err
+		}
+		res, err = sendRequest(config, "POST", url, obj)
+		if err != nil {
+			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+		}
+
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+
+		err = computeOperationWaitTime(
+			config.clientCompute, op, project, "Updating TargetHttpsProxy",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("ssl_policy")
+	}
 
 	d.Partial(false)
 
@@ -367,6 +413,10 @@ func flattenComputeTargetHttpsProxyUrlMap(v interface{}) interface{} {
 	return v
 }
 
+func flattenComputeTargetHttpsProxySslPolicy(v interface{}) interface{} {
+	return v
+}
+
 func expandComputeTargetHttpsProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -392,6 +442,14 @@ func expandComputeTargetHttpsProxyUrlMap(v interface{}, d *schema.ResourceData, 
 	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetHttpsProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for ssl_policy: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
