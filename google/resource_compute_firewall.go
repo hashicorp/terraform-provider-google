@@ -155,6 +155,7 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ForceNew:      true,
+				MaxItems:      1,
 				ConflictsWith: []string{"source_tags", "target_tags"},
 			},
 
@@ -163,6 +164,7 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ForceNew:      true,
+				MaxItems:      1,
 				ConflictsWith: []string{"source_tags", "target_tags"},
 			},
 		},
