@@ -74,7 +74,8 @@ The following arguments are supported:
    firewall applies to. Can't be used for `INGRESS`.
 
 * `source_service_accounts` - (Optional) A list of service accounts such that
-    the firewall will apply only to traffic originating from an instance with a service account in this list. Source service accounts
+    the firewall will apply only to traffic originating from an instance with a service account in this list.  Note that as of May 2018,
+    this list can contain only one item, due to a change in the way that these firewall rules are handled.  Source service accounts
     cannot be used to control traffic to an instance's external IP address because service accounts are associated with an instance, not
     an IP address. `source_ranges` can be set at the same time as `source_service_accounts`. If both are set, the firewall will apply to
     traffic that has source IP address within `source_ranges` OR the source IP belongs to an instance with service account listed in
@@ -84,7 +85,8 @@ The following arguments are supported:
 * `target_service_accounts` - (Optional) A list of service accounts indicating
     sets of instances located in the network that may make network connections as specified in `allow`. `target_service_accounts` cannot
     be used at the same time as `source_tags` or `target_tags`. If neither `target_service_accounts` nor `target_tags` are specified, the
-    firewall rule applies to all instances on the specified network.
+    firewall rule applies to all instances on the specified network.  Note that as of May 2018, this list can contain only one item, due
+    to a change in the way that these firewall rules are handled.
 
 The `allow` block supports:
 
