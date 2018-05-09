@@ -59,6 +59,10 @@ The following arguments are supported:
 * `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance
     regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not
     available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
+    A valid region must be provided to use this resource. If a region is not provided in the resource definition,
+    the provider region will be used instead, but this will be an apply-time error for all first-generation
+    instances *and* for second-generation instances if the provider region is not supported with Cloud SQL.
+    If you choose not to provide the `region` argument for this resource, make sure you understand this.
 
 * `settings` - (Required) The settings to use for the database. The
     configuration is detailed below.
