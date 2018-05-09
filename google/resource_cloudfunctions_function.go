@@ -197,6 +197,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Computed: true,
 			},
 
+			"retry_on_failure": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ConflictsWith: []string{"trigger_http"},
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -282,6 +288,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			// Topic must be in same project as function
 			Resource: fmt.Sprintf("projects/%s/topics/%s", project, v.(string)),
 		}
+		if d.Get("retry_on_failure").(bool) {
+			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
+				Retry: &cloudfunctions.Retry{},
+			}
+		}
 	}
 
 	v, triggBucketOk := d.GetOk("trigger_bucket")
@@ -292,6 +303,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			// Must be like projects/PROJECT_ID/buckets/NAME
 			// Bucket must be in same project as function
 			Resource: fmt.Sprintf("projects/%s/buckets/%s", project, v.(string)),
+		}
+		if d.Get("retry_on_failure").(bool) {
+			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
+				Retry: &cloudfunctions.Retry{},
+			}
 		}
 	}
 
@@ -365,6 +381,8 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		case "providers/cloud.storage/eventTypes/object.change":
 			d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
 		}
+		retry := function.EventTrigger.FailurePolicy != nil && function.EventTrigger.FailurePolicy.Retry != nil
+		d.Set("retry_on_failure", retry)
 	}
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
@@ -407,6 +425,18 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("labels") {
 		function.Labels = expandLabels(d)
 		updateMaskArr = append(updateMaskArr, "labels")
+	}
+
+	if d.HasChange("retry_on_failure") {
+		if d.Get("retry_on_failure").(bool) {
+			if function.EventTrigger == nil {
+				function.EventTrigger = &cloudfunctions.EventTrigger{}
+			}
+			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
+				Retry: &cloudfunctions.Retry{},
+			}
+		}
+		updateMaskArr = append(updateMaskArr, "eventTrigger.failurePolicy.retry")
 	}
 
 	if len(updateMaskArr) > 0 {
