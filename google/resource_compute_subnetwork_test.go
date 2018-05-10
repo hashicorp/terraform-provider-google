@@ -185,6 +185,15 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config: testAccComputeSubnetwork_flowLogsUnset(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "false"),
+				),
+			},
+			{
 				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
@@ -211,6 +220,25 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// set things back to true so we can test disabling by removing from config
+			{
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "true"),
+				),
+			},
+			{
+				Config: testAccComputeSubnetwork_flowLogsUnset(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "false"),
+				),
 			},
 		},
 	})
@@ -399,6 +427,22 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 		range_name = "tf-test-secondary-range-update2"
 		ip_cidr_range = "192.168.11.0/24"
 	},
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsUnset(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
 }
 `, cnName, subnetworkName)
 }
