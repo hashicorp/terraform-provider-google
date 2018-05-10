@@ -160,6 +160,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		"containerregistry.googleapis.com",
 		"storage-api.googleapis.com",
 		"pubsub.googleapis.com",
+		"oslogin.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -200,6 +201,7 @@ func TestAccProjectServices_manyServices(t *testing.T) {
 		"logging.googleapis.com",
 		"ml.googleapis.com",
 		"monitoring.googleapis.com",
+		"oslogin.googleapis.com",
 		"pubsub.googleapis.com",
 		"replicapool.googleapis.com",
 		"replicapoolupdater.googleapis.com",
