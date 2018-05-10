@@ -27,7 +27,7 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/test-record.hashicorptest.com./A", zoneName),
+				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./A", zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +114,7 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/hashicorptest.com./NS", zoneName),
+				ImportStateId:     fmt.Sprintf("%s/%s.hashicorptest.com./NS", zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
