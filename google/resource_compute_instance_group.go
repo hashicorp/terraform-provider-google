@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 
 	"google.golang.org/api/compute/v1"
@@ -94,7 +95,51 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		CustomizeDiff: customDiffInstanceGroupInstancesField,
 	}
+}
+
+func customDiffInstanceGroupInstancesField(diff *schema.ResourceDiff, meta interface{}) error {
+	// show a computed diff at plan time
+	// show either a real diff or a not-real-diff at apply time.
+	oldI, newI := diff.GetChange("instances")
+	oldInstanceSet := oldI.(*schema.Set)
+	newInstanceSet := newI.(*schema.Set)
+	oldInstances := convertStringArr(oldInstanceSet.List())
+	newInstances := convertStringArr(newInstanceSet.List())
+
+	log.Printf("[DEBUG] CustomizeDiff old: %#v, new: %#v", oldInstances, newInstances)
+	var memberUrls []string
+	config := meta.(*Config)
+	project := diff.Get("project").(string)
+	zone := diff.Get("zone").(string)
+	members, err := config.clientCompute.InstanceGroups.ListInstances(
+		project, zone, diff.Get("name").(string), &compute.InstanceGroupsListInstancesRequest{
+			InstanceState: "ALL",
+		}).Do()
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			// We can't find it, so it probably doesn't exist yet.
+			// This is where we'll end up at either plan time or apply time on first creation.
+			return nil
+		} else {
+			// any other errors return them
+			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
+		}
+	} else {
+		for _, member := range members.Items {
+			memberUrls = append(memberUrls, member.Instance)
+		}
+		log.Printf("[DEBUG] InstanceGroup members: %#v.  OldInstances: %#v", memberUrls, oldInstances)
+		if !reflect.DeepEqual(memberUrls, oldInstances) {
+			// This is where we'll end up at apply-time only if an instance is
+			// somehow removed from the set of instances between refresh and update.
+			newInstancesList := append(newInstances, "FORCE_UPDATE")
+			diff.SetNew("instances", newInstancesList)
+		}
+	}
+	return nil
 }
 
 func getInstanceReferences(instanceUrls []string) (refs []*compute.InstanceReference) {
@@ -247,6 +292,10 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	err := resourceComputeInstanceGroupRead(d, meta)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -264,7 +313,11 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("instances") {
 		// to-do check for no instances
-		from_, to_ := d.GetChange("instances")
+		_, to_ := d.GetChange("instances")
+		// We need to get the current state from d directly because
+		// it is likely to have been changed by the Read() above.
+		from_ := d.Get("instances")
+		to_.(*schema.Set).Remove("FORCE_UPDATE")
 
 		from := convertStringArr(from_.(*schema.Set).List())
 		to := convertStringArr(to_.(*schema.Set).List())
