@@ -222,6 +222,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	var obj map[string]interface{}
 	var url string
 	var res map[string]interface{}
 	op := &compute.Operation{}
@@ -234,7 +235,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			return err
 		}
 
-		obj := map[string]interface{}{
+		obj = map[string]interface{}{
 			"sslCertificates": sslCertificatesProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
@@ -267,7 +268,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			return err
 		}
 
-		obj := map[string]interface{}{
+		obj = map[string]interface{}{
 			"urlMap": urlMapProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpsProxies/{{name}}/setUrlMap")
