@@ -334,9 +334,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							ForceNew: true,
 						},
 						"password": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"ssl_cipher": &schema.Schema{
 							Type:     schema.TypeString,
