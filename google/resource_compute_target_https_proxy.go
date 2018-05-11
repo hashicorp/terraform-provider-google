@@ -301,7 +301,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			return err
 		}
 
-		obj := map[string]interface{}{
+		obj = map[string]interface{}{
 			"sslPolicy": sslPolicyProp,
 		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
