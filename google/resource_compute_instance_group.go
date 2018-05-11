@@ -183,8 +183,9 @@ func customDiffInstanceGroupInstancesField(diff *schema.ResourceDiff, meta inter
 		}
 		sort.Strings(memberUrls)
 		sort.Strings(oldInstances)
+		sort.Strings(newInstances)
 		log.Printf("[DEBUG] InstanceGroup members: %#v.  OldInstances: %#v", memberUrls, oldInstances)
-		if !reflect.DeepEqual(memberUrls, oldInstances) {
+		if !reflect.DeepEqual(memberUrls, oldInstances) && reflect.DeepEqual(newInstances, oldInstances) {
 			// This is where we'll end up at apply-time only if an instance is
 			// somehow removed from the set of instances between refresh and update.
 			newInstancesList := append(newInstances, "FORCE_UPDATE")
@@ -431,7 +432,10 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	if d.HasChange("named_port") {
-		namedPorts := getNamedPorts(d.Get("named_port").([]interface{}))
+		// Important to fetch via GetChange, because the above Read() will
+		// have reset the value retrieved via Get() to its current value.
+		_, namedPorts_ := d.GetChange("named_port")
+		namedPorts := getNamedPorts(namedPorts_.([]interface{}))
 
 		namedPortsReq := &compute.InstanceGroupsSetNamedPortsRequest{
 			NamedPorts: namedPorts,
