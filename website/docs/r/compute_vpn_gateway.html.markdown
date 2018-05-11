@@ -113,7 +113,7 @@ The following arguments are supported:
   character, which cannot be a dash.
 * `network` -
   (Required)
-  A reference to Network resource
+  The network this VPN gateway is accepting traffic for.
 
 
 - - -
@@ -123,7 +123,7 @@ The following arguments are supported:
   An optional description of this resource.
 * `region` -
   (Optional)
-  A reference to Region resource
+  The region this gateway should sit in.
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

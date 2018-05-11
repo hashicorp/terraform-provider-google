@@ -94,7 +94,8 @@ The following arguments are supported:
   character, which cannot be a dash.
 * `url_map` -
   (Required)
-  A reference to UrlMap resource
+  A reference to the UrlMap resource that defines the mapping from URL
+  to the BackendService.
 
 
 - - -
