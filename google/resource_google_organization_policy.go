@@ -18,7 +18,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"list_policy"},
+		ConflictsWith: []string{"list_policy", "restore_policy"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
@@ -32,7 +32,8 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"boolean_policy"},
+		ConflictsWith: []string{"boolean_policy", "restore_policy"},
+
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
@@ -100,9 +101,10 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Computed: true,
 	},
 	"restore_policy": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"boolean_policy", "list_policy"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"default": {

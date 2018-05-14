@@ -129,6 +129,24 @@ func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	t.Parallel()
+
+	folder := acctest.RandomWithPrefix("tf-test")
+	org := getTestOrgFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder),
+				Check:  getGoogleFolderOrganizationRestoreDefaultTrue("list", &cloudresourcemanager.RestoreDefault{}),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleFolderOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -216,6 +234,22 @@ func testAccCheckGoogleFolderOrganizationListPolicyDeniedValues(n string, values
 		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.DeniedValues, values) {
 			return fmt.Errorf("Expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
+		}
+
+		return nil
+	}
+}
+
+func getGoogleFolderOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleFolderOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the list policy to '%s', restore default got, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -319,6 +353,24 @@ resource "google_folder_organization_policy" "list" {
       ]
     }
   }
+}
+`, folder, "organizations/"+org)
+}
+
+func testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "orgpolicy" {
+  display_name = "%s"
+  parent       = "%s"
+}
+
+resource "google_folder_organization_policy" "list" {
+    folder     = "${google_folder.orgpolicy.name}"
+	constraint = "serviceuser.services"
+
+	restore_policy {
+		default = true
+	}
 }
 `, folder, "organizations/"+org)
 }

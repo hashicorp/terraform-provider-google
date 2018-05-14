@@ -24,7 +24,7 @@ func TestAccOrganizationPolicy(t *testing.T) {
 		"list_allowAll":  testAccOrganizationPolicy_list_allowAll,
 		"list_allowSome": testAccOrganizationPolicy_list_allowSome,
 		"list_denySome":  testAccOrganizationPolicy_list_denySome,
-		"list_update":    testAccOrganizationPolicy_list_update,
+		"list_restore":   testAccOrganizationPolicy_restore_defaultTrue,
 	}
 
 	for name, tc := range testCases {
@@ -165,6 +165,25 @@ func testAccOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func testAccOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	org := getTestOrgTargetFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOrganizationPolicyConfig_restore_defaultTrue(org),
+				Check:  testAccCheckGoogleOrganizationRestoreDefaultTrue("list", &cloudresourcemanager.RestoreDefault{}),
+			},
+			{
+				ResourceName: "google_organization_policy.list",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -258,6 +277,22 @@ func testAccCheckGoogleOrganizationListPolicyDeniedValues(n string, values []str
 	}
 }
 
+func testAccCheckGoogleOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the list policy to '%s', restore default got, %s", policyDefault, policy.RestoreDefault)
+		}
+
+		return nil
+	}
+}
+
 func getGoogleOrganizationPolicyTestResource(s *terraform.State, n string) (*cloudresourcemanager.OrgPolicy, error) {
 	rn := "google_organization_policy." + n
 	rs, ok := s.RootModule().Resources[rn]
@@ -335,6 +370,19 @@ resource "google_organization_policy" "list" {
 				"replicapoolupdater.googleapis.com",
 			]
 		}
+	}
+}
+`, org)
+}
+
+func testAccOrganizationPolicyConfig_restore_defaultTrue(org string) string {
+	return fmt.Sprintf(`
+resource "google_organization_policy" "list" {
+	org_id = "%s"
+	constraint = "serviceuser.services"
+
+	restore_policy {
+		default = true
 	}
 }
 `, org)
