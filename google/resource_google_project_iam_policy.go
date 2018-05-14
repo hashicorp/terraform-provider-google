@@ -36,7 +36,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 			"authoritative": &schema.Schema{
 				Type:       schema.TypeBool,
 				Optional:   true,
-				Deprecated: "A future version of Terraform will remove the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_policy_binding and google_project_iam_policy_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
+				Deprecated: "A future version of Terraform will remove the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
