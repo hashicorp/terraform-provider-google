@@ -39,8 +39,9 @@ func resourceComputeRegionBackendService() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 						"description": &schema.Schema{
 							Type:     schema.TypeString,
