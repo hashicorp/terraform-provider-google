@@ -140,11 +140,35 @@ func appEngineResource() *schema.Resource {
 				Computed: true,
 			},
 			"default_cookie_expiration_seconds": &schema.Schema{
-				Type:     schema.TypeFloat,
+				Type:     schema.TypeInt,
 				Optional: true,
+				// There's an undocumented requirement that this field be set to 1 day, 1 week, or 2 weeks in seconds
+				// that's 86400, 604800, and 1209600, respectively. This doesn't appear anywhere in the docs, as far
+				// as I can tell, but if you try to create with another value, the API is clear in its response that
+				// these are the only supported values:
+				//
+				// "This field must be either 1 day, 1 week, or 2 weeks in seconds. Valid values are 86400s, 604800s,
+				// or 1209600s."
+				ValidateFunc: func(i interface{}, k string) ([]string, []error) {
+					v, ok := i.(int)
+					if !ok {
+						return nil, []error{fmt.Errorf("expected type of %q to be int, was %T", k, i)}
+					}
+					if v != 86400 && v != 604800 && v != 1209600 {
+						return nil, []error{fmt.Errorf("only possible values for %q are %d, %d, and %d", k, 86400, 604800, 1209600)}
+					}
+					return nil, nil
+				},
 			},
 			"serving_status": &schema.Schema{
 				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"UNSPECIFIED",
+					"SERVING",
+					"USER_DISABLED",
+					"SYSTEM_DISABLED",
+				}, false),
 				Computed: true,
 			},
 			"default_hostname": &schema.Schema{
@@ -163,7 +187,7 @@ func appEngineResource() *schema.Resource {
 			},
 			"gcr_domain": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"feature_settings": &schema.Schema{
 				Type:     schema.TypeList,
@@ -233,7 +257,7 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	// don't need to check if changed, the call is a no-op/error if there's no change
-	diff.ForceNew("app_engine.#")
+	diff.ForceNew("app_engine")
 
 	// force a change to client secret if it doesn't match its sha
 	if !diff.HasChange("app_engine.0.iap.0.oauth2_client_secret") {
@@ -289,6 +313,34 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	// set up App Engine, too
+	app, err := expandAppEngineApp(d)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Creating App Engine if %v is true", app != nil)
+	if app != nil {
+		log.Printf("[DEBUG] Enabling App Engine")
+		// enable the app engine APIs so we can create stuff
+		if err = enableService("appengine.googleapis.com", project.ProjectId, config); err != nil {
+			return fmt.Errorf("Error enabling the App Engine Admin API required to configure App Engine applications: %s", err)
+		}
+		log.Printf("[DEBUG] Enabled App Engine")
+		app.Id = pid
+		log.Printf("[DEBUG] Creating App Engine App")
+		op, err := config.clientAppEngine.Apps.Create(app).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating App Engine application: %s", err.Error())
+		}
+
+		// Wait for the operation to complete
+		waitErr := appEngineOperationWait(config.clientAppEngine, op, pid, "App Engine app to create")
+		if waitErr != nil {
+			return waitErr
+		}
+		log.Printf("[DEBUG] Created App Engine App")
+	}
+
 	err = resourceGoogleProjectRead(d, meta)
 	if err != nil {
 		return err
@@ -306,30 +358,6 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
 			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
-		}
-	}
-
-	// set up App Engine, too
-	if len(d.Get("app_engine").([]interface{})) > 0 {
-		// enable the app engine APIs so we can create stuff
-		if err = enableService("appengine.googleapis.com", project.ProjectId, config); err != nil {
-			return fmt.Errorf("Error enabling the App Engine Admin API required to configure App Engine applications: %s", err)
-		}
-		app, err := expandAppEngineApp(d)
-		if err != nil {
-			return err
-		}
-		if app != nil {
-			op, err := config.clientAppEngine.Apps.Create(app).Do()
-			if err != nil {
-				return fmt.Errorf("Error creating App Engine application: %s", err.Error())
-			}
-
-			// Wait for the operation to complete
-			waitErr := appEngineOperationWait(config.clientAppEngine, op, app.Id, "App Engine app to create")
-			if waitErr != nil {
-				return waitErr
-			}
 		}
 	}
 	return nil
@@ -399,7 +427,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		err = d.Set("app_engine", appBlocks)
 		if err != nil {
-			return fmt.Errorf("Error setting App Engine application in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues")
+			return fmt.Errorf("Error setting App Engine application in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
 		}
 	}
 	return nil
@@ -623,13 +651,14 @@ func expandAppEngineApp(d *schema.ResourceData) (*appengine.Application, error) 
 		return nil, fmt.Errorf("only one app_engine block may be defined per project")
 	}
 	result := &appengine.Application{
-		AuthDomain: d.Get("app_engine.0.auth_domain").(string),
-		LocationId: d.Get("app_engine.0.location_id").(string),
-		Id:         d.Get("project_id").(string),
-		GcrDomain:  d.Get("gcr_domain").(string),
+		AuthDomain:    d.Get("app_engine.0.auth_domain").(string),
+		LocationId:    d.Get("app_engine.0.location_id").(string),
+		Id:            d.Get("project_id").(string),
+		GcrDomain:     d.Get("app_engine.0.gcr_domain").(string),
+		ServingStatus: d.Get("app_engine.0.serving_status").(string),
 	}
 	if v, ok := d.GetOkExists("app_engine.0.default_cookie_expiration_seconds"); ok {
-		result.DefaultCookieExpiration = strconv.FormatFloat(v.(float64), 'f', 9, 64) + "s"
+		result.DefaultCookieExpiration = strconv.FormatInt(int64(v.(int)), 10) + "s"
 	}
 	iap, err := expandAppEngineIAP(d, "app_engine.0.")
 	if err != nil {
@@ -666,7 +695,7 @@ func flattenAppEngineApp(app *appengine.Application) ([]map[string]interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	result["dispatch_rule"] = dispatchRules
+	result["url_dispatch_rule"] = dispatchRules
 	featureSettings, err := flattenAppEngineFeatureSettings(app.FeatureSettings)
 	if err != nil {
 		return nil, err

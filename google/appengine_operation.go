@@ -3,12 +3,17 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 
 	"google.golang.org/api/appengine/v1"
+)
+
+var (
+	appEngineOperationIdRE = regexp.MustCompile(fmt.Sprintf("apps/%s/operations/(.*)", ProjectRegex))
 )
 
 type AppEngineOperationWaiter struct {
@@ -19,7 +24,11 @@ type AppEngineOperationWaiter struct {
 
 func (w *AppEngineOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		op, err := w.Service.Apps.Operations.Get(w.AppId, w.Op.Name).Do()
+		matches := appEngineOperationIdRE.FindStringSubmatch(w.Op.Name)
+		if len(matches) != 2 {
+			return nil, "", fmt.Errorf("Expected %d results of parsing operation name, got %d from %s", 2, len(matches), w.Op.Name)
+		}
+		op, err := w.Service.Apps.Operations.Get(w.AppId, matches[1]).Do()
 		if err != nil {
 			return nil, "", err
 		}

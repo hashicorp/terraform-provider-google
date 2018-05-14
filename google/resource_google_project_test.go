@@ -187,6 +187,25 @@ func TestAccProject_parentFolder(t *testing.T) {
 	})
 }
 
+func TestAccProject_appEngineBasic(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_appEngineBasic(pid, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -347,6 +366,22 @@ resource "google_folder" "folder1" {
 }
 
 `, pid, projectName, folderName, org)
+}
+
+func testAccProject_appEngineBasic(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name = "%s"
+  org_id = "%s"
+
+  app_engine {
+    auth_domain = "hashicorptest.com"
+    location_id = "us-central"
+    default_cookie_expiration_seconds = 86400
+    serving_status = "SERVING"
+  }
+}`, pid, pid, org)
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {
