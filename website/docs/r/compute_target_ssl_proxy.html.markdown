@@ -79,7 +79,7 @@ The following arguments are supported:
   character, which cannot be a dash.
 * `backend_service` -
   (Required)
-  A reference to BackendService resource
+  A reference to the BackendService resource.
 * `ssl_certificates` -
   (Required)
   A list of SslCertificate resources that are used to authenticate

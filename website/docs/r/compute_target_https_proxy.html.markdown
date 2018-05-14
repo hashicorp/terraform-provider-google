@@ -107,7 +107,8 @@ The following arguments are supported:
   one SSL certificate must be specified.
 * `url_map` -
   (Required)
-  A reference to UrlMap resource
+  A reference to the UrlMap resource that defines the mapping from URL
+  to the BackendService.
 
 
 - - -
@@ -117,7 +118,9 @@ The following arguments are supported:
   An optional description of this resource.
 * `ssl_policy` -
   (Optional)
-  A reference to SslPolicy resource
+  A reference to the SslPolicy resource that will be associated with
+  the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
+  resource will not have any SSL policy configured.
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
