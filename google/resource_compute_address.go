@@ -131,7 +131,17 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	addressId, err := parseComputeAddressId(d.Id(), config)
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	addressId, err := parseComputeAddressId(d.Id(), project, region)
 	if err != nil {
 		return err
 	}
@@ -160,7 +170,17 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	addressId, err := parseComputeAddressId(d.Id(), config)
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	addressId, err := parseComputeAddressId(d.Id(), project, region)
 	if err != nil {
 		return err
 	}
@@ -184,7 +204,17 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	addressId, err := parseComputeAddressId(d.Id(), config)
+	region, err := getRegion(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	addressId, err := parseComputeAddressId(d.Id(), project, region)
 	if err != nil {
 		return nil, err
 	}
