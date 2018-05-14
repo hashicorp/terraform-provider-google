@@ -177,20 +177,19 @@ func customDiffInstanceGroupInstancesField(diff *schema.ResourceDiff, meta inter
 			// Any other errors return them
 			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
 		}
-	} else {
-		for _, member := range members.Items {
-			memberUrls = append(memberUrls, member.Instance)
-		}
-		sort.Strings(memberUrls)
-		sort.Strings(oldInstances)
-		sort.Strings(newInstances)
-		log.Printf("[DEBUG] InstanceGroup members: %#v.  OldInstances: %#v", memberUrls, oldInstances)
-		if !reflect.DeepEqual(memberUrls, oldInstances) && reflect.DeepEqual(newInstances, oldInstances) {
-			// This is where we'll end up at apply-time only if an instance is
-			// somehow removed from the set of instances between refresh and update.
-			newInstancesList := append(newInstances, "FORCE_UPDATE")
-			diff.SetNew("instances", newInstancesList)
-		}
+	}
+	for _, member := range members.Items {
+		memberUrls = append(memberUrls, member.Instance)
+	}
+	sort.Strings(memberUrls)
+	sort.Strings(oldInstances)
+	sort.Strings(newInstances)
+	log.Printf("[DEBUG] InstanceGroup members: %#v.  OldInstances: %#v", memberUrls, oldInstances)
+	if !reflect.DeepEqual(memberUrls, oldInstances) && reflect.DeepEqual(newInstances, oldInstances) {
+		// This is where we'll end up at apply-time only if an instance is
+		// somehow removed from the set of instances between refresh and update.
+		newInstancesList := append(newInstances, "FORCE_UPDATE")
+		diff.SetNew("instances", newInstancesList)
 	}
 	// This is where we'll end up if the GCP state matches the Terraform state.
 	return nil
