@@ -10,6 +10,9 @@ IMPROVEMENTS:
 * compute: autogenerate `google_compute_ssl_policy` [GH-1478]
 * compute: add support for `ssl_policy` to `google_target_https_proxy` [GH-1466]
 
+BUG FIXES:
+* Compare region_backend_service.backend[].group as a relative path [GH-1487]
+
 ## 1.12.0 (May 04, 2018)
 FEATURES:
 * spanner: New resources to manage IAM for Spanner Databases: google_spanner_database_iam_binding, google_spanner_database_iam_member, and google_spanner_database_iam_policy ([#1386](https://github.com/terraform-providers/terraform-provider-google/issues/1386))
