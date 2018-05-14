@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 * cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
 * container: Add support for regional cluster in `google_container` datasource [GH-1441]
+* compute: autogenerate `google_compute_ssl_policy` [GH-1478]
 
 ## 1.12.0 (May 04, 2018)
 FEATURES:
