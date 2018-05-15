@@ -276,7 +276,8 @@ The `node_config` block supports:
     attached to each cluster node. Defaults to 0.
 
 * `machine_type` - (Optional) The name of a Google Compute Engine machine type.
-    Defaults to `n1-standard-1`.
+    Defaults to `n1-standard-1`. To create a custom machine type, value should be set as specified
+    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
 
 * `metadata` - (Optional) The metadata key/value pairs assigned to instances in
     the cluster.
