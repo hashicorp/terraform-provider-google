@@ -65,14 +65,13 @@ func resourceBigQueryDataset() *schema.Resource {
 			},
 
 			// Location: [Experimental] The geographic location where the dataset
-			// should reside. Possible values include EU and US. The default value
-			// is US.
+			// should reside.
 			"location": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1"}, false),
 			},
 
 			// DefaultTableExpirationMs: [Optional] The default lifetime of all
