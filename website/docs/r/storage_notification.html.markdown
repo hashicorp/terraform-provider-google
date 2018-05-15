@@ -44,7 +44,7 @@ resource "google_storage_notification" "notification" {
 	bucket            = "${google_storage_bucket.bucket.name}"
 	payload_format    = "JSON_API_V1"
 	topic             = "${google_pubsub_topic.topic.id}"
-	event_types       = ["%s","%s"]
+	event_types       = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
 	custom_attributes {
 		new-attribute = "new-attribute-value"
 	}
@@ -60,8 +60,10 @@ The following arguments are supported:
 
 * `payload_format` - (Required) The desired content of the Payload. One of `"JSON_API_V1"` or `"NONE"`.
 
-* `topic` - (Required) The Cloud PubSub topic to which this subscription publishes.
-
+* `topic` - (Required) The Cloud PubSub topic to which this subscription publishes. Expects either the 
+    topic name, assumed to belong to the default GCP provider project, or the project-level name, 
+    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`.
+    
 - - -
 
 * `custom_attributes` - (Optional)  A set of key/value attribute pairs to attach to each Cloud PubSub message published for this notification subscription
