@@ -24,7 +24,8 @@ func TestAccOrganizationPolicy(t *testing.T) {
 		"list_allowAll":  testAccOrganizationPolicy_list_allowAll,
 		"list_allowSome": testAccOrganizationPolicy_list_allowSome,
 		"list_denySome":  testAccOrganizationPolicy_list_denySome,
-		"list_restore":   testAccOrganizationPolicy_restore_defaultTrue,
+		"list_update":    testAccOrganizationPolicy_list_update,
+		"restore_policy": testAccOrganizationPolicy_restore_defaultTrue,
 	}
 
 	for name, tc := range testCases {
@@ -174,11 +175,12 @@ func testAccOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_restore_defaultTrue(org),
-				Check:  testAccCheckGoogleOrganizationRestoreDefaultTrue("list", &cloudresourcemanager.RestoreDefault{}),
+				Check:  testAccCheckGoogleOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
 			},
 			{
-				ResourceName: "google_organization_policy.list",
-				ImportState:  true,
+				ResourceName:      "google_organization_policy.restore",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -286,7 +288,7 @@ func testAccCheckGoogleOrganizationRestoreDefaultTrue(n string, policyDefault *c
 		}
 
 		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
-			return fmt.Errorf("Expected the list policy to '%s', restore default got, %s", policyDefault, policy.RestoreDefault)
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -377,7 +379,7 @@ resource "google_organization_policy" "list" {
 
 func testAccOrganizationPolicyConfig_restore_defaultTrue(org string) string {
 	return fmt.Sprintf(`
-resource "google_organization_policy" "list" {
+resource "google_organization_policy" "restore" {
 	org_id = "%s"
 	constraint = "serviceuser.services"
 

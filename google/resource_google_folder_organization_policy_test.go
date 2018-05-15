@@ -141,7 +141,7 @@ func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder),
-				Check:  getGoogleFolderOrganizationRestoreDefaultTrue("list", &cloudresourcemanager.RestoreDefault{}),
+				Check:  getGoogleFolderOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
 			},
 		},
 	})
@@ -249,7 +249,7 @@ func getGoogleFolderOrganizationRestoreDefaultTrue(n string, policyDefault *clou
 		}
 
 		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
-			return fmt.Errorf("Expected the list policy to '%s', restore default got, %s", policyDefault, policy.RestoreDefault)
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -364,7 +364,7 @@ resource "google_folder" "orgpolicy" {
   parent       = "%s"
 }
 
-resource "google_folder_organization_policy" "list" {
+resource "google_folder_organization_policy" "restore" {
     folder     = "${google_folder.orgpolicy.name}"
 	constraint = "serviceuser.services"
 

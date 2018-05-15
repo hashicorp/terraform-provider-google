@@ -132,7 +132,7 @@ func TestAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicy_restore_defaultTrue(projectId),
-				Check:  getGoogleProjectOrganizationRestoreDefaultTrue("list", &cloudresourcemanager.RestoreDefault{}),
+				Check:  getGoogleProjectOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
 			},
 		},
 	})
@@ -244,7 +244,7 @@ func getGoogleProjectOrganizationRestoreDefaultTrue(n string, policyDefault *clo
 		}
 
 		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
-			return fmt.Errorf("Expected the list policy to '%s', restore default got, %s", policyDefault, policy.RestoreDefault)
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -335,7 +335,7 @@ resource "google_project_organization_policy" "list" {
 
 func testAccProjectOrganizationPolicy_restore_defaultTrue(pid string) string {
 	return fmt.Sprintf(`
-resource "google_project_organization_policy" "list" {
+resource "google_project_organization_policy" "restore" {
   project    = "%s"
   constraint = "constraints/serviceuser.services"
 
