@@ -72,7 +72,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1"}, false),
 			},
 
 			// DefaultTableExpirationMs: [Optional] The default lifetime of all
