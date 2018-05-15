@@ -33,8 +33,38 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 
 			"instance_template": &schema.Schema{
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
+			},
+
+			"version": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"instance_template": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
+						},
+
+						"target_size_fixed": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+
+						"target_size_percent": &schema.Schema{
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 100),
+						},
+					},
+				},
 			},
 
 			"name": &schema.Schema{
@@ -254,6 +284,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").([]interface{})),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
+		Versions:            expandVersions(d.Get("version").([]interface{})),
 		// Force send TargetSize to allow a value of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -288,6 +319,23 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 	}
 	return result
 
+}
+
+func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(versions))
+	for _, version := range versions {
+		versionMap := make(map[string]interface{})
+		versionMap["name"] = version.Name
+		versionMap["instance_template"] = ConvertSelfLinkToV1(version.InstanceTemplate)
+		if value := version.TargetSize.Percent; value > 0 {
+			versionMap["target_size_percent"] = version.TargetSize.Percent
+		} else {
+			versionMap["target_size_fixed"] = version.TargetSize.Fixed
+		}
+		result = append(result, versionMap)
+	}
+
+	return result
 }
 
 func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
@@ -352,6 +400,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
 	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
+	d.Set("version", flattenVersions(manager.Versions))
 	d.Set("name", manager.Name)
 	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
 	d.Set("description", manager.Description)
@@ -505,6 +554,74 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.SetPartial("instance_template")
 	}
 
+	// If version changes then update
+	if d.HasChange("version") {
+		manager := &computeBeta.InstanceGroupManager{
+			Versions: expandVersions(d.Get("version").([]interface{})),
+		}
+
+		op, err := config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, d.Id(), manager).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating managed group instances: %s", err)
+		}
+
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
+		if err != nil {
+			return err
+		}
+
+		if d.Get("update_strategy").(string) == "RESTART" {
+			managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, d.Id()).Do()
+			if err != nil {
+				return fmt.Errorf("Error getting instance group managers instances: %s", err)
+			}
+
+			managedInstanceCount := len(managedInstances.ManagedInstances)
+			instances := make([]string, managedInstanceCount)
+			for i, v := range managedInstances.ManagedInstances {
+				instances[i] = v.Instance
+			}
+
+			recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
+				Instances: instances,
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(project, zone, d.Id(), recreateInstances).Do()
+			if err != nil {
+				return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+			}
+
+			// Wait for the operation to complete
+			err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
+			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+			// expect those values to be provided by user as part of the call
+			// or provide their own defaults without respecting what was previously set on UpdateManager.
+			// To follow the same logic, we provide policy values on relevant update change only.
+			manager := &computeBeta.InstanceGroupManager{
+				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
+			}
+
+			op, err = config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, d.Id(), manager).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating managed group instances: %s", err)
+			}
+
+			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
+			if err != nil {
+				return err
+			}
+		}
+
+		d.SetPartial("version")
+	}
+
 	// If named_port changes then update:
 	if d.HasChange("named_port") {
 
@@ -645,6 +762,28 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 		autoHealingPolicies = append(autoHealingPolicies, &autoHealingPolicy)
 	}
 	return autoHealingPolicies
+}
+
+func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManagerVersion {
+	versions := make([]*computeBeta.InstanceGroupManagerVersion, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		version := computeBeta.InstanceGroupManagerVersion{
+			Name:             data["name"].(string),
+			InstanceTemplate: data["instance_template"].(string),
+		}
+		if v := data["target_size_percent"]; v.(int) > 0 {
+			version.TargetSize = &computeBeta.FixedOrPercent{
+				Percent: int64(v.(int)),
+			}
+		} else {
+			version.TargetSize = &computeBeta.FixedOrPercent{
+				Fixed: int64(data["target_size_fixed"].(int)),
+			}
+		}
+		versions = append(versions, &version)
+	}
+	return versions
 }
 
 func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {
