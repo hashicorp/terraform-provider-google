@@ -3,6 +3,7 @@
 FEATURES:
 * **New Resource**: Added `google_cloudbuild_trigger`. [GH-1357]
 * **New Resource**: Added `google_storage_bucket_iam_policy` [GH-1190]
+* **New Resource**: Added `google_resource_manager_lien` [GH-1484]
 
 IMPROVEMENTS:
 * cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
