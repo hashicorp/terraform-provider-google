@@ -35,6 +35,8 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(_ *terraform.State) (string, error) {
+					// This has to be a function to close over lien.Name, which is necessary
+					// because Name is a Computed attribute.
 					return fmt.Sprintf("%s/%s",
 						projectName,
 						strings.Split(lien.Name, "/")[1]), nil
