@@ -166,6 +166,8 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error waiting to create TargetSslProxy: %s", waitErr)
 	}
 
+	log.Printf("[DEBUG] Finished creating TargetSslProxy %q: %#v", d.Id(), res)
+
 	return resourceComputeTargetSslProxyRead(d, meta)
 }
 
@@ -186,6 +188,7 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetSslProxy %q", d.Id()))
 	}
+
 	if err := d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"])); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
@@ -370,6 +373,7 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	log.Printf("[DEBUG] Finished deleting TargetSslProxy %q: %#v", d.Id(), res)
 	return nil
 }
 

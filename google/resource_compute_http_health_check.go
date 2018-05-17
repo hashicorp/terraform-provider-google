@@ -194,6 +194,8 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error waiting to create HttpHealthCheck: %s", waitErr)
 	}
 
+	log.Printf("[DEBUG] Finished creating HttpHealthCheck %q: %#v", d.Id(), res)
+
 	return resourceComputeHttpHealthCheckRead(d, meta)
 }
 
@@ -214,6 +216,7 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpHealthCheck %q", d.Id()))
 	}
+
 	if err := d.Set("check_interval_sec", flattenComputeHttpHealthCheckCheckIntervalSec(res["checkIntervalSec"])); err != nil {
 		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
 	}
@@ -373,6 +376,7 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	log.Printf("[DEBUG] Finished deleting HttpHealthCheck %q: %#v", d.Id(), res)
 	return nil
 }
 

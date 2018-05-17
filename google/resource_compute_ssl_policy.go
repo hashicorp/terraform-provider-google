@@ -195,6 +195,8 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error waiting to create SslPolicy: %s", waitErr)
 	}
 
+	log.Printf("[DEBUG] Finished creating SslPolicy %q: %#v", d.Id(), res)
+
 	return resourceComputeSslPolicyRead(d, meta)
 }
 
@@ -215,6 +217,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSslPolicy %q", d.Id()))
 	}
+
 	if err := d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"])); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
@@ -349,6 +352,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	log.Printf("[DEBUG] Finished deleting SslPolicy %q: %#v", d.Id(), res)
 	return nil
 }
 
