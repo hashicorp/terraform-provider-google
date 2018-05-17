@@ -1,7 +1,6 @@
 package google
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"log"
 	"net/http"
@@ -115,6 +114,8 @@ func appEngineResource() *schema.Resource {
 			"auth_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -139,30 +140,10 @@ func appEngineResource() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"default_cookie_expiration_seconds": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				// There's an undocumented requirement that this field be set to 1 day, 1 week, or 2 weeks in seconds
-				// that's 86400, 604800, and 1209600, respectively. This doesn't appear anywhere in the docs, as far
-				// as I can tell, but if you try to create with another value, the API is clear in its response that
-				// these are the only supported values:
-				//
-				// "This field must be either 1 day, 1 week, or 2 weeks in seconds. Valid values are 86400s, 604800s,
-				// or 1209600s."
-				ValidateFunc: func(i interface{}, k string) ([]string, []error) {
-					v, ok := i.(int)
-					if !ok {
-						return nil, []error{fmt.Errorf("expected type of %q to be int, was %T", k, i)}
-					}
-					if v != 86400 && v != 604800 && v != 1209600 {
-						return nil, []error{fmt.Errorf("only possible values for %q are %d, %d, and %d", k, 86400, 604800, 1209600)}
-					}
-					return nil, nil
-				},
-			},
 			"serving_status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"UNSPECIFIED",
 					"SERVING",
@@ -179,12 +160,6 @@ func appEngineResource() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"iap": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     appEngineIAPResource(),
-			},
 			"gcr_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -192,6 +167,8 @@ func appEngineResource() *schema.Resource {
 			"feature_settings": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem:     appEngineFeatureSettingsResource(),
 			},
@@ -218,32 +195,6 @@ func appEngineURLDispatchRuleResource() *schema.Resource {
 	}
 }
 
-func appEngineIAPResource() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"enabled": &schema.Schema{
-				Type:     schema.TypeBool,
-				Required: true,
-			},
-			"oauth2_client_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"oauth2_client_secret": &schema.Schema{
-				Type:      schema.TypeString,
-				Optional:  true,
-				Computed:  true,
-				Sensitive: true,
-			},
-			"oauth2_client_secret_sha256": &schema.Schema{
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
-			},
-		},
-	}
-}
-
 func appEngineFeatureSettingsResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -258,14 +209,6 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	// don't need to check if changed, the call is a no-op/error if there's no change
 	diff.ForceNew("app_engine")
-
-	// force a change to client secret if it doesn't match its sha
-	if !diff.HasChange("app_engine.0.iap.0.oauth2_client_secret") {
-		sha := sha256.Sum256([]byte(diff.Get("app_engine.0.iap.0.oauth2_client_secret").(string)))
-		if string(sha[:]) != diff.Get("app_engine.0.iap.0.oauth2_client_secret_sha256").(string) {
-			diff.SetNew("app_engine.0.iap.0.oauth2_client_secret", diff.Get("app_engine.0.iap.0.oauth2_client_secret"))
-		}
-	}
 	return nil
 }
 
@@ -415,12 +358,17 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("billing_account", _ba)
 	}
 
-	// Read the App Engine app
-	if d.Get("app_engine.#").(int) > 0 {
-		app, err := config.clientAppEngine.Apps.Get(pid).Do()
-		if err != nil {
-			return fmt.Errorf("Error retrieving App Engine application %q: %s", pid, err.Error())
-		}
+	// read the App Engine app, if one exists
+	// we don't have the config available for import, so we can't rely on
+	// that to read it. And honestly, we want to know if an App exists that
+	// shouldn't. So this tries to read it, sets it to empty if none exists,
+	// or sets it in state if one does exist.
+	app, err := config.clientAppEngine.Apps.Get(pid).Do()
+	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+		return fmt.Errorf("Error retrieving App Engine application %q: %s", pid, err.Error())
+	} else if isGoogleApiErrorWithCode(err, 404) {
+		d.Set("app_engine", []map[string]interface{}{})
+	} else {
 		appBlocks, err := flattenAppEngineApp(app)
 		if err != nil {
 			return fmt.Errorf("Error serializing App Engine app: %s", err.Error())
@@ -534,23 +482,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		d.SetPartial("labels")
 	}
 
-	if d.HasChange("app_engine") {
-		// don't need to worry about case where block is removed; custom diff does that
-		// for us
-		app, err := expandAppEngineApp(d)
-		if err != nil {
-			return err
-		}
-		op, err := config.clientAppEngine.Apps.Patch(p.ProjectId, app).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating App Engine application %q: %s", p.ProjectId, err.Error())
-		}
-		waitErr := appEngineOperationWait(config.clientAppEngine, op, p.ProjectId, "App Engine app to update")
-		if waitErr != nil {
-			return waitErr
-		}
-		d.SetPartial("app_engine")
-	}
+	// ignore app_engine changes, they don't work anyways.
 	d.Partial(false)
 
 	return nil
@@ -657,14 +589,6 @@ func expandAppEngineApp(d *schema.ResourceData) (*appengine.Application, error) 
 		GcrDomain:     d.Get("app_engine.0.gcr_domain").(string),
 		ServingStatus: d.Get("app_engine.0.serving_status").(string),
 	}
-	if v, ok := d.GetOkExists("app_engine.0.default_cookie_expiration_seconds"); ok {
-		result.DefaultCookieExpiration = strconv.FormatInt(int64(v.(int)), 10) + "s"
-	}
-	iap, err := expandAppEngineIAP(d, "app_engine.0.")
-	if err != nil {
-		return nil, err
-	}
-	result.Iap = iap
 	featureSettings, err := expandAppEngineFeatureSettings(d, "app_engine.0.")
 	if err != nil {
 		return nil, err
@@ -683,14 +607,6 @@ func flattenAppEngineApp(app *appengine.Application) ([]map[string]interface{}, 
 		"name":             app.Name,
 		"serving_status":   app.ServingStatus,
 	}
-	if app.DefaultCookieExpiration != "" {
-		seconds := strings.TrimSuffix(app.DefaultCookieExpiration, "s")
-		exp, err := strconv.ParseFloat(seconds, 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid default cookie expiration: %s", err.Error())
-		}
-		result["default_cookie_expiration_seconds"] = exp
-	}
 	dispatchRules, err := flattenAppEngineDispatchRules(app.DispatchRules)
 	if err != nil {
 		return nil, err
@@ -701,47 +617,6 @@ func flattenAppEngineApp(app *appengine.Application) ([]map[string]interface{}, 
 		return nil, err
 	}
 	result["feature_settings"] = featureSettings
-	iap, err := flattenAppEngineIAP(app.Iap)
-	if err != nil {
-		return nil, err
-	}
-	result["iap"] = iap
-	return []map[string]interface{}{result}, nil
-}
-
-func expandAppEngineIAP(d *schema.ResourceData, prefix string) (*appengine.IdentityAwareProxy, error) {
-	blocks := d.Get(prefix + "iap").([]interface{})
-	if len(blocks) < 1 {
-		return nil, nil
-	}
-	if len(blocks) > 1 {
-		return nil, fmt.Errorf("only one iap block may be defined per app")
-	}
-	if d.Get(prefix+"iap.0.oauth2_client_id").(string) == "" && d.Get(prefix+"iap.0.enabled").(bool) {
-		return nil, fmt.Errorf("oauth2_client_id must be set if the IAP is enabled")
-	}
-	if d.Get(prefix+"iap.0.oauth2_client_secret") == "" && d.Get(prefix+"iap.0.enabled").(bool) {
-		return nil, fmt.Errorf("oauth2_client_secret must be set if the IAP is enabled")
-	}
-	return &appengine.IdentityAwareProxy{
-		Enabled:            d.Get(prefix + "iap.0.enabled").(bool),
-		Oauth2ClientId:     d.Get(prefix + "iap.0.oauth2_client_id").(string),
-		Oauth2ClientSecret: d.Get(prefix + "iap.0.oauth2_client_secret").(string),
-		// force send enabled, so if it's set to false, IAP still gets turned off
-		ForceSendFields: []string{"Enabled"},
-	}, nil
-}
-
-func flattenAppEngineIAP(iap *appengine.IdentityAwareProxy) ([]map[string]interface{}, error) {
-	if iap == nil {
-		return []map[string]interface{}{}, nil
-	}
-	result := map[string]interface{}{
-		"enabled":                     iap.Enabled,
-		"oauth2_client_id":            iap.Oauth2ClientId,
-		"oauth2_client_secret_sha256": iap.Oauth2ClientSecretSha256,
-		// don't set client secret, it's not returned by the API
-	}
 	return []map[string]interface{}{result}, nil
 }
 

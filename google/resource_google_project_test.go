@@ -200,7 +200,41 @@ func TestAccProject_appEngineBasic(t *testing.T) {
 				Config: testAccProject_appEngineBasic(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_hostname"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_bucket"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccProject_appEngineFeatureSettings(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_appEngineFeatureSettings(pid, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -378,8 +412,23 @@ resource "google_project" "acceptance" {
   app_engine {
     auth_domain = "hashicorptest.com"
     location_id = "us-central"
-    default_cookie_expiration_seconds = 86400
     serving_status = "SERVING"
+  }
+}`, pid, pid, org)
+}
+
+func testAccProject_appEngineFeatureSettings(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name = "%s"
+  org_id = "%s"
+
+  app_engine {
+    location_id = "us-central"
+    feature_settings {
+      "split_health_checks" = true
+    }
   }
 }`, pid, pid, org)
 }
