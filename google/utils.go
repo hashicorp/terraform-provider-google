@@ -298,15 +298,13 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	return merged
 }
 
-func mergeResourceMaps(a, b map[string]*schema.Resource) map[string]*schema.Resource {
+func mergeResourceMaps(ms ...map[string]*schema.Resource) map[string]*schema.Resource {
 	merged := make(map[string]*schema.Resource)
 
-	for k, v := range a {
-		merged[k] = v
-	}
-
-	for k, v := range b {
-		merged[k] = v
+	for _, m := range ms {
+		for k, v := range m {
+			merged[k] = v
+		}
 	}
 
 	return merged

@@ -146,6 +146,8 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error waiting to create VpnGateway: %s", waitErr)
 	}
 
+	log.Printf("[DEBUG] Finished creating VpnGateway %q: %#v", d.Id(), res)
+
 	return resourceComputeVpnGatewayRead(d, meta)
 }
 
@@ -166,6 +168,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeVpnGateway %q", d.Id()))
 	}
+
 	if err := d.Set("creation_timestamp", flattenComputeVpnGatewayCreationTimestamp(res["creationTimestamp"])); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
@@ -224,6 +227,7 @@ func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	log.Printf("[DEBUG] Finished deleting VpnGateway %q: %#v", d.Id(), res)
 	return nil
 }
 
