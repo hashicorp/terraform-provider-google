@@ -1,9 +1,13 @@
 ## 1.12.1 (Unreleased)
 
 FEATURES:
-* **New Resource**: Added `google_cloudbuild_trigger`. [GH-1357]
-* **New Resource**: Added `google_storage_bucket_iam_policy` [GH-1190]
-* **New Resource**: Added `google_resource_manager_lien` [GH-1484]
+* **New Resource**: `google_cloudbuild_trigger`. [GH-1357]
+* **New Resource**: `google_storage_bucket_iam_policy` [GH-1190]
+* **New Resource**: `google_resource_manager_lien` [GH-1484]
+* **New Resource**: `google_logging_billing_account_exclusion` [GH-990]
+* **New Resource**: `google_logging_folder_exclusion` [GH-990]
+* **New Resource**: `google_logging_organization_exclusion` [GH-990]
+* **New Resource**: `google_logging_project_exclusion` [GH-990]
 
 IMPROVEMENTS:
 * cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
