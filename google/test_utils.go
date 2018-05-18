@@ -1,5 +1,9 @@
 package google
 
+import (
+	"strconv"
+)
+
 type ResourceDataMock struct {
 	FieldsInSchema      map[string]interface{}
 	FieldsWithHasChange []string
@@ -38,4 +42,12 @@ func (d *ResourceDataMock) SetId(v string) {
 
 func (d *ResourceDataMock) Id() string {
 	return d.id
+}
+
+func toBool(attribute string) (bool, error) {
+	// Handle the case where an unset value defaults to false
+	if attribute == "" {
+		return false, nil
+	}
+	return strconv.ParseBool(attribute)
 }
