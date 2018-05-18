@@ -569,21 +569,24 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if v, ok := _settings["maintenance_window"]; ok && len(v.([]interface{})) > 0 {
-		settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
-		_maintenanceWindow := v.([]interface{})[0].(map[string]interface{})
+	if v, ok := _settings["maintenance_window"]; ok {
+		windows := v.([]interface{})
+		if len(windows) > 0 && windows[0] != nil {
+			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
+			window := v.([]interface{})[0].(map[string]interface{})
 
-		if vp, okp := _maintenanceWindow["day"]; okp {
-			settings.MaintenanceWindow.Day = int64(vp.(int))
-		}
+			if vp, okp := window["day"]; okp {
+				settings.MaintenanceWindow.Day = int64(vp.(int))
+			}
 
-		if vp, okp := _maintenanceWindow["hour"]; okp {
-			settings.MaintenanceWindow.Hour = int64(vp.(int))
-		}
+			if vp, okp := window["hour"]; okp {
+				settings.MaintenanceWindow.Hour = int64(vp.(int))
+			}
 
-		if vp, ok := _maintenanceWindow["update_track"]; ok {
-			if len(vp.(string)) > 0 {
-				settings.MaintenanceWindow.UpdateTrack = vp.(string)
+			if vp, ok := window["update_track"]; ok {
+				if len(vp.(string)) > 0 {
+					settings.MaintenanceWindow.UpdateTrack = vp.(string)
+				}
 			}
 		}
 	}
