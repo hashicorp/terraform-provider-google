@@ -10,7 +10,7 @@ description: |-
 
 A Region Backend Service defines a regionally-scoped group of virtual machines that will serve traffic for load balancing.
 For more information see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/internal/)
-and [API](https://cloud.google.com/compute/docs/reference/latest/backendServices).
+and [API](https://cloud.google.com/compute/docs/reference/latest/regionBackendServices).
 
 ## Example Usage
 
