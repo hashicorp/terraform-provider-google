@@ -15,6 +15,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	appengine "google.golang.org/api/appengine/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudbuild/v1"
@@ -78,6 +79,7 @@ type Config struct {
 	clientBigQuery               *bigquery.Service
 	clientCloudFunctions         *cloudfunctions.Service
 	clientCloudIoT               *cloudiot.Service
+	clientAppEngine              *appengine.APIService
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -323,6 +325,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientCloudIoT.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating App Engine Client...")
+	c.clientAppEngine, err = appengine.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientAppEngine.UserAgent = userAgent
 
 	return nil
 }
