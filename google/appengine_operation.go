@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	appEngineOperationIdRE = regexp.MustCompile(fmt.Sprintf("apps/%s/operations/(.*)", ProjectRegex))
+	appEngineOperationIdRegexp = regexp.MustCompile(fmt.Sprintf("apps/%s/operations/(.*)", ProjectRegex))
 )
 
 type AppEngineOperationWaiter struct {
@@ -24,7 +24,7 @@ type AppEngineOperationWaiter struct {
 
 func (w *AppEngineOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		matches := appEngineOperationIdRE.FindStringSubmatch(w.Op.Name)
+		matches := appEngineOperationIdRegexp.FindStringSubmatch(w.Op.Name)
 		if len(matches) != 2 {
 			return nil, "", fmt.Errorf("Expected %d results of parsing operation name, got %d from %s", 2, len(matches), w.Op.Name)
 		}

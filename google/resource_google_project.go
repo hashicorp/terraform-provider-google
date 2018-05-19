@@ -114,6 +114,8 @@ func appEngineResource() *schema.Resource {
 			"auth_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				// We're having trouble with PATCH throwing 400s/500s, so we need this
+				// to force a new resource until we can get updating working.
 				ForceNew: true,
 				Computed: true,
 			},
@@ -143,6 +145,8 @@ func appEngineResource() *schema.Resource {
 			"serving_status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				// We're having trouble with PATCH throwing 400s/500s, so we need this
+				// to force a new resource until we can get updating working.
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"UNSPECIFIED",
@@ -168,6 +172,8 @@ func appEngineResource() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
+				// We're having trouble with PATCH throwing 400s/500s, so we need this
+				// to force a new resource until we can get updating working.
 				ForceNew: true,
 				MaxItems: 1,
 				Elem:     appEngineFeatureSettingsResource(),
@@ -261,7 +267,6 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Creating App Engine if %v is true", app != nil)
 	if app != nil {
 		log.Printf("[DEBUG] Enabling App Engine")
 		// enable the app engine APIs so we can create stuff
