@@ -1,4 +1,4 @@
-## 1.12.1 (Unreleased)
+## 1.13.0 (Unreleased)
 
 FEATURES:
 * **New Resource**: `google_cloudbuild_trigger`. [GH-1357]
@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource**: `google_logging_folder_exclusion` [GH-990]
 * **New Resource**: `google_logging_organization_exclusion` [GH-990]
 * **New Resource**: `google_logging_project_exclusion` [GH-990]
+* App Engine applications can now be managed using the `app_engine` field in `google_project` [GH-1503]
 
 IMPROVEMENTS:
 * cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
