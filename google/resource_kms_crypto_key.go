@@ -16,6 +16,7 @@ func resourceKmsCryptoKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKmsCryptoKeyCreate,
 		Read:   resourceKmsCryptoKeyRead,
+		Update: resourceKmsCryptoKeyUpdate,
 		Delete: resourceKmsCryptoKeyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -36,7 +37,7 @@ func resourceKmsCryptoKey() *schema.Resource {
 			"rotation_period": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
 			},
 		},
@@ -105,6 +106,46 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Created CryptoKey %s", cryptoKey.Name)
+
+	d.SetId(cryptoKeyId.cryptoKeyId())
+
+	return resourceKmsCryptoKeyRead(d, meta)
+}
+
+func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
+	if err != nil {
+		return err
+	}
+
+	key := cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}
+
+	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {
+		rotationPeriod := d.Get("rotation_period").(string)
+		nextRotation, err := kmsCryptoKeyNextRotation(time.Now(), rotationPeriod)
+
+		if err != nil {
+			return fmt.Errorf("Error setting CryptoKey rotation period: %s", err.Error())
+		}
+
+		key.NextRotationTime = nextRotation
+		key.RotationPeriod = rotationPeriod
+	}
+
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Patch(
+		cryptoKeyId.cryptoKeyId(),
+		&key,
+	).
+		UpdateMask("rotation_period,next_rotation_time").
+		Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating CryptoKey: %s", err.Error())
+	}
+
+	log.Printf("[DEBUG] Updated CryptoKey %s", cryptoKey.Name)
 
 	d.SetId(cryptoKeyId.cryptoKeyId())
 
