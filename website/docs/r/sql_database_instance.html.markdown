@@ -9,8 +9,7 @@ description: |-
 # google\_sql\_database\_instance
 
 Creates a new Google SQL Database Instance. For more information, see the [official documentation](https://cloud.google.com/sql/),
-or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/instances). Postgres support
-for `google_sql_database_instance` is in [Beta](/docs/providers/google/index.html#beta-features).
+or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/instances).
 
 ~> **NOTE on `google_sql_database_instance`:** - Second-generation instances include a
 default 'root'@'%' user with no password. This user will be deleted by Terraform on
