@@ -16,4 +16,6 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
-var GeneratedRedisResourcesMap = map[string]*schema.Resource{}
+var GeneratedRedisResourcesMap = map[string]*schema.Resource{
+	"google_redis_instance": resourceRedisInstance(),
+}
