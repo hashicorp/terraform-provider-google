@@ -11,7 +11,6 @@ description: |-
 Creates a new Google SQL Database on a Google SQL Database Instance. For more information, see
 the [official documentation](https://cloud.google.com/sql/),
 or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/databases).
-Postgres support for `google_sql_database` is in [Beta](/docs/providers/google/index.html#beta-features).
 
 ## Example Usage
 
