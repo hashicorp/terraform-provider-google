@@ -28,11 +28,11 @@ resource "google_cloudiot_registry" "default-registry" {
   name = "default-registry"
 
   event_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
   }
 
   state_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
   }
 
   http_config = {
