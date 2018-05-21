@@ -34,6 +34,7 @@ import (
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
+	"google.golang.org/api/redis/v1beta1"
 	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/sourcerepo/v1"
@@ -67,6 +68,7 @@ type Config struct {
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
+	clientRedis                  *redis.Service
 	clientResourceManager        *cloudresourcemanager.Service
 	clientResourceManagerV2Beta1 *resourceManagerV2Beta1.Service
 	clientRuntimeconfig          *runtimeconfig.Service
@@ -229,6 +231,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDataflow.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Redis Client...")
+	c.clientRedis, err = redis.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientRedis.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager Client...")
 	c.clientResourceManager, err = cloudresourcemanager.New(client)
