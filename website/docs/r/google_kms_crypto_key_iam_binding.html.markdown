@@ -15,7 +15,7 @@ an existing Google Cloud KMS crypto key.
 
 ```hcl
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
+  crypto_key_id = "my-gcp-project/us-central1/my-key-ring/my-crypto-key"
   role          = "roles/editor"
 
   members = [
@@ -51,5 +51,5 @@ exported:
 IAM binding imports use space-delimited identifiers; first the resource in question and then the role.  These bindings can be imported using the `crypto_key_id` and role, e.g.
 
 ```
-$ terraform import google_kms_crypto_key_iam_binding.my_binding "your-project-id/location-name/key-name roles/viewer"
+$ terraform import google_kms_crypto_key_iam_binding.crypto_key "my-gcp-project/us-central1/my-key-ring/my-crypto-key roles/editor"
 ```
