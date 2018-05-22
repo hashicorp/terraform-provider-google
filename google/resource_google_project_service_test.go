@@ -26,6 +26,18 @@ func TestAccProjectService_basic(t *testing.T) {
 					testAccCheckProjectService(services, pid, true),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_project_service.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+			},
+			resource.TestStep{
+				ResourceName:            "google_project_service.test2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			resource.TestStep{
 				Config: testAccProject_create(pid, pname, org),

@@ -15,6 +15,10 @@ func resourceGoogleProjectService() *schema.Resource {
 		Delete: resourceGoogleProjectServiceDelete,
 		Update: resourceGoogleProjectServiceUpdate,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"service": {
 				Type:     schema.TypeString,
@@ -57,22 +61,17 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	id, err := parseProjectServiceId(d.Id())
 	if err != nil {
 		return err
 	}
 
-	services, err := getApiServices(project, config, map[string]struct{}{})
+	services, err := getApiServices(id.project, config, map[string]struct{}{})
 	if err != nil {
 		return err
 	}
 
-	d.Set("project", project)
+	d.Set("project", id.project)
 
 	for _, s := range services {
 		if s == id.service {
@@ -94,17 +93,13 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 		d.SetId("")
 		return nil
 	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	id, err := parseProjectServiceId(d.Id())
 	if err != nil {
 		return err
 	}
 
-	if err = disableService(id.service, project, config); err != nil {
+	if err = disableService(id.service, id.project, config); err != nil {
 		return fmt.Errorf("Error disabling service: %s", err)
 	}
 
