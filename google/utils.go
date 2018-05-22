@@ -147,6 +147,25 @@ func isGoogleApiErrorWithCode(err error, errCode int) bool {
 	return ok && gerr != nil && gerr.Code == errCode
 }
 
+func isApiNotEnabledError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 403 {
+		return false
+	}
+	for _, e := range gerr.Errors {
+		if e.Reason == "accessNotConfigured" {
+			return true
+		}
+	}
+	return false
+}
+
 func isConflictError(err error) bool {
 	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
 		return true
