@@ -32,9 +32,10 @@ func resourceGoogleProject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateProjectID(),
 			},
 			"skip_delete": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -47,8 +48,9 @@ func resourceGoogleProject() *schema.Resource {
 				Default:  true,
 			},
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validateProjectName(),
 			},
 			"org_id": &schema.Schema{
 				Type:     schema.TypeString,
