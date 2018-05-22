@@ -3,9 +3,10 @@ package google
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/serviceusage/v1beta1"
 )
 
 func resourceGoogleProjectServices() *schema.Resource {
@@ -156,11 +157,13 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 		}
 	}
 
+	keys := make([]string, 0, len(cfgMap))
 	for k, _ := range cfgMap {
-		err := enableService(k, pid, config)
-		if err != nil {
-			return err
-		}
+		keys = append(keys, k)
+	}
+	err := enableServices(keys, pid, config)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -181,13 +184,16 @@ func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]s
 	// Get services from the API
 	token := ""
 	for paginate := true; paginate; {
-		svcResp, err := config.clientServiceMan.Services.List().ConsumerId("project:" + pid).PageToken(token).Do()
+		svcResp, err := config.clientServiceUsage.Services.List("projects/" + pid).PageToken(token).Filter("state:ENABLED").Do()
 		if err != nil {
 			return apiServices, err
 		}
 		for _, v := range svcResp.Services {
-			if _, ok := ignore[v.ServiceName]; !ok {
-				apiServices = append(apiServices, v.ServiceName)
+			// names are returned as projects/{project-number}/services/{service-name}
+			nameParts := strings.Split(v.Name, "/")
+			name := nameParts[len(nameParts)-1]
+			if _, ok := ignore[name]; !ok {
+				apiServices = append(apiServices, name)
 			}
 		}
 		token = svcResp.NextPageToken
@@ -197,13 +203,27 @@ func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]s
 }
 
 func enableService(s, pid string, config *Config) error {
-	esr := newEnableServiceRequest(pid)
+	return enableServices([]string{s}, pid, config)
+}
+
+func enableServices(s []string, pid string, config *Config) error {
 	err := retryTime(func() error {
-		sop, err := config.clientServiceMan.Services.Enable(s, esr).Do()
+		var sop *serviceusage.Operation
+		var err error
+		if len(s) > 1 {
+			req := &serviceusage.BatchEnableServicesRequest{ServiceIds: s}
+			sop, err = config.clientServiceUsage.Services.BatchEnable("projects/"+pid, req).Do()
+		} else if len(s) == 1 {
+			name := fmt.Sprintf("projects/%s/services/%s", pid, s[0])
+			sop, err = config.clientServiceUsage.Services.Enable(name, &serviceusage.EnableServiceRequest{}).Do()
+		} else {
+			// No services to enable
+			return nil
+		}
 		if err != nil {
 			return err
 		}
-		_, waitErr := serviceManagementOperationWait(config, sop, "api to enable")
+		_, waitErr := serviceUsageOperationWait(config, sop, "api to enable")
 		if waitErr != nil {
 			return waitErr
 		}
@@ -216,14 +236,14 @@ func enableService(s, pid string, config *Config) error {
 }
 
 func disableService(s, pid string, config *Config) error {
-	dsr := newDisableServiceRequest(pid)
 	err := retryTime(func() error {
-		sop, err := config.clientServiceMan.Services.Disable(s, dsr).Do()
+		name := fmt.Sprintf("projects/%s/services/%s", pid, s)
+		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{}).Do()
 		if err != nil {
 			return err
 		}
 		// Wait for the operation to complete
-		_, waitErr := serviceManagementOperationWait(config, sop, "api to disable")
+		_, waitErr := serviceUsageOperationWait(config, sop, "api to disable")
 		if waitErr != nil {
 			return waitErr
 		}
@@ -233,14 +253,6 @@ func disableService(s, pid string, config *Config) error {
 		return fmt.Errorf("Error disabling service %q for project %q: %v", s, pid, err)
 	}
 	return nil
-}
-
-func newEnableServiceRequest(pid string) *servicemanagement.EnableServiceRequest {
-	return &servicemanagement.EnableServiceRequest{ConsumerId: "project:" + pid}
-}
-
-func newDisableServiceRequest(pid string) *servicemanagement.DisableServiceRequest {
-	return &servicemanagement.DisableServiceRequest{ConsumerId: "project:" + pid}
 }
 
 func resourceServices(d *schema.ResourceData) []string {
