@@ -20,6 +20,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Compare region_backend_service.backend[].group as a relative path [GH-1487]
 * compute: Fixed `region_backend_service` to calc hash using relative path [GH-1491]
+* sql: Fix panic on empty maintenance window [GH-1507]
 
 ## 1.12.0 (May 04, 2018)
 FEATURES:
