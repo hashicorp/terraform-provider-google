@@ -270,3 +270,51 @@ func TestOrEmpty(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateProjectID(t *testing.T) {
+	x := []StringValidationTestCase{
+		// No errors
+		{TestName: "basic", Value: "foobar"},
+		{TestName: "with numbers", Value: "foobar123"},
+		{TestName: "short", Value: "foofoo"},
+		{TestName: "long", Value: "foobarfoobarfoobarfoobarfoobar"},
+		{TestName: "has a hyphen", Value: "foo-bar"},
+
+		// With errors
+		{TestName: "empty", Value: "", ExpectError: true},
+		{TestName: "starts with a number", Value: "1foobar", ExpectError: true},
+		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
+		{TestName: "has an upercase letter", Value: "foo-Bar", ExpectError: true},
+		{TestName: "has a final hyphen", Value: "foo-bar-", ExpectError: true},
+		{TestName: "too long", Value: strings.Repeat("a", 31), ExpectError: true},
+	}
+
+	es := testStringValidationCases(x, validateProjectID())
+	if len(es) > 0 {
+		t.Errorf("Failed to validate project ID's: %v", es)
+	}
+}
+
+func TestValidateProjectName(t *testing.T) {
+	x := []StringValidationTestCase{
+		// No errors
+		{TestName: "basic", Value: "fooBar"},
+		{TestName: "complex", Value: "project! 'A-1234'"},
+		{TestName: "with numbers", Value: "foobar123"},
+		{TestName: "short", Value: "foof"},
+		{TestName: "long", Value: "foobarfoobarfoobarfoobarfoobar"},
+		{TestName: "has a hyphen", Value: "foo-bar"},
+		{TestName: "starts with a number", Value: "1foobar"},
+		{TestName: "has a final hyphen", Value: "foo-bar-"},
+
+		// With errors
+		{TestName: "empty", Value: "", ExpectError: true},
+		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
+		{TestName: "too long", Value: strings.Repeat("a", 31), ExpectError: true},
+	}
+
+	es := testStringValidationCases(x, validateProjectName())
+	if len(es) > 0 {
+		t.Errorf("Failed to validate project ID's: %v", es)
+	}
+}
