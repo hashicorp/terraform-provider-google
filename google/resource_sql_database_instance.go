@@ -573,7 +573,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		windows := v.([]interface{})
 		if len(windows) > 0 && windows[0] != nil {
 			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
-			window := v.([]interface{})[0].(map[string]interface{})
+			window := windows[0].(map[string]interface{})
 
 			if vp, okp := window["day"]; okp {
 				settings.MaintenanceWindow.Day = int64(vp.(int))
