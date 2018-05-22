@@ -18,7 +18,8 @@ IMPROVEMENTS:
 * project: Added name and project_id plan-time validations [GH-1519]
 
 BUG FIXES:
-* Compare region_backend_service.backend[].group as a relative path [GH-1487]
+* compute: Compare region_backend_service.backend[].group as a relative path [GH-1487]
+* compute: Fixed `region_backend_service` to calc hash using relative path [GH-1491]
 
 ## 1.12.0 (May 04, 2018)
 FEATURES:
