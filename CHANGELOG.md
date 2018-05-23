@@ -11,6 +11,7 @@ FEATURES:
 * **New Resource**: `google_logging_folder_exclusion` [GH-990]
 * **New Resource**: `google_logging_organization_exclusion` [GH-990]
 * **New Resource**: `google_logging_project_exclusion` [GH-990]
+* **New Resource**: `google_redis_instance` [GH-1485]
 * App Engine applications can now be managed using the `app_engine` field in `google_project` [GH-1503]
 
 IMPROVEMENTS:
