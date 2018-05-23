@@ -80,7 +80,7 @@ func testAccCheckDataSourceComputeAddressDestroy(resource_name string) resource.
 			return fmt.Errorf("can't find %s in state", resource_name)
 		}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, "", "")
 
 		_, err = config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()

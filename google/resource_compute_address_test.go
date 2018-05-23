@@ -19,6 +19,8 @@ func TestComputeAddressIdParsing(t *testing.T) {
 		ExpectedError       bool
 		ExpectedCanonicalId string
 		Config              *Config
+		Project             string
+		Region              string
 	}{
 		"id is a full self link": {
 			ImportId:            "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-central1/addresses/test-address",
@@ -39,13 +41,14 @@ func TestComputeAddressIdParsing(t *testing.T) {
 			ImportId:            "us-central1/test-address",
 			ExpectedError:       false,
 			ExpectedCanonicalId: "projects/default-project/regions/us-central1/addresses/test-address",
-			Config:              &Config{Project: "default-project"},
+			Project:             "default-project",
 		},
 		"id is address": {
 			ImportId:            "test-address",
 			ExpectedError:       false,
 			ExpectedCanonicalId: "projects/default-project/regions/us-east1/addresses/test-address",
-			Config:              &Config{Project: "default-project", Region: "us-east1"},
+			Project:             "default-project",
+			Region:              "us-east1",
 		},
 		"id has invalid format": {
 			ImportId:      "i/n/v/a/l/i/d",
@@ -54,7 +57,7 @@ func TestComputeAddressIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		addressId, err := parseComputeAddressId(tc.ImportId, tc.Config)
+		addressId, err := parseComputeAddressId(tc.ImportId, tc.Project, tc.Region)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)
@@ -150,7 +153,7 @@ func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 			continue
 		}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, "", "")
 
 		_, err = config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()
@@ -175,7 +178,7 @@ func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.
 
 		config := testAccProvider.Meta().(*Config)
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, "", "")
 
 		found, err := config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()
@@ -206,7 +209,7 @@ func testAccCheckComputeBetaAddressExists(n string, addr *computeBeta.Address) r
 
 		config := testAccProvider.Meta().(*Config)
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, "", "")
 
 		found, err := config.clientComputeBeta.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()
