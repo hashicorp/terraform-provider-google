@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1beta1"
 )
 
@@ -226,6 +227,30 @@ func enableServices(s []string, pid string, config *Config) error {
 		_, waitErr := serviceUsageOperationWait(config, sop, "api to enable")
 		if waitErr != nil {
 			return waitErr
+		}
+		services, err := getApiServices(pid, config, map[string]struct{}{})
+		if err != nil {
+			return err
+		}
+		var missing []string
+		for _, toEnable := range s {
+			var found bool
+			for _, service := range services {
+				if service == toEnable {
+					found = true
+					break
+				}
+			}
+			if !found {
+				missing = append(missing, toEnable)
+			}
+		}
+		if len(missing) > 0 {
+			// spoof a googleapi Error so retryTime will try again
+			return &googleapi.Error{
+				Code:    503, // haha, get it, service unavailable
+				Message: fmt.Sprintf("The services %s are still being enabled for project %q. This isn't a real API error, this is just eventual consistency.", strings.Join(missing, ", "), pid),
+			}
 		}
 		return nil
 	}, 10)
