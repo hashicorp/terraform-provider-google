@@ -38,9 +38,10 @@ func resourceStorageBucketAcl() *schema.Resource {
 			},
 
 			"role_entity": &schema.Schema{
-				Type:          schema.TypeList,
+				Type:          schema.TypeSet,
 				Optional:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
 				ConflictsWith: []string{"predefined_acl"},
 			},
 		},
@@ -79,7 +80,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("role_entity"); ok {
-		role_entity = v.([]interface{})
+		role_entity = v.(*schema.Set).List()
 	}
 
 	if v, ok := d.GetOk("default_acl"); ok {
@@ -199,7 +200,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 		project := strconv.FormatUint(bkt.ProjectNumber, 10)
 		o, n := d.GetChange("role_entity")
-		old_re, new_re := o.([]interface{}), n.([]interface{})
+		old_re, new_re := o.(*schema.Set).List(), n.(*schema.Set).List()
 
 		old_re_map := make(map[string]string)
 		for _, v := range old_re {
@@ -284,7 +285,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	project := strconv.FormatUint(bkt.ProjectNumber, 10)
 
-	re_local := d.Get("role_entity").([]interface{})
+	re_local := d.Get("role_entity").(*schema.Set).List()
 	for _, v := range re_local {
 		res, err := getRoleEntityPair(v.(string))
 		if err != nil {
