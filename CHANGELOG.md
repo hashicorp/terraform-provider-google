@@ -17,6 +17,7 @@ FEATURES:
 IMPROVEMENTS:
 * cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
 * container: Add support for regional cluster in `google_container` datasource [GH-1441]
+* container: Add GKE Shared VPC support [GH-1528]
 * compute: autogenerate `google_compute_ssl_policy` [GH-1478]
 * compute: add support for `ssl_policy` to `google_target_https_proxy` [GH-1466]
 * project: Added name and project_id plan-time validations [GH-1519]
