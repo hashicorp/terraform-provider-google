@@ -1152,7 +1152,7 @@ func TestAccContainerCluster_sharedVpc(t *testing.T) {
 			},
 			{
 				ResourceName:        "google_container_cluster.shared_vpc_cluster",
-				ImportStateIdPrefix: "us-central1-a/",
+				ImportStateIdPrefix: fmt.Sprintf("%s-service/us-central1-a/", projectName),
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
