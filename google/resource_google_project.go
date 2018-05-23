@@ -348,10 +348,11 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Read the billing account
 	ba, err := config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
-	if err != nil {
+	if err != nil && !isApiNotEnabledError(err) {
 		return fmt.Errorf("Error reading billing account for project %q: %v", prefixedProject(pid), err)
-	}
-	if ba.BillingAccountName != "" {
+	} else if isApiNotEnabledError(err) {
+		log.Printf("[WARN] Billing info API not enabled, please enable it to read billing info about project %q: %s", pid, err.Error())
+	} else if ba.BillingAccountName != "" {
 		// BillingAccountName is contains the resource name of the billing account
 		// associated with the project, if any. For example,
 		// `billingAccounts/012345-567890-ABCDEF`. We care about the ID and not
@@ -371,10 +372,12 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	// shouldn't. So this tries to read it, sets it to empty if none exists,
 	// or sets it in state if one does exist.
 	app, err := config.clientAppEngine.Apps.Get(pid).Do()
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+	if err != nil && !isGoogleApiErrorWithCode(err, 404) && !isApiNotEnabledError(err) {
 		return fmt.Errorf("Error retrieving App Engine application %q: %s", pid, err.Error())
 	} else if isGoogleApiErrorWithCode(err, 404) {
 		d.Set("app_engine", []map[string]interface{}{})
+	} else if isApiNotEnabledError(err) {
+		log.Printf("[WARN] App Engine Admin API not enabled, please enable it to read App Engine info about project %q: %s", pid, err.Error())
 	} else {
 		appBlocks, err := flattenAppEngineApp(app)
 		if err != nil {
