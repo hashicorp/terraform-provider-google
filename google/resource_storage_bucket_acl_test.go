@@ -46,6 +46,27 @@ func TestAccStorageBucketAcl_basic(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucketAcl_unsorted(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageBucketsAclBasicUnsorted(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic1),
+					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 	t.Parallel()
 
@@ -203,6 +224,19 @@ resource "google_storage_bucket_acl" "acl" {
 	role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic1, roleEntityBasic2)
+}
+
+func testGoogleStorageBucketsAclBasicUnsorted(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_acl" "acl" {
+	bucket = "${google_storage_bucket.bucket.name}"
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+}
+`, bucketName, roleEntityBasic2, roleEntityViewers, roleEntityEditors, roleEntityBasic1, roleEntityOwners)
 }
 
 func testGoogleStorageBucketsAclBasic2(bucketName string) string {
