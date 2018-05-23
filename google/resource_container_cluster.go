@@ -328,11 +328,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Default:   "default",
-				ForceNew:  true,
-				StateFunc: StoreResourceName,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Default:          "default",
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
 			"network_policy": {
@@ -566,7 +566,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		cluster.Network = network.Name
+		cluster.Network = network.RelativeLink()
 	}
 
 	if v, ok := d.GetOk("network_policy"); ok && len(v.([]interface{})) > 0 {
@@ -574,7 +574,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
-		cluster.Subnetwork = v.(string)
+		subnetwork, err := ParseSubnetworkFieldValue(v.(string), d, config)
+		if err != nil {
+			return err
+		}
+		cluster.Subnetwork = subnetwork.RelativeLink()
 	}
 
 	if v, ok := d.GetOk("addons_config"); ok {
@@ -747,8 +751,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
-	d.Set("network", cluster.Network)
-	d.Set("subnetwork", cluster.Subnetwork)
+	d.Set("network", cluster.NetworkConfig.Network)
+	d.Set("subnetwork", cluster.NetworkConfig.Subnetwork)
 	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
 		return err
 	}

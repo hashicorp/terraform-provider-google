@@ -1134,6 +1134,32 @@ func TestAccContainerCluster_withPodSecurityPolicy(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_sharedVpc(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
+	projectName := fmt.Sprintf("tf-xpntest-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_sharedVpc(org, billingId, projectName, clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.shared_vpc_cluster",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2098,4 +2124,65 @@ resource "google_container_cluster" "with_private_cluster" {
 		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
 	}
 }`, clusterName, clusterName)
+}
+
+func testAccContainerCluster_sharedVpc(org, billingId, projectName, name string) string {
+	return fmt.Sprintf(`
+resource "google_project" "host_project" {
+	name            = "Test Project XPN Host"
+	project_id      = "%s-host"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "host_project" {
+	project = "${google_project.host_project.project_id}"
+	service = "container.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_host_project" "host_project" {
+	project = "${google_project_service.host_project.project}"
+}
+
+resource "google_project" "service_project" {
+	name            = "Test Project XPN Service"
+	project_id      = "%s-service"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "service_project" {
+	project = "${google_project.service_project.project_id}"
+	service = "container.googleapis.com"
+}
+
+resource "google_compute_shared_vpc_service_project" "service_project" {
+	host_project    = "${google_compute_shared_vpc_host_project.host_project.project}"
+	service_project = "${google_project_service.service_project.project}"
+}
+
+resource "google_compute_network" "shared-network" {
+	name    = "test-%s"
+	project = "${google_compute_shared_vpc_host_project.host_project.project}"
+
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "shared-subnetwork" {
+	name          = "test-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.shared-network.self_link}"
+	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
+}
+
+resource "google_container_cluster" "shared_vpc_cluster" {
+	name               = "%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+	project            = "${google_compute_shared_vpc_service_project.service_project.service_project}"
+
+	network    = "${google_compute_network.shared-network.self_link}"
+	subnetwork = "${google_compute_subnetwork.shared-subnetwork.self_link}"
+}`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), name)
 }
