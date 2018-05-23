@@ -98,7 +98,9 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 
 		// Merge the policies together
 		mb := mergeBindings(append(p.Bindings, rp.Bindings...))
+		mc := mergeAuditConfigs(append(p.AuditConfigs, rp.AuditConfigs...))
 		ep.Bindings = mb
+		ep.AuditConfigs = mc
 		if err = setProjectIamPolicy(ep, config, pid); err != nil {
 			return fmt.Errorf("Error applying IAM policy to project: %v", err)
 		}
@@ -134,7 +136,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 		bindings = p.Bindings
 	}
 	// we only marshal the bindings, because only the bindings get set in the config
-	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings})
+	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings, AuditConfigs: p.AuditConfigs})
 	if err != nil {
 		return fmt.Errorf("Error marshaling IAM policy: %v", err)
 	}
@@ -203,7 +205,9 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 
 		// Merge the policies together
 		mb := mergeBindings(append(p.Bindings, rp.Bindings...))
+		mc := mergeAuditConfigs(append(p.AuditConfigs, rp.AuditConfigs...))
 		ep.Bindings = mb
+		ep.AuditConfigs = mc
 		if err = setProjectIamPolicy(ep, config, pid); err != nil {
 			return fmt.Errorf("Error applying IAM policy to project: %v", err)
 		}
@@ -243,6 +247,7 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 			return fmt.Errorf("Error retrieving previous version of changed project IAM policy: %v", err)
 		}
 		ep.Bindings = rp.Bindings
+		ep.AuditConfigs = rp.AuditConfigs
 	}
 	if err = setProjectIamPolicy(ep, config, pid); err != nil {
 		return fmt.Errorf("Error applying IAM policy to project: %v", err)
