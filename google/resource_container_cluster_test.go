@@ -2161,6 +2161,28 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
 	service_project = "${google_project_service.service_project.project}"
 }
 
+resource "google_project_iam_member" "host_service_agent" {
+	project = "${google_project_service.host_project.project}"
+	role    = "roles/container.hostServiceAgentUser"
+	member  = "serviceAccount:service-${google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com"
+
+	depends_on = ["google_project_service.service_project"]
+}
+
+resource "google_compute_subnetwork_iam_member" "service_network_cloud_services" {
+	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
+	subnetwork    = "${google_compute_subnetwork.shared_subnetwork.name}"
+	role          = "roles/compute.networkUser"
+	member        = "serviceAccount:${google_project.service_project.number}@cloudservices.gserviceaccount.com"
+}
+
+resource "google_compute_subnetwork_iam_member" "service_network_gke_user" {
+	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
+	subnetwork    = "${google_compute_subnetwork.shared_subnetwork.name}"
+	role          = "roles/compute.networkUser"
+	member        = "serviceAccount:service-${google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com"
+}
+
 resource "google_compute_network" "shared_network" {
 	name    = "test-%s"
 	project = "${google_compute_shared_vpc_host_project.host_project.project}"
@@ -2199,5 +2221,11 @@ resource "google_container_cluster" "shared_vpc_cluster" {
 		cluster_secondary_range_name  = "${google_compute_subnetwork.shared_subnetwork.secondary_ip_range.0.range_name}"
 		services_secondary_range_name = "${google_compute_subnetwork.shared_subnetwork.secondary_ip_range.1.range_name}"
 	}
+
+	depends_on = [
+		"google_project_iam_member.host_service_agent",
+		"google_compute_subnetwork_iam_member.service_network_cloud_services",
+		"google_compute_subnetwork_iam_member.service_network_gke_user"
+	]
 }`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), name)
 }
