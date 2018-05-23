@@ -1,5 +1,8 @@
 ## 1.13.0 (Unreleased)
 
+BACKWARDS INCOMPATIBILITIES / NOTES:
+* `google_project_service`/`google_project_services` now use the [Service Usage API](https://cloud.google.com/service-usage). Users of those resources will need to enable the API at https://console.cloud.google.com/apis/api/serviceusage.googleapis.com.
+
 FEATURES:
 * **New Resource**: `google_cloudbuild_trigger`. [GH-1357]
 * **New Resource**: `google_storage_bucket_iam_policy` [GH-1190]
