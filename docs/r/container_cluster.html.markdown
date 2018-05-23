@@ -141,7 +141,8 @@ output "cluster_ca_certificate" {
     `monitoring.googleapis.com`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
-    network to which the cluster is connected.
+    network to which the cluster is connected. For Shared VPC, set this to the self link of the
+    shared network.
 
 * `network_policy` - (Optional) Configuration options for the
     [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
@@ -171,7 +172,7 @@ output "cluster_ca_certificate" {
 
 * `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
 
-* `subnetwork` - (Optional) The name of the Google Compute Engine subnetwork in
+* `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
 The `addons_config` block supports:
