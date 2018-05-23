@@ -2161,19 +2161,29 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
 	service_project = "${google_project_service.service_project.project}"
 }
 
-resource "google_compute_network" "shared-network" {
+resource "google_compute_network" "shared_network" {
 	name    = "test-%s"
 	project = "${google_compute_shared_vpc_host_project.host_project.project}"
 
 	auto_create_subnetworks = false
 }
 
-resource "google_compute_subnetwork" "shared-subnetwork" {
+resource "google_compute_subnetwork" "shared_subnetwork" {
 	name          = "test-%s"
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-central1"
-	network       = "${google_compute_network.shared-network.self_link}"
+	network       = "${google_compute_network.shared_network.self_link}"
 	project       = "${google_compute_shared_vpc_host_project.host_project.project}"
+
+	secondary_ip_range {
+		range_name = "pods"
+		ip_cidr_range = "10.1.0.0/16"
+	}
+
+	secondary_ip_range {
+		range_name = "services"
+		ip_cidr_range = "10.2.0.0/20"
+	}
 }
 
 resource "google_container_cluster" "shared_vpc_cluster" {
@@ -2182,7 +2192,12 @@ resource "google_container_cluster" "shared_vpc_cluster" {
 	initial_node_count = 1
 	project            = "${google_compute_shared_vpc_service_project.service_project.service_project}"
 
-	network    = "${google_compute_network.shared-network.self_link}"
-	subnetwork = "${google_compute_subnetwork.shared-subnetwork.self_link}"
+	network    = "${google_compute_network.shared_network.self_link}"
+	subnetwork = "${google_compute_subnetwork.shared_subnetwork.self_link}"
+
+	ip_allocation_policy {
+		cluster_secondary_range_name  = "${google_compute_subnetwork.shared_subnetwork.secondary_ip_range.0.range_name}"
+		services_secondary_range_name = "${google_compute_subnetwork.shared_subnetwork.secondary_ip_range.1.range_name}"
+	}
 }`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), name)
 }
