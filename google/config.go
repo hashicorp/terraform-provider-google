@@ -37,6 +37,7 @@ import (
 	"google.golang.org/api/redis/v1beta1"
 	"google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/serviceusage/v1beta1"
 	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/spanner/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
@@ -78,6 +79,7 @@ type Config struct {
 	clientSqlAdmin               *sqladmin.Service
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
+	clientServiceUsage           *serviceusage.APIService
 	clientBigQuery               *bigquery.Service
 	clientCloudFunctions         *cloudfunctions.Service
 	clientCloudIoT               *cloudiot.Service
@@ -273,6 +275,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientServiceMan.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Service Usage Client...")
+	c.clientServiceUsage, err = serviceusage.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientServiceUsage.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Billing Client...")
 	c.clientBilling, err = cloudbilling.New(client)
