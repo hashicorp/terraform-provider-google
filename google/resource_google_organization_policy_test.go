@@ -316,12 +316,12 @@ func getGoogleOrganizationPolicyTestResource(s *terraform.State, n string) (*clo
 func testAccOrganizationPolicyConfig_boolean(org string, enforced bool) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "bool" {
-	org_id = "%s"
-	constraint = "constraints/compute.disableSerialPortAccess"
+    org_id = "%s"
+    constraint = "constraints/compute.disableSerialPortAccess"
 
-	boolean_policy {
-		enforced = %t
-	}
+    boolean_policy {
+        enforced = %t
+    }
 }
 `, org, enforced)
 }
@@ -329,14 +329,14 @@ resource "google_organization_policy" "bool" {
 func testAccOrganizationPolicyConfig_list_allowAll(org string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "constraints/serviceuser.services"
+    org_id = "%s"
+    constraint = "constraints/serviceuser.services"
 
-	list_policy {
-		allow {
-			all = true
-		}
-	}
+    list_policy {
+        allow {
+            all = true
+        }
+    }
 }
 `, org)
 }
@@ -344,16 +344,16 @@ resource "google_organization_policy" "list" {
 func testAccOrganizationPolicyConfig_list_allowSome(org, project string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "constraints/compute.trustedImageProjects"
+    org_id = "%s"
+    constraint = "constraints/compute.trustedImageProjects"
 
-	list_policy {
-		allow {
-			values = [
-				"projects/%s",
-				"projects/debian-cloud"
-			]
-		}
+    list_policy {
+        allow {
+            values = [
+                "projects/%s",
+                "projects/debian-cloud"
+            ]
+        }
   }
 }
 `, org, project)
@@ -362,17 +362,17 @@ resource "google_organization_policy" "list" {
 func testAccOrganizationPolicyConfig_list_denySome(org string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "serviceuser.services"
+    org_id = "%s"
+    constraint = "serviceuser.services"
 
-  	list_policy {
-		deny {
-			values = [
-				"doubleclicksearch.googleapis.com",
-				"replicapoolupdater.googleapis.com",
-			]
-		}
-	}
+    list_policy {
+        deny {
+            values = [
+                "doubleclicksearch.googleapis.com",
+                "replicapoolupdater.googleapis.com",
+            ]
+        }
+    }
 }
 `, org)
 }
@@ -380,12 +380,12 @@ resource "google_organization_policy" "list" {
 func testAccOrganizationPolicyConfig_restore_defaultTrue(org string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "restore" {
-	org_id = "%s"
-	constraint = "serviceuser.services"
+    org_id = "%s"
+    constraint = "serviceuser.services"
 
-	restore_policy {
-		default = true
-	}
+    restore_policy {
+        default = true
+    }
 }
 `, org)
 }

@@ -339,9 +339,9 @@ resource "google_project_organization_policy" "restore" {
   project    = "%s"
   constraint = "constraints/serviceuser.services"
 
-	restore_policy {
-		default = true
-	}
+    restore_policy {
+        default = true
+    }
 }
 `, pid)
 }

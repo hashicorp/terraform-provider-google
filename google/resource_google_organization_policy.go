@@ -215,7 +215,7 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	restore_default, err := expandRestoreOrganizationPolicy(d.Get("restore_policy").([]interface{}))
+	restoreDefault, err := expandRestoreOrganizationPolicy(d.Get("restore_policy").([]interface{}))
 	if err != nil {
 		return err
 	}
@@ -225,7 +225,7 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 			Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 			BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
 			ListPolicy:     listPolicy,
-			RestoreDefault: restore_default,
+			RestoreDefault: restoreDefault,
 			Version:        int64(d.Get("version").(int)),
 			Etag:           d.Get("etag").(string),
 		},
@@ -249,17 +249,17 @@ func flattenBooleanOrganizationPolicy(policy *cloudresourcemanager.BooleanPolicy
 }
 
 func flattenRestoreOrganizationPolicy(restore_policy *cloudresourcemanager.RestoreDefault) []map[string]interface{} {
-	bRestore_policy := make([]map[string]interface{}, 0, 1)
+	rp := make([]map[string]interface{}, 0, 1)
 
 	if restore_policy == nil {
-		return bRestore_policy
+		return rp
 	}
 
-	bRestore_policy = append(bRestore_policy, map[string]interface{}{
+	rp = append(rp, map[string]interface{}{
 		"default": true,
 	})
 
-	return bRestore_policy
+	return rp
 }
 
 func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourcemanager.BooleanPolicy {
@@ -278,16 +278,14 @@ func expandRestoreOrganizationPolicy(configured []interface{}) (*cloudresourcema
 		return nil, nil
 	}
 
-	if len(configured) > 0 {
-		restoreDefaultMap := configured[0].(map[string]interface{})
-		default_value := restoreDefaultMap["default"].(bool)
+	restoreDefaultMap := configured[0].(map[string]interface{})
+	default_value := restoreDefaultMap["default"].(bool)
 
-		if default_value == true {
-			return &cloudresourcemanager.RestoreDefault{}, nil
-		}
+	if default_value {
+		return &cloudresourcemanager.RestoreDefault{}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid value. Expecting default = true")
+	return nil, fmt.Errorf("Invalid value for restore_policy. Expecting default = true")
 }
 
 func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []map[string]interface{} {
