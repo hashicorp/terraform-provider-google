@@ -300,7 +300,7 @@ func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pi
 	pbytes, _ := json.Marshal(policy)
 	log.Printf("[DEBUG] Setting policy %#v for project: %s", string(pbytes), pid)
 	_, err := config.clientResourceManager.Projects.SetIamPolicy(pid,
-		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy}).Do()
+		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy, UpdateMask: "bindings,etag,auditConfigs"}).Do()
 
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
