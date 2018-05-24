@@ -123,6 +123,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 	}
 
 	var bindings []*cloudresourcemanager.Binding
+	var audit_configs []*cloudresourcemanager.AuditConfig
 	if v, ok := d.GetOk("restore_policy"); ok {
 		var restored cloudresourcemanager.Policy
 		// if there's a restore policy, subtract it from the policy_data
@@ -132,11 +133,13 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 		}
 		subtracted := subtractIamPolicy(p, &restored)
 		bindings = subtracted.Bindings
+		audit_configs = subtracted.AuditConfigs
 	} else {
 		bindings = p.Bindings
+		audit_configs = p.AuditConfigs
 	}
 	// we only marshal the bindings, because only the bindings get set in the config
-	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings, AuditConfigs: p.AuditConfigs})
+	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings, AuditConfigs: audit_configs})
 	if err != nil {
 		return fmt.Errorf("Error marshaling IAM policy: %v", err)
 	}
@@ -259,6 +262,7 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 // Subtract all bindings in policy b from policy a, and return the result
 func subtractIamPolicy(a, b *cloudresourcemanager.Policy) *cloudresourcemanager.Policy {
 	am := rolesToMembersMap(a.Bindings)
+	ac := auditConfigToServiceMap(a.AuditConfigs)
 
 	for _, b := range b.Bindings {
 		if _, ok := am[b.Role]; ok {
@@ -270,7 +274,24 @@ func subtractIamPolicy(a, b *cloudresourcemanager.Policy) *cloudresourcemanager.
 			}
 		}
 	}
+
+	for _, b := range b.AuditConfigs {
+		if _, ok := ac[b.Service]; ok {
+			for _, c := range b.AuditLogConfigs {
+				if _, ok := ac[b.Service][c.LogType]; ok {
+					for m, _ := range ac[b.Service][c.LogType] {
+						delete(ac[b.Service][c.LogType], m)
+					}
+				}
+				if len(ac[b.Service][c.LogType]) == 0 {
+					delete(ac[b.Service][c.LogType], c.LogType)
+				}
+			}
+		}
+	}
+
 	a.Bindings = rolesToMembersBinding(am)
+	a.AuditConfigs = servicesToAuditConfig(ac)
 	return a
 }
 
@@ -349,6 +370,36 @@ func rolesToMembersBinding(m map[string]map[string]bool) []*cloudresourcemanager
 		bindings = append(bindings, &b)
 	}
 	return bindings
+}
+
+// Convert a map of audit_configs->services to a list of Binding
+func servicesToAuditConfig(ac map[string]map[string]map[string]bool) []*cloudresourcemanager.AuditConfig {
+	temp_audit_config := make([]*cloudresourcemanager.AuditConfig, 0)
+
+	for service, audit_log_config := range ac {
+		alc := make([]*cloudresourcemanager.AuditLogConfig, 0)
+		members := make([]string, 0)
+		for k, v := range audit_log_config {
+			for m, _ := range v {
+				members = append(members, m)
+			}
+
+			lc := cloudresourcemanager.AuditLogConfig{
+				LogType:         k,
+				ExemptedMembers: members,
+			}
+
+			alc = append(alc, &lc)
+		}
+
+		tc := cloudresourcemanager.AuditConfig{
+			Service:         service,
+			AuditLogConfigs: alc,
+		}
+
+		temp_audit_config = append(temp_audit_config, &tc)
+	}
+	return temp_audit_config
 }
 
 func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
