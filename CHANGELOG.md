@@ -1,31 +1,31 @@
-## 1.13.0 (Unreleased)
+## 1.13.0 (May 24, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * `google_project_service`/`google_project_services` now use the [Service Usage API](https://cloud.google.com/service-usage). Users of those resources will need to enable the API at https://console.cloud.google.com/apis/api/serviceusage.googleapis.com.
 
 FEATURES:
-* **New Resource**: `google_cloudbuild_trigger`. [GH-1357]
-* **New Resource**: `google_storage_bucket_iam_policy` [GH-1190]
-* **New Resource**: `google_resource_manager_lien` [GH-1484]
-* **New Resource**: `google_logging_billing_account_exclusion` [GH-990]
-* **New Resource**: `google_logging_folder_exclusion` [GH-990]
-* **New Resource**: `google_logging_organization_exclusion` [GH-990]
-* **New Resource**: `google_logging_project_exclusion` [GH-990]
-* **New Resource**: `google_redis_instance` [GH-1485]
-* App Engine applications can now be managed using the `app_engine` field in `google_project` [GH-1503]
+* **New Resource**: `google_cloudbuild_trigger`. ([#1357](https://github.com/terraform-providers/terraform-provider-google/issues/1357))
+* **New Resource**: `google_storage_bucket_iam_policy` ([#1190](https://github.com/terraform-providers/terraform-provider-google/issues/1190))
+* **New Resource**: `google_resource_manager_lien` ([#1484](https://github.com/terraform-providers/terraform-provider-google/issues/1484))
+* **New Resource**: `google_logging_billing_account_exclusion` ([#990](https://github.com/terraform-providers/terraform-provider-google/issues/990))
+* **New Resource**: `google_logging_folder_exclusion` ([#990](https://github.com/terraform-providers/terraform-provider-google/issues/990))
+* **New Resource**: `google_logging_organization_exclusion` ([#990](https://github.com/terraform-providers/terraform-provider-google/issues/990))
+* **New Resource**: `google_logging_project_exclusion` ([#990](https://github.com/terraform-providers/terraform-provider-google/issues/990))
+* **New Resource**: `google_redis_instance` ([#1485](https://github.com/terraform-providers/terraform-provider-google/issues/1485))
+* App Engine applications can now be managed using the `app_engine` field in `google_project` ([#1503](https://github.com/terraform-providers/terraform-provider-google/issues/1503))
 
 IMPROVEMENTS:
-* cloudfunctions: add ability to retry cloud functions on failure [GH-1452]
-* container: Add support for regional cluster in `google_container` datasource [GH-1441]
-* container: Add GKE Shared VPC support [GH-1528]
-* compute: autogenerate `google_compute_ssl_policy` [GH-1478]
-* compute: add support for `ssl_policy` to `google_target_https_proxy` [GH-1466]
-* project: Added name and project_id plan-time validations [GH-1519]
+* cloudfunctions: add ability to retry cloud functions on failure ([#1452](https://github.com/terraform-providers/terraform-provider-google/issues/1452))
+* container: Add support for regional cluster in `google_container` datasource ([#1441](https://github.com/terraform-providers/terraform-provider-google/issues/1441))
+* container: Add GKE Shared VPC support ([#1528](https://github.com/terraform-providers/terraform-provider-google/issues/1528))
+* compute: autogenerate `google_compute_ssl_policy` ([#1478](https://github.com/terraform-providers/terraform-provider-google/issues/1478))
+* compute: add support for `ssl_policy` to `google_target_https_proxy` ([#1466](https://github.com/terraform-providers/terraform-provider-google/issues/1466))
+* project: Added name and project_id plan-time validations ([#1519](https://github.com/terraform-providers/terraform-provider-google/issues/1519))
 
 BUG FIXES:
-* compute: Compare region_backend_service.backend[].group as a relative path [GH-1487]
-* compute: Fixed `region_backend_service` to calc hash using relative path [GH-1491]
-* sql: Fix panic on empty maintenance window [GH-1507]
+* compute: Compare region_backend_service.backend[].group as a relative path ([#1487](https://github.com/terraform-providers/terraform-provider-google/issues/1487))
+* compute: Fixed `region_backend_service` to calc hash using relative path ([#1491](https://github.com/terraform-providers/terraform-provider-google/issues/1491))
+* sql: Fix panic on empty maintenance window ([#1507](https://github.com/terraform-providers/terraform-provider-google/issues/1507))
 
 ## 1.12.0 (May 04, 2018)
 FEATURES:
