@@ -53,6 +53,9 @@ The following arguments are supported:
 
 * `description` - (Optional) Textual description field.
 
+* `disabled` - (Optional) Denotes whether the firewall rule is disabled, i.e not applied to the network it is associated with.
+    When set to true, the firewall rule is not enforced and the network behaves as if it did not exist.
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 

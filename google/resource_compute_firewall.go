@@ -106,6 +106,11 @@ func resourceComputeFirewall() *schema.Resource {
 				ForceNew:     true,
 			},
 
+			"disabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -271,6 +276,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("priority", int(firewall.Priority))
 	d.Set("source_service_accounts", firewall.SourceServiceAccounts)
 	d.Set("target_service_accounts", firewall.TargetServiceAccounts)
+	d.Set("disabled", firewall.Disabled)
 	return nil
 }
 
@@ -411,5 +417,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}) (*computeBeta.Fi
 		Priority:              int64(d.Get("priority").(int)),
 		SourceServiceAccounts: convertStringSet(d.Get("source_service_accounts").(*schema.Set)),
 		TargetServiceAccounts: convertStringSet(d.Get("target_service_accounts").(*schema.Set)),
+		Disabled:              d.Get("disabled").(bool),
+		ForceSendFields:       []string{"Disabled"},
 	}, nil
 }
