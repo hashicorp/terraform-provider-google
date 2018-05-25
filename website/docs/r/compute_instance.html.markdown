@@ -94,6 +94,7 @@ The following arguments are supported:
     **Note:** you must disable deletion protection before removing the resource (e.g., via `terraform destroy`), or the instance cannot be deleted and the Terraform run will not complete successfully.
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+    **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
