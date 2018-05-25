@@ -120,7 +120,7 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	key := cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}
+	key := cloudkms.CryptoKey{}
 
 	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {
 		rotationPeriod := d.Get("rotation_period").(string)
