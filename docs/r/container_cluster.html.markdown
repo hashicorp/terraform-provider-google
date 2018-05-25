@@ -242,6 +242,7 @@ The `master_auth` block supports:
     the Kubernetes master endpoint
 
 If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
+This block also contains several computed attributes, documented below.
 
 The `master_authorized_networks_config` block supports:
 
@@ -367,10 +368,6 @@ exported:
 
 * `master_auth.0.cluster_ca_certificate` - Base64 encoded public certificate
     that is the root of trust for the cluster.
-
-* `master_auth.0.username` - The username used for Kubernetes master endpoint
-
-* `master_auth.0.password` - The password used for Kubernetes master endpoint.
 
 * `master_version` - The current version of the master in the cluster. This may
     be different than the `min_master_version` set in the config if the master
