@@ -252,6 +252,10 @@ func testAccCheckGoogleKmsCryptoKeyHasRotationParams(rotationPeriod, resourceNam
 			return fmt.Errorf("Expected rotation period %s to match input %s", getCryptoKeyResponse.RotationPeriod, rotationPeriod)
 		}
 
+		if getCryptoKeyResponse.NextRotationTime == "" {
+			return nil
+		}
+
 		_, err = time.Parse(time.RFC3339Nano, getCryptoKeyResponse.NextRotationTime)
 
 		if err != nil {
