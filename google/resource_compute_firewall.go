@@ -295,7 +295,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	op, err := config.clientComputeBeta.Firewalls.Update(project, d.Id(), firewall).Do()
+	op, err := config.clientComputeBeta.Firewalls.Patch(project, d.Id(), firewall).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating firewall: %s", err)
 	}

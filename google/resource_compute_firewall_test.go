@@ -248,6 +248,14 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			resource.TestStep{
+				Config: testAccComputeFirewall_basic(networkName, firewallName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -569,6 +577,8 @@ func testAccComputeFirewall_disabled(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
