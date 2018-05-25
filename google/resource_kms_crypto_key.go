@@ -134,12 +134,7 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		key.RotationPeriod = rotationPeriod
 	}
 
-	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Patch(
-		cryptoKeyId.cryptoKeyId(),
-		&key,
-	).
-		UpdateMask("rotation_period,next_rotation_time").
-		Do()
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Patch(cryptoKeyId.cryptoKeyId(), &key).UpdateMask("rotation_period,next_rotation_time").Do()
 
 	if err != nil {
 		return fmt.Errorf("Error updating CryptoKey: %s", err.Error())
