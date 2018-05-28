@@ -242,6 +242,7 @@ resource "google_compute_forwarding_rule" "foobar" {
   backend_service       = "${google_compute_region_backend_service.foobar-bs.self_link}"
   ports                 = ["80"]
   network               = "${google_compute_network.foobar.name}"
+  subnetwork            = "%s"
 }
 resource "google_compute_forwarding_rule" "foobar2" {
   description           = "Resource created for Terraform acceptance testing"
@@ -250,7 +251,6 @@ resource "google_compute_forwarding_rule" "foobar2" {
   backend_service       = "${google_compute_region_backend_service.foobar-bs.self_link}"
   ports                 = ["80"]
   network               = "${google_compute_network.foobar.self_link}"
-  subnetwork            = "default"
 }
-`, serviceName, checkName, networkName, ruleName1, ruleName2)
+`, serviceName, checkName, networkName, ruleName1, networkName, ruleName2)
 }

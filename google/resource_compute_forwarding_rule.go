@@ -108,10 +108,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 			},
 
 			"subnetwork": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Computed:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 		},
 	}
