@@ -558,7 +558,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketDestroy,
 		Steps: []resource.TestStep{
-			// Going from to labels
+			// Going from two labels
 			resource.TestStep{
 				Config: testAccStorageBucket_updateLabels(bucketName),
 				Check: resource.ComposeTestCheckFunc(
@@ -573,7 +573,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Down to only one label
+			// Down to only one label (test single label deletion)
 			resource.TestStep{
 				Config: testAccStorageBucket_labels(bucketName),
 				Check: resource.ComposeTestCheckFunc(

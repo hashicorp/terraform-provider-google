@@ -379,8 +379,8 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			sb.NullFields = append(sb.NullFields, "Labels")
 		}
 
-		// When using PATCH for this resource, in order to delete a label, we
-		// have to explicitly set its value to null
+		// To delete a label using PATCH, we have to explicitly set its value
+		// to null.
 		old, _ := d.GetChange("labels")
 		for k := range old.(map[string]interface{}) {
 			if _, ok := sb.Labels[k]; !ok {
