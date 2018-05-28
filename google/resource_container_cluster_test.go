@@ -722,6 +722,12 @@ func TestAccContainerCluster_withLogging(t *testing.T) {
 			{
 				Config: testAccContainerCluster_updateLogging(clusterName),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "logging.googleapis.com/kubernetes"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_updateLogging(clusterName),
+				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
 				),
 			},
@@ -756,6 +762,12 @@ func TestAccContainerCluster_withMonitoring(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateMonitoring(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "monitoring.googleapis.com/kubernetes"),
+				),
 			},
 			{
 				Config: testAccContainerCluster_updateMonitoring(clusterName),
