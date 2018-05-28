@@ -1246,7 +1246,9 @@ resource "google_compute_instance_group_manager" "igm-basic" {
 	version {
 		name = "canary"
 		instance_template = "${google_compute_instance_template.igm-canary.self_link}"
-		target_size_fixed = 1
+		target_size {
+			fixed = 1
+		}
 	}
 }
 	`, primaryTemplate, canaryTemplate, igm)

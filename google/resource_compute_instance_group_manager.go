@@ -40,6 +40,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"version": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -53,15 +54,24 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
 
-						"target_size_fixed": &schema.Schema{
-							Type:     schema.TypeInt,
+						"target_size": &schema.Schema{
+							Type:     schema.TypeList,
 							Optional: true,
-						},
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fixed": &schema.Schema{
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
 
-						"target_size_percent": &schema.Schema{
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 100),
+									"percent": &schema.Schema{
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 100),
+									},
+								},
+							},
 						},
 					},
 				},
@@ -327,14 +337,20 @@ func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[
 		versionMap := make(map[string]interface{})
 		versionMap["name"] = version.Name
 		versionMap["instance_template"] = ConvertSelfLinkToV1(version.InstanceTemplate)
-		if value := version.TargetSize.Percent; value > 0 {
-			versionMap["target_size_percent"] = version.TargetSize.Percent
-		} else {
-			versionMap["target_size_fixed"] = version.TargetSize.Fixed
-		}
+		versionMap["target_size"] = flattendFixedOrPercent(version.TargetSize)
 		result = append(result, versionMap)
 	}
 
+	return result
+}
+
+func flattendFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) map[string]interface{} {
+	result := make(map[string]interface{})
+	if value := fixedOrPercent.Percent; value > 0 {
+		result["percent"] = value
+	} else {
+		result["fixed"] = fixedOrPercent.Fixed
+	}
 	return result
 }
 
@@ -768,22 +784,31 @@ func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManage
 	versions := make([]*computeBeta.InstanceGroupManagerVersion, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
+
 		version := computeBeta.InstanceGroupManagerVersion{
 			Name:             data["name"].(string),
 			InstanceTemplate: data["instance_template"].(string),
+			TargetSize:       expandFixedOrPercent(data["target_size"].([]interface{})),
 		}
-		if v := data["target_size_percent"]; v.(int) > 0 {
-			version.TargetSize = &computeBeta.FixedOrPercent{
-				Percent: int64(v.(int)),
-			}
-		} else {
-			version.TargetSize = &computeBeta.FixedOrPercent{
-				Fixed: int64(data["target_size_fixed"].(int)),
-			}
-		}
+
 		versions = append(versions, &version)
 	}
 	return versions
+}
+
+func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent {
+	fixedOrPercent := &computeBeta.FixedOrPercent{}
+
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		if percent := data["percent"]; percent.(int) > 0 {
+			fixedOrPercent.Percent = int64(percent.(int))
+		} else {
+			fixedOrPercent.Fixed = int64(data["fixed"].(int))
+			fixedOrPercent.ForceSendFields = []string{"Fixed"}
+		}
+	}
+	return fixedOrPercent
 }
 
 func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {

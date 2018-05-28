@@ -54,44 +54,6 @@ resource "google_compute_instance_group_manager" "appserver" {
 }
 ```
 
-## Example Usage with multiple Versions
-```hcl
-resource "google_compute_instance_group_manager" "appserver" {
-  name = "appserver-igm"
-
-  base_instance_name = "app"
-  update_strategy    = "NONE"
-  zone               = "us-central1-a"
-
-  target_pools = ["${google_compute_target_pool.appserver.self_link}"]
-  target_size  = 5
-
-  version {
-    instance_template  = "${google_compute_instance_template.appserver.self_link}"
-  }
-
-  version {
-    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
-    target_size_fixed  = 1
-  }
-
-  named_port {
-    name = "customHTTP"
-    port = 8888
-  }
-
-  auto_healing_policies {
-    health_check      = "${google_compute_health_check.autohealing.self_link}"
-    initial_delay_sec = 300
-  }
-}
-```
-
-Beware that exactly one version must not specify a target size (through target_size_fixed
-or target_size_percent fields). It means that versions with a target size will respect
-the setting, and the one without target size will be applied to all remaining Instances
-(top level target_size - each version target_size).
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -106,9 +68,12 @@ The following arguments are supported:
 * `instance_template` - (Optional) The full URL to an instance template from
     which all new instances will be created. Conflicts with `version` (see [documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups#relationship_between_instancetemplate_properties_for_a_managed_instance_group))
 
-* `version` - (Optional) Application versions managed by this instance group. each
+* `version` - (Optional) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
-    Conflicts with `instance_template`. Structure is documented below.
+    Conflicts with `instance_template`. Structure is documented below. Beware that
+    exactly one version must not specify a target size. It means that versions with
+    a target size will respect the setting, and the one without target size will
+    be applied to all remaining Instances (top level target_size - each version target_size).
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -213,14 +178,41 @@ version {
  target_size_percent = 20
 }
 ```
+## Example Usage with multiple Versions
+```hcl
+resource "google_compute_instance_group_manager" "appserver" {
+  name = "appserver-igm"
+
+  base_instance_name = "app"
+  update_strategy    = "NONE"
+  zone               = "us-central1-a"
+
+  target_size  = 5
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver.self_link}"
+  }
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
+    target_size {
+      fixed = 1
+    }
+  }
+}
+```
 
 * `name` - (Required) - Version name.
 
 * `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
 
-* `target_size_fixed` - (Optional), The number of instances which will be managed for this version. Conflicts with `target_size_percent`.
+* `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is documented below.
 
-* `target_size_percent` - (Optional), The number of instances (calculated as percentage) which are managed for this version. Conflicts with `target_size_fixed`.
+The **target_size** block supports:
+
+* `fixed` - (Optional), The number of instances which are managed for this version. Conflicts with `percent`.
+
+* `percent` - (Optional), The number of instances (calculated as percentage) which are managed for this version. Conflicts with `fixed`.
 
 ## Attributes Reference
 
