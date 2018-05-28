@@ -401,7 +401,6 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	d.Set("self_link", res.SelfLink)
 	d.SetId(res.Id)
 
-	//return resourceStorageBucketRead(d, meta)
 	return nil
 }
 
