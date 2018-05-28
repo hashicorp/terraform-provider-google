@@ -23,8 +23,9 @@ func resourceGoogleProjectServices() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"services": {
 				Type:     schema.TypeSet,
@@ -51,7 +52,11 @@ var ignoreProjectServices = map[string]struct{}{
 
 func resourceGoogleProjectServicesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	// Get services from config
 	cfgServices := getConfigServices(d)
@@ -89,20 +94,19 @@ func resourceGoogleProjectServicesRead(d *schema.ResourceData, meta interface{})
 func resourceGoogleProjectServicesUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_project_services")
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
 
 	// Get services from config
 	cfgServices := getConfigServices(d)
 
 	// Get services from API
-	apiServices, err := getApiServices(pid, config, ignoreProjectServices)
+	apiServices, err := getApiServices(d.Id(), config, ignoreProjectServices)
 	if err != nil {
 		return fmt.Errorf("Error updating services: %v", err)
 	}
 
 	// This call disables any APIs that aren't defined in cfgServices,
 	// and enables all of those that are
-	err = reconcileServices(cfgServices, apiServices, config, pid)
+	err = reconcileServices(cfgServices, apiServices, config, d.Id())
 	if err != nil {
 		return fmt.Errorf("Error updating services: %v", err)
 	}
