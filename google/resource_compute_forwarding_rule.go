@@ -125,6 +125,11 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	subnetwork, err := ParseSubnetworkFieldValue(d.Get("subnetwork").(string), d, config)
+	if err != nil {
+		return err
+	}
+
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
@@ -151,7 +156,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		Network:             network.RelativeLink(),
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
-		Subnetwork:          d.Get("subnetwork").(string),
+		Subnetwork:          subnetwork.RelativeLink(),
 		Target:              d.Get("target").(string),
 	}
 
