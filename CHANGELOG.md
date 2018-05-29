@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 * compute: Accept subnetwork name only in `google_forwarding_rule` [GH-1552]
+* compute: Add disabled property to `google_compute_firewall` [GH-1536]
 * cloudbuild: Use the project defined in `trigger_template` when creating a `google_cloudbuild_trigger` [GH-1556]
 
 ## 1.13.0 (May 24, 2018)
