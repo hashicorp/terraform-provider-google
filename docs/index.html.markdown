@@ -34,9 +34,9 @@ resource "google_compute_instance" "default" {
 
 The following keys can be used to configure the provider.
 
-* `credentials` - (Optional) Contents of the JSON file used to describe your
-  account credentials, downloaded from Google Cloud Console. More details on
-  retrieving this file are below.
+* `credentials` - (Optional) Contents of a file that contains your service
+  account private key in JSON format. You can download this file from the
+  Google Cloud Console. More details on retrieving this file are below.
 
   Credentials can also be specified using any of the following environment
   variables (listed in order of precedence):
