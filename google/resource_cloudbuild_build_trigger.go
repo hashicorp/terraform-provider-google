@@ -191,7 +191,7 @@ func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string
 		return nil
 	}
 	tmpl := &cloudbuild.RepoSource{}
-	if v, ok := d.GetOk("project"); ok {
+	if v, ok := d.GetOk("trigger_template.0.project"); ok {
 		tmpl.ProjectId = v.(string)
 	} else {
 		tmpl.ProjectId = project
