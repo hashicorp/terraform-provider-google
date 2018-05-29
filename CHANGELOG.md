@@ -1,4 +1,8 @@
 ## 1.13.1 (Unreleased)
+
+IMPROVEMENTS:
+* compute: Accept subnetwork name only in `google_forwarding_rule` [GH-1552]
+
 ## 1.13.0 (May 24, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
