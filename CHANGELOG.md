@@ -5,6 +5,7 @@ IMPROVEMENTS:
 * compute: Add disabled property to `google_compute_firewall` [GH-1536]
 * compute: Add support for custom request headers in `google_compute_backend_service` [GH-1537]
 * cloudbuild: Use the project defined in `trigger_template` when creating a `google_cloudbuild_trigger` [GH-1556]
+* project: Use default provider project for `google_project_services` if project field is empty [GH-1553]
 
 BUG FIXES:
 * storage: Support removing a label in `google_storage_bucket` [GH-1550]
