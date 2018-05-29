@@ -6,6 +6,9 @@ IMPROVEMENTS:
 * compute: Add support for custom request headers in `google_compute_backend_service` [GH-1537]
 * cloudbuild: Use the project defined in `trigger_template` when creating a `google_cloudbuild_trigger` [GH-1556]
 
+BUG FIXES:
+* storage: Support removing a label in `google_storage_bucket` [GH-1550]
+
 ## 1.13.0 (May 24, 2018)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
