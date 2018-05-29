@@ -84,6 +84,9 @@ The following arguments are supported:
 * `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
 but still work to finish started ones). Defaults to `300`.
 
+* `custom_request_headers` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Headers that the
+    HTTP/S load balancer should add to proxied requests. See [guide](https://cloud.google.com/compute/docs/load-balancing/http/backend-service#user-defined-request-headers) for details.
+
 * `description` - (Optional) The textual description for the backend service.
 
 * `enable_cdn` - (Optional) Whether or not to enable the Cloud CDN on the backend service.

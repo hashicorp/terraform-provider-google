@@ -1286,10 +1286,10 @@
 			"revisionTime": "2017-09-12T00:03:44Z"
 		},
 		{
-			"checksumSHA1": "gMu2KulO+2hJ4Bd00LqoQbIlVQU=",
+			"checksumSHA1": "w9T4m06NWJ5Wi62iHilwy92AEQI=",
 			"path": "google.golang.org/api/compute/v0.beta",
-			"revision": "e4126357c891acdef6dcd7805daa4c6533be6544",
-			"revisionTime": "2018-03-26T00:03:39Z"
+			"revision": "348810ff778af56686d572415ce79e6c9fad9613",
+			"revisionTime": "2018-05-08T15:48:10Z"
 		},
 		{
 			"checksumSHA1": "5ZmxWSE3+bfzxX6IJDmTtmjurJU=",
