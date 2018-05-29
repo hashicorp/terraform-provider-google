@@ -8,6 +8,7 @@ IMPROVEMENTS:
 * project: Use default provider project for `google_project_services` if project field is empty [GH-1553]
 
 BUG FIXES:
+* dns: Suppress diff for ipv6 address in `google_dns_record_set` [GH-1551]
 * storage: Support removing a label in `google_storage_bucket` [GH-1550]
 
 ## 1.13.0 (May 24, 2018)
