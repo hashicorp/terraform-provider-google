@@ -378,6 +378,15 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		if len(sb.Labels) == 0 {
 			sb.NullFields = append(sb.NullFields, "Labels")
 		}
+
+		// To delete a label using PATCH, we have to explicitly set its value
+		// to null.
+		old, _ := d.GetChange("labels")
+		for k := range old.(map[string]interface{}) {
+			if _, ok := sb.Labels[k]; !ok {
+				sb.NullFields = append(sb.NullFields, fmt.Sprintf("Labels.%s", k))
+			}
+		}
 	}
 
 	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
