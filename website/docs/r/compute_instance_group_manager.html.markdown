@@ -54,6 +54,30 @@ resource "google_compute_instance_group_manager" "appserver" {
 }
 ```
 
+## Example Usage with multiple Versions
+```hcl
+resource "google_compute_instance_group_manager" "appserver" {
+  name = "appserver-igm"
+
+  base_instance_name = "app"
+  update_strategy    = "NONE"
+  zone               = "us-central1-a"
+
+  target_size  = 5
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver.self_link}"
+  }
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
+    target_size {
+      fixed = 1
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -167,7 +191,9 @@ The **version** block supports:
 version {
  name = "appserver-canary"
  instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
- target_size_fixed = 1
+ target_size {
+   fixed = 1
+ }
 }
 ```
 
@@ -175,30 +201,9 @@ version {
 version {
  name = "appserver-canary"
  instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
- target_size_percent = 20
-}
-```
-## Example Usage with multiple Versions
-```hcl
-resource "google_compute_instance_group_manager" "appserver" {
-  name = "appserver-igm"
-
-  base_instance_name = "app"
-  update_strategy    = "NONE"
-  zone               = "us-central1-a"
-
-  target_size  = 5
-
-  version {
-    instance_template  = "${google_compute_instance_template.appserver.self_link}"
-  }
-
-  version {
-    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
-    target_size {
-      fixed = 1
-    }
-  }
+ target_size {
+   percent = 20
+ }
 }
 ```
 
