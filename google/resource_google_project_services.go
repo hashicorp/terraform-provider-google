@@ -185,25 +185,34 @@ func getConfigServices(d *schema.ResourceData) (services []string) {
 
 // Retrieve a project's services from the API
 func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]string, error) {
-	apiServices := make([]string, 0)
-	// Get services from the API
-	token := ""
-	for paginate := true; paginate; {
-		svcResp, err := config.clientServiceUsage.Services.List("projects/" + pid).PageToken(token).Filter("state:ENABLED").Do()
-		if err != nil {
-			return apiServices, err
-		}
-		for _, v := range svcResp.Services {
-			// names are returned as projects/{project-number}/services/{service-name}
-			nameParts := strings.Split(v.Name, "/")
-			name := nameParts[len(nameParts)-1]
-			if _, ok := ignore[name]; !ok {
-				apiServices = append(apiServices, name)
-			}
-		}
-		token = svcResp.NextPageToken
-		paginate = token != ""
+	var apiServices []string
+
+	if ignore == nil {
+		ignore = make(map[string]struct{})
 	}
+
+	ctx := context.Background()
+	if err := config.clientServiceUsage.Services.
+		List("projects/"+pid).
+		Fields("services/name").
+		Filter("state:ENABLED").
+		Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
+			for _, v := range r.Services {
+				// services are returned as "projects/PROJECT/services/NAME"
+				parts := strings.Split(v.Name, "/")
+				if len(parts) > 0 {
+					name := parts[len(parts)-1]
+					if _, ok := ignore[name]; !ok {
+						apiServices = append(apiServices, name)
+					}
+				}
+			}
+
+			return nil
+		}); err != nil {
+		return nil, errwrap.Wrapf("failed to enable services: {{err}}", err)
+	}
+
 	return apiServices, nil
 }
 
