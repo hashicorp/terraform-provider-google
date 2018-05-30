@@ -11,6 +11,7 @@ import (
 
 func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 	target := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
+	sslPolicy := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	cert := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	backend := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	hc := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
@@ -21,7 +22,7 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeTargetSslProxy_basic1(target, cert, backend, hc),
+				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert),
@@ -38,6 +39,7 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
 	target := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
+	sslPolicy := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	cert1 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	cert2 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	backend1 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
@@ -50,14 +52,14 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeTargetSslProxy_basic1(target, cert1, backend1, hc),
+				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert1, backend1, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert1),
 				),
 			},
 			resource.TestStep{
-				Config: testAccComputeTargetSslProxy_basic2(target, cert1, cert2, backend1, backend2, hc),
+				Config: testAccComputeTargetSslProxy_basic2(target, sslPolicy, cert1, cert2, backend1, backend2, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "PROXY_V1", cert2),
@@ -121,7 +123,7 @@ func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.
 	}
 }
 
-func testAccComputeTargetSslProxy_basic1(target, sslCert, backend, hc string) string {
+func testAccComputeTargetSslProxy_basic1(target, sslPolicy, sslCert, backend, hc string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "foobar" {
 	description = "Resource created for Terraform acceptance testing"
@@ -129,6 +131,14 @@ resource "google_compute_target_ssl_proxy" "foobar" {
 	backend_service = "${google_compute_backend_service.foo.self_link}"
 	ssl_certificates = ["${google_compute_ssl_certificate.foo.self_link}"]
 	proxy_header = "NONE"
+	ssl_policy = "${google_compute_ssl_policy.foo.self_link}"
+}
+
+resource "google_compute_ssl_policy" "foo" {
+	name            = "%s"
+	description     = "Resource created for Terraform acceptance testing"
+	min_tls_version = "TLS_1_2"
+	profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foo" {
@@ -151,10 +161,10 @@ resource "google_compute_health_check" "zero" {
 		port = "443"
 	}
 }
-`, target, sslCert, backend, hc)
+`, target, sslPolicy, sslCert, backend, hc)
 }
 
-func testAccComputeTargetSslProxy_basic2(target, sslCert1, sslCert2, backend1, backend2, hc string) string {
+func testAccComputeTargetSslProxy_basic2(target, sslPolicy, sslCert1, sslCert2, backend1, backend2, hc string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "foobar" {
 	description = "Resource created for Terraform acceptance testing"
@@ -162,6 +172,13 @@ resource "google_compute_target_ssl_proxy" "foobar" {
 	backend_service = "${google_compute_backend_service.bar.self_link}"
 	ssl_certificates = ["${google_compute_ssl_certificate.bar.name}"]
 	proxy_header = "PROXY_V1"
+}
+
+resource "google_compute_ssl_policy" "foo" {
+	name            = "%s"
+	description     = "Resource created for Terraform acceptance testing"
+	min_tls_version = "TLS_1_2"
+	profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foo" {
@@ -196,5 +213,5 @@ resource "google_compute_health_check" "zero" {
 		port = "443"
 	}
 }
-`, target, sslCert1, sslCert2, backend1, backend2, hc)
+`, target, sslPolicy, sslCert1, sslCert2, backend1, backend2, hc)
 }
