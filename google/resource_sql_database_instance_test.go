@@ -521,6 +521,43 @@ func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
+	t.Parallel()
+
+	var instance sqladmin.DatabaseInstance
+	databaseID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_with_user_labels, databaseID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(
+						&instance),
+				),
+			},
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 	instance *sqladmin.DatabaseInstance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -691,6 +728,22 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 		local = attributes["settings.0.pricing_plan"]
 		if server != local && len(server) > 0 && len(local) > 0 {
 			return fmt.Errorf("Error settings.pricing_plan mismatch, (%s, %s)", server, local)
+		}
+
+		if instance.Settings.UserLabels != nil {
+			server := instance.Settings.UserLabels["location"]
+			local = attributes["settings.0.user_labels.location"]
+
+			if server != local {
+				return fmt.Errorf("Error settings.user_labels.location mismatch, (%s, %s)", server, local)
+			}
+
+			server = instance.Settings.UserLabels["track"]
+			local = attributes["settings.0.user_labels.track"]
+
+			if server != local {
+				return fmt.Errorf("Error settings.user_labels.track mismatch, (%s, %s)", server, local)
+			}
 		}
 
 		if instance.ReplicaConfiguration != nil {
@@ -1062,5 +1115,31 @@ resource "google_sql_user" "user" {
 	instance = "${google_sql_database_instance.instance.name}"
 	host = "google.com"
 	password = "hunter2"
+}
+`
+
+var testGoogleSqlDatabaseInstance_basic_with_user_labels = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		user_labels {
+		    track = "production"
+		    location = "western-division"
+		}
+	}
+}
+`
+var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		user_labels {
+		    track = "production"
+		}
+	}
 }
 `
