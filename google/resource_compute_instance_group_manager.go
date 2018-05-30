@@ -450,6 +450,62 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
+// Updates an instance group manager by applying an update strategy (REPLACE, RESTART) respecting a rolling update policy (availability settings,
+// interval between updates, and particularly, the type of update PROACTIVE or OPPORTUNISTIC because updates performed by API are considered
+// OPPORTUNISTIC by default)
+func performUpdate(config *Config, id string, updateStrategy string, rollingUpdatePolicy []interface{}, project string, zone string) error {
+	if updateStrategy == "RESTART" {
+		managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, id).Do()
+		if err != nil {
+			return fmt.Errorf("Error getting instance group managers instances: %s", err)
+		}
+
+		managedInstanceCount := len(managedInstances.ManagedInstances)
+		instances := make([]string, managedInstanceCount)
+		for i, v := range managedInstances.ManagedInstances {
+			instances[i] = v.Instance
+		}
+
+		recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
+			Instances: instances,
+		}
+
+		op, err := config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(project, zone, id, recreateInstances).Do()
+		if err != nil {
+			return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+		}
+
+		// Wait for the operation to complete
+		err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
+		if err != nil {
+			return err
+		}
+	}
+
+	if updateStrategy == "ROLLING_UPDATE" {
+		// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+		// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+		// expect those values to be provided by user as part of the call
+		// or provide their own defaults without respecting what was previously set on UpdateManager.
+		// To follow the same logic, we provide policy values on relevant update change only.
+		manager := &computeBeta.InstanceGroupManager{
+			UpdatePolicy: expandUpdatePolicy(rollingUpdatePolicy),
+		}
+
+		op, err := config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, id, manager).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating managed group instances: %s", err)
+		}
+
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -515,56 +571,9 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		if d.Get("update_strategy").(string) == "RESTART" {
-			managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(
-				project, zone, d.Id()).Do()
-			if err != nil {
-				return fmt.Errorf("Error getting instance group managers instances: %s", err)
-			}
-
-			managedInstanceCount := len(managedInstances.ManagedInstances)
-			instances := make([]string, managedInstanceCount)
-			for i, v := range managedInstances.ManagedInstances {
-				instances[i] = v.Instance
-			}
-
-			recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
-				Instances: instances,
-			}
-
-			op, err = config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(
-				project, zone, d.Id(), recreateInstances).Do()
-			if err != nil {
-				return fmt.Errorf("Error restarting instance group managers instances: %s", err)
-			}
-
-			// Wait for the operation to complete
-			err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
-			if err != nil {
-				return err
-			}
-		}
-
-		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
-			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
-			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
-			// expect those values to be provided by user as part of the call
-			// or provide their own defaults without respecting what was previously set on UpdateManager.
-			// To follow the same logic, we provide policy values on relevant update change only.
-			manager := &computeBeta.InstanceGroupManager{
-				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
-			}
-
-			op, err = config.clientComputeBeta.InstanceGroupManagers.Patch(
-				project, zone, d.Id(), manager).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating managed group instances: %s", err)
-			}
-
-			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
-			if err != nil {
-				return err
-			}
+		err = performUpdate(config, d.Id(), d.Get("update_strategy").(string), d.Get("rolling_update_policy").([]interface{}), project, zone)
+		if err != nil {
+			return err
 		}
 
 		d.SetPartial("instance_template")
@@ -586,53 +595,9 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		if d.Get("update_strategy").(string) == "RESTART" {
-			managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, d.Id()).Do()
-			if err != nil {
-				return fmt.Errorf("Error getting instance group managers instances: %s", err)
-			}
-
-			managedInstanceCount := len(managedInstances.ManagedInstances)
-			instances := make([]string, managedInstanceCount)
-			for i, v := range managedInstances.ManagedInstances {
-				instances[i] = v.Instance
-			}
-
-			recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
-				Instances: instances,
-			}
-
-			op, err = config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(project, zone, d.Id(), recreateInstances).Do()
-			if err != nil {
-				return fmt.Errorf("Error restarting instance group managers instances: %s", err)
-			}
-
-			// Wait for the operation to complete
-			err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting InstanceGroupManagers instances")
-			if err != nil {
-				return err
-			}
-		}
-
-		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
-			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
-			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
-			// expect those values to be provided by user as part of the call
-			// or provide their own defaults without respecting what was previously set on UpdateManager.
-			// To follow the same logic, we provide policy values on relevant update change only.
-			manager := &computeBeta.InstanceGroupManager{
-				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
-			}
-
-			op, err = config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, d.Id(), manager).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating managed group instances: %s", err)
-			}
-
-			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
-			if err != nil {
-				return err
-			}
+		err = performUpdate(config, d.Id(), d.Get("update_strategy").(string), d.Get("rolling_update_policy").([]interface{}), project, zone)
+		if err != nil {
+			return err
 		}
 
 		d.SetPartial("version")
