@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * dns: Suppress diff for ipv6 address in `google_dns_record_set` [GH-1551]
 * storage: Support removing a label in `google_storage_bucket` [GH-1550]
+* compute: Fix perpetual diff caused by the `google_instance_group` self_link in `google_regional_instance_group_manager` [GH-1549]
 
 ## 1.13.0 (May 24, 2018)
 
