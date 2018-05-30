@@ -114,7 +114,7 @@ The `allow` or `deny` blocks support:
 
 The `restore_policy` block supports:
 
-* `default` - (Required) If true, then the default Policy is restored. If false, then any configuration is acceptable.
+* `default` - (Required) May only be set to true. If set, then the default Policy is restored.
 
 ## Attributes Reference
 
