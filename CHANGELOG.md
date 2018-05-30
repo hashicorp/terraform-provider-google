@@ -7,6 +7,7 @@ IMPROVEMENTS:
 * cloudbuild: Use the project defined in `trigger_template` when creating a `google_cloudbuild_trigger` [GH-1556]
 * kms: Add basic update for `google_kms_crypto_key` resource [GH-1511]
 * project: Use default provider project for `google_project_services` if project field is empty [GH-1553]
+* sql: Add labels support in `sql_database_instance` [GH-1567]
 
 BUG FIXES:
 * dns: Suppress diff for ipv6 address in `google_dns_record_set` [GH-1551]
