@@ -544,6 +544,16 @@ func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
 						&instance),
 				),
 			},
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+				),
+			},
 		},
 	})
 }
@@ -1117,6 +1127,18 @@ resource "google_sql_database_instance" "instance" {
 		user_labels {
 		    track = "production"
 		    location = "western-division"
+		}
+	}
+}
+`
+var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		user_labels {
+		    track = "production"
 		}
 	}
 }

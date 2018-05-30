@@ -601,13 +601,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.ReplicationType = v.(string)
 	}
 
-	settings.UserLabels = map[string]string{}
-
 	if v, ok := _settings["user_labels"]; ok {
-		_userLabels := v.(map[string]interface{})
-		for k, v := range _userLabels {
-			settings.UserLabels[k] = v.(string)
-		}
+		settings.UserLabels = convertStringMap(v.(map[string]interface{}))
 	}
 
 	instance := &sqladmin.DatabaseInstance{
@@ -1043,11 +1038,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		if v, ok := _settings["user_labels"]; ok {
-			_userLabels := v.(map[string]interface{})
-
-			for k, v := range _userLabels {
-				settings.UserLabels[k] = v.(string)
-			}
+			settings.UserLabels = convertStringMap(v.(map[string]interface{}))
 		}
 
 		instance.Settings = settings
