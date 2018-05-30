@@ -125,6 +125,8 @@ The required `settings` block supports:
 * `replication_type` - (Optional) Replication type for this instance, can be one
     of `ASYNCHRONOUS` or `SYNCHRONOUS`.
 
+* `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
+
 The optional `settings.database_flags` sublist supports:
 
 * `name` - (Optional) Name of the flag.

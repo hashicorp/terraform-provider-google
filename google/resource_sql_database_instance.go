@@ -230,6 +230,12 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional: true,
 							Default:  "SYNCHRONOUS",
 						},
+						"user_labels": &schema.Schema{
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
 					},
 				},
 			},
@@ -593,6 +599,15 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := _settings["replication_type"]; ok {
 		settings.ReplicationType = v.(string)
+	}
+
+	settings.UserLabels = map[string]string{}
+
+	if v, ok := _settings["user_labels"]; ok {
+		_userLabels := v.(map[string]interface{})
+		for k, v := range _userLabels {
+			settings.UserLabels[k] = v.(string)
+		}
 	}
 
 	instance := &sqladmin.DatabaseInstance{
@@ -1027,6 +1042,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			settings.ReplicationType = v.(string)
 		}
 
+		if v, ok := _settings["user_labels"]; ok {
+			_userLabels := v.(map[string]interface{})
+
+			for k, v := range _userLabels {
+				settings.UserLabels[k] = v.(string)
+			}
+		}
+
 		instance.Settings = settings
 	}
 
@@ -1079,6 +1102,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		"disk_size":                   settings.DataDiskSizeGb,
 		"pricing_plan":                settings.PricingPlan,
 		"replication_type":            settings.ReplicationType,
+		"user_labels":                 settings.UserLabels,
 	}
 
 	if settings.BackupConfiguration != nil {
@@ -1103,6 +1127,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 
 	if settings.StorageAutoResize != nil {
 		data["disk_autoresize"] = *settings.StorageAutoResize
+	}
+
+	if settings.UserLabels != nil {
+		data["user_labels"] = settings.UserLabels
 	}
 
 	return []map[string]interface{}{data}
