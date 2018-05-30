@@ -40,7 +40,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"version": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -337,14 +336,14 @@ func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[
 		versionMap := make(map[string]interface{})
 		versionMap["name"] = version.Name
 		versionMap["instance_template"] = ConvertSelfLinkToV1(version.InstanceTemplate)
-		versionMap["target_size"] = flattendFixedOrPercent(version.TargetSize)
+		versionMap["target_size"] = flattenFixedOrPercent(version.TargetSize)
 		result = append(result, versionMap)
 	}
 
 	return result
 }
 
-func flattendFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) map[string]interface{} {
+func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) map[string]interface{} {
 	result := make(map[string]interface{})
 	if value := fixedOrPercent.Percent; value > 0 {
 		result["percent"] = value
