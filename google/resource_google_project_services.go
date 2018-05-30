@@ -273,6 +273,27 @@ func enableServices(s []string, pid string, config *Config) error {
 	return nil
 }
 
+func diffStringSlice(wanted, actual []string) []string {
+	var missing []string
+
+	for _, want := range wanted {
+		found := false
+
+		for _, act := range actual {
+			if want == act {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			missing = append(missing, want)
+		}
+	}
+
+	return missing
+}
+
 func disableService(s, pid string, config *Config) error {
 	err := retryTime(func() error {
 		name := fmt.Sprintf("projects/%s/services/%s", pid, s)
