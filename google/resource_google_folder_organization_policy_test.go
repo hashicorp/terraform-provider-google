@@ -129,6 +129,24 @@ func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	t.Parallel()
+
+	folder := acctest.RandomWithPrefix("tf-test")
+	org := getTestOrgFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder),
+				Check:  getGoogleFolderOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleFolderOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -222,6 +240,22 @@ func testAccCheckGoogleFolderOrganizationListPolicyDeniedValues(n string, values
 	}
 }
 
+func getGoogleFolderOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleFolderOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
+		}
+
+		return nil
+	}
+}
+
 func getGoogleFolderOrganizationPolicyTestResource(s *terraform.State, n string) (*cloudresourcemanager.OrgPolicy, error) {
 	rn := "google_folder_organization_policy." + n
 	rs, ok := s.RootModule().Resources[rn]
@@ -249,7 +283,7 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "bool" {
-	# Test numeric folder ID.
+    # Test numeric folder ID.
   folder     = "${replace(google_folder.orgpolicy.name, "folders/", "")}"
   constraint = "constraints/compute.disableSerialPortAccess"
 
@@ -319,6 +353,24 @@ resource "google_folder_organization_policy" "list" {
       ]
     }
   }
+}
+`, folder, "organizations/"+org)
+}
+
+func testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "orgpolicy" {
+  display_name = "%s"
+  parent       = "%s"
+}
+
+resource "google_folder_organization_policy" "restore" {
+    folder     = "${google_folder.orgpolicy.name}"
+    constraint = "serviceuser.services"
+
+    restore_policy {
+        default = true
+    }
 }
 `, folder, "organizations/"+org)
 }
