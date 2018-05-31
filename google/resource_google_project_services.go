@@ -187,31 +187,37 @@ func getConfigServices(d *schema.ResourceData) (services []string) {
 
 // Retrieve a project's services from the API
 func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]string, error) {
-	var apiServices []string
-
 	if ignore == nil {
 		ignore = make(map[string]struct{})
 	}
 
-	ctx := context.Background()
-	if err := config.clientServiceUsage.Services.
-		List("projects/"+pid).
-		Fields("services/name").
-		Filter("state:ENABLED").
-		Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
-			for _, v := range r.Services {
-				// services are returned as "projects/PROJECT/services/NAME"
-				parts := strings.Split(v.Name, "/")
-				if len(parts) > 0 {
-					name := parts[len(parts)-1]
-					if _, ok := ignore[name]; !ok {
-						apiServices = append(apiServices, name)
+	var apiServices []string
+
+	if err := retryTime(func() error {
+		// Reset the list of apiServices in case of a retry. A partial page failure
+		// could result in duplicate services.
+		apiServices = make([]string, 0, 10)
+
+		ctx := context.Background()
+		return config.clientServiceUsage.Services.
+			List("projects/"+pid).
+			Fields("services/name").
+			Filter("state:ENABLED").
+			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
+				for _, v := range r.Services {
+					// services are returned as "projects/PROJECT/services/NAME"
+					parts := strings.Split(v.Name, "/")
+					if len(parts) > 0 {
+						name := parts[len(parts)-1]
+						if _, ok := ignore[name]; !ok {
+							apiServices = append(apiServices, name)
+						}
 					}
 				}
-			}
 
-			return nil
-		}); err != nil {
+				return nil
+			})
+	}, 10); err != nil {
 		return nil, errwrap.Wrapf("failed to list services: {{err}}", err)
 	}
 
