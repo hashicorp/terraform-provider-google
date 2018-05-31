@@ -360,3 +360,19 @@ func lockedCall(lockKey string, f func() error) error {
 
 	return f()
 }
+
+// serviceAccountFQN will attempt to generate the fully qualified name in the format of:
+// "projects/(-|<project_name>)/serviceAccounts/<service_account_id>@<project_name>.iam.gserviceaccount.com"
+func serviceAccountFQN(serviceAccount, project string) string {
+	// If the service account id isn't already the fully qualified name
+	if !strings.HasPrefix(serviceAccount, "projects/") {
+		// If the service account id is an email
+		if strings.Contains(serviceAccount, "@") {
+			serviceAccount = "projects/-/serviceAccounts/" + serviceAccount
+		} else {
+			// If the service account id doesn't contain the email, build it
+			serviceAccount = fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project)
+		}
+	}
+	return serviceAccount
+}

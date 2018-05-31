@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,6 +14,12 @@ func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
 
 	resourceName := "data.google_service_account_key.acceptance"
 	account := acctest.RandomWithPrefix("tf-test")
+	serviceAccountName := fmt.Sprintf(
+		"projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com",
+		getTestProjectFromEnv(),
+		account,
+		getTestProjectFromEnv(),
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -22,7 +29,8 @@ func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
 				Config: testAccDatasourceGoogleServiceAccountKey(account),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
-					resource.TestCheckResourceAttrSet(resourceName, "name"),
+					// Check that the 'name' starts with the service account name
+					resource.TestMatchResourceAttr(resourceName, "name", regexp.MustCompile(serviceAccountName)),
 					resource.TestCheckResourceAttrSet(resourceName, "key_algorithm"),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 				),

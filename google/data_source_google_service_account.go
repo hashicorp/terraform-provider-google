@@ -10,19 +10,16 @@ import (
 func dataSourceGoogleServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleServiceAccountRead,
-
 		Schema: map[string]*schema.Schema{
-			// Required
 			"account_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validateRFC1035Name(6, 30),
 			},
-			// Optional
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			// Computed
 			"email": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -46,30 +43,19 @@ func dataSourceGoogleServiceAccount() *schema.Resource {
 func dataSourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Get the account id as the fully qualified name
-	accountID := d.Get("account_id").(string)
-
-	// If the account id isn't already the fully qualified name
-	if !strings.HasPrefix(accountID, "projects/") {
-
-		// If the account id is an email
-		if strings.Contains(accountID, "@") {
-			accountID = "projects/-/serviceAccounts/" + accountID
-		} else {
-			// Get the project from the resource or fallback to the project
-			// in the provider configuration
-			project, err := getProject(d, config)
-			if err != nil {
-				return err
-			}
-			// If the account id doesn't contain the email, build it
-			accountID = fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", accountID, project)
-		}
+	// Get the project from the resource or fallback to the project
+	// in the provider configuration
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
 	}
 
-	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(accountID).Do()
+	// Get the service account as a fully qualified name
+	serviceAccountName := serviceAccountFQN(d.Get("account_id").(string), project)
+
+	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(serviceAccountName).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", accountID))
+		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", serviceAccountName))
 	}
 
 	d.SetId(sa.Name)

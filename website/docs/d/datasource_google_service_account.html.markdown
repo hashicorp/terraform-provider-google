@@ -42,9 +42,7 @@ resource "kubernetes_secret" "google-application-credentials" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The Service account id. This can be a string in the format
-`{ACCOUNT}` or `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`, where `{ACCOUNT}` is the email address or
-unique id of the service account. If the `{ACCOUNT}` syntax is used, the project will be inferred from the account.
+* `account_id` - (Required) The Service account id.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.

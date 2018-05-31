@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -13,12 +12,10 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 		Read: dataSourceGoogleServiceAccountKeyRead,
 
 		Schema: map[string]*schema.Schema{
-			// Required
 			"service_account_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			// Optional
 			"public_key_type": &schema.Schema{
 				Type:         schema.TypeString,
 				Default:      "TYPE_X509_PEM_FILE",
@@ -49,33 +46,22 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Get the service account id as the fully qualified name
-	serviceAccountID := d.Get("service_account_id").(string)
-
-	// If the service account id isn't already the fully qualified name
-	if !strings.HasPrefix(serviceAccountID, "projects/") {
-
-		// If the service account id is an email
-		if strings.Contains(serviceAccountID, "@") {
-			serviceAccountID = "projects/-/serviceAccounts/" + serviceAccountID
-		} else {
-			// Get the project from the resource or fallback to the project
-			// in the provider configuration
-			project, err := getProject(d, config)
-			if err != nil {
-				return err
-			}
-			// If the service account id doesn't contain the email, build it
-			serviceAccountID = fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccountID, project)
-		}
+	// Get the project from the resource or fallback to the project
+	// in the provider configuration
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
 	}
+
+	// Get the service account as the fully qualified name
+	serviceAccountName := serviceAccountFQN(d.Get("service_account_id").(string), project)
 
 	publicKeyType := d.Get("public_key_type").(string)
 
 	// Confirm the service account key exists
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(serviceAccountID).PublicKeyType(publicKeyType).Do()
+	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(serviceAccountName).PublicKeyType(publicKeyType).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", serviceAccountID))
+		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", serviceAccountName))
 	}
 
 	d.SetId(sak.Name)
