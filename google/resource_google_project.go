@@ -116,16 +116,12 @@ func appEngineResource() *schema.Resource {
 			"auth_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				// We're having trouble with PATCH throwing 400s/500s, so we need this
-				// to force a new resource until we can get updating working.
-				ForceNew: true,
 				Computed: true,
 			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"northamerica-northeast1",
 					"us-central",
@@ -147,9 +143,6 @@ func appEngineResource() *schema.Resource {
 			"serving_status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				// We're having trouble with PATCH throwing 400s/500s, so we need this
-				// to force a new resource until we can get updating working.
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"UNSPECIFIED",
 					"SERVING",
@@ -174,9 +167,6 @@ func appEngineResource() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				// We're having trouble with PATCH throwing 400s/500s, so we need this
-				// to force a new resource until we can get updating working.
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     appEngineFeatureSettingsResource(),
 			},
@@ -216,7 +206,12 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	// don't need to check if changed, the call is a no-op/error if there's no change
-	diff.ForceNew("app_engine")
+	if old, new := diff.GetChange("app_engine.#"); old != nil && new != nil && old.(int) > 0 && new.(int) < 1 {
+		diff.ForceNew("app_engine")
+	}
+	if old, new := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && new != nil && old.(string) != "" {
+		diff.ForceNew("app_engine.0.location_id")
+	}
 	return nil
 }
 
@@ -276,19 +271,10 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error enabling the App Engine Admin API required to configure App Engine applications: %s", err)
 		}
 		log.Printf("[DEBUG] Enabled App Engine")
-		app.Id = pid
-		log.Printf("[DEBUG] Creating App Engine App")
-		op, err := config.clientAppEngine.Apps.Create(app).Do()
+		err = createAppEngineApp(config, pid, app)
 		if err != nil {
-			return fmt.Errorf("Error creating App Engine application: %s", err.Error())
+			return err
 		}
-
-		// Wait for the operation to complete
-		waitErr := appEngineOperationWait(config.clientAppEngine, op, pid, "App Engine app to create")
-		if waitErr != nil {
-			return waitErr
-		}
-		log.Printf("[DEBUG] Created App Engine App")
 	}
 
 	err = resourceGoogleProjectRead(d, meta)
@@ -310,6 +296,23 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
 		}
 	}
+	return nil
+}
+
+func createAppEngineApp(config *Config, pid string, app *appengine.Application) error {
+	app.Id = pid
+	log.Printf("[DEBUG] Creating App Engine App")
+	op, err := config.clientAppEngine.Apps.Create(app).Do()
+	if err != nil {
+		return fmt.Errorf("Error creating App Engine application: %s", err.Error())
+	}
+
+	// Wait for the operation to complete
+	waitErr := appEngineOperationWait(config.clientAppEngine, op, pid, "App Engine app to create")
+	if waitErr != nil {
+		return waitErr
+	}
+	log.Printf("[DEBUG] Created App Engine App")
 	return nil
 }
 
@@ -492,10 +495,39 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		d.SetPartial("labels")
 	}
 
-	// ignore app_engine changes, they don't work anyways.
+	// App Engine App has changed
+	if ok := d.HasChange("app_engine"); ok {
+		app, err := expandAppEngineApp(d)
+		if err != nil {
+			return err
+		}
+		// ignore if app is now not set; that should force new resource using customizediff
+		if app != nil {
+			if old, new := d.GetChange("app_engine.#"); (old == nil || old.(int) < 1) && new != nil && new.(int) > 0 {
+				err = createAppEngineApp(config, pid, app)
+				if err != nil {
+					return err
+				}
+			} else {
+				log.Printf("[DEBUG] Updating App Engine App")
+				op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks").Do()
+				if err != nil {
+					return fmt.Errorf("Error creating App Engine application: %s", err.Error())
+				}
+
+				// Wait for the operation to complete
+				waitErr := appEngineOperationWait(config.clientAppEngine, op, pid, "App Engine app to update")
+				if waitErr != nil {
+					return waitErr
+				}
+				log.Printf("[DEBUG] Updated App Engine App")
+			}
+		}
+	}
+
 	d.Partial(false)
 
-	return nil
+	return resourceGoogleProjectRead(d, meta)
 }
 
 func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error {
