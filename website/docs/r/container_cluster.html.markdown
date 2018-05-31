@@ -242,7 +242,7 @@ The `master_auth` block supports:
     the Kubernetes master endpoint
 
 If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
-This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you, with the username `admin`.
+This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you with the username `admin`.
 
 The `master_authorized_networks_config` block supports:
 
