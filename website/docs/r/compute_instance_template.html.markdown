@@ -119,7 +119,11 @@ The following arguments are supported:
     This can be specified multiple times for multiple disks. Structure is
     documented below.
 
-* `machine_type` - (Required) The machine type to create. To create a custom                                                          machine type, value should be formatted like `custom-4-5120[-ext]` ([GCP docs here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType))
+* `machine_type` - (Required) The machine type to create.
+
+    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
+
+    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 - - -
 * `name` - (Optional) The name of the instance template. If you leave
@@ -306,3 +310,5 @@ Instance templates can be imported using the `name`, e.g.
 ```
 $ terraform import google_compute_instance_template.default appserver-template
 ```
+
+[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types

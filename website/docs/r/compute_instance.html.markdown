@@ -61,7 +61,11 @@ The following arguments are supported:
 * `boot_disk` - (Required) The boot disk for the instance.
     Structure is documented below.
 
-* `machine_type` - (Required) The machine type to create. To create a custom machine type, value should be formatted like `custom-4-5120[-ext]` ([GCP docs on machineType](https://cloud.google.com/compute/docs/reference/latest/instances#machineType))
+* `machine_type` - (Required) The machine type to create.
+
+    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
+
+    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -304,3 +308,5 @@ Instances can be imported using the `project`, `zone` and `name`, e.g.
 ```
 $ terraform import google_compute_instance.default gcp-project/us-central1-a/test
 ```
+
+[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
