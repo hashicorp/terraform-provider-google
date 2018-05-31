@@ -40,6 +40,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"version": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -343,14 +344,16 @@ func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[
 	return result
 }
 
-func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) map[string]interface{} {
+func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if value := fixedOrPercent.Percent; value > 0 {
 		result["percent"] = value
-	} else {
+	} else if value := fixedOrPercent.Fixed; value > 0 {
 		result["fixed"] = fixedOrPercent.Fixed
+	} else {
+		return []map[string]interface{}{}
 	}
-	return result
+	return []map[string]interface{}{result}
 }
 
 func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
@@ -415,7 +418,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
 	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
-	d.Set("version", flattenVersions(manager.Versions))
+	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
+		return err
+	}
 	d.Set("name", manager.Name)
 	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
 	d.Set("description", manager.Description)
