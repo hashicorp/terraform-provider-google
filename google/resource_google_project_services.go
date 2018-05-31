@@ -212,7 +212,7 @@ func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]s
 
 			return nil
 		}); err != nil {
-		return nil, errwrap.Wrapf("failed to enable services: {{err}}", err)
+		return nil, errwrap.Wrapf("failed to list services: {{err}}", err)
 	}
 
 	return apiServices, nil
@@ -247,13 +247,13 @@ func enableServices(s []string, pid string, config *Config) error {
 			} else if len(services) == 1 {
 				// Use the singular enable - can't use batch for a single item
 				name := fmt.Sprintf("projects/%s/services/%s", pid, services[0])
-				op := &serviceusage.EnableServiceRequest{}
-				sop, err = config.clientServiceUsage.Services.Enable(name, op).Do()
+				req := &serviceusage.EnableServiceRequest{}
+				sop, err = config.clientServiceUsage.Services.Enable(name, req).Do()
 			} else {
 				// Batch enable 2+ services
 				name := fmt.Sprintf("projects/%s", pid)
-				op := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
-				sop, err = config.clientServiceUsage.Services.BatchEnable(name, op).Do()
+				req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
+				sop, err = config.clientServiceUsage.Services.BatchEnable(name, req).Do()
 			}
 			if err != nil {
 				// Check for a "precondition failed" error. The API seems to randomly

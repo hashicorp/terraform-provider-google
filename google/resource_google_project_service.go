@@ -52,7 +52,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	srv := d.Get("service").(string)
 
 	if err = enableService(srv, project, config); err != nil {
-		return errwrap.Wrapf("Error creating service: {{err}}", err)
+		return errwrap.Wrapf("Error enabling service: {{err}}", err)
 	}
 
 	d.SetId(projectServiceId{project, srv}.terraformId())
