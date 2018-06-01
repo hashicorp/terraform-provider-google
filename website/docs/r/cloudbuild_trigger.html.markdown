@@ -75,8 +75,8 @@ will be expanded when the build is created:
   * `$SHORT_SHA`: first 7 characters of `$REVISION_ID` or `$COMMIT_SHA`.
 
 * `filename` - (Optional) Specify the path to a Cloud Build configuration file
-in the Git repo. This is mutually exclusive with `build`. By default this is
-typically `cloudbuild.yaml` however it can be specified by the user.
+in the Git repo. This is mutually exclusive with `build`. This is typically
+`cloudbuild.yaml` however it can be specified by the user.
 
 ---
 
