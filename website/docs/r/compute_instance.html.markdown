@@ -61,10 +61,7 @@ The following arguments are supported:
 * `boot_disk` - (Required) The boot disk for the instance.
     Structure is documented below.
 
-* `machine_type` - (Required) The machine type to create. To create a custom
-    machine type, value should be set as specified
-    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+* `machine_type` - (Required) The machine type to create. To create a custom machine type, value should be formatted like `custom-4-5120[-ext]` ([GCP docs on machineType](https://cloud.google.com/compute/docs/reference/latest/instances#machineType))
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
