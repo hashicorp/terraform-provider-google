@@ -1,5 +1,9 @@
 ## 1.13.1 (Unreleased)
 
+FEATURES:
+* **New Datasource**: `google_service_account` [GH-1535]
+* **New Datasource**: `google_service_account_key` [GH-1535]
+
 IMPROVEMENTS:
 * compute: Accept subnetwork name only in `google_forwarding_rule` [GH-1552]
 * compute: Add disabled property to `google_compute_firewall` [GH-1536]
