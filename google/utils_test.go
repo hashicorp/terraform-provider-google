@@ -444,3 +444,30 @@ func TestEmptyOrDefaultStringSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestServiceAccountFQN(t *testing.T) {
+	// Every test case should produce this fully qualified service account name
+	serviceAccountExpected := "projects/-/serviceAccounts/test-service-account@test-project.iam.gserviceaccount.com"
+	cases := map[string]struct {
+		serviceAccount string
+		project        string
+	}{
+		"service account fully qualified name from account id": {
+			serviceAccount: "test-service-account",
+			project:        "test-project",
+		},
+		"service account fully qualified name from account email": {
+			serviceAccount: "test-service-account@test-project.iam.gserviceaccount.com",
+		},
+		"service account fully qualified name from account name": {
+			serviceAccount: "projects/-/serviceAccounts/test-service-account@test-project.iam.gserviceaccount.com",
+		},
+	}
+
+	for tn, tc := range cases {
+		serviceAccountName := serviceAccountFQN(tc.serviceAccount, tc.project)
+		if serviceAccountName != serviceAccountExpected {
+			t.Errorf("bad: %s, expected '%s' but returned '%s", tn, serviceAccountExpected, serviceAccountName)
+		}
+	}
+}
