@@ -359,7 +359,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Deleting HttpsHealthCheck %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting HttpsHealthCheck %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "HttpsHealthCheck")
 	}
 
 	op := &compute.Operation{}

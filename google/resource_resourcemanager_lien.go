@@ -212,7 +212,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting Lien %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "Lien")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Lien %q: %#v", d.Id(), res)

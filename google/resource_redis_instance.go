@@ -331,7 +331,7 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting Instance %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "Instance")
 	}
 
 	op := &redis.Operation{}

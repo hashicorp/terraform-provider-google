@@ -772,7 +772,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting Disk %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting Disk %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "Disk")
 	}
 
 	op := &compute.Operation{}

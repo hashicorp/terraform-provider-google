@@ -210,7 +210,7 @@ func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Deleting VpnGateway %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting VpnGateway %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "VpnGateway")
 	}
 
 	op := &compute.Operation{}
