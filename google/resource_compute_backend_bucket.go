@@ -268,7 +268,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting BackendBucket %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "BackendBucket")
 	}
 
 	op := &compute.Operation{}

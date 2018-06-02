@@ -402,7 +402,7 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Deleting TargetSslProxy %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting TargetSslProxy %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "TargetSslProxy")
 	}
 
 	op := &compute.Operation{}
