@@ -566,9 +566,9 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 		}
 
 		attr := rs.Primary.Attributes["disk_encryption_key_sha256"]
-		if disk.DiskEncryptionKey == nil && attr != "" {
+		if disk.DiskEncryptionKey == nil {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", n, attr)
-		} else if disk.DiskEncryptionKey != nil && attr != disk.DiskEncryptionKey.Sha256 {
+		} else if attr != disk.DiskEncryptionKey.Sha256 {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, disk.DiskEncryptionKey.Sha256)
 		}
