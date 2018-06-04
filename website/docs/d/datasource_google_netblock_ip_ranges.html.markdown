@@ -21,12 +21,12 @@ output "cidr_blocks" {
   value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks}"
 }
 
-output "cidr_blocks_ip4" {
-  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ip4}"
+output "cidr_blocks_ipv4" {
+  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv4}"
 }
 
-output "cidr_blocks_ip6" {
-  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ip6}"
+output "cidr_blocks_ipv6" {
+  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv6}"
 }
 ```
 
@@ -34,6 +34,6 @@ output "cidr_blocks_ip6" {
 
 * `cidr_blocks` - Retrieve list of all CIDR blocks.
 
-* `cidr_blocks_ip4` - Retrieve list of the IP4 CIDR blocks
+* `cidr_blocks_ipv4` - Retrieve list of the IP4 CIDR blocks
 
-* `cidr_blocks_ip6` - Retrieve list of the IP6 CIDR blocks.
+* `cidr_blocks_ipv6` - Retrieve list of the IP6 CIDR blocks.

@@ -18,12 +18,12 @@ func dataSourceGoogleNetblockIpRanges() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
-			"cidr_blocks_ip4": {
+			"cidr_blocks_ipv4": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
-			"cidr_blocks_ip6": {
+			"cidr_blocks_ipv6": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
@@ -43,8 +43,8 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 	}
 
 	d.Set("cidr_blocks", CidrBlocks["cidr_blocks"])
-	d.Set("cidr_blocks_ip4", CidrBlocks["cidr_blocks_ip4"])
-	d.Set("cidr_blocks_ip6", CidrBlocks["cidr_blocks_ip6"])
+	d.Set("cidr_blocks_ipv4", CidrBlocks["cidr_blocks_ipv4"])
+	d.Set("cidr_blocks_ipv6", CidrBlocks["cidr_blocks_ipv6"])
 
 	return nil
 }
@@ -111,11 +111,11 @@ func getCidrBlocks() (map[string][]string, error) {
 
 				if strings.HasPrefix(sp, "ip4") {
 					cdrBlock := strings.Replace(sp, "ip4:", "", 1)
-					cidrBlocks["cidr_blocks_ip4"] = append(cidrBlocks["cidr_blocks_ip4"], cdrBlock)
+					cidrBlocks["cidr_blocks_ipv4"] = append(cidrBlocks["cidr_blocks_ipv4"], cdrBlock)
 
 				} else if strings.HasPrefix(sp, "ip6") {
 					cdrBlock := strings.Replace(sp, "ip6:", "", 1)
-					cidrBlocks["cidr_blocks_ip6"] = append(cidrBlocks["cidr_blocks_ip6"], cdrBlock)
+					cidrBlocks["cidr_blocks_ipv6"] = append(cidrBlocks["cidr_blocks_ipv6"], cdrBlock)
 				}
 			} else if strings.HasPrefix(sp, "include:") {
 				cidr_block := strings.Replace(sp, "include:", "", 1)
