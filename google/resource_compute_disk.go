@@ -236,10 +236,10 @@ func diskEncryptionKeyDiffSuppress(k, old, new string, d *schema.ResourceData) b
 		}
 	} else if strings.HasSuffix(k, "raw_key") {
 		disk_key := d.Get("disk_encryption_key_raw").(string)
-		return disk_key == old
+		return disk_key == old && old != "" && new == ""
 	} else if k == "disk_encryption_key_raw" {
 		disk_key := d.Get("disk_encryption_key.0.raw_key").(string)
-		return disk_key == old
+		return disk_key == old && old != "" && new == ""
 	}
 	return false
 }
@@ -1004,7 +1004,7 @@ func expandComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, c
 		req = append(req, outMap)
 	} else {
 		// Check alternative setting?
-		if altV, ok := d.GetOk("disk_encryption_key_raw"); ok {
+		if altV, ok := d.GetOk("disk_encryption_key_raw"); ok && altV != "" {
 			outMap := make(map[string]interface{})
 			outMap["rawKey"] = altV
 			req = append(req, outMap)
