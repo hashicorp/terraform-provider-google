@@ -219,7 +219,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "none"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "logging.googleapis.com/kubernetes", "none"}, false),
 			},
 
 			"maintenance_policy": {
@@ -322,9 +322,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"monitoring_service": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"monitoring.googleapis.com", "monitoring.googleapis.com/kubernetes", "none"}, false),
 			},
 
 			"network": {
