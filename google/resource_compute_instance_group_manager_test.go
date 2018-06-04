@@ -269,6 +269,36 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_versions(t *testing.T) {
+	t.Parallel()
+
+	var manager computeBeta.InstanceGroupManager
+
+	primaryTemplate := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	canaryTemplate := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceGroupManager_versions(primaryTemplate, canaryTemplate, igm),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceGroupManagerBetaExists("google_compute_instance_group_manager.igm-basic", &manager),
+					testAccCheckInstanceGroupManagerVersions("google_compute_instance_group_manager.igm-basic", primaryTemplate, canaryTemplate),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_group_manager.igm-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	t.Parallel()
 
@@ -486,6 +516,42 @@ func testAccCheckInstanceGroupManagerNamedPorts(n string, np map[string]int64, i
 			if !found {
 				return fmt.Errorf("named port incorrect")
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckInstanceGroupManagerVersions(n string, primaryTemplate string, canaryTemplate string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		manager, err := config.clientComputeBeta.InstanceGroupManagers.Get(config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(manager.Versions) != 2 {
+			return fmt.Errorf("Expected # of versions to be 2, got %d", len(manager.Versions))
+		}
+
+		primaryVersion := manager.Versions[0]
+		if !strings.Contains(primaryVersion.InstanceTemplate, primaryTemplate) {
+			return fmt.Errorf("Expected string \"%s\" to appear in \"%s\"", primaryTemplate, primaryVersion.InstanceTemplate)
+		}
+
+		canaryVersion := manager.Versions[1]
+		if !strings.Contains(canaryVersion.InstanceTemplate, canaryTemplate) {
+			return fmt.Errorf("Expected string \"%s\" to appear in \"%s\"", canaryTemplate, canaryVersion.InstanceTemplate)
 		}
 
 		return nil
@@ -1119,6 +1185,73 @@ resource "google_compute_http_health_check" "zero" {
 	timeout_sec        = 1
 }
 	`, template, target, igm, hck)
+}
+
+func testAccInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "igm-primary" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+	network_interface {
+		network = "default"
+	}
+	metadata {
+		foo = "bar"
+	}
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+}
+
+resource "google_compute_instance_template" "igm-canary" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+	disk {
+		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		auto_delete = true
+		boot = true
+	}
+	network_interface {
+		network = "default"
+	}
+	metadata {
+		foo = "bar"
+	}
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name = "%s"
+	base_instance_name = "igm-basic"
+	zone = "us-central1-c"
+	target_size = 2
+
+	version {
+		name = "primary"
+		instance_template = "${google_compute_instance_template.igm-primary.self_link}"
+	}
+
+	version {
+		name = "canary"
+		instance_template = "${google_compute_instance_template.igm-canary.self_link}"
+		target_size {
+			fixed = 1
+		}
+	}
+}
+	`, primaryTemplate, canaryTemplate, igm)
 }
 
 // This test is to make sure that a single version resource can link to a versioned resource
