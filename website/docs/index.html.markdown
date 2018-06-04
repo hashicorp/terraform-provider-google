@@ -36,7 +36,8 @@ The following keys can be used to configure the provider.
 
 * `credentials` - (Optional) Contents of a file that contains your service
   account private key in JSON format. You can download this file from the
-  Google Cloud Console. More details on retrieving this file are below.
+  [Google Cloud Console](https://console.cloud.google.com/apis/credentials/serviceaccountkey)
+  by picking an existing service account or creating a new one for Terraform.
 
   Credentials can also be specified using any of the following environment
   variables (listed in order of precedence):
@@ -58,7 +59,8 @@ The following keys can be used to configure the provider.
   details. On your computer, if you have made your identity available as the
   Application Default Credentials by running [`gcloud auth application-default
   login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login),
-  the provider will use your identity.
+  the provider will use your identity. However, this method is not guaranteed to
+  work for all APIs, and service accounts or GCE metadata should be used if possible.
 
 * `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed
@@ -85,25 +87,6 @@ The following keys can be used to configure the provider.
     * `GCLOUD_ZONE`
     * `CLOUDSDK_COMPUTE_ZONE`
 
-## Authentication JSON File
-
-Authenticating with Google Cloud services requires a JSON
-file which we call the _account file_.
-
-This file is downloaded directly from the
-[Google Developers Console](https://console.developers.google.com). To make
-the process more straightforwarded, it is documented here:
-
-1. Log into the [Google Developers Console](https://console.developers.google.com)
-   and select a project.
-
-2. The API Manager view should be selected, click on "Credentials" on the left,
-   then "Create credentials", and finally "Service account key".
-
-3. Select "Compute Engine default service account" in the "Service account"
-   dropdown, and select "JSON" as the key type.
-
-4. Clicking "Create" will download your `credentials`.
 
 ## Beta Features
 
