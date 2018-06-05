@@ -13,6 +13,7 @@ IMPROVEMENTS:
 * compute: Add support for `ssl_policy` to `google_compute_target_ssl_proxy` [GH-1568]
 * compute: Add support for `version`s in instance group manager [GH-1499]
 * cloudbuild: Use the project defined in `trigger_template` when creating a `google_cloudbuild_trigger` [GH-1556]
+* cloudbuild: Support configuration file in repository for `google_cloudbuild_trigger` [GH-1557]
 * kms: Add basic update for `google_kms_crypto_key` resource [GH-1511]
 * project: Use default provider project for `google_project_services` if project field is empty [GH-1553]
 * project: Added support for restoring default organization policies [GH-1477]
