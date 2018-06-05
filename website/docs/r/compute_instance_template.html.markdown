@@ -249,9 +249,9 @@ The `access_config` block supports:
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
 
-* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring this instance.
-    This field can take the following values: PREMIUM or STANDARD. If this field is
-    not specified, it is assumed to be PREMIUM.
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
+    this instance template. This field can take the following values: PREMIUM or
+    STANDARD. If this field is not specified, it is assumed to be PREMIUM.
 
 The `alias_ip_range` block supports:
 
