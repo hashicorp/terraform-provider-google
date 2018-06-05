@@ -39,7 +39,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 	})
 }
 
-func TestAccComputeGlobalAddress_basic_with_network_tier(t *testing.T) {
+func TestAccComputeGlobalAddress_networkTier(t *testing.T) {
 	t.Parallel()
 
 	var addr compute.Address
