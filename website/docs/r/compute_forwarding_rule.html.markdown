@@ -95,3 +95,5 @@ Forwarding rules can be imported using the `name`, e.g.
 ```
 $ terraform import google_compute_forwarding_rule.default website-forwarding-rule
 ```
+
+[network-tier]: https://cloud.google.com/network-tiers/docs/overview
