@@ -169,7 +169,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
 		Subnetwork:          subnetwork.RelativeLink(),
-		Target:              d.Get("target").(string),
+		Target:              ConvertSelfLinkToV1(d.Get("target").(string)),
 	}
 
 	log.Printf("[DEBUG] ForwardingRule insert request: %#v", frule)
