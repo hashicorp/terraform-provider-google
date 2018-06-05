@@ -51,6 +51,10 @@ The following arguments are supported:
     specified for INTERNAL address types. The IP address must be inside the
     specified subnetwork, if any.
 
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
+    this address. This field can take the following values: PREMIUM or STANDARD.
+    If this field is not specified, it is assumed to be PREMIUM.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -86,3 +90,5 @@ $ terraform import google_compute_address.default https://www.googleapis.com/com
 
 $ terraform import google_compute_address.default projects/gcp-project/regions/us-central1/addresses/test-address
 ```
+
+[network-tier]: https://cloud.google.com/network-tiers/docs/overview
