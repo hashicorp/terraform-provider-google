@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -51,7 +52,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	srv := d.Get("service").(string)
 
 	if err = enableService(srv, project, config); err != nil {
-		return fmt.Errorf("Error enabling service: %s", err)
+		return errwrap.Wrapf("Error enabling service: {{err}}", err)
 	}
 
 	d.SetId(projectServiceId{project, srv}.terraformId())

@@ -124,6 +124,8 @@ The required `settings` block supports:
 * `replication_type` - (Optional) Replication type for this instance, can be one
     of `ASYNCHRONOUS` or `SYNCHRONOUS`.
 
+* `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
+
 The optional `settings.database_flags` sublist supports:
 
 * `name` - (Optional) Name of the flag.
@@ -231,6 +233,17 @@ when the resource is configured with a `count`.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
+    
+* `server_ca_cert.0.cert` - The CA Certificate used to connect to the SQL Instance via SSL.
+
+* `server_ca_cert.0.common_name` - The CN valid for the CA Cert.
+
+* `server_ca_cert.0.create_time` - Creation time of the CA Cert.
+
+* `server_ca_cert.0.expiration_time` - Expiration time of the CA Cert.
+
+* `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
+
 
 ## Timeouts
 

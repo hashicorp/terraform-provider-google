@@ -118,10 +118,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 			},
 
 			"subnetwork": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Computed:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 		},
 	}
@@ -131,6 +132,11 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 
 	network, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+
+	subnetwork, err := ParseSubnetworkFieldValue(d.Get("subnetwork").(string), d, config)
 	if err != nil {
 		return err
 	}
@@ -162,8 +168,8 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		NetworkTier:         d.Get("network_tier").(string),
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
-		Subnetwork:          d.Get("subnetwork").(string),
-		Target:              ConvertSelfLinkToV1(d.Get("target").(string)),
+		Subnetwork:          subnetwork.RelativeLink(),
+		Target:              d.Get("target").(string),
 	}
 
 	log.Printf("[DEBUG] ForwardingRule insert request: %#v", frule)

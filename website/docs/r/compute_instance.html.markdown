@@ -61,10 +61,11 @@ The following arguments are supported:
 * `boot_disk` - (Required) The boot disk for the instance.
     Structure is documented below.
 
-* `machine_type` - (Required) The machine type to create. To create a custom
-    machine type, value should be set as specified
-    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+* `machine_type` - (Required) The machine type to create.
+
+    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
+
+    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -94,6 +95,7 @@ The following arguments are supported:
     **Note:** you must disable deletion protection before removing the resource (e.g., via `terraform destroy`), or the instance cannot be deleted and the Terraform run will not complete successfully.
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+    **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
@@ -306,3 +308,5 @@ Instances can be imported using the `project`, `zone` and `name`, e.g.
 ```
 $ terraform import google_compute_instance.default gcp-project/us-central1-a/test
 ```
+
+[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types

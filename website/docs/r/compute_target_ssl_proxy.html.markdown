@@ -96,6 +96,11 @@ The following arguments are supported:
   (Optional)
   Specifies the type of proxy header to append before sending data to
   the backend, either NONE or PROXY_V1. The default is NONE.
+* `ssl_policy` -
+  (Optional)
+  A reference to the SslPolicy resource that will be associated with
+  the TargetSslProxy resource. If not set, the TargetSslProxy
+  resource will not have any SSL policy configured.
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

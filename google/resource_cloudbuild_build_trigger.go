@@ -36,6 +36,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"filename": &schema.Schema{
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"build"},
+			},
 			"build": {
 				Type:        schema.TypeList,
 				Description: "Contents of the build template.",
@@ -142,7 +148,12 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		buildTrigger.Description = v.(string)
 	}
 
-	buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
+	if v, ok := d.GetOk("filename"); ok {
+		buildTrigger.Filename = v.(string)
+	} else {
+		buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
+	}
+
 	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
 
 	tstr, err := json.Marshal(buildTrigger)
@@ -179,7 +190,10 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
 	}
-	if buildTrigger.Build != nil {
+
+	if buildTrigger.Filename != "" {
+		d.Set("filename", buildTrigger.Filename)
+	} else if buildTrigger.Build != nil {
 		d.Set("build", flattenCloudbuildBuildTriggerBuild(d, config, buildTrigger.Build))
 	}
 
@@ -191,7 +205,7 @@ func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string
 		return nil
 	}
 	tmpl := &cloudbuild.RepoSource{}
-	if v, ok := d.GetOk("project"); ok {
+	if v, ok := d.GetOk("trigger_template.0.project"); ok {
 		tmpl.ProjectId = v.(string)
 	} else {
 		tmpl.ProjectId = project

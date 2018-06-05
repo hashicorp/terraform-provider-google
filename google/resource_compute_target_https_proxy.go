@@ -353,7 +353,7 @@ func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Deleting TargetHttpsProxy %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting TargetHttpsProxy %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "TargetHttpsProxy")
 	}
 
 	op := &compute.Operation{}

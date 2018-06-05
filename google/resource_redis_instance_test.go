@@ -30,6 +30,36 @@ func TestAccRedisInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccRedisInstance_update(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccRedisInstance_update(name),
+			},
+			resource.TestStep{
+				ResourceName:      "google_redis_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				Config: testAccRedisInstance_update2(name),
+			},
+			resource.TestStep{
+				ResourceName:      "google_redis_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccRedisInstance_full(t *testing.T) {
 	t.Parallel()
 
@@ -58,6 +88,34 @@ func testAccRedisInstance_basic(name string) string {
 resource "google_redis_instance" "test" {
 	name           = "%s"
 	memory_size_gb = 1
+}`, name)
+}
+
+func testAccRedisInstance_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_redis_instance" "test" {
+	name           = "%s"
+	display_name   = "pre-update"
+	memory_size_gb = 1
+
+	labels {
+		my_key    = "my_val"
+		other_key = "other_val"
+	}
+}`, name)
+}
+
+func testAccRedisInstance_update2(name string) string {
+	return fmt.Sprintf(`
+resource "google_redis_instance" "test" {
+	name           = "%s"
+	display_name   = "post-update"
+	memory_size_gb = 1
+
+	labels {
+		my_key    = "my_val"
+		other_key = "new_val"
+	}
 }`, name)
 }
 

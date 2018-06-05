@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -29,6 +30,7 @@ func resourceRedisInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRedisInstanceCreate,
 		Read:   resourceRedisInstanceRead,
+		Update: resourceRedisInstanceUpdate,
 		Delete: resourceRedisInstanceDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -37,6 +39,7 @@ func resourceRedisInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(360 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
@@ -44,7 +47,6 @@ func resourceRedisInstance() *schema.Resource {
 			"memory_size_gb": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -65,12 +67,10 @@ func resourceRedisInstance() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"location_id": {
@@ -315,6 +315,119 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
+	if err != nil {
+		return err
+	}
+	authorizedNetworkProp, err := expandRedisInstanceAuthorizedNetwork(d.Get("authorized_network"), d, config)
+	if err != nil {
+		return err
+	}
+	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
+	if err != nil {
+		return err
+	}
+	labelsProp, err := expandRedisInstanceLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	}
+	locationIdProp, err := expandRedisInstanceLocationId(d.Get("location_id"), d, config)
+	if err != nil {
+		return err
+	}
+	nameProp, err := expandRedisInstanceName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	}
+	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
+	if err != nil {
+		return err
+	}
+	redisVersionProp, err := expandRedisInstanceRedisVersion(d.Get("redis_version"), d, config)
+	if err != nil {
+		return err
+	}
+	reservedIpRangeProp, err := expandRedisInstanceReservedIpRange(d.Get("reserved_ip_range"), d, config)
+	if err != nil {
+		return err
+	}
+	tierProp, err := expandRedisInstanceTier(d.Get("tier"), d, config)
+	if err != nil {
+		return err
+	}
+	regionProp, err := expandRedisInstanceRegion(d.Get("region"), d, config)
+	if err != nil {
+		return err
+	}
+
+	obj := map[string]interface{}{
+		"alternativeLocationId": alternativeLocationIdProp,
+		"authorizedNetwork":     authorizedNetworkProp,
+		"displayName":           displayNameProp,
+		"labels":                labelsProp,
+		"locationId":            locationIdProp,
+		"name":                  nameProp,
+		"memorySizeGb":          memorySizeGbProp,
+		"redisVersion":          redisVersionProp,
+		"reservedIpRange":       reservedIpRangeProp,
+		"tier":                  tierProp,
+		"region":                regionProp,
+	}
+
+	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
+	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	if d.HasChange("memory_size_gb") {
+		updateMask = append(updateMask, "memorySizeGb")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "PATCH", url, obj)
+
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	op := &redis.Operation{}
+	err = Convert(res, op)
+	if err != nil {
+		return err
+	}
+
+	err = redisOperationWaitTime(
+		config.clientRedis, op, project, "Updating Instance",
+		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceRedisInstanceRead(d, meta)
+}
+
 func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -331,7 +444,7 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting Instance %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "Instance")
 	}
 
 	op := &redis.Operation{}
