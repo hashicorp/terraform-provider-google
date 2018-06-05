@@ -103,6 +103,7 @@ func resourceGoogleProject() *schema.Resource {
 
 func appEngineResource() *schema.Resource {
 	return &schema.Resource{
+		CustomizeDiff: resourceGoogleProjectAppEngineCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -209,8 +210,20 @@ func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interfac
 	if old, new := diff.GetChange("app_engine.#"); old != nil && new != nil && old.(int) > 0 && new.(int) < 1 {
 		diff.ForceNew("app_engine")
 	}
-	if old, new := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && new != nil && old.(string) != "" {
-		diff.ForceNew("app_engine.0.location_id")
+	return nil
+}
+
+func resourceGoogleProjectAppEngineCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	old, _ := diff.GetChange("app_engine.0.location_id")
+	if !diff.HasChange("app_engine.0.location_id") {
+		log.Printf("[DEBUG] No location change")
+	} else if old == nil {
+		log.Printf("[DEBUG] old location is nil")
+	} else if old.(string) == "" {
+		log.Printf("[DEBUG] old location is empty")
+	} else {
+		log.Printf("[DEBUG] location changed, forcing new project")
+		diff.ForceNew("location_id")
 	}
 	return nil
 }
