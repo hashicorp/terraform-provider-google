@@ -335,7 +335,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Deleting SslPolicy %q", d.Id())
 	res, err := Delete(config, url)
 	if err != nil {
-		return fmt.Errorf("Error deleting SslPolicy %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "SslPolicy")
 	}
 
 	op := &compute.Operation{}

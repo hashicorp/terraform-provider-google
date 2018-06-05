@@ -52,6 +52,7 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 	d.Set("constraint", policy.Constraint)
 	d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy))
 	d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy))
+	d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault))
 	d.Set("version", policy.Version)
 	d.Set("etag", policy.Etag)
 	d.Set("update_time", policy.UpdateTime)
@@ -85,18 +86,25 @@ func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta i
 func setFolderOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	folder := canonicalFolderId(d.Get("folder").(string))
+
 	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))
+	if err != nil {
+		return err
+	}
+
+	restoreDefault, err := expandRestoreOrganizationPolicy(d.Get("restore_policy").([]interface{}))
 	if err != nil {
 		return err
 	}
 
 	_, err = config.clientResourceManager.Folders.SetOrgPolicy(folder, &cloudresourcemanager.SetOrgPolicyRequest{
 		Policy: &cloudresourcemanager.OrgPolicy{
-			Constraint:    canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-			BooleanPolicy: expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
-			ListPolicy:    listPolicy,
-			Version:       int64(d.Get("version").(int)),
-			Etag:          d.Get("etag").(string),
+			Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+			BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
+			ListPolicy:     listPolicy,
+			RestoreDefault: restoreDefault,
+			Version:        int64(d.Get("version").(int)),
+			Etag:           d.Get("etag").(string),
 		},
 	}).Do()
 

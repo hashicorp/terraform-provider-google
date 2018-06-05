@@ -558,14 +558,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccStorageBucket_labels(bucketName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						"google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-label-value"),
-				),
-			},
+			// Going from two labels
 			resource.TestStep{
 				Config: testAccStorageBucket_updateLabels(bucketName),
 				Check: resource.ComposeTestCheckFunc(
@@ -576,12 +569,37 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				),
 			},
 			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Down to only one label (test single label deletion)
+			resource.TestStep{
+				Config: testAccStorageBucket_labels(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-label-value"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// And make sure deleting all labels work
+			resource.TestStep{
 				Config: testAccStorageBucket_basic(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketHasNoLabels(&bucket),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/googleapi"
 )
@@ -236,6 +237,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Optional: true,
 										ForceNew: true,
 										Computed: true,
+									},
+									"network_tier": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 									// Instance templates will never have an
 									// 'assigned NAT IP', but we need this in

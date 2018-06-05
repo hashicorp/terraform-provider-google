@@ -323,7 +323,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("target_pools", manager.TargetPools)
 	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
 	d.Set("fingerprint", manager.Fingerprint)
-	d.Set("instance_group", manager.InstanceGroup)
+	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
 	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
 		return err

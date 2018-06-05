@@ -52,6 +52,7 @@ func resourceGoogleProjectOrganizationPolicyRead(d *schema.ResourceData, meta in
 	d.Set("constraint", policy.Constraint)
 	d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy))
 	d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy))
+	d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault))
 	d.Set("version", policy.Version)
 	d.Set("etag", policy.Etag)
 	d.Set("update_time", policy.UpdateTime)
@@ -85,18 +86,25 @@ func resourceGoogleProjectOrganizationPolicyDelete(d *schema.ResourceData, meta 
 func setProjectOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project := prefixedProject(d.Get("project").(string))
+
 	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))
+	if err != nil {
+		return err
+	}
+
+	restore_default, err := expandRestoreOrganizationPolicy(d.Get("restore_policy").([]interface{}))
 	if err != nil {
 		return err
 	}
 
 	_, err = config.clientResourceManager.Projects.SetOrgPolicy(project, &cloudresourcemanager.SetOrgPolicyRequest{
 		Policy: &cloudresourcemanager.OrgPolicy{
-			Constraint:    canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-			BooleanPolicy: expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
-			ListPolicy:    listPolicy,
-			Version:       int64(d.Get("version").(int)),
-			Etag:          d.Get("etag").(string),
+			Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+			BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
+			ListPolicy:     listPolicy,
+			RestoreDefault: restore_default,
+			Version:        int64(d.Get("version").(int)),
+			Etag:           d.Get("etag").(string),
 		},
 	}).Do()
 

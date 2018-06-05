@@ -99,6 +99,26 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_networkTier(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_networkTier(),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 	t.Parallel()
 
@@ -802,6 +822,25 @@ resource "google_compute_instance_template" "foobar" {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_networkTier() string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "debian-8-jessie-v20160803"
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			network_tier = "STANDARD"
+		}
+	}
+}`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_networkIP(networkIP string) string {

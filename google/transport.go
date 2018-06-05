@@ -106,15 +106,12 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 		}
 	}
 
-	u, err := url.Parse(rawurl)
+	u, err := addQueryParams(rawurl, map[string]string{"alt": "json"})
 	if err != nil {
 		return nil, err
 	}
-	q := u.Query()
-	q.Set("alt", "json")
-	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequest(method, u.String(), &buf)
+	req, err := http.NewRequest(method, u, &buf)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +131,19 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 	}
 
 	return result, nil
+}
+
+func addQueryParams(rawurl string, params map[string]string) (string, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return "", err
+	}
+	q := u.Query()
+	for k, v := range params {
+		q.Set(k, v)
+	}
+	u.RawQuery = q.Encode()
+	return u.String(), nil
 }
 
 func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {

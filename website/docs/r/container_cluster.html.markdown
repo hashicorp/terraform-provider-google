@@ -109,8 +109,8 @@ output "cluster_ca_certificate" {
     Structure is documented below.
 
 * `logging_service` - (Optional) The logging service that the cluster should
-    write logs to. Available options include `logging.googleapis.com` and
-    `none`. Defaults to `logging.googleapis.com`
+    write logs to. Available options include `logging.googleapis.com`,
+    `logging.googleapis.com/kubernetes` (beta), and `none`. Defaults to `logging.googleapis.com`
 
 * `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
     documented below.
@@ -137,8 +137,8 @@ output "cluster_ca_certificate" {
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
     VM metrics will be collected by Google Compute Engine regardless of this setting
     Available options include
-    `monitoring.googleapis.com` and `none`. Defaults to
-    `monitoring.googleapis.com`
+    `monitoring.googleapis.com`, `monitoring.googleapis.com/kubernetes` (beta) and `none`.
+    Defaults to `monitoring.googleapis.com`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
     network to which the cluster is connected. For Shared VPC, set this to the self link of the
@@ -242,7 +242,7 @@ The `master_auth` block supports:
     the Kubernetes master endpoint
 
 If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
-This block also contains several computed attributes, documented below.
+This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you with the username `admin`.
 
 The `master_authorized_networks_config` block supports:
 
