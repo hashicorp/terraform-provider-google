@@ -17,6 +17,7 @@ IMPROVEMENTS:
 * project: Use default provider project for `google_project_services` if project field is empty [GH-1553]
 * project: Added support for restoring default organization policies [GH-1477]
 * project: Handle spurious Cloud API errors and performance issues for `google_project_service(s)` [GH-1565]
+* redis: Add update support for Redis Instances [GH-1590]
 * sql: Add labels support in `sql_database_instance` [GH-1567]
 
 BUG FIXES:
