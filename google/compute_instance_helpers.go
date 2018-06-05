@@ -49,6 +49,7 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 	for i, ac := range accessConfigs {
 		flattened[i] = map[string]interface{}{
 			"nat_ip":          ac.NatIP,
+			"network_tier":    ac.NetworkTier,
 			"assigned_nat_ip": ac.NatIP,
 		}
 		if ac.SetPublicPtr {
@@ -103,8 +104,9 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 		acs[i] = &computeBeta.AccessConfig{
-			Type:  "ONE_TO_ONE_NAT",
-			NatIP: data["nat_ip"].(string),
+			Type:        "ONE_TO_ONE_NAT",
+			NatIP:       data["nat_ip"].(string),
+			NetworkTier: data["network_tier"].(string),
 		}
 		if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
 			acs[i].SetPublicPtr = true

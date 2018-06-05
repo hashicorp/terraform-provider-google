@@ -355,6 +355,12 @@ func resourceComputeInstance() *schema.Resource {
 										Computed: true,
 									},
 
+									"network_tier": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+									},
+
 									// It's unclear why this field exists, as
 									// nat_ip can be both optional and computed.
 									// Consider deprecating it.
@@ -1096,20 +1102,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
 			for j := 0; j < accessConfigsCount; j++ {
 				acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-				ac := &compute.AccessConfig{
-					Type:  "ONE_TO_ONE_NAT",
-					NatIP: d.Get(acPrefix + ".nat_ip").(string),
+				ac := &computeBeta.AccessConfig{
+					Type:        "ONE_TO_ONE_NAT",
+					NatIP:       d.Get(acPrefix + ".nat_ip").(string),
+					NetworkTier: d.Get(acPrefix + ".network_tier").(string),
 				}
 				if ptr, ok := d.GetOk(acPrefix + ".public_ptr_domain_name"); ok && ptr != "" {
 					ac.SetPublicPtr = true
 					ac.PublicPtrDomainName = ptr.(string)
 				}
-				op, err := config.clientCompute.Instances.AddAccessConfig(
+
+				op, err := config.clientComputeBeta.Instances.AddAccessConfig(
 					project, zone, d.Id(), networkName, ac).Do()
 				if err != nil {
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
-				opErr := computeOperationWaitTime(config.clientCompute, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "new access_config to add")
 				if opErr != nil {
 					return opErr
 				}

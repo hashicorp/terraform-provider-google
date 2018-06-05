@@ -101,6 +101,26 @@ func TestAccComputeAddress_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeAddress_networkTier(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeAddress_networkTier(acctest.RandString(10)),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_address.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeAddress_internal(t *testing.T) {
 	var addr computeBeta.Address
 
@@ -272,4 +292,12 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 		i, // google_compute_address.internal_with_subnet_name
 		i, // google_compute_address.internal_with_subnet_and_address name
 	)
+}
+
+func testAccComputeAddress_networkTier(i string) string {
+	return fmt.Sprintf(`
+resource "google_compute_address" "foobar" {
+	name         = "address-test-%s"
+	network_tier = "STANDARD"
+}`, i)
 }
