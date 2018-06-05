@@ -65,7 +65,9 @@ The following arguments are supported:
   IPV4 or IPV6. The default value is IPV4.
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
-
+* `network_tier` - (Optional) The networking tier used for configuring this
+    Address and can only take the following values: PREMIUM , STANDARD.
+    If this field is not specified, it is assumed to be PREMIUM.
 
 ## Attributes Reference
 

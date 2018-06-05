@@ -74,6 +74,13 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"network_tier": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{"PREMIUM", "STANDARD"}, false),
+			},
 		},
 	}
 }
@@ -98,14 +105,19 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	networkTierProp, err := expandComputeGlobalNetworkTier(d.Get("network_tier"), d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := map[string]interface{}{
 		"description": descriptionProp,
 		"name":        nameProp,
 		"ipVersion":   ipVersionProp,
+		"networkTier": networkTierProp,
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses")
 	if err != nil {
 		return err
 	}
@@ -152,7 +164,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -182,6 +194,9 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("network_tier", flattenComputeGlobalNetworkTier(res["networkTier"])); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkTier: %s", err)
 	}
 
 	return nil
@@ -258,6 +273,10 @@ func flattenComputeGlobalAddressIpVersion(v interface{}) interface{} {
 	return v
 }
 
+func flattenComputeGlobalNetworkTier(v interface{}) interface{} {
+	return v
+}
+
 func expandComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -267,5 +286,9 @@ func expandComputeGlobalAddressName(v interface{}, d *schema.ResourceData, confi
 }
 
 func expandComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalNetworkTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
