@@ -51,6 +51,10 @@ The following arguments are supported:
     specified for INTERNAL address types. The IP address must be inside the
     specified subnetwork, if any.
 
+* `network_tier` - (Optional) The networking tier used for configuring this
+    Address and can only take the following values: PREMIUM , STANDARD.
+    If this field is not specified, it is assumed to be PREMIUM.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
