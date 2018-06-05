@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/compute/v1"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 )
 
 const (
@@ -83,6 +83,14 @@ func resourceComputeAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"network_tier": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{"PREMIUM", "STANDARD"}, false),
+			},
 		},
 	}
 }
@@ -101,14 +109,15 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Build the address parameter
-	address := &compute.Address{
+	address := &computeBeta.Address{
 		Name:        d.Get("name").(string),
 		AddressType: d.Get("address_type").(string),
 		Subnetwork:  d.Get("subnetwork").(string),
 		Address:     d.Get("address").(string),
+		NetworkTier: d.Get("network_tier").(string),
 	}
 
-	op, err := config.clientCompute.Addresses.Insert(project, region, address).Do()
+	op, err := config.clientComputeBeta.Addresses.Insert(project, region, address).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating address: %s", err)
 	}
@@ -136,7 +145,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	addr, err := config.clientCompute.Addresses.Get(
+	addr, err := config.clientComputeBeta.Addresses.Get(
 		addressId.Project, addressId.Region, addressId.Name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Address %q", d.Get("name").(string)))
@@ -153,6 +162,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", addr.Name)
 	d.Set("project", addressId.Project)
 	d.Set("region", GetResourceNameFromSelfLink(addr.Region))
+	d.Set("network_tier", addr.NetworkTier)
 
 	return nil
 }
