@@ -51,6 +51,10 @@ The following arguments are supported:
     should belong to. Only used for internal load balancing. If it is not
     provided, the default network is used.
 
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
+    this forwarding rule. This field can take the following values: PREMIUM or STANDARD.
+    If this field is not specified, it is assumed to be PREMIUM.
+
 * `port_range` - (Optional) A range e.g. "1024-2048" or a single port "1024"
     (defaults to all ports!). Only used for external load balancing.
   Some types of forwarding targets have constraints on the acceptable ports:

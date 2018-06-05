@@ -227,6 +227,10 @@ The `access_config` block supports:
     See [the docs](https://cloud.google.com/compute/docs/instances/create-ptr-record) for how
     to become verified as a domain owner.
 
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring this instance.
+    This field can take the following values: PREMIUM or STANDARD. If this field is
+    not specified, it is assumed to be PREMIUM.
+
 The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
@@ -310,3 +314,4 @@ $ terraform import google_compute_instance.default gcp-project/us-central1-a/tes
 ```
 
 [custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
+[network-tier]: https://cloud.google.com/network-tiers/docs/overview
