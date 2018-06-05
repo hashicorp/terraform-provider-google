@@ -25,12 +25,14 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				Config: testGoogleCloudBuildTrigger_basic(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerExists("google_cloudbuild_trigger.build_trigger"),
+					testAccCheckGoogleCloudBuildTriggerExists("google_cloudbuild_trigger.build_trigger_filename"),
 				),
 			},
 			resource.TestStep{
 				Config: testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.build_trigger"),
+					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.build_trigger_filename"),
 				),
 			},
 		},
@@ -143,6 +145,17 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       args = "build -t gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA -f Dockerfile ."
     }
   }
+}
+
+resource "google_cloudbuild_trigger" "build_trigger_filename" {
+  project  = "${google_project_services.acceptance.project}"
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    project     = "${google_project_services.acceptance.project}"
+    repo_name   = "some-repo"
+  }
+  filename = "cloudbuild.yaml"
 }
   `, projectID, projectID, projectOrg, projectBillingAccount)
 }

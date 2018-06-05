@@ -31,6 +31,17 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
+
+# using a cloudbuild.yaml file
+resource "google_cloudbuild_trigger" "build_trigger" {
+  project  = "my-project"
+  trigger_template {
+    branch_name = "master"
+    project     = "my-project"
+    repo_name   = "some-repo"
+  }
+  filename = "cloudbuild.yaml"
+} 
 ```
 
 ## Argument Reference
@@ -44,9 +55,10 @@ The following arguments are supported:
 * `trigger_template` - (Optional) Location of the source in a Google
 Cloud Source Repository. Structure is documented below.
 
-* `build` - (Optional) A build resource in the Container Builder API.
-Structure is documented below. At a high
-level, a `build` describes where to find source code, how to build it (for
+* `build` - (Optional) A build resource in the Container Builder API. You 
+can specify a build object or filename, but not both. Structure 
+is documented below. At a high level, a `build` describes where 
+to find source code, how to build it (for
 example, the builder image to run on the source), and where to store
 the built artifacts. Fields can include the following variables, which
 will be expanded when the build is created:
@@ -59,6 +71,8 @@ will be expanded when the build is created:
     or resolved from the specified branch or tag.
   * `$SHORT_SHA`: first 7 characters of `$REVISION_ID` or `$COMMIT_SHA`.
 
+* `filename` - (Optional) A path, from the source root, to a file whose contents is
+ used for the build template. You can specify a filename or build object, but not both.
 ---
 
 The `trigger_template` block supports:

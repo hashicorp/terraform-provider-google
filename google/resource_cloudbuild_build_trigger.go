@@ -123,6 +123,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 					},
 				},
 			},
+			"filename": &schema.Schema{
+				Type:        schema.TypeString,
+				Description: "Path, from the source root, to a file whose contents is used for the template.",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -140,6 +146,10 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 
 	if v, ok := d.GetOk("description"); ok {
 		buildTrigger.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("filename"); ok {
+		buildTrigger.Filename = v.(string)
 	}
 
 	buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
@@ -175,6 +185,7 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	}
 
 	d.Set("description", buildTrigger.Description)
+	d.Set("filename", buildTrigger.Filename)
 
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
