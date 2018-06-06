@@ -59,11 +59,10 @@ func resourceRedisInstance() *schema.Resource {
 				ForceNew: true,
 			},
 			"authorized_network": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
@@ -557,11 +556,7 @@ func expandRedisInstanceAlternativeLocationId(v interface{}, d *schema.ResourceD
 }
 
 func expandRedisInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	fv, err := ParseNetworkFieldValue(v.(string), d, config)
-	if err != nil {
-		return nil, err
-	}
-	return fv.RelativeLink(), nil
+	return v, nil
 }
 
 func expandRedisInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {

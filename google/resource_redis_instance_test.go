@@ -2,12 +2,10 @@ package google
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccRedisInstance_basic(t *testing.T) {
@@ -18,7 +16,7 @@ func TestAccRedisInstance_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRedisInstance_basic(name),
@@ -40,7 +38,7 @@ func TestAccRedisInstance_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRedisInstance_update(name),
@@ -71,7 +69,7 @@ func TestAccRedisInstance_full(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRedisInstance_full(name, network),
@@ -83,31 +81,6 @@ func TestAccRedisInstance_full(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckRedisInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_redis_instance" {
-			continue
-		}
-
-		redisIdParts := strings.Split(rs.Primary.ID, "/")
-		if len(redisIdParts) != 3 {
-			return fmt.Errorf("Unexpected resource ID %s, expected {project}/{region}/{name}", rs.Primary.ID)
-		}
-
-		project, region, inst := redisIdParts[0], redisIdParts[1], redisIdParts[2]
-
-		name := fmt.Sprintf("projects/%s/locations/%s/instances/%s", project, region, inst)
-		_, err := config.clientRedis.Projects.Locations.Get(name).Do()
-		if err == nil {
-			return fmt.Errorf("Redis instance still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccRedisInstance_basic(name string) string {
@@ -157,8 +130,6 @@ resource "google_redis_instance" "test" {
 	tier           = "STANDARD_HA"
 	memory_size_gb = 1
 
-	authorized_network = "${google_compute_network.test.self_link}"
-
 	region                  = "us-central1"
 	location_id             = "us-central1-a"
 	alternative_location_id = "us-central1-f"
@@ -171,5 +142,5 @@ resource "google_redis_instance" "test" {
 		my_key    = "my_val"
 		other_key = "other_val"
 	}
-}`, network, name)
+}`, name, network)
 }
