@@ -69,6 +69,7 @@ func resourceComputeAddress() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 			},
 
@@ -155,9 +156,9 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	if addr.AddressType == "" {
 		d.Set("address_type", addressTypeExternal)
 	}
-	d.Set("subnetwork", addr.Subnetwork)
+	d.Set("subnetwork", ConvertSelfLinkToV1(addr.Subnetwork))
 	d.Set("address", addr.Address)
-	d.Set("self_link", addr.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(addr.SelfLink))
 	d.Set("name", addr.Name)
 	d.Set("network_tier", addr.NetworkTier)
 	d.Set("project", addressId.Project)
