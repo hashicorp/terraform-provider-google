@@ -79,6 +79,7 @@ func resourceComputeForwardingRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 			},
 
@@ -248,7 +249,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 
 	d.Set("name", frule.Name)
 	d.Set("target", frule.Target)
-	d.Set("backend_service", frule.BackendService)
+	d.Set("backend_service", ConvertSelfLinkToV1(frule.BackendService))
 	d.Set("description", frule.Description)
 	d.Set("load_balancing_scheme", frule.LoadBalancingScheme)
 	d.Set("network", frule.Network)
@@ -260,7 +261,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	d.Set("subnetwork", frule.Subnetwork)
 	d.Set("ip_address", frule.IPAddress)
 	d.Set("ip_protocol", frule.IPProtocol)
-	d.Set("self_link", frule.SelfLink)
+	d.Set("self_link", ConvertSelfLinkToV1(frule.SelfLink))
 	return nil
 }
 

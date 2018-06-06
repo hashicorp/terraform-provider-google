@@ -358,6 +358,7 @@ func resourceComputeInstance() *schema.Resource {
 									"network_tier": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
+										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 
