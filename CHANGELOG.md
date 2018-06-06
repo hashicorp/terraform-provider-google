@@ -27,6 +27,7 @@ BUG FIXES:
 * storage: Support removing a label in `google_storage_bucket` [GH-1550]
 * compute: Fix perpetual diff caused by the `google_instance_group` self_link in `google_regional_instance_group_manager` [GH-1549]
 * project: Retry while listing enabled services [GH-1573]
+* redis: Allow self links for redis authorized network [GH-1599]
 
 ## 1.13.0 (May 24, 2018)
 
