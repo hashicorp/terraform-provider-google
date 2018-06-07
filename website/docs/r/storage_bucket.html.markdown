@@ -82,7 +82,7 @@ The `condition` block supports the following elements, and requires at least one
 
 * `created_before` - (Optional) Creation date of an object in RFC 3339 (e.g. `2017-06-13`) to satisfy this condition.
 
-* `is_live` - (Optional) Relevant only for versioned objects. If `true`, this condition matches live objects, archived objects otherwise.
+* `is_live` - (Optional) Defaults to `false` to match archived objects. If `true`, this condition matches live objects. Unversioned buckets have only live objects.
 
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
