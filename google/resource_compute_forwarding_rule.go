@@ -170,7 +170,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		PortRange:           d.Get("port_range").(string),
 		Ports:               ports,
 		Subnetwork:          subnetwork.RelativeLink(),
-		Target:              ConvertSelfLinkToV1(d.Get("target").(string)),
+		Target:              d.Get("target").(string),
 	}
 
 	log.Printf("[DEBUG] ForwardingRule insert request: %#v", frule)
@@ -248,7 +248,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("name", frule.Name)
-	d.Set("target", frule.Target)
+	d.Set("target", ConvertSelfLinkToV1(frule.Target))
 	d.Set("backend_service", ConvertSelfLinkToV1(frule.BackendService))
 	d.Set("description", frule.Description)
 	d.Set("load_balancing_scheme", frule.LoadBalancingScheme)
