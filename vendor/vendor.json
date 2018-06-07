@@ -1333,6 +1333,12 @@
 			"revisionTime": "2016-11-27T23:54:21Z"
 		},
 		{
+			"checksumSHA1": "nU4Iv1WFYka13VAT8ffBzgguGZ0=",
+			"path": "google.golang.org/api/dns/v1beta2",
+			"revision": "8e9de5a6de6d356eb08ebb58f6daab313283c6b0",
+			"revisionTime": "2018-05-23T16:45:29Z"
+		},
+		{
 			"checksumSHA1": "QG/4r7h0fWCSM4tn8932h02tSIo=",
 			"path": "google.golang.org/api/gensupport",
 			"revision": "790790d1b4a7d6b0d03d3725f980eedf80dc2707",
