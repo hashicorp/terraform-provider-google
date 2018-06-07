@@ -31,6 +31,7 @@ import (
 	"google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
+	dnsBeta "google.golang.org/api/dns/v1beta2"
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
@@ -66,6 +67,7 @@ type Config struct {
 	clientDataproc               *dataproc.Service
 	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
+	clientDnsBeta                *dnsBeta.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
@@ -191,6 +193,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDns.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client...")
+	c.clientDnsBeta, err = dnsBeta.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientDnsBeta.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud KMS Client...")
 	c.clientKms, err = cloudkms.New(client)
