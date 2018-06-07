@@ -206,25 +206,18 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 }
 
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
-	// don't need to check if changed, the call is a no-op/error if there's no change
 	if old, new := diff.GetChange("app_engine.#"); old != nil && new != nil && old.(int) > 0 && new.(int) < 1 {
-		diff.ForceNew("app_engine")
+		// if we're going from app_engine set to unset, we need to delete the project, app_engine has no delete
+		return diff.ForceNew("app_engine")
+	} else if old, _ := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && old.(string) != "" {
+		// if location_id was already set, and has a new value, that forces a new app
+		// if location_id wasn't set, don't force a new value, as we're just enabling app engine
+		return diff.ForceNew("app_engine.0.location_id")
 	}
 	return nil
 }
 
 func resourceGoogleProjectAppEngineCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
-	old, _ := diff.GetChange("app_engine.0.location_id")
-	if !diff.HasChange("app_engine.0.location_id") {
-		log.Printf("[DEBUG] No location change")
-	} else if old == nil {
-		log.Printf("[DEBUG] old location is nil")
-	} else if old.(string) == "" {
-		log.Printf("[DEBUG] old location is empty")
-	} else {
-		log.Printf("[DEBUG] location changed, forcing new project")
-		diff.ForceNew("location_id")
-	}
 	return nil
 }
 
