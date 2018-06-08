@@ -417,8 +417,8 @@ func testAccProject_labels(pid, name, org string, labels map[string]string) stri
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
     project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+    name       = "%s"
+    org_id     = "%s"
 	labels {`, pid, name, org)
 
 	l := ""
@@ -433,11 +433,11 @@ resource "google_project" "acceptance" {
 func testAccProject_deleteDefaultNetwork(pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-	billing_account = "%s" # requires billing to enable compute API
-	auto_create_network = false
+  project_id          = "%s"
+  name                = "%s"
+  org_id              = "%s"
+  billing_account     = "%s"  # requires billing to enable compute API
+  auto_create_network = false
 }`, pid, name, org, billing)
 }
 
@@ -463,8 +463,8 @@ func testAccProject_appEngineNoApp(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }`, pid, pid, org)
 }
 
@@ -472,12 +472,12 @@ func testAccProject_appEngineBasic(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 
   app_engine {
-    auth_domain = "hashicorptest.com"
-    location_id = "us-central"
+    auth_domain    = "hashicorptest.com"
+    location_id    = "us-central"
     serving_status = "SERVING"
   }
 }`, pid, pid, org)
@@ -487,12 +487,12 @@ func testAccProject_appEngineUpdate(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 
   app_engine {
-    auth_domain = "tf-test.club"
-    location_id = "us-central"
+    auth_domain    = "tf-test.club"
+    location_id    = "us-central"
     serving_status = "USER_DISABLED"
   }
 }`, pid, pid, org)
@@ -502,11 +502,12 @@ func testAccProject_appEngineFeatureSettings(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 
   app_engine {
     location_id = "us-central"
+
     feature_settings {
       "split_health_checks" = true
     }
@@ -518,11 +519,12 @@ func testAccProject_appEngineFeatureSettingsUpdate(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 
   app_engine {
     location_id = "us-central"
+
     feature_settings {
       "split_health_checks" = false
     }
