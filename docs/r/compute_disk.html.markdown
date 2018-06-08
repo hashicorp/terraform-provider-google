@@ -75,9 +75,6 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
-* `zone` -
-  (Required)
-  A reference to the zone where the disk resides.
 
 
 - - -
@@ -114,6 +111,9 @@ The following arguments are supported:
   (Optional)
   URL of the disk type resource describing which disk type to use to
   create the disk. Provide this when creating the disk.
+* `zone` -
+  (Optional)
+  A reference to the zone where the disk resides.
 * `disk_encryption_key` -
   (Optional)
   Encrypts the disk using a customer-supplied encryption key.
