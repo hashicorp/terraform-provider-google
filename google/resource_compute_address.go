@@ -3,8 +3,6 @@ package google
 import (
 	"fmt"
 
-	"regexp"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -15,11 +13,6 @@ const (
 	addressTypeInternal = "INTERNAL"
 )
 
-var (
-	computeAddressIdTemplate = "projects/%s/regions/%s/addresses/%s"
-	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
-)
-
 func resourceComputeAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeAddressCreate,
@@ -28,9 +21,6 @@ func resourceComputeAddress() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeAddressImportState,
 		},
-
-		SchemaVersion: 1,
-		MigrateState:  resourceComputeAddressMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{

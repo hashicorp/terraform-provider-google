@@ -8,6 +8,66 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+func TestComputeAddressIdParsing(t *testing.T) {
+	cases := map[string]struct {
+		ImportId            string
+		ExpectedError       bool
+		ExpectedCanonicalId string
+		Config              *Config
+	}{
+		"id is a full self link": {
+			ImportId:            "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-central1/addresses/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is a partial self link": {
+			ImportId:            "projects/test-project/regions/us-central1/addresses/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is project/region/address": {
+			ImportId:            "test-project/us-central1/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/test-project/regions/us-central1/addresses/test-address",
+		},
+		"id is region/address": {
+			ImportId:            "us-central1/test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/default-project/regions/us-central1/addresses/test-address",
+			Config:              &Config{Project: "default-project"},
+		},
+		"id is address": {
+			ImportId:            "test-address",
+			ExpectedError:       false,
+			ExpectedCanonicalId: "projects/default-project/regions/us-east1/addresses/test-address",
+			Config:              &Config{Project: "default-project", Region: "us-east1"},
+		},
+		"id has invalid format": {
+			ImportId:      "i/n/v/a/l/i/d",
+			ExpectedError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		addressId, err := parseComputeAddressId(tc.ImportId, tc.Config)
+
+		if tc.ExpectedError && err == nil {
+			t.Fatalf("bad: %s, expected an error", tn)
+		}
+
+		if err != nil {
+			if tc.ExpectedError {
+				continue
+			}
+			t.Fatalf("bad: %s, err: %#v", tn, err)
+		}
+
+		if addressId.canonicalId() != tc.ExpectedCanonicalId {
+			t.Fatalf("bad: %s, expected canonical id to be `%s` but is `%s`", tn, tc.ExpectedCanonicalId, addressId.canonicalId())
+		}
+	}
+}
+
 func TestAccDataSourceComputeAddress(t *testing.T) {
 	t.Parallel()
 
