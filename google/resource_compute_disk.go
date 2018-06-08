@@ -269,12 +269,6 @@ func resourceComputeDisk() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"zone": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -301,6 +295,13 @@ func resourceComputeDisk() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "pd-standard",
+			},
+			"zone": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"disk_encryption_key": {
 				Type:             schema.TypeList,
