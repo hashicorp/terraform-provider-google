@@ -199,7 +199,6 @@ func TestAccProject_appEngineBasic(t *testing.T) {
 			{
 				Config: testAccProject_appEngineBasic(pid, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
@@ -234,7 +233,6 @@ func TestAccProject_appEngineUpdate(t *testing.T) {
 			{
 				Config: testAccProject_appEngineBasic(pid, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
 					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
@@ -249,9 +247,6 @@ func TestAccProject_appEngineUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccProject_appEngineUpdate(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
 			},
 			resource.TestStep{
 				ResourceName:      "google_project.acceptance",
@@ -273,9 +268,6 @@ func TestAccProject_appEngineFeatureSettings(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_appEngineFeatureSettings(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
 			},
 			resource.TestStep{
 				ResourceName:      "google_project.acceptance",
@@ -284,9 +276,6 @@ func TestAccProject_appEngineFeatureSettings(t *testing.T) {
 			},
 			{
 				Config: testAccProject_appEngineFeatureSettingsUpdate(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
 			},
 			resource.TestStep{
 				ResourceName:      "google_project.acceptance",
