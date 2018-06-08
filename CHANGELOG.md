@@ -7,6 +7,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * iam: Fixes issue with consecutive whitespace [GH-1625]
+* compute: Store v1 `self_link` for `(sub)?network` in `google_compute_instance` [GH-1629]
 
 ## 1.14.0 (June 07, 2018)
 
