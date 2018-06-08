@@ -523,6 +523,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 				}
 				log.Printf("[DEBUG] Updated App Engine App")
 			}
+			d.SetPartial("app_engine")
 		}
 	}
 
