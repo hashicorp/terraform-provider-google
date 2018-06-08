@@ -6,6 +6,7 @@ IMPROVEMENTS:
 * dns: Add update support for `dns_managed_zone` [GH-1617]
 
 BUG FIXES:
+* iam: Fixes issue with consecutive whitespace [GH-1625]
 
 ## 1.14.0 (June 07, 2018)
 
