@@ -103,7 +103,6 @@ func resourceGoogleProject() *schema.Resource {
 
 func appEngineResource() *schema.Resource {
 	return &schema.Resource{
-		CustomizeDiff: resourceGoogleProjectAppEngineCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			"auth_domain": &schema.Schema{
 				Type:     schema.TypeString,
@@ -214,10 +213,6 @@ func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interfac
 		// if location_id wasn't set, don't force a new value, as we're just enabling app engine
 		return diff.ForceNew("app_engine.0.location_id")
 	}
-	return nil
-}
-
-func resourceGoogleProjectAppEngineCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	return nil
 }
 
