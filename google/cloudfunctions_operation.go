@@ -47,6 +47,13 @@ func cloudFunctionsOperationWait(client *cloudfunctions.Service,
 
 func cloudFunctionsOperationWaitTime(client *cloudfunctions.Service, op *cloudfunctions.Operation,
 	activity string, timeoutMin int) error {
+	if op.Done {
+		if op.Error != nil {
+			return fmt.Errorf(op.Error.Message)
+		}
+		return nil
+	}
+
 	w := &CloudFunctionsOperationWaiter{
 		Service: client,
 		Op:      op,

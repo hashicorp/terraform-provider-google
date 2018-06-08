@@ -59,6 +59,13 @@ func appEngineOperationWait(client *appengine.APIService, op *appengine.Operatio
 }
 
 func appEngineOperationWaitTime(client *appengine.APIService, op *appengine.Operation, appId, activity string, timeoutMin int) error {
+	if op.Done {
+		if op.Error != nil {
+			return AppEngineOperationError(*op.Error)
+		}
+		return nil
+	}
+
 	w := &AppEngineOperationWaiter{
 		Service: client,
 		Op:      op,

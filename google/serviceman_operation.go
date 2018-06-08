@@ -45,6 +45,13 @@ func serviceManagementOperationWait(config *Config, op *servicemanagement.Operat
 }
 
 func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMin int) (googleapi.RawMessage, error) {
+	if op.Done {
+		if op.Error != nil {
+			return nil, fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		}
+		return op.Response, nil
+	}
+
 	w := &ServiceManagementOperationWaiter{
 		Service: config.clientServiceMan,
 		Op:      op,
