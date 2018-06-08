@@ -33,7 +33,7 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 			return nil, errors.New("Import not supported for this IAM resource.")
 		}
 		config := m.(*Config)
-		s := strings.Split(d.Id(), " ")
+		s := strings.Fields(d.Id())
 		if len(s) != 3 {
 			d.SetId("")
 			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role username'.", s)
