@@ -6,6 +6,7 @@ IMPROVEMENTS:
 * dns: Add update support for `dns_managed_zone` [GH-1617]
 
 BUG FIXES:
+* all: Check for done operations before waiting on them. This fixes a 403 we were getting when trying to enable already-enabled services. [GH-1632]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 * compute: Store v1 `self_link` for `(sub)?network` in `google_compute_instance` [GH-1629]
 * compute: `zone` field in `google_compute_disk` should be optional [GH-1631]
