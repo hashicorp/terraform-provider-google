@@ -80,6 +80,13 @@ func (w *ContainerBetaOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 }
 
 func containerOperationWait(config *Config, op *container.Operation, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op.Status == "DONE" {
+		if op.StatusMessage != "" {
+			return fmt.Errorf(op.StatusMessage)
+		}
+		return nil
+	}
+
 	w := &ContainerOperationWaiter{
 		Service: config.clientContainer,
 		Op:      op,
@@ -92,6 +99,13 @@ func containerOperationWait(config *Config, op *container.Operation, project, zo
 }
 
 func containerBetaOperationWait(config *Config, op *containerBeta.Operation, project, location, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op.Status == "DONE" {
+		if op.StatusMessage != "" {
+			return fmt.Errorf(op.StatusMessage)
+		}
+		return nil
+	}
+
 	w := &ContainerBetaOperationWaiter{
 		Service:  config.clientContainerBeta,
 		Op:       op,

@@ -42,6 +42,13 @@ func resourceManagerOperationWait(service *cloudresourcemanager.Service, op *clo
 }
 
 func resourceManagerOperationWaitTime(service *cloudresourcemanager.Service, op *cloudresourcemanager.Operation, activity string, timeoutMin int) error {
+	if op.Done {
+		if op.Error != nil {
+			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		}
+		return nil
+	}
+
 	w := &ResourceManagerOperationWaiter{
 		Service: service,
 		Op:      op,

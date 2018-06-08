@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/dns/v1beta2"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"google.golang.org/api/dns/v1beta2"
 )
 
 type DnsOperationWaiter struct {
@@ -48,6 +49,10 @@ func dnsOperationWait(service *dns.Service, op *dns.Operation, project, activity
 }
 
 func dnsOperationWaitTime(service *dns.Service, op *dns.Operation, project, activity string, timeoutMin int) error {
+	if op.Status == "done" {
+		return nil
+	}
+
 	w := &DnsOperationWaiter{
 		Service: service.ManagedZoneOperations,
 		Op:      op,
