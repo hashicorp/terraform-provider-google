@@ -79,8 +79,8 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 		flattened[i] = map[string]interface{}{
 			"address":            iface.NetworkIP,
 			"network_ip":         iface.NetworkIP,
-			"network":            iface.Network,
-			"subnetwork":         iface.Subnetwork,
+			"network":            ConvertSelfLinkToV1(iface.Network),
+			"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
 			"subnetwork_project": subnet.Project,
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
