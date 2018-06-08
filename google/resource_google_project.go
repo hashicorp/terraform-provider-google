@@ -105,15 +105,6 @@ func appEngineResource() *schema.Resource {
 	return &schema.Resource{
 		CustomizeDiff: resourceGoogleProjectAppEngineCustomizeDiff,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"url_dispatch_rule": &schema.Schema{
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     appEngineURLDispatchRuleResource(),
-			},
 			"auth_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -137,10 +128,6 @@ func appEngineResource() *schema.Resource {
 					"australia-southeast1",
 				}, false),
 			},
-			"code_bucket": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"serving_status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -150,6 +137,26 @@ func appEngineResource() *schema.Resource {
 					"USER_DISABLED",
 					"SYSTEM_DISABLED",
 				}, false),
+				Computed: true,
+			},
+			"feature_settings": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     appEngineFeatureSettingsResource(),
+			},
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"url_dispatch_rule": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     appEngineURLDispatchRuleResource(),
+			},
+			"code_bucket": &schema.Schema{
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"default_hostname": &schema.Schema{
@@ -163,13 +170,6 @@ func appEngineResource() *schema.Resource {
 			"gcr_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"feature_settings": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Elem:     appEngineFeatureSettingsResource(),
 			},
 		},
 	}
