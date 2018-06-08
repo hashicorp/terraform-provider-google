@@ -1,4 +1,12 @@
 ## 1.14.1 (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+* dns: Add update support for `dns_managed_zone` [GH-1617]
+
+BUG FIXES:
+
 ## 1.14.0 (June 07, 2018)
 
 FEATURES:
