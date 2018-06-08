@@ -70,7 +70,7 @@ The following arguments are supported:
 * `name` - (Optional) A unique name for the SSL certificate. If you leave
   this blank, Terraform will auto-generate a unique name.
 
-* `name_prefix` - (Deprecated, Optional) Creates a unique name beginning with the specified
+* `name_prefix` - (Optional) Creates a unique name beginning with the specified
   prefix. Conflicts with `name`.
 
 * `description` - (Optional) An optional description of this resource.

@@ -37,10 +37,11 @@ func resourceComputeSslCertificate() *schema.Resource {
 			},
 
 			"name_prefix": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"name"},
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
 					// uuid is 26 characters, limit the prefix to 37.
@@ -51,8 +52,6 @@ func resourceComputeSslCertificate() *schema.Resource {
 					}
 					return
 				},
-				Deprecated: "Use the random provider instead. See migration instructions at " +
-					"https://github.com/terraform-providers/terraform-provider-google/issues/1054#issuecomment-377390209",
 			},
 
 			"private_key": &schema.Schema{
