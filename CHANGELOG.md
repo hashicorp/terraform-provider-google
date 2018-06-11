@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * all: Check for done operations before waiting on them. This fixes a 403 we were getting when trying to enable already-enabled services. [GH-1632]
+* bigquery: add error checking for bigquery dataset id [GH-1638]
 * compute: Store v1 `self_link` for `(sub)?network` in `google_compute_instance` [GH-1629]
 * compute: `zone` field in `google_compute_disk` should be optional [GH-1631]
 * compute: name_prefix is no longer deprecated for SSL certificates [GH-1622]
