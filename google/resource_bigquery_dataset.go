@@ -209,25 +209,22 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceBigQueryDatasetRead(d, meta)
 }
 
-func resourceBigQueryDatasetParseID(id string) (string, string) {
-	// projectID, datasetID
-	parts := strings.Split(id, ":")
-	return parts[0], parts[1]
-}
-
 func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	log.Printf("[INFO] Reading BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
-
-	res, err := config.clientBigQuery.Datasets.Get(projectID, datasetID).Do()
+	id, err := parseBigQueryDatasetId(d.Id())
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery dataset %q", datasetID))
+		return err
 	}
 
-	d.Set("project", projectID)
+	res, err := config.clientBigQuery.Datasets.Get(id.Project, id.DatasetId).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery dataset %q", id.DatasetId))
+	}
+
+	d.Set("project", id.Project)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
 	d.Set("self_link", res.SelfLink)
@@ -260,9 +257,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Updating BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
+	id, err := parseBigQueryDatasetId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if _, err = config.clientBigQuery.Datasets.Update(projectID, datasetID, dataset).Do(); err != nil {
+	if _, err = config.clientBigQuery.Datasets.Update(id.Project, id.DatasetId, dataset).Do(); err != nil {
 		return err
 	}
 
@@ -274,12 +274,32 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Deleting BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
+	id, err := parseBigQueryDatasetId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if err := config.clientBigQuery.Datasets.Delete(projectID, datasetID).Do(); err != nil {
+	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).Do(); err != nil {
 		return err
 	}
 
 	d.SetId("")
 	return nil
+}
+
+type bigQueryDatasetId struct {
+	Project, DatasetId string
+}
+
+func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
+	parts := strings.Split(id, ":")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+	}
+
+	return &bigQueryDatasetId{
+		Project:   parts[0],
+		DatasetId: parts[1],
+	}, nil
 }
