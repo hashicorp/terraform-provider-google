@@ -247,7 +247,7 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("unhealthy_threshold", flattenComputeHttpHealthCheckUnhealthyThreshold(res["unhealthyThreshold"])); err != nil {
 		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
 	}
-	if err := d.Set("self_link", res["selfLink"]); err != nil {
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {

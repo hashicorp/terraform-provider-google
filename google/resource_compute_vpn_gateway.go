@@ -184,7 +184,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("region", flattenComputeVpnGatewayRegion(res["region"])); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("self_link", res["selfLink"]); err != nil {
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
