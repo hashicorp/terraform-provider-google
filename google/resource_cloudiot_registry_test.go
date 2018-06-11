@@ -135,7 +135,7 @@ resource "google_pubsub_topic" "default-telemetry" {
 resource "google_cloudiot_registry" "foobar" {
   depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
 
-  name = "psregistry-test-%s"
+  name = "%s"
 
   event_notification_config = {
     pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
