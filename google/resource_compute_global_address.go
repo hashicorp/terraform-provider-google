@@ -51,10 +51,11 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				ForceNew: true,
 			},
 			"ip_version": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
 			},
 			"address": {
 				Type:     schema.TypeString,
