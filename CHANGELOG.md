@@ -11,6 +11,7 @@ BUG FIXES:
 * compute: Store v1 `self_link` for `(sub)?network` in `google_compute_instance` [GH-1629]
 * compute: `zone` field in `google_compute_disk` should be optional [GH-1631]
 * compute: name_prefix is no longer deprecated for SSL certificates [GH-1622]
+* compute: for global address ip_version, IPV4 and empty are equivalent. [GH-1639]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 
 ## 1.14.0 (June 07, 2018)
