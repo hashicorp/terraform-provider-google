@@ -133,3 +133,5 @@ Storage buckets can be imported using the `name`, e.g.
 ```
 $ terraform import google_storage_bucket.image-store image-store-bucket
 ```
+
+Note that when importing a bucket (and only when importing), the Compute API needs to be enabled - you'll see an error with a link to the enablement page if it is not.
