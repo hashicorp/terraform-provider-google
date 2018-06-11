@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
+
+const datasetIdRegexp = `[0-9A-Za-z_]+`
 
 func resourceBigQueryDataset() *schema.Resource {
 	return &schema.Resource{
@@ -30,7 +31,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if !regexp.MustCompile(`^[0-9A-Za-z_]+$`).MatchString(value) {
+					if !regexp.MustCompile(datasetIdRegexp).MatchString(value) {
 						errors = append(errors, fmt.Errorf(
 							"%q must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_)", k))
 					}
@@ -292,14 +293,14 @@ type bigQueryDatasetId struct {
 }
 
 func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
-	parts := strings.Split(id, ":")
-
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+	pd := fmt.Sprintf("(%s):(%s)", ProjectRegex, datasetIdRegexp)
+	re := regexp.MustCompile(pd)
+	if parts := re.FindStringSubmatch(id); parts != nil {
+		return &bigQueryDatasetId{
+			Project:   parts[1],
+			DatasetId: parts[2],
+		}, nil
 	}
 
-	return &bigQueryDatasetId{
-		Project:   parts[0],
-		DatasetId: parts[1],
-	}, nil
+	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
 }
