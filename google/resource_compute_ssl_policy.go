@@ -242,7 +242,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"])); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("self_link", res["selfLink"]); err != nil {
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {

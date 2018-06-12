@@ -207,7 +207,7 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"])); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
-	if err := d.Set("self_link", res["selfLink"]); err != nil {
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {

@@ -7,14 +7,10 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeAddress_basic(t *testing.T) {
 	t.Parallel()
-
-	var addr compute.Address
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,10 +19,6 @@ func TestAccComputeAddress_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeAddress_basic(acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeAddressExists(
-						"google_compute_address.foobar", &addr),
-				),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_address.foobar",
@@ -58,8 +50,6 @@ func TestAccComputeAddress_networkTier(t *testing.T) {
 }
 
 func TestAccComputeAddress_internal(t *testing.T) {
-	var addr computeBeta.Address
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -67,15 +57,6 @@ func TestAccComputeAddress_internal(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeAddress_internal(acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBetaAddressExists("google_compute_address.internal", &addr),
-					testAccCheckComputeBetaAddressExists("google_compute_address.internal_with_subnet", &addr),
-					testAccCheckComputeBetaAddressExists("google_compute_address.internal_with_subnet_and_address", &addr),
-					resource.TestCheckResourceAttr("google_compute_address.internal", "address_type", "INTERNAL"),
-					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet", "address_type", "INTERNAL"),
-					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address_type", "INTERNAL"),
-					resource.TestCheckResourceAttr("google_compute_address.internal_with_subnet_and_address", "address", "10.0.42.42"),
-				),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_address.internal",
@@ -106,7 +87,7 @@ func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 			continue
 		}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+		addressId, err := parseComputeAddressId(rs.Primary.ID, config)
 
 		_, err = config.clientCompute.Addresses.Get(
 			config.Project, addressId.Region, addressId.Name).Do()
@@ -116,68 +97,6 @@ func testAccCheckComputeAddressDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccCheckComputeAddressExists(n string, addr *compute.Address) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
-
-		found, err := config.clientCompute.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != addressId.Name {
-			return fmt.Errorf("Addr not found")
-		}
-
-		*addr = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeBetaAddressExists(n string, addr *computeBeta.Address) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
-
-		found, err := config.clientComputeBeta.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != addressId.Name {
-			return fmt.Errorf("Addr not found")
-		}
-
-		*addr = *found
-
-		return nil
-	}
 }
 
 func testAccComputeAddress_basic(i string) string {

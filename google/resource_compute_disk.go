@@ -611,7 +611,7 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"])); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("self_link", res["selfLink"]); err != nil {
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
