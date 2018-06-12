@@ -61,6 +61,11 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
+
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
 	if err != nil {
@@ -153,6 +158,10 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
+
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
 	if err != nil {
@@ -219,6 +228,10 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
 
 	// Get the existing IAM policy from the API
 	ep, err := getProjectIamPolicy(pid, config)
@@ -399,4 +412,8 @@ func (b sortableBindings) Swap(i, j int) {
 }
 func (b sortableBindings) Less(i, j int) bool {
 	return b[i].Role < b[j].Role
+}
+
+func getProjectIamPolicyMutexKey(pid string) string {
+	return fmt.Sprintf("iam-project-%s", pid)
 }
