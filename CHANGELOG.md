@@ -51,7 +51,7 @@ BUG FIXES:
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
 * `google_project_service`/`google_project_services` now use the [Service Usage API](https://cloud.google.com/service-usage). Users of those resources will need to enable the API at https://console.cloud.google.com/apis/api/serviceusage.googleapis.com.
-* We are aware of issues regarding existing `google_project` resources where App Engine is enabled in the project and are working on a fix. See [#1561](https://github.com/terraform-providers/terraform-provider-google/issues/1561) for more details. If this affects you, hold off on upgrading for now.
+* If you have a `google_project` resource where App Engine is enabled in the project, add an `app_engine` [block](https://www.terraform.io/docs/providers/google/r/google_project.html#app_engine) to your resource before running Terraform after upgrading to this version, or hold off on upgrading for now. See [#1561](https://github.com/terraform-providers/terraform-provider-google/issues/1561), which has more details and an ongoing investigation of other potential fixes.
 
 FEATURES:
 * **New Resource**: `google_cloudbuild_trigger`. ([#1357](https://github.com/terraform-providers/terraform-provider-google/issues/1357))
