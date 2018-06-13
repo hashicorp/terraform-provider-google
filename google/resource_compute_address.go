@@ -338,7 +338,7 @@ func flattenComputeAddressUsers(v interface{}) interface{} {
 }
 
 func flattenComputeAddressRegion(v interface{}) interface{} {
-	return NameFromSelfLinkStateFunc(v)
+	return v
 }
 
 func expandComputeAddressAddress(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
