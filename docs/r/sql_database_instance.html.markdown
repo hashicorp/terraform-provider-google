@@ -68,8 +68,6 @@ The following arguments are supported:
 
 - - -
 
-* `connection_name` - (Optional) The connection name of the instance to be used in connection strings.
-
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
@@ -223,6 +221,8 @@ exported:
 * `first_ip_address` - The first IPv4 address of the addresses assigned. This is
 is to support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
 when the resource is configured with a `count`.
+
+* `connection_name` - The connection name of the instance to be used in connection strings.
 
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 
