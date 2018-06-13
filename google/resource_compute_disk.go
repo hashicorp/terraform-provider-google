@@ -371,6 +371,10 @@ func resourceComputeDisk() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"label_fingerprint": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"last_attach_timestamp": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -407,11 +411,6 @@ func resourceComputeDisk() *schema.Resource {
 				Type:       schema.TypeString,
 				Computed:   true,
 				Deprecated: "Use disk_encryption_key.sha256 instead.",
-			},
-
-			"label_fingerprint": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -560,6 +559,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	if err := d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"])); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
 	if err := d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"])); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
@@ -636,15 +638,17 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
 
-	if d.HasChange("labels") {
+	if d.HasChange("label_fingerprint") || d.HasChange("labels") {
+		labelFingerprintProp := d.Get("label_fingerprint")
 		labelsProp, err := expandComputeDiskLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
 		}
 
 		obj = map[string]interface{}{
+			"labelFingerprint": labelFingerprintProp,
 			"labels":           labelsProp,
-			"labelFingerprint": d.Get("label_fingerprint").(string)}
+		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels")
 		if err != nil {
 			return err
@@ -667,6 +671,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
+		d.SetPartial("label_fingerprint")
 		d.SetPartial("labels")
 	}
 	if d.HasChange("size") {
@@ -832,6 +837,10 @@ func resourceComputeDiskImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenComputeDiskLabelFingerprint(v interface{}) interface{} {
+	return v
 }
 
 func flattenComputeDiskCreationTimestamp(v interface{}) interface{} {
@@ -1139,8 +1148,6 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 		transformed["sha256"] = original["sha256"]
 		res["sourceSnapshotEncryptionKey"] = transformed
 	}
-
-	d.Set("label_fingerprint", res["labelFingerprint"])
 
 	return res, nil
 }

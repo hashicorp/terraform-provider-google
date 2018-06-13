@@ -187,6 +187,9 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 * `last_attach_timestamp` -
@@ -216,8 +219,6 @@ In addition to the arguments listed above, the following computed attributes are
   `disk_encryption_key.sha256`.  It is deprecated to enhance
   consistency with `source_image_encryption_key` and
   `source_snapshot_encryption_key`.
-* `label_fingerprint`: The fingerprint of the assigned labels.  Provided
-  when labels are updated to prevent contention (first-write-wins).
 ## Timeouts
 
 This resource provides the following
