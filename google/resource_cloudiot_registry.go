@@ -243,7 +243,7 @@ func resourceCloudIoTRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("event_notification_config") {
 		hasChanged = true
-		updateMask = append(updateMask, "event_notification_config")
+		updateMask = append(updateMask, "event_notification_configs")
 		if v, ok := d.GetOk("event_notification_config"); ok {
 			deviceRegistry.EventNotificationConfigs = make([]*cloudiot.EventNotificationConfig, 1, 1)
 			deviceRegistry.EventNotificationConfigs[0] = buildEventNotificationConfig(v.(map[string]interface{}))
@@ -251,21 +251,21 @@ func resourceCloudIoTRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("state_notification_config") {
 		hasChanged = true
-		updateMask = append(updateMask, "state_notification_config")
+		updateMask = append(updateMask, "state_notification_config.pubsub_topic_name")
 		if v, ok := d.GetOk("state_notification_config"); ok {
 			deviceRegistry.StateNotificationConfig = buildStateNotificationConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("mqtt_config") {
 		hasChanged = true
-		updateMask = append(updateMask, "mqtt_config")
+		updateMask = append(updateMask, "mqtt_config.mqtt_enabled_state")
 		if v, ok := d.GetOk("mqtt_config"); ok {
 			deviceRegistry.MqttConfig = buildMqttConfig(v.(map[string]interface{}))
 		}
 	}
 	if d.HasChange("http_config") {
 		hasChanged = true
-		updateMask = append(updateMask, "http_config")
+		updateMask = append(updateMask, "http_config.http_enabled_state")
 		if v, ok := d.GetOk("http_config"); ok {
 			deviceRegistry.HttpConfig = buildHttpConfig(v.(map[string]interface{}))
 		}
