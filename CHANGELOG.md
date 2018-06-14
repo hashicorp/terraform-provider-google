@@ -16,6 +16,7 @@ BUG FIXES:
 * compute: for global address ip_version, IPV4 and empty are equivalent. [GH-1639]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 * iam: use same mutex for project_iam_policy as the other project_iam resources [GH-1645]
+* iam: don't error if service account key is already gone on delete [GH-1659]
 * iot: fix updatemask so updates actually work [GH-1640]
 
 ## 1.14.0 (June 07, 2018)
