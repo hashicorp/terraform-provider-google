@@ -62,6 +62,10 @@ func ParseInstanceGroupFieldValue(instanceGroup string, d TerraformResourceData,
 	return parseZonalFieldValue("instanceGroups", instanceGroup, "project", "zone", d, config, false)
 }
 
+func ParseInstanceTemplateFieldValue(instanceTemplate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("instanceTemplates", instanceTemplate, "project", d, config, false)
+}
+
 func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
 	return parseGlobalFieldValue("securityPolicies", securityPolicy, "project", d, config, true)
 }

@@ -620,50 +620,36 @@ func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.D
 	return disk, err
 }
 
-func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	// Get the zone
-	z, err := getZone(d, config)
-	if err != nil {
-		return err
-	}
-	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := config.clientCompute.Zones.Get(
-		project, z).Do()
-	if err != nil {
-		return fmt.Errorf(
-			"Error loading zone '%s': %s", z, err)
-	}
-
+func computeInstance(project string, zone *compute.Zone, d *schema.ResourceData, config *Config) (*computeBeta.Instance, error) {
 	// Get the machine type
-	log.Printf("[DEBUG] Loading machine type: %s", d.Get("machine_type").(string))
-	machineType, err := config.clientCompute.MachineTypes.Get(
-		project, zone.Name, d.Get("machine_type").(string)).Do()
-	if err != nil {
-		return fmt.Errorf(
-			"Error loading machine type: %s",
-			err)
+	var machineTypeUrl string
+	if mt, ok := d.GetOk("machine_type"); ok {
+		log.Printf("[DEBUG] Loading machine type: %s", mt.(string))
+		machineType, err := config.clientCompute.MachineTypes.Get(
+			project, zone.Name, mt.(string)).Do()
+		if err != nil {
+			return nil, fmt.Errorf(
+				"Error loading machine type: %s",
+				err)
+		}
+		machineTypeUrl = machineType.SelfLink
 	}
 
 	// Build up the list of disks
 
 	disks := []*computeBeta.AttachedDisk{}
-	bootDisk, err := expandBootDisk(d, config, zone, project)
-	if err != nil {
-		return err
+	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
+		bootDisk, err := expandBootDisk(d, config, zone, project)
+		if err != nil {
+			return nil, err
+		}
+		disks = append(disks, bootDisk)
 	}
-	disks = append(disks, bootDisk)
 
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
 		scratchDisks, err := expandScratchDisks(d, config, zone, project)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		disks = append(disks, scratchDisks...)
 	}
@@ -674,7 +660,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		diskConfig := d.Get(fmt.Sprintf("attached_disk.%d", i)).(map[string]interface{})
 		disk, err := expandAttachedDisk(diskConfig, d, config)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		disks = append(disks, disk)
@@ -696,34 +682,27 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
-	// Read create timeout
-	// Until "create_timeout" is removed, use that timeout if set.
-	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
-		createTimeout = v.(int)
-	}
-
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
-		return fmt.Errorf("Error creating metadata: %s", err)
+		return nil, fmt.Errorf("Error creating metadata: %s", err)
 	}
 
 	networkInterfaces, err := expandNetworkInterfaces(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating network interfaces: %s", err)
+		return nil, fmt.Errorf("Error creating network interfaces: %s", err)
 	}
 
 	accels, err := expandInstanceGuestAccelerators(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating guest accelerators: %s", err)
+		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
 	}
 
 	// Create the instance information
-	instance := &computeBeta.Instance{
+	return &computeBeta.Instance{
 		CanIpForward:       d.Get("can_ip_forward").(bool),
 		Description:        d.Get("description").(string),
 		Disks:              disks,
-		MachineType:        machineType.SelfLink,
+		MachineType:        machineTypeUrl,
 		Metadata:           metadata,
 		Name:               d.Get("name").(string),
 		NetworkInterfaces:  networkInterfaces,
@@ -734,6 +713,40 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		MinCpuPlatform:     d.Get("min_cpu_platform").(string),
 		Scheduling:         scheduling,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		ForceSendFields:    []string{"CanIpForward", "DeletionProtection"},
+	}, nil
+}
+
+func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	// Get the zone
+	z, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] Loading zone: %s", z)
+	zone, err := config.clientCompute.Zones.Get(
+		project, z).Do()
+	if err != nil {
+		return fmt.Errorf("Error loading zone '%s': %s", z, err)
+	}
+
+	instance, err := computeInstance(project, zone, d, config)
+	if err != nil {
+		return err
+	}
+
+	// Read create timeout
+	// Until "create_timeout" is removed, use that timeout if set.
+	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
+		createTimeout = v.(int)
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
@@ -831,9 +844,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
 	}
 
-	if len(instance.Labels) > 0 {
-		d.Set("labels", instance.Labels)
-	}
+	d.Set("labels", instance.Labels)
 
 	if instance.LabelFingerprint != "" {
 		d.Set("label_fingerprint", instance.LabelFingerprint)
