@@ -218,9 +218,21 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		NodePool: nodePool,
 	}
 
-	operation, err := config.clientContainerBeta.
-		Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+	var operation *containerBeta.Operation
+	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
+		operation, err = config.clientContainerBeta.
+			Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
 
+		if err != nil {
+			if isFailedPreconditionError(err) {
+				// We get failed precondition errors if the cluster is updating
+				// while we try to add the node pool.
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
@@ -258,10 +270,6 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 		nodePool, err = config.clientContainerBeta.
 			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
-
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
 
 		if err != nil {
 			return resource.NonRetryableError(err)
