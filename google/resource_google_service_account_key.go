@@ -156,7 +156,7 @@ func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interfac
 
 	_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
 	}
 
 	d.SetId("")
