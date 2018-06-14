@@ -163,8 +163,11 @@ The `management` block supports:
 
 ## Import
 
-Node pools can be imported using the `zone`, `cluster` and `name`, e.g.
+Node pools can be imported using the `project`, `zone`, `cluster` and `name`. If
+the project is omitted, the default provider value will be used. Examples:
 
 ```
+$ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
+
 $ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
 ```

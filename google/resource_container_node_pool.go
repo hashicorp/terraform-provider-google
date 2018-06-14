@@ -386,19 +386,33 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 
 func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name}")
-	}
 
-	location := parts[0]
-	if isZone(location) {
-		d.Set("zone", location)
-	} else {
-		d.Set("region", location)
-	}
+	switch len(parts) {
+	case 3:
+		location := parts[0]
+		if isZone(location) {
+			d.Set("zone", location)
+		} else {
+			d.Set("region", location)
+		}
 
-	d.Set("cluster", parts[1])
-	d.Set("name", parts[2])
+		d.Set("cluster", parts[1])
+		d.Set("name", parts[2])
+	case 4:
+		d.Set("project", parts[0])
+
+		location := parts[1]
+		if isZone(location) {
+			d.Set("zone", location)
+		} else {
+			d.Set("region", location)
+		}
+
+		d.Set("cluster", parts[2])
+		d.Set("name", parts[3])
+	default:
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
