@@ -93,7 +93,8 @@ The following keys can be used to configure the provider.
 Some Google Provider resources contain Beta features; Beta GCP Features have no
 deprecation policy, and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
-is publicly announced, and is when they generally become publicly available.
+is publicly announced, and is when they generally become publicly available. For
+more information see [the official documentation](https://cloud.google.com/terms/launch-stages).
 
 Terraform resources that support beta features will always use the Beta APIs to provision
 the resource. Importing a resource that supports beta features will always import those
