@@ -3,6 +3,7 @@
 FEATURES:
 
 IMPROVEMENTS:
+* container: Allow specifying project when importing container_node_pool [GH-1653]
 * dns: Add update support for `dns_managed_zone` [GH-1617]
 * project: App Engine application fields can now be updated in-place where possible [GH-1621]
 
