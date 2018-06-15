@@ -645,7 +645,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("resource_labels"); ok {
-		cluster.ResourceLabels = v.(map[string]string)
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		cluster.ResourceLabels = m
 	}
 
 	req := &containerBeta.CreateClusterRequest{
