@@ -1382,7 +1382,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	network_policy {
 		enabled = true
 		provider = "CALICO"
-	}	
+	}
 	addons_config {
 		network_policy_config {
 			disabled = false
@@ -1631,6 +1631,7 @@ resource "google_container_cluster" "with_node_config" {
 	node_config {
 		machine_type = "n1-standard-1"
 		disk_size_gb = 15
+		disk_type = "pd-ssd"
 		local_ssd_count = 1
 		oauth_scopes = [
 			"https://www.googleapis.com/auth/monitoring",

@@ -1,11 +1,12 @@
 package google
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
-	"strconv"
-	"strings"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -32,6 +33,14 @@ var schemaNodeConfig = &schema.Schema{
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(10),
+			},
+
+			"disk_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 			},
 
 			"guest_accelerator": &schema.Schema{
@@ -216,6 +225,10 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.DiskSizeGb = int64(v.(int))
 	}
 
+	if v, ok := nodeConfig["disk_type"]; ok {
+		nc.DiskType = v.(string)
+	}
+
 	if v, ok := nodeConfig["local_ssd_count"]; ok {
 		nc.LocalSsdCount = int64(v.(int))
 	}
@@ -304,6 +317,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	config = append(config, map[string]interface{}{
 		"machine_type":             c.MachineType,
 		"disk_size_gb":             c.DiskSizeGb,
+		"disk_type":                c.DiskType,
 		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
 		"service_account":          c.ServiceAccount,
