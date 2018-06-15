@@ -461,6 +461,12 @@ func resourceContainerCluster() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.CIDRNetwork(28, 28),
 			},
+
+			"resource_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     schema.TypeString,
+			},
 		},
 	}
 }
@@ -638,6 +644,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if v, ok := d.GetOk("resource_labels"); ok {
+		cluster.ResourceLabels = v.(map[string]string)
+	}
+
 	req := &containerBeta.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -787,6 +797,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("private_cluster", cluster.PrivateCluster)
 	d.Set("master_ipv4_cidr_block", cluster.MasterIpv4CidrBlock)
+	d.Set("resource_labels", cluster.ResourceLabels)
 
 	return nil
 }
@@ -1141,6 +1152,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s pod security policy config has been updated", d.Id())
 
 		d.SetPartial("pod_security_policy_config")
+	}
+
+	if d.HasChange("resource_labels") {
+		resourceLabels := d.Get("resource_labels").(map[string]string)
+
+		req := &containerBeta.SetLabelsRequest{
+			ResourceLabels: resourceLabels,
+		}
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetResourceLabels(name, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerSharedOperationWait(config, op, project, location, "updating GKE resource labels", timeoutInMinutes, 2)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		d.SetPartial("resource_labels")
 	}
 
 	if d.HasChange("remove_default_node_pool") && d.Get("remove_default_node_pool").(bool) {

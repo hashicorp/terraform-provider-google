@@ -1160,6 +1160,27 @@ func TestAccContainerCluster_sharedVpc(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withResourceLabels(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withResourceLabels(),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_resource_labels",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2228,4 +2249,19 @@ resource "google_container_cluster" "shared_vpc_cluster" {
 		"google_compute_subnetwork_iam_member.service_network_gke_user"
 	]
 }`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), name)
+}
+
+func testAccContainerCluster_withResourceLabels() string {
+	testId := acctest.RandString(10)
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_resource_labels" {
+	name = "tf-cluster-resourcelabel-test-%s"
+	zone = "us-central1-a"
+    initial_node_count = 1
+	
+    resource_labels {
+        created-by = "terraform"
+    }
+}
+`, testId)
 }
