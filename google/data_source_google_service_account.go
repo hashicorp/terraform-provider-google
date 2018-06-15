@@ -43,15 +43,10 @@ func dataSourceGoogleServiceAccount() *schema.Resource {
 func dataSourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Get the project from the resource or fallback to the project
-	// in the provider configuration
-	project, err := getProject(d, config)
+	serviceAccountName, err := serviceAccountFQN(d.Get("account_id").(string), d, config)
 	if err != nil {
 		return err
 	}
-
-	// Get the service account as a fully qualified name
-	serviceAccountName := serviceAccountFQN(d.Get("account_id").(string), project)
 
 	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(serviceAccountName).Do()
 	if err != nil {
