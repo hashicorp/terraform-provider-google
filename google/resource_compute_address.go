@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -118,43 +119,48 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	addressProp, err := expandComputeAddressAddress(d.Get("address"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("address"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, addressProp)) {
+		obj["address"] = addressProp
 	}
 	addressTypeProp, err := expandComputeAddressAddressType(d.Get("address_type"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("address_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, addressTypeProp)) {
+		obj["addressType"] = addressTypeProp
 	}
 	descriptionProp, err := expandComputeAddressDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeAddressName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	networkTierProp, err := expandComputeAddressNetworkTier(d.Get("network_tier"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("network_tier"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
+		obj["networkTier"] = networkTierProp
 	}
 	subnetworkProp, err := expandComputeAddressSubnetwork(d.Get("subnetwork"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
+		obj["subnetwork"] = subnetworkProp
 	}
 	regionProp, err := expandComputeAddressRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"address":     addressProp,
-		"addressType": addressTypeProp,
-		"description": descriptionProp,
-		"name":        nameProp,
-		"networkTier": networkTierProp,
-		"subnetwork":  subnetworkProp,
-		"region":      regionProp,
+	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+		obj["region"] = regionProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses")

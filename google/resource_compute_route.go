@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -130,58 +131,66 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	destRangeProp, err := expandComputeRouteDestRange(d.Get("dest_range"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("dest_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, destRangeProp)) {
+		obj["destRange"] = destRangeProp
 	}
 	descriptionProp, err := expandComputeRouteDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeRouteName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	networkProp, err := expandComputeRouteNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+		obj["network"] = networkProp
 	}
 	priorityProp, err := expandComputeRoutePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+		obj["priority"] = priorityProp
 	}
 	tagsProp, err := expandComputeRouteTags(d.Get("tags"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("tags"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
+		obj["tags"] = tagsProp
 	}
 	nextHopGatewayProp, err := expandComputeRouteNextHopGateway(d.Get("next_hop_gateway"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("next_hop_gateway"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nextHopGatewayProp)) {
+		obj["nextHopGateway"] = nextHopGatewayProp
 	}
 	nextHopInstanceProp, err := expandComputeRouteNextHopInstance(d.Get("next_hop_instance"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("next_hop_instance"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nextHopInstanceProp)) {
+		obj["nextHopInstance"] = nextHopInstanceProp
 	}
 	nextHopIpProp, err := expandComputeRouteNextHopIp(d.Get("next_hop_ip"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("next_hop_ip"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nextHopIpProp)) {
+		obj["nextHopIp"] = nextHopIpProp
 	}
 	nextHopVpnTunnelProp, err := expandComputeRouteNextHopVpnTunnel(d.Get("next_hop_vpn_tunnel"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"destRange":        destRangeProp,
-		"description":      descriptionProp,
-		"name":             nameProp,
-		"network":          networkProp,
-		"priority":         priorityProp,
-		"tags":             tagsProp,
-		"nextHopGateway":   nextHopGatewayProp,
-		"nextHopInstance":  nextHopInstanceProp,
-		"nextHopIp":        nextHopIpProp,
-		"nextHopVpnTunnel": nextHopVpnTunnelProp,
+	} else if v, ok := d.GetOkExists("next_hop_vpn_tunnel"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nextHopVpnTunnelProp)) {
+		obj["nextHopVpnTunnel"] = nextHopVpnTunnelProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes")

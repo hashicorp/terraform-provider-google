@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -87,23 +88,24 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeGlobalAddressDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeGlobalAddressName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	ipVersionProp, err := expandComputeGlobalAddressIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"description": descriptionProp,
-		"name":        nameProp,
-		"ipVersion":   ipVersionProp,
+	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses")

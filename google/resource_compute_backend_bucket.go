@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -85,28 +86,30 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
+		obj["bucketName"] = bucketNameProp
 	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCdnProp)) {
+		obj["enableCdn"] = enableCdnProp
 	}
 	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"bucketName":  bucketNameProp,
-		"description": descriptionProp,
-		"enableCdn":   enableCdnProp,
-		"name":        nameProp,
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets")
@@ -199,28 +202,30 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
+		obj["bucketName"] = bucketNameProp
 	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCdnProp)) {
+		obj["enableCdn"] = enableCdnProp
 	}
 	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"bucketName":  bucketNameProp,
-		"description": descriptionProp,
-		"enableCdn":   enableCdnProp,
-		"name":        nameProp,
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")

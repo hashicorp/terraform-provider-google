@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -434,64 +435,74 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeDiskDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandComputeDiskLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 	nameProp, err := expandComputeDiskName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	sizeGbProp, err := expandComputeDiskSize(d.Get("size"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("size"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
+		obj["sizeGb"] = sizeGbProp
 	}
 	sourceImageProp, err := expandComputeDiskImage(d.Get("image"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("image"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
+		obj["sourceImage"] = sourceImageProp
 	}
 	typeProp, err := expandComputeDiskType(d.Get("type"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 	zoneProp, err := expandComputeDiskZone(d.Get("zone"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+		obj["zone"] = zoneProp
 	}
 	diskEncryptionKeyProp, err := expandComputeDiskDiskEncryptionKey(d.Get("disk_encryption_key"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("disk_encryption_key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyProp)) {
+		obj["diskEncryptionKey"] = diskEncryptionKeyProp
 	}
 	sourceImageEncryptionKeyProp, err := expandComputeDiskSourceImageEncryptionKey(d.Get("source_image_encryption_key"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("source_image_encryption_key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceImageEncryptionKeyProp)) {
+		obj["sourceImageEncryptionKey"] = sourceImageEncryptionKeyProp
 	}
 	sourceSnapshotProp, err := expandComputeDiskSnapshot(d.Get("snapshot"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("snapshot"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
+		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
 	sourceSnapshotEncryptionKeyProp, err := expandComputeDiskSourceSnapshotEncryptionKey(d.Get("source_snapshot_encryption_key"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("source_snapshot_encryption_key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSnapshotEncryptionKeyProp)) {
+		obj["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyProp
 	}
 
-	obj := map[string]interface{}{
-		"description":                 descriptionProp,
-		"labels":                      labelsProp,
-		"name":                        nameProp,
-		"sizeGb":                      sizeGbProp,
-		"sourceImage":                 sourceImageProp,
-		"type":                        typeProp,
-		"zone":                        zoneProp,
-		"diskEncryptionKey":           diskEncryptionKeyProp,
-		"sourceImageEncryptionKey":    sourceImageEncryptionKeyProp,
-		"sourceSnapshot":              sourceSnapshotProp,
-		"sourceSnapshotEncryptionKey": sourceSnapshotEncryptionKeyProp,
-	}
 	obj, err = resourceComputeDiskEncoder(d, meta, obj)
 	if err != nil {
 		return err
@@ -631,7 +642,6 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	var obj map[string]interface{}
 	var url string
 	var res map[string]interface{}
 	op := &compute.Operation{}
@@ -639,16 +649,16 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
 
 	if d.HasChange("label_fingerprint") || d.HasChange("labels") {
+		obj := make(map[string]interface{})
 		labelFingerprintProp := d.Get("label_fingerprint")
+		obj["labelFingerprint"] = labelFingerprintProp
 		labelsProp, err := expandComputeDiskLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
 		}
 
-		obj = map[string]interface{}{
-			"labelFingerprint": labelFingerprintProp,
-			"labels":           labelsProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels")
 		if err != nil {
 			return err
@@ -675,14 +685,14 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("labels")
 	}
 	if d.HasChange("size") {
+		obj := make(map[string]interface{})
 		sizeGbProp, err := expandComputeDiskSize(d.Get("size"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("size"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
+			obj["sizeGb"] = sizeGbProp
 		}
 
-		obj = map[string]interface{}{
-			"sizeGb": sizeGbProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
 		if err != nil {
 			return err
