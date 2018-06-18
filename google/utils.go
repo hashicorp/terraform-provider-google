@@ -362,17 +362,27 @@ func lockedCall(lockKey string, f func() error) error {
 }
 
 // serviceAccountFQN will attempt to generate the fully qualified name in the format of:
-// "projects/(-|<project_name>)/serviceAccounts/<service_account_id>@<project_name>.iam.gserviceaccount.com"
-func serviceAccountFQN(serviceAccount, project string) string {
-	// If the service account id isn't already the fully qualified name
-	if !strings.HasPrefix(serviceAccount, "projects/") {
-		// If the service account id is an email
-		if strings.Contains(serviceAccount, "@") {
-			serviceAccount = "projects/-/serviceAccounts/" + serviceAccount
-		} else {
-			// If the service account id doesn't contain the email, build it
-			serviceAccount = fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project)
-		}
+// "projects/(-|<project>)/serviceAccounts/<service_account_id>@<project>.iam.gserviceaccount.com"
+// A project is required if we are trying to build the FQN from a service account id and
+// and error will be returned in this case if no project is set in the resource or the
+// provider-level config
+func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *Config) (string, error) {
+	// If the service account id is already the fully qualified name
+	if strings.HasPrefix(serviceAccount, "projects/") {
+		return serviceAccount, nil
 	}
-	return serviceAccount
+
+	// If the service account id is an email
+	if strings.Contains(serviceAccount, "@") {
+		return "projects/-/serviceAccounts/" + serviceAccount, nil
+	}
+
+	// Get the project from the resource or fallback to the project
+	// in the provider configuration
+	project, err := getProject(d, config)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project), nil
 }

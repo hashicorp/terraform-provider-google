@@ -465,7 +465,12 @@ func TestServiceAccountFQN(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		serviceAccountName := serviceAccountFQN(tc.serviceAccount, tc.project)
+		config := &Config{Project: tc.project}
+		d := &schema.ResourceData{}
+		serviceAccountName, err := serviceAccountFQN(tc.serviceAccount, d, config)
+		if err != nil {
+			t.Fatalf("unexpected error for service account FQN: %s", err)
+		}
 		if serviceAccountName != serviceAccountExpected {
 			t.Errorf("bad: %s, expected '%s' but returned '%s", tn, serviceAccountExpected, serviceAccountName)
 		}

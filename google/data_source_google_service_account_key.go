@@ -46,15 +46,10 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Get the project from the resource or fallback to the project
-	// in the provider configuration
-	project, err := getProject(d, config)
+	serviceAccountName, err := serviceAccountFQN(d.Get("service_account_id").(string), d, config)
 	if err != nil {
 		return err
 	}
-
-	// Get the service account as the fully qualified name
-	serviceAccountName := serviceAccountFQN(d.Get("service_account_id").(string), project)
 
 	publicKeyType := d.Get("public_key_type").(string)
 
