@@ -218,8 +218,11 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		NodePool: nodePool,
 	}
 
+	timeout := d.Timeout(schema.TimeoutCreate)
+	startTime := time.Now()
+
 	var operation *containerBeta.Operation
-	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(timeout, func() *resource.RetryError {
 		operation, err = config.clientContainerBeta.
 			Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
 
@@ -236,14 +239,13 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
+	timeout -= time.Since(startTime)
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-
 	waitErr := containerBetaOperationWait(config,
 		operation, nodePoolInfo.project,
-		nodePoolInfo.location, "creating GKE NodePool", timeoutInMinutes, 3)
+		nodePoolInfo.location, "creating GKE NodePool", int(timeout.Minutes()), 3)
 
 	if waitErr != nil {
 		// The resource didn't actually create
