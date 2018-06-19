@@ -389,6 +389,7 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: podSecurityPolicyCfgSuppress,
 			},
 
 			"project": {
@@ -1554,4 +1555,18 @@ func masterAuthClientCertCfgSuppress(k, old, new string, r *schema.ResourceData)
 	}
 
 	return strings.HasSuffix(k, ".issue_client_certificate") && old == "" && new == "true"
+}
+
+func podSecurityPolicyCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
+	if k == "pod_security_policy_config.#" && old == "1" && new == "0" {
+		if v, ok := r.GetOk("pod_security_policy_config"); ok {
+			cfgList := v.([]interface{})
+			if len(cfgList) > 0 {
+				d := cfgList[0].(map[string]interface{})
+				// Suppress if old value was {enabled == false}
+				return !d["enabled"].(bool)
+			}
+		}
+	}
+	return false
 }
