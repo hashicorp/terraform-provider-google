@@ -27,7 +27,9 @@ resource "google_pubsub_topic_iam_binding" "binding" {
 
 ## Argument Reference
 
-There are no arguments available for this data source.
+The following arguments are supported:
+
+* `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
 
 ## Attributes Reference
 

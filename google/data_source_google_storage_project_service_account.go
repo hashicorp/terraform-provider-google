@@ -7,6 +7,14 @@ import (
 func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleStorageProjectServiceAccountRead,
+		Schema: map[string]*schema.Schema{
+			"project": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+		},
 	}
 }
 
@@ -22,6 +30,8 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 	if err != nil {
 		return handleNotFoundError(err, d, "GCS service account not found")
 	}
+
+	d.Set("project", project)
 
 	d.SetId(serviceAccount.EmailAddress)
 
