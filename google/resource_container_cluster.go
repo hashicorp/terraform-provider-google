@@ -1558,7 +1558,7 @@ func masterAuthClientCertCfgSuppress(k, old, new string, r *schema.ResourceData)
 }
 
 func podSecurityPolicyCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
-	if strings.HasSuffix(k, "pod_security_policy_config.#") && old == "1" && new == "0" {
+	if k == "pod_security_policy_config.#" && old == "1" && new == "0" {
 		if v, ok := r.GetOk("pod_security_policy_config"); ok {
 			cfgList := v.([]interface{})
 			if len(cfgList) > 0 {
