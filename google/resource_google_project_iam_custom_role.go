@@ -71,6 +71,20 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Cannot create a custom project role with a deleted state. `deleted` field should be false.")
 	}
 
+	roleId := fmt.Sprintf("projects/%s/roles/%s", project, d.Get("role_id").(string))
+	r, err := config.clientIAM.Projects.Roles.Get(roleId).Do()
+	if err == nil {
+		if r.Deleted {
+			// Roles have soft deletes - creating a role with the same name
+			// as a recently deleted role must instead be undelete/update.
+			d.SetId(r.Name)
+			return resourceGoogleProjectIamCustomRoleUpdate(d, meta)
+		}
+		// If old role with same name exists, just return error
+		return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
+	}
+
+	// If no role is found, actually create a new role.
 	role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
 		RoleId: d.Get("role_id").(string),
 		Role: &iam.Role{
@@ -124,12 +138,24 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 			if err := resourceGoogleProjectIamCustomRoleDelete(d, meta); err != nil {
 				return err
 			}
-		} else {
+			d.SetPartial("deleted")
+		}
+	}
+
+	// If role is not deleted, make sure it exists and undelete if needed.
+	// TODO(emilymye): Change deleted to computed so it can't be updated.
+	if !d.Get("deleted").(bool) {
+		r, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
+		if err != nil {
+			return fmt.Errorf("unable to find custom project role %s to update: %v", d.Id(), err)
+		}
+		if r.Deleted {
+			// Undelete if deleted previously
 			if err := resourceGoogleProjectIamCustomRoleUndelete(d, meta); err != nil {
 				return err
 			}
+			d.SetPartial("deleted")
 		}
-		d.SetPartial("deleted")
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
