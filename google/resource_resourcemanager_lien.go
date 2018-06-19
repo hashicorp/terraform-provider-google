@@ -73,28 +73,30 @@ func resourceResourceManagerLien() *schema.Resource {
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	obj := make(map[string]interface{})
 	reasonProp, err := expandResourceManagerLienReason(d.Get("reason"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("reason"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
+		obj["reason"] = reasonProp
 	}
 	originProp, err := expandResourceManagerLienOrigin(d.Get("origin"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("origin"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, originProp)) {
+		obj["origin"] = originProp
 	}
 	parentProp, err := expandResourceManagerLienParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+		obj["parent"] = parentProp
 	}
 	restrictionsProp, err := expandResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"reason":       reasonProp,
-		"origin":       originProp,
-		"parent":       parentProp,
-		"restrictions": restrictionsProp,
+	} else if v, ok := d.GetOkExists("restrictions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
+		obj["restrictions"] = restrictionsProp
 	}
 
 	url, err := replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens")

@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -87,23 +88,24 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeTargetHttpProxyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeTargetHttpProxyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get("url_map"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"description": descriptionProp,
-		"name":        nameProp,
-		"urlMap":      urlMapProp,
+	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+		obj["urlMap"] = urlMapProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies")
@@ -196,7 +198,6 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	var obj map[string]interface{}
 	var url string
 	var res map[string]interface{}
 	op := &compute.Operation{}
@@ -204,14 +205,14 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 	d.Partial(true)
 
 	if d.HasChange("url_map") {
+		obj := make(map[string]interface{})
 		urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get("url_map"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+			obj["urlMap"] = urlMapProp
 		}
 
-		obj = map[string]interface{}{
-			"urlMap": urlMapProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
 		if err != nil {
 			return err

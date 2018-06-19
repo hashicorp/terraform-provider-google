@@ -17,6 +17,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -108,38 +109,42 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeTargetSslProxyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeTargetSslProxyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 	proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
+		obj["proxyHeader"] = proxyHeaderProp
 	}
 	serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["service"] = serviceProp
 	}
 	sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+		obj["sslCertificates"] = sslCertificatesProp
 	}
 	sslPolicyProp, err := expandComputeTargetSslProxySslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"description":     descriptionProp,
-		"name":            nameProp,
-		"proxyHeader":     proxyHeaderProp,
-		"service":         serviceProp,
-		"sslCertificates": sslCertificatesProp,
-		"sslPolicy":       sslPolicyProp,
+	} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+		obj["sslPolicy"] = sslPolicyProp
 	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies")
@@ -241,7 +246,6 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	var obj map[string]interface{}
 	var url string
 	var res map[string]interface{}
 	op := &compute.Operation{}
@@ -249,14 +253,14 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	d.Partial(true)
 
 	if d.HasChange("proxy_header") {
+		obj := make(map[string]interface{})
 		proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
+			obj["proxyHeader"] = proxyHeaderProp
 		}
 
-		obj = map[string]interface{}{
-			"proxyHeader": proxyHeaderProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setProxyHeader")
 		if err != nil {
 			return err
@@ -282,14 +286,14 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("proxy_header")
 	}
 	if d.HasChange("backend_service") {
+		obj := make(map[string]interface{})
 		serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+			obj["service"] = serviceProp
 		}
 
-		obj = map[string]interface{}{
-			"service": serviceProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setBackendService")
 		if err != nil {
 			return err
@@ -315,14 +319,14 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("backend_service")
 	}
 	if d.HasChange("ssl_certificates") {
+		obj := make(map[string]interface{})
 		sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+			obj["sslCertificates"] = sslCertificatesProp
 		}
 
-		obj = map[string]interface{}{
-			"sslCertificates": sslCertificatesProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setSslCertificates")
 		if err != nil {
 			return err
@@ -348,14 +352,14 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("ssl_certificates")
 	}
 	if d.HasChange("ssl_policy") {
+		obj := make(map[string]interface{})
 		sslPolicyProp, err := expandComputeTargetSslProxySslPolicy(d.Get("ssl_policy"), d, config)
 		if err != nil {
 			return err
+		} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+			obj["sslPolicy"] = sslPolicyProp
 		}
 
-		obj = map[string]interface{}{
-			"sslPolicy": sslPolicyProp,
-		}
 		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}/setSslPolicy")
 		if err != nil {
 			return err

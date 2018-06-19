@@ -12,52 +12,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-type serializableBody struct {
-	body map[string]interface{}
-
-	// ForceSendFields is a list of field names (e.g. "UtilizationTarget")
-	// to unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string
-
-	// NullFields is a list of field names (e.g. "UtilizationTarget") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
-	NullFields []string
-}
-
-// MarshalJSON returns a JSON encoding of schema containing only selected fields.
-// A field is selected if any of the following is true:
-//   * it has a non-empty value
-//   * its field name is present in forceSendFields and it is not a nil pointer or nil interface
-//   * its field name is present in nullFields.
-func (b *serializableBody) MarshalJSON() ([]byte, error) {
-	// By default, all fields in a map are added to the json output
-	// This changes that to remove the entry with an empty value.
-	// This mimics the "omitempty" behavior.
-
-	// The "omitempty" option specifies that the field should be omitted
-	// from the encoding if the field has an empty value, defined as
-	// false, 0, a nil pointer, a nil interface value, and any empty array,
-	// slice, map, or string.
-
-	// TODO: Add support for ForceSendFields and NullFields.
-	for k, v := range b.body {
-		if isEmptyValue(reflect.ValueOf(v)) {
-			delete(b.body, k)
-		}
-	}
-
-	return json.Marshal(b.body)
-}
-
 func isEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
@@ -99,8 +53,7 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 
 	var buf bytes.Buffer
 	if body != nil {
-		err := json.NewEncoder(&buf).Encode(&serializableBody{
-			body: body})
+		err := json.NewEncoder(&buf).Encode(body)
 		if err != nil {
 			return nil, err
 		}
