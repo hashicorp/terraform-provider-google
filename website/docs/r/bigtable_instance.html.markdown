@@ -29,17 +29,17 @@ resource "google_bigtable_instance" "instance" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the Bigtable instance.
+* `name` - (Required) The name of the Cloud Bigtable instance.
 
-* `cluster_id` - (Required) The name of the Bigtable instance's cluster.
+* `cluster_id` - (Required) The ID of the Cloud Bigtable cluster.
 
-* `zone` - (Required) The zone to create the Bigtable instance in. Zones that support Bigtable instances are noted on the [Cloud Locations page](https://cloud.google.com/about/locations/).
+* `zone` - (Required) The zone to create the Cloud Bigtable cluster in. Zones that support Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
-* `num_nodes` - (Optional) The number of nodes in your Bigtable instance. Minimum of `3` for a `PRODUCTION` instance. Cannot be set for a `DEVELOPMENT` instance.
+* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster. Minimum of `3` for a `PRODUCTION` instance. Cannot be set for a `DEVELOPMENT` instance.
 
-* `instance_type` - (Optional) The instance type to create. One of `"DEVELOPMENT"` or `"PRODUCTION"`. Defaults to `PRODUCTION`.
+* `instance_type` - (Optional) The instance type to create. One of `"DEVELOPMENT"` or `"PRODUCTION"`. Defaults to `"PRODUCTION"`.
 
-* `storage_type` - (Optional) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `SSD`.
+* `storage_type` - (Optional) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `"SSD"`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
