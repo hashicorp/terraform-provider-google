@@ -100,7 +100,7 @@ output "cluster_ca_certificate" {
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
     Defaults to `false`
-    
+
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
@@ -240,6 +240,16 @@ The `master_auth` block supports:
 
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
+
+* `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
+
+```
+master_auth {
+  client_certificate_config {
+    issue_client_certificate = false
+  }
+}
+```
 
 If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
 This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you with the username `admin`.
