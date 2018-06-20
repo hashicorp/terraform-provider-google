@@ -709,9 +709,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", cluster.Name)
-
 	d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy))
-
 	d.Set("zone", cluster.Zone)
 
 	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
@@ -719,31 +717,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("additional_zones", locations)
 
 	d.Set("endpoint", cluster.Endpoint)
-
-	if cluster.MaintenancePolicy != nil {
-		d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy))
-	}
-
-	masterAuth := []map[string]interface{}{
-		{
-			"username":               cluster.MasterAuth.Username,
-			"password":               cluster.MasterAuth.Password,
-			"client_certificate":     cluster.MasterAuth.ClientCertificate,
-			"client_key":             cluster.MasterAuth.ClientKey,
-			"cluster_ca_certificate": cluster.MasterAuth.ClusterCaCertificate,
-		},
-	}
-	if len(cluster.MasterAuth.ClientCertificate) == 0 {
-		masterAuth[0]["client_certificate_config"] = []map[string]interface{}{
-			{"issue_client_certificate": false},
-		}
-	}
-	d.Set("master_auth", masterAuth)
-
-	if cluster.MasterAuthorizedNetworksConfig != nil {
-		d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig))
-	}
-
+	d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy))
+	d.Set("master_auth", flattenMasterAuth(cluster.MasterAuth))
+	d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig))
 	d.Set("initial_node_count", cluster.InitialNodeCount)
 	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
@@ -759,19 +735,16 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	d.Set("project", project)
-	if cluster.AddonsConfig != nil {
-		d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
-	}
+	d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
+
 	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
 	if err != nil {
 		return err
 	}
 	d.Set("node_pool", nps)
 
-	if cluster.IpAllocationPolicy != nil {
-		if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
-			return err
-		}
+	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
+		return err
 	}
 
 	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
@@ -780,10 +753,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("instance_group_urls", igUrls)
 	}
 
-	if cluster.PodSecurityPolicyConfig != nil {
-		if err := d.Set("pod_security_policy_config", flattenPodSecurityPolicyConfig(cluster.PodSecurityPolicyConfig)); err != nil {
-			return err
-		}
+	if err := d.Set("pod_security_policy_config", flattenPodSecurityPolicyConfig(cluster.PodSecurityPolicyConfig)); err != nil {
+		return err
 	}
 
 	d.Set("private_cluster", cluster.PrivateCluster)
@@ -1386,6 +1357,9 @@ func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface
 
 func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]interface{} {
 	result := make(map[string]interface{})
+	if c == nil {
+		return nil
+	}
 	if c.HorizontalPodAutoscaling != nil {
 		result["horizontal_pod_autoscaling"] = []map[string]interface{}{
 			{
@@ -1433,6 +1407,9 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 }
 
 func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return []map[string]interface{}{
 		{
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
@@ -1442,6 +1419,9 @@ func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy) []map[string
 }
 
 func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]interface{} {
+	if mp == nil {
+		return nil
+	}
 	return []map[string]interface{}{
 		{
 			"daily_maintenance_window": []map[string]interface{}{
@@ -1454,7 +1434,31 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 	}
 }
 
+func flattenMasterAuth(ma *containerBeta.MasterAuth) []map[string]interface{} {
+	if ma == nil {
+		return nil
+	}
+	masterAuth := []map[string]interface{}{
+		{
+			"username":               ma.Username,
+			"password":               ma.Password,
+			"client_certificate":     ma.ClientCertificate,
+			"client_key":             ma.ClientKey,
+			"cluster_ca_certificate": ma.ClusterCaCertificate,
+		},
+	}
+	if len(ma.ClientCertificate) == 0 {
+		masterAuth[0]["client_certificate_config"] = []map[string]interface{}{
+			{"issue_client_certificate": false},
+		}
+	}
+	return masterAuth
+}
+
 func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetworksConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	if len(c.CidrBlocks) == 0 {
 		return nil
 	}
@@ -1473,6 +1477,9 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 }
 
 func flattenPodSecurityPolicyConfig(c *containerBeta.PodSecurityPolicyConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return []map[string]interface{}{
 		{
 			"enabled": c.Enabled,
