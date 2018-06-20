@@ -143,7 +143,6 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 	}
 
 	// If role is not deleted, make sure it exists and undelete if needed.
-	// TODO(emilymye): Change deleted to computed so it can't be updated.
 	if !d.Get("deleted").(bool) {
 		r, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
 		if err != nil {

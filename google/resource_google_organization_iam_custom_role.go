@@ -138,7 +138,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 	}
 
 	// If role is not deleted, make sure it exists and undelete if needed.
-	// TODO(emilymye): Change deleted to computed so it can't be updated.
 	if !d.Get("deleted").(bool) {
 		r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
 		if err != nil {
