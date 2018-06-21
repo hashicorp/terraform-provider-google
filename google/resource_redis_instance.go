@@ -57,6 +57,7 @@ func resourceRedisInstance() *schema.Resource {
 			"alternative_location_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"authorized_network": {
