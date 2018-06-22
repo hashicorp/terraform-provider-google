@@ -1244,10 +1244,10 @@
 			"revisionTime": "2018-03-07T19:18:15Z"
 		},
 		{
-			"checksumSHA1": "jhyv7qysp0NZbWzAaUCsKATDGuk=",
+			"checksumSHA1": "dYC7kozZ5awpc9m6sB860CKaCe4=",
 			"path": "google.golang.org/api/bigquery/v2",
-			"revision": "672d215daf0631fcae4c08c2a4324a763aaaf789",
-			"revisionTime": "2017-10-29T00:03:09Z"
+			"revision": "3639d6d93f377f39a1de765fa4ef37b3c7ca8bd9",
+			"revisionTime": "2018-06-21T00:08:39Z"
 		},
 		{
 			"checksumSHA1": "I9nlJJGeNBvWlH7FLtRscT6NJhw=",
