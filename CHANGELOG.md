@@ -3,9 +3,11 @@
 FEATURES:
 
 IMPROVEMENTS:
+* compute: Autogenerate `compute_subnetwork` [GH-1661]
 * container: Allow specifying project when importing container_node_pool [GH-1653]
 * dns: Add update support for `dns_managed_zone` [GH-1617]
 * project: App Engine application fields can now be updated in-place where possible [GH-1621]
+* storage: Add `project` field for GCS service account data sorce [GH-1677]
 * sql: Attempting to shrink an `sql_database_instance`'s disk size will now force recreation of the resource [GH-1684]
 
 BUG FIXES:
@@ -15,6 +17,7 @@ BUG FIXES:
 * compute: `zone` field in `google_compute_disk` should be optional [GH-1631]
 * compute: name_prefix is no longer deprecated for SSL certificates [GH-1622]
 * compute: for global address ip_version, IPV4 and empty are equivalent. [GH-1639]
+* container: fix permadiff on `container_cluster`'s `pod_security_policy_config` [GH-1670]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 * iam: use same mutex for project_iam_policy as the other project_iam resources [GH-1645]
 * iam: don't error if service account key is already gone on delete [GH-1659]
