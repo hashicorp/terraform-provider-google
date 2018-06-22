@@ -20,6 +20,7 @@ BUG FIXES:
 * compute: fix default service account data source to actually set the email and project [GH-1690]
 * container: fix permadiff on `container_cluster`'s `pod_security_policy_config` [GH-1670]
 * container: removing sub-blocks of `container_cluster` like maintenance windows will now delete them from the API [GH-1685]
+* container: retry node pool writes on failed precondition [GH-1660]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 * iam: use same mutex for project_iam_policy as the other project_iam resources [GH-1645]
 * iam: don't error if service account key is already gone on delete [GH-1659]
