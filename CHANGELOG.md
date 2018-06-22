@@ -1,4 +1,4 @@
-## 1.14.1 (Unreleased)
+## 1.15.0 (Unreleased)
 
 FEATURES:
 
@@ -6,6 +6,7 @@ IMPROVEMENTS:
 * container: Allow specifying project when importing container_node_pool [GH-1653]
 * dns: Add update support for `dns_managed_zone` [GH-1617]
 * project: App Engine application fields can now be updated in-place where possible [GH-1621]
+* sql: Attempting to shrink an `sql_database_instance`'s disk size will now force recreation of the resource [GH-1684]
 
 BUG FIXES:
 * all: Check for done operations before waiting on them. This fixes a 403 we were getting when trying to enable already-enabled services. [GH-1632]
