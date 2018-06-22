@@ -13,10 +13,11 @@ import (
 
 func resourceStorageBucketAcl() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageBucketAclCreate,
-		Read:   resourceStorageBucketAclRead,
-		Update: resourceStorageBucketAclUpdate,
-		Delete: resourceStorageBucketAclDelete,
+		Create:        resourceStorageBucketAclCreate,
+		Read:          resourceStorageBucketAclRead,
+		Update:        resourceStorageBucketAclUpdate,
+		Delete:        resourceStorageBucketAclDelete,
+		CustomizeDiff: resourceStorageBucketAclCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -40,11 +41,39 @@ func resourceStorageBucketAcl() *schema.Resource {
 			"role_entity": &schema.Schema{
 				Type:          schema.TypeList,
 				Optional:      true,
+				Computed:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"predefined_acl"},
 			},
 		},
 	}
+}
+
+func resourceStorageBucketAclCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	keys := diff.GetChangedKeysPrefix("role_entity")
+	if len(keys) < 1 {
+		return nil
+	}
+	count := diff.Get("role_entity.#").(int)
+	if count < 1 {
+		return nil
+	}
+	state := map[string]struct{}{}
+	conf := map[string]struct{}{}
+	for i := 0; i < count; i++ {
+		old, new := diff.GetChange(fmt.Sprintf("role_entity.%d", i))
+		state[old.(string)] = struct{}{}
+		conf[new.(string)] = struct{}{}
+	}
+	if len(state) != len(conf) {
+		return nil
+	}
+	for k, _ := range state {
+		if _, ok := conf[k]; !ok {
+			return nil
+		}
+	}
+	return diff.Clear("role_entity")
 }
 
 type RoleEntity struct {
