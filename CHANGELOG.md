@@ -18,6 +18,7 @@ BUG FIXES:
 * compute: name_prefix is no longer deprecated for SSL certificates [GH-1622]
 * compute: for global address ip_version, IPV4 and empty are equivalent. [GH-1639]
 * container: fix permadiff on `container_cluster`'s `pod_security_policy_config` [GH-1670]
+* container: removing sub-blocks of `container_cluster` like maintenance windows will now delete them from the API [GH-1685]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
 * iam: use same mutex for project_iam_policy as the other project_iam resources [GH-1645]
 * iam: don't error if service account key is already gone on delete [GH-1659]
