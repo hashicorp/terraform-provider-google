@@ -17,6 +17,7 @@ BUG FIXES:
 * compute: `zone` field in `google_compute_disk` should be optional [GH-1631]
 * compute: name_prefix is no longer deprecated for SSL certificates [GH-1622]
 * compute: for global address ip_version, IPV4 and empty are equivalent. [GH-1639]
+* compute: fix default service account data source to actually set the email and project [GH-1690]
 * container: fix permadiff on `container_cluster`'s `pod_security_policy_config` [GH-1670]
 * container: removing sub-blocks of `container_cluster` like maintenance windows will now delete them from the API [GH-1685]
 * iam: Fixes issue with consecutive whitespace [GH-1625]
@@ -24,6 +25,7 @@ BUG FIXES:
 * iam: don't error if service account key is already gone on delete [GH-1659]
 * iam: Fix bug in v1.14 where service_account_key needed project set [GH-1664]
 * iot: fix updatemask so updates actually work [GH-1640]
+* storage: fix a permadiff in bucket ACL role entities [GH-1692]
 
 ## 1.14.0 (June 07, 2018)
 
