@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"testing"
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
@@ -61,7 +62,7 @@ func testAccDataSourceDnsManagedZone_basic() string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
 	name		= "qa-zone-%s"
-	dns_name	= "qa.test.com."
+	dns_name	= "qa.tf-test.club."
 	description	= "QA DNS zone"
 }
 
