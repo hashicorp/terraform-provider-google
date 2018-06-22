@@ -709,7 +709,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", cluster.Name)
-	d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy))
+	if err := d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy)); err != nil {
+		return err
+	}
 	d.Set("zone", cluster.Zone)
 
 	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
@@ -717,9 +719,15 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("additional_zones", locations)
 
 	d.Set("endpoint", cluster.Endpoint)
-	d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy))
-	d.Set("master_auth", flattenMasterAuth(cluster.MasterAuth))
-	d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig))
+	if err := d.Set("maintenance_policy", flattenMaintenancePolicy(cluster.MaintenancePolicy)); err != nil {
+		return err
+	}
+	if err := d.Set("master_auth", flattenMasterAuth(cluster.MasterAuth)); err != nil {
+		return err
+	}
+	if err := d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig)); err != nil {
+		return err
+	}
 	d.Set("initial_node_count", cluster.InitialNodeCount)
 	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
@@ -735,22 +743,28 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	d.Set("project", project)
-	d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig))
+	if err := d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig)); err != nil {
+
+	}
 
 	nps, err := flattenClusterNodePools(d, config, cluster.NodePools)
 	if err != nil {
 		return err
 	}
-	d.Set("node_pool", nps)
+	if err := d.Set("node_pool", nps); err != nil {
+		return err
+	}
 
 	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
 		return err
 	}
 
-	if igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls); err != nil {
+	igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, cluster.InstanceGroupUrls)
+	if err != nil {
 		return err
-	} else {
-		d.Set("instance_group_urls", igUrls)
+	}
+	if err := d.Set("instance_group_urls", igUrls); err != nil {
+		return err
 	}
 
 	if err := d.Set("pod_security_policy_config", flattenPodSecurityPolicyConfig(cluster.PodSecurityPolicyConfig)); err != nil {
