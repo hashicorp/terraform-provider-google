@@ -137,31 +137,31 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	descriptionProp, err := expandComputeSslPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeSslPolicyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	profileProp, err := expandComputeSslPolicyProfile(d.Get("profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, profileProp)) {
+	} else if v, ok := d.GetOkExists("profile"); !isEmptyValue(reflect.ValueOf(profileProp)) && (ok || !reflect.DeepEqual(v, profileProp)) {
 		obj["profile"] = profileProp
 	}
 	minTlsVersionProp, err := expandComputeSslPolicyMinTlsVersion(d.Get("min_tls_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("min_tls_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
+	} else if v, ok := d.GetOkExists("min_tls_version"); !isEmptyValue(reflect.ValueOf(minTlsVersionProp)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
 		obj["minTlsVersion"] = minTlsVersionProp
 	}
 	customFeaturesProp, err := expandComputeSslPolicyCustomFeatures(d.Get("custom_features"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("custom_features"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
+	} else if v, ok := d.GetOkExists("custom_features"); !isEmptyValue(reflect.ValueOf(customFeaturesProp)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
 		obj["customFeatures"] = customFeaturesProp
 	}
 
