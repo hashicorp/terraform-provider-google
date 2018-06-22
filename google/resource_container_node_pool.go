@@ -218,20 +218,34 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		NodePool: nodePool,
 	}
 
-	operation, err := config.clientContainerBeta.
-		Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+	timeout := d.Timeout(schema.TimeoutCreate)
+	startTime := time.Now()
 
+	var operation *containerBeta.Operation
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		operation, err = config.clientContainerBeta.
+			Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+
+		if err != nil {
+			if isFailedPreconditionError(err) {
+				// We get failed precondition errors if the cluster is updating
+				// while we try to add the node pool.
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
+	timeout -= time.Since(startTime)
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-
 	waitErr := containerBetaOperationWait(config,
 		operation, nodePoolInfo.project,
-		nodePoolInfo.location, "creating GKE NodePool", timeoutInMinutes, 3)
+		nodePoolInfo.location, "creating GKE NodePool", int(timeout.Minutes()), 3)
 
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -258,10 +272,6 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 		nodePool, err = config.clientContainerBeta.
 			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
-
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
 
 		if err != nil {
 			return resource.NonRetryableError(err)

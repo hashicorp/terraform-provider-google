@@ -166,6 +166,25 @@ func isApiNotEnabledError(err error) bool {
 	return false
 }
 
+func isFailedPreconditionError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 400 {
+		return false
+	}
+	for _, e := range gerr.Errors {
+		if e.Reason == "failedPrecondition" {
+			return true
+		}
+	}
+	return false
+}
+
 func isConflictError(err error) bool {
 	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
 		return true
