@@ -163,9 +163,9 @@ output "cluster_ca_certificate" {
     Structure is documented below.
 
 * `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
-    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, which makes
-    the worker nodes inaccessible from the public internet and nodes do not get public IP addresses either. It is mandatory to specify
-    `master_ipv4_cidr_block` and `ip_allocation_policy` with this option.
+    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
+    nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
+    `ip_allocation_policy` with this option.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
