@@ -130,6 +130,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		}
 
 	}
+
 	if len(role_entity) > 0 {
 		current, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
 		if err != nil {
@@ -210,6 +211,8 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.Set("role_entity", entities)
+	} else {
+		d.Set("role_entity", nil)
 	}
 
 	return nil
