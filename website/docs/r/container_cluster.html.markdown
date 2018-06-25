@@ -172,7 +172,7 @@ output "cluster_ca_certificate" {
 
 * `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
 
-* `resource_labels` - (Optional) The GCE resource labels (key/value pairs) to be applied to the cluster.
+* `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.

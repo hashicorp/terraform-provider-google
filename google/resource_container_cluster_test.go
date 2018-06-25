@@ -1163,13 +1163,15 @@ func TestAccContainerCluster_sharedVpc(t *testing.T) {
 func TestAccContainerCluster_withResourceLabels(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withResourceLabels(),
+				Config: testAccContainerCluster_withResourceLabels(clusterName),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_resource_labels",
@@ -2251,17 +2253,16 @@ resource "google_container_cluster" "shared_vpc_cluster" {
 }`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), name)
 }
 
-func testAccContainerCluster_withResourceLabels() string {
-	testId := acctest.RandString(10)
+func testAccContainerCluster_withResourceLabels(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_resource_labels" {
-	name = "tf-cluster-resourcelabel-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
-    initial_node_count = 1
-	
-    resource_labels {
-        created-by = "terraform"
-    }
+	initial_node_count = 1
+
+	resource_labels {
+		created-by = "terraform"
+	}
 }
-`, testId)
+`, clusterName)
 }
