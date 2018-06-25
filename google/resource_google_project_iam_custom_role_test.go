@@ -82,7 +82,12 @@ func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
+				Check: testAccCheckGoogleProjectIamCustomRole(
+					"google_project_iam_custom_role.foo",
+					"My Custom Role",
+					"foo",
+					"GA",
+					[]string{"iam.roles.list"}),
 			},
 			// Destroy resources
 			{
@@ -92,7 +97,12 @@ func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 			// Re-create with no existing state
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
+				Check: testAccCheckGoogleProjectIamCustomRole(
+					"google_project_iam_custom_role.foo",
+					"My Custom Role",
+					"foo",
+					"GA",
+					[]string{"iam.roles.list"}),
 			},
 		},
 	})
