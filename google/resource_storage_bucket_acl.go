@@ -130,6 +130,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		}
 
 	}
+
 	if len(role_entity) > 0 {
 		current, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
 		if err != nil {
@@ -210,6 +211,13 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.Set("role_entity", entities)
+	} else {
+		// if we don't set `role_entity` to nil (effectively setting it
+		// to empty in Terraform state), because it's computed now,
+		// Terraform will think it's missing from state, is supposed
+		// to be there, and throw up a diff for role_entity.#. So it
+		// must always be set in state.
+		d.Set("role_entity", nil)
 	}
 
 	return nil
