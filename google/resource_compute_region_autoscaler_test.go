@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -80,8 +81,9 @@ func testAccCheckComputeRegionAutoscalerDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		_, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err == nil {
 			return fmt.Errorf("Autoscaler still exists")
 		}
@@ -103,13 +105,14 @@ func testAccCheckComputeRegionAutoscalerExists(n string, ascaler *compute.Autosc
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		found, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("Autoscaler not found")
 		}
 
@@ -132,8 +135,9 @@ func testAccCheckComputeRegionAutoscalerUpdated(n string, max int64) resource.Te
 
 		config := testAccProvider.Meta().(*Config)
 
-		ascaler, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		ascaler, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err != nil {
 			return err
 		}
