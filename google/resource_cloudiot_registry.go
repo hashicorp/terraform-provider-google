@@ -225,7 +225,10 @@ func resourceCloudIoTRegistryCreate(d *schema.ResourceData, meta interface{}) er
 	registryId := fmt.Sprintf("%s/registries/%s", parent, deviceRegistry.Id)
 	d.SetId(registryId)
 
-	_, err = config.clientCloudIoT.Projects.Locations.Registries.Create(parent, deviceRegistry).Do()
+	err = retryTime(func() error {
+		_, err := config.clientCloudIoT.Projects.Locations.Registries.Create(parent, deviceRegistry).Do()
+		return err
+	}, 5)
 	if err != nil {
 		d.SetId("")
 		return err
