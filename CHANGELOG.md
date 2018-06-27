@@ -1,6 +1,11 @@
 ## 1.15.1 (Unreleased)
+
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
+
+BUG FIXES:
+* iot: Retry creation of Cloud IoT registry [GH-1713]
+
 ## 1.15.0 (June 25, 2018)
 
 FEATURES:
