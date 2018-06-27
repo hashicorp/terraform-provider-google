@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -111,8 +112,10 @@ func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
 			continue
 		}
 
+		idParts := strings.Split(rs.Primary.ID, "/")
+		zone, name := idParts[0], idParts[1]
 		_, err := config.clientCompute.Autoscalers.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, zone, name).Do()
 		if err == nil {
 			return fmt.Errorf("Autoscaler still exists")
 		}
@@ -134,13 +137,15 @@ func testAccCheckComputeAutoscalerExists(n string, ascaler *compute.Autoscaler) 
 
 		config := testAccProvider.Meta().(*Config)
 
+		idParts := strings.Split(rs.Primary.ID, "/")
+		zone, name := idParts[0], idParts[1]
 		found, err := config.clientCompute.Autoscalers.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, zone, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("Autoscaler not found")
 		}
 
@@ -163,13 +168,15 @@ func testAccCheckComputeAutoscalerMultifunction(n string) resource.TestCheckFunc
 
 		config := testAccProvider.Meta().(*Config)
 
+		idParts := strings.Split(rs.Primary.ID, "/")
+		zone, name := idParts[0], idParts[1]
 		found, err := config.clientCompute.Autoscalers.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, zone, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("Autoscaler not found")
 		}
 
@@ -196,8 +203,10 @@ func testAccCheckComputeAutoscalerUpdated(n string, max int64) resource.TestChec
 
 		config := testAccProvider.Meta().(*Config)
 
+		idParts := strings.Split(rs.Primary.ID, "/")
+		zone, name := idParts[0], idParts[1]
 		ascaler, err := config.clientCompute.Autoscalers.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, zone, name).Do()
 		if err != nil {
 			return err
 		}

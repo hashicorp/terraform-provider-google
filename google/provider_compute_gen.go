@@ -18,12 +18,14 @@ import "github.com/hashicorp/terraform/helper/schema"
 
 var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_address":            resourceComputeAddress(),
+	"google_compute_autoscaler":         resourceComputeAutoscaler(),
 	"google_compute_backend_bucket":     resourceComputeBackendBucket(),
 	"google_compute_disk":               resourceComputeDisk(),
 	"google_compute_forwarding_rule":    resourceComputeForwardingRule(),
 	"google_compute_global_address":     resourceComputeGlobalAddress(),
 	"google_compute_http_health_check":  resourceComputeHttpHealthCheck(),
 	"google_compute_https_health_check": resourceComputeHttpsHealthCheck(),
+	"google_compute_region_autoscaler":  resourceComputeRegionAutoscaler(),
 	"google_compute_route":              resourceComputeRoute(),
 	"google_compute_ssl_policy":         resourceComputeSslPolicy(),
 	"google_compute_subnetwork":         resourceComputeSubnetwork(),
