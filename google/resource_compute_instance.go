@@ -620,7 +620,7 @@ func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.D
 	return disk, err
 }
 
-func computeInstance(project string, zone *compute.Zone, d *schema.ResourceData, config *Config) (*computeBeta.Instance, error) {
+func expandComputeInstance(project string, zone *compute.Zone, d *schema.ResourceData, config *Config) (*computeBeta.Instance, error) {
 	// Get the machine type
 	var machineTypeUrl string
 	if mt, ok := d.GetOk("machine_type"); ok {
@@ -737,7 +737,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}
 
-	instance, err := computeInstance(project, zone, d, config)
+	instance, err := expandComputeInstance(project, zone, d, config)
 	if err != nil {
 		return err
 	}
@@ -817,7 +817,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	d.Set("network_interface", networkInterfaces)
+	if err := d.Set("network_interface", networkInterfaces); err != nil {
+		return err
+	}
 
 	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
 	// terraform is being used on a cloud instance and can therefore access the instances it creates
@@ -844,7 +846,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
 	}
 
-	d.Set("labels", instance.Labels)
+	if err := d.Set("labels", instance.Labels); err != nil {
+		return err
+	}
 
 	if instance.LabelFingerprint != "" {
 		d.Set("label_fingerprint", instance.LabelFingerprint)

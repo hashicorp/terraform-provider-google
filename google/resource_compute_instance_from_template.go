@@ -32,6 +32,13 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 		s[field].Required = false
 	}
 
+	// Remove deprecated/removed fields that are never d.Set. We can't
+	// programatically remove all of them, because some of them still have d.Set
+	// calls.
+	for _, field := range []string{"create_timeout", "disk", "network"} {
+		delete(s, field)
+	}
+
 	recurseOnSchema(s, func(field *schema.Schema) {
 		// We don't want to accidentally use default values to override the instance
 		// template, so remove defaults.
@@ -83,7 +90,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}
 
-	instance, err := computeInstance(project, zone, d, config)
+	instance, err := expandComputeInstance(project, zone, d, config)
 	if err != nil {
 		return err
 	}
@@ -99,15 +106,11 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		}
 
 		if _, exists := d.GetOkExists(f); exists {
+			// Assume for now that all fields are exact snake_case versions of the API fields.
+			// This won't necessarily always be true, but it serves as a good approximation and
+			// can be adjusted later as we discover issues.
 			instance.ForceSendFields = append(instance.ForceSendFields, strcase.UpperCamelCase(f))
 		}
-	}
-
-	// Read create timeout
-	// Until "create_timeout" is removed, use that timeout if set.
-	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
-		createTimeout = v.(int)
 	}
 
 	tpl, err := ParseInstanceTemplateFieldValue(d.Get("source_instance_template").(string), d, config)
@@ -125,7 +128,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	d.SetId(instance.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project, createTimeout, "instance to create")
+	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "instance to create")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
