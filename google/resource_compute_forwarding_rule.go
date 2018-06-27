@@ -669,26 +669,28 @@ func expandComputeForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData
 }
 
 func expandComputeForwardingRuleBackendService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from a partial self link.
 	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
 		return "", nil
 	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
 		return v, nil
 	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute v1 prefix on it.
 		return "https://www.googleapis.com/compute/v1/" + v.(string), nil
-	} else if strings.HasPrefix(v.(string), "regions/") {
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
 		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/")
 		if err != nil {
 			return nil, err
 		}
 		return url + v.(string), nil
-	} else if strings.HasPrefix(v.(string), "computeForwardingRule") {
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/")
-		if err != nil {
-			return nil, err
-		}
-		return url + v.(string), nil
 	}
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/computeForwardingRule/")
+	// Anything else is assumed to be a regional resource, with a partial link that begins with the resource name.
+	// This isn't very likely - it's a last-ditch effort to extract something useful here.  We can do a better job
+	// as soon as MultiResourceRefs are working since we'll know the types that this field is supposed to point to.
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/")
 	if err != nil {
 		return nil, err
 	}
@@ -732,11 +734,32 @@ func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData
 }
 
 func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("targetPools", v.(string), "project", "region", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for target: %s", err)
+	// This method returns a full self link from a partial self link.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute v1 prefix on it.
+		return "https://www.googleapis.com/compute/v1/" + v.(string), nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
 	}
-	return f.RelativeLink(), nil
+	// Anything else is assumed to be a regional resource, with a partial link that begins with the resource name.
+	// This isn't very likely - it's a last-ditch effort to extract something useful here.  We can do a better job
+	// as soon as MultiResourceRefs are working since we'll know the types that this field is supposed to point to.
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/")
+	if err != nil {
+		return nil, err
+	}
+	return url + v.(string), nil
 }
 
 func expandComputeForwardingRuleLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
