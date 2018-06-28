@@ -1,5 +1,8 @@
 ## 1.15.1 (Unreleased)
 
+FEATURES:
+* **New Resource**: `compute_instance_from_template` [GH-1652]
+
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
 
