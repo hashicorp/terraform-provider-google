@@ -116,6 +116,14 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+* `quic_override` -
+  (Optional)
+  Specifies the QUIC override policy for this resource. This determines
+  whether the load balancer will attempt to negotiate QUIC with clients
+  or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
+  specified, uses the QUIC policy with no user overrides, which is
+  equivalent to DISABLE. Not specifying this field is equivalent to
+  specifying NONE.
 * `ssl_policy` -
   (Optional)
   A reference to the SslPolicy resource that will be associated with
