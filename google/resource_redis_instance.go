@@ -75,6 +75,11 @@ func resourceRedisInstance() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"redis_configs": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"location_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -164,6 +169,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	redisConfigsProp, err := expandRedisInstanceRedisConfigs(d.Get("redis_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("redis_configs"); !isEmptyValue(reflect.ValueOf(redisConfigsProp)) && (ok || !reflect.DeepEqual(v, redisConfigsProp)) {
+		obj["redisConfigs"] = redisConfigsProp
 	}
 	locationIdProp, err := expandRedisInstanceLocationId(d.Get("location_id"), d, config)
 	if err != nil {
@@ -296,6 +307,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("labels", flattenRedisInstanceLabels(res["labels"])); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("redis_configs", flattenRedisInstanceRedisConfigs(res["redisConfigs"])); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("location_id", flattenRedisInstanceLocationId(res["locationId"])); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -360,6 +374,12 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	redisConfigsProp, err := expandRedisInstanceRedisConfigs(d.Get("redis_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("redis_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, redisConfigsProp)) {
+		obj["redisConfigs"] = redisConfigsProp
+	}
 	locationIdProp, err := expandRedisInstanceLocationId(d.Get("location_id"), d, config)
 	if err != nil {
 		return err
@@ -419,6 +439,9 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 	if d.HasChange("memory_size_gb") {
 		updateMask = append(updateMask, "memorySizeGb")
+	}
+	if d.HasChange("redis_configs") {
+		updateMask = append(updateMask, "redisConfigs")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -528,6 +551,10 @@ func flattenRedisInstanceLabels(v interface{}) interface{} {
 	return v
 }
 
+func flattenRedisInstanceRedisConfigs(v interface{}) interface{} {
+	return v
+}
+
 func flattenRedisInstanceLocationId(v interface{}) interface{} {
 	return v
 }
@@ -589,6 +616,17 @@ func expandRedisInstanceDisplayName(v interface{}, d *schema.ResourceData, confi
 }
 
 func expandRedisInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandRedisInstanceRedisConfigs(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
