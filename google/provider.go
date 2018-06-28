@@ -120,6 +120,7 @@ func Provider() terraform.ResourceProvider {
 				"google_compute_health_check":                  resourceComputeHealthCheck(),
 				"google_compute_image":                         resourceComputeImage(),
 				"google_compute_instance":                      resourceComputeInstance(),
+				"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
 				"google_compute_instance_group":                resourceComputeInstanceGroup(),
 				"google_compute_instance_group_manager":        resourceComputeInstanceGroupManager(),
 				"google_compute_instance_template":             resourceComputeInstanceTemplate(),
