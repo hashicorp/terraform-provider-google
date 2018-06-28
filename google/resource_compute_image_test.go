@@ -29,6 +29,7 @@ func TestAccComputeImage_basic(t *testing.T) {
 					testAccCheckComputeImageFamily(&image, "family-test"),
 					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckComputeImageContainsLicense(&image, "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"),
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
@@ -184,6 +185,19 @@ func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, val
 	}
 }
 
+func testAccCheckComputeImageContainsLicense(image *compute.Image, expectedLicense string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		for _, thisLicense := range image.Licenses {
+			if thisLicense == expectedLicense {
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Expected license '%s' was not found", expectedLicense)
+	}
+}
+
 func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if v, ok := image.Labels[key]; ok {
@@ -239,6 +253,9 @@ resource "google_compute_image" "foobar" {
 		my-label = "my-label-value"
 		empty-label = ""
 	}
+	licenses = [
+		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
+	]
 }`, name)
 }
 
@@ -256,6 +273,9 @@ resource "google_compute_image" "foobar" {
 		empty-label = "oh-look-theres-a-label-now"
 		new-field = "only-shows-up-when-updated"
 	}
+	licenses = [
+		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
+	]
 }`, name)
 }
 
