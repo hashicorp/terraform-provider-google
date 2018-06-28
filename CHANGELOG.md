@@ -1,4 +1,4 @@
-## 1.15.1 (Unreleased)
+## 1.16.0 (Unreleased)
 
 FEATURES:
 * **New Resource**: `compute_instance_from_template` [GH-1652]
