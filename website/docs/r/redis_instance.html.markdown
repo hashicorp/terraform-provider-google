@@ -53,6 +53,8 @@ resource "google_redis_instance" "test" {
   region                  = "us-central1"
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
+  
+  authorized_network = "${google_compute_network.test.self_link}"
 
   redis_version     = "REDIS_3_2"
   display_name      = "Terraform Test Instance"
