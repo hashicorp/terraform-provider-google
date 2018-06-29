@@ -892,6 +892,9 @@ func flattenComputeDiskImage(v interface{}) interface{} {
 }
 
 func flattenComputeDiskType(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
@@ -900,6 +903,9 @@ func flattenComputeDiskUsers(v interface{}) interface{} {
 }
 
 func flattenComputeDiskZone(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 

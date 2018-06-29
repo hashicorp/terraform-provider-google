@@ -344,6 +344,9 @@ func flattenComputeAddressUsers(v interface{}) interface{} {
 }
 
 func flattenComputeAddressRegion(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 

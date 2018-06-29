@@ -265,6 +265,9 @@ func flattenComputeVpnGatewayNetwork(v interface{}) interface{} {
 }
 
 func flattenComputeVpnGatewayRegion(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
