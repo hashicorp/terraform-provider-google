@@ -226,6 +226,7 @@ resource "google_compute_target_https_proxy" "foobar" {
 		"${google_compute_ssl_certificate.foobar1.self_link}",
 		"${google_compute_ssl_certificate.foobar2.self_link}",
 	]
+	quic_override = "ENABLE"
 }
 
 resource "google_compute_backend_service" "foobar" {
