@@ -241,6 +241,9 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 }
 
 func flattenResourceManagerLienName(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
