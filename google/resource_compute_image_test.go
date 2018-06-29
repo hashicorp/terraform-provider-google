@@ -29,6 +29,32 @@ func TestAccComputeImage_basic(t *testing.T) {
 					testAccCheckComputeImageFamily(&image, "family-test"),
 					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_withLicense(t *testing.T) {
+	t.Parallel()
+
+	var image compute.Image
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageDescription(&image, "description-test"),
+					testAccCheckComputeImageFamily(&image, "family-test"),
+					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
+					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
 					testAccCheckComputeImageContainsLicense(&image, "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"),
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
@@ -253,6 +279,23 @@ resource "google_compute_image" "foobar" {
 		my-label = "my-label-value"
 		empty-label = ""
 	}
+}`, name)
+}
+
+func testAccComputeImage_license(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+	name = "%s"
+	description = "description-test"
+	family = "family-test"
+	raw_disk {
+	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+	}
+	create_timeout = 5
+	labels = {
+		my-label = "my-label-value"
+		empty-label = ""
+	}
 	licenses = [
 		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
 	]
@@ -273,9 +316,6 @@ resource "google_compute_image" "foobar" {
 		empty-label = "oh-look-theres-a-label-now"
 		new-field = "only-shows-up-when-updated"
 	}
-	licenses = [
-		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
-	]
 }`, name)
 }
 
