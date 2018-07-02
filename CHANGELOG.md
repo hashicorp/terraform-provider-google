@@ -6,6 +6,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
 * compute: add `quic_override` to `google_compute_target_https_proxy` [GH-1718]
+* redis: Support Redis Configuration [GH-1706]
 
 BUG FIXES:
 * iot: Retry creation of Cloud IoT registry [GH-1713]
