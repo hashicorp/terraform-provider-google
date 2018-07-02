@@ -98,6 +98,9 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+* `redis_configs` -
+  (Optional)
+  Redis configuration parameters, according to http://redis.io/topics/config.
 * `location_id` -
   (Optional)
   The zone where the instance will be provisioned. If not provided,
