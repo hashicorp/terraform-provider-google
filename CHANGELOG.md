@@ -6,6 +6,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
 * compute: add `quic_override` to `google_compute_target_https_proxy` [GH-1718]
+* container: add ability to configure resource labels on `google_container_cluster` [GH-1663]
 * redis: Support Redis Configuration [GH-1706]
 
 BUG FIXES:
