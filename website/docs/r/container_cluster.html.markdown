@@ -133,7 +133,7 @@ output "cluster_ca_certificate" {
     official release (which is not necessarily the latest version).
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
-    should write metrics to. 
+    should write metrics to.
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
     VM metrics will be collected by Google Compute Engine regardless of this setting
     Available options include
@@ -181,10 +181,10 @@ The `addons_config` block supports:
 
 * `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod Autoscaling
     addon, which increases or decreases the number of replica pods a replication controller
-    has based on the resource usage of the existing pods. 
+    has based on the resource usage of the existing pods.
     It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
     It is enabled by default;
-    set `disabled = true` to disable. 
+    set `disabled = true` to disable.
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
@@ -279,7 +279,10 @@ The `node_config` block supports:
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
-* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. 
+* `disk_type` - (Optional) Type of the disk attached to each node
+    (e.g. 'pd-standard' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
 
 * `image_type` - (Optional) The image type to use for this node.
