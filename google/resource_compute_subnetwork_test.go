@@ -171,7 +171,69 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 	})
 }
 
-func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
+func TestAccComputeSubnetwork_createFlowLogsEnabled(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSubnetwork_createFlowLogsDisabled(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSubnetwork_updateFlowLogs(t *testing.T) {
 	t.Parallel()
 
 	var subnetwork compute.Subnetwork
