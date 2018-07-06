@@ -540,6 +540,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		if locationsSet.Contains(location) {
 			return fmt.Errorf("additional_zones should not contain the original 'zone'")
 		}
+		// Remove empty string
+		if locationsSet.Contains("") {
+			locationsSet.Remove("")
+		}
 		if isZone(location) {
 			// GKE requires a full list of locations (including the original zone),
 			// but our schema only asks for additional zones, so append the original.
@@ -730,6 +734,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
 	locations.Remove(cluster.Zone) // Remove the original zone since we only store additional zones
+	locations.Remove("")           // Remove empty string
 	d.Set("additional_zones", locations)
 
 	d.Set("endpoint", cluster.Endpoint)
@@ -954,6 +959,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		azSetOld := azSetOldI.(*schema.Set)
 		if azSetNew.Contains(location) {
 			return fmt.Errorf("additional_zones should not contain the original 'zone'")
+		}
+		// Remove empty string
+		if azSetNew.Contains("") {
+			azSetNew.Remove("")
 		}
 		// Since we can't add & remove zones in the same request, first add all the
 		// zones, then remove the ones we aren't using anymore.
