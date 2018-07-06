@@ -42,6 +42,8 @@ data "google_iam_policy" "admin" {
 
 ## google\_project\_iam\_binding
 
+~> **Note:** If `role` is set to `roles/owner` and you don't specify a user or service account you have access to in `members`, you can lock yourself out of your project.
+
 ```hcl
 resource "google_project_iam_binding" "project" {
   project = "your-project-id"
