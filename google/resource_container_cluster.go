@@ -24,7 +24,7 @@ var (
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				MaxItems: 10,
+				MaxItems: 20,
 				Elem:     cidrBlockConfig,
 			},
 		},
