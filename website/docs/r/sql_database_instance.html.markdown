@@ -34,7 +34,6 @@ resource "google_sql_database_instance" "master" {
 }
 ```
 
-
 ### SQL Second generation
 
 ```hcl
@@ -47,6 +46,64 @@ resource "google_sql_database_instance" "master" {
     # Second-generation instance tiers are based on the machine
     # type. See argument reference below.
     tier = "db-f1-micro"
+  }
+}
+```
+
+### Granular restriction of network access
+
+```hcl
+resource "google_compute_instance" "apps" {
+  count        = 8
+  name         = "apps-${count.index + 1}"
+  machine_type = "f1-micro"
+  
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-1804-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+}
+
+data "null_data_source" "auth_netw_postgres_allowed_1" {
+  count = "${length(google_compute_instance.apps.*.self_link)}"
+
+  inputs = {
+    name  = "apps-${count.index + 1}"
+    value = "${element(google_compute_instance.apps.*.network_interface.0.access_config.0.assigned_nat_ip, count.index)}"
+  }
+}
+
+data "null_data_source" "auth_netw_postgres_allowed_2" {
+  count = 2
+
+  inputs = {
+    name  = "onprem-${count.index + 1}"
+    value = "${element(list("192.168.1.2", "192.168.2.3"), count.index)}"
+  }
+}
+
+resource "google_sql_database_instance" "postgres" {
+  name = "postgres-instance"
+  database_version = "POSTGRES_9_6"
+
+  settings {
+    tier = "db-f1-micro"
+    
+    ip_configuration {
+      authorized_networks = [
+        "${data.null_data_source.auth_netw_postgres_allowed_1.*.outputs}",
+        "${data.null_data_source.auth_netw_postgres_allowed_2.*.outputs}",
+      ]
+    }
   }
 }
 ```
