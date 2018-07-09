@@ -292,10 +292,11 @@ func resourceComputeDisk() *schema.Resource {
 				DiffSuppressFunc: diskImageDiffSuppress,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "pd-standard",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Default:          "pd-standard",
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -1009,7 +1010,11 @@ func expandComputeDiskImage(v interface{}, d *schema.ResourceData, config *Confi
 }
 
 func expandComputeDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	f, err := parseZonalFieldValue("diskTypes", v.(string), "project", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for type: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func expandComputeDiskZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
