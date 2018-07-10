@@ -210,9 +210,14 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 
 func testAccComputeSnapshot_basic(snapshotName, diskName, labelValue string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	name    = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160921"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -231,8 +236,13 @@ resource "google_compute_snapshot" "foobar" {
 func testAccComputeSnapshot_encryption(snapshotName string, diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
+data "google_compute_image" "my_image" {
+	name    = "debian-9"
+	project = "debian-cloud"
+}
+
 	name = "%s"
-	image = "debian-8-jessie-v20160921"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
