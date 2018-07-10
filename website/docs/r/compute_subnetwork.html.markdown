@@ -119,7 +119,7 @@ The following arguments are supported:
   assigned external IP addresses.
 * `region` -
   (Optional)
-  URL of the GCP region for this subnetwork.
+  URL of the region where the subnetwork resides
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
