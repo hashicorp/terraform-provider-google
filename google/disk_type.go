@@ -15,7 +15,7 @@ func readDiskType(c *Config, zone *compute.Zone, project, name string) (*compute
 	}
 }
 
-// readDiskType finds the disk type with the given name.
+// readRegionDiskType finds the disk type with the given name.
 func readRegionDiskType(c *Config, region *compute.Region, project, name string) (*computeBeta.DiskType, error) {
 	diskType, err := c.clientComputeBeta.RegionDiskTypes.Get(project, region.Name, name).Do()
 	if err == nil && diskType != nil && diskType.SelfLink != "" {
