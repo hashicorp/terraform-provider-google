@@ -83,6 +83,7 @@ resource "google_compute_http_health_check" "default" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -92,13 +93,14 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
+
 * `url_map` -
   (Required)
   A reference to the UrlMap resource that defines the mapping from URL
   to the BackendService.
 
-
 - - -
+
 
 * `description` -
   (Optional)
@@ -111,8 +113,10 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `proxy_id` -
   The unique identifier for the resource.
 * `self_link` - The URI of the created resource.

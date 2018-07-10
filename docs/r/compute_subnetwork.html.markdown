@@ -76,12 +76,14 @@ To get more information about Subnetwork, see:
 
 The following arguments are supported:
 
+
 * `ip_cidr_range` -
   (Required)
   The range of internal addresses that are owned by this subnetwork.
   Provide this property when you create the subnetwork. For example,
   10.0.0.0/8 or 192.168.0.0/16. Ranges must be unique and
   non-overlapping within a network. Only IPv4 is supported.
+
 * `name` -
   (Required)
   The name of the resource, provided by the client when initially
@@ -91,32 +93,37 @@ The following arguments are supported:
   means the first character must be a lowercase letter, and all
   following characters must be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
+
 * `network` -
   (Required)
   The network this subnet belongs to.
   Only networks that are in the distributed mode can have subnetworks.
 
-
 - - -
+
 
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
   you create the resource. This field can be set only at resource
   creation time.
+
 * `enable_flow_logs` -
   (Optional)
   Whether to enable flow logging for this subnetwork.
+
 * `secondary_ip_range` -
   (Optional)
   An array of configurations for secondary IP ranges for VM instances
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.  Structure is documented below.
+
 * `private_ip_google_access` -
   (Optional)
   Whether the VMs in this subnet can access Google services without
   assigned external IP addresses.
+
 * `region` -
   (Optional)
   URL of the GCP region for this subnetwork.
@@ -124,12 +131,14 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 The `secondary_ip_range` block supports:
+
 * `range_name` -
   (Required)
   The name associated with this subnetwork secondary range, used
   when adding an alias IP range to a VM instance. The name must
   be 1-63 characters long, and comply with RFC1035. The name
   must be unique within the subnetwork.
+
 * `ip_cidr_range` -
   (Required)
   The range of IP addresses belonging to this subnetwork secondary
@@ -142,11 +151,14 @@ The `secondary_ip_range` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
+
 * `fingerprint` -
   Fingerprint of this resource. This field is used internally during
   updates of this resource.

@@ -48,21 +48,25 @@ resource "google_resourcemanager_lien" "lien" {
 
 The following arguments are supported:
 
+
 * `reason` -
   (Required)
   Concise user-visible strings indicating why an action cannot be performed
   on a resource. Maximum length of 200 characters.
+
 * `origin` -
   (Required)
   A stable, user-visible/meaningful string identifying the origin
   of the Lien, intended to be inspected programmatically. Maximum length of
   200 characters.
+
 * `parent` -
   (Required)
   A reference to the resource this Lien is attached to.
   The server will validate the parent against those for which Liens are supported.
   Since a variety of objects can have Liens against them, you must provide the type
   prefix (e.g. "projects/my-project-name").
+
 * `restrictions` -
   (Required)
   The types of operations which should be blocked as a result of this Lien.
@@ -70,7 +74,6 @@ The following arguments are supported:
   the permissions against those for which Liens are supported.  An empty
   list is meaningless and will be rejected.
   e.g. ['resourcemanager.projects.delete']
-
 
 - - -
 
@@ -80,8 +83,10 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `name` -
   A system-generated unique identifier for this Lien.
+
 * `create_time` -
   Time of creation
 
