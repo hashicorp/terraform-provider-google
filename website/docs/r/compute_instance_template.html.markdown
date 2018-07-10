@@ -206,7 +206,8 @@ The `disk` block supports:
     read-write mode.
 
 * `source` - (Required if source_image not set) The name of the disk (such as
-    those managed by `google_compute_disk`) to attach.
+    those managed by `google_compute_disk`) to attach. This cannot be a regional
+    disk.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
     `"local-ssd"`, or `"pd-standard"`.

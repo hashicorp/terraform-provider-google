@@ -251,7 +251,7 @@ func resourceComputeInstance() *schema.Resource {
 						"source": &schema.Schema{
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
 						"device_name": &schema.Schema{
@@ -863,11 +863,22 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			continue
 		}
 		disk := v.(map[string]interface{})
-		source, err := ParseDiskFieldValue(disk["source"].(string), d, config)
-		if err != nil {
-			return err
+		s := disk["source"].(string)
+		var sourceLink string
+		if strings.Contains(s, "regions/") {
+			source, err := ParseRegionDiskFieldValue(disk["source"].(string), d, config)
+			if err != nil {
+				return err
+			}
+			sourceLink = source.RelativeLink()
+		} else {
+			source, err := ParseDiskFieldValue(disk["source"].(string), d, config)
+			if err != nil {
+				return err
+			}
+			sourceLink = source.RelativeLink()
 		}
-		attachedDiskSources[source.RelativeLink()] = i
+		attachedDiskSources[sourceLink] = i
 	}
 
 	attachedDisks := make([]map[string]interface{}, d.Get("attached_disk.#").(int))
@@ -878,11 +889,21 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 		} else {
-			source, err := ParseDiskFieldValue(disk.Source, d, config)
-			if err != nil {
-				return err
+			var sourceLink string
+			if strings.Contains(disk.Source, "regions/") {
+				source, err := ParseRegionDiskFieldValue(disk.Source, d, config)
+				if err != nil {
+					return err
+				}
+				sourceLink = source.RelativeLink()
+			} else {
+				source, err := ParseDiskFieldValue(disk.Source, d, config)
+				if err != nil {
+					return err
+				}
+				sourceLink = source.RelativeLink()
 			}
-			adIndex, inConfig := attachedDiskSources[source.RelativeLink()]
+			adIndex, inConfig := attachedDiskSources[sourceLink]
 			di := map[string]interface{}{
 				"source":      ConvertSelfLinkToV1(disk.Source),
 				"device_name": disk.DeviceName,
@@ -1408,13 +1429,24 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
 	config := meta.(*Config)
 
-	source, err := ParseDiskFieldValue(diskConfig["source"].(string), d, config)
-	if err != nil {
-		return nil, err
+	s := diskConfig["source"].(string)
+	var sourceLink string
+	if strings.Contains(s, "regions/") {
+		source, err := ParseRegionDiskFieldValue(s, d, config)
+		if err != nil {
+			return nil, err
+		}
+		sourceLink = source.RelativeLink()
+	} else {
+		source, err := ParseDiskFieldValue(s, d, config)
+		if err != nil {
+			return nil, err
+		}
+		sourceLink = source.RelativeLink()
 	}
 
 	disk := &computeBeta.AttachedDisk{
-		Source: source.RelativeLink(),
+		Source: sourceLink,
 	}
 
 	if v, ok := diskConfig["mode"]; ok {
