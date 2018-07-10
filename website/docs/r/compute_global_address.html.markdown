@@ -42,6 +42,7 @@ resource "google_compute_global_address" "default" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -52,13 +53,14 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
-
 - - -
+
 
 * `description` -
   (Optional)
   An optional description of this resource.
   Provide this property when you create the resource.
+
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. Valid options are
@@ -71,8 +73,10 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `address` -
   The static external IP address represented by this resource.
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 * `self_link` - The URI of the created resource.

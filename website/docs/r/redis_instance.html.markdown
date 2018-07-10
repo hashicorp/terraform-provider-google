@@ -71,15 +71,17 @@ resource "google_redis_instance" "test" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   The ID of the instance or a fully qualified identifier for the instance.
+
 * `memory_size_gb` -
   (Required)
   Redis memory size in GiB.
 
-
 - - -
+
 
 * `alternative_location_id` -
   (Optional)
@@ -87,20 +89,25 @@ The following arguments are supported:
   against zonal failures by provisioning it across two zones.
   If provided, it must be a different zone from the one provided in
   [locationId].
+
 * `authorized_network` -
   (Optional)
   The full name of the Google Compute Engine network to which the
   instance is connected. If left unspecified, the default network
   will be used.
+
 * `display_name` -
   (Optional)
   An arbitrary and optional user-provided name for the instance.
+
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+
 * `redis_configs` -
   (Optional)
   Redis configuration parameters, according to http://redis.io/topics/config.
+
 * `location_id` -
   (Optional)
   The zone where the instance will be provisioned. If not provided,
@@ -108,12 +115,14 @@ The following arguments are supported:
   instances will be created across two zones for protection against
   zonal failures. If [alternativeLocationId] is also provided, it must
   be different from [locationId].
+
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
   version will be used. Updating the version will perform an
   upgrade/downgrade to the new version. Currently, the supported values
   are REDIS_3_2 for Redis 3.2.
+
 * `reserved_ip_range` -
   (Optional)
   The CIDR range of internal addresses that are reserved for this
@@ -121,12 +130,13 @@ The following arguments are supported:
   block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
   unique and non-overlapping with existing subnets in an authorized
   network.
+
 * `tier` -
   (Optional)
   The service tier of the instance. Must be one of these values:
-
   - BASIC: standalone instance
   - STANDARD_HA: highly available primary/replica instances
+
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
@@ -138,18 +148,22 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `create_time` -
   The time the instance was created in RFC3339 UTC "Zulu" format,
   accurate to nanoseconds.
+
 * `current_location_id` -
   The current zone where the Redis endpoint is placed.
   For Basic Tier instances, this will always be the same as the
   [locationId] provided by the user at creation time. For Standard Tier
   instances, this can be either [locationId] or [alternativeLocationId]
   and can change after a failover event.
+
 * `host` -
   Hostname or IP address of the exposed Redis endpoint used by clients
   to connect to the service.
+
 * `port` -
   The port number of the exposed Redis endpoint.
 

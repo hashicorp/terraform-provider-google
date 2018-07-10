@@ -74,6 +74,7 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. The name must be 1-63 characters long, and
@@ -83,8 +84,8 @@ The following arguments are supported:
   following characters must be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
 
-
 - - -
+
 
 * `address` -
   (Optional)
@@ -92,24 +93,29 @@ The following arguments are supported:
   IPv4 is supported. An address may only be specified for INTERNAL
   address types. The IP address must be inside the specified subnetwork,
   if any.
+
 * `address_type` -
   (Optional)
   The type of address to reserve, either INTERNAL or EXTERNAL.
   If unspecified, defaults to EXTERNAL.
+
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `network_tier` -
   (Optional)
   The networking tier used for configuring this address. This field can
   take the following values: PREMIUM or STANDARD. If this field is not
   specified, it is assumed to be PREMIUM.
+
 * `subnetwork` -
   (Optional)
   The URL of the subnetwork in which to reserve the address. If an IP
   address is specified, it must be within the subnetwork's IP range.
   This field can only be used with INTERNAL type with
   GCE_ENDPOINT/DNS_RESOLVER purposes.
+
 * `region` -
   (Optional)
   The Region in which the created address should reside.
@@ -122,14 +128,17 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `users` -
   The URLs of the resources that are using this address.
 * `self_link` - The URI of the created resource.
 
 
 * `address`: The IP of the created resource.
+
 ## Timeouts
 
 This resource provides the following
