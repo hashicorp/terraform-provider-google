@@ -201,7 +201,7 @@ func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]s
 		ctx := context.Background()
 		return config.clientServiceUsage.Services.
 			List("projects/"+pid).
-			Fields("services/name").
+			Fields("services/name,nextPageToken").
 			Filter("state:ENABLED").
 			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
 				for _, v := range r.Services {
