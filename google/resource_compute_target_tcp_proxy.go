@@ -370,7 +370,7 @@ func flattenComputeTargetTcpProxyProxyHeader(v interface{}) interface{} {
 }
 
 func flattenComputeTargetTcpProxyBackendService(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {

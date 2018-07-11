@@ -362,7 +362,7 @@ func flattenComputeRouteName(v interface{}) interface{} {
 }
 
 func flattenComputeRouteNetwork(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRoutePriority(v interface{}) interface{} {

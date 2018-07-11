@@ -518,11 +518,11 @@ func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v i
 }
 
 func flattenComputeAutoscalerTarget(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeAutoscalerZone(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeAutoscalerName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
