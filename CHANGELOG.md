@@ -12,6 +12,7 @@ IMPROVEMENTS:
 * redis: Support Redis Configuration [GH-1706]
 
 BUG FIXES:
+* compute: Fix opportunistic rolling updates for instance group managers [GH-1742]
 * iot: Retry creation of Cloud IoT registry [GH-1713]
 
 ## 1.15.0 (June 25, 2018)
