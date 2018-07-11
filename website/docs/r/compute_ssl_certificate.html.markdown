@@ -22,6 +22,35 @@ resource "google_compute_ssl_certificate" "default" {
   description = "a description"
   private_key = "${file("path/to/private.key")}"
   certificate = "${file("path/to/certificate.crt")}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# You may also want to control name generation explicitly:
+
+resource "random_id" "certificate" {
+  byte_length = 4
+  prefix      = "my-certificate-"
+
+  # For security, do not expose raw certificate values in the output
+  keepers {
+    private_key = "${base64sha256(file("path/to/private.key"))}"
+    certificate = "${base64sha256(file("path/to/certificate.crt"))}"
+  }
+}
+
+resource "google_compute_ssl_certificate" "default" {
+  # The name will contain 8 random hex digits,
+  # e.g. "my-certificate-48ab27cd2a"
+  name        = "${random_id.certificate.hex}"
+  private_key = "${file("path/to/private.key")}"
+  certificate = "${file("path/to/certificate.crt")}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 ```
 
@@ -32,8 +61,8 @@ specified configuration, Terraform will destroy the existing resource
 and create a replacement. To effectively use an SSL certificate resource
 with a [Target HTTPS Proxy resource][1], it's recommended to specify
 `create_before_destroy` in a [lifecycle][2] block. Either omit the
-Instance Template `name` attribute, or specify a partial name with
-`name_prefix`.  Example:
+Instance Template `name` attribute, specify a partial name with
+`name_prefix`, or use [random_id][3] resource.  Example:
 
 ```hcl
 resource "google_compute_ssl_certificate" "default" {
@@ -90,6 +119,7 @@ exported:
 
 [1]: /docs/providers/google/r/compute_target_https_proxy.html
 [2]: /docs/configuration/resources.html#lifecycle
+[3]: /docs/providers/random/r/id.html
 
 ## Import
 
