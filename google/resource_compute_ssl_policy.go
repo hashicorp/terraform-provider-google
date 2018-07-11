@@ -297,6 +297,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	obj, err = resourceComputeSslPolicyUpdateEncoder(d, meta, obj)
+
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return err

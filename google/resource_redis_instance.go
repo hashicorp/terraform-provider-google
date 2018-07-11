@@ -424,6 +424,7 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
+
 	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
