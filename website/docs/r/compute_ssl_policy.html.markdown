@@ -56,6 +56,7 @@ resource "google_compute_ssl_policy" "custom-ssl-policy" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -66,12 +67,13 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
-
 - - -
+
 
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `profile` -
   (Optional)
   Profile specifies the set of SSL features that can be used by the
@@ -79,17 +81,18 @@ The following arguments are supported:
   `COMPATIBLE`, `MODERN`, `RESTRICTED`, or `CUSTOM`. If using `CUSTOM`,
   the set of SSL features to enable must be specified in the
   `customFeatures` field.
-
   See the [official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies#profilefeaturesupport)
   for information on what cipher suites each profile provides. If
   `CUSTOM` is used, the `custom_features` attribute **must be set**.
   Default is `COMPATIBLE`.
+
 * `min_tls_version` -
   (Optional)
   The minimum version of SSL protocol that can be used by the clients
   to establish a connection with the load balancer. This can be one of
   `TLS_1_0`, `TLS_1_1`, `TLS_1_2`.
    Default is `TLS_1_0`.
+
 * `custom_features` -
   (Optional)
   Profile specifies the set of SSL features that can be used by the
@@ -97,7 +100,6 @@ The following arguments are supported:
   `COMPATIBLE`, `MODERN`, `RESTRICTED`, or `CUSTOM`. If using `CUSTOM`,
   the set of SSL features to enable must be specified in the
   `customFeatures` field.
-
   See the [official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies#profilefeaturesupport)
   for which ciphers are available to use. **Note**: this argument
   *must* be present when using the `CUSTOM` profile. This argument
@@ -110,10 +112,13 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `enabled_features` -
   The list of features enabled in the SSL policy.
+
 * `fingerprint` -
   Fingerprint of this resource. A hash of the contents stored in this
   object. This field is used in optimistic locking.

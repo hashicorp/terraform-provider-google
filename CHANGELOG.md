@@ -6,12 +6,14 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
 * compute: add `quic_override` to `google_compute_target_https_proxy` [GH-1718]
+* comppute: add support for licenses to `compute_image` [GH-1717]
 * container: add ability to configure resource labels on `google_container_cluster` [GH-1663]
 * container: increase max number of `master_authorized_networks` to 20 [GH-1733]
 * container: support specifying `disk_type` for `node_config` [GH-1665]
 * redis: Support Redis Configuration [GH-1706]
 
 BUG FIXES:
+* compute: Fix opportunistic rolling updates for instance group managers [GH-1742]
 * iot: Retry creation of Cloud IoT registry [GH-1713]
 
 ## 1.15.0 (June 25, 2018)

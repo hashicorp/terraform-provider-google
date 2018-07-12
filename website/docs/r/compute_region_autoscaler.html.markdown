@@ -94,6 +94,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. The name must be 1-63 characters long and match
@@ -101,31 +102,34 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
+
 * `autoscaling_policy` -
   (Required)
   The configuration parameters for the autoscaling algorithm. You can
   define one or more of the policies for an autoscaler: cpuUtilization,
   customMetricUtilizations, and loadBalancingUtilization.
-
   If none of these are specified, the default will be to autoscale based
   on cpuUtilization to 0.6 or 60%.  Structure is documented below.
+
 * `target` -
   (Required)
   URL of the managed instance group that this autoscaler will scale.
-
 The `autoscaling_policy` block supports:
+
 * `min_replicas` -
   (Required)
   The minimum number of replicas that the autoscaler can scale down
   to. This cannot be less than 0. If not provided, autoscaler will
   choose a default value depending on maximum number of instances
   allowed.
+
 * `max_replicas` -
   (Required)
   The maximum number of instances that the autoscaler can scale up
   to. This is required when creating or updating an autoscaler. The
   maximum number of replicas should not be lower than minimal number
   of replicas.
+
 * `cooldown_period` -
   (Optional)
   The number of seconds that the autoscaler should wait before it
@@ -133,59 +137,61 @@ The `autoscaling_policy` block supports:
   the autoscaler from collecting information when the instance is
   initializing, during which the collected usage would not be
   reliable. The default time autoscaler waits is 60 seconds.
-
   Virtual machine initialization times might vary because of
   numerous factors. We recommend that you test how long an
   instance may take to initialize. To do this, create an instance
   and time the startup process.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
   group.  Structure is documented below.
+
 * `metric` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
   group.  Structure is documented below.
+
 * `load_balancing_utilization` -
   (Optional)
   Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
         The `cpu_utilization` block supports:
+
 * `target` -
   (Required)
   The target CPU utilization that the autoscaler should maintain.
   Must be a float value in the range (0, 1]. If not specified, the
   default is 0.6.
-
   If the CPU level is below the target utilization, the autoscaler
   scales down the number of instances until it reaches the minimum
   number of instances you specified or until the average CPU of
   your instances reaches the target utilization.
-
   If the average CPU is above the target utilization, the autoscaler
   scales up until it reaches the maximum number of instances you
   specified or until the average utilization reaches the target
   utilization.
   
   The `metric` block supports:
+
 * `name` -
   (Required)
   The identifier (type) of the Stackdriver Monitoring metric.
   The metric cannot have negative values.
-
   The metric must have a value type of INT64 or DOUBLE.
+
 * `target` -
   (Required)
   The target value of the metric that autoscaler should
   maintain. This must be a positive value. A utilization
   metric scales number of virtual machines handling requests
   to increase or decrease proportionally to the metric.
-
   For example, a good metric to use as a utilizationTarget is
   www.googleapis.com/compute/instance/network/received_bytes_count.
   The autoscaler will work to keep this value constant for each
   of the instances.
+
 * `type` -
   (Required)
   Defines how target utilization value is expressed for a
@@ -193,6 +199,7 @@ The `autoscaling_policy` block supports:
   or DELTA_PER_MINUTE.
       
   The `load_balancing_utilization` block supports:
+
 * `target` -
   (Required)
   Fraction of backend capacity utilization (set in HTTP(s) load
@@ -202,9 +209,11 @@ The `autoscaling_policy` block supports:
 
 - - -
 
+
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `region` -
   (Optional)
   URL of the region where the instance group resides.
@@ -215,6 +224,7 @@ The `autoscaling_policy` block supports:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
+
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

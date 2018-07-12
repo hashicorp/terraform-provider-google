@@ -102,6 +102,7 @@ resource "google_compute_route" "route1" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -111,16 +112,18 @@ The following arguments are supported:
   the first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
+
 * `network` -
   (Required)
   The network this VPN gateway is accepting traffic for.
 
-
 - - -
+
 
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `region` -
   (Optional)
   The region this gateway should sit in.
@@ -131,6 +134,7 @@ The following arguments are supported:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
+
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

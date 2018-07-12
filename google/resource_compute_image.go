@@ -106,6 +106,13 @@ func resourceComputeImage() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"licenses": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"label_fingerprint": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -156,6 +163,11 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 
 	if _, ok := d.GetOk("labels"); ok {
 		image.Labels = expandLabels(d)
+	}
+
+	// Load up the licenses for this image if specified
+	if _, ok := d.GetOk("licenses"); ok {
+		image.Licenses = licenses(d)
 	}
 
 	// Read create timeout
@@ -213,6 +225,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("family", image.Family)
 	d.Set("self_link", image.SelfLink)
 	d.Set("labels", image.Labels)
+	d.Set("licenses", image.Licenses)
 	d.Set("label_fingerprint", image.LabelFingerprint)
 	d.Set("project", project)
 
@@ -286,4 +299,13 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId("")
 	return nil
+}
+
+func licenses(d *schema.ResourceData) []string {
+	licensesCount := d.Get("licenses.#").(int)
+	data := make([]string, licensesCount)
+	for i := 0; i < licensesCount; i++ {
+		data[i] = d.Get(fmt.Sprintf("licenses.%d", i)).(string)
+	}
+	return data
 }
