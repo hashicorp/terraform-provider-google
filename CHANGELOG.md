@@ -1,23 +1,23 @@
-## 1.16.0 (Unreleased)
+## 1.16.0 (July 12, 2018)
 
 FEATURES:
-* **New Resource**: `compute_instance_from_template` [GH-1652]
+* **New Resource**: `compute_instance_from_template` ([#1652](https://github.com/terraform-providers/terraform-provider-google/issues/1652))
 
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
-* compute: add `quic_override` to `google_compute_target_https_proxy` [GH-1718]
-* compute: add support for licenses to `compute_image` [GH-1717]
-* compute: Autogenerate router resource. Also adds update support and a few new fields (advertise_mode, advertised_groups, advertised_ip_ranges). [GH-1723]
-* container: add ability to configure resource labels on `google_container_cluster` [GH-1663]
-* container: increase max number of `master_authorized_networks` to 20 [GH-1733]
-* container: support specifying `disk_type` for `node_config` [GH-1665]
-* project: correctly paginate when more than 50 services are enabled [GH-1737]
-* redis: Support Redis Configuration [GH-1706]
+* compute: add `quic_override` to `google_compute_target_https_proxy` ([#1718](https://github.com/terraform-providers/terraform-provider-google/issues/1718))
+* compute: add support for licenses to `compute_image` ([#1717](https://github.com/terraform-providers/terraform-provider-google/issues/1717))
+* compute: Autogenerate router resource. Also adds update support and a few new fields (advertise_mode, advertised_groups, advertised_ip_ranges). ([#1723](https://github.com/terraform-providers/terraform-provider-google/issues/1723))
+* container: add ability to configure resource labels on `google_container_cluster` ([#1663](https://github.com/terraform-providers/terraform-provider-google/issues/1663))
+* container: increase max number of `master_authorized_networks` to 20 ([#1733](https://github.com/terraform-providers/terraform-provider-google/issues/1733))
+* container: support specifying `disk_type` for `node_config` ([#1665](https://github.com/terraform-providers/terraform-provider-google/issues/1665))
+* project: correctly paginate when more than 50 services are enabled ([#1737](https://github.com/terraform-providers/terraform-provider-google/issues/1737))
+* redis: Support Redis Configuration ([#1706](https://github.com/terraform-providers/terraform-provider-google/issues/1706))
 
 BUG FIXES:
-* all: Fix retries for wrapped errors [GH-1760]
-* iot: Retry creation of Cloud IoT registry [GH-1713]
-* project: ignore stackdriverprovisioning service, so it doesn't permadiff [GH-1763]
+* all: Fix retries for wrapped errors ([#1760](https://github.com/terraform-providers/terraform-provider-google/issues/1760))
+* iot: Retry creation of Cloud IoT registry ([#1713](https://github.com/terraform-providers/terraform-provider-google/issues/1713))
+* project: ignore stackdriverprovisioning service, so it doesn't permadiff ([#1763](https://github.com/terraform-providers/terraform-provider-google/issues/1763))
 
 ## 1.15.0 (June 25, 2018)
 
