@@ -353,13 +353,19 @@ func retry(retryFunc func() error) error {
 }
 
 func retryTime(retryFunc func() error, minutes int) error {
-	return resource.Retry(time.Duration(minutes)*time.Minute, func() *resource.RetryError {
+	return retryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
+}
+
+func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
+	return resource.Retry(duration, func() *resource.RetryError {
 		err := retryFunc()
 		if err == nil {
 			return nil
 		}
-		if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
-			return resource.RetryableError(gerr)
+		for _, e := range errwrap.GetAllType(err, &googleapi.Error{}) {
+			if gerr, ok := e.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+				return resource.RetryableError(gerr)
+			}
 		}
 		return resource.NonRetryableError(err)
 	})
