@@ -16,7 +16,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * all: Fix retries for wrapped errors [GH-1760]
-* compute: Fix opportunistic rolling updates for instance group managers [GH-1742]
 * iot: Retry creation of Cloud IoT registry [GH-1713]
 
 ## 1.15.0 (June 25, 2018)
