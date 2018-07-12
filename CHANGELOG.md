@@ -6,7 +6,8 @@ FEATURES:
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
 * compute: add `quic_override` to `google_compute_target_https_proxy` [GH-1718]
-* comppute: add support for licenses to `compute_image` [GH-1717]
+* compute: add support for licenses to `compute_image` [GH-1717]
+* compute: Autogenerate router resource. Also adds update support and a few new fields (advertise_mode, advertised_groups, advertised_ip_ranges). [GH-1723]
 * container: add ability to configure resource labels on `google_container_cluster` [GH-1663]
 * container: increase max number of `master_authorized_networks` to 20 [GH-1733]
 * container: support specifying `disk_type` for `node_config` [GH-1665]
