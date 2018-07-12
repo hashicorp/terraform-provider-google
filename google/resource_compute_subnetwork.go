@@ -602,7 +602,6 @@ func expandComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceDa
 			return nil, err
 		}
 		transformed["ipCidrRange"] = transformedIpCidrRange
-
 		req = append(req, transformed)
 	}
 	return req, nil
