@@ -111,6 +111,7 @@ func resourceComputeImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
 			},
 
 			"label_fingerprint": &schema.Schema{
