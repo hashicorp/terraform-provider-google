@@ -178,12 +178,15 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 	})
 }
 
-func TestAccProjectServices_manyServices(t *testing.T) {
+func TestAccProjectServices_pagination(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
+
+	// we need at least 50 services (doesn't matter what they are) to exercise the
+	// pagination handling code.
 	services := []string{
 		"actions.googleapis.com",
 		"appengine.googleapis.com",
