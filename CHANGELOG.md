@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * container: add ability to configure resource labels on `google_container_cluster` [GH-1663]
 * container: increase max number of `master_authorized_networks` to 20 [GH-1733]
 * container: support specifying `disk_type` for `node_config` [GH-1665]
+* projectt: correctly paginate when more than 50 services are enabled [GH-1737]
 * redis: Support Redis Configuration [GH-1706]
 
 BUG FIXES:
