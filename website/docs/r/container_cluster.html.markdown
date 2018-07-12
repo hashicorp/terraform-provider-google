@@ -77,8 +77,9 @@ output "cluster_ca_certificate" {
 
 * `region` (Optional)
     The region to create the cluster in, for
-    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional). In a Regional Cluster, the number of nodes specified in `initial_node_count` is created in
-    all zones of the region.
+    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
+    In a Regional Cluster, the number of nodes specified in `initial_node_count` is 
+    created in all zones of the region.
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
