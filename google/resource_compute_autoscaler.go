@@ -535,45 +535,44 @@ func expandComputeAutoscalerDescription(v interface{}, d *schema.ResourceData, c
 
 func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedMinReplicas, err := expandComputeAutoscalerAutoscalingPolicyMinReplicas(original["min_replicas"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["minNumReplicas"] = transformedMinReplicas
-		transformedMaxReplicas, err := expandComputeAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["maxNumReplicas"] = transformedMaxReplicas
-		transformedCooldownPeriod, err := expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["cooldown_period"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["coolDownPeriodSec"] = transformedCooldownPeriod
-		transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["cpuUtilization"] = transformedCpuUtilization
-		transformedMetric, err := expandComputeAutoscalerAutoscalingPolicyMetric(original["metric"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["customMetricUtilizations"] = transformedMetric
-		transformedLoadBalancingUtilization, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["load_balancing_utilization"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinReplicas, err := expandComputeAutoscalerAutoscalingPolicyMinReplicas(original["min_replicas"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["minNumReplicas"] = transformedMinReplicas
+	transformedMaxReplicas, err := expandComputeAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["maxNumReplicas"] = transformedMaxReplicas
+	transformedCooldownPeriod, err := expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["cooldown_period"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["coolDownPeriodSec"] = transformedCooldownPeriod
+	transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["cpuUtilization"] = transformedCpuUtilization
+	transformedMetric, err := expandComputeAutoscalerAutoscalingPolicyMetric(original["metric"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["customMetricUtilizations"] = transformedMetric
+	transformedLoadBalancingUtilization, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["load_balancing_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization
+	return transformed, nil
 }
 
 func expandComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -590,20 +589,19 @@ func expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *sc
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["target"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["utilizationTarget"] = transformedTarget
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["target"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["utilizationTarget"] = transformedTarget
+	return transformed, nil
 }
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -632,7 +630,6 @@ func expandComputeAutoscalerAutoscalingPolicyMetric(v interface{}, d *schema.Res
 			return nil, err
 		}
 		transformed["utilizationTargetType"] = transformedType
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -652,20 +649,19 @@ func expandComputeAutoscalerAutoscalingPolicyMetricType(v interface{}, d *schema
 
 func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["target"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["utilizationTarget"] = transformedTarget
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["target"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["utilizationTarget"] = transformedTarget
+	return transformed, nil
 }
 
 func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
