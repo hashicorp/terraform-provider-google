@@ -1145,10 +1145,9 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("resource_labels") {
-		resourceLabels := d.Get("resource_labels").(map[string]string)
-
+		resourceLabels := d.Get("resource_labels").(map[string]interface{})
 		req := &containerBeta.SetLabelsRequest{
-			ResourceLabels: resourceLabels,
+			ResourceLabels: convertStringMap(resourceLabels),
 		}
 		updateF := func() error {
 			name := containerClusterFullName(project, location, clusterName)
