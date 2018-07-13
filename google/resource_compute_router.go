@@ -488,35 +488,34 @@ func expandComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *C
 
 func expandComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedAsn, err := expandComputeRouterBgpAsn(original["asn"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["asn"] = transformedAsn
-		transformedAdvertiseMode, err := expandComputeRouterBgpAdvertiseMode(original["advertise_mode"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["advertiseMode"] = transformedAdvertiseMode
-		transformedAdvertisedGroups, err := expandComputeRouterBgpAdvertisedGroups(original["advertised_groups"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["advertisedGroups"] = transformedAdvertisedGroups
-		transformedAdvertisedIpRanges, err := expandComputeRouterBgpAdvertisedIpRanges(original["advertised_ip_ranges"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["advertisedIpRanges"] = transformedAdvertisedIpRanges
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAsn, err := expandComputeRouterBgpAsn(original["asn"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["asn"] = transformedAsn
+	transformedAdvertiseMode, err := expandComputeRouterBgpAdvertiseMode(original["advertise_mode"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["advertiseMode"] = transformedAdvertiseMode
+	transformedAdvertisedGroups, err := expandComputeRouterBgpAdvertisedGroups(original["advertised_groups"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["advertisedGroups"] = transformedAdvertisedGroups
+	transformedAdvertisedIpRanges, err := expandComputeRouterBgpAdvertisedIpRanges(original["advertised_ip_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["advertisedIpRanges"] = transformedAdvertisedIpRanges
+	return transformed, nil
 }
 
 func expandComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -548,7 +547,6 @@ func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceD
 			return nil, err
 		}
 		transformed["description"] = transformedDescription
-
 		req = append(req, transformed)
 	}
 	return req, nil
