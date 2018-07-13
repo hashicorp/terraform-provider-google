@@ -1,4 +1,8 @@
 ## 1.16.1 (Unreleased)
+
+BUG FIXES:
+* container: Fix crash when updating resource labels on a cluster [GH-1769]
+
 ## 1.16.0 (July 12, 2018)
 
 FEATURES:
