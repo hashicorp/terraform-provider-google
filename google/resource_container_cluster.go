@@ -1145,7 +1145,11 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("resource_labels") {
-		resourceLabels := d.Get("resource_labels").(map[string]string)
+		resourceLabelsI := d.Get("resource_labels").(map[string]interface{})
+		resourceLabels := make(map[string]string, len(resourceLabelsI))
+		for k, v := range resourceLabelsI {
+			resourceLabels[k] = v.(string)
+		}
 
 		req := &containerBeta.SetLabelsRequest{
 			ResourceLabels: resourceLabels,
