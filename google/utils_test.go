@@ -488,7 +488,7 @@ func TestRetryTimeDuration(t *testing.T) {
 			Code: 500,
 		}
 	}
-	retryTimeDuration(f, time.Duration(500)*time.Millisecond)
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
 	if i < 2 {
 		t.Errorf("expected error function to be called at least twice, but was called %d times", i)
 	}
@@ -503,7 +503,7 @@ func TestRetryTimeDuration_wrapped(t *testing.T) {
 		}
 		return errwrap.Wrapf("nested error: {{err}}", err)
 	}
-	retryTimeDuration(f, time.Duration(500)*time.Millisecond)
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
 	if i < 2 {
 		t.Errorf("expected error function to be called at least twice, but was called %d times", i)
 	}
@@ -517,7 +517,7 @@ func TestRetryTimeDuration_noretry(t *testing.T) {
 			Code: 400,
 		}
 	}
-	retryTimeDuration(f, time.Duration(500)*time.Millisecond)
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
 	if i != 1 {
 		t.Errorf("expected error function to be called exactly once, but was called %d times", i)
 	}
