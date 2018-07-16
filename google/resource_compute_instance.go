@@ -667,20 +667,12 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 	}
 
 	prefix := "scheduling.0"
-	scheduling := &computeBeta.Scheduling{}
-
-	if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
-		scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
+	scheduling := &computeBeta.Scheduling{
+		AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
+		Preemptible:       d.Get(prefix + ".preemptible").(bool),
+		OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
+		ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
 	}
-
-	if val, ok := d.GetOk(prefix + ".preemptible"); ok {
-		scheduling.Preemptible = val.(bool)
-	}
-
-	if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
-		scheduling.OnHostMaintenance = val.(string)
-	}
-	scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
@@ -1069,18 +1061,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("scheduling") {
 		prefix := "scheduling.0"
-		scheduling := &compute.Scheduling{}
-
-		if val, ok := d.GetOk(prefix + ".automatic_restart"); ok {
-			scheduling.AutomaticRestart = googleapi.Bool(val.(bool))
+		scheduling := &compute.Scheduling{
+			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
+			Preemptible:       d.Get(prefix + ".preemptible").(bool),
+			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
+			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
 		}
-		if val, ok := d.GetOk(prefix + ".preemptible"); ok {
-			scheduling.Preemptible = val.(bool)
-		}
-		if val, ok := d.GetOk(prefix + ".on_host_maintenance"); ok {
-			scheduling.OnHostMaintenance = val.(string)
-		}
-		scheduling.ForceSendFields = []string{"AutomaticRestart", "Preemptible"}
 
 		op, err := config.clientCompute.Instances.SetScheduling(project,
 			zone, d.Id(), scheduling).Do()
