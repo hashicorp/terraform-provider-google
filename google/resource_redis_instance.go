@@ -64,7 +64,7 @@ func resourceRedisInstance() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
