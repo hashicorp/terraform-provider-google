@@ -312,7 +312,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Updating Router %q: %#v", d.Id(), obj)
-	res, err := sendRequest(config, "PUT", url, obj)
+	res, err := sendRequest(config, "PATCH", url, obj)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Router %q: %s", d.Id(), err)
