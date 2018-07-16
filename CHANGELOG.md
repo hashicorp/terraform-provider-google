@@ -1,7 +1,7 @@
-## 1.16.1 (Unreleased)
+## 1.16.1 (July 16, 2018)
 
 BUG FIXES:
-* container: Fix crash when updating resource labels on a cluster [GH-1769]
+* container: Fix crash when updating resource labels on a cluster ([#1769](https://github.com/terraform-providers/terraform-provider-google/issues/1769))
 
 ## 1.16.0 (July 12, 2018)
 
