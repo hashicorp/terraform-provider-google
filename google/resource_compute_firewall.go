@@ -418,6 +418,6 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}) (*computeBeta.Fi
 		SourceServiceAccounts: convertStringSet(d.Get("source_service_accounts").(*schema.Set)),
 		TargetServiceAccounts: convertStringSet(d.Get("target_service_accounts").(*schema.Set)),
 		Disabled:              d.Get("disabled").(bool),
-		ForceSendFields:       []string{"Disabled"},
+		ForceSendFields:       []string{"Disabled", "Allowed", "Denied", "SourceRanges", "SourceTags", "DestinationRanges", "TargetTags"},
 	}, nil
 }
