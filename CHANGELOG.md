@@ -2,6 +2,8 @@
 
 BUG FIXES:
 * compute: use patch instead of put to update router [GH-1780]
+* compute: allow a lot more fields in `google_compute_firewall` to be updated to their empty value [GH-1784]
+* compute: allow setting instance scheduling booleans on `google_compute_instance` to false [GH-1779]
 
 ## 1.16.1 (July 16, 2018)
 
