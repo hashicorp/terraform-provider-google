@@ -73,6 +73,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("ip_cidr_range", isShrinkageIpCidr),
+			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -104,6 +105,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 			},
 			"secondary_ip_range": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -155,6 +157,47 @@ func resourceComputeSubnetwork() *schema.Resource {
 			},
 		},
 	}
+}
+func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	keys := diff.GetChangedKeysPrefix("secondary_ip_range")
+	if len(keys) == 0 {
+		return nil
+	}
+	oldCount, newCount := diff.GetChange("secondary_ip_range.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	if count < 1 {
+		return nil
+	}
+	old := make([]interface{}, count)
+	new := make([]interface{}, count)
+	for i := 0; i < count; i++ {
+		o, n := diff.GetChange(fmt.Sprintf("secondary_ip_range.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(resourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(resourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), new)
+
+	if oldSet.Equal(newSet) {
+		if err := diff.Clear("secondary_ip_range"); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
