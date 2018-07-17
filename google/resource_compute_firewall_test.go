@@ -63,6 +63,11 @@ func TestAccComputeFirewall_update(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			resource.TestStep{
 				Config: testAccComputeFirewall_update(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
@@ -72,6 +77,24 @@ func TestAccComputeFirewall_update(t *testing.T) {
 						&firewall, "80-255"),
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				Config: testAccComputeFirewall_basic(networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeFirewallExists(
+						"google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallApiVersion(&firewall),
+				),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -454,6 +477,7 @@ func testAccComputeFirewall_update(network, firewall string) string {
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.self_link}"
 		source_tags = ["foo"]
+		target_tags = ["bar"]
 
 		allow {
 			protocol = "tcp"
