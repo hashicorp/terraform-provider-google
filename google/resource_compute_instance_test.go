@@ -2339,6 +2339,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	scheduling {
+		automatic_restart = false
 	}
 }
 `, instance)
