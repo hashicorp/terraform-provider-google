@@ -406,7 +406,7 @@ func flattenComputeRouterDescription(v interface{}) interface{} {
 }
 
 func flattenComputeRouterNetwork(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouterBgp(v interface{}) interface{} {

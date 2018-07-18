@@ -725,25 +725,24 @@ func expandComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, config
 
 func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedRawKey, err := expandComputeRegionDiskDiskEncryptionKeyRawKey(original["raw_key"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["rawKey"] = transformedRawKey
-		transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["sha256"] = transformedSha256
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRawKey, err := expandComputeRegionDiskDiskEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["rawKey"] = transformedRawKey
+	transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["sha256"] = transformedSha256
+	return transformed, nil
 }
 
 func expandComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -764,25 +763,24 @@ func expandComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, conf
 
 func expandComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedRawKey, err := expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["raw_key"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["rawKey"] = transformedRawKey
-		transformedSha256, err := expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		transformed["sha256"] = transformedSha256
-
-		req = append(req, transformed)
+	if len(l) == 0 {
+		return nil, nil
 	}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRawKey, err := expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["rawKey"] = transformedRawKey
+	transformedSha256, err := expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed["sha256"] = transformedSha256
+	return transformed, nil
 }
 
 func expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
