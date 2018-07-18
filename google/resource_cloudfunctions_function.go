@@ -123,13 +123,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"source_archive_bucket": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"source_archive_object": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"description": {
@@ -410,6 +408,13 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		availableMemoryMb := d.Get("available_memory_mb").(int)
 		function.AvailableMemoryMb = int64(availableMemoryMb)
 		updateMaskArr = append(updateMaskArr, "availableMemoryMb")
+	}
+
+	if d.HasChange("source_archive_bucket") || d.HasChange("source_archive_object") {
+		sourceArchiveBucket := d.Get("source_archive_bucket").(string)
+		sourceArchiveObj := d.Get("source_archive_object").(string)
+		function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
+		updateMaskArr = append(updateMaskArr, "sourceArchiveUrl")
 	}
 
 	if d.HasChange("description") {

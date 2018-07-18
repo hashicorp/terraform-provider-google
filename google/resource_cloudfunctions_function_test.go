@@ -23,6 +23,7 @@ const (
 )
 
 const testHTTPTriggerPath = "./test-fixtures/cloudfunctions/http_trigger.js"
+const testHTTPTriggerUpdatePath = "./test-fixtures/cloudfunctions/http_trigger_update.js"
 const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 
@@ -85,6 +86,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
+	zipFileUpdatePath, err := createZIPArchiveForIndexJs(testHTTPTriggerUpdatePath)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -105,7 +107,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFilePath),
+				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFileUpdatePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						funcResourceName, &function),
@@ -420,7 +422,7 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket_object" "archive" {
-  name   = "index.zip"
+  name   = "index_update.zip"
   bucket = "${google_storage_bucket.bucket.name}"
   source = "%s"
 }
