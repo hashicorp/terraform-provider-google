@@ -1,4 +1,7 @@
-## 1.16.3 (Unreleased)
+## 1.17.0 (Unreleased)
+
+FEATURES:
+* **New Resource**: `google_compute_region_disk` [GH-1755]
 
 BUG FIXES:
 * redis: Allow authorized network to be a name or self link [GH-1782]
