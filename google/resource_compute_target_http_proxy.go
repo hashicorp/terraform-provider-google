@@ -317,7 +317,7 @@ func flattenComputeTargetHttpProxyName(v interface{}) interface{} {
 }
 
 func flattenComputeTargetHttpProxyUrlMap(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {

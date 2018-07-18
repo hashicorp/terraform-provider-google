@@ -13,14 +13,14 @@
 #
 # ----------------------------------------------------------------------------
 layout: "google"
-page_title: "Google: google_compute_disk"
-sidebar_current: "docs-google-compute-disk"
+page_title: "Google: google_compute_region_disk"
+sidebar_current: "docs-google-compute-region-disk"
 description: |-
   Persistent disks are durable storage devices that function similarly to
   the physical disks in a desktop or a server.
 ---
 
-# google\_compute\_disk
+# google\_compute\_region\_disk
 
 Persistent disks are durable storage devices that function similarly to
 the physical disks in a desktop or a server. Compute Engine manages the
@@ -38,11 +38,11 @@ storage space requirements.
 Add a persistent disk to your instance when you need reliable and
 affordable storage with consistent performance characteristics.
 
-To get more information about Disk, see:
+To get more information about RegionDisk, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/disks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionDisks)
 * How-to Guides
-    * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
+    * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 
 ~> **Warning:** All arguments including the disk encryption key will be stored in the raw
 state as plain-text.
@@ -51,14 +51,27 @@ state as plain-text.
 ## Example Usage
 
 ```hcl
-resource "google_compute_disk" "default" {
-  name  = "test-disk"
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-  image = "debian-8-jessie-v20170523"
-  labels {
-    environment = "dev"
-  }
+resource "google_compute_disk" "disk" {
+  name = "my-disk"
+  image = "debian-cloud/debian-9"
+  size = 50
+  type = "pd-ssd"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapdisk" {
+  name = "my-disk-snapshot"
+  source_disk = "${google_compute_disk.disk.name}"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_region_disk" "regiondisk" {
+  name = "my-regional-disk"
+  snapshot = "${google_compute_snapshot.snapdisk.self_link}"
+  type = "pd-ssd"
+  region = "us-central1"
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
 }
 ```
 
@@ -76,6 +89,10 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
+
+* `replica_zones` -
+  (Required)
+  URLs of the zones where the disk should be replicated to.
 
 - - -
 
@@ -104,26 +121,9 @@ The following arguments are supported:
   URL of the disk type resource describing which disk type to use to
   create the disk. Provide this when creating the disk.
 
-* `image` -
+* `region` -
   (Optional)
-  The image from which to initialize this disk. This can be
-  one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
-  `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
-  `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
-  `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
-  images names must include the family name. If they don't, use the
-  [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
-  For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
-  These images can be referred by family name here.
-
-* `zone` -
-  (Optional)
-  A reference to the zone where the disk resides.
-
-* `source_image_encryption_key` -
-  (Optional)
-  The customer-supplied encryption key of the source image. Required if
-  the source image is protected by a customer-supplied encryption key.  Structure is documented below.
+  A reference to the region where the disk resides.
 
 * `disk_encryption_key` -
   (Optional)
@@ -156,17 +156,6 @@ The following arguments are supported:
 * `project` (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-The `source_image_encryption_key` block supports:
-
-* `raw_key` -
-  (Optional)
-  Specifies a 256-bit customer-supplied encryption key, encoded in
-  RFC 4648 base64 to either encrypt or decrypt this resource.
-
-* `sha256` -
-  The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
-  encryption key that protects this resource.
-    
 The `disk_encryption_key` block supports:
 
 * `raw_key` -
@@ -190,11 +179,6 @@ The `source_snapshot_encryption_key` block supports:
   encryption key that protects this resource.
     
 
-* (Deprecated) `disk_encryption_key_raw`:  This is an alias for
-  `disk_encryption_key.raw_key`.  It is deprecated to enhance
-  consistency with `source_image_encryption_key` and
-  `source_snapshot_encryption_key`.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -217,13 +201,6 @@ In addition to the arguments listed above, the following computed attributes are
   Links to the users of the disk (attached instances) in form:
   project/zones/zone/instances/instance
 
-* `source_image_id` -
-  The ID value of the image used to create this disk. This value
-  identifies the exact image that was used to create this persistent
-  disk. For example, if you created the persistent disk from an image
-  that was later deleted and recreated under the same name, the source
-  image ID would identify the exact version of the image that was used.
-
 * `source_snapshot_id` -
   The unique ID of the snapshot used to create this disk. This value
   identifies the exact snapshot that was used to create this persistent
@@ -233,11 +210,6 @@ In addition to the arguments listed above, the following computed attributes are
   used.
 * `self_link` - The URI of the created resource.
 
-
-* (Deprecated) `disk_encryption_key_sha256`: This is an alias for
-  `disk_encryption_key.sha256`.  It is deprecated to enhance
-  consistency with `source_image_encryption_key` and
-  `source_snapshot_encryption_key`.
 
 ## Timeouts
 
@@ -250,10 +222,10 @@ This resource provides the following
 
 ## Import
 
-Disk can be imported using any of these accepted formats:
+RegionDisk can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/disks/{{name}}
-$ terraform import google_compute_disk.default {{project}}/{{zone}}/{{name}}
-$ terraform import google_compute_disk.default {{name}}
+$ terraform import google_compute_region_disk.default projects/{{project}}/regions/{{region}}/disks/{{name}}
+$ terraform import google_compute_region_disk.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_region_disk.default {{name}}
 ```

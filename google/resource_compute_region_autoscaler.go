@@ -521,7 +521,7 @@ func flattenComputeRegionAutoscalerTarget(v interface{}) interface{} {
 }
 
 func flattenComputeRegionAutoscalerRegion(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeRegionAutoscalerName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {

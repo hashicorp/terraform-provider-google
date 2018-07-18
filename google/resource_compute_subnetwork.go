@@ -559,7 +559,7 @@ func flattenComputeSubnetworkName(v interface{}) interface{} {
 }
 
 func flattenComputeSubnetworkNetwork(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeSubnetworkEnableFlowLogs(v interface{}) interface{} {

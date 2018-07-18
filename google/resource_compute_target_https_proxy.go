@@ -466,15 +466,18 @@ func flattenComputeTargetHttpsProxyQuicOverride(v interface{}) interface{} {
 }
 
 func flattenComputeTargetHttpsProxySslCertificates(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenComputeTargetHttpsProxySslPolicy(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetHttpsProxyUrlMap(v interface{}) interface{} {
-	return v
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeTargetHttpsProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
