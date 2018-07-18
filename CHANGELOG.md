@@ -3,6 +3,9 @@
 FEATURES:
 * **New Resource**: `google_compute_region_disk` [GH-1755]
 
+IMPROVEMENTS:
+* cloudfunctions: Add support for updating function code in place [GH-1781]
+
 BUG FIXES:
 * redis: Allow authorized network to be a name or self link [GH-1782]
 
