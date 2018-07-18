@@ -1,4 +1,8 @@
 ## 1.16.3 (Unreleased)
+
+BUG FIXES:
+* redis: Allow authorized network to be a name or self link [GH-1782]
+
 ## 1.16.2 (July 18, 2018)
 
 BUG FIXES:
