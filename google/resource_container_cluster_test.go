@@ -352,6 +352,47 @@ func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withEmptyStringAdditionalZones(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withEmptyStringAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateEmptyStringAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateEmptyStringOnlyAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
 	t.Parallel()
 
@@ -373,6 +414,47 @@ func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_regionalUpdateAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_EmptyStringRegionalWithAdditionalZones(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_EmptyStringRegionalAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateEmptyStringRegionalAdditionalZones(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_additional_zones",
+				ImportStateIdPrefix: "us-central1/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateEmptyStringOnlyRegionalAdditionalZones(clusterName),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_additional_zones",
@@ -1557,6 +1639,46 @@ resource "google_container_cluster" "with_additional_zones" {
 }`, clusterName)
 }
 
+// Creating resource with an empty string in additional_zones
+func testAccContainerCluster_withEmptyStringAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [""]
+}`, clusterName)
+}
+
+// Updating with an empty string in the addtional_zones
+func testAccContainerCluster_updateEmptyStringAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c",
+		""
+	]
+}`, clusterName)
+}
+
+// Updating with only an empty string in the addtional_zones
+func testAccContainerCluster_updateEmptyStringOnlyAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [""]
+}`, clusterName)
+}
+
 func testAccContainerCluster_regionalAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
@@ -1582,6 +1704,46 @@ resource "google_container_cluster" "with_additional_zones" {
 		"us-central1-f",
 		"us-central1-b",
 	]
+}`, clusterName)
+}
+
+// Creating resource with only an empty string in regional additional_zones
+func testAccContainerCluster_EmptyStringRegionalAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [""]
+}`, clusterName)
+}
+
+// Updating with an empty string in regional addtional_zones
+func testAccContainerCluster_updateEmptyStringRegionalAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c",
+		""
+	]
+}`, clusterName)
+}
+
+// Updating with only an empty string in regional addtional_zones
+func testAccContainerCluster_updateEmptyStringOnlyRegionalAdditionalZones(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_additional_zones" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	additional_zones = [""]
 }`, clusterName)
 }
 
