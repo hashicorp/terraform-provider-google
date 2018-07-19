@@ -7,6 +7,7 @@ IMPROVEMENTS:
 * cloudfunctions: Add support for updating function code in place [GH-1781]
 
 BUG FIXES:
+* project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
 * redis: Allow authorized network to be a name or self link [GH-1782]
 
 ## 1.16.2 (July 18, 2018)
