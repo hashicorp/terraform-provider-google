@@ -468,6 +468,9 @@ func flattenComputeTargetSslProxyProxyHeader(v interface{}) interface{} {
 }
 
 func flattenComputeTargetSslProxyBackendService(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
@@ -479,6 +482,9 @@ func flattenComputeTargetSslProxySslCertificates(v interface{}) interface{} {
 }
 
 func flattenComputeTargetSslProxySslPolicy(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 

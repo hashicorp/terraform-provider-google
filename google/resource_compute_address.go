@@ -336,6 +336,9 @@ func flattenComputeAddressNetworkTier(v interface{}) interface{} {
 }
 
 func flattenComputeAddressSubnetwork(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 

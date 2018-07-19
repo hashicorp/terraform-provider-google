@@ -473,10 +473,16 @@ func flattenComputeTargetHttpsProxySslCertificates(v interface{}) interface{} {
 }
 
 func flattenComputeTargetHttpsProxySslPolicy(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetHttpsProxyUrlMap(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 

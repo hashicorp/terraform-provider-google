@@ -597,6 +597,9 @@ func flattenComputeForwardingRuleIPProtocol(v interface{}) interface{} {
 }
 
 func flattenComputeForwardingRuleBackendService(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
@@ -613,6 +616,9 @@ func flattenComputeForwardingRuleName(v interface{}) interface{} {
 }
 
 func flattenComputeForwardingRuleNetwork(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
@@ -625,10 +631,16 @@ func flattenComputeForwardingRulePorts(v interface{}) interface{} {
 }
 
 func flattenComputeForwardingRuleSubnetwork(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeForwardingRuleTarget(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
