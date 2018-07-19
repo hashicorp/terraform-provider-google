@@ -518,10 +518,16 @@ func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v i
 }
 
 func flattenComputeAutoscalerTarget(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeAutoscalerZone(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 

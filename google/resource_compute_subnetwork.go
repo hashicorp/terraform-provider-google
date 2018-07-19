@@ -559,6 +559,9 @@ func flattenComputeSubnetworkName(v interface{}) interface{} {
 }
 
 func flattenComputeSubnetworkNetwork(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
