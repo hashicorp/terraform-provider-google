@@ -215,6 +215,35 @@ func TestAccProject_appEngineBasic(t *testing.T) {
 	})
 }
 
+func TestAccProject_appEngineBasicWithBilling(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	billingId := getTestBillingAccountFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_appEngineBasicWithBilling(pid, org, billingId),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_hostname"),
+					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_bucket"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_project.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccProject_appEngineUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -470,6 +499,23 @@ resource "google_project" "acceptance" {
     serving_status = "SERVING"
   }
 }`, pid, pid, org)
+}
+
+func testAccProject_appEngineBasicWithBilling(pid, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+
+  billing_account = "%s"
+
+  app_engine {
+    auth_domain    = "hashicorptest.com"
+    location_id    = "us-central"
+    serving_status = "SERVING"
+  }
+}`, pid, pid, org, billing)
 }
 
 func testAccProject_appEngineUpdate(pid, org string) string {

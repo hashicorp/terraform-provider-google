@@ -588,12 +588,12 @@ func forceDeleteComputeNetwork(projectId, networkName string, config *Config) er
 func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	pid := d.Id()
 	name := d.Get("billing_account").(string)
-	ba := cloudbilling.ProjectBillingInfo{}
+	ba := &cloudbilling.ProjectBillingInfo{}
 	// If we're unlinking an existing billing account, an empty request does that, not an empty-string billing account.
 	if name != "" {
 		ba.BillingAccountName = "billingAccounts/" + name
 	}
-	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), &ba).Do()
+	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
 	if err != nil {
 		d.Set("billing_account", "")
 		if _err, ok := err.(*googleapi.Error); ok {
@@ -602,20 +602,18 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
 	}
 	for retries := 0; retries < 3; retries++ {
-		err = resourceGoogleProjectRead(d, config)
+		ba, err = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
 		if err != nil {
 			return err
 		}
-		if d.Get("billing_account").(string) == name {
-			break
+		baName := strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/")
+		if baName == name {
+			return nil
 		}
-		time.Sleep(3)
+		time.Sleep(3 * time.Second)
 	}
-	if d.Get("billing_account").(string) != name {
-		return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
-			d.Get("billding_account").(string), name)
-	}
-	return nil
+	return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
+		name, strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/"))
 }
 
 func expandAppEngineApp(d *schema.ResourceData) (*appengine.Application, error) {
