@@ -644,6 +644,9 @@ func flattenComputeRegionDiskDiskEncryptionKeySha256(v interface{}) interface{} 
 }
 
 func flattenComputeRegionDiskSnapshot(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
