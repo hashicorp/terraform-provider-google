@@ -685,6 +685,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := d.GetOk("master_instance_name"); ok {
 		instance.MasterInstanceName = v.(string)
+		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
+		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
@@ -763,7 +765,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
 
-	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
+	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
 
@@ -1054,6 +1056,13 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	d.Partial(false)
 
+	// Lock on the master_instance_name just in case updating any replica
+	// settings causes operations on the master.
+	if v, ok := d.GetOk("master_instance_name"); ok {
+		mutexKV.Lock(instanceMutexKey(project, v.(string)))
+		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+	}
+
 	op, err := config.clientSqlAdmin.Instances.Update(project, instance.Name, instance).Do()
 	if err != nil {
 		return fmt.Errorf("Error, failed to update instance %s: %s", instance.Name, err)
@@ -1073,6 +1082,13 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
+	}
+
+	// Lock on the master_instance_name just in case deleting a replica causes
+	// operations on the master.
+	if v, ok := d.GetOk("master_instance_name"); ok {
+		mutexKV.Lock(instanceMutexKey(project, v.(string)))
+		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
 	op, err := config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
@@ -1208,7 +1224,7 @@ func flattenMaintenanceWindow(maintenanceWindow *sqladmin.MaintenanceWindow) int
 	return []map[string]interface{}{data}
 }
 
-func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfiguration) []map[string]interface{} {
+func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfiguration, d *schema.ResourceData) []map[string]interface{} {
 	rc := []map[string]interface{}{}
 
 	if replicaConfiguration != nil {
@@ -1217,7 +1233,18 @@ func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfigura
 
 			// Don't attempt to assign anything from replicaConfiguration.MysqlReplicaConfiguration,
 			// since those fields are set on create and then not stored. See description at
-			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances
+			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances.
+			// Instead, set them to the values they previously had so we don't set them all to zero.
+			"ca_certificate":            d.Get("replica_configuration.0.ca_certificate"),
+			"client_certificate":        d.Get("replica_configuration.0.client_certificate"),
+			"client_key":                d.Get("replica_configuration.0.client_key"),
+			"connect_retry_interval":    d.Get("replica_configuration.0.connect_retry_interval"),
+			"dump_file_path":            d.Get("replica_configuration.0.dump_file_path"),
+			"master_heartbeat_period":   d.Get("replica_configuration.0.master_heartbeat_period"),
+			"password":                  d.Get("replica_configuration.0.password"),
+			"ssl_cipher":                d.Get("replica_configuration.0.ssl_cipher"),
+			"username":                  d.Get("replica_configuration.0.username"),
+			"verify_server_certificate": d.Get("replica_configuration.0.verify_server_certificate"),
 		}
 		rc = append(rc, data)
 	}
