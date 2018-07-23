@@ -6,7 +6,7 @@ import (
 
 func dataSourceGoogleRegion() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleRegionRead,
+		Read:   dataSourceGoogleRegionRead,
 		Schema: map[string]*schema.Schema{},
 	}
 }

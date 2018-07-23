@@ -95,7 +95,7 @@ func Provider() terraform.ResourceProvider {
 			"google_storage_project_service_account": dataSourceGoogleStorageProjectServiceAccount(),
 			"google_compute_backend_service":         dataSourceGoogleComputeBackendService(),
 			"google_compute_regions":                 dataSourceGoogleComputeRegions(),
-			"google_region":                 		  dataSourceGoogleRegion(),
+			"google_region":                          dataSourceGoogleRegion(),
 		},
 
 		ResourcesMap: mergeResourceMaps(

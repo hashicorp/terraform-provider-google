@@ -1,11 +1,11 @@
 package google
 
 import (
-	"testing"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"fmt"
 	"os"
+	"testing"
 )
 
 func TestAccRegion_basic(t *testing.T) {
