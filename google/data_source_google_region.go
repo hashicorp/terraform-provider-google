@@ -2,24 +2,17 @@ package google
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func dataSourceGoogleRegion() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleRegionRead,
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-		},
+		Schema: map[string]*schema.Schema{},
 	}
 }
 
 func dataSourceGoogleRegionRead(d *schema.ResourceData, meta interface{}) error {
-	d.SetId(time.Now().UTC().String())
+	config := meta.(*Config)
+	d.SetId(config.Region)
 	return nil
 }
