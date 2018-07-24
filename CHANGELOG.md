@@ -9,6 +9,8 @@ IMPROVEMENTS:
 BUG FIXES:
 * project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
 * redis: Allow authorized network to be a name or self link [GH-1782]
+* sql: lock on master name when creating replicas [GH-1798]
+* storage: allow all role-entity pairs to be unordered [GH-1787]
 
 ## 1.16.2 (July 18, 2018)
 
