@@ -21,6 +21,21 @@ import (
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
+// Fields that should be ignored in import tests because they aren't returned
+// from GCP (and thus can't be imported)
+var ignoredReplicaConfigurationFields = []string{
+	"replica_configuration.0.ca_certificate",
+	"replica_configuration.0.client_certificate",
+	"replica_configuration.0.client_key",
+	"replica_configuration.0.connect_retry_interval",
+	"replica_configuration.0.dump_file_path",
+	"replica_configuration.0.master_heartbeat_period",
+	"replica_configuration.0.password",
+	"replica_configuration.0.ssl_cipher",
+	"replica_configuration.0.username",
+	"replica_configuration.0.verify_server_certificate",
+}
+
 func init() {
 	resource.AddTestSweepers("gcp_sql_db_instance", &resource.Sweeper{
 		Name: "gcp_sql_db_instance",
@@ -283,6 +298,41 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 					testAccCheckGoogleSqlDatabaseInstanceEquals(
 						"google_sql_database_instance.instance", &instance),
 				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_replica(t *testing.T) {
+	t.Parallel()
+
+	databaseID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_master",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_database_instance.replica1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_database_instance.replica2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
 			},
 		},
 	})
@@ -938,17 +988,14 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
-// Note - this test is not feasible to run unless we generate
-// backups first.
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
 	name = "tf-lw-%d"
 	database_version = "MYSQL_5_6"
-	region = "us-east1"
+	region = "us-central1"
 
 	settings {
-		tier = "D0"
-		crash_safe_replication = true
+		tier = "db-n1-standard-1"
 
 		backup_configuration {
 			enabled = true
@@ -958,21 +1005,39 @@ resource "google_sql_database_instance" "instance_master" {
 	}
 }
 
-resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
+resource "google_sql_database_instance" "replica1" {
+	name = "tf-lw-%d-1"
 	database_version = "MYSQL_5_6"
-	region = "us-central"
+	region = "us-central1"
 
 	settings {
-		tier = "D0"
+		tier = "db-n1-standard-1"
 	}
 
 	master_instance_name = "${google_sql_database_instance.instance_master.name}"
 
 	replica_configuration {
-		ca_certificate = "${file("~/tmp/fake.pem")}"
-		client_certificate = "${file("~/tmp/fake.pem")}"
-		client_key = "${file("~/tmp/fake.pem")}"
+		connect_retry_interval = 100
+		master_heartbeat_period = 10000
+		password = "password"
+		username = "username"
+		ssl_cipher = "ALL"
+		verify_server_certificate = false
+	}
+}
+
+resource "google_sql_database_instance" "replica2" {
+	name = "tf-lw-%d-2"
+	database_version = "MYSQL_5_6"
+	region = "us-central1"
+
+	settings {
+		tier = "db-n1-standard-1"
+	}
+
+	master_instance_name = "${google_sql_database_instance.instance_master.name}"
+
+	replica_configuration {
 		connect_retry_interval = 100
 		master_heartbeat_period = 10000
 		password = "password"
