@@ -29,6 +29,12 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				),
 			},
 			resource.TestStep{
+				ResourceName:        "google_cloudbuild_trigger.build_trigger",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateIdPrefix: fmt.Sprintf("%s/", projectID),
+			},
+			resource.TestStep{
 				Config: testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.build_trigger"),
@@ -233,6 +239,10 @@ resource "google_cloudbuild_trigger" "filename_build_trigger" {
     project     = "${google_project_services.acceptance.project}"
     repo_name   = "some-repo"
   }
+	substitutions {
+		foo = "bar"
+		baz = "qux"
+	}
   filename = "cloudbuild.yaml"
 }
   `, projectID, projectID, projectOrg, projectBillingAccount)
