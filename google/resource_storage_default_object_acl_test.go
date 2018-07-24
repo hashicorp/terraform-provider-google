@@ -105,6 +105,24 @@ func TestAccStorageDefaultObjectAcl_downgrade(t *testing.T) {
 	})
 }
 
+// Test that we allow the API to reorder our role entities without perma-diffing.
+func TestAccStorageDefaultObjectAcl_unordered(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageDefaultObjectAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageDefaultObjectAclUnordered(bucketName),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageDefaultObjectAcl(bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
@@ -184,4 +202,17 @@ resource "google_storage_default_object_acl" "acl" {
 	role_entity = ["%s", "%s"]
 }
 `, bucketName, roleEntity1, roleEntity2)
+}
+
+func testGoogleStorageDefaultObjectAclUnordered(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_default_object_acl" "acl" {
+  bucket = "${google_storage_bucket.bucket.name}"
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
+}
+`, bucketName, roleEntityBasic1, roleEntityViewers, roleEntityOwners, roleEntityBasic2, roleEntityEditors)
 }

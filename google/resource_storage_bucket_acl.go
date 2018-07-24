@@ -17,7 +17,7 @@ func resourceStorageBucketAcl() *schema.Resource {
 		Read:          resourceStorageBucketAclRead,
 		Update:        resourceStorageBucketAclUpdate,
 		Delete:        resourceStorageBucketAclDelete,
-		CustomizeDiff: resourceStorageBucketAclCustomizeDiff,
+		CustomizeDiff: resourceStorageRoleEntityCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -49,7 +49,7 @@ func resourceStorageBucketAcl() *schema.Resource {
 	}
 }
 
-func resourceStorageBucketAclCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	keys := diff.GetChangedKeysPrefix("role_entity")
 	if len(keys) < 1 {
 		return nil

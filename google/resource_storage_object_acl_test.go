@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	//"google.golang.org/api/storage/v1"
 )
 
 var tfObjectAcl, errObjectAcl = ioutil.TempFile("", "tf-gce-test")
@@ -177,6 +176,31 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 	})
 }
 
+// Test that we allow the API to reorder our role entities without perma-diffing.
+func TestAccStorageObjectAcl_unordered(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	objectName := testAclObjectName()
+	objectData := []byte("data data data")
+	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			if errObjectAcl != nil {
+				panic(errObjectAcl)
+			}
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageObjectAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageObjectAclUnordered(bucketName, objectName),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageObjectAcl(bucket, object, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
@@ -335,4 +359,24 @@ resource "google_storage_object_acl" "acl" {
 	predefined_acl = "projectPrivate"
 }
 `, bucketName, objectName, tfObjectAcl.Name())
+}
+
+func testGoogleStorageObjectAclUnordered(bucketName, objectName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_bucket_object" "object" {
+	name = "%s"
+	bucket = "${google_storage_bucket.bucket.name}"
+	source = "%s"
+}
+
+resource "google_storage_object_acl" "acl" {
+	object = "${google_storage_bucket_object.object.name}"
+	bucket = "${google_storage_bucket.bucket.name}"
+	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+}
+`, bucketName, objectName, tfObjectAcl.Name(), roleEntityBasic1, roleEntityViewers, roleEntityOwners, roleEntityBasic2, roleEntityEditors)
 }

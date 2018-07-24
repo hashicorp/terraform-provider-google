@@ -10,10 +10,11 @@ import (
 
 func resourceStorageDefaultObjectAcl() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageDefaultObjectAclCreate,
-		Read:   resourceStorageDefaultObjectAclRead,
-		Update: resourceStorageDefaultObjectAclUpdate,
-		Delete: resourceStorageDefaultObjectAclDelete,
+		Create:        resourceStorageDefaultObjectAclCreate,
+		Read:          resourceStorageDefaultObjectAclRead,
+		Update:        resourceStorageDefaultObjectAclUpdate,
+		Delete:        resourceStorageDefaultObjectAclDelete,
+		CustomizeDiff: resourceStorageRoleEntityCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -24,7 +25,8 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 
 			"role_entity": &schema.Schema{
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				MinItems: 1,
 			},
