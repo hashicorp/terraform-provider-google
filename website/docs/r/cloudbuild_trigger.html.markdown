@@ -78,6 +78,22 @@ will be expanded when the build is created:
 in the Git repo. This is mutually exclusive with `build`. This is typically
 `cloudbuild.yaml` however it can be specified by the user.
 
+* `substitutions`: (Optional) User-defined substitutions.
+User-defined substitutions must conform to the following rules:
+  *  Substitutions must begin with an underscore (`_`) and use only
+     uppercase-letters and numbers (respecting the regular expression 
+     `_[A-Z0-9_]+`). This prevents conflicts with built-in substitutions.
+  *  Unmatched keys in the template will cause an error (for example, if a build
+     request includes `$_FOO` and the substitutions map doesn’t define `_FOO`).
+  *  Unmatched keys in the parameters list will result in an error (for example,
+     if a substitutions map defines `_FOO` but the build request doesn't include `$_FOO`).
+  *  To include a literal `$_VARIABLE` in the template, you must escape with `$$`.
+  *  You can explicitly denote variable expansion using the `${_VAR}` syntax. This prevents
+     ambiguity in cases like `${_FOO}BAR`, where `$_FOO` is a variable.
+  *  The number of parameters is limited to 100 parameters.
+  *  The length of a parameter key and the length of a parameter value
+     are limited to 100 characters.
+
 ---
 
 The `trigger_template` block supports:

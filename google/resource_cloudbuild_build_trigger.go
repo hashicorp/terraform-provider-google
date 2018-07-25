@@ -19,7 +19,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		Read:   resourceCloudbuildBuildTriggerRead,
 		Delete: resourceCloudbuildBuildTriggerDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceCloudBuildTriggerImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -89,6 +89,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"substitutions": &schema.Schema{
+				Optional: true,
+				Type:     schema.TypeMap,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"trigger_template": &schema.Schema{
 				Optional: true,
 				Type:     schema.TypeList,
@@ -155,6 +161,7 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 	}
 
 	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
+	buildTrigger.Substitutions = expandStringMap(d, "substitutions")
 
 	tstr, err := json.Marshal(buildTrigger)
 	if err != nil {
@@ -186,6 +193,7 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	}
 
 	d.Set("description", buildTrigger.Description)
+	d.Set("substitutions", buildTrigger.Substitutions)
 
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
@@ -311,4 +319,18 @@ func resourceCloudbuildBuildTriggerDelete(d *schema.ResourceData, meta interface
 
 	d.SetId("")
 	return nil
+}
+
+func resourceCloudBuildTriggerImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) == 1 {
+		return []*schema.ResourceData{d}, nil
+	} else if len(parts) == 2 {
+		d.Set("project", parts[0])
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, nil
+	} else {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {trigger_name} or {project}/{trigger_name}", d.Id())
+	}
 }
