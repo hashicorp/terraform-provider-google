@@ -323,6 +323,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		}
 
 		obj := make(map[string]interface{})
+		// d.Get("labels") will have been overridden by the Read call.
 		labelsProp, err := expandComputeForwardingRuleLabels(v, d, config)
 		obj["labels"] = labelsProp
 		labelFingerprintProp := d.Get("label_fingerprint")
@@ -334,7 +335,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		}
 		res, err = sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error adding labels to ForwardingRule %q: %s", d.Id(), err)
+			return fmt.Errorf("Error adding labels to ComputeForwardingRule %q: %s", d.Id(), err)
 		}
 
 		err = Convert(res, op)
@@ -343,7 +344,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		}
 
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating ForwardingRule",
+			config.clientCompute, op, project, "Updating ComputeForwardingRule Labels",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 		if err != nil {

@@ -29,6 +29,7 @@ func resourceComputeAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeAddressCreate,
 		Read:   resourceComputeAddressRead,
+		Update: resourceComputeAddressUpdate,
 		Delete: resourceComputeAddressDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -37,6 +38,7 @@ func resourceComputeAddress() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
@@ -79,6 +81,11 @@ func resourceComputeAddress() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -87,6 +94,10 @@ func resourceComputeAddress() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"creation_timestamp": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -156,6 +167,12 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
 	}
+	labelsProp, err := expandComputeAddressLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 	regionProp, err := expandComputeAddressRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -198,6 +215,44 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Finished creating Address %q: %#v", d.Id(), res)
+
+	if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		// Labels cannot be set in a create.  We'll have to set them here.
+		err = resourceComputeAddressRead(d, meta)
+		if err != nil {
+			return err
+		}
+
+		obj := make(map[string]interface{})
+		// d.Get("labels") will have been overridden by the Read call.
+		labelsProp, err := expandComputeAddressLabels(v, d, config)
+		obj["labels"] = labelsProp
+		labelFingerprintProp := d.Get("label_fingerprint")
+		obj["labelFingerprint"] = labelFingerprintProp
+
+		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+		res, err = sendRequest(config, "POST", url, obj)
+		if err != nil {
+			return fmt.Errorf("Error adding labels to ComputeAddress %q: %s", d.Id(), err)
+		}
+
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+
+		err = computeOperationWaitTime(
+			config.clientCompute, op, project, "Updating ComputeAddress Labels",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+		if err != nil {
+			return err
+		}
+
+	}
 
 	return resourceComputeAddressRead(d, meta)
 }
@@ -244,6 +299,12 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("users", flattenComputeAddressUsers(res["users"])); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
+	if err := d.Set("labels", flattenComputeAddressLabels(res["labels"])); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("label_fingerprint", flattenComputeAddressLabelFingerprint(res["labelFingerprint"])); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
 	if err := d.Set("region", flattenComputeAddressRegion(res["region"])); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
@@ -255,6 +316,62 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourceComputeAddressUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	var url string
+	var res map[string]interface{}
+	op := &compute.Operation{}
+
+	d.Partial(true)
+
+	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
+		obj := make(map[string]interface{})
+		labelsProp, err := expandComputeAddressLabels(d.Get("labels"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
+		}
+		labelFingerprintProp := d.Get("label_fingerprint")
+		obj["labelFingerprint"] = labelFingerprintProp
+
+		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+		res, err = sendRequest(config, "POST", url, obj)
+		if err != nil {
+			return fmt.Errorf("Error updating Address %q: %s", d.Id(), err)
+		}
+
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+
+		err = computeOperationWaitTime(
+			config.clientCompute, op, project, "Updating Address",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("labels")
+		d.SetPartial("label_fingerprint")
+	}
+
+	d.Partial(false)
+
+	return resourceComputeAddressRead(d, meta)
 }
 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
@@ -346,6 +463,14 @@ func flattenComputeAddressUsers(v interface{}) interface{} {
 	return v
 }
 
+func flattenComputeAddressLabels(v interface{}) interface{} {
+	return v
+}
+
+func flattenComputeAddressLabelFingerprint(v interface{}) interface{} {
+	return v
+}
+
 func flattenComputeAddressRegion(v interface{}) interface{} {
 	if v == nil {
 		return v
@@ -379,6 +504,17 @@ func expandComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, confi
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeAddressLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
