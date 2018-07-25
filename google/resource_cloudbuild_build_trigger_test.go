@@ -239,10 +239,10 @@ resource "google_cloudbuild_trigger" "filename_build_trigger" {
     project     = "${google_project_services.acceptance.project}"
     repo_name   = "some-repo"
   }
-	substitutions {
-		foo = "bar"
-		baz = "qux"
-	}
+  substitutions {
+    _FOO = "bar"
+    _BAZ = "qux"
+  }
   filename = "cloudbuild.yaml"
 }
   `, projectID, projectID, projectOrg, projectBillingAccount)
