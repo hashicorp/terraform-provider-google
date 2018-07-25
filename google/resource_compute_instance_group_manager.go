@@ -456,10 +456,10 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-// Updates an instance group manager by applying an update strategy (REPLACE, RESTART) respecting a rolling update policy (availability settings,
-// interval between updates, and particularly, the type of update PROACTIVE or OPPORTUNISTIC because updates performed by API are considered
-// OPPORTUNISTIC by default)
-func performUpdate(config *Config, id string, updateStrategy string, rollingUpdatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy, versions []*computeBeta.InstanceGroupManagerVersion, project string, zone string) error {
+// Updates an instance group manager by applying the update strategy (REPLACE, RESTART)
+// and rolling update policy (PROACTIVE, OPPORTUNISTIC). Updates performed by API
+// are OPPORTUNISTIC by default.
+func performZoneUpdate(config *Config, id string, updateStrategy string, rollingUpdatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy, versions []*computeBeta.InstanceGroupManagerVersion, project string, zone string) error {
 	if updateStrategy == "RESTART" {
 		managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, id).Do()
 		if err != nil {
@@ -646,7 +646,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 		updateStrategy := d.Get("update_strategy").(string)
 		rollingUpdatePolicy := expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{}))
-		err = performUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, nil, project, zone)
+		err = performZoneUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, nil, project, zone)
 		d.SetPartial("instance_template")
 	}
 
@@ -655,7 +655,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		updateStrategy := d.Get("update_strategy").(string)
 		rollingUpdatePolicy := expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{}))
 		versions := expandVersions(d.Get("version").([]interface{}))
-		err = performUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, versions, project, zone)
+		err = performZoneUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, versions, project, zone)
 		if err != nil {
 			return err
 		}

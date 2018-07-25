@@ -38,8 +38,48 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 
 			"instance_template": &schema.Schema{
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
+			},
+
+			"version": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"instance_template": &schema.Schema{
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
+						},
+
+						"target_size": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fixed": &schema.Schema{
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+
+									"percent": &schema.Schema{
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 100),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 
 			"name": &schema.Schema{
@@ -242,6 +282,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").([]interface{})),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
+		Versions:            expandVersions(d.Get("version").([]interface{})),
 		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy_zones").(*schema.Set)),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -315,6 +356,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
 	d.Set("instance_template", manager.InstanceTemplate)
+	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
+		return err
+	}
 	d.Set("name", manager.Name)
 	d.Set("region", GetResourceNameFromSelfLink(manager.Region))
 	d.Set("description", manager.Description)
@@ -329,6 +373,11 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return err
 	}
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
+	update_strategy, ok := d.GetOk("update_strategy")
+	if !ok {
+		update_strategy = "NONE"
+	}
+	d.Set("update_strategy", update_strategy.(string))
 
 	if d.Get("wait_for_instances").(bool) {
 		conf := resource.StateChangeConf{
@@ -338,6 +387,63 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 			Timeout: d.Timeout(schema.TimeoutCreate),
 		}
 		_, err := conf.WaitForState()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Updates an instance group manager by applying the update strategy (REPLACE, RESTART)
+// and rolling update policy (PROACTIVE, OPPORTUNISTIC). Updates performed by API
+// are OPPORTUNISTIC by default.
+func performRegionUpdate(config *Config, id string, updateStrategy string, rollingUpdatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy, versions []*computeBeta.InstanceGroupManagerVersion, project string, region string) error {
+	if updateStrategy == "RESTART" {
+		managedInstances, err := config.clientComputeBeta.RegionInstanceGroupManagers.ListManagedInstances(project, region, id).Do()
+		if err != nil {
+			return fmt.Errorf("Error getting region instance group managers instances: %s", err)
+		}
+
+		managedInstanceCount := len(managedInstances.ManagedInstances)
+		instances := make([]string, managedInstanceCount)
+		for i, v := range managedInstances.ManagedInstances {
+			instances[i] = v.Instance
+		}
+
+		recreateInstances := &computeBeta.RegionInstanceGroupManagersRecreateRequest{
+			Instances: instances,
+		}
+
+		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.RecreateInstances(project, region, id, recreateInstances).Do()
+		if err != nil {
+			return fmt.Errorf("Error restarting region instance group managers instances: %s", err)
+		}
+
+		// Wait for the operation to complete
+		err = computeSharedOperationWaitTime(config.clientCompute, op, project, managedInstanceCount*4, "Restarting RegionInstanceGroupManagers instances")
+		if err != nil {
+			return err
+		}
+	}
+
+	if updateStrategy == "ROLLING_UPDATE" {
+		// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+		// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
+		// expect those values to be provided by user as part of the call
+		// or provide their own defaults without respecting what was previously set on UpdateManager.
+		// To follow the same logic, we provide policy values on relevant update change only.
+		manager := &computeBeta.InstanceGroupManager{
+			UpdatePolicy: rollingUpdatePolicy,
+			Versions:     versions,
+		}
+
+		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Patch(project, region, id, manager).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating region managed group instances: %s", err)
+		}
+
+		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating region managed group instances")
 		if err != nil {
 			return err
 		}
@@ -406,29 +512,23 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			return err
 		}
 
-		if d.Get("update_strategy").(string) == "ROLLING_UPDATE" {
-			// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
-			// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
-			// expect those values to be provided by user as part of the call
-			// or provide their own defaults without respecting what was previously set on UpdateManager.
-			// To follow the same logic, we provide policy values on relevant update change only.
-			manager := &computeBeta.InstanceGroupManager{
-				UpdatePolicy: expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{})),
-			}
+		updateStrategy := d.Get("update_strategy").(string)
+		rollingUpdatePolicy := expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{}))
+		err = performRegionUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, nil, project, region)
+		d.SetPartial("instance_template")
+	}
 
-			op, err = config.clientComputeBeta.RegionInstanceGroupManagers.Patch(
-				project, region, d.Id(), manager).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating managed group instances: %s", err)
-			}
-
-			err = computeSharedOperationWait(config.clientCompute, op, project, "Updating managed group instances")
-			if err != nil {
-				return err
-			}
+	// If version changes then update
+	if d.HasChange("version") {
+		updateStrategy := d.Get("update_strategy").(string)
+		rollingUpdatePolicy := expandUpdatePolicy(d.Get("rolling_update_policy").([]interface{}))
+		versions := expandVersions(d.Get("version").([]interface{}))
+		err = performRegionUpdate(config, d.Id(), updateStrategy, rollingUpdatePolicy, versions, project, region)
+		if err != nil {
+			return err
 		}
 
-		d.SetPartial("instance_template")
+		d.SetPartial("version")
 	}
 
 	if d.HasChange("named_port") {
