@@ -5,6 +5,9 @@ FEATURES:
 
 IMPROVEMENTS:
 * cloudfunctions: Add support for updating function code in place [GH-1781]
+* cloudbuild: Add support for substitutions in triggers [GH-1810]
+* compute: Bring regional instance groups up to par with zonal instance groups. [GH-1809]
+* compute: Add labels to Address and GlobalAddress. [GH-1811]
 
 BUG FIXES:
 * project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
