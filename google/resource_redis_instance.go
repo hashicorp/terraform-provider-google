@@ -56,6 +56,7 @@ func resourceRedisInstance() *schema.Resource {
 			},
 			"alternative_location_id": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
