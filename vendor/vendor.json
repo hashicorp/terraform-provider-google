@@ -1268,10 +1268,10 @@
 			"revisionTime": "2018-04-19T00:06:09Z"
 		},
 		{
-			"checksumSHA1": "M6qPoWx14U0JlqP2c/Mvx9fYmDo=",
+			"checksumSHA1": "M4KP9cR8pFbyJyG15Dbl2JRAgGw=",
 			"path": "google.golang.org/api/cloudfunctions/v1",
-			"revision": "f4694fe510ef1f58a08157aa15e795ffea4d4766",
-			"revisionTime": "2017-12-15T00:04:04Z"
+			"revision": "31ca0e01cd791f07750cb23fc99327721f753290",
+			"revisionTime": "2018-07-30T00:09:01Z"
 		},
 		{
 			"checksumSHA1": "uLifIDdJHnoBlTG0G4T6DGSB9l4=",
