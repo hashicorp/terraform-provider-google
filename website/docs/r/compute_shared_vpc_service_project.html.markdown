@@ -37,6 +37,14 @@ The following arguments are expected:
 
 * `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
 
+- - -
+
+* `kubernetes_subnetwork_access` - (Optional) A list of strings.  Each string is the self link (or partial self-link)
+  of a subnetwork on the host project that should be accessible by Google Kubernetes Engine on the service project.
+  The supported formats are full self link, relative self link, `project/region/name`, `region/name`, or `name` (with
+  default region or zone in the provider).  Note: this feature is not importable - you should expect to see a diff
+  after import, which will be resolved after the first apply.
+
 ## Import
 
 Google Compute Engine Shared VPC service project feature can be imported using the `host_project` and `service_project`, e.g.
