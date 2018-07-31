@@ -686,6 +686,11 @@ exported:
   notation (e.g. `1.2.3.4/29`). Service addresses are typically put in the last
   `/16` from the container CIDR.
 
+* `kube_config_raw` - Raw Kubernetes config to be used by
+    [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) and
+    other compatible tools
+
+<a id="timeouts"></a>
 ## Timeouts
 
 This resource provides the following

@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"reflect"
@@ -15,6 +16,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/clientcmd/api"
+	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 )
 
 var (
@@ -386,6 +390,12 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"kube_config_raw": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 
 			"master_authorized_networks_config": {
@@ -971,6 +981,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("master_auth", flattenMasterAuth(cluster.MasterAuth)); err != nil {
 		return err
 	}
+
+	cfg, err := generateKubeConfig(cluster.MasterAuth, cluster.Name, cluster.Endpoint)
+	if err != nil {
+		return err
+	}
+
+	d.Set("kube_config_raw", cfg)
+
 	if err := d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig)); err != nil {
 		return err
 	}
@@ -1989,6 +2007,56 @@ func flattenMasterAuth(ma *containerBeta.MasterAuth) []map[string]interface{} {
 	}
 
 	return masterAuth
+}
+func generateKubeConfig(ma *containerBeta.MasterAuth, name, endpoint string) (string, error) {
+	if ma == nil {
+		return "", nil
+	}
+
+	clusterCaCert, err := base64.StdEncoding.DecodeString(ma.ClusterCaCertificate)
+	if err != nil {
+		return "", nil
+	}
+	clientCert, err := base64.StdEncoding.DecodeString(ma.ClientCertificate)
+	if err != nil {
+		return "", nil
+	}
+	clientKey, err := base64.StdEncoding.DecodeString(ma.ClientKey)
+	if err != nil {
+		return "", nil
+	}
+
+	cfg := api.Config{
+		Preferences: *api.NewPreferences(),
+		Clusters: map[string]*api.Cluster{
+			name: {
+				Server:                   "https://" + endpoint,
+				CertificateAuthorityData: clusterCaCert,
+			},
+		},
+		AuthInfos: map[string]*api.AuthInfo{
+			name: {
+				ClientCertificateData: clientCert,
+				ClientKeyData:         clientKey,
+				Username:              ma.Username,
+				Password:              ma.Password,
+			},
+		},
+		Contexts: map[string]*api.Context{
+			name: {
+				AuthInfo: name,
+				Cluster:  name,
+			},
+		},
+		CurrentContext: name,
+	}
+
+	b, err := runtime.Encode(clientcmdlatest.Codec, &cfg)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
 }
 
 func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetworksConfig) []map[string]interface{} {
