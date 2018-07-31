@@ -17,6 +17,8 @@ and
 ## Example Usage
 
 ```hcl
+data "google_storage_project_service_account" "gs_account" {}
+
 resource "google_storage_bucket" "bucket" {
 	name = "default_bucket"
 }
@@ -25,19 +27,14 @@ resource "google_pubsub_topic" "topic" {
 	name = "default_topic"
 }
 
-// In order to enable notifications,
-// a GCS service account unique to each project
-// must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
-// The only reference to this requirement can be found here:
+// In order to enable notifications, the Google Cloud Storage service account unique to each project
+// must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project.
 // https://cloud.google.com/storage/docs/gsutil/commands/notification
-// The GCS service account has the format of <project-id>@gs-project-accounts.iam.gserviceaccount.com
-// API for retrieving it https://cloud.google.com/storage/docs/json_api/v1/projects/serviceAccount/get
 
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic       = "${google_pubsub_topic.topic.name}"
 	role        = "roles/pubsub.publisher"
-		  
-	members     = ["serviceAccount:my-project-id@gs-project-accounts.iam.gserviceaccount.com"]
+	members     = ["serviceAccount:${data.google_storage_project_service_account.gs_account.id}"]
 }
 
 resource "google_storage_notification" "notification" {
