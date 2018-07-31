@@ -168,6 +168,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional: true,
 			},
 
+			"environment_variables": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
+
 			"trigger_bucket": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -318,6 +323,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.Labels = expandLabels(d)
 	}
 
+	if _, ok := d.GetOk("environment_variables"); ok {
+		function.EnvironmentVariables = expandEnvironmentVariables(d)
+	}
+
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
 	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
 		cloudFuncId.locationId(), function).Do()
@@ -360,6 +369,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("timeout", timeout)
 	d.Set("labels", function.Labels)
+	d.Set("environment_variables", function.EnvironmentVariables)
 	if function.SourceArchiveUrl != "" {
 		sourceArr := strings.Split(function.SourceArchiveUrl, "/")
 		d.Set("source_archive_bucket", sourceArr[2])
@@ -430,6 +440,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("labels") {
 		function.Labels = expandLabels(d)
 		updateMaskArr = append(updateMaskArr, "labels")
+	}
+
+	if d.HasChange("environment_variables") {
+		function.EnvironmentVariables = expandEnvironmentVariables(d)
+		updateMaskArr = append(updateMaskArr, "environment_variables")
 	}
 
 	if d.HasChange("retry_on_failure") {
