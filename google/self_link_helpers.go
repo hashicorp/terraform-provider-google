@@ -60,6 +60,12 @@ func getRelativePath(selfLink string) (string, error) {
 	return "projects/" + stringParts[1], nil
 }
 
+// Hash the name path of a self link.
+func selfLinkNameHash(selfLink interface{}) int {
+	name := GetResourceNameFromSelfLink(selfLink.(string))
+	return hashcode.String(name)
+}
+
 func ConvertSelfLinkToV1(link string) string {
 	reg := regexp.MustCompile("/compute/[a-zA-Z0-9]*/projects/")
 	return reg.ReplaceAllString(link, "/compute/v1/projects/")
