@@ -54,6 +54,12 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"machine_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"max_workers": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -106,6 +112,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		TempLocation: d.Get("temp_gcs_location").(string),
 		Zone:         zone,
 		MaxWorkers:   int64(d.Get("max_workers").(int)),
+		MachineType:  d.Get("machine_type").(string),
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{

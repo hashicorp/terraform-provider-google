@@ -86,6 +86,7 @@ resource "google_dataflow_job" "big_data" {
 	}
 	zone = "us-central1-f"
 	project = "%s"
+	machine_type = "n1-standard-1"
 
 	on_delete = "cancel"
 }`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
