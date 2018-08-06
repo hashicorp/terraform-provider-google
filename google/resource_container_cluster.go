@@ -1120,6 +1120,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("logging_service")
 	}
 
+	if d.HasChange("node_config") {
+		if d.HasChange("node_config.0.image_type") {
+			it := d.Get("node_config.0.image_type").(string)
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredImageType: it,
+				},
+			}
+
+			updateF := func() error {
+				name := containerClusterFullName(project, location, clusterName)
+				op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerSharedOperationWait(config, op, project, location, "updating GKE image type", timeoutInMinutes, 2)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s: image type has been updated to %s", d.Id(), it)
+		}
+		d.SetPartial("node_config")
+	}
+
 	if d.HasChange("pod_security_policy_config") {
 		c := d.Get("pod_security_policy_config")
 		req := &containerBeta.UpdateClusterRequest{

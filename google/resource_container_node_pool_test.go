@@ -80,13 +80,27 @@ func TestAccContainerNodePool_noName(t *testing.T) {
 func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	nodePool := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccContainerNodePool_withNodeConfig(),
+				Config: testAccContainerNodePool_withNodeConfig(cluster, nodePool),
+			},
+			resource.TestStep{
+				ResourceName:      "google_container_node_pool.np_with_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+			},
+			resource.TestStep{
+				Config: testAccContainerNodePool_withNodeConfigUpdate(cluster, nodePool),
 			},
 			resource.TestStep{
 				ResourceName:      "google_container_node_pool.np_with_node_config",
@@ -672,15 +686,15 @@ resource "google_container_node_pool" "np_with_management" {
 }`, cluster, nodePool, management)
 }
 
-func testAccContainerNodePool_withNodeConfig() string {
+func testAccContainerNodePool_withNodeConfig(cluster, nodePool string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-	name = "tf-cluster-nodepool-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 1
 }
 resource "google_container_node_pool" "np_with_node_config" {
-	name = "tf-nodepool-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 1
@@ -695,8 +709,41 @@ resource "google_container_node_pool" "np_with_node_config" {
 		]
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
+
+		// Updatable fields
+		image_type = "COS"
 	}
-}`, acctest.RandString(10), acctest.RandString(10))
+}`, cluster, nodePool)
+}
+
+func testAccContainerNodePool_withNodeConfigUpdate(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+}
+resource "google_container_node_pool" "np_with_node_config" {
+	name = "%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+	node_config {
+		machine_type = "g1-small"
+		disk_size_gb = 10
+		oauth_scopes = [
+			"https://www.googleapis.com/auth/compute",
+			"https://www.googleapis.com/auth/devstorage.read_only",
+			"https://www.googleapis.com/auth/logging.write",
+			"https://www.googleapis.com/auth/monitoring"
+		]
+		preemptible = true
+		min_cpu_platform = "Intel Broadwell"
+
+		// Updatable fields
+		image_type = "UBUNTU"
+	}
+}`, cluster, nodePool)
 }
 
 func testAccContainerNodePool_withNodeConfigTaints() string {
