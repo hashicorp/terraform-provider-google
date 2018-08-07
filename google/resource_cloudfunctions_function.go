@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 	"log"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -361,9 +362,16 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("timeout", timeout)
 	d.Set("labels", function.Labels)
 	if function.SourceArchiveUrl != "" {
-		sourceArr := strings.Split(function.SourceArchiveUrl, "/")
-		d.Set("source_archive_bucket", sourceArr[2])
-		d.Set("source_archive_object", sourceArr[3])
+		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
+		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
+		sourceURL, err := url.Parse(function.SourceArchiveUrl)
+		if err != nil {
+			return err
+		}
+		bucket := sourceURL.Host
+		object := strings.TrimLeft(sourceURL.Path, "/")
+		d.Set("source_archive_bucket", bucket)
+		d.Set("source_archive_object", object)
 	}
 
 	if function.HttpsTrigger != nil {
