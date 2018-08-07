@@ -106,6 +106,7 @@ func Provider() terraform.ResourceProvider {
 			GeneratedComposerResourcesMap,
 			GeneratedResourceManagerResourcesMap,
 			map[string]*schema.Resource{
+				"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
 				"google_bigquery_dataset":                      resourceBigQueryDataset(),
 				"google_bigquery_table":                        resourceBigQueryTable(),
 				"google_bigtable_instance":                     resourceBigtableInstance(),

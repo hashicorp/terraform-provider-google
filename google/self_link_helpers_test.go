@@ -110,3 +110,36 @@ func TestSelfLinkNameHash(t *testing.T) {
 		}
 	}
 }
+
+func TestGetZoneFromSelfLink(t *testing.T) {
+	cases := map[string]struct {
+		SelfLink, Zone string
+	}{
+		"valid self link": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a/instances/disk-attach-daa308ff",
+			Zone:     "us-west1-a",
+		},
+		"terminating link": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a",
+			Zone:     "us-west1-a",
+		},
+		"link missing a zone": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a",
+			Zone:     "us-west1-a",
+		},
+		"invalid link": {
+			SelfLink: "not-a-zone",
+			Zone:     "",
+		},
+		"link without zone in the path": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/your-project/global/networks/a-network",
+			Zone:     "",
+		},
+	}
+
+	for tn, tc := range cases {
+		if z := GetZoneFromSelfLink(tc.SelfLink); z != tc.Zone {
+			t.Errorf("failed to parse zone from %s. expected %s; got %s", tn, tc.Zone, z)
+		}
+	}
+}
