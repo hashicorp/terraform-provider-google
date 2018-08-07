@@ -285,7 +285,8 @@ The `node_config` block supports:
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
 
-* `image_type` - (Optional) The image type to use for this node.
+* `image_type` - (Optional) The image type to use for this node. Note that changing the image type
+    will delete and recreate all nodes in the node pool.
 
 * `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
 
