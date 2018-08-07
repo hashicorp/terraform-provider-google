@@ -564,13 +564,24 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodeConfig(),
+				Config: testAccContainerCluster_withNodeConfig(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_node_config",
+				ImportStateIdPrefix: "us-central1-f/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withNodeConfigUpdate(clusterName),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_node_config",
@@ -1670,10 +1681,10 @@ resource "google_container_cluster" "with_version" {
 }`, clusterName)
 }
 
-func testAccContainerCluster_withNodeConfig() string {
+func testAccContainerCluster_withNodeConfig(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_config" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-f"
 	initial_node_count = 1
 
@@ -1692,15 +1703,52 @@ resource "google_container_cluster" "with_node_config" {
 		metadata {
 			foo = "bar"
 		}
-		image_type = "COS"
 		labels {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
+
+		// Updatable fields
+		image_type = "COS"
 	}
-}`, acctest.RandString(10))
+}`, clusterName)
+}
+
+func testAccContainerCluster_withNodeConfigUpdate(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config" {
+	name = "%s"
+	zone = "us-central1-f"
+	initial_node_count = 1
+
+	node_config {
+		machine_type = "n1-standard-1"
+		disk_size_gb = 15
+		disk_type = "pd-ssd"
+		local_ssd_count = 1
+		oauth_scopes = [
+			"https://www.googleapis.com/auth/monitoring",
+			"https://www.googleapis.com/auth/compute",
+			"https://www.googleapis.com/auth/devstorage.read_only",
+			"https://www.googleapis.com/auth/logging.write"
+		]
+		service_account = "default"
+		metadata {
+			foo = "bar"
+		}
+		labels {
+			foo = "bar"
+		}
+		tags = ["foo", "bar"]
+		preemptible = true
+		min_cpu_platform = "Intel Broadwell"
+
+		// Updatable fields
+		image_type = "UBUNTU"
+	}
+}`, clusterName)
 }
 
 func testAccContainerCluster_withNodeConfigScopeAlias() string {

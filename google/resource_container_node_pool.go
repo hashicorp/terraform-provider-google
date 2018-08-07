@@ -584,6 +584,41 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 	}
 
+	if d.HasChange(prefix + "node_config") {
+		if d.HasChange(prefix + "node_config.0.image_type") {
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredNodePoolId: name,
+					DesiredImageType:  d.Get(prefix + "node_config.0.image_type").(string),
+				},
+			}
+
+			updateF := func() error {
+				op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerBetaOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location, "updating GKE node pool",
+					timeoutInMinutes, 2)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
+		}
+
+		if prefix == "" {
+			d.SetPartial("node_config")
+		}
+	}
+
 	if d.HasChange(prefix + "node_count") {
 		newSize := int64(d.Get(prefix + "node_count").(int))
 		req := &containerBeta.SetNodePoolSizeRequest{
