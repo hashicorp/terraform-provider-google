@@ -553,7 +553,10 @@ func flattenComputeVpnTunnelDescription(v interface{}) interface{} {
 }
 
 func flattenComputeVpnTunnelTargetVpnGateway(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeVpnTunnelRouter(v interface{}) interface{} {
