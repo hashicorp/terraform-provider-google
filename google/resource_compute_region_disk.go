@@ -602,6 +602,9 @@ func flattenComputeRegionDiskSize(v interface{}) interface{} {
 }
 
 func flattenComputeRegionDiskType(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
@@ -620,6 +623,9 @@ func flattenComputeRegionDiskReplicaZones(v interface{}) interface{} {
 }
 
 func flattenComputeRegionDiskRegion(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 

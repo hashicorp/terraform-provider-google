@@ -470,6 +470,9 @@ func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}) interfa
 }
 
 func flattenComputeRouterRegion(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 

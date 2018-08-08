@@ -113,6 +113,7 @@ resource "google_compute_route" "route1" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. The name must be 1-63 characters long, and
@@ -122,47 +123,56 @@ The following arguments are supported:
   must be a lowercase letter, and all following characters must
   be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
+
 * `target_vpn_gateway` -
   (Required)
   URL of the Target VPN gateway with which this VPN tunnel is
   associated.
+
 * `peer_ip` -
   (Required)
   IP address of the peer VPN gateway. Only IPv4 is supported.
+
 * `shared_secret` -
   (Required)
   Shared secret used to set the secure session between the Cloud VPN
   gateway and the peer VPN gateway.
 
-
 - - -
+
 
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `router` -
   (Optional)
   URL of router resource to be used for dynamic routing.
+
 * `ike_version` -
   (Optional)
   IKE protocol version to use when establishing the VPN tunnel with
   peer VPN gateway.
   Acceptable IKE versions are 1 or 2. Default version is 2.
+
 * `local_traffic_selector` -
   (Optional)
   Local traffic selector to use when establishing the VPN tunnel with
   peer VPN gateway. The value should be a CIDR formatted string,
   for example `192.168.0.0/16`. The ranges should be disjoint.
   Only IPv4 is supported.
+
 * `remote_traffic_selector` -
   (Optional)
   Remote traffic selector to use when establishing the VPN tunnel with
   peer VPN gateway. The value should be a CIDR formatted string,
   for example `192.168.0.0/16`. The ranges should be disjoint.
   Only IPv4 is supported.
+
 * `labels` -
   (Optional)
   Labels to apply to this VpnTunnel.
+
 * `region` -
   (Optional)
   The region where the tunnel is located.
@@ -174,13 +184,17 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `shared_secret_hash` -
   Hash of the shared secret.
+
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
+
 * `detailed_status` -
   Detailed status message for the VPN tunnel.
 * `self_link` - The URI of the created resource.
