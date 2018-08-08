@@ -1328,9 +1328,10 @@
 			"revisionTime": "2017-12-13T00:03:45Z"
 		},
 		{
-			"checksumSHA1": "4spHGEYR8VWzwlBGD+xSwi8ZRkw=",
+			"checksumSHA1": "xXFRPq6wWR4G/zDHWOrVl7q3hpc=",
 			"path": "google.golang.org/api/dataproc/v1",
-			"revision": "93a219feb72690ca01348faec80d5a076a32f688"
+			"revision": "6e1e03fd226b4390709001a431fb7283256a7d03",
+			"revisionTime": "2018-08-08T00:04:36Z"
 		},
 		{
 			"checksumSHA1": "wv8+a9dOWrdJEIt1mva9qLlTSfo=",
