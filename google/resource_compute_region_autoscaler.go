@@ -199,7 +199,7 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Creating new RegionAutoscaler: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating RegionAutoscaler: %s", err)
 	}
@@ -245,7 +245,7 @@ func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionAutoscaler %q", d.Id()))
 	}
@@ -361,7 +361,7 @@ func resourceComputeRegionAutoscalerDelete(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Deleting RegionAutoscaler %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionAutoscaler")
 	}

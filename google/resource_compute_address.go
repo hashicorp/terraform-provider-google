@@ -186,7 +186,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Address: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating Address: %s", err)
 	}
@@ -270,7 +270,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeAddress %q", d.Id()))
 	}
@@ -388,7 +388,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Deleting Address %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "Address")
 	}

@@ -330,7 +330,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new VpnTunnel: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating VpnTunnel: %s", err)
 	}
@@ -376,7 +376,7 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeVpnTunnel %q", d.Id()))
 	}
@@ -503,7 +503,7 @@ func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Deleting VpnTunnel %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "VpnTunnel")
 	}

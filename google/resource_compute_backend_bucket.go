@@ -118,7 +118,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new BackendBucket: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucket: %s", err)
 	}
@@ -164,7 +164,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
 	}
@@ -271,7 +271,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendBucket")
 	}

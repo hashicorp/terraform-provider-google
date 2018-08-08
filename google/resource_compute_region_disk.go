@@ -260,7 +260,7 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new RegionDisk: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating RegionDisk: %s", err)
 	}
@@ -306,7 +306,7 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionDisk %q", d.Id()))
 	}
@@ -526,7 +526,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	log.Printf("[DEBUG] Deleting RegionDisk %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionDisk")
 	}

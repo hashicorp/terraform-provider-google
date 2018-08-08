@@ -180,7 +180,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Router: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating Router: %s", err)
 	}
@@ -226,7 +226,7 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouter %q", d.Id()))
 	}
@@ -356,7 +356,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Deleting Router %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "Router")
 	}

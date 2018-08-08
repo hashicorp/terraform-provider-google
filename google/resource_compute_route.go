@@ -199,7 +199,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Creating new Route: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating Route: %s", err)
 	}
@@ -245,7 +245,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRoute %q", d.Id()))
 	}
@@ -312,7 +312,7 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Deleting Route %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "Route")
 	}

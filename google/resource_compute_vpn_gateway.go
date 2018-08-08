@@ -121,7 +121,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new VpnGateway: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating VpnGateway: %s", err)
 	}
@@ -167,7 +167,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeVpnGateway %q", d.Id()))
 	}
@@ -211,7 +211,7 @@ func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Deleting VpnGateway %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "VpnGateway")
 	}
