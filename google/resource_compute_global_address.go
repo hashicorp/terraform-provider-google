@@ -131,7 +131,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new GlobalAddress: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalAddress: %s", err)
 	}
@@ -215,7 +215,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalAddress %q", d.Id()))
 	}
@@ -321,7 +321,7 @@ func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Deleting GlobalAddress %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "GlobalAddress")
 	}

@@ -231,7 +231,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Instance: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
 	}
@@ -277,7 +277,7 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
 	}
@@ -488,7 +488,7 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "Instance")
 	}

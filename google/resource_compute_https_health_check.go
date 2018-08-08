@@ -174,7 +174,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Creating new HttpsHealthCheck: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating HttpsHealthCheck: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpsHealthCheck %q", d.Id()))
 	}
@@ -372,7 +372,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Deleting HttpsHealthCheck %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "HttpsHealthCheck")
 	}

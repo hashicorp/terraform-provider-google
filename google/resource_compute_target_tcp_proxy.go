@@ -127,7 +127,7 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new TargetTcpProxy: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating TargetTcpProxy: %s", err)
 	}
@@ -173,7 +173,7 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetTcpProxy %q", d.Id()))
 	}
@@ -306,7 +306,7 @@ func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Deleting TargetTcpProxy %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "TargetTcpProxy")
 	}

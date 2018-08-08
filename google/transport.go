@@ -30,22 +30,6 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func Post(config *Config, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequest(config, "POST", rawurl, body)
-}
-
-func Get(config *Config, rawurl string) (map[string]interface{}, error) {
-	return sendRequest(config, "GET", rawurl, nil)
-}
-
-func Put(config *Config, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequest(config, "PUT", rawurl, body)
-}
-
-func Delete(config *Config, rawurl string) (map[string]interface{}, error) {
-	return sendRequest(config, "DELETE", rawurl, nil)
-}
-
 func sendRequest(config *Config, method, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)

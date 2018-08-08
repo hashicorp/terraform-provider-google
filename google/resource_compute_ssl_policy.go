@@ -171,7 +171,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new SslPolicy: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating SslPolicy: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSslPolicy %q", d.Id()))
 	}
@@ -341,7 +341,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Deleting SslPolicy %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, "SslPolicy")
 	}
