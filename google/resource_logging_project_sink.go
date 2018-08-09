@@ -16,7 +16,7 @@ func resourceLoggingProjectSink() *schema.Resource {
 		Update: resourceLoggingProjectSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
 		Importer: &schema.ResourceImporter{
-			State: resourceLoggingProjectSinkImportState,
+			State: resourceLoggingSinkImportState("project"),
 		},
 	}
 	schm.Schema["project"] = &schema.Schema{
@@ -102,19 +102,4 @@ func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId("")
 	return nil
-}
-
-func resourceLoggingProjectSinkImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-
-	loggingSinkId, err := parseLoggingSinkId(d.Id())
-	if err != nil {
-		return nil, err
-	}
-
-	if config.Project != loggingSinkId.resourceId {
-		d.Set("project", loggingSinkId.resourceId)
-	}
-
-	return []*schema.ResourceData{d}, nil
 }

@@ -69,3 +69,16 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) *logging.LogSink
 	}
 	return &sink
 }
+
+func resourceLoggingSinkImportState(sinkType string) schema.StateFunc {
+	return func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+		loggingSinkId, err := parseLoggingSinkId(d.Id())
+		if err != nil {
+			return nil, err
+		}
+
+		d.Set(sinkType, loggingSinkId.resourceId)
+
+		return []*schema.ResourceData{d}, nil
+	}
+}

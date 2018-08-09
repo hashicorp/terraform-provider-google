@@ -7,7 +7,7 @@ import (
 
 // loggingSinkResourceTypes contains all the possible Stackdriver Logging resource types. Used to parse ids safely.
 var loggingSinkResourceTypes = []string{
-	"billingAccount",
+	"billingAccounts",
 	"folders",
 	"organizations",
 	"projects",
