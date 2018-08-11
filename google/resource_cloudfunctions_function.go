@@ -26,9 +26,9 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-// For now CloudFunctions are allowed only in us-central1
+// For now CloudFunctions are allowed only in the following locations.
 // Please see https://cloud.google.com/about/locations/
-var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1"}, true)
+var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1", "us-east1", "europe-west1", "asia-northeast1"}, true)
 
 const functionDefaultAllowedMemoryMb = 256
 
