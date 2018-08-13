@@ -116,6 +116,7 @@ func appEngineResource() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"northamerica-northeast1",
 					"us-central",
+					"us-west2",
 					"us-east1",
 					"us-east4",
 					"southamerica-east1",
