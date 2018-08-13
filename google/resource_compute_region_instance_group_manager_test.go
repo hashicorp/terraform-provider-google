@@ -660,6 +660,11 @@ func testAccCheckRegionInstanceGroupManagerTemplateTags(n string, tags []string)
 
 func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-basic" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -667,7 +672,7 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -714,6 +719,11 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 
 func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-basic" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -721,7 +731,7 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -751,6 +761,11 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 
 func testAccRegionInstanceGroupManager_update(template, target, igm string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-update" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -758,7 +773,7 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -800,6 +815,11 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 // Change IGM's instance template and target size
 func testAccRegionInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-update" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -807,7 +827,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -844,7 +864,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -886,13 +906,18 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 
 func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-update" {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		tags = ["%s"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -926,13 +951,18 @@ func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 
 func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+	       name    = "debian-9"
+	       project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "igm-basic" {
 		machine_type = "n1-standard-1"
 		can_ip_forward = false
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			boot = true
 		}
@@ -972,13 +1002,18 @@ func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string
 
 func testAccRegionInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-basic" {
 	name = "%s"
 	machine_type = "n1-standard-1"
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -1023,13 +1058,18 @@ resource "google_compute_http_health_check" "zero" {
 }
 func testAccRegionInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-primary" {
 	name = "%s"
 	machine_type = "n1-standard-1"
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -1050,7 +1090,7 @@ resource "google_compute_instance_template" "igm-canary" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -1090,13 +1130,18 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
 func testAccRegionInstanceGroupManager_distributionPolicy(template, igm string, zones []string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-basic" {
 	name = "%s"
 	machine_type = "n1-standard-1"
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -1122,13 +1167,18 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
 func testAccRegionInstanceGroupManager_updateStrategy(igm string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-update-strategy" {
 	machine_type   = "n1-standard-1"
 	can_ip_forward = false
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete  = true
 		boot         = true
 	}
@@ -1163,13 +1213,18 @@ resource "google_compute_region_instance_group_manager" "igm-update-strategy" {
 
 func testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
 	machine_type   = "n1-standard-1"
 	can_ip_forward = false
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete  = true
 		boot         = true
 	}
@@ -1214,13 +1269,18 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
 
 func testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+       name    = "debian-9"
+       project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
 	machine_type   = "n1-standard-1"
 	can_ip_forward = false
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete  = true
 		boot         = true
 	}
