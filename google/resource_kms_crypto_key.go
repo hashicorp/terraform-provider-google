@@ -44,8 +44,8 @@ func resourceKmsCryptoKey() *schema.Resource {
 }
 
 func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) bool {
-	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
-	normalizedKeyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	normalizedKeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	if matches := keyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
 		normMatches := normalizedKeyRingIdRegex.FindStringSubmatch(old)
 		return normMatches != nil && normMatches[1] == matches[1] && normMatches[2] == matches[2] && normMatches[3] == matches[3]
