@@ -64,6 +64,8 @@ The following arguments are supported:
 
 * `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
 
+* `encryption` - (Optional) The bucket's encryption configuration.
+
 The `lifecycle_rule` block supports:
 
 * `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
@@ -116,6 +118,13 @@ The `logging` block supports:
 
 * `log_object_prefix` - (Optional, Computed) The object prefix for log objects. If it's not provided,
     by default GCS sets this to the log_bucket's name.
+
+The `encryption` block supports:
+
+* `default_kms_key_name`: A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
+  The format of this is very particular - it must be `projects/$PROJECT_NAME/locations/$LOCATION_NAME/keyRings/$KEY_RING_NAME/cryptoKeys/$CRYPTO_KEY_NAME`.
+  You also must pay attention to whether the crypto key is available in the location that this bucket is created in.
+  See [the docs](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) for more details.
 
 ## Attributes Reference
 
