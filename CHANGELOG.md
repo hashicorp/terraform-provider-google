@@ -16,6 +16,7 @@ BUG FIXES:
 * sql: lock on master name when creating replicas [GH-1798]
 * storage: allow all role-entity pairs to be unordered [GH-1787]
 * compute: allow switching from a daily `ubuntu-minimal` build to `ubuntu-minimal-lts` instead of only `ubuntu`. [GH-1870]
+* kms: allow project ids with colons [GH-1865]
 
 ## 1.16.2 (July 18, 2018)
 
