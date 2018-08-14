@@ -122,6 +122,11 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "ubuntu-os-cloud/ubuntu-1404-lts",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family - minimal": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-1804-bionic-v20180705",
+			New:                "ubuntu-minimal-1804-lts",
+			ExpectDiffSuppress: true,
+		},
 		"different image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "family/debian-7",
