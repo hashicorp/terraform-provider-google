@@ -49,6 +49,13 @@ func isDiskShrinkage(old, new, _ interface{}) bool {
 // We cannot suppress the diff for the case when family name is not part of the image name since we can't
 // make a network call in a DiffSuppressFunc.
 func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	// Understand that this function solves a messy problem ("how do we tell if the diff between two images
+	// is 'ForceNew-worthy', without making a network call?") in the best way we can: through a series of special
+	// cases and regexes.  If you find yourself here because you are trying to add a new special case,
+	// you are probably looking for the diskImageFamilyEquals function and its subfunctions.
+	// In order to keep this maintainable, we need to ensure that the positive and negative examples
+	// in resource_compute_disk_test.go are as complete as possible.
+
 	// 'old' is read from the API.
 	// It always has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
 	matches := resolveImageLink.FindStringSubmatch(old)
@@ -166,8 +173,8 @@ func diskImageFamilyEquals(imageName, familyName string) bool {
 // e.g. image: ubuntu-1404-trusty-v20180122, family: ubuntu-1404-lts
 func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
 	parts := canonicalUbuntuLtsImage.FindStringSubmatch(imageName)
-	if len(parts) == 2 {
-		f := fmt.Sprintf("ubuntu-%s-lts", parts[1])
+	if len(parts) == 3 {
+		f := fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
 		if f == familyName {
 			return true
 		}
