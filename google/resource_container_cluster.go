@@ -466,7 +466,7 @@ func resourceContainerCluster() *schema.Resource {
 			"resource_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
