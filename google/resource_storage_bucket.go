@@ -34,6 +34,20 @@ func resourceStorageBucket() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"encryption": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_kms_key_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"force_destroy": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -244,11 +258,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	// Get the bucket and acl
+	// Get the bucket and location
 	bucket := d.Get("name").(string)
 	location := d.Get("location").(string)
 
-	// Create a bucket, setting the acl, location and name.
+	// Create a bucket, setting the labels, location and name.
 	sb := &storage.Bucket{
 		Name:     bucket,
 		Labels:   expandLabels(d),
@@ -293,6 +307,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("logging"); ok {
 		sb.Logging = expandBucketLogging(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("encryption"); ok {
+		sb.Encryption = expandBucketEncryption(v.([]interface{}))
 	}
 
 	var res *storage.Bucket
@@ -373,6 +391,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if d.HasChange("encryption") {
+		if v, ok := d.GetOk("encryption"); ok {
+			sb.Encryption = expandBucketEncryption(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "Encryption")
+		}
+	}
+
 	if d.HasChange("labels") {
 		sb.Labels = expandLabels(d)
 		if len(sb.Labels) == 0 {
@@ -438,6 +464,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("self_link", res.SelfLink)
 	d.Set("url", fmt.Sprintf("gs://%s", bucket))
 	d.Set("storage_class", res.StorageClass)
+	d.Set("encryption", flattenBucketEncryption(res.Encryption))
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
 	d.Set("logging", flattenBucketLogging(res.Logging))
@@ -540,6 +567,29 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 		corsRulesSchema = append(corsRulesSchema, data)
 	}
 	return corsRulesSchema
+}
+
+func expandBucketEncryption(configured interface{}) *storage.BucketEncryption {
+	encs := configured.([]interface{})
+	enc := encs[0].(map[string]interface{})
+	bucketenc := &storage.BucketEncryption{
+		DefaultKmsKeyName: enc["default_kms_key_name"].(string),
+	}
+	return bucketenc
+}
+
+func flattenBucketEncryption(enc *storage.BucketEncryption) []map[string]interface{} {
+	encryption := make([]map[string]interface{}, 0, 1)
+
+	if enc == nil {
+		return encryption
+	}
+
+	encryption = append(encryption, map[string]interface{}{
+		"default_kms_key_name": enc.DefaultKmsKeyName,
+	})
+
+	return encryption
 }
 
 func expandBucketLogging(configured interface{}) *storage.BucketLogging {
