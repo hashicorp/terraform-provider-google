@@ -308,7 +308,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 func testAccComputeInstanceGroup_basic(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family  = "debian-9"
 		project = "debian-cloud"
 	}
 
@@ -362,7 +362,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 func testAccComputeInstanceGroup_update(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family    = "debian-9"
 		project = "debian-cloud"
 	}
 
@@ -404,7 +404,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 func testAccComputeInstanceGroup_update2(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family  = "debian-9"
 		project = "debian-cloud"
 	}
 
@@ -446,7 +446,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family  = "debian-9"
 		project = "debian-cloud"
 	}
 
@@ -489,7 +489,7 @@ func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family  = "debian-9"
 		project = "debian-cloud"
 	}
 
@@ -546,7 +546,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 func testAccComputeInstanceGroup_network(instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-		name    = "debian-9"
+		family  = "debian-9"
 		project = "debian-cloud"
 	}
 

@@ -58,7 +58,7 @@ func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 

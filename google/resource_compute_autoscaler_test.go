@@ -222,7 +222,7 @@ func testAccCheckComputeAutoscalerUpdated(n string, max int64) resource.TestChec
 func testAccComputeAutoscaler_scaffolding(it_name, tp_name, igm_name string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 

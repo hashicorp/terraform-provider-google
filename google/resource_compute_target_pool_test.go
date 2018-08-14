@@ -106,7 +106,7 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 func testAccComputeTargetPool_basic() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 

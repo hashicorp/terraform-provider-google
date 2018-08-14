@@ -308,7 +308,7 @@ func testAccComputeRegionBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 

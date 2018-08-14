@@ -153,7 +153,7 @@ func testAccCheckComputeRegionAutoscalerUpdated(n string, max int64) resource.Te
 func testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 
@@ -218,7 +218,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 func testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 

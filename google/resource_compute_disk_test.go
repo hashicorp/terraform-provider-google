@@ -601,7 +601,7 @@ func testAccCheckComputeDiskInstances(n string, disk *compute.Disk) resource.Tes
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -620,7 +620,7 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_timeout() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -639,7 +639,7 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -659,7 +659,7 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -691,7 +691,7 @@ resource "google_compute_disk" "seconddisk" {
 func testAccComputeDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -708,7 +708,7 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_encryptionMigrate(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -727,7 +727,7 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 
@@ -763,7 +763,7 @@ resource "google_compute_instance" "bar" {
 func testAccComputeDisk_deleteDetachIGM(diskName, mgrName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       name    = "debian-9"
+       family  = "debian-9"
        project = "debian-cloud"
 }
 

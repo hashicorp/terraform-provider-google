@@ -173,7 +173,7 @@ resource "google_compute_route" "foobar" {
 func testAccComputeRoute_hopInstance(instanceName, zone string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 

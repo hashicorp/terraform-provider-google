@@ -211,7 +211,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 func testAccComputeSnapshot_basic(snapshotName, diskName, labelValue string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 
@@ -237,7 +237,7 @@ func testAccComputeSnapshot_encryption(snapshotName string, diskName string) str
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 data "google_compute_image" "my_image" {
-	name    = "debian-9"
+	family  = "debian-9"
 	project = "debian-cloud"
 }
 
