@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -17,6 +18,9 @@ func resourceComputeRegionBackendService() *schema.Resource {
 		Read:   resourceComputeRegionBackendServiceRead,
 		Update: resourceComputeRegionBackendServiceUpdate,
 		Delete: resourceComputeRegionBackendServiceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceRegionBackendServiceStateImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -358,4 +362,18 @@ func flattenRegionBackends(backends []*compute.Backend) []map[string]interface{}
 	}
 
 	return result
+}
+
+func resourceRegionBackendServiceStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {region}/{backend_service_name}", d.Id())
+	}
+
+	d.Set("region", parts[0])
+	d.Set("name", parts[1])
+	d.SetId(parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }
