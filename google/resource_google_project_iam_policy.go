@@ -18,7 +18,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		Update: resourceGoogleProjectIamPolicyUpdate,
 		Delete: resourceGoogleProjectIamPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceGoogleProjectIamPolicyImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -262,6 +262,11 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceGoogleProjectIamPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("project", d.Id())
+	return []*schema.ResourceData{d}, nil
 }
 
 // Subtract all bindings in policy b from policy a, and return the result
