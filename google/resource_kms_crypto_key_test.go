@@ -27,6 +27,12 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 			ExpectedTerraformId: "test-project/us-central1/test-key-ring/test-key-name",
 			ExpectedCryptoKeyId: "projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key-name",
 		},
+		"id is in domain:project/location/keyRingName/cryptoKeyName format": {
+			ImportId:            "example.com:test-project/us-central1/test-key-ring/test-key-name",
+			ExpectedError:       false,
+			ExpectedTerraformId: "example.com:test-project/us-central1/test-key-ring/test-key-name",
+			ExpectedCryptoKeyId: "projects/example.com:test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key-name",
+		},
 		"id contains name that is longer than 63 characters": {
 			ImportId:      "test-project/us-central1/test-key-ring/can-you-believe-that-this-cryptokey-name-is-this-extravagantly-long",
 			ExpectedError: true,
