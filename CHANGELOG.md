@@ -9,6 +9,7 @@ IMPROVEMENTS:
 * compute: Bring regional instance groups up to par with zonal instance groups. [GH-1809]
 * compute: Add labels to Address and GlobalAddress. [GH-1811]
 * container: allow updating node image types [GH-1843]
+* compute: Allow update of master auth on GKE container cluster. [GH-1873]
 
 BUG FIXES:
 * project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
