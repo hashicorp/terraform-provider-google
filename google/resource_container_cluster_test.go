@@ -107,13 +107,54 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMasterAuth(),
+				Config: testAccContainerCluster_withMasterAuth(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_auth",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateMasterAuth(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", "mr.yoda.adoy.mr"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", "adoy.rm.123456789.mr.yoda"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_auth",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_disableMasterAuth(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", ""),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", ""),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_auth",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateMasterAuth(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", "mr.yoda.adoy.mr"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", "adoy.rm.123456789.mr.yoda"),
+				),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_master_auth",
@@ -1383,10 +1424,10 @@ resource "google_container_cluster" "primary" {
 }`, clusterName)
 }
 
-func testAccContainerCluster_withMasterAuth() string {
+func testAccContainerCluster_withMasterAuth(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth" {
-	name = "cluster-test-%s"
+	name = "%s"
 	zone = "us-central1-a"
 	initial_node_count = 3
 
@@ -1394,7 +1435,35 @@ resource "google_container_cluster" "with_master_auth" {
 		username = "mr.yoda"
 		password = "adoy.rm.123456789"
 	}
-}`, acctest.RandString(10))
+}`, clusterName)
+}
+
+func testAccContainerCluster_updateMasterAuth(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = "mr.yoda.adoy.mr"
+		password = "adoy.rm.123456789.mr.yoda"
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_disableMasterAuth(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 3
+
+	master_auth {
+		username = ""
+		password = ""
+	}
+}`, clusterName)
 }
 
 func testAccContainerCluster_updateMasterAuthNoCert() string {
