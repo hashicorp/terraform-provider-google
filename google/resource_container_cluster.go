@@ -254,7 +254,6 @@ func resourceContainerCluster() *schema.Resource {
 			"master_auth": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -262,14 +261,12 @@ func resourceContainerCluster() *schema.Resource {
 						"password": {
 							Type:      schema.TypeString,
 							Required:  true,
-							ForceNew:  true,
 							Sensitive: true,
 						},
 
 						"username": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"client_certificate_config": {
@@ -1150,6 +1147,42 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("node_config")
 	}
 
+	if d.HasChange("master_auth") {
+		var req *containerBeta.SetMasterAuthRequest
+		if ma, ok := d.GetOk("master_auth"); ok {
+			req = &containerBeta.SetMasterAuthRequest{
+				Action: "SET_USERNAME",
+				Update: expandMasterAuth(ma),
+			}
+		} else {
+			req = &containerBeta.SetMasterAuthRequest{
+				Action: "SET_USERNAME",
+				Update: &containerBeta.MasterAuth{
+					Username: "admin",
+				},
+			}
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.SetMasterAuth(name, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerSharedOperationWait(config, op, project, location, "updating master auth", timeoutInMinutes, 2)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s: master auth has been updated", d.Id())
+		d.SetPartial("master_auth")
+	}
+
 	if d.HasChange("pod_security_policy_config") {
 		c := d.Get("pod_security_policy_config")
 		req := &containerBeta.UpdateClusterRequest{
@@ -1372,6 +1405,26 @@ func expandMaintenancePolicy(configured interface{}) *containerBeta.MaintenanceP
 			DailyMaintenanceWindow: &containerBeta.DailyMaintenanceWindow{
 				StartTime: startTime,
 			},
+		}
+	}
+	return result
+}
+
+func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {
+	result := &containerBeta.MasterAuth{}
+	if len(configured.([]interface{})) > 0 {
+		masterAuth := configured.([]interface{})[0].(map[string]interface{})
+		result.Username = masterAuth["username"].(string)
+		result.Password = masterAuth["password"].(string)
+		if _, ok := masterAuth["client_certificate_config"]; ok {
+			if len(masterAuth["client_certificate_config"].([]interface{})) > 0 {
+				clientCertificateConfig := masterAuth["client_certificate_config"].([]interface{})[0].(map[string]interface{})
+				if _, ok := clientCertificateConfig["issue_client_certificate"]; ok {
+					result.ClientCertificateConfig = &containerBeta.ClientCertificateConfig{
+						IssueClientCertificate: clientCertificateConfig["issue_client_certificate"].(bool),
+					}
+				}
+			}
 		}
 	}
 	return result
