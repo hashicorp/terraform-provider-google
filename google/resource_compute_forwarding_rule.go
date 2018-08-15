@@ -628,7 +628,10 @@ func flattenComputeForwardingRulePortRange(v interface{}) interface{} {
 }
 
 func flattenComputeForwardingRulePorts(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeForwardingRuleSubnetwork(v interface{}) interface{} {

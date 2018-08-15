@@ -379,7 +379,10 @@ func flattenComputeRoutePriority(v interface{}) interface{} {
 }
 
 func flattenComputeRouteTags(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeRouteNextHopGateway(v interface{}) interface{} {

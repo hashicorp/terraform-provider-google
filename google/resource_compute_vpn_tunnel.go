@@ -589,11 +589,17 @@ func flattenComputeVpnTunnelIkeVersion(v interface{}) interface{} {
 }
 
 func flattenComputeVpnTunnelLocalTrafficSelector(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeVpnTunnelRemoteTrafficSelector(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeVpnTunnelLabels(v interface{}) interface{} {
