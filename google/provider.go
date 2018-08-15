@@ -73,6 +73,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_lb_ip_ranges":            dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":                 dataSourceGoogleComputeNetwork(),
 			"google_project":                         dataSourceGoogleProject(),
+			"google_project_services":                dataSourceGoogleProjectServices(),
 			"google_compute_subnetwork":              dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":                   dataSourceGoogleComputeZones(),
 			"google_compute_instance_group":          dataSourceGoogleComputeInstanceGroup(),
