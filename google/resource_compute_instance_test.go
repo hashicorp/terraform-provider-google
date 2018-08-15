@@ -2817,8 +2817,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_minCpuPlatform(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2843,8 +2843,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_primaryAliasIpRange(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {

@@ -237,8 +237,8 @@ data "google_compute_instance_group" "test" {
 func testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "test" {
@@ -290,8 +290,8 @@ data "google_compute_instance_group" "test" {
 func testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-basic" {
