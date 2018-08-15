@@ -235,12 +235,12 @@ resource "google_compute_snapshot" "foobar" {
 
 func testAccComputeSnapshot_encryption(snapshotName string, diskName string) string {
 	return fmt.Sprintf(`
-resource "google_compute_disk" "foobar" {
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
 	project = "debian-cloud"
 }
 
+resource "google_compute_disk" "foobar" {
 	name = "%s"
 	image = "${data.google_compute_image.my_image.self_link}"
 	size = 10
