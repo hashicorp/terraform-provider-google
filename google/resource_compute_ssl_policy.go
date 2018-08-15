@@ -399,11 +399,17 @@ func flattenComputeSslPolicyMinTlsVersion(v interface{}) interface{} {
 }
 
 func flattenComputeSslPolicyEnabledFeatures(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeSslPolicyCustomFeatures(v interface{}) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeSslPolicyFingerprint(v interface{}) interface{} {
