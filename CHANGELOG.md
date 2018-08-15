@@ -1,6 +1,7 @@
 ## 1.17.0 (Unreleased)
 
 FEATURES:
+* **New Datasource**: `google_project_services` [GH-1822]
 * **New Resource**: `google_compute_region_disk` [GH-1755]
 
 IMPROVEMENTS:
