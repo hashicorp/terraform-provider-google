@@ -40,5 +40,5 @@ The following arguments are supported:
 Project services can be imported using the `project_id` and `service`, e.g.
 
 ```
-$ terraform import google_project_services.my_project your-project-id/iam.googleapis.com
+$ terraform import google_project_service.my_project your-project-id/iam.googleapis.com
 ```
