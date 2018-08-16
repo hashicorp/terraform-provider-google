@@ -597,10 +597,10 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("size", flattenComputeDiskSize(res["sizeGb"])); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("type", flattenComputeDiskType(res["type"])); err != nil {
+	if err := d.Set("users", flattenComputeDiskUsers(res["users"])); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("users", flattenComputeDiskUsers(res["users"])); err != nil {
+	if err := d.Set("type", flattenComputeDiskType(res["type"])); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"])); err != nil {
@@ -895,18 +895,18 @@ func flattenComputeDiskSize(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeDiskType(v interface{}) interface{} {
-	if v == nil {
-		return v
-	}
-	return NameFromSelfLinkStateFunc(v)
-}
-
 func flattenComputeDiskUsers(v interface{}) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeDiskType(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenComputeDiskImage(v interface{}) interface{} {
