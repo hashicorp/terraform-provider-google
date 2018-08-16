@@ -27,6 +27,7 @@ BUG FIXES:
 * compute: use patch instead of put to update router ([#1780](https://github.com/terraform-providers/terraform-provider-google/issues/1780))
 * compute: allow a lot more fields in `google_compute_firewall` to be updated to their empty value ([#1784](https://github.com/terraform-providers/terraform-provider-google/issues/1784))
 * compute: allow setting instance scheduling booleans on `google_compute_instance` to false ([#1779](https://github.com/terraform-providers/terraform-provider-google/issues/1779))
+* compute: ensure router peers and interfaces are always removed.  [GH-1877]
 
 ## 1.16.1 (July 16, 2018)
 
