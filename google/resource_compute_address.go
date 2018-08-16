@@ -125,11 +125,6 @@ func resourceComputeAddress() *schema.Resource {
 func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	obj := make(map[string]interface{})
 	addressProp, err := expandComputeAddressAddress(d.Get("address"), d, config)
 	if err != nil {
@@ -198,6 +193,10 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -260,11 +259,6 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
 		return err
@@ -311,6 +305,10 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
@@ -320,15 +318,6 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeAddressUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	var url string
-	var res map[string]interface{}
-	op := &compute.Operation{}
 
 	d.Partial(true)
 
@@ -343,15 +332,20 @@ func resourceComputeAddressUpdate(d *schema.ResourceData, meta interface{}) erro
 		labelFingerprintProp := d.Get("label_fingerprint")
 		obj["labelFingerprint"] = labelFingerprintProp
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating Address %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -377,22 +371,22 @@ func resourceComputeAddressUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Address %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "Address")
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

@@ -182,11 +182,6 @@ func resourceComputeRegionDisk() *schema.Resource {
 func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeRegionDiskDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -272,6 +267,10 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -295,11 +294,6 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
@@ -367,6 +361,10 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -376,15 +374,6 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	var url string
-	var res map[string]interface{}
-	op := &compute.Operation{}
 
 	d.Partial(true)
 
@@ -399,15 +388,20 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			obj["labels"] = labelsProp
 		}
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -433,15 +427,20 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			obj["sizeGb"] = sizeGbProp
 		}
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}/resize")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}/resize")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -466,16 +465,12 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	var obj map[string]interface{}
 	// if disks are attached, they must be detached before the disk can be deleted
 	if instances, ok := d.Get("users").([]interface{}); ok {
 		type detachArgs struct{ project, zone, instance, deviceName string }
@@ -500,7 +495,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 			for _, disk := range i.Disks {
 				if disk.Source == self {
 					detachCalls = append(detachCalls, detachArgs{
-						project:    project,
+						project:    instanceProject,
 						zone:       GetResourceNameFromSelfLink(i.Zone),
 						instance:   i.Name,
 						deviceName: disk.DeviceName,
@@ -526,11 +521,15 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	log.Printf("[DEBUG] Deleting RegionDisk %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionDisk")
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

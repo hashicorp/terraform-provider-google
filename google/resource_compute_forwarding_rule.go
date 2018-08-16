@@ -176,11 +176,6 @@ func resourceComputeForwardingRule() *schema.Resource {
 func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeForwardingRuleDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -297,6 +292,10 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -358,11 +357,6 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
@@ -434,6 +428,10 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
@@ -443,15 +441,6 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	var url string
-	var res map[string]interface{}
-	op := &compute.Operation{}
 
 	d.Partial(true)
 
@@ -464,15 +453,20 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["target"] = targetProp
 		}
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -499,15 +493,20 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		labelFingerprintProp := d.Get("label_fingerprint")
 		obj["labelFingerprint"] = labelFingerprintProp
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -533,22 +532,22 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ForwardingRule %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "ForwardingRule")
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

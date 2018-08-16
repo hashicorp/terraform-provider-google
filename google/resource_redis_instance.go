@@ -141,11 +141,6 @@ func resourceRedisInstance() *schema.Resource {
 func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	obj := make(map[string]interface{})
 	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
 	if err != nil {
@@ -243,6 +238,10 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &redis.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -266,11 +265,6 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
@@ -335,6 +329,10 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("region", flattenRedisInstanceRegion(res["region"])); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -344,11 +342,6 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	obj := make(map[string]interface{})
 	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
@@ -457,6 +450,10 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &redis.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -477,22 +474,22 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "Instance")
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &redis.Operation{}
 	err = Convert(res, op)
 	if err != nil {

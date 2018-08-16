@@ -207,12 +207,13 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	var obj map[string]interface{}
 	url, err = replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens/{{name}}")
 	if err != nil {
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}

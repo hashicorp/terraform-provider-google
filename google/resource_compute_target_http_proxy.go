@@ -83,11 +83,6 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeTargetHttpProxyDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -126,6 +121,10 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -149,11 +148,6 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 
 func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
@@ -183,6 +177,10 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
@@ -192,15 +190,6 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	var url string
-	var res map[string]interface{}
-	op := &compute.Operation{}
 
 	d.Partial(true)
 
@@ -213,15 +202,20 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 			obj["urlMap"] = urlMapProp
 		}
 
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
 		if err != nil {
 			return err
 		}
-		res, err = sendRequest(config, "POST", url, obj)
+		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
 			return fmt.Errorf("Error updating TargetHttpProxy %q: %s", d.Id(), err)
 		}
 
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
 			return err
@@ -246,22 +240,22 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TargetHttpProxy %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, nil)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
 		return handleNotFoundError(err, d, "TargetHttpProxy")
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
