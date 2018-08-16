@@ -212,17 +212,17 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("size"); !isEmptyValue(reflect.ValueOf(sizeGbProp)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
 		obj["sizeGb"] = sizeGbProp
 	}
-	typeProp, err := expandComputeRegionDiskType(d.Get("type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
-		obj["type"] = typeProp
-	}
 	replicaZonesProp, err := expandComputeRegionDiskReplicaZones(d.Get("replica_zones"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("replica_zones"); !isEmptyValue(reflect.ValueOf(replicaZonesProp)) && (ok || !reflect.DeepEqual(v, replicaZonesProp)) {
 		obj["replicaZones"] = replicaZonesProp
+	}
+	typeProp, err := expandComputeRegionDiskType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 	regionProp, err := expandComputeRegionDiskRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -340,13 +340,13 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("size", flattenComputeRegionDiskSize(res["sizeGb"])); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
-	if err := d.Set("type", flattenComputeRegionDiskType(res["type"])); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
-	}
 	if err := d.Set("users", flattenComputeRegionDiskUsers(res["users"])); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("replica_zones", flattenComputeRegionDiskReplicaZones(res["replicaZones"])); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("type", flattenComputeRegionDiskType(res["type"])); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRegionDiskRegion(res["region"])); err != nil {
@@ -601,13 +601,6 @@ func flattenComputeRegionDiskSize(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeRegionDiskType(v interface{}) interface{} {
-	if v == nil {
-		return v
-	}
-	return NameFromSelfLinkStateFunc(v)
-}
-
 func flattenComputeRegionDiskUsers(v interface{}) interface{} {
 	if v == nil {
 		return v
@@ -620,6 +613,13 @@ func flattenComputeRegionDiskReplicaZones(v interface{}) interface{} {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeRegionDiskType(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenComputeRegionDiskRegion(v interface{}) interface{} {
@@ -703,14 +703,6 @@ func expandComputeRegionDiskSize(v interface{}, d *schema.ResourceData, config *
 	return v, nil
 }
 
-func expandComputeRegionDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	f, err := parseZonalFieldValue("diskTypes", v.(string), "project", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for type: %s", err)
-	}
-	return f.RelativeLink(), nil
-}
-
 func expandComputeRegionDiskReplicaZones(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -722,6 +714,14 @@ func expandComputeRegionDiskReplicaZones(v interface{}, d *schema.ResourceData, 
 		req = append(req, f.RelativeLink())
 	}
 	return req, nil
+}
+
+func expandComputeRegionDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("diskTypes", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for type: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func expandComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
