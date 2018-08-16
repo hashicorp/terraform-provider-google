@@ -124,7 +124,7 @@ The following arguments are supported:
   (Optional)
   The Region in which the created address should reside.
   If it is not provided, the provider region is used.
-* `project` (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
@@ -145,7 +145,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `self_link` - The URI of the created resource.
 
 
-* `address`: The IP of the created resource.
+* `address` - The IP of the created resource.
 
 ## Timeouts
 

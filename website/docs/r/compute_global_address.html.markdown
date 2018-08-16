@@ -69,7 +69,7 @@ The following arguments are supported:
   (Optional)
   The IP Version that will be used by this address. Valid options are
   IPV4 or IPV6. The default value is IPV4.
-* `project` (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
