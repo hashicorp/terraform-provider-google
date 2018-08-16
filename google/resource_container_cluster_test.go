@@ -1261,6 +1261,38 @@ func TestAccContainerCluster_withResourceLabelsUpdate(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withBinaryAuthorization(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withBinaryAuthorization(clusterName, true),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_binary_authorization",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withBinaryAuthorization(clusterName, false),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_binary_authorization",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2419,4 +2451,16 @@ resource "google_container_cluster" "with_resource_labels" {
 	}
 }
 `, clusterName)
+}
+
+func testAccContainerCluster_withBinaryAuthorization(clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_binary_authorization" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	enable_binary_authorization = %v
+}
+`, clusterName, enabled)
 }
