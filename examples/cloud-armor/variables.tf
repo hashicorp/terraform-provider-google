@@ -14,3 +14,8 @@ variable "credentials_file_path" {
   description = "Path to the JSON file used to describe your account credentials"
   default     = "~/.gcloud/Terraform.json"
 }
+
+variable "ip_white_list" {
+  description = "A list of ip addresses that can be white listed through security policies"
+  default = ["192.0.2.0/24"]
+}

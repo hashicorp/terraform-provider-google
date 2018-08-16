@@ -36,7 +36,7 @@ resource "google_compute_instance" "cluster1" {
 }
 
 resource "google_compute_firewall" "cluster1" {
-  name    = "cloud-armor-firewall"
+  name    = "armor-firewall"
   network = "default"
 
   allow {
@@ -125,7 +125,7 @@ resource "google_compute_security_policy" "security-policy-1" {
       versioned_expr = "SRC_IPS_V1"
 
       config {
-        src_ip_ranges = ["192.0.2.0/24"]
+        src_ip_ranges = "${var.ip_white_list}"
       }
     }
 
@@ -135,20 +135,18 @@ resource "google_compute_security_policy" "security-policy-1" {
 
 # Front end of the load balancer
 resource "google_compute_global_forwarding_rule" "default" {
-  name       = "default-rule"
+  name       = "armor-rule"
   target     = "${google_compute_target_http_proxy.default.self_link}"
   port_range = "80"
 }
 
 resource "google_compute_target_http_proxy" "default" {
-  name        = "test-proxy"
-  description = "a description"
+  name        = "armor-proxy"
   url_map     = "${google_compute_url_map.default.self_link}"
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map"
-  description     = "a description"
+  name            = "armor-url-map"
   default_service = "${google_compute_backend_service.website.self_link}"
 
   host_rule {
