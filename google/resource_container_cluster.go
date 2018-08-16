@@ -1192,7 +1192,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(project, location, clusterName, req).Do()
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
 			if err != nil {
 				return err
 			}
