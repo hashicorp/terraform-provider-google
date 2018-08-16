@@ -240,6 +240,10 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		Interfaces: newIfaces,
 	}
 
+	if len(newIfaces) == 0 {
+		patchRouter.ForceSendFields = append(patchRouter.ForceSendFields, "Interfaces")
+	}
+
 	log.Printf("[DEBUG] Updating router %s/%s with interfaces: %+v", region, routerName, newIfaces)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {
