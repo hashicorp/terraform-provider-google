@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
@@ -76,15 +77,21 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:     d.Get("name").(string),
 	}
 
-	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
+	err = retryTimeDuration(func() error {
+		keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
 
+		if err != nil {
+			return fmt.Errorf("Error creating KeyRing: %s", err)
+		}
+
+		log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
+
+		d.SetId(keyRingId.keyRingId())
+		return nil
+	}, time.Duration(30*time.Second))
 	if err != nil {
-		return fmt.Errorf("Error creating KeyRing: %s", err)
+		return err
 	}
-
-	log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
-
-	d.SetId(keyRingId.keyRingId())
 
 	return resourceKmsKeyRingRead(d, meta)
 }
