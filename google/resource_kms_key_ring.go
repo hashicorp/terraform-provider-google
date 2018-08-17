@@ -104,14 +104,14 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS KeyRing %s", keyRingId.keyRingId())
 
-	_, err = config.clientKms.Projects.Locations.KeyRings.Get(keyRingId.keyRingId()).Do()
+	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Get(keyRingId.keyRingId()).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
 	d.Set("project", project)
-	d.Set("self_link", keyRingId.keyRingId())
+	d.Set("self_link", keyRing.Name)
 
 	return nil
 }

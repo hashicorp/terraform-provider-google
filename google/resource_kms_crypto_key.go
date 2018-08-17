@@ -167,7 +167,7 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
 	d.Set("name", cryptoKeyId.Name)
 	d.Set("rotation_period", cryptoKey.RotationPeriod)
-	d.Set("self_link", cryptoKeyId.cryptoKeyId())
+	d.Set("self_link", cryptoKey.Name)
 
 	d.SetId(cryptoKeyId.cryptoKeyId())
 
