@@ -13,13 +13,13 @@
 #
 # ----------------------------------------------------------------------------
 layout: "google"
-page_title: "Google: google_resourcemanager_lien"
-sidebar_current: "docs-google-resourcemanager-lien"
+page_title: "Google: google_resource_manager_lien"
+sidebar_current: "docs-google-resource-manager-lien"
 description: |-
   A Lien represents an encumbrance on the actions that can be performed on a resource.
 ---
 
-# google\_resourcemanager\_lien
+# google\_resource_manager\_lien
 
 A Lien represents an encumbrance on the actions that can be performed on a resource.
 
@@ -36,7 +36,7 @@ resource "google_project" "project" {
   name = "A very important project!"
 }
 
-resource "google_resourcemanager_lien" "lien" {
+resource "google_resource_manager_lien" "lien" {
   parent = "projects/${google_project.project.number}"
   restrictions = ["resourcemanager.projects.delete"]
   origin = "machine-readable-explanation"
@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `reason` -
   (Required)
-  Concise user-visible strings indicating why an action cannot be performed
+  Concise user-visible string indicating why an action cannot be performed
   on a resource. Maximum length of 200 characters.
 
 * `origin` -
@@ -97,5 +97,5 @@ In addition to the arguments listed above, the following computed attributes are
 Lien can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_resourcemanager_lien.default {{parent}}/{{name}}
+$ terraform import google_resource_manager_lien.default {{parent}}/{{name}}
 ```
