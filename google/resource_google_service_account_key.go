@@ -147,6 +147,8 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 				log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
 				d.SetId("")
 				return nil
+			} else {
+				return err
 			}
 		}
 	}
@@ -161,8 +163,20 @@ func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interfac
 	config := meta.(*Config)
 
 	_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
+
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {
+			return nil
+		} else {
+			// This resource also returns 403 when it's not found.
+			if isGoogleApiErrorWithCode(err, 403) {
+				log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
+				d.SetId("")
+				return nil
+			} else {
+				return err
+			}
+		}
 	}
 
 	d.SetId("")
