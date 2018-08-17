@@ -345,7 +345,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.id}"
+	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 	rotation_period = "1000000s"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
@@ -376,7 +376,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.id}"
+	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 	rotation_period = "%s"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
@@ -407,7 +407,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.id}"
+	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
