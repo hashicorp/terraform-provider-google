@@ -93,7 +93,7 @@ output "cluster_ca_certificate" {
 * `description` - (Optional) Description of the cluster.
 
 * `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
-    If enabled, all container images will be validated by Google Binauthz.
+    If enabled, all container images will be validated by Google Binary Authorization.
 
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
