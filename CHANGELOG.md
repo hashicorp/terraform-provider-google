@@ -10,6 +10,7 @@ IMPROVEMENTS:
 * compute: Bring regional instance groups up to par with zonal instance groups. [GH-1809]
 * compute: Add labels to Address and GlobalAddress. [GH-1811]
 * container: allow updating node image types [GH-1843]
+* container: Add support for binary authorization in GKE [GH-1884]
 * compute: Allow update of master auth on GKE container cluster. [GH-1873]
 * compute: Add support for `boot_disk_type` to `google_dataproc_cluster`. [GH-1855]
 
