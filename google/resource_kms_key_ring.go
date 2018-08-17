@@ -77,6 +77,11 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:     d.Get("name").(string),
 	}
 
+	// This resource is often created just after a project, and requires
+	// billing support, which is eventually consistent.  We attempt to
+	// wait on billing support in the project resource, but we can't
+	// always get it right - this retry fixes a lot of flaky tests we were
+	// noticing.
 	err = retryTimeDuration(func() error {
 		keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
 
