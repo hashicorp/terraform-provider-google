@@ -49,7 +49,7 @@ The following arguments are supported:
 * `rotation_period` - (Optional) Every time this period passes, generate a new CryptoKeyVersion and set it as
     the primary. The first rotation will take place after the specified period. The rotation period has the format
     of a decimal number with up to 9 fractional digits, followed by the letter s (seconds). It must be greater than
-    a day (ie, 83400).
+    a day (ie, 86400).
 
 ## Attributes Reference
 
