@@ -176,7 +176,7 @@ The following arguments are supported:
 * `region` -
   (Optional)
   The region where the tunnel is located.
-* `project` (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
