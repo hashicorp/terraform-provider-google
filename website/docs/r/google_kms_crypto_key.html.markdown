@@ -30,7 +30,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name            = "my-crypto-key"
-  key_ring        = "${google_kms_key_ring.my_key_ring.id}"
+  key_ring        = "${google_kms_key_ring.my_key_ring.self_link}"
   rotation_period = "100000s"
 }
 ```
@@ -56,7 +56,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `id` - The ID of the created CryptoKey. Its format is `{projectId}/{location}/{keyRingName}/{cryptoKeyName}`.
+* `self_link` - The self link of the created CryptoKey. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}/cryptoKeys/{cryptoKeyName}`.
 
 ## Import
 
