@@ -16,8 +16,13 @@ and
 A CryptoKey is an interface to key material which can be used to encrypt and decrypt data. A CryptoKey belongs to a
 Google Cloud KMS KeyRing.
 
-~> Note: CryptoKeys cannot be deleted from Google Cloud Platform. Destroying a Terraform-managed CryptoKey will remove it
-from state and delete all CryptoKeyVersions, rendering the key unusable, but **will not delete the resource on the server**.
+~> Note: CryptoKeys cannot be deleted from Google Cloud Platform. Destroying a
+Terraform-managed CryptoKey will remove it from state and delete all
+CryptoKeyVersions, rendering the key unusable, but **will not delete the
+resource on the server**. When Terraform destroys these keys, any data
+previously encrypted with these keys will be irrecoverable. For this reason, it
+is strongly recommended that you add lifecycle hooks to the resource to prevent
+accidental destruction.
 
 ## Example Usage
 
@@ -32,6 +37,10 @@ resource "google_kms_crypto_key" "my_crypto_key" {
   name            = "my-crypto-key"
   key_ring        = "${google_kms_key_ring.my_key_ring.id}"
   rotation_period = "100000s"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 ```
 
