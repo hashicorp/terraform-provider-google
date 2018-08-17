@@ -356,13 +356,13 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string,
 func testAccCloudFunctionsFunctionHasEnvironmentVariable(key, value string,
 	function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		val, ok := function.EnvironmentVariables[key]
-		if !ok {
+		if val, ok := function.EnvironmentVariables[key]; ok {
+			if val != value {
+				return fmt.Errorf("Environment Variable value did not match for key %s: expected %s but found %s",
+					key, value, val)
+			}
+		} else {
 			return fmt.Errorf("Environment Variable with key %s not found", key)
-		}
-
-		if val != value {
-			return fmt.Errorf("Environment Variable value did not match for key %s: expected %s but found %s", key, value, val)
 		}
 		return nil
 	}
