@@ -122,8 +122,7 @@ The `logging` block supports:
 The `encryption` block supports:
 
 * `default_kms_key_name`: A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
-  The format of this is very particular - it must be `projects/$PROJECT_NAME/locations/$LOCATION_NAME/keyRings/$KEY_RING_NAME/cryptoKeys/$CRYPTO_KEY_NAME`.
-  You also must pay attention to whether the crypto key is available in the location that this bucket is created in.
+  You must pay attention to whether the crypto key is available in the location that this bucket is created in.
   See [the docs](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) for more details.
 
 ## Attributes Reference

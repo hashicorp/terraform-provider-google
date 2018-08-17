@@ -961,7 +961,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
 	encryption {
-		default_kms_key_name = "projects/${google_project.acceptance.name}/locations/us/keyRings/${google_kms_key_ring.key_ring.name}/cryptoKeys/${google_kms_crypto_key.crypto_key.name}"
+		default_kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
 	}
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName)

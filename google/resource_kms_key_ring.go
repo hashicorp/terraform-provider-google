@@ -36,6 +36,10 @@ func resourceKmsKeyRing() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -107,6 +111,7 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("project", project)
+	d.Set("self_link", keyRingId.keyRingId())
 
 	return nil
 }
