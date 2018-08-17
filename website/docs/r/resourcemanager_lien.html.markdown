@@ -36,7 +36,7 @@ resource "google_project" "project" {
   name = "A very important project!"
 }
 
-resource "google_resourcemanager_lien" "lien" {
+resource "google_resource_manager_lien" "lien" {
   parent = "projects/${google_project.project.number}"
   restrictions = ["resourcemanager.projects.delete"]
   origin = "machine-readable-explanation"
