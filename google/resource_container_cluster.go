@@ -1543,9 +1543,6 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 	if c == nil {
 		return nil
 	}
-	if len(c.CidrBlocks) == 0 {
-		return nil
-	}
 	result := make(map[string]interface{})
 	if c.Enabled {
 		cidrBlocks := make([]interface{}, 0, len(c.CidrBlocks))
