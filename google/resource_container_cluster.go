@@ -1381,16 +1381,17 @@ func expandMasterAuthorizedNetworksConfig(configured interface{}) *containerBeta
 	result := &containerBeta.MasterAuthorizedNetworksConfig{}
 	if len(configured.([]interface{})) > 0 {
 		result.Enabled = true
-		config := configured.([]interface{})[0].(map[string]interface{})
-		if _, ok := config["cidr_blocks"]; ok {
-			cidrBlocks := config["cidr_blocks"].(*schema.Set).List()
-			result.CidrBlocks = make([]*containerBeta.CidrBlock, 0)
-			for _, v := range cidrBlocks {
-				cidrBlock := v.(map[string]interface{})
-				result.CidrBlocks = append(result.CidrBlocks, &containerBeta.CidrBlock{
-					CidrBlock:   cidrBlock["cidr_block"].(string),
-					DisplayName: cidrBlock["display_name"].(string),
-				})
+		if config, ok := configured.([]interface{})[0].(map[string]interface{}); ok {
+			if _, ok := config["cidr_blocks"]; ok {
+				cidrBlocks := config["cidr_blocks"].(*schema.Set).List()
+				result.CidrBlocks = make([]*containerBeta.CidrBlock, 0)
+				for _, v := range cidrBlocks {
+					cidrBlock := v.(map[string]interface{})
+					result.CidrBlocks = append(result.CidrBlocks, &containerBeta.CidrBlock{
+						CidrBlock:   cidrBlock["cidr_block"].(string),
+						DisplayName: cidrBlock["display_name"].(string),
+					})
+				}
 			}
 		}
 	}
