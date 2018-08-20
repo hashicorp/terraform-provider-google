@@ -94,6 +94,7 @@ The following arguments are supported:
   (Required)
   URLs of the zones where the disk should be replicated to.
 
+
 - - -
 
 
@@ -155,6 +156,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
 The `disk_encryption_key` block supports:
 
 * `raw_key` -
@@ -165,7 +167,7 @@ The `disk_encryption_key` block supports:
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
-    
+
 The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
@@ -176,7 +178,6 @@ The `source_snapshot_encryption_key` block supports:
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
-    
 
 ## Attributes Reference
 

@@ -99,6 +99,7 @@ The following arguments are supported:
   The network this subnet belongs to.
   Only networks that are in the distributed mode can have subnetworks.
 
+
 - - -
 
 
@@ -130,6 +131,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
 The `secondary_ip_range` block supports:
 
 * `range_name` -
@@ -145,7 +147,6 @@ The `secondary_ip_range` block supports:
   range. Provide this property when you create the subnetwork.
   Ranges must be unique and non-overlapping with all primary and
   secondary IP ranges within a network. Only IPv4 is supported.
-    
 
 ## Attributes Reference
 
