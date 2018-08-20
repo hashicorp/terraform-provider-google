@@ -77,6 +77,7 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
+
 - - -
 
 
@@ -155,6 +156,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
 The `source_image_encryption_key` block supports:
 
 * `raw_key` -
@@ -165,7 +167,7 @@ The `source_image_encryption_key` block supports:
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
-    
+
 The `disk_encryption_key` block supports:
 
 * `raw_key` -
@@ -176,7 +178,7 @@ The `disk_encryption_key` block supports:
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
-    
+
 The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
@@ -187,7 +189,6 @@ The `source_snapshot_encryption_key` block supports:
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
-    
 
 * (Deprecated) `disk_encryption_key_raw`:  This is an alias for
   `disk_encryption_key.raw_key`.  It is deprecated to enhance

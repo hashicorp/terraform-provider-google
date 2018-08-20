@@ -80,6 +80,7 @@ The following arguments are supported:
   (Required)
   Redis memory size in GiB.
 
+
 - - -
 
 
