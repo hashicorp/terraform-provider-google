@@ -72,6 +72,7 @@ The following arguments are supported:
   (Required)
   A reference to the network to which this router belongs.
 
+
 - - -
 
 
@@ -88,6 +89,7 @@ The following arguments are supported:
   Region where the router resides.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 The `bgp` block supports:
 
@@ -119,7 +121,9 @@ The `bgp` block supports:
   is CUSTOM and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
   Leave this field blank to advertise no custom IP ranges.  Structure is documented below.
-        The `advertised_ip_ranges` block supports:
+
+
+The `advertised_ip_ranges` block supports:
 
 * `range` -
   (Optional)
@@ -129,7 +133,6 @@ The `bgp` block supports:
 * `description` -
   (Optional)
   User-specified description for the IP range.
-    
 
 ## Attributes Reference
 

@@ -13,13 +13,13 @@
 #
 # ----------------------------------------------------------------------------
 layout: "google"
-page_title: "Google: google_resourcemanager_lien"
-sidebar_current: "docs-google-resourcemanager-lien"
+page_title: "Google: google_resource_manager_lien"
+sidebar_current: "docs-google-resource-manager-lien"
 description: |-
   A Lien represents an encumbrance on the actions that can be performed on a resource.
 ---
 
-# google\_resourcemanager\_lien
+# google\_resource\_manager\_lien
 
 A Lien represents an encumbrance on the actions that can be performed on a resource.
 
@@ -75,6 +75,7 @@ The following arguments are supported:
   list is meaningless and will be rejected.
   e.g. ['resourcemanager.projects.delete']
 
+
 - - -
 
 
@@ -97,5 +98,5 @@ In addition to the arguments listed above, the following computed attributes are
 Lien can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_resourcemanager_lien.default {{parent}}/{{name}}
+$ terraform import google_resource_manager_lien.default {{parent}}/{{name}}
 ```

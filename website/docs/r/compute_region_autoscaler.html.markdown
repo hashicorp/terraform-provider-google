@@ -114,6 +114,8 @@ The following arguments are supported:
 * `target` -
   (Required)
   URL of the managed instance group that this autoscaler will scale.
+
+
 The `autoscaling_policy` block supports:
 
 * `min_replicas` -
@@ -157,7 +159,9 @@ The `autoscaling_policy` block supports:
 * `load_balancing_utilization` -
   (Optional)
   Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
-        The `cpu_utilization` block supports:
+
+
+The `cpu_utilization` block supports:
 
 * `target` -
   (Required)
@@ -172,8 +176,8 @@ The `autoscaling_policy` block supports:
   scales up until it reaches the maximum number of instances you
   specified or until the average utilization reaches the target
   utilization.
-  
-  The `metric` block supports:
+
+The `metric` block supports:
 
 * `name` -
   (Required)
@@ -197,15 +201,14 @@ The `autoscaling_policy` block supports:
   Defines how target utilization value is expressed for a
   Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
   or DELTA_PER_MINUTE.
-      
-  The `load_balancing_utilization` block supports:
+
+The `load_balancing_utilization` block supports:
 
 * `target` -
   (Required)
   Fraction of backend capacity utilization (set in HTTP(s) load
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
-  
 
 - - -
 
