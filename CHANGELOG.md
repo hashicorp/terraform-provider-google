@@ -3,6 +3,9 @@
 FEATURES:
 * **New Datasource**: `google_project_services` [GH-1822]
 * **New Resource**: `google_compute_region_disk` [GH-1755]
+* **New Resource**: `google_binary_authorization_attestor` [GH-1885]
+* **New Resource**: `google_binary_authorization_policy` [GH-1885]
+* **New Resource**: `google_container_analysis_note` [GH-1885]
 
 IMPROVEMENTS:
 * cloudfunctions: Add support for updating function code in place [GH-1781]
