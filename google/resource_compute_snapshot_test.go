@@ -212,7 +212,7 @@ func testAccComputeSnapshot_basic(snapshotName, diskName, labelValue string) str
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160921"
+	image = "debian-9-stretch-v20180806"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -232,7 +232,7 @@ func testAccComputeSnapshot_encryption(snapshotName string, diskName string) str
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160921"
+	image = "debian-9-stretch-v20180806"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
