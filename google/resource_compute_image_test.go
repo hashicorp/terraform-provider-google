@@ -322,8 +322,8 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {

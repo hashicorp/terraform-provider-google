@@ -727,8 +727,8 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 func testAccComputeInstanceTemplate_basic() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -769,8 +769,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_preemptible() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -811,8 +811,8 @@ resource "google_compute_address" "foo" {
 }
 
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -840,8 +840,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_networkTier() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -864,8 +864,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_networkIP(networkIP string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -891,8 +891,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_address(address string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -918,8 +918,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_disks() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -960,8 +960,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_network" "auto-network" {
@@ -1005,8 +1005,8 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -1081,8 +1081,8 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 	}
 
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "foobar" {
@@ -1112,8 +1112,8 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 func testAccComputeInstanceTemplate_startup_script() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -1142,8 +1142,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_primaryAliasIpRange(i string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -1186,8 +1186,8 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	}
 }
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
@@ -1223,8 +1223,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_guestAccelerator(i string, count uint8) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -1257,8 +1257,8 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {

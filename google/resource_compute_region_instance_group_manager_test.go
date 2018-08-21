@@ -661,8 +661,8 @@ func testAccCheckRegionInstanceGroupManagerTemplateTags(n string, tags []string)
 func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-basic" {
@@ -720,8 +720,8 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-basic" {
@@ -762,8 +762,8 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 func testAccRegionInstanceGroupManager_update(template, target, igm string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-update" {
@@ -816,8 +816,8 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 func testAccRegionInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-update" {
@@ -907,8 +907,8 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-update" {
@@ -952,8 +952,8 @@ func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
-	       family  = "debian-9"
-	       project = "debian-cloud"
+		family  = "debian-9"
+		project = "debian-cloud"
 	}
 
 	resource "google_compute_instance_template" "igm-basic" {
@@ -1003,8 +1003,8 @@ func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string
 func testAccRegionInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-basic" {
@@ -1059,8 +1059,8 @@ resource "google_compute_http_health_check" "zero" {
 func testAccRegionInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-primary" {
@@ -1131,8 +1131,8 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 func testAccRegionInstanceGroupManager_distributionPolicy(template, igm string, zones []string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-basic" {
@@ -1168,8 +1168,8 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 func testAccRegionInstanceGroupManager_updateStrategy(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-update-strategy" {
@@ -1214,8 +1214,8 @@ resource "google_compute_region_instance_group_manager" "igm-update-strategy" {
 func testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
@@ -1270,8 +1270,8 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
 func testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {

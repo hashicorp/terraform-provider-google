@@ -1540,8 +1540,8 @@ func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *comput
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1584,8 +1584,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic2(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1615,8 +1615,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic3(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1646,8 +1646,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic4(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1678,8 +1678,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic5(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1709,8 +1709,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic_deletionProtectionFalse(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1737,8 +1737,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_basic_deletionProtectionTrue(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1767,8 +1767,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_forceNewAndChangeMetadata(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1799,8 +1799,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_update(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1838,8 +1838,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_ip(ip, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_address" "foo" {
@@ -1875,8 +1875,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_PTRRecord(record, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1908,8 +1908,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_generateIp(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1941,8 +1941,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_networkTier(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -1973,8 +1973,8 @@ func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameT
 	}
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2061,8 +2061,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2097,8 +2097,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_attachedDisk_sourceUrl(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2133,8 +2133,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_attachedDisk_modeRo(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2170,8 +2170,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_addAttachedDisk(disk, disk2, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2217,8 +2217,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_detachDisk(disk, disk2, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2260,8 +2260,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_updateAttachedDiskEncryptionKey(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2298,8 +2298,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2327,8 +2327,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_bootDisk_sourceUrl(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2356,8 +2356,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_bootDisk_type(instance string, diskType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2382,8 +2382,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_scratchDisk(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "scratch" {
@@ -2416,8 +2416,8 @@ resource "google_compute_instance" "scratch" {
 func testAccComputeInstance_service_account(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2449,8 +2449,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_scheduling(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2478,8 +2478,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_subnet_auto(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2511,8 +2511,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_subnet_custom(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2551,8 +2551,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_subnet_xpn(org, billingId, projectName, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_project" "host_project" {
@@ -2629,8 +2629,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_address_auto(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2665,8 +2665,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_address_custom(instance, address string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2702,8 +2702,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_private_image_family(disk, family, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2743,8 +2743,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2783,8 +2783,8 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 func testAccComputeInstance_guestAccelerator(instance string, count uint8) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2871,8 +2871,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_secondaryAliasIpRange(network, subnet, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2913,8 +2913,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_secondaryAliasIpRangeUpdate(network, subnet, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_network" "inst-test-network" {
@@ -2955,8 +2955,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_stopInstanceToUpdate(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2992,8 +2992,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_stopInstanceToUpdate2(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -3028,8 +3028,8 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_stopInstanceToUpdate3(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-       family  = "debian-9"
-       project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
