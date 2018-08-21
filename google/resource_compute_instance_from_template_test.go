@@ -57,9 +57,14 @@ func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
 
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -70,7 +75,7 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-cloud/debian-8"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 100
 		boot = true

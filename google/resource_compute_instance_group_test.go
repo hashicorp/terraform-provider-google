@@ -307,6 +307,11 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 
 func testAccComputeInstanceGroup_basic(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -315,7 +320,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -356,6 +361,11 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 
 func testAccComputeInstanceGroup_update(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family    = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-${count.index}"
 		machine_type = "n1-standard-1"
@@ -365,7 +375,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -393,6 +403,11 @@ func testAccComputeInstanceGroup_update(instance string) string {
 // Change IGM's instance template and target size
 func testAccComputeInstanceGroup_update2(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-${count.index}"
 		machine_type = "n1-standard-1"
@@ -402,7 +417,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -430,6 +445,11 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 
 func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-${count.index}"
 		machine_type = "n1-standard-1"
@@ -439,7 +459,7 @@ func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -468,6 +488,11 @@ func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 
 func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-1"
 		machine_type = "n1-standard-1"
@@ -476,7 +501,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -493,7 +518,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -520,6 +545,11 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 func testAccComputeInstanceGroup_network(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_network" "ig_network" {
 		name = "%[1]s"
 		auto_create_subnetworks = true
@@ -533,7 +563,7 @@ func testAccComputeInstanceGroup_network(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 

@@ -321,10 +321,15 @@ resource "google_compute_image" "foobar" {
 
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "disk-test-%s"
 	zone = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 }
 resource "google_compute_image" "foobar" {
 	name = "image-test-%s"

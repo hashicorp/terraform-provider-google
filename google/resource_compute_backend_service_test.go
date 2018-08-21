@@ -678,6 +678,11 @@ resource "google_compute_http_health_check" "one" {
 func testAccComputeBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -713,7 +718,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -731,6 +736,11 @@ resource "google_compute_http_health_check" "default" {
 func testAccComputeBackendService_withBackendAndIAP(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -767,7 +777,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -884,6 +894,11 @@ resource "google_compute_security_policy" "policy" {
 func testAccComputeBackendService_withMaxConnections(
 	serviceName, igName, itName, checkName string, maxConnections int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -919,7 +934,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -937,6 +952,11 @@ resource "google_compute_health_check" "default" {
 func testAccComputeBackendService_withMaxConnectionsPerInstance(
 	serviceName, igName, itName, checkName string, maxConnectionsPerInstance int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -972,7 +992,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
