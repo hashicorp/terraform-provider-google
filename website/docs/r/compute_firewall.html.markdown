@@ -53,6 +53,8 @@ The following arguments are supported:
 
 * `description` - (Optional) Textual description field.
 
+* `enable_logging` - (Optional) Denotes whether to enable logging for a particular firewall rule. If logging is enabled, logs will be exported to Stackdriver.
+
 * `disabled` - (Optional) Denotes whether the firewall rule is disabled, i.e not applied to the network it is associated with.
     When set to true, the firewall rule is not enforced and the network behaves as if it did not exist.
 

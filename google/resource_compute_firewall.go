@@ -111,6 +111,11 @@ func resourceComputeFirewall() *schema.Resource {
 				Optional: true,
 			},
 
+			"enable_logging": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -266,6 +271,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("network", ConvertSelfLinkToV1(firewall.Network))
 	d.Set("direction", firewall.Direction)
 	d.Set("description", firewall.Description)
+	d.Set("enable_logging", firewall.EnableLogging)
 	d.Set("project", project)
 	d.Set("source_ranges", firewall.SourceRanges)
 	d.Set("source_tags", firewall.SourceTags)
@@ -418,6 +424,7 @@ func resourceFirewall(d *schema.ResourceData, meta interface{}) (*computeBeta.Fi
 		SourceServiceAccounts: convertStringSet(d.Get("source_service_accounts").(*schema.Set)),
 		TargetServiceAccounts: convertStringSet(d.Get("target_service_accounts").(*schema.Set)),
 		Disabled:              d.Get("disabled").(bool),
-		ForceSendFields:       []string{"Disabled", "Allowed", "Denied", "SourceRanges", "SourceTags", "DestinationRanges", "TargetTags"},
+		EnableLogging:         d.Get("enable_logging").(bool),
+		ForceSendFields:       []string{"Disabled", "Allowed", "Denied", "EnableLogging", "SourceRanges", "SourceTags", "DestinationRanges", "TargetTags"},
 	}, nil
 }

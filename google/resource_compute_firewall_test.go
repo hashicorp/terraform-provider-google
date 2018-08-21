@@ -283,6 +283,35 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewallBeta_enableLogging(t *testing.T) {
+	t.Parallel()
+
+	var firewall computeBeta.Firewall
+	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeFirewallBeta_enableLogging(networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallBetaApiVersion(&firewall),
+					testAccCheckComputeBetaFirewallEnabledLogging(&firewall, true),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -428,6 +457,15 @@ func testAccCheckComputeFirewallBetaApiVersion(firewall *computeBeta.Firewall) r
 			return fmt.Errorf("firewall beta API was not used")
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaFirewallEnabledLogging(firewall *computeBeta.Firewall, expectedState bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if firewall.EnableLogging != expectedState {
+			return fmt.Errorf("Execpted enableLogging to be %t, got %t", expectedState, firewall.EnableLogging)
+		}
 		return nil
 	}
 }
@@ -616,5 +654,25 @@ func testAccComputeFirewall_disabled(network, firewall string) string {
 		}
 
 		disabled = true
+	}`, network, firewall)
+}
+
+func testAccComputeFirewallBeta_enableLogging(network, firewall string) string {
+	return fmt.Sprintf(`
+	resource "google_compute_network" "foobar" {
+		name = "%s"
+	}
+
+	resource "google_compute_firewall" "foobar" {
+		name = "firewall-test-%s"
+		description = "Resource created for Terraform acceptance testing"
+		network = "${google_compute_network.foobar.name}"
+		source_tags = ["foo"]
+
+		allow {
+			protocol = "icmp"
+		}
+
+		enable_logging = true
 	}`, network, firewall)
 }
