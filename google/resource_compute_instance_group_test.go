@@ -315,7 +315,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -365,7 +365,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -402,7 +402,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -439,7 +439,7 @@ func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -476,7 +476,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -493,7 +493,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 
@@ -533,7 +533,7 @@ func testAccComputeInstanceGroup_network(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "debian-9-stretch-v20180806"
 			}
 		}
 

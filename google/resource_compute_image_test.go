@@ -324,7 +324,7 @@ func testAccComputeImage_basedondisk() string {
 resource "google_compute_disk" "foobar" {
 	name = "disk-test-%s"
 	zone = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 }
 resource "google_compute_image" "foobar" {
 	name = "image-test-%s"

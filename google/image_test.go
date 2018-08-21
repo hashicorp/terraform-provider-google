@@ -64,11 +64,11 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		link := rs.Primary.Attributes["self_link"]
 
 		images := map[string]string{
-			"family/debian-8":                                               "projects/debian-cloud/global/images/family/debian-8",
-			"projects/debian-cloud/global/images/debian-8-jessie-v20170110": "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
-			"debian-8":                                                                                            "projects/debian-cloud/global/images/family/debian-8",
-			"debian-8-jessie-v20170110":                                                                           "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
-			"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20170110": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20170110",
+			"family/debian-9":                                               "projects/debian-cloud/global/images/family/debian-9",
+			"projects/debian-cloud/global/images/debian-9-stretch-v20180806": "projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			"debian-9":                                                                                            "projects/debian-cloud/global/images/family/debian-9",
+			"debian-9-stretch-v20180806":                                                                           "projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 
 			"global/images/" + name:          "global/images/" + name,
 			"global/images/family/" + family: "global/images/family/" + family,
@@ -98,7 +98,7 @@ func testAccComputeImage_resolving(name, family string) string {
 resource "google_compute_disk" "foobar" {
 	name = "%s"
 	zone = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 }
 resource "google_compute_image" "foobar" {
 	name = "%s"

@@ -338,7 +338,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "debian-9-stretch-v20180806"
     auto_delete  = true
     boot         = true
   }

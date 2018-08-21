@@ -117,7 +117,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 

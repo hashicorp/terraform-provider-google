@@ -228,7 +228,7 @@ resource "google_compute_instance_template" "foobar" {
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete = true
 		boot = true
 	}

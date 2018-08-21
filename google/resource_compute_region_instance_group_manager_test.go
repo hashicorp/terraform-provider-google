@@ -667,7 +667,7 @@ func testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2 string
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -721,7 +721,7 @@ func testAccRegionInstanceGroupManager_targetSizeZero(template, igm string) stri
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -758,7 +758,7 @@ func testAccRegionInstanceGroupManager_update(template, target, igm string) stri
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -807,7 +807,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -844,7 +844,7 @@ func testAccRegionInstanceGroupManager_update2(template1, target1, target2, temp
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -892,7 +892,7 @@ func testAccRegionInstanceGroupManager_updateLifecycle(tag, igm string) string {
 		tags = ["%s"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -932,7 +932,7 @@ func testAccRegionInstanceGroupManager_separateRegions(igm1, igm2 string) string
 		tags = ["foo", "bar"]
 
 		disk {
-			source_image = "debian-cloud/debian-8-jessie-v20160803"
+			source_image = "debian-cloud/debian-9-stretch-v20180806"
 			auto_delete = true
 			boot = true
 		}
@@ -978,7 +978,7 @@ resource "google_compute_instance_template" "igm-basic" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete = true
 		boot = true
 	}
@@ -1029,7 +1029,7 @@ resource "google_compute_instance_template" "igm-primary" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete = true
 		boot = true
 	}
@@ -1050,7 +1050,7 @@ resource "google_compute_instance_template" "igm-canary" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete = true
 		boot = true
 	}
@@ -1096,7 +1096,7 @@ resource "google_compute_instance_template" "igm-basic" {
 	can_ip_forward = false
 	tags = ["foo", "bar"]
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete = true
 		boot = true
 	}
@@ -1128,7 +1128,7 @@ resource "google_compute_instance_template" "igm-update-strategy" {
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete  = true
 		boot         = true
 	}
@@ -1169,7 +1169,7 @@ resource "google_compute_instance_template" "igm-rolling-update-policy" {
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete  = true
 		boot         = true
 	}
@@ -1220,7 +1220,7 @@ resource "google_compute_instance_template" "igm-rolling-update-policy" {
 	tags           = ["terraform-testing"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "debian-cloud/debian-9-stretch-v20180806"
 		auto_delete  = true
 		boot         = true
 	}

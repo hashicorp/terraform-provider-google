@@ -20,71 +20,71 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 	}{
 		// Full & partial links
 		"matching self_link with different api version": {
-			Old:                "https://www.googleapis.com/compute/beta/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/beta/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			ExpectDiffSuppress: true,
 		},
 		"matching image partial self_link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			ExpectDiffSuppress: true,
 		},
 		"matching image partial no project self_link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "global/images/debian-9-stretch-v20180806",
 			ExpectDiffSuppress: true,
 		},
 		"different image self_link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
 		"different image partial self_link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "projects/debian-cloud/global/images/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
 		"different image partial no project self_link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "global/images/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
 		// Image name
 		"matching image name": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "debian-9-stretch-v20180806",
 			ExpectDiffSuppress: true,
 		},
 		"different image name": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
 		// Image short hand
 		"matching image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "debian-cloud/debian-9-stretch-v20180806",
 			ExpectDiffSuppress: true,
 		},
 		"matching image short hand but different project": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "different-cloud/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "different-cloud/debian-9-stretch-v20180806",
 			ExpectDiffSuppress: false,
 		},
 		"different image short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "debian-cloud/debian-7-jessie-v20171213",
 			ExpectDiffSuppress: false,
 		},
 		// Image Family
 		"matching image family": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "family/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching image family self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching unconventional image family self link": {
@@ -93,8 +93,8 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			ExpectDiffSuppress: true,
 		},
 		"matching image family partial self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "projects/debian-cloud/global/images/family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "projects/debian-cloud/global/images/family/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching unconventional image family partial self link": {
@@ -103,18 +103,18 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			ExpectDiffSuppress: true,
 		},
 		"matching image family partial no project self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "global/images/family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "global/images/family/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching image family short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian-cloud/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "debian-cloud/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching image family short hand with project short name": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "debian/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "debian/debian-9",
 			ExpectDiffSuppress: true,
 		},
 		"matching unconventional image family short hand": {
@@ -128,43 +128,43 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			ExpectDiffSuppress: true,
 		},
 		"different image family": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "family/debian-7",
 			ExpectDiffSuppress: false,
 		},
 		"different image family self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-7",
 			ExpectDiffSuppress: false,
 		},
 		"different image family partial self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "projects/debian-cloud/global/images/family/debian-7",
 			ExpectDiffSuppress: false,
 		},
 		"different image family partial no project self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "global/images/family/debian-7",
 			ExpectDiffSuppress: false,
 		},
 		"matching image family but different project in self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "https://www.googleapis.com/compute/v1/projects/other-cloud/global/images/family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "https://www.googleapis.com/compute/v1/projects/other-cloud/global/images/family/debian-9",
 			ExpectDiffSuppress: false,
 		},
 		"different image family but different project in partial self link": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "projects/other-cloud/global/images/family/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "projects/other-cloud/global/images/family/debian-9",
 			ExpectDiffSuppress: false,
 		},
 		"different image family short hand": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			New:                "debian-cloud/debian-7",
 			ExpectDiffSuppress: false,
 		},
 		"matching image family shorthand but different project": {
-			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
-			New:                "different-cloud/debian-8",
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
+			New:                "different-cloud/debian-9",
 			ExpectDiffSuppress: false,
 		},
 	}
@@ -607,7 +607,7 @@ func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -621,7 +621,7 @@ func testAccComputeDisk_timeout() string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	type  = "pd-ssd"
 	zone  = "us-central1-a"
 
@@ -635,7 +635,7 @@ func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 100
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -650,7 +650,7 @@ func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, d
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "d1-%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -677,7 +677,7 @@ func testAccComputeDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -689,7 +689,7 @@ func testAccComputeDisk_encryptionMigrate(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -703,7 +703,7 @@ func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foo" {
 	name = "%s"
-	image = "debian-8-jessie-v20170523"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -716,7 +716,7 @@ resource "google_compute_instance" "bar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20170523"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -734,7 +734,7 @@ func testAccComputeDisk_deleteDetachIGM(diskName, mgrName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foo" {
 	name = "%s"
-	image = "debian-8-jessie-v20170523"
+	image = "debian-9-stretch-v20180806"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"

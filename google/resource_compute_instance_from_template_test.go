@@ -59,7 +59,7 @@ func testAccComputeInstanceFromTemplate_basic(instance, template string) string 
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -70,7 +70,7 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-cloud/debian-8"
+		source_image = "debian-cloud/debian-9"
 		auto_delete = true
 		disk_size_gb = 100
 		boot = true

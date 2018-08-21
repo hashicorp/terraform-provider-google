@@ -200,7 +200,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "debian-cloud/debian-9"
     }
   }
 
@@ -238,7 +238,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "debian-cloud/debian-9"
     }
   }
 
@@ -284,7 +284,7 @@ resource "google_compute_instance_template" "igm-basic" {
   machine_type = "n1-standard-1"
 
   disk {
-    source_image = "debian-cloud/debian-8-jessie-v20160803"
+    source_image = "debian-cloud/debian-9-stretch-v20180806"
     auto_delete = true
     boot = true
   }

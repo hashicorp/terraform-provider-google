@@ -1549,7 +1549,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1587,7 +1587,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8"
+			image = "debian-9"
 		}
 	}
 
@@ -1613,7 +1613,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-cloud/debian-8-jessie-v20160803"
+			image = "debian-cloud/debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1639,7 +1639,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-cloud/debian-8"
+			image = "debian-cloud/debian-9"
 		}
 	}
 
@@ -1666,7 +1666,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1693,7 +1693,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1716,7 +1716,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20160803"
+			image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1739,7 +1739,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1767,7 +1767,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1804,7 +1804,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1832,7 +1832,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1860,7 +1860,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1887,7 +1887,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -1948,7 +1948,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 		disk_encryption_key_raw = "%s"
 	}
@@ -2004,7 +2004,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2035,7 +2035,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2066,7 +2066,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2105,7 +2105,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2147,7 +2147,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2179,7 +2179,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2200,7 +2200,7 @@ func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
 	zone  = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2224,7 +2224,7 @@ func testAccComputeInstance_bootDisk_sourceUrl(disk, instance string) string {
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
 	zone  = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -2252,7 +2252,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params {
-			image	= "debian-8-jessie-v20160803"
+			image	= "debian-9-stretch-v20180806"
 			type	= "%s"
 		}
 	}
@@ -2273,7 +2273,7 @@ resource "google_compute_instance" "scratch" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2302,7 +2302,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2330,7 +2330,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2360,7 +2360,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2395,7 +2395,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2468,7 +2468,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2500,7 +2500,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2531,7 +2531,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2550,7 +2550,7 @@ func testAccComputeInstance_private_image_family(disk, family, instance string) 
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
 	zone  = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "debian-9-stretch-v20180806"
 }
 
 resource "google_compute_image" "foobar" {
@@ -2590,7 +2590,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2625,7 +2625,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image = "debian-8-jessie-v20160803"
+      image = "debian-9-stretch-v20180806"
     }
   }
 
@@ -2654,7 +2654,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image = "debian-8-jessie-v20160803"
+      image = "debian-9-stretch-v20180806"
     }
   }
 
@@ -2675,7 +2675,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image = "debian-8-jessie-v20160803"
+      image = "debian-9-stretch-v20180806"
     }
   }
 
@@ -2711,7 +2711,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image = "debian-8-jessie-v20160803"
+      image = "debian-9-stretch-v20180806"
     }
   }
 
@@ -2748,7 +2748,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image = "debian-8-jessie-v20160803"
+      image = "debian-9-stretch-v20180806"
     }
   }
 
@@ -2772,7 +2772,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2804,7 +2804,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
@@ -2835,7 +2835,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "debian-9-stretch-v20180806"
 		}
 	}
 
