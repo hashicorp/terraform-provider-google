@@ -64,9 +64,9 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		link := rs.Primary.Attributes["self_link"]
 
 		images := map[string]string{
-			"family/debian-9":                                               "projects/debian-cloud/global/images/family/debian-9",
+			"family/debian-9":                                                "projects/debian-cloud/global/images/family/debian-9",
 			"projects/debian-cloud/global/images/debian-9-stretch-v20180806": "projects/debian-cloud/global/images/debian-9-stretch-v20180806",
-			"debian-9":                                                                                            "projects/debian-cloud/global/images/family/debian-9",
+			"debian-9":                                                                                             "projects/debian-cloud/global/images/family/debian-9",
 			"debian-9-stretch-v20180806":                                                                           "projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 			"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20180806",
 
