@@ -134,8 +134,8 @@ The `boot_disk` block supports:
 * `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
     is deleted. Defaults to true.
 
-* `device_name` - (Optional) Name with which attached disk will be accessible
-    under `/dev/disk/by-id/`
+* `device_name` - (Optional) Name with which attached disk will be accessible.
+    On the instance, this device will be `/dev/disk/by-id/google-{{device_name}}`.
 
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
