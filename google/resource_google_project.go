@@ -240,7 +240,10 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 	op, err := config.clientResourceManager.Projects.Create(project).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating project %s (%s): %s.", project.ProjectId, project.Name, err)
+		return fmt.Errorf("error creating project %s (%s): %s. "+
+			"If you received a 403 error, make sure you have the"+
+			" `roles/resourcemanager.projectCreator` permission",
+			project.ProjectId, project.Name, err)
 	}
 
 	d.SetId(pid)
