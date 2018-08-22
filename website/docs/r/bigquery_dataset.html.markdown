@@ -26,6 +26,17 @@ resource "google_bigquery_dataset" "default" {
   labels {
     env = "default"
   }
+
+  access = [
+    {
+        role   = "READER"
+        domain = "example.com"
+    },
+    {
+        role = "WRITER"
+        group_by_email = "writers@example.com"
+    }
+  ]
 }
 ```
 
@@ -72,6 +83,9 @@ The following arguments are supported:
     over the default expiration time indicated by this property.
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
+
+* `access` - (Optional) An array of objects that define dataset access for
+    one or more entities.
 
 ## Attributes Reference
 

@@ -108,6 +108,52 @@ func resourceBigQueryDataset() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			// Access: [Optional] An array of objects that define dataset access
+			// for one or more entities. You can set this property when inserting
+			// or updating a dataset in order to control who is allowed to access
+			// the data.
+			"access": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				// Computed because if unset, BQ adds 4 entries automatically
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"role": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateRole,
+						},
+						"domain": &schema.Schema{
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"access.group_by_email", "access.special_group", "access.user_by_email", "access.view"},
+						},
+						"group_by_email": &schema.Schema{
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"access.domain", "access.special_group", "access.user_by_email", "access.view"},
+						},
+						"special_group": &schema.Schema{
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.user_by_email", "access.view"},
+						},
+						"user_by_email": &schema.Schema{
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.special_group", "access.view"},
+						},
+						"view": &schema.Schema{
+							Type:          schema.TypeMap,
+							Optional:      true,
+							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.special_group", "access.user_by_email"},
+							Elem:          schema.TypeString,
+						},
+					},
+				},
+			},
+
 			// SelfLink: [Output-only] A URL that can be used to access the resource
 			// again. You can use this URL in Get or Update requests to the
 			// resource.
@@ -180,6 +226,45 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 		dataset.Labels = labels
 	}
 
+	if v, ok := d.GetOk("access"); ok {
+		access := []*bigquery.DatasetAccess{}
+		for _, m := range v.([]interface{}) {
+			da := bigquery.DatasetAccess{}
+			msi := m.(map[string]interface{})
+			da.Role = msi["role"].(string)
+			if val, ok := msi["domain"]; ok {
+				da.Domain = val.(string)
+			}
+			if val, ok := msi["group_by_email"]; ok {
+				da.GroupByEmail = val.(string)
+			}
+			if val, ok := msi["special_group"]; ok {
+				da.SpecialGroup = val.(string)
+			}
+			if val, ok := msi["user_by_email"]; ok {
+				da.UserByEmail = val.(string)
+			}
+			if val, ok := msi["view"]; ok {
+				vm := val.(map[string]interface{})
+				if len(vm) > 0 {
+					view := bigquery.TableReference{}
+					if dsId, ok := vm["dataset_id"]; ok {
+						view.DatasetId = dsId.(string)
+					}
+					if pId, ok := vm["project_id"]; ok {
+						view.ProjectId = pId.(string)
+					}
+					if tId, ok := vm["table_id"]; ok {
+						view.TableId = tId.(string)
+					}
+					da.View = &view
+				}
+			}
+			access = append(access, &da)
+		}
+		dataset.Access = access
+	}
+
 	return dataset, nil
 }
 
@@ -228,6 +313,7 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", id.Project)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
+	d.Set("access", flattenAccess(res.Access))
 	d.Set("self_link", res.SelfLink)
 	d.Set("description", res.Description)
 	d.Set("friendly_name", res.FriendlyName)
@@ -303,4 +389,46 @@ func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
 	}
 
 	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+}
+
+func validateRole(value interface{}, _ string) (ws []string, errors []error) {
+	role := value.(string)
+	switch role {
+	case "READER", "WRITER", "OWNER":
+	default:
+		errors = append(errors, fmt.Errorf("Invalid role: %s", role))
+	}
+	return
+}
+
+func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
+	access := make([]map[string]interface{}, 0, len(a))
+	for _, da := range a {
+		var ai map[string]interface{}
+		ai = make(map[string]interface{})
+		if da.Role != "" {
+			ai["role"] = da.Role
+		}
+		if da.Domain != "" {
+			ai["domain"] = da.Domain
+		}
+		if da.GroupByEmail != "" {
+			ai["group_by_email"] = da.GroupByEmail
+		}
+		if da.SpecialGroup != "" {
+			ai["special_group"] = da.SpecialGroup
+		}
+		if da.UserByEmail != "" {
+			ai["user_by_email"] = da.UserByEmail
+		}
+		if da.View != nil {
+			view := make(map[string]string)
+			view["project_id"] = da.View.ProjectId
+			view["dataset_id"] = da.View.DatasetId
+			view["table_id"] = da.View.TableId
+			ai["view"] = view
+		}
+		access = append(access, ai)
+	}
+	return access
 }
