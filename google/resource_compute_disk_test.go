@@ -636,7 +636,7 @@ resource "google_compute_disk" "foobar" {
 	zone  = "us-central1-a"
 
 	timeouts {
-		Create = "1s"
+		create = "1s"
 	}
 }`, acctest.RandString(10))
 }
