@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform/registry/regsrc"
 	"github.com/hashicorp/terraform/registry/response"
 	"github.com/hashicorp/terraform/svchost"
+	"github.com/hashicorp/terraform/svchost/auth"
 	"github.com/hashicorp/terraform/svchost/disco"
 	"github.com/hashicorp/terraform/version"
 )
@@ -36,13 +37,18 @@ type Client struct {
 	// services is a required *disco.Disco, which may have services and
 	// credentials pre-loaded.
 	services *disco.Disco
+
+	// Creds optionally provides credentials for communicating with service
+	// providers.
+	creds auth.CredentialsSource
 }
 
-// NewClient returns a new initialized registry client.
-func NewClient(services *disco.Disco, client *http.Client) *Client {
+func NewClient(services *disco.Disco, creds auth.CredentialsSource, client *http.Client) *Client {
 	if services == nil {
-		services = disco.New()
+		services = disco.NewDisco()
 	}
+
+	services.SetCredentialsSource(creds)
 
 	if client == nil {
 		client = httpclient.New()
@@ -54,6 +60,7 @@ func NewClient(services *disco.Disco, client *http.Client) *Client {
 	return &Client{
 		client:   client,
 		services: services,
+		creds:    creds,
 	}
 }
 
@@ -130,7 +137,11 @@ func (c *Client) Versions(module *regsrc.Module) (*response.ModuleVersions, erro
 }
 
 func (c *Client) addRequestCreds(host svchost.Hostname, req *http.Request) {
-	creds, err := c.services.CredentialsForHost(host)
+	if c.creds == nil {
+		return
+	}
+
+	creds, err := c.creds.ForHost(host)
 	if err != nil {
 		log.Printf("[WARN] Failed to get credentials for %s: %s (ignoring)", host, err)
 		return

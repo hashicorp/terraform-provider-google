@@ -32,7 +32,7 @@ func DataSourceResourceShim(name string, dataSource *Resource) *Resource {
 
 	// FIXME: Link to some further docs either on the website or in the
 	// changelog, once such a thing exists.
-	dataSource.DeprecationMessage = fmt.Sprintf(
+	dataSource.deprecationMessage = fmt.Sprintf(
 		"using %s as a resource is deprecated; consider using the data source instead",
 		name,
 	)
