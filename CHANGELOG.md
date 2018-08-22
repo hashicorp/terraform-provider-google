@@ -1,33 +1,33 @@
-## 1.17.0 (Unreleased)
+## 1.17.0 (August 22, 2018)
 
 FEATURES:
-* **New Datasource**: `google_project_services` [GH-1822]
-* **New Resource**: `google_compute_region_disk` [GH-1755]
-* **New Resource**: `google_binary_authorization_attestor` [GH-1885]
-* **New Resource**: `google_binary_authorization_policy` [GH-1885]
-* **New Resource**: `google_container_analysis_note` [GH-1885]
+* **New Datasource**: `google_project_services` ([#1822](https://github.com/terraform-providers/terraform-provider-google/issues/1822))
+* **New Resource**: `google_compute_region_disk` ([#1755](https://github.com/terraform-providers/terraform-provider-google/issues/1755))
+* **New Resource**: `google_binary_authorization_attestor` ([#1885](https://github.com/terraform-providers/terraform-provider-google/issues/1885))
+* **New Resource**: `google_binary_authorization_policy` ([#1885](https://github.com/terraform-providers/terraform-provider-google/issues/1885))
+* **New Resource**: `google_container_analysis_note` ([#1885](https://github.com/terraform-providers/terraform-provider-google/issues/1885))
 
 IMPROVEMENTS:
-* cloudfunctions: Add support for updating function code in place [GH-1781]
-* cloudbuild: Add support for substitutions in triggers [GH-1810]
-* compute: Bring regional instance groups up to par with zonal instance groups. [GH-1809]
-* compute: Add labels to Address and GlobalAddress. [GH-1811]
-* container: allow updating node image types [GH-1843]
-* container: Add support for binary authorization in GKE [GH-1884]
-* compute: Allow update of master auth on GKE container cluster. [GH-1873]
-* compute: Add support for `boot_disk_type` to `google_dataproc_cluster`. [GH-1855]
-* compute: Generate resource_compute_firewall in magic-modules. Make more fields updatable by using PATCH instead of PUT. [GH-1907]
-* storage: Add user_project support to `google_storage_project_service_account` data source [GH-1913]
+* cloudfunctions: Add support for updating function code in place ([#1781](https://github.com/terraform-providers/terraform-provider-google/issues/1781))
+* cloudbuild: Add support for substitutions in triggers ([#1810](https://github.com/terraform-providers/terraform-provider-google/issues/1810))
+* compute: Bring regional instance groups up to par with zonal instance groups. ([#1809](https://github.com/terraform-providers/terraform-provider-google/issues/1809))
+* compute: Add labels to Address and GlobalAddress. ([#1811](https://github.com/terraform-providers/terraform-provider-google/issues/1811))
+* container: allow updating node image types ([#1843](https://github.com/terraform-providers/terraform-provider-google/issues/1843))
+* container: Add support for binary authorization in GKE ([#1884](https://github.com/terraform-providers/terraform-provider-google/issues/1884))
+* compute: Allow update of master auth on GKE container cluster. ([#1873](https://github.com/terraform-providers/terraform-provider-google/issues/1873))
+* compute: Add support for `boot_disk_type` to `google_dataproc_cluster`. ([#1855](https://github.com/terraform-providers/terraform-provider-google/issues/1855))
+* compute: Generate resource_compute_firewall in magic-modules. Make more fields updatable by using PATCH instead of PUT. ([#1907](https://github.com/terraform-providers/terraform-provider-google/issues/1907))
+* storage: Add user_project support to `google_storage_project_service_account` data source ([#1913](https://github.com/terraform-providers/terraform-provider-google/issues/1913))
 
 BUG FIXES:
-* project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
-* redis: Allow authorized network to be a name or self link [GH-1782]
-* sql: lock on master name when creating replicas [GH-1798]
-* storage: allow all role-entity pairs to be unordered [GH-1787]
-* compute: allow switching from a daily `ubuntu-minimal` build to `ubuntu-minimal-lts` instead of only `ubuntu`. [GH-1870]
-* kms: allow project ids with colons [GH-1865]
-* compute: allow project iam policy import with a resource that doesn't match provider project. [GH-1875]
-* compute: Ensure regional container clusters update correctly.  [GH-1887]
+* project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled ([#1795](https://github.com/terraform-providers/terraform-provider-google/issues/1795))
+* redis: Allow authorized network to be a name or self link ([#1782](https://github.com/terraform-providers/terraform-provider-google/issues/1782))
+* sql: lock on master name when creating replicas ([#1798](https://github.com/terraform-providers/terraform-provider-google/issues/1798))
+* storage: allow all role-entity pairs to be unordered ([#1787](https://github.com/terraform-providers/terraform-provider-google/issues/1787))
+* compute: allow switching from a daily `ubuntu-minimal` build to `ubuntu-minimal-lts` instead of only `ubuntu`. ([#1870](https://github.com/terraform-providers/terraform-provider-google/issues/1870))
+* kms: allow project ids with colons ([#1865](https://github.com/terraform-providers/terraform-provider-google/issues/1865))
+* compute: allow project iam policy import with a resource that doesn't match provider project. ([#1875](https://github.com/terraform-providers/terraform-provider-google/issues/1875))
+* compute: Ensure regional container clusters update correctly.  ([#1887](https://github.com/terraform-providers/terraform-provider-google/issues/1887))
 
 ## 1.16.2 (July 18, 2018)
 
@@ -35,7 +35,7 @@ BUG FIXES:
 * compute: use patch instead of put to update router ([#1780](https://github.com/terraform-providers/terraform-provider-google/issues/1780))
 * compute: allow a lot more fields in `google_compute_firewall` to be updated to their empty value ([#1784](https://github.com/terraform-providers/terraform-provider-google/issues/1784))
 * compute: allow setting instance scheduling booleans on `google_compute_instance` to false ([#1779](https://github.com/terraform-providers/terraform-provider-google/issues/1779))
-* compute: ensure router peers and interfaces are always removed.  [GH-1877]
+* compute: ensure router peers and interfaces are always removed.  ([#1877](https://github.com/terraform-providers/terraform-provider-google/issues/1877))
 
 ## 1.16.1 (July 16, 2018)
 
