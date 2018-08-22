@@ -103,6 +103,7 @@ func Provider() terraform.ResourceProvider {
 			GeneratedComputeResourcesMap,
 			GeneratedContainerAnalysisResourcesMap,
 			GeneratedRedisResourcesMap,
+			GeneratedComposerResourcesMap,
 			GeneratedResourceManagerResourcesMap,
 			map[string]*schema.Resource{
 				"google_bigquery_dataset":                      resourceBigQueryDataset(),
