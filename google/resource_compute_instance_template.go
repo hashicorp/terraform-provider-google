@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -98,9 +99,10 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						},
 
 						"source_image": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							ForceNew:         true,
 						},
 
 						"interface": &schema.Schema{
@@ -630,17 +632,16 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []map[string]interface{} {
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0, len(disks))
-	for i, disk := range disks {
+	for _, disk := range disks {
 		diskMap := make(map[string]interface{})
 		if disk.InitializeParams != nil {
-			var source_img = fmt.Sprintf("disk.%d.source_image", i)
-			if d.Get(source_img) == nil || d.Get(source_img) == "" {
-				diskMap["source_image"] = GetResourceNameFromSelfLink(disk.InitializeParams.SourceImage)
-			} else {
-				diskMap["source_image"] = d.Get(source_img)
+			path, err := getRelativePath(disk.InitializeParams.SourceImage)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
 			}
+			diskMap["source_image"] = path
 			diskMap["disk_type"] = disk.InitializeParams.DiskType
 			diskMap["disk_name"] = disk.InitializeParams.DiskName
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
@@ -654,7 +655,7 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []m
 		diskMap["type"] = disk.Type
 		result = append(result, diskMap)
 	}
-	return result
+	return result, nil
 }
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
@@ -695,6 +696,8 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		if err = d.Set("tags_fingerprint", instanceTemplate.Properties.Tags.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
+	} else {
+		d.Set("tags_fingerprint", "")
 	}
 	if instanceTemplate.Properties.Labels != nil {
 		d.Set("labels", instanceTemplate.Properties.Labels)
@@ -706,7 +709,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	if instanceTemplate.Properties.Disks != nil {
-		if err = d.Set("disk", flattenDisks(instanceTemplate.Properties.Disks, d)); err != nil {
+		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d)
+		if err != nil {
+			return fmt.Errorf("error flattening disks: %s", err)
+		}
+		if err = d.Set("disk", disks); err != nil {
 			return fmt.Errorf("Error setting disk: %s", err)
 		}
 	}
@@ -754,6 +761,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.Tags != nil {
 		if err = d.Set("tags", instanceTemplate.Properties.Tags.Items); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
+		}
+	} else {
+		if err = d.Set("tags", nil); err != nil {
+			return fmt.Errorf("Error setting empty tags: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.ServiceAccounts != nil {
