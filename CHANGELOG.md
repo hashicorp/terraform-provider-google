@@ -1,7 +1,7 @@
-## 1.17.1 (Unreleased)
+## 1.17.1 (August 22, 2018)
 
 BUG FIXES:
-* container: fix panic on gke binauth [GH-1924]
+* container: fix panic on gke binauth ([#1924](https://github.com/terraform-providers/terraform-provider-google/issues/1924))
 
 ## 1.17.0 (August 22, 2018)
 
