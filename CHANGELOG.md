@@ -17,6 +17,7 @@ IMPROVEMENTS:
 * compute: Allow update of master auth on GKE container cluster. [GH-1873]
 * compute: Add support for `boot_disk_type` to `google_dataproc_cluster`. [GH-1855]
 * compute: Generate resource_compute_firewall in magic-modules. Make more fields updatable by using PATCH instead of PUT. [GH-1907]
+* storage: Add user_project support to `google_storage_project_service_account` data source [GH-1913]
 
 BUG FIXES:
 * project: Fix bug where app engine wasn't getting enabled on projects that had billing enabled [GH-1795]
