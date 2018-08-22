@@ -1,4 +1,8 @@
-## 1.17.2 (Unreleased)
+## 1.18.0 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES:
+* compute: instance templates used to not set any disks in the template in state unless they were in the config, as well. It also only stored the image name in state. Both of these were bugs, and have been fixed. They should not cause any disruption. If you were interpolating an image name from a disk in an instance template, you'll need to update your config to strip out everything before the last `/`. If you imported an instance template, and did not add all the disks in the template to your config, you'll see a diff; add those disks to your config, and it will go away. Those are the only two instances where this change should effect you. We apologise for the inconvenience. [GH-1916]
+
 ## 1.17.1 (August 22, 2018)
 
 BUG FIXES:
