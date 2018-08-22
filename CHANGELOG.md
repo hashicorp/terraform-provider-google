@@ -1,4 +1,8 @@
 ## 1.17.1 (Unreleased)
+
+BUG FIXES:
+* container: fix panic on gke binauth [GH-1924]
+
 ## 1.17.0 (August 22, 2018)
 
 FEATURES:
