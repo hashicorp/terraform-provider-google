@@ -436,10 +436,22 @@ func resourceContainerCluster() *schema.Resource {
 						"cluster_secondary_range_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"services_secondary_range_name": {
 							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"use_ip_aliases": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+						"create_subnetwork": {
+							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
 						},
@@ -1421,6 +1433,13 @@ func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocati
 			if v, ok := config["services_secondary_range_name"]; ok {
 				ap.ServicesSecondaryRangeName = v.(string)
 			}
+
+			if v, ok := config["use_ip_aliases"]; ok {
+				ap.UseIpAliases = v.(bool)
+			}
+			if v, ok := config["create_subnetwork"]; ok {
+				ap.CreateSubnetwork = v.(bool)
+			}
 		} else {
 			return nil, fmt.Errorf("clusters using IP aliases must specify secondary ranges")
 		}
@@ -1585,6 +1604,8 @@ func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy) []map[string
 		{
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
 			"services_secondary_range_name": c.ServicesSecondaryRangeName,
+			"create_subnetwork":             c.CreateSubnetwork,
+			"use_ip_aliases":                c.UseIpAliases,
 		},
 	}
 }
