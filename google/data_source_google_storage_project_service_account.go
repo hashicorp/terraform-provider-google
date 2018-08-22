@@ -14,6 +14,15 @@ func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"user_project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"email_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -26,12 +35,19 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	serviceAccount, err := config.clientStorage.Projects.ServiceAccount.Get(project).Do()
+	serviceAccountGetRequest := config.clientStorage.Projects.ServiceAccount.Get(project)
+
+	if v, ok := d.GetOk("user_project"); ok {
+		serviceAccountGetRequest = serviceAccountGetRequest.UserProject(v.(string))
+	}
+
+	serviceAccount, err := serviceAccountGetRequest.Do()
 	if err != nil {
 		return handleNotFoundError(err, d, "GCS service account not found")
 	}
 
 	d.Set("project", project)
+	d.Set("email_address", serviceAccount.EmailAddress)
 
 	d.SetId(serviceAccount.EmailAddress)
 

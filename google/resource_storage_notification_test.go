@@ -13,8 +13,7 @@ import (
 )
 
 var (
-	gcsServiceAccount = fmt.Sprintf("serviceAccount:%s@gs-project-accounts.iam.gserviceaccount.com", os.Getenv("GOOGLE_PROJECT"))
-	payload           = "JSON_API_V1"
+	payload = "JSON_API_V1"
 )
 
 func TestAccStorageNotification_basic(t *testing.T) {
@@ -185,14 +184,17 @@ resource "google_storage_bucket" "bucket" {
 resource "google_pubsub_topic" "topic" {
 	name = "%s"
 }
+
 // We have to provide GCS default storage account with the permission
 // to publish to a Cloud Pub/Sub topic from this project
 // Otherwise notification configuration won't work
+data "google_storage_project_service_account" "gcs_account" {}
+
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic   = "${google_pubsub_topic.topic.name}"
 	role    = "roles/pubsub.publisher"
 		  
-	members = ["%s"]
+	members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 resource "google_storage_notification" "notification" {
@@ -210,7 +212,7 @@ resource "google_storage_notification" "notification_with_prefix" {
 	depends_on         = ["google_pubsub_topic_iam_binding.binding"]
 }
 
-`, bucketName, topicName, gcsServiceAccount)
+`, bucketName, topicName)
 }
 
 func testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2 string) string {
@@ -222,14 +224,17 @@ resource "google_storage_bucket" "bucket" {
 resource "google_pubsub_topic" "topic" {
 	name = "%s"
 }
+
 // We have to provide GCS default storage account with the permission
 // to publish to a Cloud Pub/Sub topic from this project
 // Otherwise notification configuration won't work
+data "google_storage_project_service_account" "gcs_account" {}
+
 resource "google_pubsub_topic_iam_binding" "binding" {
 	topic       = "${google_pubsub_topic.topic.name}"
 	role        = "roles/pubsub.publisher"
 		  
-	members     = ["%s"]
+	members     = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 resource "google_storage_notification" "notification" {
@@ -243,5 +248,5 @@ resource "google_storage_notification" "notification" {
 	depends_on        = ["google_pubsub_topic_iam_binding.binding"]
 }
 
-`, bucketName, topicName, gcsServiceAccount, eventType1, eventType2)
+`, bucketName, topicName, eventType1, eventType2)
 }
