@@ -123,7 +123,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 	}
 
 	var bindings []*cloudresourcemanager.Binding
-	var audit_configs []*cloudresourcemanager.AuditConfig
+	var auditConfigs []*cloudresourcemanager.AuditConfig
 	if v, ok := d.GetOk("restore_policy"); ok {
 		var restored cloudresourcemanager.Policy
 		// if there's a restore policy, subtract it from the policy_data
@@ -133,13 +133,13 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 		}
 		subtracted := subtractIamPolicy(p, &restored)
 		bindings = subtracted.Bindings
-		audit_configs = subtracted.AuditConfigs
+		auditConfigs = subtracted.AuditConfigs
 	} else {
 		bindings = p.Bindings
-		audit_configs = p.AuditConfigs
+		auditConfigs = p.AuditConfigs
 	}
 	// we only marshal the bindings, because only the bindings get set in the config
-	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings, AuditConfigs: audit_configs})
+	pBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: bindings, AuditConfigs: auditConfigs})
 	if err != nil {
 		return fmt.Errorf("Error marshaling IAM policy: %v", err)
 	}
@@ -374,12 +374,12 @@ func rolesToMembersBinding(m map[string]map[string]bool) []*cloudresourcemanager
 
 // Convert a map of audit_configs->services to a list of Binding
 func servicesToAuditConfig(ac map[string]map[string]map[string]bool) []*cloudresourcemanager.AuditConfig {
-	temp_audit_config := make([]*cloudresourcemanager.AuditConfig, 0)
+	var tmpAuditConfig []*cloudresourcemanager.AuditConfig
 
-	for service, audit_log_config := range ac {
+	for service, auditLogConfig := range ac {
 		alc := make([]*cloudresourcemanager.AuditLogConfig, 0)
 		members := make([]string, 0)
-		for k, v := range audit_log_config {
+		for k, v := range auditLogConfig {
 			for m, _ := range v {
 				members = append(members, m)
 			}
@@ -397,9 +397,9 @@ func servicesToAuditConfig(ac map[string]map[string]map[string]bool) []*cloudres
 			AuditLogConfigs: alc,
 		}
 
-		temp_audit_config = append(temp_audit_config, &tc)
+		tmpAuditConfig = append(tmpAuditConfig, &tc)
 	}
-	return temp_audit_config
+	return tmpAuditConfig
 }
 
 func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
