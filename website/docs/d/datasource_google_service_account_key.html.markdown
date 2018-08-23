@@ -33,8 +33,8 @@ data "google_service_account_key" "mykey" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the service account key. This must have format
-`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{KEYID}`, where `{ACCOUNT}` is the email address or
-unique id of the service account.
+    `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{KEYID}`, where `{ACCOUNT}`
+    is the email address or unique id of the service account.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
