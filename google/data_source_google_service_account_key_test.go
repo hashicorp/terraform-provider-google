@@ -111,7 +111,7 @@ resource "google_service_account_key" "acceptance" {
 }
 
 data "google_service_account_key" "acceptance" {
-	service_account_id = "${google_service_account_key.acceptance.id}"
+	service_account_id = "${google_service_account_key.acceptance.name}"
 }`, account)
 }
 
