@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"log"
 	"regexp"
 )
 
@@ -14,9 +15,10 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validateRegexp(ServiceAccountKeyNameRegex),
 			},
 			"public_key_type": {
 				Type:         schema.TypeString,
@@ -41,6 +43,7 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"name"},
 				Deprecated:    "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
+				ValidateFunc:  validateRegexp(ServiceAccountKeyNameRegex),
 			},
 		},
 	}
@@ -72,8 +75,6 @@ func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interfac
 }
 
 func getDataSourceServiceAccountKeyName(d *schema.ResourceData) (string, error) {
-	r := regexp.MustCompile("projects/(.+)/serviceAccounts/(.+)/keys/(.+)")
-
 	keyName := d.Get("name").(string)
 	keyFromSAId := d.Get("service_account_id").(string)
 
@@ -81,19 +82,18 @@ func getDataSourceServiceAccountKeyName(d *schema.ResourceData) (string, error) 
 	if keyName == "" && keyFromSAId == "" {
 		return "", fmt.Errorf("please use name to specify service account key being added as this data source")
 	}
-	// Both name and service_account_id specified
-	if keyName != "" && keyFromSAId != "" {
-		return "", fmt.Errorf("please do not use both name and deprecated service_account_id fields")
-	}
 
 	fullKeyName := keyName
-	// Key name specified as incorrectly named, deprecated service account ID field
-	if keyName == "" {
+	if fullKeyName == "" {
+		// Key name specified as incorrectly named, deprecated service account ID field
 		fullKeyName = keyFromSAId
 	}
 
+	log.Printf("[DEBUG] FULL KEY NAME: %q %q %q", fullKeyName, keyName, keyFromSAId)
+	r := regexp.MustCompile(ServiceAccountKeyNameRegex)
 	if r.MatchString(fullKeyName) {
 		return fullKeyName, nil
 	}
-	return "", fmt.Errorf("invalid key name '%s'; please use 'name' field to specify service account key name", fullKeyName)
+
+	return "", fmt.Errorf("invalid key name %q does not match regexp %q", fullKeyName, ServiceAccountKeyNameRegex)
 }

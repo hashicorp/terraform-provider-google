@@ -42,6 +42,8 @@ var (
 	}
 	ServiceAccountLinkRegex = ServiceAccountLinkRegexPrefix + "(" + strings.Join(PossibleServiceAccountNames, "|") + ")"
 
+	ServiceAccountKeyNameRegex = ServiceAccountLinkRegexPrefix + "(.+)/keys/(.+)"
+
 	// Format of service accounts created through the API
 	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
 	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"

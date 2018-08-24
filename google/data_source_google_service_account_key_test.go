@@ -70,14 +70,14 @@ func TestAccDatasourceGoogleServiceAccountKey_errors(t *testing.T) {
 					account,
 					`name = "${google_service_account.acceptance.name}"`),
 				ExpectError: regexp.MustCompile(
-					fmt.Sprintf("invalid key name '%s'", serviceAccountName)),
+					fmt.Sprintf("invalid key name %q", serviceAccountName)),
 			},
 			{
 				Config: testAccDatasourceGoogleServiceAccountKey_error(
 					account,
 					`service_account_id = "${google_service_account.acceptance.id}"`),
 				ExpectError: regexp.MustCompile(
-					fmt.Sprintf("invalid key name '%s'", serviceAccountName)),
+					fmt.Sprintf("invalid key name %q", serviceAccountName)),
 			},
 		},
 	})
@@ -95,7 +95,7 @@ resource "google_service_account_key" "acceptance" {
 }
 
 data "google_service_account_key" "acceptance" {
-	name = "${google_service_account_key.acceptance.id}"
+	name = "${google_service_account_key.acceptance.name}"
 }`, account)
 }
 
