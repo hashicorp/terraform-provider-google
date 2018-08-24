@@ -8,7 +8,7 @@ description: |-
 
 # google\_container\_engine\_versions
 
-Provides access to available Google Container Engine versions in a zone for a given project.
+Provides access to available Google Container Engine versions in a zone or region for a given project.
 
 ```hcl
 data "google_container_engine_versions" "central1b" {
@@ -32,9 +32,22 @@ resource "google_container_cluster" "foo" {
 
 The following arguments are supported:
 
-* `zone` (required) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
+* `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
+    One of zone or region must be given or inferred from provider
+
+* `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
+    One of zone or region must be given or inferred from provider
+
 * `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.
+
+Terraform will attempt to get or infer the location (zone or region) in the following order:
+1. `zone` from data source config
+2. `region` from data source config
+3. Provider-default zone
+4. Provider-default region IF default zone is not given. If provider-default zone is given but you wish to use a
+   regional location, please specify it explicitly in the data source.
+
 
 ## Attributes Reference
 

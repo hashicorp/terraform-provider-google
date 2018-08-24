@@ -19,6 +19,11 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"region": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"zone"},
+			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -53,12 +58,32 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	zone, err := getZone(d, meta.(*Config))
-	if err != nil {
-		return err
+	var location string
+	zone, hasZone := d.GetOk("zone")
+	if hasZone {
+		location = zone.(string)
+	}
+	region, hasRegion := d.GetOk("region")
+	if hasRegion {
+		location = region.(string)
 	}
 
-	resp, err := config.clientContainer.Projects.Zones.GetServerconfig(project, zone).Do()
+	if !hasZone && !hasRegion {
+		location, err = getZone(d, meta.(*Config))
+		if err != nil {
+			location, err = getRegion(d, meta.(*Config))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(location) == 0 {
+		return fmt.Errorf("Cannot determine location: set zone or region in this resource or at provider-level")
+	}
+
+	resp, err := config.clientContainerBeta.Projects.Locations.
+		GetServerConfig(fmt.Sprintf("projects/%s/locations/%s", project, location)).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
 	}
@@ -66,10 +91,13 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	d.Set("valid_master_versions", resp.ValidMasterVersions)
 	d.Set("default_cluster_version", resp.DefaultClusterVersion)
 	d.Set("valid_node_versions", resp.ValidNodeVersions)
-	d.Set("latest_master_version", resp.ValidMasterVersions[0])
-	d.Set("latest_node_version", resp.ValidNodeVersions[0])
+	if len(resp.ValidMasterVersions) > 0 {
+		d.Set("latest_master_version", resp.ValidMasterVersions[0])
+	}
+	if len(resp.ValidNodeVersions) > 0 {
+		d.Set("latest_node_version", resp.ValidNodeVersions[0])
+	}
 
 	d.SetId(time.Now().UTC().String())
-
 	return nil
 }

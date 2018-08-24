@@ -27,6 +27,23 @@ func TestAccContainerEngineVersions_basic(t *testing.T) {
 	})
 }
 
+func TestAccContainerEngineVersions_regional(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleContainerEngineVersionsRegionalConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleContainerEngineVersionsMeta("data.google_container_engine_versions.versions"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -100,5 +117,11 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 var testAccCheckGoogleContainerEngineVersionsConfig = `
 data "google_container_engine_versions" "versions" {
   zone = "us-central1-b"
+}
+`
+
+var testAccCheckGoogleContainerEngineVersionsRegionalConfig = `
+data "google_container_engine_versions" "versions" {
+  region = "us-central1"
 }
 `
