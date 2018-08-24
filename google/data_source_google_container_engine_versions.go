@@ -79,7 +79,7 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	}
 
 	if len(location) == 0 {
-		return fmt.Errorf("Cannot determine location: set zone or region in this resource or at provider-level")
+		return fmt.Errorf("Cannot determine location: set zone or region in this data source or at provider-level")
 	}
 
 	resp, err := config.clientContainerBeta.Projects.Locations.

@@ -44,9 +44,9 @@ The following arguments are supported:
 Terraform will attempt to get or infer the location (zone or region) in the following order:
 1. `zone` from data source config
 2. `region` from data source config
-3. Provider-default zone
-4. Provider-default region IF default zone is not given. If provider-default zone is given but you wish to use a
-   regional location, please specify it explicitly in the data source.
+3. Provider-level zone
+4. Provider-level region if no zone is given at provider-level. If provider-level zone is given but you wish to use a
+   regional location, please specify it in the data source.
 
 
 ## Attributes Reference
