@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"log"
 	"regexp"
 )
 
@@ -43,7 +42,6 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"name"},
 				Deprecated:    "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
-				ValidateFunc:  validateRegexp(ServiceAccountKeyNameRegex),
 			},
 		},
 	}
@@ -89,7 +87,8 @@ func getDataSourceServiceAccountKeyName(d *schema.ResourceData) (string, error) 
 		fullKeyName = keyFromSAId
 	}
 
-	log.Printf("[DEBUG] FULL KEY NAME: %q %q %q", fullKeyName, keyName, keyFromSAId)
+	// Validate name since interpolated values (i.e from a key or service
+	// account resource) will not get validated at plan time.
 	r := regexp.MustCompile(ServiceAccountKeyNameRegex)
 	if r.MatchString(fullKeyName) {
 		return fullKeyName, nil
