@@ -33,21 +33,13 @@ resource "google_container_cluster" "foo" {
 The following arguments are supported:
 
 * `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
-    One of zone or region must be given or inferred from provider
+    If not specified, the provider-level zone is used.
 
 * `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
-    One of zone or region must be given or inferred from provider
+    For regional clusters, this value must be specified and cannot be inferred from provider-level region.
 
 * `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.
-
-Terraform will attempt to get or infer the location (zone or region) in the following order:
-1. `zone` from data source config
-2. `region` from data source config
-3. Provider-level zone
-4. Provider-level region if no zone is given at provider-level. If provider-level zone is given but you wish to use a
-   regional location, please specify it in the data source.
-
 
 ## Attributes Reference
 

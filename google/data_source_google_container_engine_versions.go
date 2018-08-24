@@ -58,32 +58,16 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	var location string
-	zone, hasZone := d.GetOk("zone")
-	if hasZone {
-		location = zone.(string)
+	location, err := getLocation(d, config)
+	if err != nil {
+		return err
 	}
-	region, hasRegion := d.GetOk("region")
-	if hasRegion {
-		location = region.(string)
-	}
-
-	if !hasZone && !hasRegion {
-		location, err = getZone(d, meta.(*Config))
-		if err != nil {
-			location, err = getRegion(d, meta.(*Config))
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	if len(location) == 0 {
 		return fmt.Errorf("Cannot determine location: set zone or region in this data source or at provider-level")
 	}
 
-	resp, err := config.clientContainerBeta.Projects.Locations.
-		GetServerConfig(fmt.Sprintf("projects/%s/locations/%s", project, location)).Do()
+	location = fmt.Sprintf("projects/%s/locations/%s", project, location)
+	resp, err := config.clientContainerBeta.Projects.Locations.GetServerConfig(location).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
 	}
