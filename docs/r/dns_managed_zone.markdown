@@ -53,3 +53,9 @@ DNS managed zones can be imported using the `name`, e.g.
 ```
 $ terraform import google_dns_managed_zone.prod prod-zone
 ```
+
+or by using `project-id` and `name` e.g.
+
+```
+$ terraform import google_dns_managed_zone.foo project/managedZones/foo-zone
+```
