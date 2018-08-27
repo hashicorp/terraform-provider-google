@@ -198,6 +198,13 @@ The following arguments are supported:
   character, which cannot be a dash.
   This field is only used for internal load balancing.
 
+* `all_ports` -
+  (Optional)
+  When the load balancing scheme is INTERNAL, this can be used to indicate
+  that all ports should be supported on the ForwardingRule. 
+  This cannot be used with the ports[] or portRange fields.
+  This cannot be used when the load balancing scheme is EXTERNAL.
+
 * `region` -
   (Optional)
   A reference to the region where the regional forwarding rule resides.

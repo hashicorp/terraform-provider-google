@@ -142,6 +142,30 @@ func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 	})
 }
 
+func TestAccComputeForwardingRule_allPorts(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	networkName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeForwardingRule_allPorts(serviceName, checkName, networkName, ruleName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_forwarding_rule.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -298,4 +322,39 @@ resource "google_compute_forwarding_rule" "foobar" {
   network_tier = "STANDARD"
 }
 `, poolName, ruleName)
+}
+
+func testAccComputeForwardingRule_allPorts(serviceName, checkName, networkName, ruleName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar-bs" {
+  name                  = "%s"
+  description           = "Resource created for Terraform acceptance testing"
+  health_checks         = ["${google_compute_health_check.zero.self_link}"]
+  region                = "us-central1"
+}
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  description        = "Resource created for Terraform acceptance testing"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_network" "foobar" {
+  name = "%s"
+  auto_create_subnetworks = true
+}
+
+resource "google_compute_forwarding_rule" "foobar" {
+  description           = "Resource created for Terraform acceptance testing"
+  name                  = "%s"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.foobar-bs.self_link}"
+  all_ports              = true
+  network               = "${google_compute_network.foobar.name}"
+  subnetwork            = "%s"
+}
+`, serviceName, checkName, networkName, ruleName, networkName)
 }
