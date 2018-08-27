@@ -86,7 +86,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 			// If a role with same name exists and is enabled, just return error
 			return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
 		}
-	} else {
+	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
 		// If no role is found, actually create a new role.
 		role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
@@ -102,6 +102,8 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 		}
 
 		d.SetId(role.Name)
+	} else {
+		return fmt.Errorf("Unable to verify whether custom project role %s already exists and must be undeleted: %v", roleId, err)
 	}
 
 	return resourceGoogleProjectIamCustomRoleRead(d, meta)
