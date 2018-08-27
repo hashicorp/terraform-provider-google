@@ -164,17 +164,11 @@ func testAccBigQueryDatasetWithOneAccess(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "access_test" {
   dataset_id                  = "%s"
-  friendly_name               = "foo"
-  description                 = "This is a foo description"
-  location                    = "EU"
-  default_table_expiration_ms = 3600000
 
-  access = [
-    {
-	role          = "OWNER"
-	user_by_email = "Joe@example.com"
-    }
-  ]
+  access {
+    role          = "OWNER"
+    user_by_email = "Joe@example.com"
+  }
 
   labels {
     env                         = "foo"
@@ -187,21 +181,15 @@ func testAccBigQueryDatasetWithTwoAccess(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "access_test" {
   dataset_id                  = "%s"
-  friendly_name               = "foo"
-  description                 = "This is a foo description"
-  location                    = "EU"
-  default_table_expiration_ms = 3600000
 
-  access = [
-    {
-	role          = "OWNER"
-	user_by_email = "Joe@example.com"
-    },
-    {
-	role	      = "READER"
-	domain	      = "example.com"
-    }
-  ]
+  access {
+    role          = "OWNER"
+    user_by_email = "Joe@example.com"
+  }
+  access {
+    role	      = "READER"
+    domain	      = "example.com"
+  }
 
   labels {
     env                         = "foo"
@@ -232,7 +220,6 @@ resource "google_bigquery_table" "table_with_view" {
 }
 
 func testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID string) string {
-	projectID := getTestProjectFromEnv()
 	otherTable := getBigQueryTableWithView(otherDatasetID, otherTableID)
 	// Note that we have to add a non-view access to prevent BQ from creating 4 default
 	// access entries.
@@ -253,7 +240,7 @@ resource "google_bigquery_dataset" "access_test" {
     },
     {
 	view = {
-		project_id = "%s"
+		project_id = "${google_bigquery_dataset.other_dataset.project}"
 		dataset_id = "${google_bigquery_dataset.other_dataset.dataset_id}"
 		table_id   = "${google_bigquery_table.table_with_view.table_id}"
 	}
@@ -264,5 +251,5 @@ resource "google_bigquery_dataset" "access_test" {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
-}`, otherTable, datasetID, projectID)
+}`, otherTable, datasetID)
 }

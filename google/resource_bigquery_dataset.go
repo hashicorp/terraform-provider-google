@@ -122,33 +122,28 @@ func resourceBigQueryDataset() *schema.Resource {
 						"role": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateRole,
+							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
 						},
 						"domain": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"access.group_by_email", "access.special_group", "access.user_by_email", "access.view"},
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"group_by_email": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"access.domain", "access.special_group", "access.user_by_email", "access.view"},
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"special_group": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.user_by_email", "access.view"},
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"user_by_email": &schema.Schema{
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.special_group", "access.view"},
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"view": &schema.Schema{
-							Type:          schema.TypeMap,
-							Optional:      true,
-							ConflictsWith: []string{"access.domain", "access.group_by_email", "access.special_group", "access.user_by_email"},
-							Elem:          schema.TypeString,
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     schema.TypeString,
 						},
 					},
 				},
@@ -230,21 +225,21 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 		access := []*bigquery.DatasetAccess{}
 		for _, m := range v.([]interface{}) {
 			da := bigquery.DatasetAccess{}
-			msi := m.(map[string]interface{})
-			da.Role = msi["role"].(string)
-			if val, ok := msi["domain"]; ok {
+			accessMap := m.(map[string]interface{})
+			da.Role = accessMap["role"].(string)
+			if val, ok := accessMap["domain"]; ok {
 				da.Domain = val.(string)
 			}
-			if val, ok := msi["group_by_email"]; ok {
+			if val, ok := accessMap["group_by_email"]; ok {
 				da.GroupByEmail = val.(string)
 			}
-			if val, ok := msi["special_group"]; ok {
+			if val, ok := accessMap["special_group"]; ok {
 				da.SpecialGroup = val.(string)
 			}
-			if val, ok := msi["user_by_email"]; ok {
+			if val, ok := accessMap["user_by_email"]; ok {
 				da.UserByEmail = val.(string)
 			}
-			if val, ok := msi["view"]; ok {
+			if val, ok := accessMap["view"]; ok {
 				vm := val.(map[string]interface{})
 				if len(vm) > 0 {
 					view := bigquery.TableReference{}
@@ -391,41 +386,21 @@ func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
 	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
 }
 
-func validateRole(value interface{}, _ string) (ws []string, errors []error) {
-	role := value.(string)
-	switch role {
-	case "READER", "WRITER", "OWNER":
-	default:
-		errors = append(errors, fmt.Errorf("Invalid role: %s", role))
-	}
-	return
-}
-
 func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
 	access := make([]map[string]interface{}, 0, len(a))
 	for _, da := range a {
-		var ai map[string]interface{}
-		ai = make(map[string]interface{})
-		if da.Role != "" {
-			ai["role"] = da.Role
-		}
-		if da.Domain != "" {
-			ai["domain"] = da.Domain
-		}
-		if da.GroupByEmail != "" {
-			ai["group_by_email"] = da.GroupByEmail
-		}
-		if da.SpecialGroup != "" {
-			ai["special_group"] = da.SpecialGroup
-		}
-		if da.UserByEmail != "" {
-			ai["user_by_email"] = da.UserByEmail
-		}
+		ai := make(map[string]interface{})
+		ai["role"] = da.Role
+		ai["domain"] = da.Domain
+		ai["group_by_email"] = da.GroupByEmail
+		ai["special_group"] = da.SpecialGroup
+		ai["user_by_email"] = da.UserByEmail
 		if da.View != nil {
-			view := make(map[string]string)
-			view["project_id"] = da.View.ProjectId
-			view["dataset_id"] = da.View.DatasetId
-			view["table_id"] = da.View.TableId
+			view := map[string]string{
+				"project_id": da.View.ProjectId,
+				"dataset_id": da.View.DatasetId,
+				"table_id":   da.View.TableId,
+			}
 			ai["view"] = view
 		}
 		access = append(access, ai)

@@ -85,7 +85,39 @@ The following arguments are supported:
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
 * `access` - (Optional) An array of objects that define dataset access for
-    one or more entities.
+    one or more entities. Structure is documented below.
+
+The `access` block supports:
+* `role` - (Required unless `view` is set) Describes the rights granted to
+    the user specified by the other member of the access object. The following
+    string values are supported: `READER`, `WRITER`, `OWNER`.
+
+* `domain` - (Pick one) A domain to grant access to.
+
+* `group_by_email` - (Pick one) An email address of a Google Group to grant
+    access to.
+
+* `special_group` - (Pick one) A special group to grant access to.
+    Possible values include:
+      * `projectOwners`: Owners of the enclosing project.
+      * `projectReaders`: Readers of the enclosing project.
+      * `projectWriters`: Writers of the enclosing project.
+      * `allAuthenticatedUsers`: All authenticated BigQuery users.
+
+* `user_by_email` - (Pick one) An email address of a user to grant access to.
+
+* `view` - (Pick one) A view from a different dataset to grant access to.
+    Queries executed against that view will have read access to tables in this
+    dataset. The role field is not required when this field is set. If that
+    view is updated by any user, access to the view needs to be granted again
+    via an update operation. Structure is documented below.
+
+The `access.view` block supports:
+* `dataset_id` - (Required) The ID of the dataset containing this table.
+
+* `project_id` - (Required) The ID of the project containing this table.
+
+* `table_id` - (Required) The ID of the table.
 
 ## Attributes Reference
 
