@@ -98,11 +98,11 @@ The `access` block supports:
     access to.
 
 * `special_group` - (Pick one) A special group to grant access to.
-    Possible values include:
-      * `projectOwners`: Owners of the enclosing project.
-      * `projectReaders`: Readers of the enclosing project.
-      * `projectWriters`: Writers of the enclosing project.
-      * `allAuthenticatedUsers`: All authenticated BigQuery users.
+  Possible values include:
+  * `projectOwners`: Owners of the enclosing project.
+  * `projectReaders`: Readers of the enclosing project.
+  * `projectWriters`: Writers of the enclosing project.
+  * `allAuthenticatedUsers`: All authenticated BigQuery users.
 
 * `user_by_email` - (Pick one) An email address of a user to grant access to.
 
