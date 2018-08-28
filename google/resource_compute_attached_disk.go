@@ -45,10 +45,6 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }

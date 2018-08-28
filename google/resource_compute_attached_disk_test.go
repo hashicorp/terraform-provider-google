@@ -13,10 +13,6 @@ import (
 // remove debian-9 from hard coded compute instance
 //
 
-// Smoke Tests
-// * test renaming a disk
-// * test renaming a compute instance
-
 // Acceptance Tests
 // TEST - make sure count(N) results in N+1 disks on the instance
 
@@ -49,6 +45,28 @@ func TestAccAttachedDisk_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccAttachedDisk_count(t *testing.T) {
+	t.Parallel()
+
+	diskPrefix := acctest.RandomWithPrefix("tf-test")
+	instanceName := acctest.RandomWithPrefix("tf-test")
+	count := 2
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAttachedDiskResourceCount(diskPrefix, instanceName, count),
+				Check: resource.ComposeTestCheckFunc(
+					testAccAttachedDiskContainsManyDisks(instanceName, count),
+				),
+			},
+		},
+	})
 
 }
 
@@ -64,6 +82,24 @@ func testAccAttachedDiskIsNowDetached(instanceName, diskName string) resource.Te
 		ad := findDiskByName(instance.Disks, diskName)
 		if ad != nil {
 			return fmt.Errorf("compute disk is still attached to compute instance")
+		}
+
+		return nil
+	}
+}
+
+func testAccAttachedDiskContainsManyDisks(instanceName string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		instance, err := config.clientCompute.Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		if err != nil {
+			return err
+		}
+
+		// There will always be 1 extra disk because of the compute instance's boot disk
+		if (count + 1) != len(instance.Disks) {
+			return fmt.Errorf("expected %d disks to be attached, found %d", count+1, len(instance.Disks))
 		}
 
 		return nil
@@ -109,4 +145,43 @@ resource "google_compute_instance" "test" {
 	}
 }
 `, diskName, instanceName)
+}
+
+func testAttachedDiskResourceCount(diskPrefix, instanceName string, count int) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "many" {
+	name = "%s-${count.index}"
+	zone = "us-central1-a"
+	size = 10
+	count = %d
+}
+
+resource "google_compute_instance" "test" {
+	name         = "%s"
+	machine_type = "f1-micro"
+	zone         = "us-central1-a"
+
+	lifecycle {
+			ignore_changes = [
+				"attached_disk"
+			]
+		}
+
+	boot_disk {
+		initialize_params {
+		image = "debian-cloud/debian-9"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_attached_disk" "test" {
+	count = "${google_compute_disk.many.count}"
+	attached_disk = "${google_compute_disk.many.*.self_link[count.index]}"
+	attached_instance = "${google_compute_instance.test.self_link}"
+}
+`, diskPrefix, count, instanceName)
 }
