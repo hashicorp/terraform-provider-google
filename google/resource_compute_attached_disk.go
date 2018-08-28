@@ -26,26 +26,22 @@ func resourceComputeAttachedDisk() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"attached_disk": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"attached_instance": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"project": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"type": {
-				// TODO play with this to determine if somebody can change between PERSISTANT vs SCRATCH.
-				// And see if it's worth allowing a user to pass in
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -65,12 +61,13 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	instance := d.Get("attached_instance").(string)
-	zone, err := getZoneForAttachedDisk(d, config, instance)
+	attachedInstance := d.Get("attached_instance").(string)
+	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
 	if err != nil {
 		return err
 	}
-	instanceName := GetResourceNameFromSelfLink(instance)
+
+	instanceName := GetResourceNameFromSelfLink(attachedInstance)
 	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
 
 	attachedDisk := compute.AttachedDisk{
@@ -103,26 +100,17 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	d.Set("project", project)
 
-	attachedInstance, err := getAttachedInstance(d)
-	if err != nil {
-		return err
-	}
-	d.Set("attached_instance", attachedInstance)
-
+	attachedInstance := d.Get("attached_instance").(string)
 	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
 	if err != nil {
 		return err
 	}
-
-	attachedDisk, err := getAttachedDisk(d)
-	if err != nil {
-		return err
-	}
-	d.Set("attached_disk", attachedDisk)
+	d.Set("zone", zone)
 
 	instanceName := GetResourceNameFromSelfLink(attachedInstance)
-	diskName := GetResourceNameFromSelfLink(attachedDisk)
+	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
 
 	instance, err := config.clientCompute.Instances.Get(project, zone, instanceName).Do()
 	if err != nil {
@@ -132,14 +120,15 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	// Iterate through the instance's attached disk as this is the only way to
 	// confirm the disk is actually attached
 	ad := findDiskByName(instance.Disks, diskName)
-
-	// Disk was not found attached to the referenced instance
 	if ad == nil {
+		// Disk was not found attached to the referenced instance
 		d.SetId("")
 		return nil
 	}
 
-	d.Set("type", ad.Type)
+	// Force the referenced resources to a self-link in state because it's more specific then name.
+	d.Set("attached_instance", instance.SelfLink)
+	d.Set("attached_disk", ad.Source)
 
 	return nil
 }
@@ -157,6 +146,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
+
 	instanceName := GetResourceNameFromSelfLink(attachedInstance)
 	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
 
@@ -165,6 +155,8 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	// Confirm the disk is still attached before making the call to detach it. If the disk isn't listed as an attached
+	// disk on the compute instance then return as though the delete call succeed since this is the desired state.
 	ad := findDiskByName(instance.Disks, diskName)
 	if ad == nil {
 		return nil
@@ -188,11 +180,9 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	config := meta.(*Config)
 
 	// TODO (chrisst) make sure to add good examples to the docs
-	// TODO (chrisst) using 'id' here is a problem. I either need to create a new computed variable (ew)
-	// or rethink regex a bit
 	err := parseImportId(
-		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<id>[^/]+)",
-			"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<id>[^/]+)"}, d, config)
+		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/[^/]+",
+			"(?P<project>[^/]+)/(?P<zone>[^/]+)/[^/]+"}, d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -204,57 +194,14 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 	d.SetId(id[len(id)-1])
 
+	IDParts := strings.Split(d.Id(), ":")
+	if len(IDParts) != 2 {
+		return nil, fmt.Errorf("unable to determine attached disk id - id should be 'google_compute_instance.name:google_compute_disk.name'")
+	}
+	d.Set("attached_instance", IDParts[0])
+	d.Set("attached_disk", IDParts[1])
+
 	return []*schema.ResourceData{d}, nil
-}
-
-// getZoneForAttachedDisk prioritizes the disk defined by the compute instance self link before standard logic
-func getZoneForAttachedDisk(d *schema.ResourceData, c *Config, instance string) (string, error) {
-	zone, err := GetZoneFromSelfLink(instance)
-	if err != nil {
-		return "", err
-	}
-
-	// If zone can't be inferred from the compute instance self link, fall back to project
-	zone, err = getZone(d, c)
-	if err != nil {
-		return "", fmt.Errorf("%s to inherit from the attached instance use `self_link` instead of `name`", err)
-	}
-
-	return zone, nil
-}
-
-// getAttachedInstance uses fallback logic to look for the attached instance in multiple locations
-// To enable importing this resource we need to handle the situation where only the ID is available and
-// the attached instance hasn't been provided in the config and must be inferred from the id.
-func getAttachedInstance(d *schema.ResourceData) (string, error) {
-	attachedInstance := d.Get("attached_instance").(string)
-	if attachedInstance != "" {
-		return attachedInstance, nil
-	}
-
-	parts := strings.Split(d.Id(), ":")
-	if len(parts) == 2 {
-		return parts[0], nil
-	}
-
-	return "", fmt.Errorf("unable to determine the attached compute instance")
-}
-
-// getAttachedDisk uses fallback logic to look for the attached disk in multiple locations
-// To enable importing this resource we need to handle the situation where only the ID is available and
-// the attached disk hasn't been provided in the config and must be inferred from the id.
-func getAttachedDisk(d *schema.ResourceData) (string, error) {
-	attachedDisk := d.Get("attached_disk").(string)
-	if attachedDisk != "" {
-		return attachedDisk, nil
-	}
-
-	parts := strings.Split(d.Id(), ":")
-	if len(parts) == 2 {
-		return parts[1], nil
-	}
-
-	return "", fmt.Errorf("unable to determine the attached compute disk")
 }
 
 func findDiskByName(disks []*compute.AttachedDisk, id string) *compute.AttachedDisk {
@@ -265,4 +212,20 @@ func findDiskByName(disks []*compute.AttachedDisk, id string) *compute.AttachedD
 	}
 
 	return nil
+}
+
+// getZoneForAttachedDisk prioritizes the disk defined by the compute instance self link before standard logic
+func getZoneForAttachedDisk(d *schema.ResourceData, c *Config, instance string) (string, error) {
+	zone, err := GetZoneFromSelfLink(instance)
+	if err == nil {
+		return zone, nil
+	}
+
+	// If zone can't be inferred from the compute instance self link, fall back to project
+	zone, err = getZone(d, c)
+	if err != nil {
+		return "", fmt.Errorf("%s to inherit from the attached instance use `self_link` instead of `name`", err)
+	}
+
+	return zone, nil
 }

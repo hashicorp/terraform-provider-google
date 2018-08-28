@@ -10,7 +10,6 @@ import (
 )
 
 // TODO (chrisst)
-// Make sure to get the ZONE from the compute instance if it's not there on project level
 // remove debian-9 from hard coded compute instance
 //
 
@@ -21,25 +20,24 @@ import (
 // Acceptance Tests
 // TEST - make sure count(N) results in N+1 disks on the instance
 
-// Questions:
-// How do I properly test
-
 func TestAttachedDisk_basic(t *testing.T) {
 	t.Parallel()
 
-	diskName := acctest.RandomWithPrefix("tf-test")
-	instanceName := acctest.RandomWithPrefix("tf-test")
+	diskName := acctest.RandomWithPrefix("tf-test-disk")
+	instanceName := acctest.RandomWithPrefix("tf-test-inst")
+	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAttachedDiskDestroy,
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAttachedDiskResource(diskName, instanceName),
+				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachment(),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_attached_disk.test",
+				ImportStateId:     importID,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -52,8 +50,7 @@ func testAccCheckAttachedDiskDestroy(s *terraform.State) error {
 	fmt.Println("ZOMG testing destory")
 	// config := testAccProvider.Meta().(*Config)
 
-	// TODO (chrisst) - figure out how to test that things are deleted?
-	// maybe check that instance + disk are deleted?
+	// TODO (chrisst) - instead of testing destroy, test unattaching the disk
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_attached_disk" {
@@ -64,11 +61,21 @@ func testAccCheckAttachedDiskDestroy(s *terraform.State) error {
 	return nil
 }
 
+func testAttachedDiskResourceAttachment() string {
+	return fmt.Sprintf(`
+resource "google_compute_attached_disk" "test" {
+	attached_disk = "${google_compute_disk.test1.self_link}"
+	attached_instance = "${google_compute_instance.test.self_link}"
+}
+	`)
+}
+
 func testAttachedDiskResource(diskName, instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "test1" {
 	name = "%s"
 	zone = "us-central1-a"
+	size = 10
 }
 
 resource "google_compute_instance" "test" {
@@ -92,9 +99,5 @@ resource "google_compute_instance" "test" {
 		network = "default"
 	}
 }
-
-resource "google_compute_attached_disk" "test" {
-	attached_disk = "${google_compute_disk.test1.self_link}"
-	attached_instance = "${google_compute_instance.test.self_link}"
-}`, diskName, instanceName)
+`, diskName, instanceName)
 }

@@ -138,7 +138,7 @@ func TestGetZoneFromSelfLink(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if z := GetZoneFromSelfLink(tc.SelfLink); z != tc.Zone {
+		if z, _ := GetZoneFromSelfLink(tc.SelfLink); z != tc.Zone {
 			t.Errorf("failed to parse zone from %s. expected %s; got %s", tn, tc.Zone, z)
 		}
 	}
