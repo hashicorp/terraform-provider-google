@@ -8,7 +8,7 @@ description: |-
 
 # google\_container\_engine\_versions
 
-Provides access to available Google Container Engine versions in a zone for a given project.
+Provides access to available Google Container Engine versions in a zone or region for a given project.
 
 ```hcl
 data "google_container_engine_versions" "central1b" {
@@ -32,7 +32,13 @@ resource "google_container_cluster" "foo" {
 
 The following arguments are supported:
 
-* `zone` (required) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
+* `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
+    If not specified, the provider-level zone is used. One of zone, region, or provider-level zone is required.
+
+* `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
+    For regional clusters, this value must be specified and cannot be inferred from provider-level region. One of zone,
+    region, or provider-level zone is required.
+
 * `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.
 
