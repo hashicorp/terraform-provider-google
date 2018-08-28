@@ -154,7 +154,7 @@ func testSweepDatabases(region string) error {
 	return nil
 }
 
-func TestAccSqlDatabaseInstance_basic(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -196,7 +196,7 @@ func TestAccSqlDatabaseInstance_basic(t *testing.T) {
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -219,7 +219,7 @@ func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic3(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance

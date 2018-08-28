@@ -1109,7 +1109,7 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	parseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance>[^/]+)",
+		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)"}, d, config)
 
 	// Replace import id for the resource id
