@@ -219,10 +219,11 @@ func resourceSqlDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
 		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)"}, d, config)
+		"(?P<instance>[^/]+):(?P<name>[^/]+)",
+	}, d, config)
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
