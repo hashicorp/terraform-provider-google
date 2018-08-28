@@ -9,13 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-// TODO (chrisst)
-// remove debian-9 from hard coded compute instance
-//
-
-// Acceptance Tests
-// TEST - make sure count(N) results in N+1 disks on the instance
-
 func TestAccAttachedDisk_basic(t *testing.T) {
 	t.Parallel()
 

@@ -77,7 +77,6 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	// TODO (chrisst) change format of the internal id to include project/zone
 	d.SetId(fmt.Sprintf("%s:%s", instanceName, diskName))
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project,
@@ -184,7 +183,6 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	// TODO (chrisst) make sure to add good examples to the docs
 	err := parseImportId(
 		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/[^/]+",
 			"(?P<project>[^/]+)/(?P<zone>[^/]+)/[^/]+"}, d, config)
