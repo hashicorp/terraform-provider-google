@@ -21,7 +21,7 @@ func resourceComputeAttachedDisk() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(300 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(300 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -83,8 +83,8 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	// TODO (chrisst) change format of the internal id to include project/zone
 	d.SetId(fmt.Sprintf("%s:%s", instanceName, diskName))
 
-	// TODO (chrisst) allow for override to timeouts
-	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project, 2, "disk to attach")
+	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project,
+		int(d.Timeout(schema.TimeoutCreate).Minutes()), "disk to attach")
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -168,7 +168,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project,
-		2, fmt.Sprintf("Detaching disk from %s/%s/%s", project, zone, instanceName))
+		int(d.Timeout(schema.TimeoutDelete).Minutes()), fmt.Sprintf("Detaching disk from %s", attachedInstance))
 	if waitErr != nil {
 		return waitErr
 	}

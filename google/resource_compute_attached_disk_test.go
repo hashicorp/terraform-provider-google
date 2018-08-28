@@ -20,7 +20,7 @@ import (
 // Acceptance Tests
 // TEST - make sure count(N) results in N+1 disks on the instance
 
-func TestAttachedDisk_basic(t *testing.T) {
+func TestAccAttachedDisk_basic(t *testing.T) {
 	t.Parallel()
 
 	diskName := acctest.RandomWithPrefix("tf-test-disk")
@@ -41,24 +41,33 @@ func TestAttachedDisk_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			resource.TestStep{
+				Config: testAttachedDiskResource(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccAttachedDiskIsNowDetached(instanceName, diskName),
+				),
+			},
 		},
 	})
 
 }
 
-func testAccCheckAttachedDiskDestroy(s *terraform.State) error {
-	fmt.Println("ZOMG testing destory")
-	// config := testAccProvider.Meta().(*Config)
+func testAccAttachedDiskIsNowDetached(instanceName, diskName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
 
-	// TODO (chrisst) - instead of testing destroy, test unattaching the disk
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_attached_disk" {
-			continue
+		instance, err := config.clientCompute.Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		if err != nil {
+			return err
 		}
-	}
 
-	return nil
+		ad := findDiskByName(instance.Disks, diskName)
+		if ad != nil {
+			return fmt.Errorf("compute disk is still attached to compute instance")
+		}
+
+		return nil
+	}
 }
 
 func testAttachedDiskResourceAttachment() string {
