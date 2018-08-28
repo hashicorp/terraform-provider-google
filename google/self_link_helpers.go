@@ -39,7 +39,6 @@ func compareSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) b
 		// `new` is a name
 		// `old` is always a self_link
 		if GetResourceNameFromSelfLink(old) == newParts[0] {
-			// log.Println(" - true!")
 			return true
 		}
 	}

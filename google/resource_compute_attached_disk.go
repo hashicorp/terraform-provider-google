@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -25,13 +26,13 @@ func resourceComputeAttachedDisk() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"attached_disk": {
+			"disk": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
-			"attached_instance": {
+			"instance": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
@@ -57,14 +58,14 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	attachedInstance := d.Get("attached_instance").(string)
+	attachedInstance := d.Get("instance").(string)
 	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
 	if err != nil {
 		return err
 	}
 
 	instanceName := GetResourceNameFromSelfLink(attachedInstance)
-	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
+	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	attachedDisk := compute.AttachedDisk{
 		DeviceName: diskName,
@@ -98,7 +99,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("project", project)
 
-	attachedInstance := d.Get("attached_instance").(string)
+	attachedInstance := d.Get("instance").(string)
 	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
 	if err != nil {
 		return err
@@ -106,7 +107,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("zone", zone)
 
 	instanceName := GetResourceNameFromSelfLink(attachedInstance)
-	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
+	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	instance, err := config.clientCompute.Instances.Get(project, zone, instanceName).Do()
 	if err != nil {
@@ -117,14 +118,22 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	// confirm the disk is actually attached
 	ad := findDiskByName(instance.Disks, diskName)
 	if ad == nil {
-		// Disk was not found attached to the referenced instance
+		log.Printf("[WARN] Refereecned disk wasn't found attached to this compute instance. Unsetting resource id.")
 		d.SetId("")
 		return nil
 	}
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
-	d.Set("attached_instance", instance.SelfLink)
-	d.Set("attached_disk", ad.Source)
+	instancePath, err := getRelativePath(instance.SelfLink)
+	if err != nil {
+		return err
+	}
+	d.Set("instance", instancePath)
+	diskPath, err := getRelativePath(ad.Source)
+	if err != nil {
+		return err
+	}
+	d.Set("disk", diskPath)
 
 	return nil
 }
@@ -137,14 +146,14 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	attachedInstance := d.Get("attached_instance").(string)
+	attachedInstance := d.Get("instance").(string)
 	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
 	if err != nil {
 		return err
 	}
 
 	instanceName := GetResourceNameFromSelfLink(attachedInstance)
-	diskName := GetResourceNameFromSelfLink(d.Get("attached_disk").(string))
+	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	instance, err := config.clientCompute.Instances.Get(project, zone, instanceName).Do()
 	if err != nil {
@@ -194,8 +203,8 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	if len(IDParts) != 2 {
 		return nil, fmt.Errorf("unable to determine attached disk id - id should be 'google_compute_instance.name:google_compute_disk.name'")
 	}
-	d.Set("attached_instance", IDParts[0])
-	d.Set("attached_disk", IDParts[1])
+	d.Set("instance", IDParts[0])
+	d.Set("disk", IDParts[1])
 
 	return []*schema.ResourceData{d}, nil
 }

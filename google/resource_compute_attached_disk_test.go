@@ -109,8 +109,8 @@ func testAccAttachedDiskContainsManyDisks(instanceName string, count int) resour
 func testAttachedDiskResourceAttachment() string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-	attached_disk = "${google_compute_disk.test1.self_link}"
-	attached_instance = "${google_compute_instance.test.self_link}"
+	disk = "${google_compute_disk.test1.self_link}"
+	instance = "${google_compute_instance.test.self_link}"
 }
 	`)
 }
@@ -180,8 +180,8 @@ resource "google_compute_instance" "test" {
 
 resource "google_compute_attached_disk" "test" {
 	count = "${google_compute_disk.many.count}"
-	attached_disk = "${google_compute_disk.many.*.self_link[count.index]}"
-	attached_instance = "${google_compute_instance.test.self_link}"
+	disk = "${google_compute_disk.many.*.self_link[count.index]}"
+	instance = "${google_compute_instance.test.self_link}"
 }
 `, diskPrefix, count, instanceName)
 }
