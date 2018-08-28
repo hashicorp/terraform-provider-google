@@ -103,7 +103,6 @@ func Provider() terraform.ResourceProvider {
 			GeneratedComputeResourcesMap,
 			GeneratedContainerAnalysisResourcesMap,
 			GeneratedRedisResourcesMap,
-			GeneratedComposerResourcesMap,
 			GeneratedResourceManagerResourcesMap,
 			map[string]*schema.Resource{
 				"google_bigquery_dataset":                      resourceBigQueryDataset(),
@@ -113,6 +112,7 @@ func Provider() terraform.ResourceProvider {
 				"google_cloudbuild_trigger":                    resourceCloudBuildTrigger(),
 				"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 				"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
+				//"google_composer_environment":                  resourceComposerEnvironment(),
 				"google_compute_autoscaler":                    resourceComputeAutoscaler(),
 				"google_compute_address":                       resourceComputeAddress(),
 				"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
