@@ -283,6 +283,48 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewall_enableLogging(t *testing.T) {
+	t.Parallel()
+
+	var firewall computeBeta.Firewall
+	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallLoggingEnabled(&firewall, false),
+				),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallLoggingEnabled(&firewall, true),
+				),
+			},
+			{
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeBetaFirewallExists("google_compute_firewall.foobar", &firewall),
+					testAccCheckComputeFirewallLoggingEnabled(&firewall, false),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -330,15 +372,6 @@ func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) res
 	}
 }
 
-func testAccCheckComputeFirewallHasPriority(firewall *compute.Firewall, priority int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if firewall.Priority != int64(priority) {
-			return fmt.Errorf("Priority for firewall does not match: expected %d, found %d", priority, firewall.Priority)
-		}
-		return nil
-	}
-}
-
 func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firewall) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -364,6 +397,15 @@ func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firew
 
 		*firewall = *found
 
+		return nil
+	}
+}
+
+func testAccCheckComputeFirewallHasPriority(firewall *compute.Firewall, priority int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if firewall.Priority != int64(priority) {
+			return fmt.Errorf("Priority for firewall does not match: expected %d, found %d", priority, firewall.Priority)
+		}
 		return nil
 	}
 }
@@ -440,6 +482,15 @@ func testAccCheckComputeFirewallApiVersion(firewall *compute.Firewall) resource.
 			return fmt.Errorf("firewall v1 API was not used")
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeFirewallLoggingEnabled(firewall *computeBeta.Firewall, enabled bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if firewall == nil || firewall.EnableLogging != enabled {
+			return fmt.Errorf("expected firewall enable_logging to be %t, got %t", enabled, firewall.EnableLogging)
+		}
 		return nil
 	}
 }
@@ -617,4 +668,30 @@ func testAccComputeFirewall_disabled(network, firewall string) string {
 
 		disabled = true
 	}`, network, firewall)
+}
+
+func testAccComputeFirewall_enableLogging(network, firewall string, enableLogging bool) string {
+	enableLoggingCfg := ""
+	if enableLogging {
+		enableLoggingCfg = "enable_logging= true"
+	}
+	return fmt.Sprintf(`
+	resource "google_compute_network" "foobar" {
+		name = "%s"
+		auto_create_subnetworks = false
+		ipv4_range = "10.0.0.0/16"
+	}
+
+	resource "google_compute_firewall" "foobar" {
+		name = "firewall-test-%s"
+		description = "Resource created for Terraform acceptance testing"
+		network = "${google_compute_network.foobar.name}"
+		source_tags = ["foo"]
+
+		allow {
+			protocol = "icmp"
+		}
+
+		%s
+	}`, network, firewall, enableLoggingCfg)
 }
