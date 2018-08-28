@@ -67,8 +67,13 @@ exported:
 
 ## Import
 
-SQL databases can be imported using the `instance` and `name`, e.g.
+SQL databases can be imported using one of any of these accepted formats:
 
 ```
-$ terraform import google_sql_database.database master-instance:users-db
+$ terraform import google_sql_database.database projects/{{project}}/instances/{{instance}}/databases/{{name}}
+$ terraform import google_sql_database.database {{project}}/{{instance}}/{{name}}
+$ terraform import google_sql_database.database instances/{{name}}/databases/{{name}}
+$ terraform import google_sql_database.database {{instance}}/{{name}}
+$ terraform import google_sql_database.database {{name}}
+
 ```

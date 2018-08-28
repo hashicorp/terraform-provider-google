@@ -313,8 +313,11 @@ when the resource is configured with a `count`.
 
 ## Import
 
-Database instances can be imported using the `name`, e.g.
+Database instances can be imported using one of any of these accepted formats:
 
 ```
-$ terraform import google_sql_database_instance.master master-instance
+$ terraform import google_sql_database_instance.master projects/{{project}}/instances/{{name}}
+$ terraform import google_sql_database_instance.master {{project}}/{{name}}
+$ terraform import google_sql_database_instance.master {{name}}
+
 ```
