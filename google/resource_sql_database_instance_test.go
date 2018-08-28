@@ -154,11 +154,13 @@ func testSweepDatabases(region string) error {
 	return nil
 }
 
-func TestAccSqlDatabaseInstance_basic(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
-	databaseID := acctest.RandInt()
+	instanceID := acctest.RandInt()
+	instanceName := fmt.Sprintf("tf-lw-%d", instanceID)
+	resourceName := "google_sql_database_instance.instance"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -167,19 +169,34 @@ func TestAccSqlDatabaseInstance_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic, databaseID),
+					testGoogleSqlDatabaseInstance_basic, instanceID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceExists(resourceName, &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(resourceName, &instance),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("projects/%s/instances/%s", getTestProjectFromEnv(), instanceName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("%s/%s", getTestProjectFromEnv(), instanceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -202,7 +219,7 @@ func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic3(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance

@@ -40,7 +40,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		Update: resourceSqlDatabaseInstanceUpdate,
 		Delete: resourceSqlDatabaseInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSqlDatabaseInstanceImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -1103,6 +1103,23 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
