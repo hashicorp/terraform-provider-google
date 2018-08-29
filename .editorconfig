@@ -1,7 +1,15 @@
-[*.go]
+root=true
+
+[*]
 charset=utf-8
 end_of_line=lf
 insert_final_newline=false
+trim_trailing_whitespace=true
+
+[*.go]
 indent_style=tab
 tab_width=4
 
+[*.tf]
+indent_style=space
+indent_size=2
