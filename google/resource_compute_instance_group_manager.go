@@ -489,7 +489,7 @@ func performZoneUpdate(config *Config, id string, updateStrategy string, rolling
 	}
 
 	if updateStrategy == "ROLLING_UPDATE" {
-		// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Patch` calls.
+		// UpdatePolicy is set for InstanceGroupManager on update only, because it is only relevant for `Update` calls.
 		// Other tools(gcloud and UI) capable of executing the same `ROLLING UPDATE` call
 		// expect those values to be provided by user as part of the call
 		// or provide their own defaults without respecting what was previously set on UpdateManager.
@@ -499,7 +499,7 @@ func performZoneUpdate(config *Config, id string, updateStrategy string, rolling
 			Versions:     versions,
 		}
 
-		op, err := config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, id, manager).Do()
+		op, err := config.clientComputeBeta.InstanceGroupManagers.Update(project, zone, id, manager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
