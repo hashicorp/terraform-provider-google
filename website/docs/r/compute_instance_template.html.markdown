@@ -38,7 +38,7 @@ resource "google_compute_instance_template" "default" {
 
   // Create a new boot disk from an image
   disk {
-    source_image = "debian-cloud/debian-8"
+    source_image = "debian-cloud/debian-9"
     auto_delete  = true
     boot         = true
   }

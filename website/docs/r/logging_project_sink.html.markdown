@@ -48,7 +48,7 @@ resource "google_compute_instance" "my-logged-instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "debian-cloud/debian-9"
     }
   }
 
