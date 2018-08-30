@@ -84,7 +84,8 @@ func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) 
 	sink := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
-	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).
+		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
 	if err != nil {
 		return err
 	}

@@ -77,7 +77,8 @@ func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interfac
 	sink.ForceSendFields = append(sink.ForceSendFields, "IncludeChildren")
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.Organizations.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(true).Do()
+	_, err := config.clientLogging.Organizations.Sinks.Patch(d.Id(), sink).
+		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}
