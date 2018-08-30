@@ -1,4 +1,6 @@
-// Package redis provides access to the Cloud Memorystore for Redis API.
+// Package redis provides access to the Google Cloud Memorystore for Redis API.
+//
+// This package is DEPRECATED. Use package cloud.google.com/go/redis/apiv1beta1 instead.
 //
 // See https://cloud.google.com/memorystore/docs/redis/
 //
@@ -118,6 +120,24 @@ func NewProjectsLocationsOperationsService(s *Service) *ProjectsLocationsOperati
 
 type ProjectsLocationsOperationsService struct {
 	s *Service
+}
+
+// Empty: A generic empty message that you can re-use to avoid defining
+// duplicated
+// empty messages in your APIs. A typical example is to use it as the
+// request
+// or the response type of an API method. For instance:
+//
+//     service Foo {
+//       rpc Bar(google.protobuf.Empty) returns
+// (google.protobuf.Empty);
+//     }
+//
+// The JSON representation for `Empty` is empty JSON object `{}`.
+type Empty struct {
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
 }
 
 // GoogleCloudCommonOperationMetadata: Represents the metadata of the
@@ -244,14 +264,14 @@ type Instance struct {
 	CreateTime string `json:"createTime,omitempty"`
 
 	// CurrentLocationId: Output only. The current zone where the Redis
-	// endpoint is placed. In
-	// single zone deployments, this will always be the same as
+	// endpoint is placed. For Basic
+	// Tier instances, this will always be the same as the
 	// [location_id]
-	// provided by the user at creation time. In cross-zone instances
-	// (only
-	// applicable in STANDARD_HA tier), this can be either [location_id]
-	// or
-	// [alternative_location_id] and can change on a failover event.
+	// provided by the user at creation time. For Standard Tier
+	// instances,
+	// this can be either [location_id] or [alternative_location_id] and
+	// can
+	// change after a failover event.
 	CurrentLocationId string `json:"currentLocationId,omitempty"`
 
 	// DisplayName: An arbitrary and optional user-provided name for the
@@ -272,12 +292,12 @@ type Instance struct {
 	// tier,
 	// instances will be created across two zones for protection against
 	// zonal
-	// failures. if [alternative_location_id] is also provided, it must
+	// failures. If [alternative_location_id] is also provided, it must
 	// be
 	// different from [location_id].
 	LocationId string `json:"locationId,omitempty"`
 
-	// MemorySizeGb: Required. Redis memory size in GB, up to 200GB.
+	// MemorySizeGb: Required. Redis memory size in GiB.
 	MemorySizeGb int64 `json:"memorySizeGb,omitempty"`
 
 	// Name: Required. Unique name of the resource in this scope including
@@ -289,7 +309,7 @@ type Instance struct {
 	//
 	// Note: Redis instances are managed and addressed at regional level
 	// so
-	// location_id here refers to a GCP region; however, users get to choose
+	// location_id here refers to a GCP region; however, users may choose
 	// which
 	// specific zone (or collection of zones for cross-zone instances) an
 	// instance
@@ -306,8 +326,9 @@ type Instance struct {
 	// http://redis.io/topics/config. Currently, the only supported
 	// parameters
 	// are:
-	//  * maxmemory-policy
-	//  * notify-keyspace-events
+	//
+	//  *   maxmemory-policy
+	//  *   notify-keyspace-events
 	RedisConfigs map[string]string `json:"redisConfigs,omitempty"`
 
 	// RedisVersion: Optional. The version of Redis software.
@@ -323,7 +344,7 @@ type Instance struct {
 	// instance. If not provided, the service will choose an unused /29
 	// block,
 	// for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be unique
-	// and non-overlapping with existing subnets in a network.
+	// and non-overlapping with existing subnets in an authorized network.
 	ReservedIpRange string `json:"reservedIpRange,omitempty"`
 
 	// State: Output only. The current state of this instance.
@@ -529,18 +550,17 @@ type Location struct {
 	//     {"cloud.googleapis.com/region": "us-east1"}
 	Labels map[string]string `json:"labels,omitempty"`
 
-	// LocationId: The canonical id for this location. For example:
-	// "us-east1".
+	// LocationId: Resource ID for the region. For example: "us-east1".
 	LocationId string `json:"locationId,omitempty"`
 
-	// Metadata: Service-specific metadata. For example the available
-	// capacity at the given
-	// location.
+	// Metadata: Output only. The set of available zones in the location.
+	// The map is keyed by the lowercase ID of each zone, as defined by
+	// Compute Engine. These keys can be specified in `location_id` or
+	// `alternative_location_id` fields when creating a Redis instance.
 	Metadata googleapi.RawMessage `json:"metadata,omitempty"`
 
-	// Name: Resource name for the location, which may vary between
-	// implementations.
-	// For example: "projects/example-project/locations/us-east1"
+	// Name: Full resource name for the region. For example:
+	// "projects/example-project/locations/us-east1".
 	Name string `json:"name,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -570,47 +590,6 @@ func (s *Location) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// LocationMetadata: This location metadata represents additional
-// configuration options for a
-// given location where a Redis instance may be created. All fields are
-// output
-// only. It is returned as content of
-// the
-// `google.cloud.location.Location.metadata` field.
-type LocationMetadata struct {
-	// AvailableZones: Output only. The set of available zones in the
-	// location. The map is keyed
-	// by the lowercase ID of each zone, as defined by GCE. These keys can
-	// be
-	// specified in `location_id` or `alternative_location_id` fields
-	// when
-	// creating a Redis instance.
-	AvailableZones map[string]ZoneMetadata `json:"availableZones,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "AvailableZones") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "AvailableZones") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *LocationMetadata) MarshalJSON() ([]byte, error) {
-	type NoMethod LocationMetadata
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // Operation: This resource represents a long-running operation that is
 // the result of a
 // network API call.
@@ -626,13 +605,28 @@ type Operation struct {
 	// cancellation.
 	Error *Status `json:"error,omitempty"`
 
-	// Metadata: Service-specific metadata associated with the operation.
-	// It typically
-	// contains progress information and common metadata such as create
-	// time.
-	// Some services might not provide such metadata.  Any method that
-	// returns a
-	// long-running operation should document the metadata type, if any.
+	// Metadata: {
+	//
+	// `createTime`: The time the operation was created.
+	//
+	// `endTime`: The time the operation finished running.
+	//
+	// `target`: Server-defined resource path for the target of the
+	// operation.
+	//
+	// `verb`: Name of the verb executed by the operation.
+	//
+	// `statusDetail`: Human-readable status of the operation, if
+	// any.
+	//
+	// `cancelRequested`: Identifies whether the user has requested
+	// cancellation of the operation. Operations that have successfully been
+	// cancelled have Operation.error value with a google.rpc.Status.code of
+	// 1, corresponding to `Code.CANCELLED`.
+	//
+	// `apiVersion`: API version used to start the operation.
+	//
+	// }
 	Metadata googleapi.RawMessage `json:"metadata,omitempty"`
 
 	// Name: The server-assigned name, which is only unique within the same
@@ -682,101 +676,6 @@ type Operation struct {
 
 func (s *Operation) MarshalJSON() ([]byte, error) {
 	type NoMethod Operation
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// OperationMetadata: This operation metadata represents the state of
-// operations that may have
-// happened or are happening on the instance. All fields are output
-// only. It is
-// returned as content of the `google.longrunning.Operation.metadata`
-// field. The
-// `google.longrunning.Operation.name` field will be of the
-// form
-// `projects/{project_id}/locations/{location_id}/operations/{operat
-// ion_id}` and
-// the name for a `ListOperations` request will be of the
-// form
-// `projects/{project_id}/locations/{location_id}`
-//
-// On a ListOperations request where {location_id} is "-", all
-// regions
-// available to the {project_id} are queried and the results aggregated.
-// If a
-// location is not available, a dummy `google.longrunning.Operation`
-// entry will
-// be included in the `operations` field of the response, with the
-// `name` field
-// set to a value of the
-// form
-// `projects/{project_id}/locations/{location_id}/operations/-` and the
-// `done`
-// field will be set and the `result.error` field set with the `code`
-// field set
-// to `google.rpc.Code.DEADLINE_EXCEEDED` and the `message` field set
-// to
-// `location unavailable for ListOperations`. The Operation metadata`
-// field
-// will not be set for such a dummy operation.
-type OperationMetadata struct {
-	// CreateTime: Output only. The time the operation was created.
-	CreateTime string `json:"createTime,omitempty"`
-
-	// Detail: Output only. Detailed operation progress, if available.
-	Detail string `json:"detail,omitempty"`
-
-	// EndTime: Output only. The time the operation was completed.
-	EndTime string `json:"endTime,omitempty"`
-
-	// OperationType: Output only. The operation type.
-	//
-	// Possible values:
-	//   "TYPE_UNSPECIFIED" - Not set.
-	//   "CREATE_REDIS_INSTANCE" - Redis instance is being created.
-	//   "UPDATE_REDIS_INSTANCE" - Redis instance is being updated.
-	//   "DELETE_REDIS_INSTANCE" - Redis instance is being deleted.
-	//   "REPAIR_REDIS_INSTANCE" - Redis instance is being repaired.
-	//   "MAINTENANCE_FOR_REDIS_INSTANCE" - Redis instance is being in
-	// maintenance.
-	OperationType string `json:"operationType,omitempty"`
-
-	// StartTime: Output only. The time the operation was started.
-	StartTime string `json:"startTime,omitempty"`
-
-	// State: Output only. The current state of the operation.
-	//
-	// Possible values:
-	//   "STATUS_UNSPECIFIED" - Not set.
-	//   "PENDING" - The operation has been created.
-	//   "RUNNING" - The operation is currently running.
-	//   "FAILED" - The operation has failed or was cancelled.
-	//   "DONE" - The operation completed successfully.
-	State string `json:"state,omitempty"`
-
-	// Target: Output only. Server-defined resource path for the target of
-	// the operation.
-	Target string `json:"target,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "CreateTime") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "CreateTime") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *OperationMetadata) MarshalJSON() ([]byte, error) {
-	type NoMethod OperationMetadata
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -898,12 +797,6 @@ func (s *Status) MarshalJSON() ([]byte, error) {
 	type NoMethod Status
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// ZoneMetadata: Defines specific information for a particular zone.
-// Currently empty and
-// reserved for future use only.
-type ZoneMetadata struct {
 }
 
 // method id "redis.projects.locations.get":
@@ -1257,7 +1150,7 @@ type ProjectsLocationsInstancesCreateCall struct {
 // Create: Creates a Redis instance based on the specified tier and
 // memory size.
 //
-// By default, the instance is peered to the project's
+// By default, the instance is accessible from the project's
 // [default
 // network](/compute/docs/networks-and-firewalls#networks).
 //
@@ -1379,7 +1272,7 @@ func (c *ProjectsLocationsInstancesCreateCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a Redis instance based on the specified tier and memory size.\n\nBy default, the instance is peered to the project's\n[default network](/compute/docs/networks-and-firewalls#networks).\n\nThe creation is executed asynchronously and callers may check the returned\noperation to track its progress. Once the operation is completed the Redis\ninstance will be fully functional. Completed longrunning.Operation will\ncontain the new instance object in the response field.\n\nThe returned operation is automatically deleted after a few hours, so there\nis no need to call DeleteOperation.",
+	//   "description": "Creates a Redis instance based on the specified tier and memory size.\n\nBy default, the instance is accessible from the project's\n[default network](/compute/docs/networks-and-firewalls#networks).\n\nThe creation is executed asynchronously and callers may check the returned\noperation to track its progress. Once the operation is completed the Redis\ninstance will be fully functional. Completed longrunning.Operation will\ncontain the new instance object in the response field.\n\nThe returned operation is automatically deleted after a few hours, so there\nis no need to call DeleteOperation.",
 	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}/instances",
 	//   "httpMethod": "POST",
 	//   "id": "redis.projects.locations.instances.create",
@@ -1914,10 +1807,11 @@ func (r *ProjectsLocationsInstancesService) Patch(name string, instance *Instanc
 // this field. The elements of the repeated paths field may only include
 // these
 // fields from Instance:
-// * `display_name`
-// * `labels`
-// * `redis_config`
-// * `redis_version`
+//
+//  *   `displayName`
+//  *   `labels`
+//  *   `memorySizeGb`
+//  *   `redisConfig`
 func (c *ProjectsLocationsInstancesPatchCall) UpdateMask(updateMask string) *ProjectsLocationsInstancesPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -2018,14 +1912,14 @@ func (c *ProjectsLocationsInstancesPatchCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Unique name of the resource in this scope including project and\nlocation using the form:\n    `projects/{project_id}/locations/{location_id}/instances/{instance_id}`\n\nNote: Redis instances are managed and addressed at regional level so\nlocation_id here refers to a GCP region; however, users get to choose which\nspecific zone (or collection of zones for cross-zone instances) an instance\nshould be provisioned in. Refer to [location_id] and\n[alternative_location_id] fields for more details.",
+	//       "description": "Required. Unique name of the resource in this scope including project and\nlocation using the form:\n    `projects/{project_id}/locations/{location_id}/instances/{instance_id}`\n\nNote: Redis instances are managed and addressed at regional level so\nlocation_id here refers to a GCP region; however, users may choose which\nspecific zone (or collection of zones for cross-zone instances) an instance\nshould be provisioned in. Refer to [location_id] and\n[alternative_location_id] fields for more details.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/instances/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Required. Mask of fields to update. At least one path must be supplied in\nthis field. The elements of the repeated paths field may only include these\nfields from Instance:\n* `display_name`\n* `labels`\n* `redis_config`\n* `redis_version`",
+	//       "description": "Required. Mask of fields to update. At least one path must be supplied in\nthis field. The elements of the repeated paths field may only include these\nfields from Instance:\n\n *   `displayName`\n *   `labels`\n *   `memorySizeGb`\n *   `redisConfig`",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -2037,6 +1931,279 @@ func (c *ProjectsLocationsInstancesPatchCall) Do(opts ...googleapi.CallOption) (
 	//   },
 	//   "response": {
 	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "redis.projects.locations.operations.cancel":
+
+type ProjectsLocationsOperationsCancelCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Cancel: Starts asynchronous cancellation on a long-running operation.
+//  The server
+// makes a best effort to cancel the operation, but success is
+// not
+// guaranteed.  If the server doesn't support this method, it
+// returns
+// `google.rpc.Code.UNIMPLEMENTED`.  Clients can
+// use
+// Operations.GetOperation or
+// other methods to check whether the cancellation succeeded or whether
+// the
+// operation completed despite cancellation. On successful
+// cancellation,
+// the operation is not deleted; instead, it becomes an operation
+// with
+// an Operation.error value with a google.rpc.Status.code of
+// 1,
+// corresponding to `Code.CANCELLED`.
+func (r *ProjectsLocationsOperationsService) Cancel(name string) *ProjectsLocationsOperationsCancelCall {
+	c := &ProjectsLocationsOperationsCancelCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsOperationsCancelCall) Fields(s ...googleapi.Field) *ProjectsLocationsOperationsCancelCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsOperationsCancelCall) Context(ctx context.Context) *ProjectsLocationsOperationsCancelCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsOperationsCancelCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsOperationsCancelCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:cancel")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "redis.projects.locations.operations.cancel" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Starts asynchronous cancellation on a long-running operation.  The server\nmakes a best effort to cancel the operation, but success is not\nguaranteed.  If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.  Clients can use\nOperations.GetOperation or\nother methods to check whether the cancellation succeeded or whether the\noperation completed despite cancellation. On successful cancellation,\nthe operation is not deleted; instead, it becomes an operation with\nan Operation.error value with a google.rpc.Status.code of 1,\ncorresponding to `Code.CANCELLED`.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel",
+	//   "httpMethod": "POST",
+	//   "id": "redis.projects.locations.operations.cancel",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the operation resource to be cancelled.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/operations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:cancel",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "redis.projects.locations.operations.delete":
+
+type ProjectsLocationsOperationsDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a long-running operation. This method indicates that
+// the client is
+// no longer interested in the operation result. It does not cancel
+// the
+// operation. If the server doesn't support this method, it
+// returns
+// `google.rpc.Code.UNIMPLEMENTED`.
+func (r *ProjectsLocationsOperationsService) Delete(name string) *ProjectsLocationsOperationsDeleteCall {
+	c := &ProjectsLocationsOperationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsOperationsDeleteCall) Fields(s ...googleapi.Field) *ProjectsLocationsOperationsDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsOperationsDeleteCall) Context(ctx context.Context) *ProjectsLocationsOperationsDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsOperationsDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsOperationsDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("DELETE", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "redis.projects.locations.operations.delete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a long-running operation. This method indicates that the client is\nno longer interested in the operation result. It does not cancel the\noperation. If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "redis.projects.locations.operations.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the operation resource to be deleted.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/operations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Empty"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform"

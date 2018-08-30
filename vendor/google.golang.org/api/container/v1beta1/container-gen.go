@@ -482,6 +482,9 @@ type Cluster struct {
 	// in the cluster.
 	AddonsConfig *AddonsConfig `json:"addonsConfig,omitempty"`
 
+	// Autoscaling: Cluster-level autoscaling configuration.
+	Autoscaling *ClusterAutoscaling `json:"autoscaling,omitempty"`
+
 	// BinaryAuthorization: Configuration for Binary Authorization.
 	BinaryAuthorization *BinaryAuthorization `json:"binaryAuthorization,omitempty"`
 
@@ -507,12 +510,22 @@ type Cluster struct {
 	// cluster.
 	CurrentNodeCount int64 `json:"currentNodeCount,omitempty"`
 
-	// CurrentNodeVersion: [Output only] The current version of the node
-	// software components.
+	// CurrentNodeVersion: [Output only] Deprecated,
+	// use
+	// [NodePool.version](/kubernetes-engine/docs/reference/rest/v1beta1/
+	// projects.zones.clusters.nodePool)
+	// instead. The current version of the node software components.
 	// If they are currently at multiple versions because they're in the
 	// process
 	// of being upgraded, this reflects the minimum version of all nodes.
 	CurrentNodeVersion string `json:"currentNodeVersion,omitempty"`
+
+	// DefaultMaxPodsConstraint: The default constraint on the maximum
+	// number of pods that can be run
+	// simultaneously on a node in the node pool of this cluster. Only
+	// honored
+	// if cluster created with IP Alias support.
+	DefaultMaxPodsConstraint *MaxPodsConstraint `json:"defaultMaxPodsConstraint,omitempty"`
 
 	// Description: An optional description of this cluster.
 	Description string `json:"description,omitempty"`
@@ -823,6 +836,46 @@ func (s *Cluster) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ClusterAutoscaling: ClusterAutoscaling contains global, per-cluster
+// information
+// required by Cluster Autoscaler to automatically adjust
+// the size of the cluster and create/delete
+// node pools based on the current needs.
+type ClusterAutoscaling struct {
+	// EnableNodeAutoprovisioning: Enables automatic node pool creation and
+	// deletion.
+	EnableNodeAutoprovisioning bool `json:"enableNodeAutoprovisioning,omitempty"`
+
+	// ResourceLimits: Contains global constraints regarding minimum and
+	// maximum
+	// amount of resources in the cluster.
+	ResourceLimits []*ResourceLimit `json:"resourceLimits,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "EnableNodeAutoprovisioning") to unconditionally include in API
+	// requests. By default, fields with empty values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "EnableNodeAutoprovisioning") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ClusterAutoscaling) MarshalJSON() ([]byte, error) {
+	type NoMethod ClusterAutoscaling
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ClusterUpdate: ClusterUpdate describes an update to the cluster.
 // Exactly one update can
 // be applied to a cluster with each request, so at most one field can
@@ -836,6 +889,9 @@ type ClusterUpdate struct {
 	// DesiredBinaryAuthorization: The desired configuration options for the
 	// Binary Authorization feature.
 	DesiredBinaryAuthorization *BinaryAuthorization `json:"desiredBinaryAuthorization,omitempty"`
+
+	// DesiredClusterAutoscaling: Cluster-level autoscaling configuration.
+	DesiredClusterAutoscaling *ClusterAutoscaling `json:"desiredClusterAutoscaling,omitempty"`
 
 	// DesiredImageType: The desired image type for the node pool.
 	// NOTE: Set the "desired_node_pool" field as well.
@@ -1814,8 +1870,10 @@ type MasterAuth struct {
 	ClientCertificate string `json:"clientCertificate,omitempty"`
 
 	// ClientCertificateConfig: Configuration for client certificate
-	// authentication on the cluster.  If no
-	// configuration is specified, a client certificate is issued.
+	// authentication on the cluster. For
+	// clusters before v1.12, if no configuration is specified, a
+	// client
+	// certificate is issued.
 	ClientCertificateConfig *ClientCertificateConfig `json:"clientCertificateConfig,omitempty"`
 
 	// ClientKey: [Output only] Base64-encoded private key used by clients
@@ -1907,6 +1965,35 @@ func (s *MasterAuthorizedNetworksConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// MaxPodsConstraint: Constraints applied to pods.
+type MaxPodsConstraint struct {
+	// MaxPodsPerNode: Constraint enforced on the max num of pods per node.
+	MaxPodsPerNode int64 `json:"maxPodsPerNode,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "MaxPodsPerNode") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "MaxPodsPerNode") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MaxPodsConstraint) MarshalJSON() ([]byte, error) {
+	type NoMethod MaxPodsConstraint
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Metric: Progress metric is (string, int|float|string) pair.
 type Metric struct {
 	// DoubleValue: For metrics with floating point value.
@@ -1963,16 +2050,17 @@ func (s *Metric) UnmarshalJSON(data []byte) error {
 // NetworkConfig: NetworkConfig reports the relative names of network &
 // subnetwork.
 type NetworkConfig struct {
-	// Network: Output only. The name of the Google Compute
+	// Network: Output only. The relative name of the Google Compute
 	// Engine
-	// network(/compute/docs/networks-and-firewalls#networks).
-	// Example
-	// : projects/my-project/global/networks/my-network
+	// network(/compute/docs/networks-and-firewalls#networks) to which
+	// the cluster is connected.
+	// Example: projects/my-project/global/networks/my-network
 	Network string `json:"network,omitempty"`
 
-	// Subnetwork: Output only. The name of the Google Compute
+	// Subnetwork: Output only. The relative name of the Google Compute
 	// Engine
-	// [subnetwork](/compute/docs/vpc).
+	// [subnetwork](/compute/docs/vpc) to which the cluster is
+	// connected.
 	// Example:
 	// projects/my-project/regions/us-central1/subnetworks/my-subnet
 	Subnetwork string `json:"subnetwork,omitempty"`
@@ -2333,6 +2421,11 @@ type NodePool struct {
 	// Management: NodeManagement configuration for this NodePool.
 	Management *NodeManagement `json:"management,omitempty"`
 
+	// MaxPodsConstraint: The constraint on the maximum number of pods that
+	// can be run
+	// simultaneously on a node in the node pool.
+	MaxPodsConstraint *MaxPodsConstraint `json:"maxPodsConstraint,omitempty"`
+
 	// Name: The name of the node pool.
 	Name string `json:"name,omitempty"`
 
@@ -2405,6 +2498,9 @@ func (s *NodePool) MarshalJSON() ([]byte, error) {
 // required by cluster autoscaler to
 // adjust the size of the node pool to the current cluster usage.
 type NodePoolAutoscaling struct {
+	// Autoprovisioned: Can this node pool be deleted automatically.
+	Autoprovisioned bool `json:"autoprovisioned,omitempty"`
+
 	// Enabled: Is autoscaling enabled for this node pool.
 	Enabled bool `json:"enabled,omitempty"`
 
@@ -2418,7 +2514,7 @@ type NodePoolAutoscaling struct {
 	// max_node_count.
 	MinNodeCount int64 `json:"minNodeCount,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Enabled") to
+	// ForceSendFields is a list of field names (e.g. "Autoprovisioned") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -2426,12 +2522,13 @@ type NodePoolAutoscaling struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Enabled") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "Autoprovisioned") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -2727,6 +2824,42 @@ type PrivateClusterConfig struct {
 
 func (s *PrivateClusterConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod PrivateClusterConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ResourceLimit: Contains information about amount of some resource in
+// the cluster.
+// For memory, value should be in GB.
+type ResourceLimit struct {
+	// Maximum: Maximum amount of the resource in the cluster.
+	Maximum int64 `json:"maximum,omitempty,string"`
+
+	// Minimum: Minimum amount of the resource in the cluster.
+	Minimum int64 `json:"minimum,omitempty,string"`
+
+	// ResourceType: Resource name "cpu", "memory" or gpu-specific string.
+	ResourceType string `json:"resourceType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Maximum") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Maximum") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ResourceLimit) MarshalJSON() ([]byte, error) {
+	type NoMethod ResourceLimit
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3804,6 +3937,18 @@ type UsableSubnetwork struct {
 	// Example: projects/my-project/global/networks/my-network
 	Network string `json:"network,omitempty"`
 
+	// SecondaryIpRanges: Secondary IP ranges.
+	SecondaryIpRanges []*UsableSubnetworkSecondaryRange `json:"secondaryIpRanges,omitempty"`
+
+	// StatusMessage: A human readable status message representing the
+	// reasons for cases where
+	// the caller cannot use the secondary ranges under the subnet. For
+	// example if
+	// the secondary_ip_ranges is empty due to a permission issue, an
+	// insufficient
+	// permission message will be given by status_message.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
 	// Subnetwork: Subnetwork Name.
 	// Example:
 	// projects/my-project/regions/us-central1/subnetworks/my-subnet
@@ -3828,6 +3973,62 @@ type UsableSubnetwork struct {
 
 func (s *UsableSubnetwork) MarshalJSON() ([]byte, error) {
 	type NoMethod UsableSubnetwork
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UsableSubnetworkSecondaryRange: Secondary IP range of a usable
+// subnetwork.
+type UsableSubnetworkSecondaryRange struct {
+	// IpCidrRange: The range of IP addresses belonging to this subnetwork
+	// secondary range.
+	IpCidrRange string `json:"ipCidrRange,omitempty"`
+
+	// RangeName: The name associated with this subnetwork secondary range,
+	// used when adding
+	// an alias IP range to a VM instance.
+	RangeName string `json:"rangeName,omitempty"`
+
+	// Status: This field is to determine the status of the secondary range
+	// programmably.
+	//
+	// Possible values:
+	//   "UNKNOWN" - UNKNOWN is the zero value of the Status enum. It's not
+	// a valid status.
+	//   "UNUSED" - UNUSED denotes that this range is unclaimed by any
+	// cluster.
+	//   "IN_USE_SERVICE" - IN_USE_SERVICE denotes that this range is
+	// claimed by a cluster for
+	// services. It cannot be used for other clusters.
+	//   "IN_USE_SHAREABLE_POD" - IN_USE_SHAREABLE_POD denotes this range
+	// was created by the network admin
+	// and is currently claimed by a cluster for pods. It can only be used
+	// by
+	// other clusters as a pod range.
+	//   "IN_USE_MANAGED_POD" - IN_USE_MANAGED_POD denotes this range was
+	// created by GKE and is claimed
+	// for pods. It cannot be used for other clusters.
+	Status string `json:"status,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "IpCidrRange") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "IpCidrRange") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UsableSubnetworkSecondaryRange) MarshalJSON() ([]byte, error) {
+	type NoMethod UsableSubnetworkSecondaryRange
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
