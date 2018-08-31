@@ -460,6 +460,32 @@ func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withTpu(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withKubernetesAlpha(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_tpu", "enable_tpu", "true"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_tpu",
+				ImportStateIdPrefix: "us-central1-b/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
 	t.Parallel()
 
@@ -1714,6 +1740,17 @@ resource "google_container_cluster" "with_kubernetes_alpha" {
 	initial_node_count = 1
 
 	enable_kubernetes_alpha = true
+}`, clusterName)
+}
+
+func testAccContainerCluster_withTpu(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_tpu" {
+	name = "cluster-test-%s"
+	zone = "us-central1-b"
+	initial_node_count = 1
+
+	enable_tpu = true
 }`, clusterName)
 }
 
