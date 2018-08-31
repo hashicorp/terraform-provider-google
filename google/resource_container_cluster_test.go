@@ -471,7 +471,7 @@ func TestAccContainerCluster_withTpu(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withKubernetesAlpha(clusterName),
+				Config: testAccContainerCluster_withTpu(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_tpu", "enable_tpu", "true"),
 				),
