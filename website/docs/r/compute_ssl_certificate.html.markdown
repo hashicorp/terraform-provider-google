@@ -126,5 +126,5 @@ exported:
 SSL certificate can be imported using the `name`, e.g.
 
 ```
-$ terraform import compute_ssl_certificate.html.foobar foobar
+$ terraform import google_compute_ssl_certificate.default my-certificate
 ```
