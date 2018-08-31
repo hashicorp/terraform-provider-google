@@ -99,6 +99,9 @@ output "cluster_ca_certificate" {
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
 
+* `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
+    See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
+
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
