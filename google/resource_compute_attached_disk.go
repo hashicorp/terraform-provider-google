@@ -40,11 +40,15 @@ func resourceComputeAttachedDisk() *schema.Resource {
 			},
 			"project": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Computed: true,
+				Optional: true,
 			},
 			"zone": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Computed: true,
+				Optional: true,
 			},
 		},
 	}
@@ -53,18 +57,16 @@ func resourceComputeAttachedDisk() *schema.Resource {
 func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	project, err := getProjectForAttachedDisk(d, config)
+	if err != nil {
+		return err
+	}
+	zone, err := getZoneForAttachedDisk(d, config)
 	if err != nil {
 		return err
 	}
 
-	attachedInstance := d.Get("instance").(string)
-	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
-	if err != nil {
-		return err
-	}
-
-	instanceName := GetResourceNameFromSelfLink(attachedInstance)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	attachedDisk := compute.AttachedDisk{
@@ -92,20 +94,19 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	project, err := getProjectForAttachedDisk(d, config)
 	if err != nil {
 		return err
 	}
 	d.Set("project", project)
 
-	attachedInstance := d.Get("instance").(string)
-	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
+	zone, err := getZoneForAttachedDisk(d, config)
 	if err != nil {
 		return err
 	}
 	d.Set("zone", zone)
 
-	instanceName := GetResourceNameFromSelfLink(attachedInstance)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	instance, err := config.clientCompute.Instances.Get(project, zone, instanceName).Do()
@@ -140,18 +141,16 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	project, err := getProjectForAttachedDisk(d, config)
+	if err != nil {
+		return err
+	}
+	zone, err := getZoneForAttachedDisk(d, config)
 	if err != nil {
 		return err
 	}
 
-	attachedInstance := d.Get("instance").(string)
-	zone, err := getZoneForAttachedDisk(d, config, attachedInstance)
-	if err != nil {
-		return err
-	}
-
-	instanceName := GetResourceNameFromSelfLink(attachedInstance)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	instance, err := config.clientCompute.Instances.Get(project, zone, instanceName).Do()
@@ -172,7 +171,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project,
-		int(d.Timeout(schema.TimeoutDelete).Minutes()), fmt.Sprintf("Detaching disk from %s", attachedInstance))
+		int(d.Timeout(schema.TimeoutDelete).Minutes()), fmt.Sprintf("Detaching disk from %s", instanceName))
 	if waitErr != nil {
 		return waitErr
 	}
@@ -191,11 +190,8 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// In all acceptable id formats the actual id will be the last in the path
-	id := strings.Split(d.Id(), "/")
-	if len(id) < 1 {
-		return nil, fmt.Errorf("unable to parse resource id")
-	}
-	d.SetId(id[len(id)-1])
+	id := GetResourceNameFromSelfLink(d.Id())
+	d.SetId(id)
 
 	IDParts := strings.Split(d.Id(), ":")
 	if len(IDParts) != 2 {
@@ -217,9 +213,11 @@ func findDiskByName(disks []*compute.AttachedDisk, id string) *compute.AttachedD
 	return nil
 }
 
-// getZoneForAttachedDisk prioritizes the disk defined by the compute instance self link before standard logic
-func getZoneForAttachedDisk(d *schema.ResourceData, c *Config, instance string) (string, error) {
-	zone, err := GetZoneFromSelfLink(instance)
+// getZoneForAttachedDisk prioritizes the zone defined by the compute instance self link before standard logic
+func getZoneForAttachedDisk(d *schema.ResourceData, c *Config) (string, error) {
+	attachedInstance := d.Get("instance").(string)
+
+	zone, err := GetPathVariableFromSelfLink(attachedInstance, "zone")
 	if err == nil {
 		return zone, nil
 	}
@@ -227,8 +225,26 @@ func getZoneForAttachedDisk(d *schema.ResourceData, c *Config, instance string) 
 	// If zone can't be inferred from the compute instance self link, fall back to project
 	zone, err = getZone(d, c)
 	if err != nil {
-		return "", fmt.Errorf("%s to inherit from the attached instance use `self_link` instead of `name`", err)
+		return "", fmt.Errorf("%s to inherit from the attached instance compute use `self_link` instead of `name`", err)
 	}
 
 	return zone, nil
+}
+
+// getProjectForAttachedDisk prioritizes the project defined by the compute instance self link before standard logic
+func getProjectForAttachedDisk(d *schema.ResourceData, c *Config) (string, error) {
+	attachedInstance := d.Get("instance").(string)
+
+	project, err := GetPathVariableFromSelfLink(attachedInstance, "project")
+	if err == nil {
+		return project, nil
+	}
+
+	// If project can't be inferred from the compute instance self link, fall back to project
+	project, err = getProject(d, c)
+	if err != nil {
+		return "", fmt.Errorf("%s to inherit from the attached compute instance use `self_link` instead of `name`", err)
+	}
+
+	return project, nil
 }

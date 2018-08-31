@@ -48,17 +48,17 @@ The following arguments are supported:
   `name` or `self_link` of the disk that will be attached.
 
 
-
-## Attributes Reference
-
-In addition to the arguments listed above, the following computed attributes are exported:
-
+- - -
 
 * `project` -
-  The project that the referenced compute instance is a part of.
+  (Optional)
+  The project that the referenced compute instance is a part of. If `instance` is referenced by it's
+  `self_link` the project defined in the link will take precedence.
 
 * `zone` -
-  The zone that the referenced compute instance is located within.
+  (Optional)
+  The zone that the referenced compute instance is located within. If `instance` is referenced by it's
+  `self_link` the zone defined in the link will take precedence.
 
 ## Timeouts
 

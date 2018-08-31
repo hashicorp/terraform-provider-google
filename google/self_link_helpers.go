@@ -86,13 +86,14 @@ func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
 }
 
-// GetZoneFromSelfLink will attempt to parse the zone if it's in the referenced self link
+// GetPathVariableFromSelfLink will attempt to parse a self link and return the value
 //
-// If there is no zone present or the link is malformed it will return an empty string
-func GetZoneFromSelfLink(link string) (string, error) {
+// eg: projects/project-id/...
+// If the resource isn't present it will return an error
+func GetPathVariableFromSelfLink(link, pathVar string) (string, error) {
 	paths := strings.Split(link, "/")
 	for i, path := range paths {
-		if path == "zones" && i+1 < len(paths) {
+		if (path == pathVar || path == pathVar+"s") && i+1 < len(paths) {
 			return paths[i+1], nil
 		}
 	}

@@ -111,35 +111,50 @@ func TestSelfLinkNameHash(t *testing.T) {
 	}
 }
 
-func TestGetZoneFromSelfLink(t *testing.T) {
+func TestGetPathVariableFromSelfLink(t *testing.T) {
 	cases := map[string]struct {
-		SelfLink, Zone string
+		SelfLink, PathVar, Output string
 	}{
-		"valid self link": {
+		"zone from valid self link": {
 			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a/instances/disk-attach-daa308ff",
-			Zone:     "us-west1-a",
+			PathVar:  "zone",
+			Output:   "us-west1-a",
 		},
-		"terminating link": {
+		"zone from terminating link": {
 			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a",
-			Zone:     "us-west1-a",
+			PathVar:  "zone",
+			Output:   "us-west1-a",
 		},
-		"link missing a zone": {
-			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones/us-west1-a",
-			Zone:     "us-west1-a",
+		"zone from link missing a zone": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/project-211522/zones",
+			PathVar:  "zone",
+			Output:   "",
 		},
 		"invalid link": {
 			SelfLink: "not-a-zone",
-			Zone:     "",
+			PathVar:  "zone",
+			Output:   "",
 		},
 		"link without zone in the path": {
 			SelfLink: "https://www.googleapis.com/compute/v1/projects/your-project/global/networks/a-network",
-			Zone:     "",
+			PathVar:  "zone",
+			Output:   "",
+		},
+		"project from valid link": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/your-project/global/networks/a-network",
+			PathVar:  "project",
+			Output:   "your-project",
+		},
+		"plural projects from valid link": {
+			SelfLink: "https://www.googleapis.com/compute/v1/projects/your-project/global/networks/a-network",
+			PathVar:  "projects",
+			Output:   "your-project",
 		},
 	}
 
 	for tn, tc := range cases {
-		if z, _ := GetZoneFromSelfLink(tc.SelfLink); z != tc.Zone {
-			t.Errorf("failed to parse zone from %s. expected %s; got %s", tn, tc.Zone, z)
+		if z, _ := GetPathVariableFromSelfLink(tc.SelfLink, tc.PathVar); z != tc.Output {
+			t.Errorf("failed to parse zone from %s. expected %s; got %s", tn, tc.Output, z)
 		}
 	}
 }
