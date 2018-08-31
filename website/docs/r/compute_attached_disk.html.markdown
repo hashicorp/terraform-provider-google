@@ -79,19 +79,6 @@ The following arguments are supported:
 	assigned by Google Compute Engine. This field is only applicable for
 	persistent disks.
 
-  * `interface` -
-  (Optional)
-  Specifies the disk interface to use for attaching this
-	 disk, which is either SCSI or NVME. The default is SCSI. Persistent
-	 disks must always use SCSI and the request will fail if you attempt
-	 to attach a persistent disk in any other format than SCSI. Local SSDs
-	 can use either NVME or SCSI. For performance characteristics of SCSI
-	 over NVMe, see Local SSD performance.
-	
-	 Possible values:
-	   "NVME"
-	   "SCSI" 
-
 * `mode` -
   (Optional)
   The mode in which to attach this disk, either READ_WRITE or
@@ -101,15 +88,6 @@ The following arguments are supported:
 	Possible values:
 	  "READ_ONLY"
 	  "READ_WRITE"
-
-* `type` -
-  (Optional)
-  Specifies the type of the disk, either SCRATCH or PERSISTENT.
-	If not specified, the default is PERSISTENT.
-	
-	Possible values:
-	  "PERSISTENT"
-	  "SCRATCH"
 
 ## Timeouts
 

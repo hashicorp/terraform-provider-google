@@ -63,26 +63,12 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"interface": {
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Optional:     true,
-				Default:      "SCSI",
-				ValidateFunc: validation.StringInSlice([]string{"NVME", "SCSI"}, false),
-			},
 			"mode": {
 				Type:         schema.TypeString,
 				ForceNew:     true,
 				Optional:     true,
 				Default:      "READ_WRITE",
 				ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE"}, false),
-			},
-			"type": {
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Optional:     true,
-				Default:      "PERSISTENT",
-				ValidateFunc: validation.StringInSlice([]string{"SCRATCH", "PERSISTENT"}, false),
 			},
 		},
 	}
@@ -103,16 +89,12 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 	autoDelete := d.Get("auto_delete").(bool)
-	diskInterface := d.Get("interface").(string)
 	mode := d.Get("mode").(string)
-	diskType := d.Get("type").(string)
 
 	attachedDisk := compute.AttachedDisk{
 		Source:     fmt.Sprintf("/projects/%s/zones/%s/disks/%s", project, zone, diskName),
 		AutoDelete: autoDelete,
-		Interface:  diskInterface,
 		Mode:       mode,
-		Type:       diskType,
 	}
 
 	deviceName := d.Get("device_name").(string)
@@ -171,9 +153,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("device_name", ad.DeviceName)
 	d.Set("auto_delete", ad.AutoDelete)
-	d.Set("interface", ad.Interface)
 	d.Set("mode", ad.Mode)
-	d.Set("type", ad.Type)
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
 	instancePath, err := getRelativePath(instance.SelfLink)
