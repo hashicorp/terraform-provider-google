@@ -88,13 +88,11 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 
 	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
-	autoDelete := d.Get("auto_delete").(bool)
-	mode := d.Get("mode").(string)
 
 	attachedDisk := compute.AttachedDisk{
 		Source:     fmt.Sprintf("/projects/%s/zones/%s/disks/%s", project, zone, diskName),
-		AutoDelete: autoDelete,
-		Mode:       mode,
+		AutoDelete: d.Get("auto_delete").(bool),
+		Mode:       d.Get("mode").(string),
 	}
 
 	deviceName := d.Get("device_name").(string)
