@@ -60,6 +60,57 @@ The following arguments are supported:
   The zone that the referenced compute instance is located within. If `instance` is referenced by it's
   `self_link` the zone defined in the link will take precedence.
 
+* `auto_delete` -
+  (Optional)
+  Specifies whether the disk will be auto-deleted when the
+	instance is deleted (but not when the disk is detached from the
+	instance).
+
+* `device_name` -
+  (Optional)
+  Specifies a unique device name of your choice that is
+	reflected into the /dev/disk/by-id/google-* tree of a Linux operating
+	system running within the instance. This name can be used to
+	reference the device for mounting, resizing, and so on, from within
+	the instance.
+
+	If not specified, the server chooses a default device name to apply
+	to this disk, in the form persistent-disks-x, where x is a number
+	assigned by Google Compute Engine. This field is only applicable for
+	persistent disks.
+
+  * `interface` -
+  (Optional)
+  Specifies the disk interface to use for attaching this
+	 disk, which is either SCSI or NVME. The default is SCSI. Persistent
+	 disks must always use SCSI and the request will fail if you attempt
+	 to attach a persistent disk in any other format than SCSI. Local SSDs
+	 can use either NVME or SCSI. For performance characteristics of SCSI
+	 over NVMe, see Local SSD performance.
+	
+	 Possible values:
+	   "NVME"
+	   "SCSI" 
+
+* `mode` -
+  (Optional)
+  The mode in which to attach this disk, either READ_WRITE or
+	READ_ONLY. If not specified, the default is to attach the disk in
+	READ_WRITE mode.
+	
+	Possible values:
+	  "READ_ONLY"
+	  "READ_WRITE"
+
+* `type` -
+  (Optional)
+  Specifies the type of the disk, either SCRATCH or PERSISTENT.
+	If not specified, the default is PERSISTENT.
+	
+	Possible values:
+	  "PERSISTENT"
+	  "SCRATCH"
+
 ## Timeouts
 
 This resource provides the following

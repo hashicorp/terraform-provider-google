@@ -40,6 +40,32 @@ func TestAccAttachedDisk_basic(t *testing.T) {
 	})
 }
 
+func TestAccAttachedDisk_defaults(t *testing.T) {
+	t.Parallel()
+
+	diskName := acctest.RandomWithPrefix("tf-test")
+	instanceName := acctest.RandomWithPrefix("tf-test")
+	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachmentDefaults(),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_attached_disk.test",
+				ImportStateId:     importID,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+}
+
 func TestAccAttachedDisk_count(t *testing.T) {
 	t.Parallel()
 
@@ -90,7 +116,7 @@ func testAccAttachedDiskContainsManyDisks(instanceName string, count int) resour
 			return err
 		}
 
-		// There will always be 1 extra disk because of the compute instance's boot disk
+		// There will be 1 extra disk because of the compute instance's boot disk
 		if (count + 1) != len(instance.Disks) {
 			return fmt.Errorf("expected %d disks to be attached, found %d", count+1, len(instance.Disks))
 		}
@@ -104,6 +130,18 @@ func testAttachedDiskResourceAttachment() string {
 resource "google_compute_attached_disk" "test" {
 	disk = "${google_compute_disk.test1.self_link}"
 	instance = "${google_compute_instance.test.self_link}"
+}
+	`)
+}
+
+func testAttachedDiskResourceAttachmentDefaults() string {
+	return fmt.Sprintf(`
+resource "google_compute_attached_disk" "test" {
+	disk = "${google_compute_disk.test1.self_link}"
+	instance = "${google_compute_instance.test.self_link}"
+	mode = "READ_ONLY"
+	auto_delete = false
+	device_name = "test-device-name"
 }
 	`)
 }
