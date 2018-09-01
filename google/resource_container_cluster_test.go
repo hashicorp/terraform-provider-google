@@ -1789,9 +1789,9 @@ resource "google_container_cluster" "with_tpu" {
 	zone = "us-central1-b"
 
 	network = "${google_compute_network.container_network.name}"
-    subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
 
-    enable_tpu = true
+	enable_tpu = true
 
 	initial_node_count = 1
 	ip_allocation_policy {
