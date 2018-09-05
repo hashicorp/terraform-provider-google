@@ -1,6 +1,6 @@
 ---
 name: Enhancement
-about: For when something (a resource, field, etc.) is missing, but should be added.
+about: For when something (a resource, field, etc.) is missing, and should be added.
 
 ---
 
