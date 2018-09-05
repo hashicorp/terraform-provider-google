@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAttachedDisk_basic(t *testing.T) {
+func TestAccComputeAttachedDisk_basic(t *testing.T) {
 	t.Parallel()
 
 	diskName := acctest.RandomWithPrefix("tf-test-disk")
@@ -33,14 +33,14 @@ func TestAccAttachedDisk_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAttachedDiskResource(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccAttachedDiskIsNowDetached(instanceName, diskName),
+					testCheckAttachedDiskIsNowDetached(instanceName, diskName),
 				),
 			},
 		},
 	})
 }
 
-func TestAccAttachedDisk_defaults(t *testing.T) {
+func TestAccComputeAttachedDisk_full(t *testing.T) {
 	t.Parallel()
 
 	diskName := acctest.RandomWithPrefix("tf-test")
@@ -53,7 +53,7 @@ func TestAccAttachedDisk_defaults(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachmentDefaults(),
+				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachmentFull(),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_attached_disk.test",
@@ -66,7 +66,7 @@ func TestAccAttachedDisk_defaults(t *testing.T) {
 
 }
 
-func TestAccAttachedDisk_count(t *testing.T) {
+func TestAccComputeAttachedDisk_count(t *testing.T) {
 	t.Parallel()
 
 	diskPrefix := acctest.RandomWithPrefix("tf-test")
@@ -81,7 +81,7 @@ func TestAccAttachedDisk_count(t *testing.T) {
 			resource.TestStep{
 				Config: testAttachedDiskResourceCount(diskPrefix, instanceName, count),
 				Check: resource.ComposeTestCheckFunc(
-					testAccAttachedDiskContainsManyDisks(instanceName, count),
+					testCheckAttachedDiskContainsManyDisks(instanceName, count),
 				),
 			},
 		},
@@ -89,7 +89,7 @@ func TestAccAttachedDisk_count(t *testing.T) {
 
 }
 
-func testAccAttachedDiskIsNowDetached(instanceName, diskName string) resource.TestCheckFunc {
+func testCheckAttachedDiskIsNowDetached(instanceName, diskName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
@@ -107,7 +107,7 @@ func testAccAttachedDiskIsNowDetached(instanceName, diskName string) resource.Te
 	}
 }
 
-func testAccAttachedDiskContainsManyDisks(instanceName string, count int) resource.TestCheckFunc {
+func testCheckAttachedDiskContainsManyDisks(instanceName string, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
@@ -128,22 +128,19 @@ func testAccAttachedDiskContainsManyDisks(instanceName string, count int) resour
 func testAttachedDiskResourceAttachment() string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-	disk = "${google_compute_disk.test1.self_link}"
+	disk     = "${google_compute_disk.test1.self_link}"
 	instance = "${google_compute_instance.test.self_link}"
-}
-	`)
+}`)
 }
 
-func testAttachedDiskResourceAttachmentDefaults() string {
+func testAttachedDiskResourceAttachmentFull() string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-	disk = "${google_compute_disk.test1.self_link}"
-	instance = "${google_compute_instance.test.self_link}"
-	mode = "READ_ONLY"
-	auto_delete = false
+	disk        = "${google_compute_disk.test1.self_link}"
+	instance    = "${google_compute_instance.test.self_link}"
+	mode        = "READ_ONLY"
 	device_name = "test-device-name"
-}
-	`)
+}`)
 }
 
 func testAttachedDiskResource(diskName, instanceName string) string {
@@ -152,18 +149,18 @@ resource "google_compute_disk" "test1" {
 	name = "%s"
 	zone = "us-central1-a"
 	size = 10
-}
-
-resource "google_compute_instance" "test" {
+	}
+	
+	resource "google_compute_instance" "test" {
 	name         = "%s"
 	machine_type = "f1-micro"
 	zone         = "us-central1-a"
 	
 	lifecycle {
-			ignore_changes = [
-				"attached_disk"
-			]
-		}
+		ignore_changes = [
+		"attached_disk",
+		]
+	}
 	
 	boot_disk {
 		initialize_params {
@@ -174,45 +171,43 @@ resource "google_compute_instance" "test" {
 	network_interface {
 		network = "default"
 	}
-}
-`, diskName, instanceName)
+}`, diskName, instanceName)
 }
 
 func testAttachedDiskResourceCount(diskPrefix, instanceName string, count int) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "many" {
-	name = "%s-${count.index}"
-	zone = "us-central1-a"
-	size = 10
+	name  = "%s-${count.index}"
+	zone  = "us-central1-a"
+	size  = 10
 	count = %d
-}
-
-resource "google_compute_instance" "test" {
+	}
+	
+	resource "google_compute_instance" "test" {
 	name         = "%s"
 	machine_type = "f1-micro"
 	zone         = "us-central1-a"
-
+	
 	lifecycle {
-			ignore_changes = [
-				"attached_disk"
-			]
-		}
-
+		ignore_changes = [
+		"attached_disk",
+		]
+	}
+	
 	boot_disk {
 		initialize_params {
 		image = "debian-cloud/debian-9"
 		}
 	}
-
+	
 	network_interface {
 		network = "default"
 	}
-}
-
-resource "google_compute_attached_disk" "test" {
-	count = "${google_compute_disk.many.count}"
-	disk = "${google_compute_disk.many.*.self_link[count.index]}"
+	}
+	
+	resource "google_compute_attached_disk" "test" {
+	count    = "${google_compute_disk.many.count}"
+	disk     = "${google_compute_disk.many.*.self_link[count.index]}"
 	instance = "${google_compute_instance.test.self_link}"
-}
-`, diskPrefix, count, instanceName)
+}`, diskPrefix, count, instanceName)
 }

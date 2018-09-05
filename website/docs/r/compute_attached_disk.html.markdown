@@ -8,10 +8,10 @@ description: |-
 
 # google\_compute\_attached\_disk
 
-Persistent disks can be attached to a compute instance using [the `attach_disk`
+Persistent disks can be attached to a compute instance using [the `attached_disk`
 section within the compute instance configuration](https://www.terraform.io/docs/providers/google/r/compute_instance.html#attached_disk).
 However there may be situations where managing the attached disks via the compute
-instance config isn't preferable or possible. For example: attaching dynamic
+instance config isn't preferable or possible, such as attaching dynamic
 numbers of disks using the `count` variable.
 
 
@@ -41,7 +41,7 @@ The following arguments are supported:
   `name` or `self_link` of the compute instance that the disk will be attached to.
   If the `self_link` is provided then `zone` and `project` are extracted from the
   self link. If only the name is used then `zone` and `project` must be defined
-  at a global level.
+  as properties on the resource or provider.
 
 * `disk` -
   (Required)
@@ -52,19 +52,13 @@ The following arguments are supported:
 
 * `project` -
   (Optional)
-  The project that the referenced compute instance is a part of. If `instance` is referenced by it's
+  The project that the referenced compute instance is a part of. If `instance` is referenced by its
   `self_link` the project defined in the link will take precedence.
 
 * `zone` -
   (Optional)
-  The zone that the referenced compute instance is located within. If `instance` is referenced by it's
+  The zone that the referenced compute instance is located within. If `instance` is referenced by its
   `self_link` the zone defined in the link will take precedence.
-
-* `auto_delete` -
-  (Optional)
-  Specifies whether the disk will be auto-deleted when the
-	instance is deleted (but not when the disk is detached from the
-	instance).
 
 * `device_name` -
   (Optional)
@@ -76,8 +70,7 @@ The following arguments are supported:
 
 	If not specified, the server chooses a default device name to apply
 	to this disk, in the form persistent-disks-x, where x is a number
-	assigned by Google Compute Engine. This field is only applicable for
-	persistent disks.
+	assigned by Google Compute Engine.
 
 * `mode` -
   (Optional)
@@ -99,9 +92,7 @@ This resource provides the following
 
 ## Import
 
-Attached Disk is composed of a compute instance and disk and it's `id` is the
-names of both concatenated together with a colon `:`. It can be imported the
-following ways:
+Attached Disk can be imported the following ways:
 
 ```
 $ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/disks/{{instance.name}}:{{disk.name}}

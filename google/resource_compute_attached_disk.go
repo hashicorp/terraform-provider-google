@@ -51,12 +51,6 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"auto_delete": {
-				Type:     schema.TypeBool,
-				ForceNew: true,
-				Optional: true,
-				Default:  false,
-			},
 			"device_name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
@@ -90,14 +84,9 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	attachedDisk := compute.AttachedDisk{
-		Source:     fmt.Sprintf("/projects/%s/zones/%s/disks/%s", project, zone, diskName),
-		AutoDelete: d.Get("auto_delete").(bool),
+		Source:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", project, zone, diskName),
 		Mode:       d.Get("mode").(string),
-	}
-
-	deviceName := d.Get("device_name").(string)
-	if deviceName != "" {
-		attachedDisk.DeviceName = deviceName
+		DeviceName: d.Get("device_name").(string),
 	}
 
 	op, err := config.clientCompute.Instances.AttachDisk(project, zone, instanceName, &attachedDisk).Do()
@@ -140,17 +129,16 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// Iterate through the instance's attached disk as this is the only way to
+	// Iterate through the instance's attached disks as this is the only way to
 	// confirm the disk is actually attached
 	ad := findDiskByName(instance.Disks, diskName)
 	if ad == nil {
-		log.Printf("[WARN] Refereecned disk wasn't found attached to this compute instance. Unsetting resource id.")
+		log.Printf("[WARN] Referenced disk wasn't found attached to this compute instance. Removing from state.")
 		d.SetId("")
 		return nil
 	}
 
 	d.Set("device_name", ad.DeviceName)
-	d.Set("auto_delete", ad.AutoDelete)
 	d.Set("mode", ad.Mode)
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
@@ -169,7 +157,6 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("ZOMG destroying")
 	config := meta.(*Config)
 
 	project, err := getProjectForAttachedDisk(d, config)
@@ -196,7 +183,6 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 
-	log.Printf("ZOMG calling detach")
 	op, err := config.clientCompute.Instances.DetachDisk(project, zone, instanceName, ad.DeviceName).Do()
 	if err != nil {
 		return err
@@ -227,7 +213,7 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 
 	IDParts := strings.Split(d.Id(), ":")
 	if len(IDParts) != 2 {
-		return nil, fmt.Errorf("unable to determine attached disk id - id should be 'google_compute_instance.name:google_compute_disk.name'")
+		return nil, fmt.Errorf("unable to determine attached disk id - id should be '{google_compute_instance.name}:{google_compute_disk.name}'")
 	}
 	d.Set("instance", IDParts[0])
 	d.Set("disk", IDParts[1])
@@ -254,7 +240,7 @@ func getZoneForAttachedDisk(d *schema.ResourceData, c *Config) (string, error) {
 		return zone, nil
 	}
 
-	// If zone can't be inferred from the compute instance self link, fall back to project
+	// If zone can't be inferred from the compute instance self link, fall back to the provider-level zone
 	zone, err = getZone(d, c)
 	if err != nil {
 		return "", fmt.Errorf("%s to inherit from the attached instance compute use `self_link` instead of `name`", err)
@@ -272,7 +258,7 @@ func getProjectForAttachedDisk(d *schema.ResourceData, c *Config) (string, error
 		return project, nil
 	}
 
-	// If project can't be inferred from the compute instance self link, fall back to project
+	// If project can't be inferred from the compute instance self link, fall back to the provider-level
 	project, err = getProject(d, c)
 	if err != nil {
 		return "", fmt.Errorf("%s to inherit from the attached compute instance use `self_link` instead of `name`", err)
