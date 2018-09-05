@@ -969,12 +969,6 @@
 			"revisionTime": "2017-04-07T04:09:43Z"
 		},
 		{
-			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
-			"path": "github.com/satori/go.uuid",
-			"revision": "b061729afc07e77a8aa4fad0a2fd840958f1942a",
-			"revisionTime": "2016-09-27T10:08:44Z"
-		},
-		{
 			"checksumSHA1": "t/Hcc8jNXkH58QfnotLNtpLh+qc=",
 			"path": "github.com/stoewer/go-strcase",
 			"revision": "c8136b55823dc6af966d084a06056c5575f6400f",
