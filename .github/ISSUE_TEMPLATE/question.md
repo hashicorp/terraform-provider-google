@@ -15,3 +15,4 @@ If you have a support request or question please submit them to one of these res
 
 * [Terraform community resources](https://www.terraform.io/docs/extend/community/index.html)
 * [HashiCorp support](https://support.hashicorp.com) (Terraform Enterprise customers)
+* [Google Cloud Platform Slack](https://gcp-slack.appspot.com/)
