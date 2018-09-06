@@ -64,6 +64,20 @@ func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
 }
 
+// getProjectFromDiff reads the "project" field from the given diff and falls
+// back to the provider's value if not given. If the provider's value is not
+// given, an error is returned.
+func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) {
+	res, ok := d.GetOk("project")
+	if ok {
+		return res.(string), nil
+	}
+	if config.Project != "" {
+		return config.Project, nil
+	}
+	return "", fmt.Errorf("%s: required field is not set", "project")
+}
+
 func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
 	res, ok := is.Attributes["project"]
 
