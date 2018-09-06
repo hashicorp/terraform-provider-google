@@ -30,6 +30,10 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.basic", &sink),
 					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.basic"),
 				),
+			}, {
+				ResourceName:      "google_logging_billing_account_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -62,6 +66,10 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.update", &sinkAfter),
 					testAccCheckLoggingBillingAccountSink(&sinkAfter, "google_logging_billing_account_sink.update"),
 				),
+			}, {
+				ResourceName:      "google_logging_billing_account_sink.update",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -96,6 +104,10 @@ func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.heredoc", &sink),
 					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.heredoc"),
 				),
+			}, {
+				ResourceName:      "google_logging_billing_account_sink.heredoc",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

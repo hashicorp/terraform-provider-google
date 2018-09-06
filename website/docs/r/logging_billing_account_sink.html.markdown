@@ -69,3 +69,11 @@ exported:
 
 * `writer_identity` - The identity associated with this sink. This identity must be granted write access to the
     configured `destination`.
+
+## Import
+
+Billing account logging sinks can be imported using this format:
+
+```
+$ terraform import google_logging_billing_account_sink.my_sink billingAccounts/{{billing_account_id}}/sinks/{{sink_id}}
+```

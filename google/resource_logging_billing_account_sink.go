@@ -12,6 +12,9 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 		Delete: resourceLoggingBillingAccountSinkDelete,
 		Update: resourceLoggingBillingAccountSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
+		Importer: &schema.ResourceImporter{
+			State: resourceLoggingSinkImportState("billing_account"),
+		},
 	}
 	schm.Schema["billing_account"] = &schema.Schema{
 		Type:     schema.TypeString,
