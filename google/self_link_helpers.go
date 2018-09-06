@@ -85,18 +85,3 @@ func NameFromSelfLinkStateFunc(v interface{}) string {
 func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
 }
-
-// GetPathVariableFromSelfLink will attempt to parse a self link and return the value
-//
-// eg: projects/project-id/...
-// If the resource isn't present it will return an error
-func GetPathVariableFromSelfLink(link, pathVar string) (string, error) {
-	paths := strings.Split(link, "/")
-	for i, path := range paths {
-		if (path == pathVar || path == pathVar+"s") && i+1 < len(paths) {
-			return paths[i+1], nil
-		}
-	}
-
-	return "", fmt.Errorf("unable to determine zone from self link")
-}
