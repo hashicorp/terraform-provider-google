@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -58,7 +59,8 @@ func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interf
 	sink := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(true).Do()
+	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
+		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}
