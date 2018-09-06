@@ -24,17 +24,10 @@ func dataSourceGoogleComputeInstance() *schema.Resource {
 func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	project, zone, name, err := GetZonalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {
 		return err
 	}
-
-	zone, err := getZone(d, config)
-	if err != nil {
-		return err
-	}
-
-	name := d.Get("name").(string)
 
 	instance, err := config.clientComputeBeta.Instances.Get(project, zone, name).Do()
 	if err != nil {

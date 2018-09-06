@@ -1,15 +1,13 @@
 package google
 
 import (
-	"errors"
 	"fmt"
 	"log"
-	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	compute "google.golang.org/api/compute/v1"
+
+	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -90,32 +88,9 @@ func dataSourceGoogleComputeRegionInstanceGroup() *schema.Resource {
 
 func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	var project, region, name string
-	if self_link, ok := d.GetOk("self_link"); ok {
-		parsed, err := url.Parse(self_link.(string))
-		if err != nil {
-			return err
-		}
-		s := strings.Split(parsed.Path, "/")
-		project, region, name = s[4], s[6], s[8]
-		// e.g. https://www.googleapis.com/compute/beta/projects/project_name/regions/region_name/instanceGroups/foobarbaz
-
-	} else {
-		var err error
-		project, err = getProject(d, config)
-		if err != nil {
-			return err
-		}
-
-		region, err = getRegion(d, config)
-		if err != nil {
-			return err
-		}
-		n, ok := d.GetOk("name")
-		name = n.(string)
-		if !ok {
-			return errors.New("Must provide either `self_link` or `name`.")
-		}
+	project, region, name, err := GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
+	if err != nil {
+		return err
 	}
 
 	instanceGroup, err := config.clientCompute.RegionInstanceGroups.Get(

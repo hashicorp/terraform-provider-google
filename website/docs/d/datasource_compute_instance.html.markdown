@@ -8,7 +8,7 @@ description: |-
 
 # google\_compute\_instance
 
-Get a VM instance resource within GCE. For more information see
+Get information about a VM instance resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instances)
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/instances).
@@ -27,12 +27,19 @@ data "google_compute_instance" "appserver" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the instance.
+* `self_link` - (Optional) The self link of the instance. One of `name` or `self_link` must be provided.
 
-* `project` - (Optional) The ID of the project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `name` - (Optional) The name of the instance. One of `name` or `self_link` must be provided.
 
-* `zone` - (Optional) The zone of the instance. If it is not provided, the provider `zone` is used.
+---
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If `self_link` is provided, this value is ignored.  If neither `self_link`
+    nor `project` are provided, the provider project is used.
+
+* `zone` - (Optional) The zone of the instance. If `self_link` is provided, this
+    value is ignored.  If neither `self_link` nor `zone` are provided, the
+    provider zone is used.
 
 ## Attributes Reference
 

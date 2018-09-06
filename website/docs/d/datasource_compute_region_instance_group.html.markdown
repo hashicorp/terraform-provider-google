@@ -46,8 +46,9 @@ The following arguments are supported:
 
 - - -
 
-* `project` - (Optional) The project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If `self_link` is provided, this value is ignored.  If neither `self_link`
+    nor `project` are provided, the provider project is used.
 
 * `region` - (Optional) The region in which the resource belongs.  If `self_link`
     is provided, this value is ignored.  If neither `self_link` nor `region` are
