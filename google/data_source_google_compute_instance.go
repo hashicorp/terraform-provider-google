@@ -89,7 +89,10 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	scratchDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk, config))
+			err = d.Set("boot_disk", flattenBootDisk(d, disk, config))
+			if err != nil {
+				return err
+			}
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 		} else {
@@ -113,11 +116,27 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
+	err = d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("scheduling", flattenScheduling(instance.Scheduling))
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("scratch_disk", scratchDisks)
+	if err != nil {
+		return err
+	}
+
 	d.Set("attached_disk", ads)
-	d.Set("scratch_disk", scratchDisks)
-	d.Set("scheduling", flattenScheduling(instance.Scheduling))
-	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("deletion_protection", instance.DeletionProtection)
@@ -126,8 +145,6 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
-
-	d.SetId(instance.Name)
-
+	d.SetId(ConvertSelfLinkToV1(instance.SelfLink))
 	return nil
 }
