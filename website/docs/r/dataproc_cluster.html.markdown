@@ -202,6 +202,10 @@ The `cluster_config.gce_cluster_config` block supports:
    instances in the cluster will only have internal IP addresses. Note: Private Google Access 
    (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster 
    will be launched in.
+
+* `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
+   (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).
+
 - - -
 
 The `cluster_config.master_config` block supports:
