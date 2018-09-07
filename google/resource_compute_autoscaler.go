@@ -672,6 +672,9 @@ func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v in
 }
 
 func expandComputeAutoscalerTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	if v == nil || v.(string) == "" {
+		return "", nil
+	}
 	f, err := parseZonalFieldValue("instanceGroupManagers", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for target: %s", err)
