@@ -281,8 +281,8 @@ func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeys(v inte
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
-			"comment":                      flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysComment(original["comment"]),
-			"id":                           flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(original["id"]),
+			"comment": flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysComment(original["comment"]),
+			"id":      flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(original["id"]),
 			"ascii_armored_pgp_public_key": flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysAsciiArmoredPgpPublicKey(original["asciiArmoredPgpPublicKey"]),
 		})
 	}
