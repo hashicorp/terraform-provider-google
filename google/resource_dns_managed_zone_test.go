@@ -85,5 +85,8 @@ resource "google_dns_managed_zone" "foobar" {
 	name = "mzone-test-%s"
 	dns_name = "tf-acctest-%s.hashicorptest.com."
 	description = "%s"
+	labels = {
+		foo = "bar"
+	}
 }`, suffix, suffix, description)
 }
