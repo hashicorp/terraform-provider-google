@@ -48,7 +48,7 @@ exported:
 
 ## Import
 
-Disk can be imported using any of these accepted formats:
+Managed zones can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_dns_managed_zone.prod projects/{{project-id}}/managedZones/{{zone}}
