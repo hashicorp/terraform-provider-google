@@ -11,6 +11,9 @@ IMPROVEMENTS:
 * logging: Add import support for `google_logging_organization_sink`, `google_logging_folder_sink`, `google_logging_billing_account_sink` [GH-1860]
 * logging: Sending a default update mask for all logging sinks to prevent future breakages [#991](https://github.com/terraform-providers/terraform-provider-google/issues/991)
 
+BUG FIXES:
+* compute: Store google_compute_vpn_tunnel.router as a self_link to avoid permadiffs. [GH-2003]
+
 ## 1.17.1 (August 22, 2018)
 
 BUG FIXES:
