@@ -73,3 +73,11 @@ exported:
 
 * `writer_identity` - The identity associated with this sink. This identity must be granted write access to the
     configured `destination`.
+
+## Import
+
+Organization-level logging sinks can be imported using this format:
+
+```
+$ terraform import google_logging_organization_sink.my_sink organizations/{{organization_id}}/sinks/{{sink_id}}
+```
