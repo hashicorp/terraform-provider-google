@@ -638,7 +638,7 @@ resource "google_compute_disk" "foobar" {
 	timeouts {
 		create = "1s"
 	}
-}`, acctest.RandString(10))
+}`, "tf-test-disk-"+acctest.RandString(10))
 }
 
 func testAccComputeDisk_updated(diskName string) string {
