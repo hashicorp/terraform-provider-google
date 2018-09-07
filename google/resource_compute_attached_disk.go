@@ -76,7 +76,6 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
 	attachedDisk := compute.AttachedDisk{
@@ -85,12 +84,12 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		DeviceName: d.Get("device_name").(string),
 	}
 
-	op, err := config.clientCompute.Instances.AttachDisk(zv.Project, zv.Zone, instanceName, &attachedDisk).Do()
+	op, err := config.clientCompute.Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
 	if err != nil {
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%s:%s", instanceName, diskName))
+	d.SetId(fmt.Sprintf("%s:%s", zv.Name, diskName))
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, zv.Project,
 		int(d.Timeout(schema.TimeoutCreate).Minutes()), "disk to attach")
@@ -112,10 +111,9 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("project", zv.Project)
 	d.Set("zone", zv.Zone)
 
-	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, instanceName).Do()
+	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -155,10 +153,9 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	instanceName := GetResourceNameFromSelfLink(d.Get("instance").(string))
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, instanceName).Do()
+	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -170,13 +167,13 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 
-	op, err := config.clientCompute.Instances.DetachDisk(zv.Project, zv.Zone, instanceName, ad.DeviceName).Do()
+	op, err := config.clientCompute.Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
 	if err != nil {
 		return err
 	}
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, zv.Project,
-		int(d.Timeout(schema.TimeoutDelete).Minutes()), fmt.Sprintf("Detaching disk from %s", instanceName))
+		int(d.Timeout(schema.TimeoutDelete).Minutes()), fmt.Sprintf("Detaching disk from %s", zv.Name))
 	if waitErr != nil {
 		return waitErr
 	}
