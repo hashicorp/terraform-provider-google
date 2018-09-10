@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"cloud.google.com/go/bigtable"
-	"golang.org/x/net/context"
 )
 
 func resourceBigtableInstance() *schema.Resource {
