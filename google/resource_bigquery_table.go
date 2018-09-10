@@ -150,6 +150,14 @@ func resourceBigQueryTable() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						// RequirePartitionFilter: [Optional] Force filtering by the partitioned
+						// field for all queries on this table
+						"require_partition_filter": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -436,6 +444,10 @@ func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 		tp.ExpirationMs = int64(v.(int))
 	}
 
+	if v, ok := raw["require_partition_filter"]; ok {
+		tp.RequirePartitionFilter = v.(bool)
+	}
+
 	return tp
 }
 
@@ -448,6 +460,10 @@ func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interfa
 
 	if tp.ExpirationMs != 0 {
 		result["expiration_ms"] = tp.ExpirationMs
+	}
+
+	if tp.RequirePartitionFilter != false {
+		result["require_partition_filter"] = tp.RequirePartitionFilter
 	}
 
 	return []map[string]interface{}{result}
