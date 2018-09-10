@@ -28,9 +28,14 @@ func resourceComputeInstanceFromTemplate() *schema.Resource {
 func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 	s := resourceComputeInstance().Schema
 
-	for _, field := range []string{"boot_disk", "machine_type", "network_interface"} {
+	for _, field := range []string{"boot_disk", "machine_type"} {
 		s[field].Required = false
 	}
+
+	s["network_interface"].Required = false
+	// NOT because you should set it - it won't do anything -
+	// but as a workaround for https://github.com/terraform-providers/terraform-provider-google/issues/1805.
+	s["network_interface"].Optional = true
 
 	// Remove deprecated/removed fields that are never d.Set. We can't
 	// programatically remove all of them, because some of them still have d.Set
