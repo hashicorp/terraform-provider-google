@@ -5,6 +5,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -55,6 +56,54 @@ func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (st
 	}
 
 	return "", fmt.Errorf("region: required field is not set")
+}
+
+// If you have a reference to an object and you need to find out what
+// region that object is in, this function will try to figure it out.
+// First, it checks if the reference is a full self-link that includes
+// a region - if so, it'll extract that region.  It's an error to try
+// to extract a region from a global resource.  After that, it checks
+// to see if the resource is in region/name or project/region/name
+// format and returns the region.  After that, it checks for 'region'
+// or 'zone' keys on the resource itself, and finally, it checks
+// provider-level region and zone.
+func getRegionFromResourceReference(reference string, d TerraformResourceData, config *Config) (string, error) {
+	// A full or partial self link.
+	if strings.HasPrefix(reference, "https://") || strings.HasPrefix(reference, "projects/") {
+		regionRegexp, _ := regexp.Compile("/regions/([a-z]*-[a-z]*[0-9])/")
+		zoneRegexp, _ := regexp.Compile("/zones/([a-z]*-[a-z]*[0-9]-[a-z])/")
+		globalRegexp, _ := regexp.Compile("/global/")
+		if globalRegexp.FindString(reference) != "" {
+			return "", fmt.Errorf("'%s' is a global resource and has no region.", reference)
+		} else if groups := regionRegexp.FindStringSubmatch(reference); len(groups) == 2 {
+			return groups[1], nil
+		} else if groups := zoneRegexp.FindStringSubmatch(reference); len(groups) == 2 {
+			return getRegionFromZone(groups[1]), nil
+		} else {
+			return "", fmt.Errorf("Couldn't find the region in '%s'", reference)
+		}
+	}
+	parts := strings.Split(reference, "/")
+	regionRegexp, _ := regexp.Compile("([a-z]*-[a-z]*[0-9])")
+	if len(parts) == 2 {
+		// This is arguable.  We're working on giving people the maximum
+		// possible number of ways to specify things - they might want
+		// project/resource, or project/region/resource, or region/resource.
+		// So we're checking if the thing before the first slash looks like a
+		// region - that is, foo-bar1.  Some projects probably look like regions,
+		// so this can be wrong sometimes.
+		if regionRegexp.FindString(parts[0]) != "" {
+			return parts[0], nil
+		}
+	} else if len(parts) == 3 {
+		// Here, we're testing for project/region/resource.  And again, if it's
+		// not *obviously*, *definitely* wrong, we're going to fall through to
+		// checking the provider-level region and zone.
+		if regionRegexp.FindString(parts[1]) != "" {
+			return parts[1], nil
+		}
+	}
+	return getRegion(d, config)
 }
 
 // getProject reads the "project" field from the given resource data and falls
