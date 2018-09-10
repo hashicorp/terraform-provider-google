@@ -141,9 +141,25 @@ func resourceBigQueryDataset() *schema.Resource {
 							Optional: true,
 						},
 						"view": &schema.Schema{
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Optional: true,
-							Elem:     schema.TypeString,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"project_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"dataset_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -240,19 +256,22 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 				da.UserByEmail = val.(string)
 			}
 			if val, ok := accessMap["view"]; ok {
-				vm := val.(map[string]interface{})
-				if len(vm) > 0 {
-					view := bigquery.TableReference{}
-					if dsId, ok := vm["dataset_id"]; ok {
-						view.DatasetId = dsId.(string)
+				views := val.([]interface{})
+				if len(views) > 0 {
+					vm := views[0].(map[string]interface{})
+					if len(vm) > 0 {
+						view := bigquery.TableReference{}
+						if dsId, ok := vm["dataset_id"]; ok {
+							view.DatasetId = dsId.(string)
+						}
+						if pId, ok := vm["project_id"]; ok {
+							view.ProjectId = pId.(string)
+						}
+						if tId, ok := vm["table_id"]; ok {
+							view.TableId = tId.(string)
+						}
+						da.View = &view
 					}
-					if pId, ok := vm["project_id"]; ok {
-						view.ProjectId = pId.(string)
-					}
-					if tId, ok := vm["table_id"]; ok {
-						view.TableId = tId.(string)
-					}
-					da.View = &view
 				}
 			}
 			access = append(access, &da)
@@ -308,7 +327,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", id.Project)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
-	d.Set("access", flattenAccess(res.Access))
+	if err := d.Set("access", flattenAccess(res.Access)); err != nil {
+		return err
+	}
 	d.Set("self_link", res.SelfLink)
 	d.Set("description", res.Description)
 	d.Set("friendly_name", res.FriendlyName)
@@ -389,17 +410,19 @@ func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
 func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
 	access := make([]map[string]interface{}, 0, len(a))
 	for _, da := range a {
-		ai := make(map[string]interface{})
-		ai["role"] = da.Role
-		ai["domain"] = da.Domain
-		ai["group_by_email"] = da.GroupByEmail
-		ai["special_group"] = da.SpecialGroup
-		ai["user_by_email"] = da.UserByEmail
+		ai := map[string]interface{}{
+			"role":           da.Role,
+			"domain":         da.Domain,
+			"group_by_email": da.GroupByEmail,
+			"special_group":  da.SpecialGroup,
+			"user_by_email":  da.UserByEmail,
+		}
 		if da.View != nil {
-			view := map[string]string{
+			view := []map[string]interface{}{{
 				"project_id": da.View.ProjectId,
 				"dataset_id": da.View.DatasetId,
 				"table_id":   da.View.TableId,
+			},
 			}
 			ai["view"] = view
 		}

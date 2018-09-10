@@ -27,16 +27,14 @@ resource "google_bigquery_dataset" "default" {
     env = "default"
   }
 
-  access = [
-    {
-        role   = "READER"
-        domain = "example.com"
-    },
-    {
-        role = "WRITER"
-        group_by_email = "writers@example.com"
-    }
-  ]
+  access {
+    role   = "READER"
+    domain = "example.com"
+  }
+  access {
+    role           = "WRITER"
+    group_by_email = "writers@example.com"
+  }
 }
 ```
 

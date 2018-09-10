@@ -163,7 +163,7 @@ resource "google_bigquery_dataset" "test" {
 func testAccBigQueryDatasetWithOneAccess(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "access_test" {
-  dataset_id                  = "%s"
+  dataset_id = "%s"
 
   access {
     role          = "OWNER"
@@ -180,15 +180,15 @@ resource "google_bigquery_dataset" "access_test" {
 func testAccBigQueryDatasetWithTwoAccess(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "access_test" {
-  dataset_id                  = "%s"
+  dataset_id = "%s"
 
   access {
     role          = "OWNER"
     user_by_email = "Joe@example.com"
   }
   access {
-    role	      = "READER"
-    domain	      = "example.com"
+    role   = "READER"
+    domain = "example.com"
   }
 
   labels {
@@ -198,7 +198,9 @@ resource "google_bigquery_dataset" "access_test" {
 }`, datasetID)
 }
 
-func getBigQueryTableWithView(datasetID, tableID string) string {
+func testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID string) string {
+	// Note that we have to add a non-view access to prevent BQ from creating 4 default
+	// access entries.
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "other_dataset" {
   dataset_id = "%s"
@@ -213,43 +215,29 @@ resource "google_bigquery_table" "table_with_view" {
   }
 
   view {
-        query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
-        use_legacy_sql = true
+    query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+    use_legacy_sql = true
   }
-}`, datasetID, tableID)
 }
 
-func testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID string) string {
-	otherTable := getBigQueryTableWithView(otherDatasetID, otherTableID)
-	// Note that we have to add a non-view access to prevent BQ from creating 4 default
-	// access entries.
-	return fmt.Sprintf(`
-%s
-
 resource "google_bigquery_dataset" "access_test" {
-  dataset_id                  = "%s"
-  friendly_name               = "foo"
-  description                 = "This is a foo description"
-  location                    = "EU"
-  default_table_expiration_ms = 3600000
+  dataset_id = "%s"
 
-  access = [
-    {
-	role          = "OWNER"
-	user_by_email = "Joe@example.com"
-    },
-    {
-	view = {
-		project_id = "${google_bigquery_dataset.other_dataset.project}"
-		dataset_id = "${google_bigquery_dataset.other_dataset.dataset_id}"
-		table_id   = "${google_bigquery_table.table_with_view.table_id}"
-	}
+  access {
+    role          = "OWNER"
+    user_by_email = "Joe@example.com"
+  }
+  access {
+    view {
+      project_id = "${google_bigquery_dataset.other_dataset.project}"
+      dataset_id = "${google_bigquery_dataset.other_dataset.dataset_id}"
+      table_id   = "${google_bigquery_table.table_with_view.table_id}"
     }
-  ]
+  }
 
   labels {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
-}`, otherTable, datasetID)
+}`, otherDatasetID, otherTableID, datasetID)
 }
