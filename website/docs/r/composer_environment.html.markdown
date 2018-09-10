@@ -19,13 +19,16 @@ To get more information about Environments, see:
     * [Configuring Shared VPC for Composer Environments](https://cloud.google.com/composer/docs/how-to/managing/configuring-shared-vpc)
 * [Apache Airflow Documentation](http://airflow.apache.org/)
 
-~> **Warning:** Please read the Cloud Composer Environment and Apache documentation very carefully.
-    It can take up to one hour to create resources and several minutes to update resources.
-    In addition, because the Environment creation is a complex and multi-step deployment process, the
-    Composer service may only detect config errors several (e.g. ~40-50 minutes) into
-    the creation process and may only have limited error reporting. If you encounter confusing
-    or uninformative errors, please verify your config, especially Airflow properties in `software_config` or
-    [shared VPC config](#Configuring-Kubernetes-Engine-and-Shared-VPC) in `node_config`.
+~> **Warning:** We **STRONGLY** recommend  you read the [GCP guides](https://cloud.google.com/composer/docs/how-to)
+  as the Environment resource requires a long deployment process and involves several layers of GCP infrastructure, 
+  including a Kubernetes Engine cluster, Cloud Storage, and Compute networking resources. Due to limitations of the API,
+  Terraform will not be able to automatically find or manage many of these underlying resources. In particular:
+  * It can take up to one hour to create or update an environment resource. In addition, GCP may only detect some 
+    errors in configuration when they are used (e.g. ~40-50 minutes into the creation process), and is prone to limited
+    error reporting. If you encounter confusing or uninformative errors, please verify your configuration is valid 
+    against GCP Cloud Composer before filing bugs against the Terraform provider. 
+  * **Environments create Google Cloud Storage bucket that do not get cleaned up automatically** on environment 
+    deletion. [More about Composer's use of Cloud Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
 
 ## Example Usage
 
@@ -34,6 +37,81 @@ To get more information about Environments, see:
 resource "google_composer_environment" "test" {
   name   = "my-composer-env"
   region = "us-central1"
+}
+```
+
+### With GKE and Compute Resource Dependencies
+
+**NOTE** To use service accounts, you need to give `role/composer.worker` to the service account on any resources that may be created for the environment
+(i.e. at a project level). This will probably require an explicit dependency
+on the IAM policy binding (see `google_project_iam_member` below).
+
+```hcl
+resource "google_composer_environment" "test" {
+  name = "%s"
+  region = "us-central1"
+  config {
+    node_count = 4
+
+    node_config {
+      zone = "us-central1-a"
+      machine_type = "n1-standard-1"
+
+      network = "${google_compute_network.test.self_link}"
+      subnetwork =  "${google_compute_subnetwork.test.self_link}"
+
+      service_account = "${google_service_account.test.name}"
+    }
+  }
+
+  depends_on = ["google_project_iam_member.composer-worker"]
+}
+
+resource "google_compute_network" "test" {
+  name          = "composer-test-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "composer-test-subnetwork"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.test.self_link}"
+}
+
+resource "google_service_account" "test" {
+  account_id   = "composer-env-account"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  role    = "roles/composer.worker"
+  member  = "serviceAccount:${google_service_account.test.email}"
+}
+```
+
+### With Software (Airflow) Config
+```hcl
+resource "google_composer_environment" "test" {
+  name = "%s"
+  region = "us-central1"
+
+  config {
+    software_config {
+      airflow_config_overrides {
+        core-load_example = "True"
+      }
+
+      pypi_packages {
+        numpy = ""
+        scipy = "==1.1.0"
+      }
+
+      env_variables {
+         FOO = "bar"
+      }
+    }
+  }
 }
 ```
 
@@ -91,29 +169,39 @@ The `node_config` block supports:
   (Optional)
   The Compute Engine zone in which to deploy the VMs running the
   Apache Airflow software, specified as the zone name or
-  relative resource name (e.g. "projects/{project}/zones/{zone}"). Must belong to the enclosing environment's project and region.
+  relative resource name (e.g. "projects/{project}/zones/{zone}"). Must belong to the enclosing environment's project 
+  and region.
 
-  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service will pick default values in the specified resource's region. If only one of zone or machineType is specified, the location information from the specified field will be used for the location-unspecified field.
+  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service 
+  will pick default values in the specified resource's region. If only one of zone or machineType is specified, the 
+  location information from the specified field will be used for the location-unspecified field.
 
 * `machine_type` -
   (Optional)
   The Compute Engine machine type used for cluster instances,
   specified as a name or relative resource name. For example:
-  "projects/{project}/zones/{zone}/machineTypes/{machineType}". Must belong to the enclosing environment's project and region/zone.
+  "projects/{project}/zones/{zone}/machineTypes/{machineType}". Must belong to the enclosing environment's project and 
+  region/zone.
 
-  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service will pick default values in the specified resource's region. If only one of zone or machineType is specified, the location information from the specified field will be used for the location-unspecified field.
+  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service 
+  will pick default values in the specified resource's region. If only one of zone or machineType is specified, the 
+  location information from the specified field will be used for the location-unspecified field.
 
 * `network` -
   (Optional)
   The Compute Engine network to be used for machine
-  communications, specified as a self-link, relative resource name (e.g.  "projects/{project}/global/networks/{network}"), by name.
+  communications, specified as a self-link, relative resource name 
+  (e.g. "projects/{project}/global/networks/{network}"), by name.
 
-  The network must belong to the environment's project. If unspecified, the "default" network ID in the environment's project is used. If a Custom Subnet Network is provided, subnetwork must also be provided.
+  The network must belong to the environment's project. If unspecified, the "default" network ID in the environment's 
+  project is used. If a Custom Subnet Network is provided, subnetwork must also be provided.
 
 * `subnetwork` -
   (Optional)
   The Compute Engine subnetwork to be used for machine
-  communications, , specified as a self-link, relative resource name (e.g.  "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.
+  communications, , specified as a self-link, relative resource name (e.g.
+  "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, 
+  network must also be provided and the subnetwork must belong to the enclosing environment's project and region.
 
 * `disk_size_gb` -
   (Optional)
@@ -124,14 +212,15 @@ The `node_config` block supports:
   (Optional)
   The set of Google API scopes to be made available on all node
   VMs. Cannot be updated. If empty, defaults to
-  ["https://www.googleapis.com/auth/cloud-platform"]
+  `["https://www.googleapis.com/auth/cloud-platform"]`
 
 * `service_account` -
   (Optional)
   The Google Cloud Platform Service Account to be used by the
   node VMs. If a service account is not specified, the "default"
   Compute Engine service account is used. Cannot be updated. If given,
-  note that the service account must have `roles/composer.worker` for any GCP resources created under the Cloud Composer Environment.
+  note that the service account must have `roles/composer.worker` 
+  for any GCP resources created under the Cloud Composer Environment.
 
 * `tags` -
   (Optional)
@@ -143,18 +232,29 @@ The `node_config` block supports:
 The `software_config` block supports:
 
 * `airflow_config_overrides` -
-  (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names, separated by a hyphen, for example "core-dags_are_paused_at_creation".
+  (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names, 
+  separated by a hyphen, for example "core-dags_are_paused_at_creation".
 
-  Section names must not contain hyphens ("-"), opening square brackets ("["), or closing square brackets ("]"). The property name must not be empty and cannot contain "=" or ";". Section and property names cannot contain characters: "." Apache Airflow configuration property names must be written in snake_case. Property values can contain any character, and can be written in any lower/upper case format. Certain Apache Airflow configuration property values are [blacklisted](https://cloud.google.com/composer/docs/concepts/airflow-configurations#airflow_configuration_blacklists), and cannot be overridden.
+  Section names must not contain hyphens ("-"), opening square brackets ("["), or closing square brackets ("]"). 
+  The property name must not be empty and cannot contain "=" or ";". Section and property names cannot contain 
+  characters: "." Apache Airflow configuration property names must be written in snake_case. Property values can 
+  contain any character, and can be written in any lower/upper case format. Certain Apache Airflow configuration 
+  property values are [blacklisted](https://cloud.google.com/composer/docs/concepts/airflow-configurations#airflow_configuration_blacklists), 
+  and cannot be overridden.
 
 * `pypi_packages` -
   (Optional)
   Custom Python Package Index (PyPI) packages to be installed
-  in the environment. Keys refer to the lowercase package name (e.g. "numpy"). Values are the lowercase extras and version specifier (e.g. "==1.12.0", "[devel,gcp_api]", "[devel]>=1.8.2, <1.9.2"). To specify a package without pinning it to a version specifier, use the empty string as the value.
+  in the environment. Keys refer to the lowercase package name (e.g. "numpy"). Values are the lowercase extras and 
+  version specifier (e.g. "==1.12.0", "[devel,gcp_api]", "[devel]>=1.8.2, <1.9.2"). To specify a package without 
+  pinning it to a version specifier, use the empty string as the value.
 
 * `env_variables` -
   (Optional)
-  Additional environment variables to provide to the Apache Airflow scheduler, worker, and webserver processes. Environment variable names must match the regular expression [a-zA-Z_][a-zA-Z0-9_]*. They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+), and they cannot match any of the following reserved names:
+  Additional environment variables to provide to the Apache Airflow scheduler, worker, and webserver processes. 
+  Environment variable names must match the regular expression `[a-zA-Z_][a-zA-Z0-9_]*`. 
+  They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression 
+  `AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+`), and they cannot match any of the following reserved names:
   ```
   AIRFLOW_HOME
   C_FORCE_ROOT
@@ -204,22 +304,19 @@ In addition to the arguments listed above, the following computed attributes are
   environment.
 
 * `config.software_config.image_version` -
-  The version of the software running in the environment.
-  This encapsulates both the version of Cloud Composer
-  functionality and the version of Apache Airflow. It must match
-  the regular expression composer-[0-9]+\.[0-9]+(\.[0-9]+)?-
-  airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?.
-  The Cloud Composer portion of the version is a semantic
-  version. The portion of the image version following 'airflow-'
-  is an official Apache Airflow repository release name.
+  The version of the software running in the environment. This encapsulates both the version of Cloud Composer
+  functionality and the version of Apache Airflow. It must match the regular expression 
+  `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
+  The Cloud Composer portion of the version is a semantic version. 
+  The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 4 minutes.
+- `create` - Default is 60 minutes.
+- `update` - Default is 60 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

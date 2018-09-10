@@ -45,6 +45,7 @@ func resourceComposerEnvironment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
+			// Composer takes <= 1 hr for create/update.
 			Create: schema.DefaultTimeout(3600 * time.Second),
 			Update: schema.DefaultTimeout(3600 * time.Second),
 			Delete: schema.DefaultTimeout(360 * time.Second),
@@ -52,9 +53,10 @@ func resourceComposerEnvironment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 			"region": {
 				Type:     schema.TypeString,
@@ -135,6 +137,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										Computed:         true,
 										Optional:         true,
 										ForceNew:         true,
+										ValidateFunc:     validateServiceAccountRelativeNameOrEmail,
 										DiffSuppressFunc: compareServiceAccountEmailToLink,
 									},
 									"tags": {
@@ -200,22 +203,6 @@ func resourceComposerEnvironment() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"uuid": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -279,7 +266,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	return resourceComposerEnvironmentRead(d, 272)
+	return resourceComposerEnvironmentRead(d, meta)
 }
 
 func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
@@ -295,11 +282,11 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
 
-	// Set from d.GetProject
+	// Set from getProject(d)
 	if err := d.Set("project", envName.Project); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
-	// Set from d.GetRegion
+	// Set from getRegion(d)
 	if err := d.Set("region", envName.Region); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
@@ -307,18 +294,6 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("uuid", res.Uuid); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("state", res.State); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("create_time", res.CreateTime); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
@@ -331,6 +306,11 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 	tfConfig := meta.(*Config)
 
 	d.Partial(true)
+
+	// Composer only allows PATCHing one field at a time, so for each updatable field, we
+	// 1. determine if it needs to be updated
+	// 2. construct a PATCH object with only that field populated
+	// 3. call resourceComposerEnvironmentPatchField(...)to update that single field.
 	if d.HasChange("config") {
 		config, err := expandComposerEnvironmentConfig(d.Get("config"), d, tfConfig)
 		if err != nil {
@@ -338,6 +318,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
+
 			patchObj := &composer.Environment{
 				Config: &composer.EnvironmentConfig{
 					SoftwareConfig: &composer.SoftwareConfig{
@@ -345,6 +326,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 					},
 				},
 			}
+
 			if config != nil && config.SoftwareConfig != nil && len(config.SoftwareConfig.AirflowConfigOverrides) > 0 {
 				patchObj.Config.SoftwareConfig.AirflowConfigOverrides = config.SoftwareConfig.AirflowConfigOverrides
 			}
@@ -460,14 +442,12 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 		config.clientComposer, op, envName.Project, "Updating newly created Environment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		// The resource didn't actually update.
 		return fmt.Errorf("Error waiting to update Environment: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished updating Environment %q (updateMask = %q)", d.Id(), updateMask)
-
-	return resourceComposerEnvironmentRead(d, config)
+	return nil
 }
 
 func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
@@ -678,129 +658,47 @@ func expandComposerEnvironmentServiceAccount(v interface{}, d *schema.ResourceDa
 		return "", nil
 	}
 
-	serviceAccountEmail := GetResourceNameFromSelfLink(serviceAccount)
-	r := regexp.MustCompile("(" + strings.Join(PossibleServiceAccountNames, "|") + ")")
-	if !r.MatchString(serviceAccountEmail) {
-		return "", fmt.Errorf("service account %q must match one of: %+v", serviceAccountEmail, PossibleServiceAccountNames)
-	}
-
-	return serviceAccountEmail, nil
+	return GetResourceNameFromSelfLink(serviceAccount), nil
 }
 
 func expandComposerEnvironmentZone(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
 	zone := v.(string)
 	if len(zone) == 0 {
-		return "", nil
+		return zone, nil
 	}
-
-	r := regexp.MustCompile("projects/(.+)/zones/(.+)")
-	if r.MatchString(zone) {
-		return getRelativePath(zone)
-	}
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("projects/%s/zones/%s", project, zone), nil
-}
-
-func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *Config, nodeCfgZone interface{}) (string, error) {
-	fullMachineType := v.(string)
-	if len(fullMachineType) == 0 {
-		return "", nil
-	}
-
-	var machineType, zone, project string
-
-	tkns := strings.Split(fullMachineType, "/")
-	if len(tkns) == 6 && tkns[0] == "projects" {
-		// projects/{project}/zones/{zone}/machineTypes/{machineTypeId}
-		project = tkns[1]
-
-		// Continue parsing rest of machine_type.
-		tkns = tkns[2:]
-	}
-	if len(tkns) == 4 && tkns[0] == "zones" && tkns[2] == "machineTypes" {
-		// zones/{zone}/machineTypes/{machineTypeId}
-		zone = tkns[1]
-	}
-	if len(tkns) > 0 {
-		machineType = tkns[len(tkns)-1]
-	}
-
-	if len(project) == 0 {
-		// Try to infer project from config.
-		var err error
-		project, err = getProject(d, config)
+	if !strings.Contains(zone, "/") {
+		project, err := getProject(d, config)
 		if err != nil {
 			return "", err
 		}
+		return fmt.Sprintf("projects/%s/zones/%s", project, zone), nil
 	}
 
-	// Check if zone was given in node_config.
-	if nodeCfgZone != nil {
-		z := GetResourceNameFromSelfLink(nodeCfgZone.(string))
-		if len(z) > 0 {
-			if len(zone) > 0 && zone != z {
-				// Make sure machine type and zone locations do not conflict.
-				return "", fmt.Errorf(`invalid machine_type: "%s" for specified zone "%s" in node_config`, machineType, zone)
-			}
-			zone = z
-		}
-	}
-	if len(zone) == 0 {
-		return "", fmt.Errorf(`zone must be specified for machine_type "%s" as separate zone field or in machine_type`, machineType)
-	}
-	if len(machineType) == 0 {
-		return "", fmt.Errorf(`invalid machine_type "%s"`, fullMachineType)
-	}
+	return getRelativePath(zone)
+}
 
-	return fmt.Sprintf("projects/%s/zones/%s/machineTypes/%s", project, zone, machineType), nil
+func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *Config, nodeCfgZone interface{}) (string, error) {
+	fv, err := ParseMachineTypesFieldValue(v.(string), d, config)
+	if err != nil {
+		return "", nil
+	}
+	return fv.RelativeLink(), nil
 }
 
 func expandComposerEnvironmentNetwork(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
-	network := v.(string)
-	if len(network) == 0 {
-		return "", nil
-	}
-
-	r := regexp.MustCompile("projects/(.+)/networks/(.+)")
-	if r.MatchString(network) {
-		return getRelativePath(network)
-	}
-
-	project, err := getProject(d, config)
+	fv, err := ParseNetworkFieldValue(v.(string), d, config)
 	if err != nil {
 		return "", err
 	}
-
-	return fmt.Sprintf("projects/%s/global/networks/%s", project, network), nil
+	return fv.RelativeLink(), nil
 }
 
 func expandComposerEnvironmentSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
-	subnet := v.(string)
-	if len(subnet) == 0 {
-		return "", nil
-	}
-
-	r := regexp.MustCompile("projects/(.+)/regions/(.+)/subnetworks/(.+)")
-	if r.MatchString(subnet) {
-		return getRelativePath(subnet)
-	}
-
-	project, err := getProject(d, config)
+	fv, err := ParseSubnetworkFieldValue(v.(string), d, config)
 	if err != nil {
 		return "", err
 	}
-
-	region, err := getRegion(d, config)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, subnet), nil
+	return fv.RelativeLink(), nil
 }
 
 func expandComposerEnvironmentSetList(v interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
@@ -820,22 +718,18 @@ func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.Reso
 	transformed := &composer.SoftwareConfig{}
 
 	transformed.ImageVersion = original["image_version"].(string)
-	transformed.AirflowConfigOverrides = expandComposerEnvironmentStringMap(original["airflow_config_overrides"], d, config)
-	transformed.PypiPackages = expandComposerEnvironmentStringMap(original["pypi_packages"], d, config)
-	transformed.EnvVariables = expandComposerEnvironmentStringMap(original["env_variables"], d, config)
-
+	transformed.AirflowConfigOverrides = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "airflow_config_overrides")
+	transformed.PypiPackages = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "pypi_packages")
+	transformed.EnvVariables = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "env_variables")
 	return transformed, nil
 }
 
-func expandComposerEnvironmentStringMap(v interface{}, d *schema.ResourceData, config *Config) map[string]string {
-	if v == nil {
-		return map[string]string{}
+func expandComposerEnvironmentConfigSoftwareConfigStringMap(softwareConfig map[string]interface{}, k string) map[string]string {
+	v, ok := softwareConfig[k]
+	if ok && v != nil {
+		return convertStringMap(v.(map[string]interface{}))
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m
+	return map[string]string{}
 }
 
 func validateComposerEnvironmentPypiPackages(v interface{}, k string) (ws []string, errors []error) {
@@ -922,6 +816,8 @@ func getComposerEnvironmentPostCreateUpdateObj(env *composer.Environment) (updat
 					},
 				},
 			}
+			// Clear PYPI packages - otherwise, API will return error
+			// that the create request is invalid.
 			env.Config.SoftwareConfig.PypiPackages = make(map[string]string)
 		}
 	}
@@ -940,14 +836,10 @@ func resourceComposerEnvironmentName(d *schema.ResourceData, config *Config) (*c
 		return nil, err
 	}
 
-	envName := d.Get("name").(string)
-	if len(envName) == 0 {
-		return nil, fmt.Errorf("cannot have empty environment name")
-	}
 	return &composerEnvironmentName{
 		Project:     project,
 		Region:      region,
-		Environment: envName,
+		Environment: d.Get("name").(string),
 	}, nil
 }
 
@@ -973,4 +865,20 @@ func compareServiceAccountEmailToLink(_, old, new string, _ *schema.ResourceData
 		return old == GetResourceNameFromSelfLink(new)
 	}
 	return compareSelfLinkRelativePaths("", old, new, nil)
+}
+
+func validateServiceAccountRelativeNameOrEmail(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	serviceAccountRe := "(" + strings.Join(PossibleServiceAccountNames, "|") + ")"
+	if strings.HasPrefix(value, "projects/") {
+		serviceAccountRe = fmt.Sprintf("projects/(.+)/serviceAccounts/%s", serviceAccountRe)
+	}
+	r := regexp.MustCompile(serviceAccountRe)
+	if !r.MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q (%q) doesn't match regexp %q", k, value, serviceAccountRe))
+	}
+
+	return
 }
