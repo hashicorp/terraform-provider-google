@@ -31,3 +31,27 @@ func TestAccBigQueryDataset_importBasic(t *testing.T) {
 		},
 	})
 }
+
+func TestAccBigQueryDataset_importAccess(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_bigquery_dataset.access_test"
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
+			},
+
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
