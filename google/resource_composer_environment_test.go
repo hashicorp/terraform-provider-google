@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/composer/v1"
+	"google.golang.org/api/storage/v1"
 	"log"
 	"strings"
 )
@@ -385,37 +386,65 @@ func testSweepComposerEnvironments(config *Config) error {
 }
 
 func testSweepComposerEnvironmentBuckets(config *Config) error {
-	found, err := config.clientStorage.Buckets.List(config.Project).
-		Prefix(fmt.Sprintf("%s-%s", config.Region, testComposerEnvironmentPrefix)).Do()
+	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
+	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
+	if err == nil {
+		if err := testSweepComposerEnvironmentCleanUpBucket(config, artifactBucket); err != nil {
+			return err
+		}
+	} else if isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("could not find bucket %q to clean up", artifactsBName)
+	} else {
+		return err
+	}
+
+	found, err := config.clientStorage.Buckets.List(config.Project).Prefix(config.Region).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
-
 	if len(found.Items) == 0 {
 		log.Printf("No environment buckets need to be cleaned up")
 		return nil
 	}
 
-	var allErrors error
 	for _, bucket := range found.Items {
-		objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
-		if err != nil {
-			allErrors = multierror.Append(allErrors,
-				fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
+		if _, ok := bucket.Labels["goog-composer-environment"]; ok {
+			continue
 		}
-
-		for _, o := range objList.Items {
-			if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
-				allErrors = multierror.Append(allErrors,
-					fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
-			}
-		}
-
-		if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
-			allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
+		if err := testSweepComposerEnvironmentCleanUpBucket(config, bucket); err != nil {
+			return err
 		}
 	}
-	return allErrors
+	return nil
+}
+
+func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.Bucket) error {
+	var allErrors error
+	objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
+	if err != nil {
+		allErrors = multierror.Append(allErrors,
+			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
+	}
+
+	for _, o := range objList.Items {
+		if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
+			allErrors = multierror.Append(allErrors,
+				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
+		}
+	}
+
+	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
+		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
+	}
+
+	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
+		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
+	}
+
+	if allErrors != nil {
+		return fmt.Errorf("Unable to clean up bucket %q: %v", bucket.Name, allErrors)
+	}
+	return nil
 }
 
 // WARNING: This is not actually a check and is a terrible clean-up step because Composer Environments
