@@ -2887,6 +2887,10 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 		range_name = "inst-test-secondary"
 		ip_cidr_range = "172.16.0.0/20"
 	}
+	secondary_ip_range {
+		range_name = "inst-test-tertiary"
+		ip_cidr_range = "10.1.0.0/16"
+	}
 }
 resource "google_compute_instance" "foobar" {
   name         = "%s"
@@ -2902,10 +2906,17 @@ resource "google_compute_instance" "foobar" {
   network_interface {
     subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 
-    alias_ip_range {
-      subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
-      ip_cidr_range         = "172.16.0.0/24"
-    }
+    alias_ip_range = [
+			{
+				subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+				ip_cidr_range         = "172.16.0.0/24"
+			},
+			{
+				subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.1.range_name}"
+				ip_cidr_range         = "10.1.0.0/20"
+			}
+		]
+
   }
 }`, network, subnet, instance)
 }
@@ -2928,6 +2939,10 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	secondary_ip_range {
 		range_name    = "inst-test-secondary"
 		ip_cidr_range = "172.16.0.0/20"
+	}
+	secondary_ip_range {
+		range_name = "inst-test-tertiary"
+		ip_cidr_range = "10.1.0.0/16"
 	}
 }
 resource "google_compute_instance" "foobar" {
