@@ -53,6 +53,12 @@ func resourceDnsManagedZone() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -72,7 +78,12 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 		Description: d.Get("description").(string),
 	}
 
+	if _, ok := d.GetOk("labels"); ok {
+		zone.Labels = expandLabels(d)
+	}
+
 	log.Printf("[DEBUG] DNS ManagedZone create request: %#v", zone)
+
 	zone, err = config.clientDns.ManagedZones.Create(project, zone).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating DNS ManagedZone: %s", err)
@@ -102,6 +113,7 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("dns_name", zone.DnsName)
 	d.Set("description", zone.Description)
 	d.Set("project", project)
+	d.Set("labels", zone.Labels)
 
 	return nil
 }
@@ -118,6 +130,10 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		Name:        d.Get("name").(string),
 		DnsName:     d.Get("dns_name").(string),
 		Description: d.Get("description").(string),
+	}
+
+	if _, ok := d.GetOk("labels"); ok {
+		zone.Labels = expandLabels(d)
 	}
 
 	op, err := config.clientDnsBeta.ManagedZones.Patch(project, d.Id(), zone).Do()
