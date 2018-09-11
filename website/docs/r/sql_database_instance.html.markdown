@@ -321,3 +321,8 @@ $ terraform import google_sql_database_instance.master {{project}}/{{name}}
 $ terraform import google_sql_database_instance.master {{name}}
 
 ```
+
+Note that some fields (such as `replica_configuration`) are set in such a way that they won't
+show a diff if they are unset in config and set on the server, because GCP always returns them.
+When importing, double-check that your config has all the fields set that you expect- just seeing
+no diff isn't sufficient to know that your config could reproduce the imported resource.
