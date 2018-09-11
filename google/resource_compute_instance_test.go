@@ -1576,7 +1576,7 @@ resource "google_compute_instance" "foobar" {
 	labels {
 		my_key       = "my_value"
 		my_other_key = "my_other_value"
-    }
+	}
 }
 `, instance)
 }
@@ -2788,83 +2788,83 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance" "foobar" {
-  name = "%s"
-  machine_type = "n1-standard-1"
-  zone = "us-east1-d"
+	name = "%s"
+	machine_type = "n1-standard-1"
+	zone = "us-east1-d"
 
-  boot_disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
 
-  network_interface {
-    network = "default"
-  }
+	network_interface {
+		network = "default"
+	}
 
-  scheduling {
-    # Instances with guest accelerators do not support live migration.
-    on_host_maintenance = "TERMINATE"
-  }
+	scheduling {
+		# Instances with guest accelerators do not support live migration.
+		on_host_maintenance = "TERMINATE"
+	}
 
-  guest_accelerator {
-    count = %d
-    type = "nvidia-tesla-k80"
-  }
+	guest_accelerator {
+		count = %d
+		type = "nvidia-tesla-k80"
+	}
 }`, instance, count)
 }
 
 func testAccComputeInstance_minCpuPlatform(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
-  project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
-  name = "%s"
-  machine_type = "n1-standard-1"
-  zone = "us-east1-d"
+	name = "%s"
+	machine_type = "n1-standard-1"
+	zone = "us-east1-d"
 
-  boot_disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
 
-  network_interface {
-    network = "default"
-  }
+	network_interface {
+		network = "default"
+	}
 
-  min_cpu_platform = "Intel Haswell"
+	min_cpu_platform = "Intel Haswell"
 }`, instance)
 }
 
 func testAccComputeInstance_primaryAliasIpRange(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
-  project = "debian-cloud"
+	family  = "debian-9"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
-  name = "%s"
-  machine_type = "n1-standard-1"
-  zone = "us-east1-d"
+	name = "%s"
+	machine_type = "n1-standard-1"
+	zone = "us-east1-d"
 
-  boot_disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
 
-  network_interface {
-    network = "default"
+	network_interface {
+		network = "default"
 
-    alias_ip_range {
-      ip_cidr_range = "/24"
-    }
-  }
+		alias_ip_range {
+			ip_cidr_range = "/24"
+		}
+	}
 }`, instance)
 }
 
@@ -2893,31 +2893,31 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	}
 }
 resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "n1-standard-1"
-  zone         = "us-east1-d"
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-east1-d"
 
-  boot_disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
 
-  network_interface {
-    subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 
-    alias_ip_range = [
-			{
-				subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
-				ip_cidr_range         = "172.16.0.0/24"
-			},
-			{
-				subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.1.range_name}"
-				ip_cidr_range         = "10.1.0.0/20"
-			}
-		]
+		alias_ip_range = [
+		{
+			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
+			ip_cidr_range         = "172.16.0.0/24"
+		},
+		{
+			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.1.range_name}"
+			ip_cidr_range         = "10.1.0.0/20"
+		}
+	]
 
-  }
+	}
 }`, network, subnet, instance)
 }
 
@@ -2946,23 +2946,22 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 	}
 }
 resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "n1-standard-1"
-  zone         = "us-east1-d"
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-east1-d"
 
-  boot_disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
-  }
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
 
-  network_interface {
-    subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
-
-    alias_ip_range {
-      ip_cidr_range = "10.0.1.0/24"
-    }
-  }
+	network_interface {
+		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+		alias_ip_range {
+			ip_cidr_range = "10.0.1.0/24"
+		}
+	}
 }`, network, subnet, instance)
 }
 
