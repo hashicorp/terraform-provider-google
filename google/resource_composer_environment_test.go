@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-const environmentPrefix = "tf-composer-testenv"
-const networkPrefix = "tf-composer-testnet"
+const testComposerEnvironmentPrefix = "tf-cc-testenv"
+const testComposerNetworkPrefix = "tf-cc-testnet"
 
 func init() {
 	resource.AddTestSweepers("gcp_composer_environment", &resource.Sweeper{
@@ -27,7 +27,7 @@ func init() {
 func TestAccComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(environmentPrefix)
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -62,7 +62,7 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 func TestAccComposerEnvironment_update(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(environmentPrefix)
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
 	var env composer.Environment
 
 	resource.Test(t, resource.TestCase{
@@ -89,40 +89,14 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 			},
 		},
 	})
-
-	if env.Config == nil || env.Config.SoftwareConfig == nil {
-		t.Fatalf("expected read value to have non-nil config")
-	}
-
-	if env.Config.NodeCount != 4 {
-		t.Errorf("expected node count to be updated to 4, got %d", env.Config.NodeCount)
-	}
-
-	if len(env.Config.SoftwareConfig.PypiPackages) != 1 {
-		t.Errorf(`expected PypiPackages to have one key-value { "numpy": "" }, got: %#v`, env.Config.SoftwareConfig.PypiPackages)
-	} else if v, ok := env.Config.SoftwareConfig.PypiPackages["numpy"]; !ok || v != "" {
-		t.Errorf(`expected PypiPackages to contain { "numpy": "" }, got: %#v`, env.Config.SoftwareConfig.PypiPackages)
-	}
-
-	if len(env.Config.SoftwareConfig.AirflowConfigOverrides) != 1 {
-		t.Errorf(`expected AirflowConfigOverrides to have one key-value {"core-load_example": "True" }, got: %#v`, env.Config.SoftwareConfig.AirflowConfigOverrides)
-	} else if v, ok := env.Config.SoftwareConfig.AirflowConfigOverrides["core-load_example"]; !ok || v != "True" {
-		t.Errorf(`expected AirflowConfigOverrides to contain { "core-load_example": "True" }, got: %#v`, env.Config.SoftwareConfig.AirflowConfigOverrides)
-	}
-
-	if len(env.Config.SoftwareConfig.EnvVariables) != 1 {
-		t.Errorf(`expected EnvVariables to have one key-value { "FOO": "bar" }, got: %#v`, env.Config.SoftwareConfig.EnvVariables)
-	} else if v, ok := env.Config.SoftwareConfig.EnvVariables["FOO"]; !ok || v != "bar" {
-		t.Errorf(`expected EnvVariables to contain { "FOO": "bar" }, got: %#v`, env.Config.SoftwareConfig.EnvVariables)
-	}
 }
 
 // Checks behavior of node config, including dependencies on Compute resources.
 func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(environmentPrefix)
-	network := acctest.RandomWithPrefix(networkPrefix)
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
 	subnetwork := network + "-1"
 	serviceAccount := acctest.RandomWithPrefix("tf-test")
 
@@ -153,25 +127,6 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 			},
 		},
 	})
-
-	if env.Config == nil || env.Config.NodeConfig == nil {
-		t.Fatalf("expected non-nil config and node config")
-	}
-
-	nodeCfg := env.Config.NodeConfig
-
-	expectedNetwork := fmt.Sprintf("projects/%s/global/networks/%s", getTestProjectFromEnv(), network)
-	if nodeCfg.Network != expectedNetwork {
-		t.Errorf("expected Environment network %q, got %q", expectedNetwork, nodeCfg.Network)
-	}
-
-	expectedSubnetwork := fmt.Sprintf("projects/%s/regions/us-central1/subnetworks/%s", getTestProjectFromEnv(), subnetwork)
-	if nodeCfg.Subnetwork != expectedSubnetwork {
-		t.Errorf("expected Environment subnetwork %q, got %q", expectedSubnetwork, nodeCfg.Subnetwork)
-	}
-	if !strings.HasPrefix(nodeCfg.ServiceAccount, serviceAccount+"@") {
-		t.Errorf("expected Environment service account %q to start with name %q", nodeCfg.ServiceAccount, serviceAccount)
-	}
 }
 
 // Checks behavior of config for creation for attributes that must
@@ -179,7 +134,7 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(environmentPrefix)
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
 	var env composer.Environment
 
 	resource.Test(t, resource.TestCase{
@@ -200,20 +155,6 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 			},
 		},
 	})
-
-	if env.Config == nil {
-		t.Fatalf("expected read value to have non-nil config")
-	}
-
-	if env.Config.SoftwareConfig == nil {
-		t.Fatalf("expected non-nil SoftwareConfig")
-	}
-
-	if len(env.Config.SoftwareConfig.PypiPackages) != 1 {
-		t.Errorf(`expected PypiPackages to have one key-value { "scipy": "==1.1.0" }, got: %#v`, env.Config.SoftwareConfig.PypiPackages)
-	} else if v, ok := env.Config.SoftwareConfig.PypiPackages["scipy"]; !ok || v != "==1.1.0" {
-		t.Errorf(`expected PypiPackages to contain { "scipy": "==1.1.0" }, got: %#v`, env.Config.SoftwareConfig.PypiPackages)
-	}
 }
 
 func testAccCheckComposerEnvironmentExists(n string, environment *composer.Environment) resource.TestCheckFunc {
@@ -445,7 +386,7 @@ func testSweepComposerEnvironments(config *Config) error {
 
 func testSweepComposerEnvironmentBuckets(config *Config) error {
 	found, err := config.clientStorage.Buckets.List(config.Project).
-		Prefix(fmt.Sprintf("%s-%s", config.Region, environmentPrefix)).Do()
+		Prefix(fmt.Sprintf("%s-%s", config.Region, testComposerEnvironmentPrefix)).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
@@ -457,6 +398,19 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 
 	var allErrors error
 	for _, bucket := range found.Items {
+		objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
+		if err != nil {
+			allErrors = multierror.Append(allErrors,
+				fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
+		}
+
+		for _, o := range objList.Items {
+			if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
+				allErrors = multierror.Append(allErrors,
+					fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
+			}
+		}
+
 		if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
 			allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
 		}
@@ -478,14 +432,16 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 			return err
 		}
 
-		foundFirewalls, err := config.clientCompute.Firewalls.List(config.Project).
-			Filter(fmt.Sprintf("network:%s", network.Name)).Do()
+		foundFirewalls, err := config.clientCompute.Firewalls.List(config.Project).Do()
 		if err != nil {
 			return fmt.Errorf("Unable to list firewalls for network %q: %s", network.Name, err)
 		}
 
 		var allErrors error
 		for _, firewall := range foundFirewalls.Items {
+			if !strings.HasPrefix(firewall.Name, testComposerNetworkPrefix) {
+				continue
+			}
 			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
 			op, err := config.clientCompute.Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {

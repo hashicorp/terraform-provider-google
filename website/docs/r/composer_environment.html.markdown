@@ -27,7 +27,7 @@ To get more information about Environments, see:
     errors in configuration when they are used (e.g. ~40-50 minutes into the creation process), and is prone to limited
     error reporting. If you encounter confusing or uninformative errors, please verify your configuration is valid 
     against GCP Cloud Composer before filing bugs against the Terraform provider. 
-  * **Environments create Google Cloud Storage bucket that do not get cleaned up automatically** on environment 
+  * **Environments create Google Cloud Storage buckets that do not get cleaned up automatically** on environment 
     deletion. [More about Composer's use of Cloud Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
 
 ## Example Usage
@@ -275,20 +275,6 @@ The `software_config` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `uuid` -
-  The UUID associated with this environment, generated on creation.
-
-* `state` -
-  The current state of the environment
-
-* `create_time` -
-  The time at which this environment was last modified in RFC3339 UTC
-  "Zulu" format, accurate to nanoseconds.
-
-* `update_time` -
-  The time at which this environment was last modified in RFC3339 UTC
-  "Zulu" format, accurate to nanoseconds.
-
 * `config.gke_cluster` -
   The Kubernetes Engine cluster used to run this environment.
 
@@ -317,7 +303,7 @@ This resource provides the following
 
 - `create` - Default is 60 minutes.
 - `update` - Default is 60 minutes.
-- `delete` - Default is 4 minutes.
+- `delete` - Default is 6 minutes.
 
 ## Import
 
