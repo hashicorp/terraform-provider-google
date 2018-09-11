@@ -85,26 +85,28 @@ The following arguments are supported:
 * `access` - (Optional) An array of objects that define dataset access for
     one or more entities. Structure is documented below.
 
-The `access` block supports:
+The `access` block supports the following fields (exactly one of `domain`,
+`group_by_email`, `special_group`, `user_by_email`, or `view` must be set,
+even though they are marked optional):
 * `role` - (Required unless `view` is set) Describes the rights granted to
     the user specified by the other member of the access object. The following
     string values are supported: `READER`, `WRITER`, `OWNER`.
 
-* `domain` - (Pick one) A domain to grant access to.
+* `domain` - (Optional) A domain to grant access to.
 
-* `group_by_email` - (Pick one) An email address of a Google Group to grant
+* `group_by_email` - (Optional) An email address of a Google Group to grant
     access to.
 
-* `special_group` - (Pick one) A special group to grant access to.
+* `special_group` - (Optional) A special group to grant access to.
   Possible values include:
   * `projectOwners`: Owners of the enclosing project.
   * `projectReaders`: Readers of the enclosing project.
   * `projectWriters`: Writers of the enclosing project.
   * `allAuthenticatedUsers`: All authenticated BigQuery users.
 
-* `user_by_email` - (Pick one) An email address of a user to grant access to.
+* `user_by_email` - (Optional) An email address of a user to grant access to.
 
-* `view` - (Pick one) A view from a different dataset to grant access to.
+* `view` - (Optional) A view from a different dataset to grant access to.
     Queries executed against that view will have read access to tables in this
     dataset. The role field is not required when this field is set. If that
     view is updated by any user, access to the view needs to be granted again
