@@ -38,6 +38,9 @@ resource "google_cloudfunctions_function" "function" {
   labels {
     my-label = "my-label-value"
   }
+  environment_variables {
+    MY_ENV_VAR = "my-env-var-value"
+  }
 }
 ```
 
@@ -68,6 +71,8 @@ The following arguments are supported:
 * `trigger_topic` - (Optional) Name of Pub/Sub topic. Every message published in this topic will trigger function execution with message contents passed as input data. Cannot be used with `trigger_http` and `trigger_bucket`.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
+
+* `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
 * `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
 
