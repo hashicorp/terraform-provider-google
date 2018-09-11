@@ -5,6 +5,8 @@ BACKWARDS INCOMPATIBILITIES:
 * iam: `google_*_custom_roles` now treats `delete` as deprecated - to actually delete roles, remove from config.  
 * provider: This is the first release tested against and built with Go 1.11, which required go fmt changes to the code. If you are building a custom version of this provider or running tests using the repository Make targets (e.g. make build) when using a previous version of Go, you will receive errors. You can use the underlying go commands (e.g. go build) to workaround the go fmt check in the Make targets until you are able to upgrade Go.
 
+FEATURES: 
+* **New Resource**: `google_compute_attached_disk` [GH-1585]
 
 IMPROVEMENTS:
 * bigquery: Add Support For BigQuery Access Control [GH-1931]
@@ -13,7 +15,8 @@ IMPROVEMENTS:
 * container: Addition of create_subnetwork and other fields relevant for Alias IPs [GH-1921]
 * dataflow: Add region choice to dataflow jobs [GH-1979]
 * logging: Add import support for `google_logging_organization_sink`, `google_logging_folder_sink`, `google_logging_billing_account_sink` [GH-1860]
-* logging: Sending a default update mask for all logging sinks to prevent future breakages [#991](https://github.com/terraform-providers/terraform-provider-google/issues/991)
+* logging: Sending a default update mask for all logging sinks to prevent future breakages [GH-991]
+* dns: Adding support for labels to managed DNS [GH-1803]
 
 BUG FIXES:
 * compute: Store google_compute_vpn_tunnel.router as a self_link to avoid permadiffs. [GH-2003]
