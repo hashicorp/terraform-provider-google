@@ -368,7 +368,7 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
 			return nil
 		}
 		for _, e := range errwrap.GetAllType(err, &googleapi.Error{}) {
-			if gerr, ok := e.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+			if gerr, ok := e.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503 || gerr.Code == 403) {
 				return resource.RetryableError(gerr)
 			}
 		}

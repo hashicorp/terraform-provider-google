@@ -297,14 +297,24 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Creating BigQuery dataset: %s", dataset.DatasetReference.DatasetId)
 
-	res, err := config.clientBigQuery.Datasets.Insert(project, dataset).Do()
+	// We will retry this creation for 3 minutes - it can take up to 90 seconds for
+	// a newly created project to have its constraints correctly initialized.
+	err = retryTime(func() error {
+		res, err := config.clientBigQuery.Datasets.Insert(project, dataset).Do()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery dataset %s has been created", res.Id)
+
+		d.SetId(res.Id)
+
+		return nil
+	}, 3)
+
 	if err != nil {
 		return err
 	}
-
-	log.Printf("[INFO] BigQuery dataset %s has been created", res.Id)
-
-	d.SetId(res.Id)
 
 	return resourceBigQueryDatasetRead(d, meta)
 }
