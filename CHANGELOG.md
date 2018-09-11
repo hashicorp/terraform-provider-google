@@ -18,6 +18,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: Store google_compute_vpn_tunnel.router as a self_link to avoid permadiffs. [GH-2003]
 * iam: Prevent error when attempting to recreate recently soft-deleted `google_(project|organization)_iam_custom_role`. Instead, roles that are able to be undeleted will be undeleted-updated, as long as they were deleted within 7 days. [GH-1681]
+* project: make validation for project id less restrictive [GH-1878]
 
 ## 1.17.1 (August 22, 2018)
 
