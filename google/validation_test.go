@@ -2,11 +2,12 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 func TestValidateGCPName(t *testing.T) {
@@ -247,15 +248,15 @@ func TestOrEmpty(t *testing.T) {
 		ExpectValidationErrors bool
 	}{
 		"accept empty value": {
-			Value: "",
+			Value:                  "",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is accepted when valid": {
-			Value: "valid",
+			Value:                  "valid",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is rejected if invalid": {
-			Value: "invalid",
+			Value:                  "invalid",
 			ExpectValidationErrors: true,
 		},
 	}
@@ -282,11 +283,9 @@ func TestValidateProjectID(t *testing.T) {
 
 		// With errors
 		{TestName: "empty", Value: "", ExpectError: true},
-		{TestName: "starts with a number", Value: "1foobar", ExpectError: true},
 		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
 		{TestName: "has an upercase letter", Value: "foo-Bar", ExpectError: true},
 		{TestName: "has a final hyphen", Value: "foo-bar-", ExpectError: true},
-		{TestName: "too long", Value: strings.Repeat("a", 31), ExpectError: true},
 	}
 
 	es := testStringValidationCases(x, validateProjectID())

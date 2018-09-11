@@ -165,7 +165,7 @@ func validateProjectID() schema.SchemaValidateFunc {
 	return func(v interface{}, k string) (ws []string, errors []error) {
 		value := v.(string)
 
-		if !regexp.MustCompile(ProjectRegex).MatchString(value) {
+		if !regexp.MustCompile("^" + ProjectRegex + "$").MatchString(value) {
 			errors = append(errors, fmt.Errorf(
 				"%q project_id must be 6 to 30 with lowercase letters, digits, hyphens and start with a letter. Trailing hyphens are prohibited.", value))
 		}
