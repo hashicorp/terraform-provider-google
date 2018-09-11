@@ -18,6 +18,10 @@ resource "google_dns_managed_zone" "prod" {
   name        = "prod-zone"
   dns_name    = "prod.mydomain.com."
   description = "Production DNS zone"
+
+  labels = {
+    foo = "bar"
+  }
 }
 ```
 
@@ -36,6 +40,8 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 ## Attributes Reference
 
