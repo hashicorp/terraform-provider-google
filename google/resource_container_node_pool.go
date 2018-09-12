@@ -420,6 +420,9 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 
 		d.Set("cluster", parts[2])
 		d.Set("name", parts[3])
+
+		// override the inputted ID with the <location>/<cluster>/<name> format
+		d.SetId(strings.Join(parts[1:], "/"))
 	default:
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
 	}
