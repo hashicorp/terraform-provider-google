@@ -12,6 +12,7 @@ import (
 	"google.golang.org/api/storage/v1"
 	"log"
 	"strings"
+	"time"
 )
 
 const testComposerEnvironmentPrefix = "tf-cc-testenv"
@@ -362,12 +363,22 @@ func testSweepComposerEnvironments(config *Config) error {
 
 	var allErrors error
 	for _, e := range found.Environments {
+		createdAt, err := time.Parse(time.RFC3339Nano, e.CreateTime)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Environment %q has invalid create time %q", e.Name, e.CreateTime)
+		}
+		// Skip environments that were created in same day
+		// This sweeper should really only clean out very old environments.
+		if time.Since(createdAt) < time.Hour*24 {
+			continue
+		}
+
 		switch e.State {
 		case "CREATING":
 		case "UPDATING":
-			allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete pending Environment %q with state %q", e.Name, e.State))
+			log.Printf("Skipping pending Environment %q with state %q", e.Name, e.State)
 		case "DELETING":
-			log.Printf("Environment %q is currently deleting", e.Name)
+			log.Printf("Skipping pending Environment %q that is currently deleting", e.Name)
 		case "RUNNING":
 		case "ERROR":
 		default:
