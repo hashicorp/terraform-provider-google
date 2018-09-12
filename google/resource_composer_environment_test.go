@@ -369,7 +369,7 @@ func testSweepComposerEnvironments(config *Config) error {
 		}
 		// Skip environments that were created in same day
 		// This sweeper should really only clean out very old environments.
-		if time.Since(createdAt) < time.Hour * 24 {
+		if time.Since(createdAt) < time.Hour*24 {
 			continue
 		}
 
