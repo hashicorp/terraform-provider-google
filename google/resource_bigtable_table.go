@@ -1,12 +1,11 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-
-	"golang.org/x/net/context"
 )
 
 func resourceBigtableTable() *schema.Resource {

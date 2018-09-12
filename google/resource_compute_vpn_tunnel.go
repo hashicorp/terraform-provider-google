@@ -176,9 +176,10 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				ForceNew: true,
 			},
 			"router": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"ike_version": {
 				Type:     schema.TypeInt,
@@ -557,7 +558,7 @@ func flattenComputeVpnTunnelRouter(v interface{}) interface{} {
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeVpnTunnelPeerIp(v interface{}) interface{} {

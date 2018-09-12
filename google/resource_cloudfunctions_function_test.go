@@ -66,6 +66,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"trigger_http", "true"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
+					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
+						"test-env-variable-value", &function),
 				),
 			},
 			{
@@ -119,6 +121,10 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"timeout", "91"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
+					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
+						"test-env-variable-value", &function),
+					testAccCloudFunctionsFunctionHasEnvironmentVariable("NEW_ENV_VARIABLE",
+						"new-env-variable-value", &function),
 				),
 			},
 		},
@@ -347,6 +353,21 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string,
 	}
 }
 
+func testAccCloudFunctionsFunctionHasEnvironmentVariable(key, value string,
+	function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if val, ok := function.EnvironmentVariables[key]; ok {
+			if val != value {
+				return fmt.Errorf("Environment Variable value did not match for key %s: expected %s but found %s",
+					key, value, val)
+			}
+		} else {
+			return fmt.Errorf("Environment Variable with key %s not found", key)
+		}
+		return nil
+	}
+}
+
 func createZIPArchiveForIndexJs(sourcePath string) (string, error) {
 	source, err := ioutil.ReadFile(sourcePath)
 	if err != nil {
@@ -411,6 +432,9 @@ resource "google_cloudfunctions_function" "function" {
   labels {
 	my-label = "my-label-value"
   }
+  environment_variables {
+	TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
 }
 `, bucketName, zipFilePath, functionName)
 }
@@ -439,6 +463,10 @@ resource "google_cloudfunctions_function" "function" {
   labels {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
+  }
+  environment_variables {
+	TEST_ENV_VARIABLE = "test-env-variable-value"
+	NEW_ENV_VARIABLE = "new-env-variable-value"
   }
 }`, bucketName, zipFilePath, functionName)
 }

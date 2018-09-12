@@ -71,21 +71,40 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Cannot create a custom project role with a deleted state. `deleted` field should be false.")
 	}
 
-	role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
-		RoleId: d.Get("role_id").(string),
-		Role: &iam.Role{
-			Title:               d.Get("title").(string),
-			Description:         d.Get("description").(string),
-			Stage:               d.Get("stage").(string),
-			IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
-		},
-	}).Do()
+	roleId := fmt.Sprintf("projects/%s/roles/%s", project, d.Get("role_id").(string))
+	r, err := config.clientIAM.Projects.Roles.Get(roleId).Do()
+	if err == nil {
+		if r.Deleted {
+			// This role was soft-deleted; update to match new state.
+			d.SetId(r.Name)
+			if err := resourceGoogleProjectIamCustomRoleUpdate(d, meta); err != nil {
+				// If update failed, make sure it wasn't actually added to state.
+				d.SetId("")
+				return err
+			}
+		} else {
+			// If a role with same name exists and is enabled, just return error
+			return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
+		}
+	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
+		// If no role is found, actually create a new role.
+		role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
+			RoleId: d.Get("role_id").(string),
+			Role: &iam.Role{
+				Title:               d.Get("title").(string),
+				Description:         d.Get("description").(string),
+				Stage:               d.Get("stage").(string),
+				IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
+			},
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating the custom project role %s: %v", roleId, err)
+		}
 
-	if err != nil {
-		return fmt.Errorf("Error creating the custom project role %s: %s", d.Get("title").(string), err)
+		d.SetId(role.Name)
+	} else {
+		return fmt.Errorf("Unable to verify whether custom project role %s already exists and must be undeleted: %v", roleId, err)
 	}
-
-	d.SetId(role.Name)
 
 	return resourceGoogleProjectIamCustomRoleRead(d, meta)
 }
@@ -119,18 +138,50 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 
 	d.Partial(true)
 
-	if d.HasChange("deleted") {
-		if d.Get("deleted").(bool) {
+	if d.Get("deleted").(bool) {
+		if d.HasChange("deleted") {
+			// If other fields were changed, we need to update those first and then delete.
+			// If we don't update, we will get diffs from re-apply
+			// If we delete and then try to update, we will get an error.
+			if err := resourceGoogleProjectIamCustomRoleUpdateNonDeletedFields(d, meta); err != nil {
+				return err
+			}
 			if err := resourceGoogleProjectIamCustomRoleDelete(d, meta); err != nil {
 				return err
 			}
+
+			d.SetPartial("deleted")
+			d.Partial(false)
+			return nil
 		} else {
-			if err := resourceGoogleProjectIamCustomRoleUndelete(d, meta); err != nil {
-				return err
-			}
+			return fmt.Errorf("cannot make changes to deleted custom project role %s", d.Id())
+		}
+	}
+
+	// We want to update the role to some undeleted state.
+	// Make sure the role with given ID exists and is un-deleted before patching.
+	r, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
+	if err != nil {
+		return fmt.Errorf("unable to find custom project role %s to update: %v", d.Id(), err)
+	}
+	if r.Deleted {
+		// Undelete if deleted previously
+		if err := resourceGoogleProjectIamCustomRoleUndelete(d, meta); err != nil {
+			return err
 		}
 		d.SetPartial("deleted")
 	}
+
+	if err := resourceGoogleProjectIamCustomRoleUpdateNonDeletedFields(d, meta); err != nil {
+		return err
+	}
+	d.Partial(false)
+
+	return nil
+}
+
+func resourceGoogleProjectIamCustomRoleUpdateNonDeletedFields(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
 		_, err := config.clientIAM.Projects.Roles.Patch(d.Id(), &iam.Role{
@@ -148,9 +199,6 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 		d.SetPartial("stage")
 		d.SetPartial("permissions")
 	}
-
-	d.Partial(false)
-
 	return nil
 }
 

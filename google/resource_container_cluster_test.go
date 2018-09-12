@@ -1093,7 +1093,7 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
+func TestAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(t *testing.T) {
 	t.Parallel()
 
 	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
@@ -1103,23 +1103,7 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withIPAllocationPolicy(
-					cluster,
-					map[string]string{
-						"pods":     "10.1.0.0/16",
-						"services": "10.2.0.0/20",
-					},
-					map[string]string{
-						"cluster_secondary_range_name":  "pods",
-						"services_secondary_range_name": "services",
-					},
-				),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
-						"ip_allocation_policy.0.cluster_secondary_range_name", "pods"),
-					resource.TestCheckResourceAttr("google_container_cluster.with_ip_allocation_policy",
-						"ip_allocation_policy.0.services_secondary_range_name", "services"),
-				),
+				Config: testAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(cluster),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
@@ -1127,29 +1111,71 @@ func TestAccContainerCluster_withIPAllocationPolicy(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withIPAllocationPolicy_specificIPRanges(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withIPAllocationPolicy(
-					cluster,
-					map[string]string{
-						"pods":     "10.1.0.0/16",
-						"services": "10.2.0.0/20",
-					},
-					map[string]string{},
-				),
-				ExpectError: regexp.MustCompile("clusters using IP aliases must specify secondary ranges"),
+				Config: testAccContainerCluster_withIPAllocationPolicy_specificIPRanges(cluster),
 			},
 			{
-				Config: testAccContainerCluster_withIPAllocationPolicy(
-					cluster,
-					map[string]string{
-						"pods": "10.1.0.0/16",
-					},
-					map[string]string{
-						"cluster_secondary_range_name":  "pods",
-						"services_secondary_range_name": "services",
-					},
-				),
-				ExpectError: regexp.MustCompile("secondary range \"services\" does not exist in network"),
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withIPAllocationPolicy_specificSizes(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy_specificSizes(cluster),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withIPAllocationPolicy_createSubnetwork(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy_createSubnetwork(cluster),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 		},
 	})
@@ -2233,23 +2259,7 @@ resource "google_container_cluster" "with_maintenance_window" {
 }`, clusterName, maintenancePolicy)
 }
 
-func testAccContainerCluster_withIPAllocationPolicy(cluster string, ranges, policy map[string]string) string {
-
-	var secondaryRanges bytes.Buffer
-	for rangeName, cidr := range ranges {
-		secondaryRanges.WriteString(fmt.Sprintf(`
-	secondary_ip_range {
-	    range_name    = "%s"
-	    ip_cidr_range = "%s"
-	}`, rangeName, cidr))
-	}
-
-	var ipAllocationPolicy bytes.Buffer
-	for key, value := range policy {
-		ipAllocationPolicy.WriteString(fmt.Sprintf(`
-		%s = "%s"`, key, value))
-	}
-
+func testAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(cluster string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
 	name = "container-net-%s"
@@ -2262,7 +2272,14 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 	ip_cidr_range = "10.0.0.0/24"
 	region        = "us-central1"
 
-	%s
+	secondary_ip_range {
+	    range_name    = "pods"
+	    ip_cidr_range = "10.1.0.0/16"
+	}
+	secondary_ip_range {
+	    range_name    = "services"
+	    ip_cidr_range = "10.2.0.0/20"
+	}
 }
 
 resource "google_container_cluster" "with_ip_allocation_policy" {
@@ -2274,9 +2291,66 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 
 	initial_node_count = 1
 	ip_allocation_policy {
-	    %s
+		cluster_secondary_range_name = "pods"
+		services_secondary_range_name = "services"
 	}
-}`, acctest.RandString(10), secondaryRanges.String(), cluster, ipAllocationPolicy.String())
+}`, cluster, cluster)
+}
+
+func testAccContainerCluster_withIPAllocationPolicy_specificIPRanges(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_ip_allocation_policy" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	initial_node_count = 1
+	ip_allocation_policy {
+		cluster_ipv4_cidr_block = "10.90.0.0/19"
+		services_ipv4_cidr_block = "10.40.0.0/19"
+	}
+}`, cluster)
+}
+
+func testAccContainerCluster_withIPAllocationPolicy_specificSizes(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+	name = "container-net-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+	name          = "${google_compute_network.container_network.name}"
+	network       = "${google_compute_network.container_network.name}"
+	ip_cidr_range = "10.0.0.0/24"
+	region        = "us-central1"
+}
+
+resource "google_container_cluster" "with_ip_allocation_policy" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	network = "${google_compute_network.container_network.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+
+	initial_node_count = 1
+	ip_allocation_policy {
+		cluster_ipv4_cidr_block = "/16"
+		services_ipv4_cidr_block = "/22"
+	}
+}`, cluster, cluster)
+}
+
+func testAccContainerCluster_withIPAllocationPolicy_createSubnetwork(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_ip_allocation_policy" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	initial_node_count = 1
+	ip_allocation_policy {
+		create_subnetwork = true
+	}
+}`, cluster)
 }
 
 func testAccContainerCluster_withPodSecurityPolicy(clusterName string, enabled bool) string {

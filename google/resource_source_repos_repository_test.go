@@ -25,6 +25,11 @@ func TestAccSourceRepoRepository_basic(t *testing.T) {
 						"google_sourcerepo_repository.acceptance", repositoryName),
 				),
 			},
+			resource.TestStep{
+				ResourceName:      "google_sourcerepo_repository.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
