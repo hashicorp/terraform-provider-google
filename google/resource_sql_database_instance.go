@@ -396,6 +396,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 					},
 				},
 			},
+			"service_account_email_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -760,6 +764,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("region", instance.Region)
 	d.Set("database_version", instance.DatabaseVersion)
 	d.Set("connection_name", instance.ConnectionName)
+	d.Set("service_account_email_address", instance.ServiceAccountEmailAddress)
 
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
