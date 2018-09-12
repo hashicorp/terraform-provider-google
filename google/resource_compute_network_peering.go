@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
+const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/(?:global|regional)/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
 
 func resourceComputeNetworkPeering() *schema.Resource {
 	return &schema.Resource{
