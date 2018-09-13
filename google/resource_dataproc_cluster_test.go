@@ -360,7 +360,7 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 				Config: testAccDataprocCluster_withImageVersion(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.with_image_version", &cluster),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", "preview"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", "1.3.7-deb9"),
 				),
 			},
 		},
@@ -915,7 +915,7 @@ resource "google_dataproc_cluster" "with_image_version" {
 
 	cluster_config {
 		software_config {
-			image_version = "preview"
+			image_version = "1.3.7-deb9"
 		}
 	}
 }`, rnd)
