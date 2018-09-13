@@ -54,8 +54,11 @@ exported:
 
 ## Import
 
-DNS managed zones can be imported using the `name`, e.g.
+DNS managed zones can be imported using either of these accepted formats:
 
 ```
-$ terraform import google_dns_managed_zone.prod prod-zone
+
+```
+$ terraform import google_dns_managed_zone.zone-name {{project}}/{{name}}
+$ terraform import google_dns_managed_zone.zone-name {{name}}
 ```

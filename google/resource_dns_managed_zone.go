@@ -15,9 +15,11 @@ func resourceDnsManagedZone() *schema.Resource {
 		Read:   resourceDnsManagedZoneRead,
 		Update: resourceDnsManagedZoneUpdate,
 		Delete: resourceDnsManagedZoneDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceDnsManagedZoneImport,
 		},
+
 		Schema: map[string]*schema.Schema{
 			"dns_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -164,4 +166,18 @@ func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId("")
 	return nil
+}
+
+func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{"(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
