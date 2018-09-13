@@ -84,6 +84,11 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
+	"max_pods_per_node": &schema.Schema{
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+
 	"initial_node_count": &schema.Schema{
 		Type:     schema.TypeInt,
 		Optional: true,
@@ -468,6 +473,12 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
+		np.MaxPodsConstraint = &containerBeta.MaxPodsConstraint{
+			MaxPodsPerNode: int64(v.(int)),
+		}
+	}
+
 	if v, ok := d.GetOk(prefix + "management"); ok {
 		managementConfig := v.([]interface{})[0].(map[string]interface{})
 		np.Management = &containerBeta.NodeManagement{}
@@ -518,6 +529,10 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 				"max_node_count": np.Autoscaling.MaxNodeCount,
 			},
 		}
+	}
+
+	if np.MaxPodsConstraint != nil {
+		nodePool["max_pods_per_node"] = np.MaxPodsConstraint.MaxPodsPerNode
 	}
 
 	nodePool["management"] = []map[string]interface{}{
