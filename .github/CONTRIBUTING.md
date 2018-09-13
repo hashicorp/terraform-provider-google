@@ -21,7 +21,7 @@ govendor fetch {{path}}
 For example:
 
 ```bash
-govendor fetch cloud.google.com/go/bigtable
+govendor fetch google.golang.org/api/compute/v1
 ```
 
 When updating a vendored library, try to submit the vendoring as a separate pull request and include the commands you ran in
