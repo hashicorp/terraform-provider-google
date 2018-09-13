@@ -8,6 +8,25 @@ The following are certain Google Provider-specific things to be aware of when co
 
 We aim to make the Google Provider a good steward of Go practices. See https://github.com/golang/go/wiki/CodeReviewComments for common Go mistakes that you should attempt to avoid.
 
+## Vendoring Libraries
+
+When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client and
+occasionally some of the downstream dependencies of that client. The Google Provider uses [govendor](https://github.com/kardianos/govendor)
+in order to manage dependencies. To vendor a new package or update an existing package, run:
+
+```bash
+govendor fetch {{path}}
+```
+
+For example:
+
+```bash
+govendor fetch google.golang.org/api/compute/v1
+```
+
+When updating a vendored library, try to submit the vendoring as a separate pull request and include the commands you ran in
+the pull request description.
+
 ## Tests
 
 ### Running Tests

@@ -62,4 +62,4 @@ $ $GOPATH/bin/terraform-provider-google
 ...
 ```
 
-In order to test the Google provider, see the [Tests section of the contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md#tests).
+For guidance on common development practices such as testing changes or vendoring libraries, see the [contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md). If you have other development questions we don't cover, please file an issue!
