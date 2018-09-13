@@ -71,8 +71,8 @@ func TestAccSqlDatabase_update(t *testing.T) {
 
 	var database sqladmin.Database
 
-	instance_name := acctest.RandString(10)
-	database_name := acctest.RandString(10)
+	instance_name := fmt.Sprintf("sqldatabasetest%s", acctest.RandString(10))
+	database_name := fmt.Sprintf("sqldatabasetest%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
