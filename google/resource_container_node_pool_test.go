@@ -890,7 +890,7 @@ resource "google_container_cluster" "cluster" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-c"
 	initial_node_count = 1
-	node_version = "${data.google_container_engine_versions.central1c.latest_master_version}"
+	node_version = "${data.google_container_engine_versions.central1c.latest_node_version}"
 	min_master_version = "${data.google_container_engine_versions.central1c.latest_master_version}"
 }
 resource "google_container_node_pool" "np_with_gpu" {
