@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"testing"
 
 	"regexp"
@@ -322,12 +323,14 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 			return err
 		}
 		if completeJob.Status.State == "ERROR" {
-			u := regexp.MustCompile("gs://(.+)/(.+)")
-			v := u.FindStringSubmatch(completeJob.DriverOutputResourceUri)
-			if len(v) != 3 {
+			if !strings.HasPrefix(completeJob.DriverOutputResourceUri, "gs://") {
 				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
 			}
-			resp, err := config.clientStorage.Objects.Get(v[1], v[2]).Download()
+			u := strings.SplitN(strings.TrimPrefix(completeJob.DriverOutputResourceUri, "gs://"), 2)
+			if len(u) != 2 {
+				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
+			}
+			resp, err := config.clientStorage.Objects.Get(u[0], u[1]).Download()
 			if err != nil {
 				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to read logs: {{err}}", err)
 			}
