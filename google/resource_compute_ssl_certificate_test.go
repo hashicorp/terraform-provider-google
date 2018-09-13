@@ -78,7 +78,7 @@ func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
 				ResourceName:            "google_compute_ssl_certificate.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_key, name_prefix"},
+				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
 			},
 		},
 	})
