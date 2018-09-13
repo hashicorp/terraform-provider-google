@@ -326,7 +326,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 			if !strings.HasPrefix(completeJob.DriverOutputResourceUri, "gs://") {
 				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
 			}
-			u := strings.SplitN(strings.TrimPrefix(completeJob.DriverOutputResourceUri, "gs://"), 2)
+			u := strings.SplitN(strings.TrimPrefix(completeJob.DriverOutputResourceUri, "gs://"), "/", 2)
 			if len(u) != 2 {
 				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
 			}
