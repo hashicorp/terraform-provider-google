@@ -58,7 +58,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
         # Override or set some custom properties
         software_config {
-            image_version       = "preview"
+            image_version       = "1.3.7-deb9"
             override_properties = {
                 "dataproc:dataproc.allow.zero.workers" = "true"
             }
@@ -324,7 +324,7 @@ The `cluster_config.software_config` block supports:
     cluster_config {
         # Override or set some custom properties
         software_config {
-            image_version       = "preview"
+            image_version       = "1.3.7-deb9"
             override_properties = {
                 "dataproc:dataproc.allow.zero.workers" = "true"
             }
