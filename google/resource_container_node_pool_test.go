@@ -882,12 +882,16 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 
 func testAccContainerNodePool_withGPU() string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1c" {
+	zone = "us-central1-c"
+}
+
 resource "google_container_cluster" "cluster" {
 	name = "tf-cluster-nodepool-test-%s"
 	zone = "us-central1-c"
 	initial_node_count = 1
-  node_version = "1.9.6-gke.1"
-  min_master_version = "1.9.6-gke.1"
+	node_version = "${data.google_container_engine_versions.central1c.latest_master_version}"
+	min_master_version = "${data.google_container_engine_versions.central1c.latest_master_version}"
 }
 resource "google_container_node_pool" "np_with_gpu" {
 	name = "tf-nodepool-test-%s"
