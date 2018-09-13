@@ -237,12 +237,13 @@ func TestAccComputeDisk_basic(t *testing.T) {
 func TestAccComputeDisk_timeout(t *testing.T) {
 	t.Parallel()
 
+	diskName := acctest.RandomWithPrefix("tf-test-disk")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config:      testAccComputeDisk_timeout(),
+				Config:      testAccComputeDisk_timeout(diskName),
 				ExpectError: regexp.MustCompile("timeout"),
 			},
 		},
@@ -622,7 +623,7 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_timeout() string {
+func testAccComputeDisk_timeout(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -638,7 +639,7 @@ resource "google_compute_disk" "foobar" {
 	timeouts {
 		create = "1s"
 	}
-}`, acctest.RandString(10))
+}`, diskName)
 }
 
 func testAccComputeDisk_updated(diskName string) string {
