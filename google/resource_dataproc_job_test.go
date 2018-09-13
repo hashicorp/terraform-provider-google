@@ -330,6 +330,13 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 			if len(u) != 2 {
 				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
 			}
+			l, err := config.clientStorage.Objects.List(u[0]).Do()
+			if err != nil {
+				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to list logs: {{err}}", err)
+			}
+			for item := range l.Items {
+				log.Printf("[DEBUG] found object %s, self_link %s", item.Name, item.SelfLink)
+			}
 			resp, err := config.clientStorage.Objects.Get(u[0], u[1]).Download()
 			if err != nil {
 				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to read logs: {{err}}", err)
