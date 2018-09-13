@@ -2,10 +2,13 @@ package google
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"testing"
 
 	"regexp"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -318,7 +321,24 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 		if err != nil {
 			return err
 		}
-		if completeJob.Status.State != "DONE" {
+		if completeJob.Status.State == "ERROR" {
+			u := regexp.MustCompile("gs://(.+)/(.+)")
+			v := u.FindStringSubmatch(completeJob.DriverOutputResourceUri)
+			if len(v) != 3 {
+				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
+			}
+			resp, err := config.clientStorage.Objects.Get(v[1], v[2]).Download()
+			if err != nil {
+				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to read logs: {{err}}", err)
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to read logs: {{err}}", err)
+			}
+			log.Printf("[ERROR] Job failed, driver logs:\n%s", body)
+			return fmt.Errorf("Job completed in ERROR state, check logs for details")
+		} else if completeJob.Status.State != "DONE" {
 			return fmt.Errorf("Job did not complete successfully, instead status: %s", completeJob.Status.State)
 		}
 
