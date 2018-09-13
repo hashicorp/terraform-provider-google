@@ -301,6 +301,8 @@ when the resource is configured with a `count`.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
 
+* `service_account_email_address` - The service account email address assigned to the
+instance. This property is applicable only to Second Generation instances.
 
 ## Timeouts
 

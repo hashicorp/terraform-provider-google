@@ -2401,6 +2401,7 @@ resource "google_container_cluster" "with_private_cluster" {
 
 	private_cluster = true
 	master_ipv4_cidr_block = "10.42.0.0/28"
+	master_authorized_networks_config { cidr_blocks = [] }
 	ip_allocation_policy {
 		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
 		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"

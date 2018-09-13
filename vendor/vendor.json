@@ -1437,10 +1437,10 @@
 			"revisionTime": "2018-08-29T00:05:35Z"
 		},
 		{
-			"checksumSHA1": "iY84nnY25WZj8aOpsCbvzQK4AX8=",
+			"checksumSHA1": "joNKYN3Ys9p72vEzXyMTVlSI5q0=",
 			"path": "google.golang.org/api/container/v1beta1",
-			"revision": "087779f1d2c96357d4c45bd04c4d10d7b5f22736",
-			"revisionTime": "2018-08-29T00:05:35Z"
+			"revision": "7ca32eb868bf53ea2fc406698eb98583a8073d19",
+			"revisionTime": "2018-09-10T00:04:50Z"
 		},
 		{
 			"checksumSHA1": "W0Y+kxLtZF1yGiV+bTmFXSd22Hw=",
