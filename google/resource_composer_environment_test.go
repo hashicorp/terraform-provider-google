@@ -324,6 +324,8 @@ resource "google_composer_environment" "test" {
 
 /**
  * CLEAN UP HELPER FUNCTIONS
+ * Because the environments are flaky and bucket deletion rates can be
+ * rate-limited, for now just warn instead of returning actual errors.
  */
 func testSweepComposerResources(region string) error {
 	config, err := sharedConfigForRegion(region)
@@ -338,12 +340,12 @@ func testSweepComposerResources(region string) error {
 
 	// Environments need to be cleaned up because the service is flaky.
 	if err := testSweepComposerEnvironments(config); err != nil {
-		return err
+		log.Printf("[WARNING] unable to clean up all environments: %s", err)
 	}
 
 	// Buckets need to be cleaned up because they just don't get deleted on purpose.
 	if err := testSweepComposerEnvironmentBuckets(config); err != nil {
-		return err
+		log.Printf("[WARNING] unable to clean up all environment storage buckets: %s", err)
 	}
 
 	return nil
