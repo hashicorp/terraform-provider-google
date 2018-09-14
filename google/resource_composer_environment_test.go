@@ -490,8 +490,8 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 				continue
 			}
 
-			waitErr := computeOperationWait(config.clientCompute, op, config.Project,
-				"Sweeping test composer environment firewalls")
+			waitErr := computeOperationWaitTime(config.clientCompute, op, config.Project,
+				"Sweeping test composer environment firewalls", 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
