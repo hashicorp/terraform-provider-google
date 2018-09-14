@@ -14,6 +14,10 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 		Update: resourceRuntimeconfigVariableUpdate,
 		Delete: resourceRuntimeconfigVariableDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceRuntimeconfigVariableImport,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -122,6 +126,20 @@ func resourceRuntimeconfigVariableDelete(d *schema.ResourceData, meta interface{
 	d.SetId("")
 
 	return nil
+}
+
+func resourceRuntimeconfigVariableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{"projects/(?P<project>[^/]+)/configs/(?P<parent>[^/]+)/variables/(?P<name>[^/]+)", "(?P<parent>[^/]+)/(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/configs/{{parent}}/variables/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 // resourceRuntimeconfigVariableFullName turns a given project, runtime config name, and a 'short name' for a runtime
