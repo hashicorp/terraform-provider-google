@@ -400,11 +400,11 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
 	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
 	if err == nil {
-		if err := testSweepComposerEnvironmentCleanUpBucket(config, artifactBucket); err != nil {
+		if err = testSweepComposerEnvironmentCleanUpBucket(config, artifactBucket); err != nil {
 			return err
 		}
 	} else if isGoogleApiErrorWithCode(err, 404) {
-		log.Printf("could not find bucket %q to clean up", artifactsBName)
+		log.Printf("composer environment bucket %q not found, doesn't need to be clean up", artifactsBName)
 	} else {
 		return err
 	}
@@ -442,10 +442,6 @@ func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.B
 			allErrors = multierror.Append(allErrors,
 				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
-	}
-
-	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
-		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
 	}
 
 	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
