@@ -399,13 +399,13 @@ func testSweepComposerEnvironments(config *Config) error {
 func testSweepComposerEnvironmentBuckets(config *Config) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
 	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
-	if err == nil {
-		if err = testSweepComposerEnvironmentCleanUpBucket(config, artifactBucket); err != nil {
+	if err != nil {
+		if isGoogleApiErrorWithCode(err, 404) {
+			log.Printf("composer environment bucket %q not found, doesn't need to be clean up", artifactsBName)
+		} else {
 			return err
 		}
-	} else if isGoogleApiErrorWithCode(err, 404) {
-		log.Printf("composer environment bucket %q not found, doesn't need to be clean up", artifactsBName)
-	} else {
+	} else if err = testSweepComposerEnvironmentCleanUpBucket(config, artifactBucket); err != nil {
 		return err
 	}
 
@@ -414,12 +414,12 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
 	if len(found.Items) == 0 {
-		log.Printf("No environment buckets need to be cleaned up")
+		log.Printf("No environment-specific buckets need to be cleaned up")
 		return nil
 	}
 
 	for _, bucket := range found.Items {
-		if _, ok := bucket.Labels["goog-composer-environment"]; ok {
+		if _, ok := bucket.Labels["goog-composer-environment"]; !ok {
 			continue
 		}
 		if err := testSweepComposerEnvironmentCleanUpBucket(config, bucket); err != nil {
@@ -451,6 +451,8 @@ func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.B
 	if allErrors != nil {
 		return fmt.Errorf("Unable to clean up bucket %q: %v", bucket.Name, allErrors)
 	}
+
+	log.Printf("Cleaned up bucket %q for composer environment tests", bucket.Name)
 	return nil
 }
 
