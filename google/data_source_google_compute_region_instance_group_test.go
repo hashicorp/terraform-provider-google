@@ -78,7 +78,7 @@ resource "google_compute_region_instance_group_manager" "foo" {
 
 	auto_healing_policies {
 		health_check = "${google_compute_health_check.autohealing.self_link}"
-		initial_delay_sec = 600
+		initial_delay_sec = 10
 	}
 }
 
