@@ -24,8 +24,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			State: resourceRegionInstanceGroupManagerStateImporter,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(15 * time.Minute),
-			Update: schema.DefaultTimeout(15 * time.Minute),
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
