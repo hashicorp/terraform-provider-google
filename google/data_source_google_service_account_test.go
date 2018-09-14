@@ -21,7 +21,6 @@ func TestAccDatasourceGoogleServiceAccount_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleServiceAccount_basic(account),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleServiceAccountExists(resourceName),
 					resource.TestCheckResourceAttr(
 						resourceName, "id", fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), account, getTestProjectFromEnv())),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
