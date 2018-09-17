@@ -12,7 +12,6 @@ import (
 func TestAccBigQueryTable_Basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -25,7 +24,7 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				Config: testAccBigQueryTable(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -33,7 +32,7 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -44,7 +43,6 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 func TestAccBigQueryTable_View(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -57,7 +55,7 @@ func TestAccBigQueryTable_View(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -68,7 +66,6 @@ func TestAccBigQueryTable_View(t *testing.T) {
 func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -81,7 +78,7 @@ func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -89,7 +86,7 @@ func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
 				Config: testAccBigQueryTableWithNewSqlView(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
