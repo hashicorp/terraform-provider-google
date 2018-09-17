@@ -9,8 +9,20 @@ description: |-
 # Google Cloud Platform Provider
 
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
-See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider. See the [provider reference](/docs/providers/google/provider_reference.html) for advanced
-details on authenticating or otherwise configuring the provider.
+See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
+
+A typical provider configuration will look something like:
+
+```hcl
+provider "google" {
+  credentials = "${file("account.json")}"
+  project     = "my-project-id"
+  region      = "us-central1"
+}
+```
+
+See the [provider reference](/docs/providers/google/provider_reference.html)
+for more details on authenticating or otherwise configuring the provider.
 
 Interested in the provider's latest features, or want to make sure you're up to date?
 Check out the [changelog](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md)
@@ -79,9 +91,9 @@ prioritise support for them when they enter Beta.
 ### Beta Features
 Some resources contain Beta features; Beta GCP Features have no
 deprecation policy, and no SLA, but are otherwise considered to be feature-complete
-with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
-is publicly announced, and is when they generally become publicly available. For
-more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
+with only minor outstanding issues after their Alpha period. Beta is when GCP
+features are publicly announced, and is when they generally become publicly
+available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
 Terraform resources that support Beta features will always use the Beta APIs to provision
 the resource. Importing a resource that supports Beta features will always import those

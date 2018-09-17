@@ -8,7 +8,7 @@ description: |-
 
 # `google` provider reference
 The `google` provider block is used to configure default values for your GCP
-project, location (`zone` and `region`), and add your credentials credentials.
+project and location (`zone` and `region`), and add your credentials.
 
 -> You can avoid using a provider block by using environment variables. Every
 field of the `google` provider is optional. If you want to share configs between
@@ -19,7 +19,7 @@ environments and deploy to different projects, try it out!
 ```hcl
 provider "google" {
   credentials = "${file("account.json")}"
-  project     = "my-gce-project-id"
+  project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
 }
@@ -29,8 +29,8 @@ provider "google" {
 
 The following keys can be used to configure the provider.
 
-* `credentials` - (Optional) Contents of a file that contains your service
-  account private key in JSON format. You can download your existing
+* `credentials` - (Optional) The path or contents of a file that contains your
+  service account private key in JSON format. You can download your existing
   [Google Cloud service account file]
   from the Google Cloud Console, or you can create a new one from the same page.
 
@@ -55,9 +55,9 @@ The following keys can be used to configure the provider.
   login`][gcloud adc], the provider will use your identity.
 
   -> [Service accounts][service accounts] are the recommended way
-  to manage GCP credentials. [GCE metadata] is also acceptable, although can
-  only be used in limited scenarios. The `gcloud` method is not guaranteed to work
-  for all APIs.
+  to manage GCP credentials. [GCE metadata] is also acceptable, although it can
+  only be used when running Terraform from within [certain GCP resources](https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions).
+  The `gcloud` method is not guaranteed to work for all APIs.
 
 * `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed

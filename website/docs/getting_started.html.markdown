@@ -10,7 +10,7 @@ description: |-
 
 ## Before you begin
 
-* You'll want to have created an account and project in the [Google Cloud Console](https://console.cloud.google.com/)
+* Create a project in the [Google Cloud Console](https://console.cloud.google.com/)
 and set up billing on that project. Any examples in this guide will be part of
 the [GCP "always free" tier](https://cloud.google.com/free/).
 * [Install Terraform](https://www.terraform.io/intro/getting-started/install.html)
@@ -20,7 +20,7 @@ provider.
 
 ## Configuring the Provider
 
-To configure the provider, first create a Terraform config file. Inside, you'll
+First create a Terraform config file named `"main.tf"`. Inside, you'll
 want to include the following configuration:
 
 ```hcl
@@ -34,7 +34,7 @@ provider "google" {
 * The `project` field should include your personal project id. The `project`
 indicates the default GCP project all of your resources will be created in.
 Most Terraform resources will have a `project` field.
-* The`region` and `zone` are [locations](https://cloud.google.com/compute/docs/regions-zones/global-regional-zonal-resources)
+* The `region` and `zone` are [locations](https://cloud.google.com/compute/docs/regions-zones/global-regional-zonal-resources)
 for your resources to be created in.
     * The `region` will be used to choose the default location for regional
     resources. Regional resources are spread across several zones.
@@ -55,8 +55,10 @@ identifies the provider for Terraform, `compute` indicates the GCP product
 family, and `instance` is the resource name.
 
 Google provider resources will generally, although not always, be named after
-the name used in the REST API. For example, a VM instance is called [`instance` in the API](https://cloud.google.com/compute/docs/reference/rest/v1/instances).
-Most resource field names will also correspond 1:1 with their REST API names.
+the name used in the `gcloud`/the REST API. For example, a VM instance is called
+[`instance` in the API](https://cloud.google.com/compute/docs/reference/rest/v1/instances).
+Most resource field names will also correspond 1:1 with their `gcloud`/REST API
+names.
 
 If you look at the [`google_compute_instance documentation`](/docs/providers/google/r/compute_instance.html),
 you'll see that `project` and `zone` (VM instances are a zonal resource) are
@@ -64,7 +66,7 @@ listed as optional. You can omit them from a Terraform config and the provider
 defaults will be used. If any of these fields is added to a config, it will be
 used instead of the default.
 
-Try adding the following to your state file:
+Try adding the following to your config file:
 
 ```hcl
 resource "google_compute_instance" "vm_instance" {
@@ -87,7 +89,7 @@ resource "google_compute_instance" "vm_instance" {
 ```
 
 ~> Note: Don't use `terraform apply` quite yet! You still need to add GCP
-credentials below. If you want to try out provisioning your VM instance before
+credentials. If you want to try out provisioning your VM instance before
 continuing, follow the instructions in the "Adding credentials" section below.
 
 ## Connecting to a VPC network
@@ -157,10 +159,10 @@ file. Name it something you can remember, and store it somewhere secure on your
 machine.
 
 You supply the key to Terraform using the environment variable
-`GOOGLE_APPLICATION_CREDENTIALS`, setting the value to the location of the file.
+`GOOGLE_CLOUD_KEYFILE_JSON`, setting the value to the location of the file.
 
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS={{path}}
+export GOOGLE_CLOUD_KEYFILE_JSON={{path}}
 ```
 
 -> Remember to add this line to a startup file such as `bash_profile` or
