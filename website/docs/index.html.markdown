@@ -1,108 +1,88 @@
 ---
 layout: "google"
-page_title: "Provider: Google Cloud"
-sidebar_current: "docs-google-index"
+page_title: "Provider: Google Cloud Platform"
+sidebar_current: "docs-google-provider-x"
 description: |-
-  The Google Cloud provider is used to interact with Google Cloud services. The provider needs to be configured with the proper credentials before it can be used.
+   The Google provider is used to configure your Google Cloud Platform infrastructure
 ---
 
-# Google Cloud Provider
+# Google Cloud Platform Provider
 
-The Google Cloud provider is used to interact with
-[Google Cloud services](https://cloud.google.com/). The provider needs
-to be configured with the proper credentials before it can be used.
+The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
+See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider. See the [provider reference](/docs/providers/google/provider_reference.html) for advanced
+details on authenticating or otherwise configuring the provider.
 
-Use the navigation to the left to read about the available resources.
+Interested in the provider's latest features, or want to make sure you're up to date?
+Check out the [changelog](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md)
+for version information and release notes.
 
-## Example Usage
+The Google provider is jointly maintained by:
 
-```hcl
-// Configure the Google Cloud provider
-provider "google" {
-  credentials = "${file("account.json")}"
-  project     = "my-gce-project-id"
-  region      = "us-central1"
-}
+* The [Google Cloud Graphite Team](https://cloudplatform.googleblog.com/2017/03/partnering-on-open-source-Google-and-HashiCorp-engineers-on-managing-GCP-infrastructure.html) at Google
+* The Terraform team at [HashiCorp](https://www.hashicorp.com/)
 
-// Create a new instance
-resource "google_compute_instance" "default" {
-  # ...
-}
-```
+If you have configuration questions, or general questions about using the provider, try checking out:
 
-## Configuration Reference
+* The [Google Cloud Platform Community Slack](https://gcp-slack.appspot.com/) #terraform channel
+* [Terraform's community resources](https://www.terraform.io/docs/extend/community/index.html)
+* [HashiCorp support](https://support.hashicorp.com) for Terraform Enterprise customers
 
-The following keys can be used to configure the provider.
+## Features and Bug Requests
 
-* `credentials` - (Optional) Contents of a file that contains your service
-  account private key in JSON format. You can download your existing
-  [Google Cloud service account file]
-  from the Google Cloud Console, or you can create a new one from the same page.
+The Google provider's bugs and feature requests can be found in the [GitHub repo issues](https://github.com/terraform-providers/terraform-provider-google/issues).
+Please avoid "me too" or "+1" comments. Instead, use a thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
+on enhancement requests. Provider maintainers will often prioritise work based on the
+number of thumbs on an issue.
 
-  Credentials can also be specified using any of the following environment
-  variables (listed in order of precedence):
+Community input is appreciated on outstanding issues! We love to hear what use
+cases you have for new features, and want to provide the best possible
+experience for you using the Google provider.
 
-    * `GOOGLE_CREDENTIALS`
-    * `GOOGLE_CLOUD_KEYFILE_JSON`
-    * `GCLOUD_KEYFILE_JSON`
+If you can't find an existing issue for a bug or feature request you have
 
-  The [`GOOGLE_APPLICATION_CREDENTIALS`][adc]
-  environment variable can also contain the path of a file to obtain credentials
-  from.
+* and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=bug.md).
 
-  If no credentials are specified, the provider will fall back to using the
-  [Google Application Default Credentials][adc].
-  If you are running Terraform from a GCE instance, see [Creating and Enabling
-  Service Accounts for Instances][gce-service-account] for details.
+* and you'd like the provider to support a new resource or field, [file an enhancement/feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md).
 
-  On your computer, if you have made your identity available as the
-  Application Default Credentials by running [`gcloud auth application-default
-  login`][gcloud adc], the provider will use your identity.
+The provider maintainers will often use the assignee field on an issue to mark
+who is working on it.
 
-  ~> **Warning:** The gcloud method is not guaranteed to work for all APIs, and
-  [service accounts] or [GCE metadata] should be used if possible.
+* An issue assigned to an individual maintainer indicates that maintainer is working
+on the issue
+* An issue assigned to the `modular-magician` indicates the feature is being
+autogenerated by [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)
+in the immediate future, so direct contributions to that resource are discouraged.
+* An issue assigned to `hashibot` indicates a member of the community has taken on
+the issue!
 
-* `project` - (Optional) The ID of the project to apply any resources to.  This
-  can also be specified using any of the following environment variables (listed
-  in order of precedence):
+## Contributing
 
-    * `GOOGLE_PROJECT`
-    * `GOOGLE_CLOUD_PROJECT`
-    * `GCLOUD_PROJECT`
-    * `CLOUDSDK_CORE_PROJECT`
+If you'd like to help extend the Google provider, we gladly accept community
+contributions! Check out the [provider GitHub repo README](https://github.com/terraform-providers/terraform-provider-google)
+for instructions about getting started developing, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
+for a Terraform provider development overview, and the [Google provider contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
+for our provider-specific advice.
 
-* `region` - (Optional) The region to operate under, if not specified by a given resource.
-  This can also be specified using any of the following environment variables (listed in order of
-  precedence):
+## GCP API Versions
 
-    * `GOOGLE_REGION`
-    * `GCLOUD_REGION`
-    * `CLOUDSDK_COMPUTE_REGION`
+The Google provider supports generally available (GA) and Beta GCP features. We
+are focusing on filling out general GA feature coverage and on adding support
+for beta features that customers request. So if you need us to support a feature
+whether GA or beta, please [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)!
 
-* `zone` - (Optional) The zone to operate under, if not specified by a given resource.
-  This can also be specified using any of the following environment variables (listed in order of
-  precedence):
+If you're interested in using Alpha GCP features, you should still [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)
+or thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
+the existing request if one exists. By filing and reacting to requests, we can
+gauge your interest in yet-to-be-supported GCP features and make sure that we
+prioritise support for them when they enter Beta.
 
-    * `GOOGLE_ZONE`
-    * `GCLOUD_ZONE`
-    * `CLOUDSDK_COMPUTE_ZONE`
-
-
-## Beta Features
-
-Some Google Provider resources contain Beta features; Beta GCP Features have no
+### Beta Features
+Some resources contain Beta features; Beta GCP Features have no
 deprecation policy, and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when a GCP feature
 is publicly announced, and is when they generally become publicly available. For
-more information see [the official documentation](https://cloud.google.com/terms/launch-stages).
+more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
-Terraform resources that support beta features will always use the Beta APIs to provision
-the resource. Importing a resource that supports beta features will always import those
-features, even if the resource was created in a matter that was not explicitly beta.
-
-[Google Cloud service account file]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
-[adc]: https://cloud.google.com/docs/authentication/production
-[gce-service-account]: https://cloud.google.com/compute/docs/authentication
-[gcloud adc]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
-[service accounts]: https://cloud.google.com/docs/authentication/getting-started
-[GCE metadata]: https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions
+Terraform resources that support Beta features will always use the Beta APIs to provision
+the resource. Importing a resource that supports Beta features will always import those
+features, even if the resource was created in a matter that was not explicitly Beta.
