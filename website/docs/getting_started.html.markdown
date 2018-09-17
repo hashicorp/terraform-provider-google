@@ -224,3 +224,8 @@ Run `terraform destroy` to tear down your resources.
 
 Afterwards, check out the [provider reference](/docs/providers/google/provider_reference.html) for more details on configuring
 the provider block (including how you can eliminate it entirely!).
+
+You can also check out the [GCP Community tutorials](https://cloud.google.com/community/tutorials/)
+such as:
+* [Managing GCP Projects with Terraform](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform)
+* [Modular Load Balancing with Terraform](https://cloud.google.com/community/tutorials/modular-load-balancing-with-terraform)

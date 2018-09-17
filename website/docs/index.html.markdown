@@ -28,6 +28,9 @@ Interested in the provider's latest features, or want to make sure you're up to 
 Check out the [changelog](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md)
 for version information and release notes.
 
+Take advantage of [Modules](https://www.terraform.io/docs/modules/index.html)
+to simplify your config by using the [Module Registry for GCP modules](https://registry.terraform.io/browse?provider=google)
+
 The Google provider is jointly maintained by:
 
 * The [Google Cloud Graphite Team](https://cloudplatform.googleblog.com/2017/03/partnering-on-open-source-Google-and-HashiCorp-engineers-on-managing-GCP-infrastructure.html) at Google
