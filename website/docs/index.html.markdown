@@ -53,7 +53,7 @@ Community input is appreciated on outstanding issues! We love to hear what use
 cases you have for new features, and want to provide the best possible
 experience for you using the Google provider.
 
-If you can't find an existing issue for a bug or feature request you have
+If you have a bug or feature request without an existing issue
 
 * and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=bug.md).
 
@@ -73,7 +73,7 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Check out the [provider GitHub repo README](https://github.com/terraform-providers/terraform-provider-google)
+contributions! Check out the [provider README](https://github.com/terraform-providers/terraform-provider-google)
 for instructions about getting started developing, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
 for a Terraform provider development overview, and the [Google provider contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
 for our provider-specific advice.

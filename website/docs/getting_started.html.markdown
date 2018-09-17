@@ -31,7 +31,7 @@ provider "google" {
 }
 ```
 
-* The `project` field should include your personal project id. The `project`
+* The `project` field should be your personal project id. The `project`
 indicates the default GCP project all of your resources will be created in.
 Most Terraform resources will have a `project` field.
 * The `region` and `zone` are [locations](https://cloud.google.com/compute/docs/regions-zones/global-regional-zonal-resources)
@@ -55,18 +55,17 @@ identifies the provider for Terraform, `compute` indicates the GCP product
 family, and `instance` is the resource name.
 
 Google provider resources will generally, although not always, be named after
-the name used in the `gcloud`/the REST API. For example, a VM instance is called
+the name used in `gcloud`/the REST API. For example, a VM instance is called
 [`instance` in the API](https://cloud.google.com/compute/docs/reference/rest/v1/instances).
 Most resource field names will also correspond 1:1 with their `gcloud`/REST API
 names.
 
 If you look at the [`google_compute_instance documentation`](/docs/providers/google/r/compute_instance.html),
 you'll see that `project` and `zone` (VM instances are a zonal resource) are
-listed as optional. You can omit them from a Terraform config and the provider
-defaults will be used. If any of these fields is added to a config, it will be
-used instead of the default.
+listed as optional. When present in a resource's config block, these values will
+be used. If omitted, the provider defaults will be used instead.
 
-Try adding the following to your config file:
+Add the following to your config file:
 
 ```hcl
 resource "google_compute_instance" "vm_instance" {
@@ -92,11 +91,11 @@ resource "google_compute_instance" "vm_instance" {
 credentials. If you want to try out provisioning your VM instance before
 continuing, follow the instructions in the "Adding credentials" section below.
 
-## Connecting to a VPC network
+## Linking GCP resources
 
 Like this VM instance, nearly every GCP resource will have a `name` field. They
-are used as a short way to identify resources, and their name in the Cloud
-Console will be the one defined in the `name` field.
+are used as a short way to identify resources, and a resource's display name in
+the Cloud Console will be the one defined in the `name` field.
 
 When linking resources in a Terraform config though, you'll primarily want to
 use a different field, the `self_link` of a resource. Like `name`, nearly every
@@ -106,16 +105,17 @@ resource has a `self_link`. They look like:
 {{API base url}}/projects/{{your project}}/{{location type}}/{{location}}/{{resouce type}}/{{name}}
 ```
 
-For a real example, let's look at what the instance `self_link` will be assuming
-your project is named `foo`:
+For example, the instance defined earlier in a project named `foo` will have
+the `self_link`:
 
 ```
 https://www.googleapis.com/compute/v1/projects/foo/zones/us-central1-c/instances/terraform-instance
 ```
 
 A resource's `self_link` is a unique reference to that resource. When
-connecting two resources in Terraform, you can use Terraform interpolation to
-avoid typing all that out! Let's use a `google_compute_network` to demonstrate.
+linking two resources in Terraform, you can use Terraform interpolation to
+avoid typing out the self link! Let's use a `google_compute_network` to
+demonstrate.
 
 Add this block to your config:
 
@@ -127,8 +127,8 @@ resource "google_compute_network" "vpc_network" {
 ```
 
 This will create [VPC network resource](/docs/providers/google/r/compute_network.html)
-with a subnetwork (due to auto_create_subnetworks) in each region. Then, change
-the network of the `google_compute_instance`.
+with a subnetwork in each region. Then, change the network of the
+`google_compute_instance` from the `"default"` network to the new network.
 
 ```diff
 network_interface {
@@ -140,10 +140,10 @@ network_interface {
 
 This means that when we create the VM instance, it will use
 `"terraform-network"` instead of the default VPC network for the project. If you
-run `terraform plan`, you should see that `"terraform-instance"` depends on
+run `terraform plan`, you will see that `"terraform-instance"` depends on
 `"terraform-network"`.
 
-You're ready to run `terraform apply`! Except for one last thing...
+You can now run `terraform apply`! Except for one last thing...
 
 ~> You haven't added GCP API credentials yet.
 
@@ -169,7 +169,7 @@ export GOOGLE_CLOUD_KEYFILE_JSON={{path}}
 `bashrc` to store your credentials across sessions!
 
 ## Provisioning your resources
-By now, your config should look something like:
+By now, your config will look something like:
 
 ```hcl
 provider "google" {
@@ -210,8 +210,7 @@ terraform apply
 ```
 
 Congratulations! You've gotten started using the Google provider and provisioned
-a virtual machine on Google Cloud Platform. Along the way, you've learned
-important concepts such as:
+a virtual machine on Google Cloud Platform. The key concepts unique to GCP are:
 
 * How a `project` contains resources
     * and how to use a default `project` in your provider
