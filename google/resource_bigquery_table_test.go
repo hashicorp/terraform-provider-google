@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,7 +12,6 @@ import (
 func TestAccBigQueryTable_Basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
@@ -24,20 +22,17 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTable(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(resourceName),
-				),
 			},
-
+			{
+				ResourceName:      "google_bigquery_table.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExists(resourceName),
-				),
 			},
-
 			{
-				ResourceName:      resourceName,
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -58,10 +53,11 @@ func TestAccBigQueryTable_View(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExistsWithView(
-						"google_bigquery_table.test"),
-				),
+			},
+			{
+				ResourceName:      "google_bigquery_table.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -80,17 +76,19 @@ func TestAccBigQueryTable_ViewWithLegacySQL(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExistsWithLegacySql(
-						"google_bigquery_table.test", true),
-				),
+			},
+			{
+				ResourceName:      "google_bigquery_table.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryTableWithNewSqlView(datasetID, tableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigQueryTableExistsWithLegacySql(
-						"google_bigquery_table.test", false),
-				),
+			},
+			{
+				ResourceName:      "google_bigquery_table.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -110,84 +108,6 @@ func testAccCheckBigQueryTableDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccBigQueryTableExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-		table, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
-		if err != nil {
-			return fmt.Errorf("BigQuery Table not present")
-		}
-
-		if !strings.HasSuffix(table.Id, rs.Primary.Attributes["table_id"]) {
-			return fmt.Errorf("BigQuery Table ID does not match expected value")
-		}
-
-		return nil
-	}
-}
-
-func testAccBigQueryTableExistsWithView(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-
-		table, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
-		if err != nil {
-			return fmt.Errorf("BigQuery Table not present")
-		}
-
-		if table.View == nil {
-			return fmt.Errorf("View object missing on table")
-		}
-
-		return nil
-	}
-}
-
-func testAccBigQueryTableExistsWithLegacySql(n string, useLegacySql bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-
-		table, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
-		if err != nil {
-			return fmt.Errorf("BigQuery Table not present")
-		}
-
-		if table.View == nil {
-			return fmt.Errorf("View object missing on table")
-		}
-
-		if table.View.UseLegacySql != useLegacySql {
-			return fmt.Errorf("Value of UseLegacySQL does not match expected value")
-		}
-
-		return nil
-	}
 }
 
 func testAccBigQueryTable(datasetID, tableID string) string {

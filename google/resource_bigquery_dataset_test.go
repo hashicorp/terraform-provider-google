@@ -21,18 +21,19 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset(datasetID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.test"),
-				),
 			},
-
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccBigQueryDatasetUpdated(datasetID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.test"),
-				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -52,34 +53,35 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.access_test"),
-				),
 			},
-
+			{
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.access_test"),
-				),
 			},
-
+			{
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.access_test"),
-				),
 			},
-
+			{
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetExists(
-						"google_bigquery_dataset.access_test"),
-				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -100,32 +102,6 @@ func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccCheckBigQueryDatasetExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientBigQuery.Datasets.Get(config.Project, rs.Primary.Attributes["dataset_id"]).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Dataset not found")
-		}
-
-		return nil
-	}
 }
 
 func testAccBigQueryDataset(datasetID string) string {
