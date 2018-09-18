@@ -56,9 +56,11 @@ resource "google_storage_bucket" "image_bucket" {
 
 The following arguments are supported:
 
+
 * `bucket_name` -
   (Required)
   Cloud Storage bucket name.
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -72,20 +74,23 @@ The following arguments are supported:
 
 - - -
 
+
 * `description` -
   (Optional)
   An optional textual description of the resource; provided by the
   client when the resource is created.
+
 * `enable_cdn` -
   (Optional)
   If true, enable Cloud CDN for this BackendBucket.
-* `project` (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
+
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

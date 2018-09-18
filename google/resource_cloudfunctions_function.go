@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 	"log"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -26,9 +27,9 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-// For now CloudFunctions are allowed only in us-central1
+// For now CloudFunctions are allowed only in the following locations.
 // Please see https://cloud.google.com/about/locations/
-var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1"}, true)
+var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1", "us-east1", "europe-west1", "asia-northeast1"}, true)
 
 const functionDefaultAllowedMemoryMb = 256
 
@@ -123,13 +124,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"source_archive_bucket": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"source_archive_object": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"description": {
@@ -363,9 +362,16 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("timeout", timeout)
 	d.Set("labels", function.Labels)
 	if function.SourceArchiveUrl != "" {
-		sourceArr := strings.Split(function.SourceArchiveUrl, "/")
-		d.Set("source_archive_bucket", sourceArr[2])
-		d.Set("source_archive_object", sourceArr[3])
+		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
+		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
+		sourceURL, err := url.Parse(function.SourceArchiveUrl)
+		if err != nil {
+			return err
+		}
+		bucket := sourceURL.Host
+		object := strings.TrimLeft(sourceURL.Path, "/")
+		d.Set("source_archive_bucket", bucket)
+		d.Set("source_archive_object", object)
 	}
 
 	if function.HttpsTrigger != nil {
@@ -410,6 +416,13 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		availableMemoryMb := d.Get("available_memory_mb").(int)
 		function.AvailableMemoryMb = int64(availableMemoryMb)
 		updateMaskArr = append(updateMaskArr, "availableMemoryMb")
+	}
+
+	if d.HasChange("source_archive_bucket") || d.HasChange("source_archive_object") {
+		sourceArchiveBucket := d.Get("source_archive_bucket").(string)
+		sourceArchiveObj := d.Get("source_archive_object").(string)
+		function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
+		updateMaskArr = append(updateMaskArr, "sourceArchiveUrl")
 	}
 
 	if d.HasChange("description") {

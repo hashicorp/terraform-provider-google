@@ -26,7 +26,7 @@ var (
 	resolveImageLink                   = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)", ProjectRegex, resolveImageImageRegex))
 
 	windowsSqlImage         = regexp.MustCompile("^sql-([0-9]{4})-([a-z]+)-windows-([0-9]{4})(?:-r([0-9]+))?-dc-v[0-9]+$")
-	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-([0-9]+)-")
+	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-(minimal-)?([0-9]+)-")
 )
 
 // built-in projects to look for images/families containing the string

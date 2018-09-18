@@ -33,6 +33,21 @@ resource "google_cloudbuild_trigger" "build_trigger" {
 }
 ```
 
+OR
+
+```hcl
+resource "google_cloudbuild_trigger" "build_trigger" {
+  project  = "my-project"
+  trigger_template {
+    branch_name = "master"
+    project     = "my-project"
+    repo_name   = "some-repo"
+  }
+  filename = "cloudbuild.yaml"
+}
+```
+
+
 ## Argument Reference
 
 (Argument descriptions sourced from https://godoc.org/google.golang.org/api/cloudbuild/v1#BuildTrigger)
@@ -58,6 +73,26 @@ will be expanded when the build is created:
   * `$REVISION_ID` or `$COMMIT_SHA`: the commit SHA specified by RepoSource
     or resolved from the specified branch or tag.
   * `$SHORT_SHA`: first 7 characters of `$REVISION_ID` or `$COMMIT_SHA`.
+
+* `filename` - (Optional) Specify the path to a Cloud Build configuration file
+in the Git repo. This is mutually exclusive with `build`. This is typically
+`cloudbuild.yaml` however it can be specified by the user.
+
+* `substitutions`: (Optional) User-defined substitutions.
+User-defined substitutions must conform to the following rules:
+  *  Substitutions must begin with an underscore (`_`) and use only
+     uppercase-letters and numbers (respecting the regular expression 
+     `_[A-Z0-9_]+`). This prevents conflicts with built-in substitutions.
+  *  Unmatched keys in the template will cause an error (for example, if a build
+     request includes `$_FOO` and the substitutions map doesn’t define `_FOO`).
+  *  Unmatched keys in the parameters list will result in an error (for example,
+     if a substitutions map defines `_FOO` but the build request doesn't include `$_FOO`).
+  *  To include a literal `$_VARIABLE` in the template, you must escape with `$$`.
+  *  You can explicitly denote variable expansion using the `${_VAR}` syntax. This prevents
+     ambiguity in cases like `${_FOO}BAR`, where `$_FOO` is a variable.
+  *  The number of parameters is limited to 100 parameters.
+  *  The length of a parameter key and the length of a parameter value
+     are limited to 100 characters.
 
 ---
 

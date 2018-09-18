@@ -12,6 +12,9 @@ A Region Backend Service defines a regionally-scoped group of virtual machines t
 For more information see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/internal/)
 and [API](https://cloud.google.com/compute/docs/reference/latest/regionBackendServices).
 
+~> **Note**: Region backend services can only be used when using internal load balancing. For external load balancing, use
+  [`google_compute_backend_service`](compute_backend_service.html) instead.
+
 ## Example Usage
 
 ```hcl
@@ -46,7 +49,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-8"
+    source_image = "debian-cloud/debian-9"
     auto_delete  = true
     boot         = true
   }
@@ -84,7 +87,7 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 * `protocol` - (Optional) The protocol for incoming requests. Defaults to
-    `HTTP`.
+    `TCP`.
 
 * `session_affinity` - (Optional) How to distribute load. Options are `NONE` (no
     affinity), `CLIENT_IP`, `CLIENT_IP_PROTO`, or `CLIENT_IP_PORT_PROTO`.

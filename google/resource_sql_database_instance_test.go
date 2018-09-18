@@ -21,6 +21,21 @@ import (
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
+// Fields that should be ignored in import tests because they aren't returned
+// from GCP (and thus can't be imported)
+var ignoredReplicaConfigurationFields = []string{
+	"replica_configuration.0.ca_certificate",
+	"replica_configuration.0.client_certificate",
+	"replica_configuration.0.client_key",
+	"replica_configuration.0.connect_retry_interval",
+	"replica_configuration.0.dump_file_path",
+	"replica_configuration.0.master_heartbeat_period",
+	"replica_configuration.0.password",
+	"replica_configuration.0.ssl_cipher",
+	"replica_configuration.0.username",
+	"replica_configuration.0.verify_server_certificate",
+}
+
 func init() {
 	resource.AddTestSweepers("gcp_sql_db_instance", &resource.Sweeper{
 		Name: "gcp_sql_db_instance",
@@ -139,11 +154,13 @@ func testSweepDatabases(region string) error {
 	return nil
 }
 
-func TestAccSqlDatabaseInstance_basic(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
-	databaseID := acctest.RandInt()
+	instanceID := acctest.RandInt()
+	instanceName := fmt.Sprintf("tf-lw-%d", instanceID)
+	resourceName := "google_sql_database_instance.instance"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -152,19 +169,34 @@ func TestAccSqlDatabaseInstance_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic, databaseID),
+					testGoogleSqlDatabaseInstance_basic, instanceID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceExists(resourceName, &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(resourceName, &instance),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("projects/%s/instances/%s", getTestProjectFromEnv(), instanceName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("%s/%s", getTestProjectFromEnv(), instanceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -187,7 +219,7 @@ func TestAccSqlDatabaseInstance_basic2(t *testing.T) {
 	})
 }
 
-func TestAccSqlDatabaseInstance_basic3(t *testing.T) {
+func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 	t.Parallel()
 
 	var instance sqladmin.DatabaseInstance
@@ -283,6 +315,41 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 					testAccCheckGoogleSqlDatabaseInstanceEquals(
 						"google_sql_database_instance.instance", &instance),
 				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_replica(t *testing.T) {
+	t.Parallel()
+
+	databaseID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_master",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_database_instance.replica1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			resource.TestStep{
+				ResourceName:            "google_sql_database_instance.replica2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
 			},
 		},
 	})
@@ -521,6 +588,43 @@ func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
+	t.Parallel()
+
+	var instance sqladmin.DatabaseInstance
+	databaseID := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_with_user_labels, databaseID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(
+						&instance),
+				),
+			},
+			resource.TestStep{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseInstanceExists(
+						"google_sql_database_instance.instance", &instance),
+					testAccCheckGoogleSqlDatabaseInstanceEquals(
+						"google_sql_database_instance.instance", &instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 	instance *sqladmin.DatabaseInstance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -691,6 +795,22 @@ func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
 		local = attributes["settings.0.pricing_plan"]
 		if server != local && len(server) > 0 && len(local) > 0 {
 			return fmt.Errorf("Error settings.pricing_plan mismatch, (%s, %s)", server, local)
+		}
+
+		if instance.Settings.UserLabels != nil {
+			server := instance.Settings.UserLabels["location"]
+			local = attributes["settings.0.user_labels.location"]
+
+			if server != local {
+				return fmt.Errorf("Error settings.user_labels.location mismatch, (%s, %s)", server, local)
+			}
+
+			server = instance.Settings.UserLabels["track"]
+			local = attributes["settings.0.user_labels.track"]
+
+			if server != local {
+				return fmt.Errorf("Error settings.user_labels.track mismatch, (%s, %s)", server, local)
+			}
 		}
 
 		if instance.ReplicaConfiguration != nil {
@@ -885,17 +1005,14 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
-// Note - this test is not feasible to run unless we generate
-// backups first.
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
 	name = "tf-lw-%d"
 	database_version = "MYSQL_5_6"
-	region = "us-east1"
+	region = "us-central1"
 
 	settings {
-		tier = "D0"
-		crash_safe_replication = true
+		tier = "db-n1-standard-1"
 
 		backup_configuration {
 			enabled = true
@@ -905,21 +1022,39 @@ resource "google_sql_database_instance" "instance_master" {
 	}
 }
 
-resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
+resource "google_sql_database_instance" "replica1" {
+	name = "tf-lw-%d-1"
 	database_version = "MYSQL_5_6"
-	region = "us-central"
+	region = "us-central1"
 
 	settings {
-		tier = "D0"
+		tier = "db-n1-standard-1"
 	}
 
 	master_instance_name = "${google_sql_database_instance.instance_master.name}"
 
 	replica_configuration {
-		ca_certificate = "${file("~/tmp/fake.pem")}"
-		client_certificate = "${file("~/tmp/fake.pem")}"
-		client_key = "${file("~/tmp/fake.pem")}"
+		connect_retry_interval = 100
+		master_heartbeat_period = 10000
+		password = "password"
+		username = "username"
+		ssl_cipher = "ALL"
+		verify_server_certificate = false
+	}
+}
+
+resource "google_sql_database_instance" "replica2" {
+	name = "tf-lw-%d-2"
+	database_version = "MYSQL_5_6"
+	region = "us-central1"
+
+	settings {
+		tier = "db-n1-standard-1"
+	}
+
+	master_instance_name = "${google_sql_database_instance.instance_master.name}"
+
+	replica_configuration {
 		connect_retry_interval = 100
 		master_heartbeat_period = 10000
 		password = "password"
@@ -1062,5 +1197,31 @@ resource "google_sql_user" "user" {
 	instance = "${google_sql_database_instance.instance.name}"
 	host = "google.com"
 	password = "hunter2"
+}
+`
+
+var testGoogleSqlDatabaseInstance_basic_with_user_labels = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		user_labels {
+		    track = "production"
+		    location = "western-division"
+		}
+	}
+}
+`
+var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
+resource "google_sql_database_instance" "instance" {
+	name = "tf-lw-%d"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		user_labels {
+		    track = "production"
+		}
+	}
 }
 `

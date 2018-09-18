@@ -24,6 +24,12 @@ func TestKeyRingIdParsing(t *testing.T) {
 			ExpectedTerraformId: "test-project/us-central1/test-key-ring",
 			ExpectedKeyRingId:   "projects/test-project/locations/us-central1/keyRings/test-key-ring",
 		},
+		"id is in domain:project/location/keyRingName format": {
+			ImportId:            "example.com:test-project/us-central1/test-key-ring",
+			ExpectedError:       false,
+			ExpectedTerraformId: "example.com:test-project/us-central1/test-key-ring",
+			ExpectedKeyRingId:   "projects/example.com:test-project/locations/us-central1/keyRings/test-key-ring",
+		},
 		"id contains name that is longer than 63 characters": {
 			ImportId:      "test-project/us-central1/can-you-believe-that-this-key-ring-name-is-exactly-64-characters",
 			ExpectedError: true,

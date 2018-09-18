@@ -5,6 +5,9 @@ import (
 	"google.golang.org/api/logging/v2"
 )
 
+// Empty update masks will eventually cause updates to fail, currently empty masks default to this string
+const defaultLogSinkUpdateMask = "destination,filter,includeChildren"
+
 func resourceLoggingSinkSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"name": {
@@ -68,4 +71,17 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) *logging.LogSink
 		sink.ForceSendFields = append(sink.ForceSendFields, "Filter")
 	}
 	return &sink
+}
+
+func resourceLoggingSinkImportState(sinkType string) schema.StateFunc {
+	return func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+		loggingSinkId, err := parseLoggingSinkId(d.Id())
+		if err != nil {
+			return nil, err
+		}
+
+		d.Set(sinkType, loggingSinkId.resourceId)
+
+		return []*schema.ResourceData{d}, nil
+	}
 }

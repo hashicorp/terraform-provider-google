@@ -12,52 +12,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-type serializableBody struct {
-	body map[string]interface{}
-
-	// ForceSendFields is a list of field names (e.g. "UtilizationTarget")
-	// to unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string
-
-	// NullFields is a list of field names (e.g. "UtilizationTarget") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
-	NullFields []string
-}
-
-// MarshalJSON returns a JSON encoding of schema containing only selected fields.
-// A field is selected if any of the following is true:
-//   * it has a non-empty value
-//   * its field name is present in forceSendFields and it is not a nil pointer or nil interface
-//   * its field name is present in nullFields.
-func (b *serializableBody) MarshalJSON() ([]byte, error) {
-	// By default, all fields in a map are added to the json output
-	// This changes that to remove the entry with an empty value.
-	// This mimics the "omitempty" behavior.
-
-	// The "omitempty" option specifies that the field should be omitted
-	// from the encoding if the field has an empty value, defined as
-	// false, 0, a nil pointer, a nil interface value, and any empty array,
-	// slice, map, or string.
-
-	// TODO: Add support for ForceSendFields and NullFields.
-	for k, v := range b.body {
-		if isEmptyValue(reflect.ValueOf(v)) {
-			delete(b.body, k)
-		}
-	}
-
-	return json.Marshal(b.body)
-}
-
 func isEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
@@ -76,22 +30,6 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func Post(config *Config, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequest(config, "POST", rawurl, body)
-}
-
-func Get(config *Config, rawurl string) (map[string]interface{}, error) {
-	return sendRequest(config, "GET", rawurl, nil)
-}
-
-func Put(config *Config, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequest(config, "PUT", rawurl, body)
-}
-
-func Delete(config *Config, rawurl string) (map[string]interface{}, error) {
-	return sendRequest(config, "DELETE", rawurl, nil)
-}
-
 func sendRequest(config *Config, method, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)
@@ -99,22 +37,18 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 
 	var buf bytes.Buffer
 	if body != nil {
-		err := json.NewEncoder(&buf).Encode(&serializableBody{
-			body: body})
+		err := json.NewEncoder(&buf).Encode(body)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	u, err := url.Parse(rawurl)
+	u, err := addQueryParams(rawurl, map[string]string{"alt": "json"})
 	if err != nil {
 		return nil, err
 	}
-	q := u.Query()
-	q.Set("alt", "json")
-	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequest(method, u.String(), &buf)
+	req, err := http.NewRequest(method, u, &buf)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +68,19 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 	}
 
 	return result, nil
+}
+
+func addQueryParams(rawurl string, params map[string]string) (string, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return "", err
+	}
+	q := u.Query()
+	for k, v := range params {
+		q.Set(k, v)
+	}
+	u.RawQuery = q.Encode()
+	return u.String(), nil
 }
 
 func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {

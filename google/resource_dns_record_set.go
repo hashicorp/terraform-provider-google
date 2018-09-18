@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
+	"net"
 )
 
 func resourceDnsRecordSet() *schema.Resource {
@@ -38,6 +39,12 @@ func resourceDnsRecordSet() *schema.Resource {
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+						if d.Get("type") == "AAAA" {
+							return ipv6AddressDiffSuppress(k, old, new, d)
+						}
+						return false
+					},
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.ToLower(strings.Trim(old, `"`)) == strings.ToLower(strings.Trim(new, `"`))
@@ -319,4 +326,11 @@ func rrdata(
 		data[i] = d.Get(fmt.Sprintf("rrdatas.%d", i)).(string)
 	}
 	return data
+}
+
+func ipv6AddressDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldIp := net.ParseIP(old)
+	newIp := net.ParseIP(new)
+
+	return oldIp.Equal(newIp)
 }

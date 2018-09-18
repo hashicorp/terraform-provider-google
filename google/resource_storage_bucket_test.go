@@ -547,6 +547,33 @@ func TestAccStorageBucket_cors(t *testing.T) {
 	}
 }
 
+func TestAccStorageBucket_encryption(t *testing.T) {
+	t.Parallel()
+
+	projectId := "terraform-" + acctest.RandString(10)
+	projectOrg := getTestOrgFromEnv(t)
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-crypto-bucket-%d", acctest.RandInt())
+	var bucket storage.Bucket
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_encryption(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyExists("google_kms_crypto_key.crypto_key"),
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_labels(t *testing.T) {
 	t.Parallel()
 
@@ -558,14 +585,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccStorageBucket_labels(bucketName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						"google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-label-value"),
-				),
-			},
+			// Going from two labels
 			resource.TestStep{
 				Config: testAccStorageBucket_updateLabels(bucketName),
 				Check: resource.ComposeTestCheckFunc(
@@ -576,12 +596,37 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				),
 			},
 			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Down to only one label (test single label deletion)
+			resource.TestStep{
+				Config: testAccStorageBucket_labels(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					testAccCheckStorageBucketHasLabel(&bucket, "my-label", "my-label-value"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// And make sure deleting all labels work
+			resource.TestStep{
 				Config: testAccStorageBucket_basic(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketHasNoLabels(&bucket),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -882,6 +927,44 @@ resource "google_storage_bucket" "bucket" {
 	}
 }
 `, bucketName)
+}
+
+func testAccStorageBucket_encryption(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+	name            = "%s"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_services" "acceptance" {
+	project = "${google_project.acceptance.project_id}"
+
+	services = [
+	  "cloudkms.googleapis.com",
+	]
+}
+
+resource "google_kms_key_ring" "key_ring" {
+	project  = "${google_project_services.acceptance.project}"
+	name     = "%s"
+	location = "us"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+	name            = "%s"
+	key_ring        = "${google_kms_key_ring.key_ring.id}"
+	rotation_period = "1000000s"
+}
+
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	encryption {
+		default_kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+	}
+}
+	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName)
 }
 
 func testAccStorageBucket_updateLabels(bucketName string) string {

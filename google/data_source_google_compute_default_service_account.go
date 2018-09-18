@@ -10,11 +10,12 @@ func dataSourceGoogleComputeDefaultServiceAccount() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}

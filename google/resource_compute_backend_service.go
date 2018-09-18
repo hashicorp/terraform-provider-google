@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	compute "google.golang.org/api/compute/v1"
 )
 
 func resourceComputeBackendService() *schema.Resource {
@@ -159,6 +158,13 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
+			"custom_request_headers": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -247,7 +253,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new Backend Service: %#v", service)
-	op, err := config.clientCompute.BackendServices.Insert(
+	op, err := config.clientComputeBeta.BackendServices.Insert(
 		project, service).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating backend service: %s", err)
@@ -259,7 +265,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	d.SetId(service.Name)
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWait(config.clientCompute, op, project, "Creating Backend Service")
+	waitErr := computeSharedOperationWait(config.clientCompute, op, project, "Creating Backend Service")
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -315,6 +321,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	d.Set("security_policy", service.SecurityPolicy)
+	d.Set("custom_request_headers", service.CustomRequestHeaders)
 
 	return nil
 }
@@ -334,13 +341,13 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
-	op, err := config.clientCompute.BackendServices.Update(
+	op, err := config.clientComputeBeta.BackendServices.Update(
 		project, d.Id(), service).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating backend service: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
 	}
@@ -390,12 +397,12 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandIap(configured []interface{}) *compute.BackendServiceIAP {
+func expandIap(configured []interface{}) *computeBeta.BackendServiceIAP {
 	if len(configured) == 0 {
 		return nil
 	}
 	if data, ok := configured[0].(map[string]interface{}); ok {
-		return &compute.BackendServiceIAP{
+		return &computeBeta.BackendServiceIAP{
 			Enabled:            true,
 			Oauth2ClientId:     data["oauth2_client_id"].(string),
 			Oauth2ClientSecret: data["oauth2_client_secret"].(string),
@@ -420,8 +427,8 @@ func flattenIap(iap *computeBeta.BackendServiceIAP) []map[string]interface{} {
 	return result
 }
 
-func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
-	backends := make([]*compute.Backend, 0, len(configured))
+func expandBackends(configured []interface{}) ([]*computeBeta.Backend, error) {
+	backends := make([]*computeBeta.Backend, 0, len(configured))
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
@@ -431,7 +438,7 @@ func expandBackends(configured []interface{}) ([]*compute.Backend, error) {
 			return nil, errors.New("google_compute_backend_service.backend.group must be set")
 		}
 
-		b := compute.Backend{
+		b := computeBeta.Backend{
 			Group: g.(string),
 		}
 
@@ -501,7 +508,7 @@ func flattenBackends(backends []*computeBeta.Backend) []map[string]interface{} {
 	return result
 }
 
-func expandBackendService(d *schema.ResourceData) (*compute.BackendService, error) {
+func expandBackendService(d *schema.ResourceData) (*computeBeta.BackendService, error) {
 	hc := d.Get("health_checks").(*schema.Set).List()
 	healthChecks := make([]string, 0, len(hc))
 	for _, v := range hc {
@@ -515,17 +522,18 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 	// type defaults to enable or disable IAP in the existence or absence
 	// of the block, instead of checking if the block exists, zeroing out
 	// fields, etc.
-	service := &compute.BackendService{
+	service := &computeBeta.BackendService{
 		Name:         d.Get("name").(string),
 		HealthChecks: healthChecks,
-		Iap: &compute.BackendServiceIAP{
+		Iap: &computeBeta.BackendServiceIAP{
 			ForceSendFields: []string{"Enabled", "Oauth2ClientId", "Oauth2ClientSecret"},
 		},
-		CdnPolicy: &compute.BackendServiceCdnPolicy{
-			CacheKeyPolicy: &compute.CacheKeyPolicy{
+		CdnPolicy: &computeBeta.BackendServiceCdnPolicy{
+			CacheKeyPolicy: &computeBeta.CacheKeyPolicy{
 				ForceSendFields: []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
 			},
 		},
+		CustomRequestHeaders: convertStringSet(d.Get("custom_request_headers").(*schema.Set)),
 	}
 
 	if v, ok := d.GetOk("iap"); ok {
@@ -565,7 +573,7 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 	}
 
 	connectionDrainingTimeoutSec := d.Get("connection_draining_timeout_sec")
-	connectionDraining := &compute.ConnectionDraining{
+	connectionDraining := &computeBeta.ConnectionDraining{
 		DrainingTimeoutSec: int64(connectionDrainingTimeoutSec.(int)),
 	}
 
@@ -581,7 +589,7 @@ func expandBackendService(d *schema.ResourceData) (*compute.BackendService, erro
 	return service, nil
 }
 
-func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy {
+func expandCdnPolicy(configured []interface{}) *computeBeta.BackendServiceCdnPolicy {
 	if len(configured) == 0 {
 		return nil
 	}
@@ -593,8 +601,8 @@ func expandCdnPolicy(configured []interface{}) *compute.BackendServiceCdnPolicy 
 	}
 	ckpData := ckp[0].(map[string]interface{})
 
-	return &compute.BackendServiceCdnPolicy{
-		CacheKeyPolicy: &compute.CacheKeyPolicy{
+	return &computeBeta.BackendServiceCdnPolicy{
+		CacheKeyPolicy: &computeBeta.CacheKeyPolicy{
 			IncludeHost:          ckpData["include_host"].(bool),
 			IncludeProtocol:      ckpData["include_protocol"].(bool),
 			IncludeQueryString:   ckpData["include_query_string"].(bool),

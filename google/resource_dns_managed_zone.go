@@ -6,12 +6,14 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
+	dnsBeta "google.golang.org/api/dns/v1beta2"
 )
 
 func resourceDnsManagedZone() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDnsManagedZoneCreate,
 		Read:   resourceDnsManagedZoneRead,
+		Update: resourceDnsManagedZoneUpdate,
 		Delete: resourceDnsManagedZoneDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -32,7 +34,6 @@ func resourceDnsManagedZone() *schema.Resource {
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "Managed by Terraform",
 			},
 
@@ -66,15 +67,9 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Build the parameter
 	zone := &dns.ManagedZone{
-		Name:    d.Get("name").(string),
-		DnsName: d.Get("dns_name").(string),
-	}
-	// Optional things
-	if v, ok := d.GetOk("description"); ok {
-		zone.Description = v.(string)
-	}
-	if v, ok := d.GetOk("dns_name"); ok {
-		zone.DnsName = v.(string)
+		Name:        d.Get("name").(string),
+		DnsName:     d.Get("dns_name").(string),
+		Description: d.Get("description").(string),
 	}
 
 	log.Printf("[DEBUG] DNS ManagedZone create request: %#v", zone)
@@ -109,6 +104,33 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("project", project)
 
 	return nil
+}
+
+func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	zone := &dnsBeta.ManagedZone{
+		Name:        d.Get("name").(string),
+		DnsName:     d.Get("dns_name").(string),
+		Description: d.Get("description").(string),
+	}
+
+	op, err := config.clientDnsBeta.ManagedZones.Patch(project, d.Id(), zone).Do()
+	if err != nil {
+		return err
+	}
+
+	err = dnsOperationWait(config.clientDnsBeta, op, project, "Updating DNS Managed Zone")
+	if err != nil {
+		return err
+	}
+
+	return resourceDnsManagedZoneRead(d, meta)
 }
 
 func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {

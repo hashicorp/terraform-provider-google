@@ -11,10 +11,11 @@ import (
 
 func resourceStorageObjectAcl() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageObjectAclCreate,
-		Read:   resourceStorageObjectAclRead,
-		Update: resourceStorageObjectAclUpdate,
-		Delete: resourceStorageObjectAclDelete,
+		Create:        resourceStorageObjectAclCreate,
+		Read:          resourceStorageObjectAclRead,
+		Update:        resourceStorageObjectAclUpdate,
+		Delete:        resourceStorageObjectAclDelete,
+		CustomizeDiff: resourceStorageRoleEntityCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -38,6 +39,7 @@ func resourceStorageObjectAcl() *schema.Resource {
 			"role_entity": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},

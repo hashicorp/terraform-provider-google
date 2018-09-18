@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -39,7 +40,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		Update: resourceSqlDatabaseInstanceUpdate,
 		Delete: resourceSqlDatabaseInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSqlDatabaseInstanceImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -47,6 +48,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage)),
 
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
@@ -229,6 +233,12 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "SYNCHRONOUS",
+						},
+						"user_labels": &schema.Schema{
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
 						},
 					},
 				},
@@ -599,6 +609,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		settings.ReplicationType = v.(string)
 	}
 
+	if v, ok := _settings["user_labels"]; ok {
+		settings.UserLabels = convertStringMap(v.(map[string]interface{}))
+	}
+
 	instance := &sqladmin.DatabaseInstance{
 		Region:          region,
 		Settings:        settings,
@@ -671,6 +685,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := d.GetOk("master_instance_name"); ok {
 		instance.MasterInstanceName = v.(string)
+		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
+		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
@@ -749,7 +765,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
 
-	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration)); err != nil {
+	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
 
@@ -1031,10 +1047,21 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			settings.ReplicationType = v.(string)
 		}
 
+		if v, ok := _settings["user_labels"]; ok {
+			settings.UserLabels = convertStringMap(v.(map[string]interface{}))
+		}
+
 		instance.Settings = settings
 	}
 
 	d.Partial(false)
+
+	// Lock on the master_instance_name just in case updating any replica
+	// settings causes operations on the master.
+	if v, ok := d.GetOk("master_instance_name"); ok {
+		mutexKV.Lock(instanceMutexKey(project, v.(string)))
+		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+	}
 
 	op, err := config.clientSqlAdmin.Instances.Update(project, instance.Name, instance).Do()
 	if err != nil {
@@ -1057,6 +1084,13 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// Lock on the master_instance_name just in case deleting a replica causes
+	// operations on the master.
+	if v, ok := d.GetOk("master_instance_name"); ok {
+		mutexKV.Lock(instanceMutexKey(project, v.(string)))
+		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+	}
+
 	op, err := config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
 
 	if err != nil {
@@ -1071,6 +1105,23 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
+func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	data := map[string]interface{}{
 		"version":                     settings.SettingsVersion,
@@ -1083,6 +1134,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		"disk_size":                   settings.DataDiskSizeGb,
 		"pricing_plan":                settings.PricingPlan,
 		"replication_type":            settings.ReplicationType,
+		"user_labels":                 settings.UserLabels,
 	}
 
 	if settings.BackupConfiguration != nil {
@@ -1107,6 +1159,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 
 	if settings.StorageAutoResize != nil {
 		data["disk_autoresize"] = *settings.StorageAutoResize
+	}
+
+	if settings.UserLabels != nil {
+		data["user_labels"] = settings.UserLabels
 	}
 
 	return []map[string]interface{}{data}
@@ -1169,7 +1225,7 @@ func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) interface{} {
 func flattenLocationPreference(locationPreference *sqladmin.LocationPreference) interface{} {
 	data := map[string]interface{}{
 		"follow_gae_application": locationPreference.FollowGaeApplication,
-		"zone": locationPreference.Zone,
+		"zone":                   locationPreference.Zone,
 	}
 
 	return []map[string]interface{}{data}
@@ -1185,7 +1241,7 @@ func flattenMaintenanceWindow(maintenanceWindow *sqladmin.MaintenanceWindow) int
 	return []map[string]interface{}{data}
 }
 
-func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfiguration) []map[string]interface{} {
+func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfiguration, d *schema.ResourceData) []map[string]interface{} {
 	rc := []map[string]interface{}{}
 
 	if replicaConfiguration != nil {
@@ -1194,7 +1250,18 @@ func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfigura
 
 			// Don't attempt to assign anything from replicaConfiguration.MysqlReplicaConfiguration,
 			// since those fields are set on create and then not stored. See description at
-			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances
+			// https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances.
+			// Instead, set them to the values they previously had so we don't set them all to zero.
+			"ca_certificate":            d.Get("replica_configuration.0.ca_certificate"),
+			"client_certificate":        d.Get("replica_configuration.0.client_certificate"),
+			"client_key":                d.Get("replica_configuration.0.client_key"),
+			"connect_retry_interval":    d.Get("replica_configuration.0.connect_retry_interval"),
+			"dump_file_path":            d.Get("replica_configuration.0.dump_file_path"),
+			"master_heartbeat_period":   d.Get("replica_configuration.0.master_heartbeat_period"),
+			"password":                  d.Get("replica_configuration.0.password"),
+			"ssl_cipher":                d.Get("replica_configuration.0.ssl_cipher"),
+			"username":                  d.Get("replica_configuration.0.username"),
+			"verify_server_certificate": d.Get("replica_configuration.0.verify_server_certificate"),
 		}
 		rc = append(rc, data)
 	}

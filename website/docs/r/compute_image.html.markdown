@@ -22,6 +22,10 @@ resource "google_compute_image" "bootable-image" {
   raw_disk {
     source = "https://storage.googleapis.com/my-bucket/my-disk-image-tarball.tar.gz"
   }
+
+  licenses = [
+    "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
+  ]
 }
 
 resource "google_compute_instance" "vm" {
@@ -66,6 +70,9 @@ The following arguments are supported: (Note that one of either source_disk or
 * `raw_disk` - (Optional) The raw disk that will be used as the source of the image.
     Changing this forces a new resource to be created. Structure is documented
     below.
+
+* `licenses` - (Optional) A list of license URIs to apply to this image. Changing this
+    forces a new resource to be created.
 
 * `create_timeout` - (Deprecated) Configurable timeout in minutes for creating images. Default is 4 minutes.
 

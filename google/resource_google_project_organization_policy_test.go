@@ -122,6 +122,22 @@ func TestAccProjectOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func TestAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	projectId := getTestProjectFromEnv()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectOrganizationPolicy_restore_defaultTrue(projectId),
+				Check:  getGoogleProjectOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -219,6 +235,22 @@ func testAccCheckGoogleProjectOrganizationListPolicyDeniedValues(n string, value
 	}
 }
 
+func getGoogleProjectOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleProjectOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
+		}
+
+		return nil
+	}
+}
+
 func getGoogleProjectOrganizationPolicyTestResource(s *terraform.State, n string) (*cloudresourcemanager.OrgPolicy, error) {
 	rn := "google_project_organization_policy." + n
 	rs, ok := s.RootModule().Resources[rn]
@@ -297,6 +329,19 @@ resource "google_project_organization_policy" "list" {
       ]
     }
   }
+}
+`, pid)
+}
+
+func testAccProjectOrganizationPolicy_restore_defaultTrue(pid string) string {
+	return fmt.Sprintf(`
+resource "google_project_organization_policy" "restore" {
+  project    = "%s"
+  constraint = "constraints/serviceuser.services"
+
+    restore_policy {
+        default = true
+    }
 }
 `, pid)
 }

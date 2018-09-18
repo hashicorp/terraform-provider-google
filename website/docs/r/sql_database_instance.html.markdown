@@ -34,7 +34,6 @@ resource "google_sql_database_instance" "master" {
 }
 ```
 
-
 ### SQL Second generation
 
 ```hcl
@@ -47,6 +46,64 @@ resource "google_sql_database_instance" "master" {
     # Second-generation instance tiers are based on the machine
     # type. See argument reference below.
     tier = "db-f1-micro"
+  }
+}
+```
+
+### Granular restriction of network access
+
+```hcl
+resource "google_compute_instance" "apps" {
+  count        = 8
+  name         = "apps-${count.index + 1}"
+  machine_type = "f1-micro"
+  
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-1804-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+}
+
+data "null_data_source" "auth_netw_postgres_allowed_1" {
+  count = "${length(google_compute_instance.apps.*.self_link)}"
+
+  inputs = {
+    name  = "apps-${count.index + 1}"
+    value = "${element(google_compute_instance.apps.*.network_interface.0.access_config.0.assigned_nat_ip, count.index)}"
+  }
+}
+
+data "null_data_source" "auth_netw_postgres_allowed_2" {
+  count = 2
+
+  inputs = {
+    name  = "onprem-${count.index + 1}"
+    value = "${element(list("192.168.1.2", "192.168.2.3"), count.index)}"
+  }
+}
+
+resource "google_sql_database_instance" "postgres" {
+  name = "postgres-instance"
+  database_version = "POSTGRES_9_6"
+
+  settings {
+    tier = "db-f1-micro"
+    
+    ip_configuration {
+      authorized_networks = [
+        "${data.null_data_source.auth_netw_postgres_allowed_1.*.outputs}",
+        "${data.null_data_source.auth_netw_postgres_allowed_2.*.outputs}",
+      ]
+    }
   }
 }
 ```
@@ -67,8 +124,6 @@ The following arguments are supported:
     configuration is detailed below.
 
 - - -
-
-* `connection_name` - (Optional) The connection name of the instance to be used in connection strings.
 
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
@@ -123,6 +178,8 @@ The required `settings` block supports:
 
 * `replication_type` - (Optional) Replication type for this instance, can be one
     of `ASYNCHRONOUS` or `SYNCHRONOUS`.
+
+* `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
 
 The optional `settings.database_flags` sublist supports:
 
@@ -222,6 +279,8 @@ exported:
 is to support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
 when the resource is configured with a `count`.
 
+* `connection_name` - The connection name of the instance to be used in connection strings.
+
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 
 * `ip_address.0.time_to_retire` - The time this IP address will be retired, in RFC
@@ -231,6 +290,17 @@ when the resource is configured with a `count`.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
+    
+* `server_ca_cert.0.cert` - The CA Certificate used to connect to the SQL Instance via SSL.
+
+* `server_ca_cert.0.common_name` - The CN valid for the CA Cert.
+
+* `server_ca_cert.0.create_time` - Creation time of the CA Cert.
+
+* `server_ca_cert.0.expiration_time` - Expiration time of the CA Cert.
+
+* `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
+
 
 ## Timeouts
 
@@ -243,8 +313,11 @@ when the resource is configured with a `count`.
 
 ## Import
 
-Database instances can be imported using the `name`, e.g.
+Database instances can be imported using one of any of these accepted formats:
 
 ```
-$ terraform import google_sql_database_instance.master master-instance
+$ terraform import google_sql_database_instance.master projects/{{project}}/instances/{{name}}
+$ terraform import google_sql_database_instance.master {{project}}/{{name}}
+$ terraform import google_sql_database_instance.master {{name}}
+
 ```

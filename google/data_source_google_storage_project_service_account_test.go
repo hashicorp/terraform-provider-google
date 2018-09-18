@@ -18,7 +18,7 @@ func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleStorageProjectServiceAccount_basic,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "email_address"),
 				),
 			},
 		},
@@ -26,5 +26,6 @@ func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 }
 
 const testAccCheckGoogleStorageProjectServiceAccount_basic = `
-data "google_storage_project_service_account" "gcs_account" { }
+data "google_storage_project_service_account" "gcs_account" {
+}
 `

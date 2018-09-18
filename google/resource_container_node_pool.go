@@ -218,20 +218,34 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		NodePool: nodePool,
 	}
 
-	operation, err := config.clientContainerBeta.
-		Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+	timeout := d.Timeout(schema.TimeoutCreate)
+	startTime := time.Now()
 
+	var operation *containerBeta.Operation
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		operation, err = config.clientContainerBeta.
+			Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+
+		if err != nil {
+			if isFailedPreconditionError(err) {
+				// We get failed precondition errors if the cluster is updating
+				// while we try to add the node pool.
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
+	timeout -= time.Since(startTime)
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-
 	waitErr := containerBetaOperationWait(config,
 		operation, nodePoolInfo.project,
-		nodePoolInfo.location, "creating GKE NodePool", timeoutInMinutes, 3)
+		nodePoolInfo.location, "creating GKE NodePool", int(timeout.Minutes()), 3)
 
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -258,10 +272,6 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 		nodePool, err = config.clientContainerBeta.
 			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
-
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
 
 		if err != nil {
 			return resource.NonRetryableError(err)
@@ -386,19 +396,33 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 
 func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name}")
-	}
 
-	location := parts[0]
-	if isZone(location) {
-		d.Set("zone", location)
-	} else {
-		d.Set("region", location)
-	}
+	switch len(parts) {
+	case 3:
+		location := parts[0]
+		if isZone(location) {
+			d.Set("zone", location)
+		} else {
+			d.Set("region", location)
+		}
 
-	d.Set("cluster", parts[1])
-	d.Set("name", parts[2])
+		d.Set("cluster", parts[1])
+		d.Set("name", parts[2])
+	case 4:
+		d.Set("project", parts[0])
+
+		location := parts[1]
+		if isZone(location) {
+			d.Set("zone", location)
+		} else {
+			d.Set("region", location)
+		}
+
+		d.Set("cluster", parts[2])
+		d.Set("name", parts[3])
+	default:
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -557,6 +581,41 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 		if prefix == "" {
 			d.SetPartial("autoscaling")
+		}
+	}
+
+	if d.HasChange(prefix + "node_config") {
+		if d.HasChange(prefix + "node_config.0.image_type") {
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredNodePoolId: name,
+					DesiredImageType:  d.Get(prefix + "node_config.0.image_type").(string),
+				},
+			}
+
+			updateF := func() error {
+				op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req).Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerBetaOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location, "updating GKE node pool",
+					timeoutInMinutes, 2)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
+		}
+
+		if prefix == "" {
+			d.SetPartial("node_config")
 		}
 	}
 

@@ -73,28 +73,30 @@ func resourceResourceManagerLien() *schema.Resource {
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	obj := make(map[string]interface{})
 	reasonProp, err := expandResourceManagerLienReason(d.Get("reason"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("reason"); !isEmptyValue(reflect.ValueOf(reasonProp)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
+		obj["reason"] = reasonProp
 	}
 	originProp, err := expandResourceManagerLienOrigin(d.Get("origin"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("origin"); !isEmptyValue(reflect.ValueOf(originProp)) && (ok || !reflect.DeepEqual(v, originProp)) {
+		obj["origin"] = originProp
 	}
 	parentProp, err := expandResourceManagerLienParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
+	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+		obj["parent"] = parentProp
 	}
 	restrictionsProp, err := expandResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
 	if err != nil {
 		return err
-	}
-
-	obj := map[string]interface{}{
-		"reason":       reasonProp,
-		"origin":       originProp,
-		"parent":       parentProp,
-		"restrictions": restrictionsProp,
+	} else if v, ok := d.GetOkExists("restrictions"); !isEmptyValue(reflect.ValueOf(restrictionsProp)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
+		obj["restrictions"] = restrictionsProp
 	}
 
 	url, err := replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens")
@@ -103,7 +105,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := Post(config, url, obj)
+	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -138,7 +140,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := Get(config, url)
+	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
@@ -205,14 +207,15 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	var obj map[string]interface{}
 	url, err = replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens/{{name}}")
 	if err != nil {
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-	res, err := Delete(config, url)
+	res, err := sendRequest(config, "DELETE", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error deleting Lien %q: %s", d.Id(), err)
+		return handleNotFoundError(err, d, "Lien")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Lien %q: %#v", d.Id(), res)
@@ -239,6 +242,9 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 }
 
 func flattenResourceManagerLienName(v interface{}) interface{} {
+	if v == nil {
+		return v
+	}
 	return NameFromSelfLinkStateFunc(v)
 }
 

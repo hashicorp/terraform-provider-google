@@ -38,7 +38,7 @@ resource "google_compute_instance_template" "default" {
 
   // Create a new boot disk from an image
   disk {
-    source_image = "debian-cloud/debian-8"
+    source_image = "debian-cloud/debian-9"
     auto_delete  = true
     boot         = true
   }
@@ -121,6 +121,10 @@ The following arguments are supported:
 
 * `machine_type` - (Required) The machine type to create.
 
+    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
+
+    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
+
 - - -
 * `name` - (Optional) The name of the instance template. If you leave
   this blank, Terraform will auto-generate a unique name.
@@ -202,7 +206,8 @@ The `disk` block supports:
     read-write mode.
 
 * `source` - (Required if source_image not set) The name of the disk (such as
-    those managed by `google_compute_disk`) to attach.
+    those managed by `google_compute_disk`) to attach. This cannot be a regional
+    disk.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
     `"local-ssd"`, or `"pd-standard"`.
@@ -244,6 +249,10 @@ The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
+
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
+    this instance template. This field can take the following values: PREMIUM or
+    STANDARD. If this field is not specified, it is assumed to be PREMIUM.
 
 The `alias_ip_range` block supports:
 
@@ -306,3 +315,6 @@ Instance templates can be imported using the `name`, e.g.
 ```
 $ terraform import google_compute_instance_template.default appserver-template
 ```
+
+[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
+[network-tier]: https://cloud.google.com/network-tiers/docs/overview

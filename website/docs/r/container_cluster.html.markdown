@@ -92,6 +92,9 @@ output "cluster_ca_certificate" {
 
 * `description` - (Optional) Description of the cluster.
 
+* `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
+    If enabled, all container images will be validated by Google Binary Authorization.
+
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
@@ -100,7 +103,7 @@ output "cluster_ca_certificate" {
     When enabled, identities in the system, including service accounts, nodes, and controllers,
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
     Defaults to `false`
-    
+
 * `initial_node_count` - (Optional) The number of nodes to create in this
     cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
 
@@ -109,8 +112,8 @@ output "cluster_ca_certificate" {
     Structure is documented below.
 
 * `logging_service` - (Optional) The logging service that the cluster should
-    write logs to. Available options include `logging.googleapis.com` and
-    `none`. Defaults to `logging.googleapis.com`
+    write logs to. Available options include `logging.googleapis.com`,
+    `logging.googleapis.com/kubernetes` (beta), and `none`. Defaults to `logging.googleapis.com`
 
 * `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
     documented below.
@@ -133,15 +136,16 @@ output "cluster_ca_certificate" {
     official release (which is not necessarily the latest version).
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
-    should write metrics to. 
+    should write metrics to.
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
     VM metrics will be collected by Google Compute Engine regardless of this setting
     Available options include
-    `monitoring.googleapis.com` and `none`. Defaults to
-    `monitoring.googleapis.com`
+    `monitoring.googleapis.com`, `monitoring.googleapis.com/kubernetes` (beta) and `none`.
+    Defaults to `monitoring.googleapis.com`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
-    network to which the cluster is connected.
+    network to which the cluster is connected. For Shared VPC, set this to the self link of the
+    shared network.
 
 * `network_policy` - (Optional) Configuration options for the
     [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
@@ -162,26 +166,28 @@ output "cluster_ca_certificate" {
     Structure is documented below.
 
 * `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
-    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, which makes
-    the master inaccessible from the public internet and nodes do not get public IP addresses either. It is mandatory to specify
-    `master_ipv4_cidr_block` and `ip_allocation_policy` with this option.
+    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
+    nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
+    `ip_allocation_policy` with this option.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
 
-* `subnetwork` - (Optional) The name of the Google Compute Engine subnetwork in
+* `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
+
+* `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
 The `addons_config` block supports:
 
 * `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod Autoscaling
     addon, which increases or decreases the number of replica pods a replication controller
-    has based on the resource usage of the existing pods. 
+    has based on the resource usage of the existing pods.
     It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
     It is enabled by default;
-    set `disabled = true` to disable. 
+    set `disabled = true` to disable.
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
@@ -232,6 +238,23 @@ The `ip_allocation_policy` block supports:
     ClusterIPs. This must be an existing secondary range associated with the cluster
     subnetwork.
 
+* `cluster_ipv4_cidr_block` - (Optional) The IP address range for the cluster pod IPs.
+    Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14)
+    to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14)
+    from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
+    pick a specific range to use.
+
+* `services_ipv4_cidr_block` - (Optional) The IP address range of the services IPs in this cluster.
+    Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14)
+    to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14)
+    from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
+    pick a specific range to use.
+
+* `create_subnetwork`- (Optional) Whether a new subnetwork will be created automatically for the cluster.
+
+* `subnetwork_name` - (Optional) A custom subnetwork name to be used if create_subnetwork is true.
+    If this field is empty, then an automatic name will be chosen for the new subnetwork.
+
 The `master_auth` block supports:
 
 * `password` - (Required) The password to use for HTTP basic authentication when accessing
@@ -240,11 +263,22 @@ The `master_auth` block supports:
 * `username` - (Required) The username to use for HTTP basic authentication when accessing
     the Kubernetes master endpoint
 
+* `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
+
+```
+master_auth {
+  client_certificate_config {
+    issue_client_certificate = false
+  }
+}
+```
+
 If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
+This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you with the username `admin`.
 
 The `master_authorized_networks_config` block supports:
 
-* `cidr_blocks` - (Optional) Defines up to 10 external networks that can access
+* `cidr_blocks` - (Optional) Defines up to 20 external networks that can access
     Kubernetes master through HTTPS.
 
 The `master_authorized_networks_config.cidr_blocks` block supports:
@@ -265,10 +299,14 @@ The `node_config` block supports:
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
-* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. 
+* `disk_type` - (Optional) Type of the disk attached to each node
+    (e.g. 'pd-standard' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
 
-* `image_type` - (Optional) The image type to use for this node.
+* `image_type` - (Optional) The image type to use for this node. Note that changing the image type
+    will delete and recreate all nodes in the node pool.
 
 * `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
 

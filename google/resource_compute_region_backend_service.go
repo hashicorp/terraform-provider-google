@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -118,7 +119,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		healthChecks = append(healthChecks, v.(string))
 	}
 
-	service := compute.BackendService{
+	service := computeBeta.BackendService{
 		Name:                d.Get("name").(string),
 		HealthChecks:        healthChecks,
 		LoadBalancingScheme: "INTERNAL",
@@ -149,7 +150,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	}
 
 	if v, ok := d.GetOk("connection_draining_timeout_sec"); ok {
-		connectionDraining := &compute.ConnectionDraining{
+		connectionDraining := &computeBeta.ConnectionDraining{
 			DrainingTimeoutSec: int64(v.(int)),
 		}
 
@@ -168,7 +169,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Creating new Region Backend Service: %#v", service)
 
-	op, err := config.clientCompute.RegionBackendServices.Insert(
+	op, err := config.clientComputeBeta.RegionBackendServices.Insert(
 		project, region, &service).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating backend service: %s", err)
@@ -178,7 +179,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Region Backend Service")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Creating Region Backend Service")
 	if err != nil {
 		return err
 	}
@@ -242,7 +243,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		healthChecks = append(healthChecks, v.(string))
 	}
 
-	service := compute.BackendService{
+	service := computeBeta.BackendService{
 		Name:                d.Get("name").(string),
 		Fingerprint:         d.Get("fingerprint").(string),
 		HealthChecks:        healthChecks,
@@ -270,7 +271,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if d.HasChange("connection_draining_timeout_sec") {
-		connectionDraining := &compute.ConnectionDraining{
+		connectionDraining := &computeBeta.ConnectionDraining{
 			DrainingTimeoutSec: int64(d.Get("connection_draining_timeout_sec").(int)),
 		}
 
@@ -278,7 +279,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating existing Backend Service %q: %#v", d.Id(), service)
-	op, err := config.clientCompute.RegionBackendServices.Update(
+	op, err := config.clientComputeBeta.RegionBackendServices.Update(
 		project, region, d.Id(), &service).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating backend service: %s", err)
@@ -286,7 +287,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 	d.SetId(service.Name)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Updating Backend Service")
+	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Backend Service")
 	if err != nil {
 		return err
 	}

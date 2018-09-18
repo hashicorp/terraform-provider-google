@@ -38,6 +38,13 @@ func (w *SpannerDatabaseOperationWaiter) RefreshFunc() resource.StateRefreshFunc
 }
 
 func spannerDatabaseOperationWait(config *Config, op *spanner.Operation, activity string, timeoutMin int) error {
+	if op.Done {
+		if op.Error != nil {
+			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		}
+		return nil
+	}
+
 	w := &SpannerDatabaseOperationWaiter{
 		Service: config.clientSpanner,
 		Op:      op,

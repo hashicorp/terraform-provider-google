@@ -16,6 +16,7 @@ func resourceKmsCryptoKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKmsCryptoKeyCreate,
 		Read:   resourceKmsCryptoKeyRead,
+		Update: resourceKmsCryptoKeyUpdate,
 		Delete: resourceKmsCryptoKeyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -36,16 +37,19 @@ func resourceKmsCryptoKey() *schema.Resource {
 			"rotation_period": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
+			},
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
 }
 
 func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) bool {
-	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
-	normalizedKeyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	normalizedKeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	if matches := keyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
 		normMatches := normalizedKeyRingIdRegex.FindStringSubmatch(old)
 		return normMatches != nil && normMatches[1] == matches[1] && normMatches[2] == matches[2] && normMatches[3] == matches[3]
@@ -111,6 +115,41 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	return resourceKmsCryptoKeyRead(d, meta)
 }
 
+func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
+	if err != nil {
+		return err
+	}
+
+	key := cloudkms.CryptoKey{}
+
+	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {
+		rotationPeriod := d.Get("rotation_period").(string)
+		nextRotation, err := kmsCryptoKeyNextRotation(time.Now(), rotationPeriod)
+
+		if err != nil {
+			return fmt.Errorf("Error setting CryptoKey rotation period: %s", err.Error())
+		}
+
+		key.NextRotationTime = nextRotation
+		key.RotationPeriod = rotationPeriod
+	}
+
+	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Patch(cryptoKeyId.cryptoKeyId(), &key).UpdateMask("rotation_period,next_rotation_time").Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating CryptoKey: %s", err.Error())
+	}
+
+	log.Printf("[DEBUG] Updated CryptoKey %s", cryptoKey.Name)
+
+	d.SetId(cryptoKeyId.cryptoKeyId())
+
+	return resourceKmsCryptoKeyRead(d, meta)
+}
+
 func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -128,6 +167,7 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_ring", cryptoKeyId.KeyRingId.terraformId())
 	d.Set("name", cryptoKeyId.Name)
 	d.Set("rotation_period", cryptoKey.RotationPeriod)
+	d.Set("self_link", cryptoKey.Name)
 
 	d.SetId(cryptoKeyId.cryptoKeyId())
 
@@ -229,9 +269,9 @@ func kmsCryptoKeyNextRotation(now time.Time, period string) (result string, err 
 func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 	parts := strings.Split(id, "/")
 
-	cryptoKeyIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
 	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
-	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &kmsCryptoKeyId{

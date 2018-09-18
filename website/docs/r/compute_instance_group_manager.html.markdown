@@ -15,7 +15,7 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/instanceGroupMa
 
 ~> **Note:** Use [google_compute_region_instance_group_manager](/docs/providers/google/r/compute_region_instance_group_manager.html) to create a regional (multi-zone) instance group manager.
 
-## Example Usage
+## Example Usage with top level instance template
 
 ```hcl
 resource "google_compute_health_check" "autohealing" {
@@ -54,6 +54,30 @@ resource "google_compute_instance_group_manager" "appserver" {
 }
 ```
 
+## Example Usage with multiple Versions
+```hcl
+resource "google_compute_instance_group_manager" "appserver" {
+  name = "appserver-igm"
+
+  base_instance_name = "app"
+  update_strategy    = "NONE"
+  zone               = "us-central1-a"
+
+  target_size  = 5
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver.self_link}"
+  }
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
+    target_size {
+      fixed = 1
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -65,8 +89,15 @@ The following arguments are supported:
     appending a hyphen and a random four-character string to the base instance
     name.
 
-* `instance_template` - (Required) The full URL to an instance template from
-    which all new instances will be created.
+* `instance_template` - (Optional) The full URL to an instance template from
+    which all new instances will be created. Conflicts with `version` (see [documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups#relationship_between_instancetemplate_properties_for_a_managed_instance_group))
+
+* `version` - (Optional) Application versions managed by this instance group. Each
+    version deals with a specific instance template, allowing canary release scenarios.
+    Conflicts with `instance_template`. Structure is documented below. Beware that
+    exactly one version must not specify a target size. It means that versions with
+    a target size will respect the setting, and the one without target size will
+    be applied to all remaining Instances (top level target_size - each version target_size).
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -153,6 +184,40 @@ The **auto_healing_policies** block supports:
 
 * `initial_delay_sec` - (Required) The number of seconds that the managed instance group waits before
  it applies autohealing policies to new instances or recently recreated instances. Between 0 and 3600.
+
+The **version** block supports:
+
+```hcl
+version {
+ name = "appserver-canary"
+ instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
+ target_size {
+   fixed = 1
+ }
+}
+```
+
+```hcl
+version {
+ name = "appserver-canary"
+ instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
+ target_size {
+   percent = 20
+ }
+}
+```
+
+* `name` - (Required) - Version name.
+
+* `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
+
+* `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is documented below.
+
+The **target_size** block supports:
+
+* `fixed` - (Optional), The number of instances which are managed for this version. Conflicts with `percent`.
+
+* `percent` - (Optional), The number of instances (calculated as percentage) which are managed for this version. Conflicts with `fixed`.
 
 ## Attributes Reference
 

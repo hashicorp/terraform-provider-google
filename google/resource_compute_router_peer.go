@@ -261,6 +261,10 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 		BgpPeers: newPeers,
 	}
 
+	if len(newPeers) == 0 {
+		patchRouter.ForceSendFields = append(patchRouter.ForceSendFields, "BgpPeers")
+	}
+
 	log.Printf("[DEBUG] Updating router %s/%s with peers: %+v", region, routerName, newPeers)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {

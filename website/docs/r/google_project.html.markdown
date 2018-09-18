@@ -122,7 +122,7 @@ The following arguments are supported:
 
 The `app_engine` block has the following configuration options:
 
-* `location_id` - (Required) The [location](https://cloud.google.com/appengine/docs/locations<Paste>)
+* `location_id` - (Required) The [location](https://cloud.google.com/appengine/docs/locations)
    to serve the app from.
 * `auth_domain` - (Optional) The domain to authenticate users with when using App Engine's User API.
 * `serving_status` - (Optional) The serving status of the app. Note that this can't be updated at the moment.

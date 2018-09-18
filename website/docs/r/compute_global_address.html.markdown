@@ -42,6 +42,7 @@ resource "google_compute_global_address" "default" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -55,15 +56,21 @@ The following arguments are supported:
 
 - - -
 
+
 * `description` -
   (Optional)
   An optional description of this resource.
   Provide this property when you create the resource.
+
+* `labels` -
+  (Optional)
+  Labels to apply to this address.  A list of key->value pairs.
+
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. Valid options are
   IPV4 or IPV6. The default value is IPV4.
-* `project` (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
@@ -71,10 +78,16 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `address` -
   The static external IP address represented by this resource.
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -84,6 +97,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

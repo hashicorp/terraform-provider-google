@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
@@ -35,6 +36,10 @@ func resourceKmsKeyRing() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -72,15 +77,26 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:     d.Get("name").(string),
 	}
 
-	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
+	// This resource is often created just after a project, and requires
+	// billing support, which is eventually consistent.  We attempt to
+	// wait on billing support in the project resource, but we can't
+	// always get it right - this retry fixes a lot of flaky tests we were
+	// noticing.
+	err = retryTimeDuration(func() error {
+		keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
 
+		if err != nil {
+			return fmt.Errorf("Error creating KeyRing: %s", err)
+		}
+
+		log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
+
+		d.SetId(keyRingId.keyRingId())
+		return nil
+	}, time.Duration(30*time.Second))
 	if err != nil {
-		return fmt.Errorf("Error creating KeyRing: %s", err)
+		return err
 	}
-
-	log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
-
-	d.SetId(keyRingId.keyRingId())
 
 	return resourceKmsKeyRingRead(d, meta)
 }
@@ -100,13 +116,14 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Executing read for KMS KeyRing %s", keyRingId.keyRingId())
 
-	_, err = config.clientKms.Projects.Locations.KeyRings.Get(keyRingId.keyRingId()).Do()
+	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Get(keyRingId.keyRingId()).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
 	d.Set("project", project)
+	d.Set("self_link", keyRing.Name)
 
 	return nil
 }
@@ -134,9 +151,9 @@ func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 	parts := strings.Split(id, "/")
 
-	keyRingIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	keyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	keyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/([a-z0-9-]+)/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
 
 	if keyRingIdRegex.MatchString(id) {
 		return &kmsKeyRingId{

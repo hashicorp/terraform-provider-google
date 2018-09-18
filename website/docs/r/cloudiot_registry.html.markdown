@@ -6,11 +6,11 @@ description: |-
   Creates a device registry in Google's Cloud IoT Core platform
 ---
 
-# google\cloudiot\_registry
+# google\_cloudiot\_registry
 
  Creates a device registry in Google's Cloud IoT Core platform. For more information see
 [the official documentation](https://cloud.google.com/iot/docs/) and
-[API](https://cloud.google.com/iot/docs/reference/rest/v1/projects.locations.registries).
+[API](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries).
 
 
 ## Example Usage

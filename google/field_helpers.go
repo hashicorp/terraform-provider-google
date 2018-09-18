@@ -46,6 +46,10 @@ func ParseDiskFieldValue(disk string, d TerraformResourceData, config *Config) (
 	return parseZonalFieldValue("disks", disk, "project", "zone", d, config, false)
 }
 
+func ParseRegionDiskFieldValue(disk string, d TerraformResourceData, config *Config) (*RegionalFieldValue, error) {
+	return parseRegionalFieldValue("disks", disk, "project", "region", "zone", d, config, false)
+}
+
 func ParseOrganizationCustomRoleName(role string) (*OrganizationFieldValue, error) {
 	return parseOrganizationFieldValue("roles", role, false)
 }
@@ -60,6 +64,10 @@ func ParseMachineTypesFieldValue(machineType string, d TerraformResourceData, co
 
 func ParseInstanceGroupFieldValue(instanceGroup string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
 	return parseZonalFieldValue("instanceGroups", instanceGroup, "project", "zone", d, config, false)
+}
+
+func ParseInstanceTemplateFieldValue(instanceTemplate string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("instanceTemplates", instanceTemplate, "project", d, config, false)
 }
 
 func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {

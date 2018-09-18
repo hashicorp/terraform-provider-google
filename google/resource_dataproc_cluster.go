@@ -77,7 +77,7 @@ func resourceDataprocCluster() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				// GCP automatically adds two labels
 				//    'goog-dataproc-cluster-uuid'
 				//    'goog-dataproc-cluster-name'
@@ -186,7 +186,7 @@ func resourceDataprocCluster() *schema.Resource {
 									"metadata": &schema.Schema{
 										Type:     schema.TypeMap,
 										Optional: true,
-										Elem:     schema.TypeString,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 										ForceNew: true,
 									},
 								},
@@ -265,7 +265,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:     schema.TypeMap,
 										Optional: true,
 										ForceNew: true,
-										Elem:     schema.TypeString,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 
 									"properties": {
@@ -355,6 +355,14 @@ func instanceConfigSchema() *schema.Schema {
 								Computed:     true,
 								ForceNew:     true,
 								ValidateFunc: validation.IntAtLeast(10),
+							},
+
+							"boot_disk_type": {
+								Type:         schema.TypeString,
+								Optional:     true,
+								ForceNew:     true,
+								ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", ""}, false),
+								Default:      "pd-standard",
 							},
 						},
 					},
@@ -600,6 +608,9 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 			if v, ok := dcfg["num_local_ssds"]; ok {
 				icg.DiskConfig.NumLocalSsds = int64(v.(int))
 			}
+			if v, ok := dcfg["boot_disk_type"]; ok {
+				icg.DiskConfig.BootDiskType = v.(string)
+			}
 		}
 	}
 	return icg
@@ -813,6 +824,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
+			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
 		}
 	}
 

@@ -19,7 +19,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		Read:   resourceCloudbuildBuildTriggerRead,
 		Delete: resourceCloudbuildBuildTriggerDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceCloudBuildTriggerImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -35,6 +35,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"filename": &schema.Schema{
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"build"},
 			},
 			"build": {
 				Type:        schema.TypeList,
@@ -82,6 +88,12 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+			"substitutions": &schema.Schema{
+				Optional: true,
+				Type:     schema.TypeMap,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"trigger_template": &schema.Schema{
 				Optional: true,
@@ -142,8 +154,14 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		buildTrigger.Description = v.(string)
 	}
 
-	buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
+	if v, ok := d.GetOk("filename"); ok {
+		buildTrigger.Filename = v.(string)
+	} else {
+		buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
+	}
+
 	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
+	buildTrigger.Substitutions = expandStringMap(d, "substitutions")
 
 	tstr, err := json.Marshal(buildTrigger)
 	if err != nil {
@@ -175,11 +193,15 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	}
 
 	d.Set("description", buildTrigger.Description)
+	d.Set("substitutions", buildTrigger.Substitutions)
 
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
 	}
-	if buildTrigger.Build != nil {
+
+	if buildTrigger.Filename != "" {
+		d.Set("filename", buildTrigger.Filename)
+	} else if buildTrigger.Build != nil {
 		d.Set("build", flattenCloudbuildBuildTriggerBuild(d, config, buildTrigger.Build))
 	}
 
@@ -191,7 +213,7 @@ func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string
 		return nil
 	}
 	tmpl := &cloudbuild.RepoSource{}
-	if v, ok := d.GetOk("project"); ok {
+	if v, ok := d.GetOk("trigger_template.0.project"); ok {
 		tmpl.ProjectId = v.(string)
 	} else {
 		tmpl.ProjectId = project
@@ -297,4 +319,18 @@ func resourceCloudbuildBuildTriggerDelete(d *schema.ResourceData, meta interface
 
 	d.SetId("")
 	return nil
+}
+
+func resourceCloudBuildTriggerImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) == 1 {
+		return []*schema.ResourceData{d}, nil
+	} else if len(parts) == 2 {
+		d.Set("project", parts[0])
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, nil
+	} else {
+		return nil, fmt.Errorf("Invalid import id %q. Expecting {trigger_name} or {project}/{trigger_name}", d.Id())
+	}
 }

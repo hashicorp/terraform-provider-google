@@ -5,7 +5,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
+	"golang.org/x/net/context"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1beta1"
 )
 
@@ -22,8 +25,9 @@ func resourceGoogleProjectServices() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"services": {
 				Type:     schema.TypeSet,
@@ -43,14 +47,19 @@ func resourceGoogleProjectServices() *schema.Resource {
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
 var ignoreProjectServices = map[string]struct{}{
-	"containeranalysis.googleapis.com": struct{}{},
-	"dataproc-control.googleapis.com":  struct{}{},
-	"source.googleapis.com":            struct{}{},
+	"containeranalysis.googleapis.com":       struct{}{},
+	"dataproc-control.googleapis.com":        struct{}{},
+	"source.googleapis.com":                  struct{}{},
+	"stackdriverprovisioning.googleapis.com": struct{}{},
 }
 
 func resourceGoogleProjectServicesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
+
+	pid, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	// Get services from config
 	cfgServices := getConfigServices(d)
@@ -88,20 +97,19 @@ func resourceGoogleProjectServicesRead(d *schema.ResourceData, meta interface{})
 func resourceGoogleProjectServicesUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_project_services")
 	config := meta.(*Config)
-	pid := d.Get("project").(string)
 
 	// Get services from config
 	cfgServices := getConfigServices(d)
 
 	// Get services from API
-	apiServices, err := getApiServices(pid, config, ignoreProjectServices)
+	apiServices, err := getApiServices(d.Id(), config, ignoreProjectServices)
 	if err != nil {
 		return fmt.Errorf("Error updating services: %v", err)
 	}
 
 	// This call disables any APIs that aren't defined in cfgServices,
 	// and enables all of those that are
-	err = reconcileServices(cfgServices, apiServices, config, pid)
+	err = reconcileServices(cfgServices, apiServices, config, d.Id())
 	if err != nil {
 		return fmt.Errorf("Error updating services: %v", err)
 	}
@@ -180,25 +188,40 @@ func getConfigServices(d *schema.ResourceData) (services []string) {
 
 // Retrieve a project's services from the API
 func getApiServices(pid string, config *Config, ignore map[string]struct{}) ([]string, error) {
-	apiServices := make([]string, 0)
-	// Get services from the API
-	token := ""
-	for paginate := true; paginate; {
-		svcResp, err := config.clientServiceUsage.Services.List("projects/" + pid).PageToken(token).Filter("state:ENABLED").Do()
-		if err != nil {
-			return apiServices, err
-		}
-		for _, v := range svcResp.Services {
-			// names are returned as projects/{project-number}/services/{service-name}
-			nameParts := strings.Split(v.Name, "/")
-			name := nameParts[len(nameParts)-1]
-			if _, ok := ignore[name]; !ok {
-				apiServices = append(apiServices, name)
-			}
-		}
-		token = svcResp.NextPageToken
-		paginate = token != ""
+	if ignore == nil {
+		ignore = make(map[string]struct{})
 	}
+
+	var apiServices []string
+
+	if err := retryTime(func() error {
+		// Reset the list of apiServices in case of a retry. A partial page failure
+		// could result in duplicate services.
+		apiServices = make([]string, 0, 10)
+
+		ctx := context.Background()
+		return config.clientServiceUsage.Services.
+			List("projects/"+pid).
+			Fields("services/name,nextPageToken").
+			Filter("state:ENABLED").
+			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
+				for _, v := range r.Services {
+					// services are returned as "projects/PROJECT/services/NAME"
+					parts := strings.Split(v.Name, "/")
+					if len(parts) > 0 {
+						name := parts[len(parts)-1]
+						if _, ok := ignore[name]; !ok {
+							apiServices = append(apiServices, name)
+						}
+					}
+				}
+
+				return nil
+			})
+	}, 10); err != nil {
+		return nil, errwrap.Wrapf("failed to list services: {{err}}", err)
+	}
+
 	return apiServices, nil
 }
 
@@ -207,32 +230,108 @@ func enableService(s, pid string, config *Config) error {
 }
 
 func enableServices(s []string, pid string, config *Config) error {
-	err := retryTime(func() error {
-		var sop *serviceusage.Operation
-		var err error
-		if len(s) > 1 {
-			req := &serviceusage.BatchEnableServicesRequest{ServiceIds: s}
-			sop, err = config.clientServiceUsage.Services.BatchEnable("projects/"+pid, req).Do()
-		} else if len(s) == 1 {
-			name := fmt.Sprintf("projects/%s/services/%s", pid, s[0])
-			sop, err = config.clientServiceUsage.Services.Enable(name, &serviceusage.EnableServiceRequest{}).Do()
-		} else {
-			// No services to enable
+	// It's not permitted to enable more than 20 services in one API call (even
+	// for batch).
+	//
+	// https://godoc.org/google.golang.org/api/serviceusage/v1beta1#BatchEnableServicesRequest
+	batchSize := 20
+
+	for i := 0; i < len(s); i += batchSize {
+		j := i + batchSize
+		if j > len(s) {
+			j = len(s)
+		}
+
+		services := s[i:j]
+
+		if err := retryTime(func() error {
+			var sop *serviceusage.Operation
+			var err error
+
+			if len(services) < 1 {
+				// No more services to enable
+				return nil
+			} else if len(services) == 1 {
+				// Use the singular enable - can't use batch for a single item
+				name := fmt.Sprintf("projects/%s/services/%s", pid, services[0])
+				req := &serviceusage.EnableServiceRequest{}
+				sop, err = config.clientServiceUsage.Services.Enable(name, req).Do()
+			} else {
+				// Batch enable 2+ services
+				name := fmt.Sprintf("projects/%s", pid)
+				req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
+				sop, err = config.clientServiceUsage.Services.BatchEnable(name, req).Do()
+			}
+			if err != nil {
+				// Check for a "precondition failed" error. The API seems to randomly
+				// (although more than 50%) return this error when enabling certain
+				// APIs. It's transient, so we catch it and re-raise it as an error that
+				// is retryable instead.
+				if gerr, ok := err.(*googleapi.Error); ok {
+					if (gerr.Code == 400 || gerr.Code == 412) && gerr.Message == "Precondition check failed." {
+						return &googleapi.Error{
+							Code:    503,
+							Message: "api returned \"precondition failed\" while enabling service",
+						}
+					}
+				}
+				return errwrap.Wrapf("failed to issue request: {{err}}", err)
+			}
+
+			// Poll for the API to return
+			activity := fmt.Sprintf("apis %q to be enabled for %s", services, pid)
+			_, waitErr := serviceUsageOperationWait(config, sop, activity)
+			if waitErr != nil {
+				return waitErr
+			}
+
+			// Accumulate the list of services that are enabled on the project
+			enabledServices, err := getApiServices(pid, config, nil)
+			if err != nil {
+				return err
+			}
+
+			// Diff the list of requested services to enable against the list of
+			// services on the project.
+			missing := diffStringSlice(services, enabledServices)
+
+			// If there are any missing, force a retry
+			if len(missing) > 0 {
+				// Spoof a googleapi Error so retryTime will try again
+				return &googleapi.Error{
+					Code:    503,
+					Message: fmt.Sprintf("The service(s) %q are still being enabled for project %s. This isn't a real API error, this is just eventual consistency.", missing, pid),
+				}
+			}
+
 			return nil
+		}, 10); err != nil {
+			return errwrap.Wrap(err, fmt.Errorf("failed to enable service(s) %q for project %s", services, pid))
 		}
-		if err != nil {
-			return err
-		}
-		_, waitErr := serviceUsageOperationWait(config, sop, "api to enable")
-		if waitErr != nil {
-			return waitErr
-		}
-		return nil
-	}, 10)
-	if err != nil {
-		return fmt.Errorf("Error enabling service %q for project %q: %v", s, pid, err)
 	}
+
 	return nil
+}
+
+func diffStringSlice(wanted, actual []string) []string {
+	var missing []string
+
+	for _, want := range wanted {
+		found := false
+
+		for _, act := range actual {
+			if want == act {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			missing = append(missing, want)
+		}
+	}
+
+	return missing
 }
 
 func disableService(s, pid string, config *Config) error {
