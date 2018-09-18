@@ -127,7 +127,7 @@ resource "google_compute_network" "vpc_network" {
 ```
 
 This will create [VPC network resource](/docs/providers/google/r/compute_network.html)
-with a subnetwork in each region. Then, change the network of the
+with a subnetwork in each region. Next, change the network of the
 `google_compute_instance` from the `"default"` network to the new network.
 
 ```diff
@@ -153,7 +153,7 @@ with Terraform is to use a [GCP service account](https://cloud.google.com/docs/a
 a "robot account" that can be granted a limited set of IAM permissions.
 
 From [the service account key page in the Cloud Console](https://pantheon.corp.google.com/apis/credentials/serviceaccountkey)
-choose an existing account, or create a new one. Then, download the JSON key
+choose an existing account, or create a new one. Next, download the JSON key
 file. Name it something you can remember, and store it somewhere secure on your
 machine.
 
