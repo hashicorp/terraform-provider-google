@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 
 	"github.com/hashicorp/errwrap"
@@ -412,33 +413,56 @@ func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
 		return false
 	}
-	oldPolicy.Bindings = mergeBindings(oldPolicy.Bindings)
-	newPolicy.Bindings = mergeBindings(newPolicy.Bindings)
 	if newPolicy.Etag != oldPolicy.Etag {
 		return false
 	}
 	if newPolicy.Version != oldPolicy.Version {
 		return false
 	}
-	if len(newPolicy.Bindings) != len(oldPolicy.Bindings) {
+	if !compareBindings(oldPolicy.Bindings, newPolicy.Bindings) {
 		return false
 	}
-	sort.Sort(sortableBindings(newPolicy.Bindings))
-	sort.Sort(sortableBindings(oldPolicy.Bindings))
-	for pos, newBinding := range newPolicy.Bindings {
-		oldBinding := oldPolicy.Bindings[pos]
-		if oldBinding.Role != newBinding.Role {
+	if !compareAuditConfigs(oldPolicy.AuditConfigs, newPolicy.AuditConfigs) {
+		return false
+	}
+	return true
+}
+
+func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
+	a = mergeBindings(a)
+	b = mergeBindings(b)
+	sort.Sort(sortableBindings(a))
+	sort.Sort(sortableBindings(b))
+	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
+}
+
+func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
+	a = mergeAuditConfigs(a)
+	b = mergeAuditConfigs(b)
+	sort.Sort(sortableAuditConfigs(a))
+	sort.Sort(sortableAuditConfigs(b))
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if len(v.AuditLogConfigs) != len(b[i].AuditLogConfigs) {
 			return false
 		}
-		if len(oldBinding.Members) != len(newBinding.Members) {
-			return false
-		}
-		sort.Strings(oldBinding.Members)
-		sort.Strings(newBinding.Members)
-		for i, newMember := range newBinding.Members {
-			oldMember := oldBinding.Members[i]
-			if newMember != oldMember {
+		sort.Sort(sortableAuditLogConfigs(v.AuditLogConfigs))
+		sort.Sort(sortableAuditLogConfigs(b[i].AuditLogConfigs))
+		for x, logConfig := range v.AuditLogConfigs {
+			if b[i].AuditLogConfigs[x].LogType != logConfig.LogType {
 				return false
+			}
+			sort.Strings(logConfig.ExemptedMembers)
+			sort.Strings(b[i].AuditLogConfigs[x].ExemptedMembers)
+			if len(logConfig.ExemptedMembers) != len(b[i].AuditLogConfigs[x].ExemptedMembers) {
+				return false
+			}
+			for pos, mem := range logConfig.ExemptedMembers {
+				if b[i].AuditLogConfigs[x].ExemptedMembers[pos] != mem {
+					return false
+				}
 			}
 		}
 	}
@@ -455,4 +479,28 @@ func (b sortableBindings) Swap(i, j int) {
 }
 func (b sortableBindings) Less(i, j int) bool {
 	return b[i].Role < b[j].Role
+}
+
+type sortableAuditConfigs []*cloudresourcemanager.AuditConfig
+
+func (b sortableAuditConfigs) Len() int {
+	return len(b)
+}
+func (b sortableAuditConfigs) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+func (b sortableAuditConfigs) Less(i, j int) bool {
+	return b[i].Service < b[j].Service
+}
+
+type sortableAuditLogConfigs []*cloudresourcemanager.AuditLogConfig
+
+func (b sortableAuditLogConfigs) Len() int {
+	return len(b)
+}
+func (b sortableAuditLogConfigs) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+func (b sortableAuditLogConfigs) Less(i, j int) bool {
+	return b[i].LogType < b[j].LogType
 }

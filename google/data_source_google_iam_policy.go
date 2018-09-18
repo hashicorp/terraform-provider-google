@@ -89,7 +89,7 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	var policy cloudresourcemanager.Policy
 	var bindings []*cloudresourcemanager.Binding
-	var audit_configs []*cloudresourcemanager.AuditConfig
+	var auditConfigs []*cloudresourcemanager.AuditConfig
 
 	// The schema supports multiple binding{} blocks
 	bset := d.Get("binding").(*schema.Set)
@@ -97,9 +97,9 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 
 	// All binding{} blocks will be converted and stored in an array
 	bindings = make([]*cloudresourcemanager.Binding, bset.Len())
-	audit_configs = make([]*cloudresourcemanager.AuditConfig, aset.Len())
+	auditConfigs = make([]*cloudresourcemanager.AuditConfig, aset.Len())
 	policy.Bindings = bindings
-	policy.AuditConfigs = audit_configs
+	policy.AuditConfigs = auditConfigs
 
 	// Convert each config binding into a cloudresourcemanager.Binding
 	for i, v := range bset.List() {
@@ -115,20 +115,20 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		config := v.(map[string]interface{})
 
 		// build list of audit configs first
-		audit_log_config_set := config["audit_log_configs"].(*schema.Set)
+		auditLogConfigSet := config["audit_log_configs"].(*schema.Set)
 		// the array we're going to add to the outgoing resource
-		audit_log_configs := make([]*cloudresourcemanager.AuditLogConfig, audit_log_config_set.Len())
-		for x, y := range audit_log_config_set.List() {
-			log_config := y.(map[string]interface{})
-			audit_log_configs[x] = &cloudresourcemanager.AuditLogConfig{
-				LogType:         log_config["log_type"].(string),
-				ExemptedMembers: convertStringArr(log_config["exempted_members"].([]interface{})),
+		auditLogConfigs := make([]*cloudresourcemanager.AuditLogConfig, auditLogConfigSet.Len())
+		for x, y := range auditLogConfigSet.List() {
+			logConfig := y.(map[string]interface{})
+			auditLogConfigs[x] = &cloudresourcemanager.AuditLogConfig{
+				LogType:         logConfig["log_type"].(string),
+				ExemptedMembers: convertStringArr(logConfig["exempted_members"].([]interface{})),
 			}
 		}
 
 		policy.AuditConfigs[i] = &cloudresourcemanager.AuditConfig{
 			Service:         config["service"].(string),
-			AuditLogConfigs: audit_log_configs,
+			AuditLogConfigs: auditLogConfigs,
 		}
 	}
 

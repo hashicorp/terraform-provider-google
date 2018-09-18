@@ -336,14 +336,6 @@ func getGoogleProjectIamPolicyFromState(s *terraform.State, res, expectedID stri
 	return getGoogleProjectIamPolicyFromResource(project)
 }
 
-func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
-	a = mergeBindings(a)
-	b = mergeBindings(b)
-	sort.Sort(sortableBindings(a))
-	sort.Sort(sortableBindings(b))
-	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
-}
-
 func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		projectPolicy, err := getGoogleProjectIamPolicyFromState(s, projectRes, pid)
@@ -358,6 +350,11 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 		// The bindings in both policies should be identical
 		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
 			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
+		}
+
+		// The audit configs in both policies should be identical
+		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", projectPolicy.AuditConfigs, policyPolicy.AuditConfigs)
 		}
 		return nil
 	}
@@ -376,10 +373,15 @@ func testAccCheckGoogleProjectIamPolicyIsMerged(projectRes, policyRes, pid strin
 		}
 
 		// Merge the project policy in Terraform state with the policy the project had before the config was applied
-		var expected []*cloudresourcemanager.Binding
-		expected = append(expected, originalPolicy.Bindings...)
-		expected = append(expected, projectPolicy.Bindings...)
-		expected = mergeBindings(expected)
+		var expectedBindings []*cloudresourcemanager.Binding
+		expectedBindings = append(expectedBindings, originalPolicy.Bindings...)
+		expectedBindings = append(expectedBindings, projectPolicy.Bindings...)
+		expectedBindings = mergeBindings(expectedBindings)
+
+		var expectedAuditConfigs []*cloudresourcemanager.AuditConfig
+		expectedAuditConfigs = append(expectedAuditConfigs, originalPolicy.AuditConfigs...)
+		expectedAuditConfigs = append(expectedAuditConfigs, projectPolicy.AuditConfigs...)
+		expectedAuditConfigs = mergeAuditConfigs(expectedAuditConfigs)
 
 		// Retrieve the actual policy from the project
 		c := testAccProvider.Meta().(*Config)
@@ -388,8 +390,12 @@ func testAccCheckGoogleProjectIamPolicyIsMerged(projectRes, policyRes, pid strin
 			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
 		}
 		// The bindings should match, indicating the policy was successfully applied and merged
-		if !compareBindings(actual.Bindings, expected) {
-			return fmt.Errorf("Actual and expected project policies do not match: actual policy is %+v, expected policy is  %+v", derefBindings(actual.Bindings), derefBindings(expected))
+		if !compareBindings(actual.Bindings, expectedBindings) {
+			return fmt.Errorf("Actual and expected project policies do not match: actual policy is %+v, expected policy is  %+v", derefBindings(actual.Bindings), derefBindings(expectedBindings))
+		}
+		// The audit configs should match, indicating the policy was successfully applied and merged
+		if !compareAuditConfigs(actual.AuditConfigs, expectedAuditConfigs) {
+			return fmt.Errorf("Actual and expected project policies do not match: actual policy is %+v, expected policy is  %+v", actual.AuditConfigs, expectedAuditConfigs)
 		}
 
 		return nil
