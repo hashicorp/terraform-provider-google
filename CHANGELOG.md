@@ -1,4 +1,8 @@
 ## 1.18.1 (Unreleased)
+
+FEATURES: 
+* **New Datasource**: `google_compute_instance` [GH-1906]
+
 ## 1.18.0 (September 17, 2018)
 
 BACKWARDS INCOMPATIBILITIES:
