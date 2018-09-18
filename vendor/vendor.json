@@ -1473,6 +1473,12 @@
 			"revisionTime": "2018-08-29T00:05:35Z"
 		},
 		{
+			"checksumSHA1": "0ThV8eEbpjtxcSKSAnLZKViBam4=",
+			"path": "google.golang.org/api/file/v1beta1",
+			"revision": "19ff8768a5c0b8e46ea281065664787eefc24121",
+			"revisionTime": "2018-09-16T00:04:51Z"
+		},
+		{
 			"checksumSHA1": "RIKH6cQNe0mczH5HxseRIpEYidE=",
 			"path": "google.golang.org/api/gensupport",
 			"revision": "087779f1d2c96357d4c45bd04c4d10d7b5f22736",
