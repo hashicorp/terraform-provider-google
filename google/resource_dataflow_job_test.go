@@ -45,6 +45,24 @@ func TestAccDataflowJobRegionCreate(t *testing.T) {
 	})
 }
 
+func TestAccDataflowJobCreateWithServiceAccount(t *testing.T) {
+	t.Parallel()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDataflowJobWithServiceAccount,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(
+						"google_dataflow_job.big_data"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataflowJobDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_dataflow_job" {
@@ -168,6 +186,46 @@ resource "google_dataflow_job" "big_data" {
 	region  = "us-central1"
 	zone    = "us-central1-c"
 	project = "%s"
+
+	on_delete = "cancel"
+}`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+
+var testAccDataflowJobWithServiceAccount = fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+	name = "dfjob-test-%s-temp"
+
+	force_destroy = true
+}
+
+resource "google_service_account" "dataflow-sa" {
+  account_id   = "dataflow-sa"
+  display_name = "DataFlow Service Account"
+}
+
+resource "google_storage_bucket_iam_member" "dataflow-gcs" {
+  bucket = "${google_storage_bucket.temp.name}"
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.dataflow-sa.email}"
+}
+
+resource "google_project_iam_member" "dataflow-worker" {
+  role   = "roles/dataflow.worker"
+  member = "serviceAccount:${google_service_account.dataflow-sa.email}"
+}
+
+resource "google_dataflow_job" "big_data" {
+	name = "dfjob-test-%s"
+
+	template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
+	temp_gcs_location = "${google_storage_bucket.temp.url}"
+
+	parameters {
+		inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+		output    = "${google_storage_bucket.temp.url}/output"
+	}
+	zone = "us-central1-f"
+	project = "%s"
+	service_account_email = "${google_service_account.dataflow-sa.email}"
 
 	on_delete = "cancel"
 }`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
