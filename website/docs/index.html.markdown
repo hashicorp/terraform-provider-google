@@ -46,7 +46,7 @@ If you have configuration questions, or general questions about using the provid
 
 The Google provider's bugs and feature requests can be found in the [GitHub repo issues](https://github.com/terraform-providers/terraform-provider-google/issues).
 Please avoid "me too" or "+1" comments. Instead, use a thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
-on enhancement requests. Provider maintainers will often prioritise work based on the
+on enhancement requests. Provider maintainers will often prioritize work based on the
 number of thumbs on an issue.
 
 Community input is appreciated on outstanding issues! We love to hear what use
@@ -89,7 +89,7 @@ If you're interested in using Alpha GCP features, you should still [file a featu
 or thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
 the existing request if one exists. By filing and reacting to requests, we can
 gauge your interest in yet-to-be-supported GCP features and make sure that we
-prioritise support for them when they enter Beta.
+prioritize support for them when they enter Beta.
 
 ### Beta Features
 Some resources contain Beta features; Beta GCP Features have no

@@ -143,9 +143,8 @@ This means that when we create the VM instance, it will use
 run `terraform plan`, you will see that `"terraform-instance"` depends on
 `"terraform-network"`.
 
-You can now run `terraform apply`! Except for one last thing...
-
-~> You haven't added GCP API credentials yet.
+Your configuration is complete. Before you can run `terraform apply` though,
+Terraform needs GCP credentials.
 
 ## Adding credentials
 In order to make requests against the GCP API, you need to authenticate to prove
