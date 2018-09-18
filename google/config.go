@@ -59,7 +59,7 @@ type Config struct {
 
 	tokenSource oauth2.TokenSource
 
-	clientBilling                *cloudbilling.Service
+	clientBilling                *cloudbilling.APIService
 	clientBuild                  *cloudbuild.Service
 	clientComposer               *composer.Service
 	clientCompute                *compute.Service
