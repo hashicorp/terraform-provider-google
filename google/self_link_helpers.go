@@ -1,7 +1,9 @@
 package google
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -84,4 +86,59 @@ func NameFromSelfLinkStateFunc(v interface{}) string {
 
 func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
+}
+
+type LocationType int
+
+const (
+	Zonal LocationType = iota
+	Regional
+	Global
+)
+
+func GetZonalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Zonal)
+}
+
+func GetRegionalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Regional)
+}
+
+func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config, locationType LocationType) (string, string, string, error) {
+	if selfLink, ok := d.GetOk("self_link"); ok {
+		parsed, err := url.Parse(selfLink.(string))
+		if err != nil {
+			return "", "", "", err
+		}
+
+		s := strings.Split(parsed.Path, "/")
+		// https://www.googleapis.com/compute/beta/projects/project_name/regions/region_name/instanceGroups/foobarbaz
+		// =>  project_name, region_name, foobarbaz
+		return s[4], s[6], s[8], nil
+	} else {
+		project, err := getProject(d, config)
+		if err != nil {
+			return "", "", "", err
+		}
+
+		location := ""
+		if locationType == Regional {
+			location, err = getRegion(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		} else if locationType == Zonal {
+			location, err = getZone(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		}
+
+		n, ok := d.GetOk("name")
+		name := n.(string)
+		if !ok {
+			return "", "", "", errors.New("must provide either `self_link` or `name`")
+		}
+		return project, location, name, nil
+	}
 }
