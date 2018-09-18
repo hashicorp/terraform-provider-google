@@ -102,7 +102,7 @@ use a different field, the `self_link` of a resource. Like `name`, nearly every
 resource has a `self_link`. They look like:
 
 ```
-{{API base url}}/projects/{{your project}}/{{location type}}/{{location}}/{{resouce type}}/{{name}}
+{{API base url}}/projects/{{your project}}/{{location type}}/{{location}}/{{resource type}}/{{name}}
 ```
 
 For example, the instance defined earlier in a project named `foo` will have

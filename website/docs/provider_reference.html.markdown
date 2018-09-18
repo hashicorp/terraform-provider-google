@@ -31,8 +31,8 @@ The following keys can be used to configure the provider.
 
 * `credentials` - (Optional) The path or contents of a file that contains your
   service account private key in JSON format. You can download your existing
-  [Google Cloud service account file]
-  from the Google Cloud Console, or you can create a new one from the same page.
+  [Google Cloud service account file] from the Google Cloud Console, or you can
+  create a new one from the same page.
 
   Credentials can also be specified using any of the following environment
   variables (listed in order of precedence):
@@ -57,7 +57,8 @@ The following keys can be used to configure the provider.
   -> [Service accounts][service accounts] are the recommended way
   to manage GCP credentials. [GCE metadata] is also acceptable, although it can
   only be used when running Terraform from within [certain GCP resources](https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions).
-  The `gcloud` method is not guaranteed to work for all APIs.
+  Application Default Credentials, such as those obtained through the `gcloud`
+  command above, are not guaranteed to work for all APIs.
 
 * `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed
@@ -68,7 +69,7 @@ The following keys can be used to configure the provider.
     * `GCLOUD_PROJECT`
     * `CLOUDSDK_CORE_PROJECT`
 
-    -> `GOOGLE_CLOUD_PROJECT` is the recommended environment variable to use if
+    -> `GOOGLE_PROJECT` is the recommended environment variable to use if
     you choose to add your project using environment variables.
 
 * `region` - (Optional) The region to operate under, if not specified by a given resource.
