@@ -175,42 +175,42 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 func testAccKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
-  project_id      = "%s"
-  org_id          = "%s"
-  billing_account = "%s"
+	name            = "Test project"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
 }
 
 resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+	project = "${google_project.test_project.project_id}"
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-  ]
+	services = [
+		"cloudkms.googleapis.com",
+		"iam.googleapis.com",
+	]
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
-  account_id   = "%s"
-  display_name = "Iam Testing Account"
+	project      = "${google_project_services.test_project.project}"
+	account_id   = "%s"
+	display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project      = "${google_project_services.test_project.project}"
-  location = "us-central1"
-  name     = "%s"
+	project      = "${google_project_services.test_project.project}"
+	location = "us-central1"
+	name     = "%s"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  key_ring = "${google_kms_key_ring.key_ring.id}"
-  name     = "%s"
+	key_ring = "${google_kms_key_ring.key_ring.id}"
+	name     = "%s"
 }
 
 resource "google_kms_crypto_key_iam_binding" "foo" {
-  crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
-  role          = "%s"
-  members       = ["serviceAccount:${google_service_account.test_account.email}"]
+	crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
+	role          = "%s"
+	members       = ["serviceAccount:${google_service_account.test_account.email}"]
 }
 `, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
@@ -218,51 +218,51 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
 func testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
-  project_id      = "%s"
-  org_id          = "%s"
-  billing_account = "%s"
+	name            = "Test project"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
 }
 
 resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+	project = "${google_project.test_project.project_id}"
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-  ]
+	services = [
+		"cloudkms.googleapis.com",
+		"iam.googleapis.com",
+	]
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
-  account_id   = "%s"
-  display_name = "Iam Testing Account"
+	project      = "${google_project_services.test_project.project}"
+	account_id   = "%s"
+	display_name = "Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
-  project      = "${google_project_services.test_project.project}"
-  account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+	project      = "${google_project_services.test_project.project}"
+	account_id   = "%s-2"
+	display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
-  location = "us-central1"
-  name     = "%s"
+	project  = "${google_project_services.test_project.project}"
+	location = "us-central1"
+	name     = "%s"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  key_ring = "${google_kms_key_ring.key_ring.id}"
-  name     = "%s"
+	key_ring = "${google_kms_key_ring.key_ring.id}"
+	name     = "%s"
 }
 
 resource "google_kms_crypto_key_iam_binding" "foo" {
-  crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
-  role          = "%s"
-  members       = [
-    "serviceAccount:${google_service_account.test_account.email}",
-    "serviceAccount:${google_service_account.test_account_2.email}"
-  ]
+	crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
+	role          = "%s"
+	members       = [
+		"serviceAccount:${google_service_account.test_account.email}",
+		"serviceAccount:${google_service_account.test_account_2.email}"
+	]
 }
 `, projectId, orgId, billingAccount, account, account, keyRingName, cryptoKeyName, roleId)
 }
@@ -270,41 +270,41 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
 func testAccKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
-  project_id      = "%s"
-  org_id          = "%s"
-  billing_account = "%s"
+	name            = "Test project"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
 }
 
 resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+	project = "${google_project.test_project.project_id}"
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-  ]
+	services = [
+		"cloudkms.googleapis.com",
+		"iam.googleapis.com",
+	]
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
-  account_id   = "%s"
-  display_name = "Iam Testing Account"
+	project      = "${google_project_services.test_project.project}"
+	account_id   = "%s"
+	display_name = "Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
-  location = "us-central1"
-  name     = "%s"
+	project  = "${google_project_services.test_project.project}"
+	location = "us-central1"
+	name     = "%s"
 }
 resource "google_kms_crypto_key" "crypto_key" {
-  key_ring = "${google_kms_key_ring.key_ring.id}"
-  name     = "%s"
+	key_ring = "${google_kms_key_ring.key_ring.id}"
+	name     = "%s"
 }
 
 resource "google_kms_crypto_key_iam_member" "foo" {
-  crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
-  role          = "%s"
-  member        = "serviceAccount:${google_service_account.test_account.email}"
+	crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
+	role          = "%s"
+	member        = "serviceAccount:${google_service_account.test_account.email}"
 }
 `, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }

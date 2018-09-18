@@ -368,8 +368,7 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if res.EncryptionConfiguration != nil {
-		err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration))
-		if err != nil {
+		if err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration)); err != nil {
 			return err
 		}
 	}
