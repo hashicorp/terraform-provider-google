@@ -87,6 +87,7 @@ var schemaNodePool = map[string]*schema.Schema{
 	"max_pods_per_node": &schema.Schema{
 		Type:     schema.TypeInt,
 		Optional: true,
+		Computed: true,
 	},
 
 	"initial_node_count": &schema.Schema{
