@@ -76,7 +76,7 @@ at `~/.terraform.d/plugins`. When a copy of the Google provider is present in th
 use that copy instead of downloading a release version.
 
 To use a single locally built version, such as one built by a CI or build server, you can copy a `terraform-provider-google`
-binaryv into the discovery directory. If you're testing a local provider in active development and want the new binary each
+binary into the discovery directory. If you're testing a local provider in active development and want the new binary each
 time you run `make build`, you can symlink the built binary into the directory:
 
 ```bash
