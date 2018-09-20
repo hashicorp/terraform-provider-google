@@ -67,6 +67,11 @@ func resourceComputeAddress() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"network_tier": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -74,19 +79,14 @@ func resourceComputeAddress() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
 			},
-			"subnetwork": {
+			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"region": {
+			"subnetwork": {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,

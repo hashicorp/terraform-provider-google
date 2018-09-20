@@ -63,16 +63,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 				Optional: true,
 				Default:  2,
 			},
-			"timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  5,
-			},
-			"unhealthy_threshold": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  2,
-			},
 			"http_health_check": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -82,11 +72,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 						"host": {
 							Type:     schema.TypeString,
 							Optional: true,
-						},
-						"request_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "/",
 						},
 						"port": {
 							Type:     schema.TypeInt,
@@ -98,6 +83,11 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Default:      "NONE",
+						},
+						"request_path": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "/",
 						},
 					},
 				},
@@ -113,11 +103,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"request_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "/",
-						},
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -129,16 +114,32 @@ func resourceComputeHealthCheck() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Default:      "NONE",
 						},
+						"request_path": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "/",
+						},
 					},
 				},
 				ConflictsWith: []string{"http_health_check", "tcp_health_check", "ssl_health_check"},
 			},
-			"tcp_health_check": {
+			"ssl_health_check": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  443,
+						},
+						"proxy_header": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							Default:      "NONE",
+						},
 						"request": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -147,6 +148,16 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+					},
+				},
+				ConflictsWith: []string{"http_health_check", "https_health_check", "tcp_health_check"},
+			},
+			"tcp_health_check": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -158,16 +169,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Default:      "NONE",
 						},
-					},
-				},
-				ConflictsWith: []string{"http_health_check", "https_health_check", "ssl_health_check"},
-			},
-			"ssl_health_check": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
 						"request": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -176,20 +177,19 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  443,
-						},
-						"proxy_header": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
-							Default:      "NONE",
-						},
 					},
 				},
-				ConflictsWith: []string{"http_health_check", "https_health_check", "tcp_health_check"},
+				ConflictsWith: []string{"http_health_check", "https_health_check", "ssl_health_check"},
+			},
+			"timeout_sec": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  5,
+			},
+			"unhealthy_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,

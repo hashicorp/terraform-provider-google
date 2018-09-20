@@ -70,23 +70,6 @@ func resourceComputeSslPolicy() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"profile": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM", ""}, false),
-				Default:      "COMPATIBLE",
-			},
-			"min_tls_version": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", ""}, false),
-				Default:      "TLS_1_0",
-			},
 			"custom_features": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -94,6 +77,23 @@ func resourceComputeSslPolicy() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Set: schema.HashString,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"min_tls_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", ""}, false),
+				Default:      "TLS_1_0",
+			},
+			"profile": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM", ""}, false),
+				Default:      "COMPATIBLE",
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,

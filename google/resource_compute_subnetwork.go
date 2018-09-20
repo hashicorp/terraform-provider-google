@@ -103,6 +103,17 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"private_ip_google_access": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
 			"secondary_ip_range": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -121,17 +132,6 @@ func resourceComputeSubnetwork() *schema.Resource {
 						},
 					},
 				},
-			},
-			"private_ip_google_access": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"region": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,

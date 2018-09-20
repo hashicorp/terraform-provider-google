@@ -56,10 +56,6 @@ func resourceComputeRouter() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"bgp": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -88,11 +84,11 @@ func resourceComputeRouter() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"range": {
+									"description": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"description": {
+									"range": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
@@ -101,6 +97,10 @@ func resourceComputeRouter() *schema.Resource {
 						},
 					},
 				},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"region": {
 				Type:             schema.TypeString,

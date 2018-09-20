@@ -175,17 +175,16 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"router": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-			},
 			"ike_version": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Default:  2,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"local_traffic_selector": {
 				Type:     schema.TypeSet,
@@ -197,6 +196,13 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				},
 				Set: schema.HashString,
 			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
 			"remote_traffic_selector": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -207,14 +213,8 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				},
 				Set: schema.HashString,
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"region": {
+			"router": {
 				Type:             schema.TypeString,
-				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,

@@ -76,18 +76,24 @@ func resourceRedisInstance() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"redis_configs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"location_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
+			"redis_configs": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"redis_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -105,12 +111,6 @@ func resourceRedisInstance() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BASIC", "STANDARD_HA", ""}, false),
 				Default:      "BASIC",
-			},
-			"region": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
 			},
 			"create_time": {
 				Type:     schema.TypeString,
