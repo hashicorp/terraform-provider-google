@@ -76,3 +76,15 @@ exported:
 * `update_time` - (Computed) The timestamp in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds, representing when the variable was last updated.
 Example: "2016-10-09T12:33:37.578138407Z".
+
+## Import
+
+Runtime Config Variables can be imported using the `name` or full variable name, e.g.
+
+```
+$ terraform import google_runtimeconfig_variable.myvariable myconfig/myvariable
+```
+```
+$ terraform import google_runtimeconfig_variable.myvariable projects/my-gcp-project/configs/myconfig/variables/myvariable
+```
+When importing using only the name, the provider project must be set.
