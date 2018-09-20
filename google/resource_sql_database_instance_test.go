@@ -1105,7 +1105,6 @@ resource "google_sql_database_instance" "instance" {
 
 		backup_configuration {
 			enabled = true
-			binary_log_enabled = true
 		}
 	}
 }
