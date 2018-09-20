@@ -4,6 +4,7 @@ FEATURES:
 * **New Datasource**: `google_compute_instance` [GH-1906]
 
 ENHANCEMENTS:
+* dns: `google_dns_managed_zone` is now importable [GH-1944]
 * runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
 
 ## 1.18.0 (September 17, 2018)
