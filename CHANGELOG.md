@@ -1,4 +1,4 @@
-## 1.18.1 (Unreleased)
+## 1.19.0 (Unreleased)
 
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
