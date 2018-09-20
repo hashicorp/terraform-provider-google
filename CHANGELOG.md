@@ -3,6 +3,9 @@
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
 
+ENHANCEMENTS:
+* runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
+
 ## 1.18.0 (September 17, 2018)
 
 BACKWARDS INCOMPATIBILITIES:
