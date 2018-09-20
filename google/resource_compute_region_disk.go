@@ -69,30 +69,6 @@ func resourceComputeRegionDisk() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-			},
-			"type": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Default:          "pd-standard",
-			},
-			"region": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-			},
 			"disk_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -111,6 +87,23 @@ func resourceComputeRegionDisk() *schema.Resource {
 						},
 					},
 				},
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
 			},
 			"snapshot": {
 				Type:             schema.TypeString,
@@ -136,6 +129,13 @@ func resourceComputeRegionDisk() *schema.Resource {
 						},
 					},
 				},
+			},
+			"type": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Default:          "pd-standard",
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,

@@ -77,6 +77,19 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 								},
 							},
 						},
+						"load_balancing_utilization": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"target": {
+										Type:     schema.TypeFloat,
+										Required: true,
+									},
+								},
+							},
+						},
 						"metric": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -94,19 +107,6 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringInSlice([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE"}, false),
-									},
-								},
-							},
-						},
-						"load_balancing_utilization": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"target": {
-										Type:     schema.TypeFloat,
-										Required: true,
 									},
 								},
 							},
