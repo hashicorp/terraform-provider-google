@@ -67,6 +67,16 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
+	project, err := config.clientResourceManager.Projects.Get(id.project).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, id.project)
+	}
+	if project.LifecycleState == "DELETE_REQUESTED" {
+		log.Printf("[WARN] Removing %s from state, its project is deleted", id.terraformId())
+		d.SetId("")
+		return nil
+	}
+
 	services, err := getApiServices(id.project, config, map[string]struct{}{})
 	if err != nil {
 		return err
@@ -98,6 +108,16 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	id, err := parseProjectServiceId(d.Id())
 	if err != nil {
 		return err
+	}
+
+	project, err := config.clientResourceManager.Projects.Get(id.project).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, id.project)
+	}
+	if project.LifecycleState == "DELETE_REQUESTED" {
+		log.Printf("[WARN] Removing %s from state, its project is deleted", id.terraformId())
+		d.SetId("")
+		return nil
 	}
 
 	if err = disableService(id.service, id.project, config); err != nil {
