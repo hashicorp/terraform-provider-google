@@ -29,7 +29,10 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 	s := resourceComputeInstance().Schema
 
 	for _, field := range []string{"boot_disk", "machine_type", "network_interface"} {
+		// The user can set these fields as an override, but doesn't need to -
+		// the template values will be used if they're unset.
 		s[field].Required = false
+		s[field].Optional = true
 	}
 
 	// Remove deprecated/removed fields that are never d.Set. We can't
