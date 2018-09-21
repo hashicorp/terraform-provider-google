@@ -208,17 +208,6 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
-	regionProp, err := expandRedisInstanceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
-
-	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
 
 	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
 	if err != nil {
@@ -274,11 +263,6 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
-	}
-
-	res, err = resourceRedisInstanceDecoder(d, meta, res)
-	if err != nil {
-		return err
 	}
 
 	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"])); err != nil {
@@ -410,14 +394,6 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
-	regionProp, err := expandRedisInstanceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
-
-	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
 
 	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
@@ -671,23 +647,4 @@ func expandRedisInstanceReservedIpRange(v interface{}, d *schema.ResourceData, c
 
 func expandRedisInstanceTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandRedisInstanceRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func resourceRedisInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	delete(obj, "region")
-	return obj, nil
-}
-
-func resourceRedisInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-	res["region"] = region
-	return res, nil
 }
