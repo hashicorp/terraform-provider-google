@@ -85,7 +85,11 @@ The following arguments are supported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
+* `network_interface.0.address` - (Deprecated) The internal ip address of the instance, either manually or dynamically assigned.
+This attribute has been deprecated. Use `network_interface.0.network_ip` instead.
+
+* `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
+
 
 * `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
@@ -144,7 +148,10 @@ The `network_interface` block supports:
 
 *  `subnetwork_project` - The project in which the subnetwork belongs.
 
-* `address` - The private IP address assigned to the instance.
+* `address` - (Deprecated) The private IP address assigned to the instance.
+ This attribute has been deprecated. Use `network_interface.network_ip` instead.
+
+* `network_ip` - The private IP address assigned to the instance.
 
 * `access_config` - Access configurations, i.e. IPs via which this
     instance can be accessed via the Internet. Structure documented below.

@@ -286,7 +286,11 @@ The `network_interface` block supports:
 * `subnetwork_project` - (Optional) The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
 
-* `address` - (Optional) The private IP address to assign to the instance. If
+* `address` - (Optional, Deprecated) The private IP address to assign to the instance. If
+    empty, the address will be automatically assigned. This attribute has been deprecated.
+    Use `network_interface.network_ip` instead.
+
+* `network_ip` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
