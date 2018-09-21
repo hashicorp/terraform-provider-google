@@ -57,8 +57,7 @@ The following keys can be used to configure the provider.
   -> [Service accounts][service accounts] are the recommended way
   to manage GCP credentials. [GCE metadata] is also acceptable, although it can
   only be used when running Terraform from within [certain GCP resources](https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions).
-  Application Default Credentials, such as those obtained through the `gcloud`
-  command above, are not guaranteed to work for all APIs.
+  Credentials obtained through `gcloud` are not guaranteed to work for all APIs.
 
 * `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed

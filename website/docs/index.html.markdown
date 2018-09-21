@@ -29,7 +29,7 @@ Check out the [changelog](https://github.com/terraform-providers/terraform-provi
 for version information and release notes.
 
 Take advantage of [Modules](https://www.terraform.io/docs/modules/index.html)
-to simplify your config by using the [Module Registry for GCP modules](https://registry.terraform.io/browse?provider=google)
+to simplify your config by browsing the [Module Registry for GCP modules](https://registry.terraform.io/browse?provider=google).
 
 The Google provider is jointly maintained by:
 
