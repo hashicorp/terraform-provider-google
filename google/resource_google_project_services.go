@@ -47,7 +47,6 @@ func resourceGoogleProjectServices() *schema.Resource {
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
 var ignoreProjectServices = map[string]struct{}{
-	"containeranalysis.googleapis.com":       struct{}{},
 	"dataproc-control.googleapis.com":        struct{}{},
 	"source.googleapis.com":                  struct{}{},
 	"stackdriverprovisioning.googleapis.com": struct{}{},
