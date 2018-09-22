@@ -3,6 +3,7 @@
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
 * **New Resource**: `google_compute_interconnect_attachment` [GH-1140]
+* **New Resource**: `google_filestore_instance` [GH-2088]
 
 ENHANCEMENTS:
 * dns: `google_dns_managed_zone` is now importable [GH-1944]
