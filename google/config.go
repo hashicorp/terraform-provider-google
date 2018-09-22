@@ -71,7 +71,7 @@ type Config struct {
 	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
 	clientDnsBeta                *dnsBeta.Service
-	clientFile                   *file.Service
+	clientFilestore              *file.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
@@ -350,11 +350,11 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientDataproc.UserAgent = userAgent
 
-	c.clientFile, err = file.New(client)
+	c.clientFilestore, err = file.New(client)
 	if err != nil {
 		return err
 	}
-	c.clientFile.UserAgent = userAgent
+	c.clientFilestore.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IoT Core Client...")
 	c.clientCloudIoT, err = cloudiot.New(client)
