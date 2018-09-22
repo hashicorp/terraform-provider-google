@@ -174,14 +174,8 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
 	}
 
-	if v, ok := d.GetOk("ignored_files"); ok {
-		buildTrigger.IgnoredFiles = v.([]string)
-	}
-
-	if v, ok := d.GetOk("included_files"); ok {
-		buildTrigger.IncludedFiles = v.([]string)
-	}
-
+	buildTrigger.IgnoredFiles = expandStringSlice(d, "ignored_files")
+	buildTrigger.IncludedFiles = expandStringSlice(d, "included_files")
 	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
 	buildTrigger.Substitutions = expandStringMap(d, "substitutions")
 
