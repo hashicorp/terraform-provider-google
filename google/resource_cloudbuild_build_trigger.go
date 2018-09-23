@@ -68,9 +68,10 @@ func resourceCloudBuildTrigger() *schema.Resource {
 										ForceNew: true,
 									},
 									"args": &schema.Schema{
-										Type:     schema.TypeString,
+										Type:     schema.TypeList,
 										Optional: true,
 										ForceNew: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
@@ -270,7 +271,7 @@ func expandCloudbuildBuildTriggerBuild(d *schema.ResourceData) *cloudbuild.Build
 			Name: d.Get(fmt.Sprintf("build.0.step.%d.name", s)).(string),
 		}
 		if v, ok := d.GetOk(fmt.Sprintf("build.0.step.%d.args", s)); ok {
-			step.Args = strings.Split(v.(string), " ")
+			step.Args = convertStringArr(v.([]interface{}))
 		}
 		build.Steps = append(build.Steps, step)
 	}
@@ -293,7 +294,7 @@ func flattenCloudbuildBuildTriggerBuild(d *schema.ResourceData, config *Config, 
 		for i, step := range b.Steps {
 			steps[i] = map[string]interface{}{}
 			steps[i]["name"] = step.Name
-			steps[i]["args"] = strings.Join(step.Args, " ")
+			steps[i]["args"] = convertStringArrToInterface(step.Args)
 		}
 		flattened[0]["step"] = steps
 	}
