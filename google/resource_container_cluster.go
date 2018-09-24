@@ -550,7 +550,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		},
 		LoggingService:          d.Get("logging_service").(string),
 		MonitoringService:       d.Get("monitoring_service").(string),
-		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")), // DO NOT SUBMIT check len in expander
+		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
 		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
 		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
