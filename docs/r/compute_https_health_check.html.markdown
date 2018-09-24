@@ -41,7 +41,7 @@ To get more information about HttpsHealthCheck, see:
 
 ```hcl
 resource "google_compute_https_health_check" "default" {
-  name         = "test"
+  name         = "authentication-health-check"
   request_path = "/health_check"
 
   timeout_sec        = 1
