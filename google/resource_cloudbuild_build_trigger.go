@@ -147,21 +147,10 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	// Build the address parameter
-	buildTrigger := &cloudbuild.BuildTrigger{}
-
-	if v, ok := d.GetOk("description"); ok {
-		buildTrigger.Description = v.(string)
+	buildTrigger, err := expandCloudbuildBuildTrigger(d, meta)
+	if err != nil {
+		return err
 	}
-
-	if v, ok := d.GetOk("filename"); ok {
-		buildTrigger.Filename = v.(string)
-	} else {
-		buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
-	}
-
-	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
-	buildTrigger.Substitutions = expandStringMap(d, "substitutions")
 
 	tstr, err := json.Marshal(buildTrigger)
 	if err != nil {
@@ -206,6 +195,32 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
+}
+
+func expandCloudbuildBuildTrigger(d *schema.ResourceData, meta interface{}) (*cloudbuild.BuildTrigger, error) {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &cloudbuild.BuildTrigger{}
+
+	if v, ok := d.GetOk("description"); ok {
+		t.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("filename"); ok {
+		t.Filename = v.(string)
+	} else {
+		t.Build = expandCloudbuildBuildTriggerBuild(d)
+	}
+
+	t.Substitutions = expandStringMap(d, "substitutions")
+	t.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
+
+	return t, nil
 }
 
 func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string) *cloudbuild.RepoSource {
