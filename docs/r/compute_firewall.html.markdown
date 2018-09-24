@@ -44,10 +44,6 @@ To get more information about Firewall, see:
 ## Example Usage
 
 ```hcl
-resource "google_compute_network" "default" {
-  name = "test-network"
-}
-
 resource "google_compute_firewall" "default" {
   name    = "test-firewall"
   network = "${google_compute_network.default.name}"
@@ -62,6 +58,10 @@ resource "google_compute_firewall" "default" {
   }
 
   source_tags = ["web"]
+}
+
+resource "google_compute_network" "default" {
+  name = "test-network"
 }
 ```
 
