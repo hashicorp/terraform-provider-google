@@ -560,24 +560,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
-	}
-
-	if v, ok := d.GetOk("master_auth"); ok {
-		masterAuths := v.([]interface{})
-		masterAuth := masterAuths[0].(map[string]interface{})
-		cluster.MasterAuth = &containerBeta.MasterAuth{
-			Password: masterAuth["password"].(string),
-			Username: masterAuth["username"].(string),
-		}
-		if certConfigV, ok := masterAuth["client_certificate_config"]; ok {
-			certConfigs := certConfigV.([]interface{})
-			if len(certConfigs) > 0 {
-				certConfig := certConfigs[0].(map[string]interface{})
-				cluster.MasterAuth.ClientCertificateConfig = &containerBeta.ClientCertificateConfig{
-					IssueClientCertificate: certConfig["issue_client_certificate"].(bool),
-				}
-			}
-		}
+		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
+		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
 
 	// Only allow setting node_version on create if it's set to the equivalent master version,
@@ -651,14 +635,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 				return fmt.Errorf("ip_allocation_policy is mandatory when private_cluster=true")
 			}
 		}
-	}
-
-	if v, ok := d.GetOk("resource_labels"); ok {
-		m := make(map[string]string)
-		for k, val := range v.(map[string]interface{}) {
-			m[k] = val.(string)
-		}
-		cluster.ResourceLabels = m
 	}
 
 	req := &containerBeta.CreateClusterRequest{
