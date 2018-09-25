@@ -9,10 +9,12 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/terraform-providers/terraform-provider-random/random"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
+var testAccRandomProvider *schema.Provider
 
 var credsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",
@@ -51,8 +53,10 @@ var billingAccountEnvVars = []string{
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
+	testAccRandomProvider = random.Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"google": testAccProvider,
+		"random": testAccRandomProvider,
 	}
 }
 
