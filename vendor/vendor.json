@@ -317,6 +317,12 @@
 			"revisionTime": "2016-10-29T20:57:26Z"
 		},
 		{
+			"checksumSHA1": "PvxFk8o4Lr9oqxkdJmuEfh4gaS0=",
+			"path": "github.com/dustinkirkland/golang-petname",
+			"revision": "d3c2ba80e75eeef10c5cf2fc76d2c809637376b3",
+			"revisionTime": "2017-09-21T22:06:37Z"
+		},
+		{
 			"checksumSHA1": "1K+xrZ1PBez190iGt5OnMtGdih4=",
 			"comment": "v1.8.6",
 			"path": "github.com/go-ini/ini",
@@ -997,6 +1003,12 @@
 			"path": "github.com/stoewer/go-strcase",
 			"revision": "c8136b55823dc6af966d084a06056c5575f6400f",
 			"revisionTime": "2017-04-24T18:08:47Z"
+		},
+		{
+			"checksumSHA1": "rrmKfW5M84N1aMsTuHNnmK9g6m0=",
+			"path": "github.com/terraform-providers/terraform-provider-random/random",
+			"revision": "a3da7a23d7f9965c16311d203aee385c4c9e770c",
+			"revisionTime": "2018-08-20T14:53:04Z"
 		},
 		{
 			"checksumSHA1": "qgMa75aMGbkFY0jIqqqgVnCUoNA=",
