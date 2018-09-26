@@ -463,24 +463,15 @@ func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
 func TestAccContainerCluster_withTpu(t *testing.T) {
 	t.Parallel()
 
-	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withTpu(
-					cluster,
-					map[string]string{
-						"pods":     "10.1.0.0/16",
-						"services": "10.2.0.0/20",
-					},
-					map[string]string{
-						"cluster_secondary_range_name":  "pods",
-						"services_secondary_range_name": "services",
-					},
-				),
+				Config: testAccContainerCluster_withTpu(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_tpu", "enable_tpu", "true"),
 				),
@@ -494,6 +485,7 @@ func TestAccContainerCluster_withTpu(t *testing.T) {
 		},
 	})
 }
+
 
 func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
 	t.Parallel()
@@ -1778,23 +1770,7 @@ resource "google_container_cluster" "with_kubernetes_alpha" {
 }`, clusterName)
 }
 
-func testAccContainerCluster_withTpu(cluster string, ranges, policy map[string]string) string {
-
-	var secondaryRanges bytes.Buffer
-	for rangeName, cidr := range ranges {
-		secondaryRanges.WriteString(fmt.Sprintf(`
-	secondary_ip_range {
-	    range_name    = "%s"
-	    ip_cidr_range = "%s"
-	}`, rangeName, cidr))
-	}
-
-	var ipAllocationPolicy bytes.Buffer
-	for key, value := range policy {
-		ipAllocationPolicy.WriteString(fmt.Sprintf(`
-		%s = "%s"`, key, value))
-	}
-
+func testAccContainerCluster_withTpu(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
 	name = "container-net-%s"
@@ -1802,28 +1778,39 @@ resource "google_compute_network" "container_network" {
 }
 
 resource "google_compute_subnetwork" "container_subnetwork" {
-	name          = "${google_compute_network.container_network.name}"
-	network       = "${google_compute_network.container_network.name}"
-	ip_cidr_range = "10.0.0.0/24"
-	region        = "us-central1"
+	name                     = "${google_compute_network.container_network.name}"
+	network                  = "${google_compute_network.container_network.name}"
+	ip_cidr_range            = "10.0.35.0/24"
+	region                   = "us-central1"
 
-	%s
+	secondary_ip_range {
+		range_name    = "pod"
+		ip_cidr_range = "10.1.0.0/19"
+	}
+
+	secondary_ip_range {
+		range_name    = "svc"
+		ip_cidr_range = "10.2.0.0/22"
+	}
 }
 
 resource "google_container_cluster" "with_tpu" {
-	name = "%s"
+	name = "cluster-test-%s"
 	zone = "us-central1-b"
+	initial_node_count = 1
+
+    enable_tpu = true
 
 	network = "${google_compute_network.container_network.name}"
 	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
 
-	enable_tpu = true
-
-	initial_node_count = 1
+	master_ipv4_cidr_block = "10.42.0.0/28"
+	master_authorized_networks_config { cidr_blocks = [] }
 	ip_allocation_policy {
-	    %s
+		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
+		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
 	}
-}`, acctest.RandString(10), secondaryRanges.String(), cluster, ipAllocationPolicy.String())
+}`, clusterName, clusterName)
 }
 
 func testAccContainerCluster_defaultLegacyAbac(clusterName string) string {
