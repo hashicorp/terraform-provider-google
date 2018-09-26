@@ -202,7 +202,11 @@ The `network_interface` block supports:
    defined in the subnetwork self_link. If the `subnetwork` is a name and this
    field is not provided, the provider project is used.
 
-* `address` - (Optional) The private IP address to assign to the instance. If
+* `address` - (Optional, Deprecated) The private IP address to assign to the instance. If
+    empty, the address will be automatically assigned. This attribute has been deprecated.
+    Use `network_interface.network_ip` instead.
+
+* `network_ip` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
@@ -287,7 +291,10 @@ exported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
+* `network_interface.0.address` - (Deprecated) The internal ip address of the instance, either manually or dynamically assigned.
+This attribute has been deprecated. Use `network_interface.0.network_ip`instead.
+
+* `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
@@ -305,7 +312,7 @@ exported:
 
 ## Import
 
-~> **Note:** The fields `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+~> **Note:** The fields `boot_disk.0.disk_encryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
 
 Instances can be imported using the `project`, `zone` and `name`, e.g.
 
