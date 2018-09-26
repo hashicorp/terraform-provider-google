@@ -10,6 +10,9 @@ ENHANCEMENTS:
 * runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
 * services: containeranalysis.googleapis.com can now be enabled [GH-2095]
 
+BUG FIXES:
+* services: make google_project_service more resilient to projects being deleted [GH-2090]
+
 ## 1.18.0 (September 17, 2018)
 
 BACKWARDS INCOMPATIBILITIES:
