@@ -1,5 +1,8 @@
 ## 1.19.0 (Unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+* compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. [GH-2096]
+
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
 * **New Resource**: `google_compute_interconnect_attachment` [GH-1140]
