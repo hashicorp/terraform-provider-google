@@ -486,7 +486,6 @@ func TestAccContainerCluster_withTpu(t *testing.T) {
 	})
 }
 
-
 func TestAccContainerCluster_withPrivateCluster(t *testing.T) {
 	t.Parallel()
 
