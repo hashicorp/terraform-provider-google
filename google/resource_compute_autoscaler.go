@@ -77,6 +77,19 @@ func resourceComputeAutoscaler() *schema.Resource {
 								},
 							},
 						},
+						"load_balancing_utilization": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"target": {
+										Type:     schema.TypeFloat,
+										Required: true,
+									},
+								},
+							},
+						},
 						"metric": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -94,19 +107,6 @@ func resourceComputeAutoscaler() *schema.Resource {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringInSlice([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE"}, false),
-									},
-								},
-							},
-						},
-						"load_balancing_utilization": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"target": {
-										Type:     schema.TypeFloat,
-										Required: true,
 									},
 								},
 							},
@@ -672,6 +672,9 @@ func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v in
 }
 
 func expandComputeAutoscalerTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	if v == nil || v.(string) == "" {
+		return "", nil
+	}
 	f, err := parseZonalFieldValue("instanceGroupManagers", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for target: %s", err)

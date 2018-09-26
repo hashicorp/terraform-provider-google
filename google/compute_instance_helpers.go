@@ -147,7 +147,8 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
 		}
 
-		// network_ip is deprecated. We want address to win if both are set.
+		// address is deprecated, but address took priority over networkIP before
+		// so it should until it's removed.
 		if data["address"].(string) != "" {
 			ifaces[i].NetworkIP = data["address"].(string)
 		}

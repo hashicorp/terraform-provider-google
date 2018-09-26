@@ -45,7 +45,7 @@ To get more information about Address, see:
 ## Example Usage
 
 ```hcl
-resource "google_compute_address" "default" {
+resource "google_compute_address" "ip_address" {
   name = "my-address"
 }
 ```

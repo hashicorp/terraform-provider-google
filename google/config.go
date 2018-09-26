@@ -33,6 +33,7 @@ import (
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
 	dnsBeta "google.golang.org/api/dns/v1beta2"
+	file "google.golang.org/api/file/v1beta1"
 	"google.golang.org/api/iam/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
@@ -59,7 +60,7 @@ type Config struct {
 
 	tokenSource oauth2.TokenSource
 
-	clientBilling                *cloudbilling.Service
+	clientBilling                *cloudbilling.APIService
 	clientBuild                  *cloudbuild.Service
 	clientComposer               *composer.Service
 	clientCompute                *compute.Service
@@ -70,6 +71,7 @@ type Config struct {
 	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
 	clientDnsBeta                *dnsBeta.Service
+	clientFilestore              *file.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
@@ -347,6 +349,12 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
+
+	c.clientFilestore, err = file.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientFilestore.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IoT Core Client...")
 	c.clientCloudIoT, err = cloudiot.New(client)

@@ -565,7 +565,6 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 			resource.TestStep{
 				Config: testAccStorageBucket_encryption(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleKmsCryptoKeyExists("google_kms_crypto_key.crypto_key"),
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 				),

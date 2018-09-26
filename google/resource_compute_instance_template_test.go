@@ -147,11 +147,11 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
-func TestAccComputeInstanceTemplate_address(t *testing.T) {
+func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	address := "10.128.0.2"
+	ipAddress := "10.128.0.2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -159,13 +159,13 @@ func TestAccComputeInstanceTemplate_address(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_address(address),
+				Config: testAccComputeInstanceTemplate_networkIPAddress(ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
-					testAccCheckComputeInstanceTemplateAddress(
-						"google_compute_instance_template.foobar", address, &instanceTemplate),
+					testAccCheckComputeInstanceTemplateNetworkIPAddress(
+						"google_compute_instance_template.foobar", ipAddress, &instanceTemplate),
 				),
 			},
 			resource.TestStep{
@@ -648,14 +648,14 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
-func testAccCheckComputeInstanceTemplateAddress(n, address string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
 		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
 		if err != nil {
 			return err
 		}
-		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", address)(s)
+		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ipAddress)(s)
 	}
 }
 
@@ -888,7 +888,7 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10), networkIP)
 }
 
-func testAccComputeInstanceTemplate_address(address string) string {
+func testAccComputeInstanceTemplate_networkIPAddress(ipAddress string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -906,13 +906,13 @@ resource "google_compute_instance_template" "foobar" {
 
 	network_interface {
 		network    = "default"
-		address    = "%s"
+		network_ip    = "%s"
 	}
 
 	metadata {
 		foo = "bar"
 	}
-}`, acctest.RandString(10), address)
+}`, acctest.RandString(10), ipAddress)
 }
 
 func testAccComputeInstanceTemplate_disks() string {

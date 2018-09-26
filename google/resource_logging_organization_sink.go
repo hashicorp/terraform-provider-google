@@ -2,6 +2,8 @@ package google
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -12,11 +14,16 @@ func resourceLoggingOrganizationSink() *schema.Resource {
 		Delete: resourceLoggingOrganizationSinkDelete,
 		Update: resourceLoggingOrganizationSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
+		Importer: &schema.ResourceImporter{
+			State: resourceLoggingSinkImportState("org_id"),
+		},
 	}
 	schm.Schema["org_id"] = &schema.Schema{
-		Type:             schema.TypeString,
-		Required:         true,
-		DiffSuppressFunc: optionalPrefixSuppress("organizations/"),
+		Type:     schema.TypeString,
+		Required: true,
+		StateFunc: func(v interface{}) string {
+			return strings.Replace(v.(string), "organizations/", "", 1)
+		},
 	}
 	schm.Schema["include_children"] = &schema.Schema{
 		Type:     schema.TypeBool,
@@ -70,7 +77,8 @@ func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interfac
 	sink.ForceSendFields = append(sink.ForceSendFields, "IncludeChildren")
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.Organizations.Sinks.Patch(d.Id(), sink).UniqueWriterIdentity(true).Do()
+	_, err := config.clientLogging.Organizations.Sinks.Patch(d.Id(), sink).
+		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

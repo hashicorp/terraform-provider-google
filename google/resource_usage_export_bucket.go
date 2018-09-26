@@ -14,7 +14,7 @@ func resourceProjectUsageBucket() *schema.Resource {
 		Read:   resourceProjectUsageBucketRead,
 		Delete: resourceProjectUsageBucketDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceProjectUsageBucketImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -40,7 +40,11 @@ func resourceProjectUsageBucket() *schema.Resource {
 
 func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Id()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	p, err := config.clientCompute.Projects.Get(project).Do()
 	if err != nil {
@@ -60,6 +64,7 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -86,18 +91,29 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Id()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, nil).Do()
 	if err != nil {
 		return err
 	}
-	d.SetId(project)
-	err = computeOperationWait(config.clientCompute, op, project, "Setting usage export bucket.")
+
+	err = computeOperationWait(config.clientCompute, op, project,
+		"Setting usage export bucket to nil, automatically disabling usage export.")
 	if err != nil {
 		return err
 	}
 	d.SetId("")
 
 	return nil
+}
+
+func resourceProjectUsageBucketImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	project := d.Id()
+	d.Set("project", project)
+	return []*schema.ResourceData{d}, nil
 }

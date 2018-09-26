@@ -1,4 +1,4 @@
-// Copyright 2016 Google Inc. All Rights Reserved.
+// Copyright 2016 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	gax "github.com/googleapis/gax-go"
+	"github.com/googleapis/gax-go"
+	"google.golang.org/grpc/status"
 
 	"golang.org/x/net/context"
 
 	autogen "cloud.google.com/go/longrunning/autogen"
 	pb "google.golang.org/genproto/googleapis/longrunning"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
 
@@ -108,7 +108,7 @@ func (op *Operation) Poll(ctx context.Context, resp proto.Message, opts ...gax.C
 	switch r := op.proto.Result.(type) {
 	case *pb.Operation_Error:
 		// TODO (pongad): r.Details may contain further information
-		return grpc.Errorf(codes.Code(r.Error.Code), "%s", r.Error.Message)
+		return status.Errorf(codes.Code(r.Error.Code), "%s", r.Error.Message)
 	case *pb.Operation_Response:
 		if resp == nil {
 			return nil
@@ -119,14 +119,27 @@ func (op *Operation) Poll(ctx context.Context, resp proto.Message, opts ...gax.C
 	}
 }
 
-// Wait blocks until the operation is completed.
+// DefaultWaitInterval is the polling interval used by Operation.Wait.
+const DefaultWaitInterval = 60 * time.Second
+
+// Wait is equivalent to WaitWithInterval using DefaultWaitInterval.
+func (op *Operation) Wait(ctx context.Context, resp proto.Message, opts ...gax.CallOption) error {
+	return op.WaitWithInterval(ctx, resp, DefaultWaitInterval, opts...)
+}
+
+// WaitWithInterval blocks until the operation is completed.
 // If resp != nil, Wait stores the response in resp.
+// WaitWithInterval polls every interval, except initially
+// when it polls using exponential backoff.
 //
 // See documentation of Poll for error-handling information.
-func (op *Operation) Wait(ctx context.Context, resp proto.Message, opts ...gax.CallOption) error {
+func (op *Operation) WaitWithInterval(ctx context.Context, resp proto.Message, interval time.Duration, opts ...gax.CallOption) error {
 	bo := gax.Backoff{
-		Initial: 100 * time.Millisecond,
-		Max:     10 * time.Second,
+		Initial: 1 * time.Second,
+		Max:     interval,
+	}
+	if bo.Max < bo.Initial {
+		bo.Max = bo.Initial
 	}
 	return op.wait(ctx, resp, &bo, gax.Sleep, opts...)
 }

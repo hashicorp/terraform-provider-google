@@ -21,14 +21,12 @@ func TestAccComputeVpnTunnel_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeVpnTunnel_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeVpnTunnelExists(
-						"google_compute_vpn_tunnel.foobar"),
-					resource.TestCheckResourceAttr(
-						"google_compute_vpn_tunnel.foobar", "local_traffic_selector.#", "1"),
-					resource.TestCheckResourceAttr(
-						"google_compute_vpn_tunnel.foobar", "remote_traffic_selector.#", "2"),
-				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_vpn_tunnel.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"shared_secret"},
 			},
 		},
 	})
@@ -45,12 +43,12 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeVpnTunnelRouter(router),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeVpnTunnelExists(
-						"google_compute_vpn_tunnel.foobar"),
-					resource.TestCheckResourceAttr(
-						"google_compute_vpn_tunnel.foobar", "router", router),
-				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_vpn_tunnel.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"shared_secret"},
 			},
 		},
 	})
@@ -66,8 +64,12 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(),
-				Check: testAccCheckComputeVpnTunnelExists(
-					"google_compute_vpn_tunnel.foobar"),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_vpn_tunnel.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"shared_secret"},
 			},
 		},
 	})
@@ -96,33 +98,6 @@ func testAccCheckComputeVpnTunnelDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccCheckComputeVpnTunnelExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-		name := rs.Primary.Attributes["name"]
-		region := rs.Primary.Attributes["region"]
-		project := config.Project
-
-		vpnTunnelsService := compute.NewVpnTunnelsService(config.clientCompute)
-		_, err := vpnTunnelsService.Get(project, region, name).Do()
-
-		if err != nil {
-			return fmt.Errorf("Error Reading VPN Tunnel %s: %s", name, err)
-		}
-
-		return nil
-	}
 }
 
 func testAccComputeVpnTunnel_basic() string {
@@ -239,7 +214,7 @@ func testAccComputeVpnTunnelRouter(router string) string {
 			target_vpn_gateway = "${google_compute_vpn_gateway.foobar.self_link}"
 			shared_secret = "unguessable"
 			peer_ip = "8.8.8.8"
-			router = "${google_compute_router.foobar.name}"
+			router = "${google_compute_router.foobar.self_link}"
 		}
 	`, testId, testId, testId, testId, testId, testId, testId, router, testId)
 }

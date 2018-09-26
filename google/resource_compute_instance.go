@@ -168,18 +168,18 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"address": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-
-						"network_ip": &schema.Schema{
 							Type:       schema.TypeString,
 							Optional:   true,
 							ForceNew:   true,
 							Computed:   true,
-							Deprecated: "Please use address",
+							Deprecated: "Please use network_ip",
+						},
+
+						"network_ip": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
 						},
 
 						"access_config": &schema.Schema{
@@ -218,7 +218,6 @@ func resourceComputeInstance() *schema.Resource {
 
 						"alias_ip_range": &schema.Schema{
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

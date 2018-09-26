@@ -6,8 +6,19 @@
     <a href="/docs/providers/index.html">All Providers</a>
     </li>
 
-    <li<%= sidebar_current("docs-google-index") %>>
-    <a href="/docs/providers/google/index.html">Google Provider</a>
+    <li<%= sidebar_current("docs-google-provider") %>>
+      <a href="/docs/providers/google/index.html">Google Provider</a>
+      <ul class="nav nav-visible">
+        <li<%= sidebar_current("docs-google-provider-x") %>>
+          <a href="/docs/providers/google/index.html">Provider Info</a>
+        </li>
+        <li<%= sidebar_current("docs-google-provider-getting-started") %>>
+          <a href="/docs/providers/google/getting_started.html">Getting Started</a>
+        </li>
+        <li<%= sidebar_current("docs-google-provider-reference") %>>
+          <a href="/docs/providers/google/provider_reference.html">google provider reference</a>
+        </li>
+      </ul>
     </li>
 
     <li<%= sidebar_current("docs-google-datasource") %>>
@@ -259,6 +270,10 @@
     <ul class="nav nav-visible">
       <li<%= sidebar_current("docs-google-compute-address") %>>
       <a href="/docs/providers/google/r/compute_address.html">google_compute_address</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-attached-disk") %>>
+      <a href="/docs/providers/google/r/compute_attached_disk.html">google_compute_attached_disk</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-autoscaler") %>>
@@ -515,6 +530,15 @@
     <ul class="nav nav-visible">
       <li<%= sidebar_current("docs-google-endpoints-service") %>>
           <a href="/docs/providers/google/r/endpoints_service.html">google_endpoints_service</a>
+      </li>
+    </ul>
+    </li>
+
+    <li<%= sidebar_current("docs-google-filestore") %>>
+    <a href="#">Google Filestore Resources</a>
+    <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-filestore-instance") %>>
+          <a href="/docs/providers/google/r/filestore_instance.html">google_filestore_instance</a>
       </li>
     </ul>
     </li>

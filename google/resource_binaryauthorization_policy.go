@@ -81,10 +81,6 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 					},
 				},
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"admission_whitelist_patterns": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -106,6 +102,11 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"enforcement_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY", ""}, false),
+						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -119,11 +120,6 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 								Type: schema.TypeString,
 							},
 							Set: selfLinkNameHash,
-						},
-						"enforcement_mode": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY", ""}, false),
 						},
 					},
 				},
@@ -143,6 +139,10 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 					schema.SerializeResourceForHash(&buf, raw, resourceBinaryAuthorizationPolicy().Schema["cluster_admission_rules"].Elem.(*schema.Resource))
 					return hashcode.String(buf.String())
 				},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

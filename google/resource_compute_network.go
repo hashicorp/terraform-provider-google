@@ -95,7 +95,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Build the network parameter
 	network := &compute.Network{
-		Name: d.Get("name").(string),
+		Name:                  d.Get("name").(string),
 		AutoCreateSubnetworks: autoCreateSubnetworks,
 		Description:           d.Get("description").(string),
 	}

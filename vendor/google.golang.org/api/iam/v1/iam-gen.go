@@ -1,4 +1,4 @@
-// Package iam provides access to the Google Identity and Access Management (IAM) API.
+// Package iam provides access to the Identity and Access Management (IAM) API.
 //
 // See https://cloud.google.com/iam/
 //
@@ -56,6 +56,7 @@ func New(client *http.Client) (*Service, error) {
 		return nil, errors.New("client is nil")
 	}
 	s := &Service{client: client, BasePath: basePath}
+	s.IamPolicies = NewIamPoliciesService(s)
 	s.Organizations = NewOrganizationsService(s)
 	s.Permissions = NewPermissionsService(s)
 	s.Projects = NewProjectsService(s)
@@ -67,6 +68,8 @@ type Service struct {
 	client    *http.Client
 	BasePath  string // API endpoint base URL
 	UserAgent string // optional additional User-Agent fragment
+
+	IamPolicies *IamPoliciesService
 
 	Organizations *OrganizationsService
 
@@ -82,6 +85,15 @@ func (s *Service) userAgent() string {
 		return googleapi.UserAgent
 	}
 	return googleapi.UserAgent + " " + s.UserAgent
+}
+
+func NewIamPoliciesService(s *Service) *IamPoliciesService {
+	rs := &IamPoliciesService{s: s}
+	return rs
+}
+
+type IamPoliciesService struct {
+	s *Service
 }
 
 func NewOrganizationsService(s *Service) *OrganizationsService {
@@ -168,6 +180,99 @@ type RolesService struct {
 	s *Service
 }
 
+// AuditConfig: Specifies the audit configuration for a service.
+// The configuration determines which permission types are logged, and
+// what
+// identities, if any, are exempted from logging.
+// An AuditConfig must have one or more AuditLogConfigs.
+//
+// If there are AuditConfigs for both `allServices` and a specific
+// service,
+// the union of the two AuditConfigs is used for that service: the
+// log_types
+// specified in each AuditConfig are enabled, and the exempted_members
+// in each
+// AuditLogConfig are exempted.
+//
+// Example Policy with multiple AuditConfigs:
+//
+//     {
+//       "audit_configs": [
+//         {
+//           "service": "allServices"
+//           "audit_log_configs": [
+//             {
+//               "log_type": "DATA_READ",
+//               "exempted_members": [
+//                 "user:foo@gmail.com"
+//               ]
+//             },
+//             {
+//               "log_type": "DATA_WRITE",
+//             },
+//             {
+//               "log_type": "ADMIN_READ",
+//             }
+//           ]
+//         },
+//         {
+//           "service": "fooservice.googleapis.com"
+//           "audit_log_configs": [
+//             {
+//               "log_type": "DATA_READ",
+//             },
+//             {
+//               "log_type": "DATA_WRITE",
+//               "exempted_members": [
+//                 "user:bar@gmail.com"
+//               ]
+//             }
+//           ]
+//         }
+//       ]
+//     }
+//
+// For fooservice, this policy enables DATA_READ, DATA_WRITE and
+// ADMIN_READ
+// logging. It also exempts foo@gmail.com from DATA_READ logging,
+// and
+// bar@gmail.com from DATA_WRITE logging.
+type AuditConfig struct {
+	// AuditLogConfigs: The configuration for logging of each type of
+	// permission.
+	AuditLogConfigs []*AuditLogConfig `json:"auditLogConfigs,omitempty"`
+
+	// Service: Specifies a service that will be enabled for audit
+	// logging.
+	// For example, `storage.googleapis.com`,
+	// `cloudsql.googleapis.com`.
+	// `allServices` is a special value that covers all services.
+	Service string `json:"service,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AuditLogConfigs") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AuditLogConfigs") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AuditConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod AuditConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // AuditData: Audit log information specific to Cloud IAM. This message
 // is serialized
 // as an `Any` type in the `ServiceData` message of an
@@ -195,13 +300,112 @@ type AuditData struct {
 }
 
 func (s *AuditData) MarshalJSON() ([]byte, error) {
-	type noMethod AuditData
-	raw := noMethod(*s)
+	type NoMethod AuditData
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AuditLogConfig: Provides the configuration for logging a type of
+// permissions.
+// Example:
+//
+//     {
+//       "audit_log_configs": [
+//         {
+//           "log_type": "DATA_READ",
+//           "exempted_members": [
+//             "user:foo@gmail.com"
+//           ]
+//         },
+//         {
+//           "log_type": "DATA_WRITE",
+//         }
+//       ]
+//     }
+//
+// This enables 'DATA_READ' and 'DATA_WRITE' logging, while
+// exempting
+// foo@gmail.com from DATA_READ logging.
+type AuditLogConfig struct {
+	// ExemptedMembers: Specifies the identities that do not cause logging
+	// for this type of
+	// permission.
+	// Follows the same format of Binding.members.
+	ExemptedMembers []string `json:"exemptedMembers,omitempty"`
+
+	// LogType: The log type that this config enables.
+	//
+	// Possible values:
+	//   "LOG_TYPE_UNSPECIFIED" - Default case. Should never be this.
+	//   "ADMIN_READ" - Admin reads. Example: CloudIAM getIamPolicy
+	//   "DATA_WRITE" - Data writes. Example: CloudSQL Users create
+	//   "DATA_READ" - Data reads. Example: CloudSQL Users list
+	LogType string `json:"logType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ExemptedMembers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ExemptedMembers") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AuditLogConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod AuditLogConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AuditableService: Contains information about an auditable service.
+type AuditableService struct {
+	// Name: Public name of the service.
+	// For example, the service name for Cloud IAM is 'iam.googleapis.com'.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AuditableService) MarshalJSON() ([]byte, error) {
+	type NoMethod AuditableService
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Binding: Associates `members` with a `role`.
 type Binding struct {
+	// Condition: Unimplemented. The condition that is associated with this
+	// binding.
+	// NOTE: an unsatisfied condition will not allow user access via
+	// current
+	// binding. Different bindings, including their conditions, are
+	// examined
+	// independently.
+	Condition *Expr `json:"condition,omitempty"`
+
 	// Members: Specifies the identities requesting access for a Cloud
 	// Platform resource.
 	// `members` can have the following values:
@@ -216,7 +420,7 @@ type Binding struct {
 	//
 	// * `user:{emailid}`: An email address that represents a specific
 	// Google
-	//    account. For example, `alice@gmail.com` or `joe@example.com`.
+	//    account. For example, `alice@gmail.com` .
 	//
 	//
 	// * `serviceAccount:{emailid}`: An email address that represents a
@@ -238,12 +442,10 @@ type Binding struct {
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to `members`.
-	// For example, `roles/viewer`, `roles/editor`, or
-	// `roles/owner`.
-	// Required
+	// For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
 	Role string `json:"role,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Members") to
+	// ForceSendFields is a list of field names (e.g. "Condition") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -251,7 +453,7 @@ type Binding struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Members") to include in
+	// NullFields is a list of field names (e.g. "Condition") to include in
 	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -261,8 +463,8 @@ type Binding struct {
 }
 
 func (s *Binding) MarshalJSON() ([]byte, error) {
-	type noMethod Binding
-	raw := noMethod(*s)
+	type NoMethod Binding
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -279,11 +481,9 @@ type BindingDelta struct {
 	//   "REMOVE" - Removal of a Binding.
 	Action string `json:"action,omitempty"`
 
-	// Condition: The condition that is associated with this binding.
-	// This field is GOOGLE_INTERNAL.
-	// This field is not logged in IAM side because it's only for audit
-	// logging.
-	// Optional
+	// Condition: Unimplemented. The condition that is associated with this
+	// binding.
+	// This field is logged only for Cloud Audit Logging.
 	Condition *Expr `json:"condition,omitempty"`
 
 	// Member: A single identity requesting access for a Cloud Platform
@@ -316,8 +516,8 @@ type BindingDelta struct {
 }
 
 func (s *BindingDelta) MarshalJSON() ([]byte, error) {
-	type noMethod BindingDelta
-	raw := noMethod(*s)
+	type NoMethod BindingDelta
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -347,8 +547,8 @@ type CreateRoleRequest struct {
 }
 
 func (s *CreateRoleRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateRoleRequest
-	raw := noMethod(*s)
+	type NoMethod CreateRoleRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -364,12 +564,13 @@ type CreateServiceAccountKeyRequest struct {
 	//   "KEY_ALG_UNSPECIFIED" - An unspecified key algorithm.
 	//   "KEY_ALG_RSA_1024" - 1k RSA Key.
 	//   "KEY_ALG_RSA_2048" - 2k RSA Key.
-	//   "KEY_ALG_GCS_SYMMETRIC_HMAC" - HMAC.
 	KeyAlgorithm string `json:"keyAlgorithm,omitempty"`
 
-	// PrivateKeyType: The output format of the private key.
-	// `GOOGLE_CREDENTIALS_FILE` is the
-	// default output format.
+	// PrivateKeyType: The output format of the private key. The default
+	// value is
+	// `TYPE_GOOGLE_CREDENTIALS_FILE`, which is the Google Credentials
+	// File
+	// format.
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified. Equivalent to
@@ -398,8 +599,8 @@ type CreateServiceAccountKeyRequest struct {
 }
 
 func (s *CreateServiceAccountKeyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateServiceAccountKeyRequest
-	raw := noMethod(*s)
+	type NoMethod CreateServiceAccountKeyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -414,10 +615,10 @@ type CreateServiceAccountRequest struct {
 	// `[a-z]([-a-z0-9]*[a-z0-9])` to comply with RFC1035.
 	AccountId string `json:"accountId,omitempty"`
 
-	// ServiceAccount: The ServiceAccount resource to create.
-	// Currently, only the following values are user
+	// ServiceAccount: The ServiceAccount resource to
+	// create. Currently, only the following values are user
 	// assignable:
-	// `display_name` .
+	// `display_name`, and `description`.
 	ServiceAccount *ServiceAccount `json:"serviceAccount,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AccountId") to
@@ -438,8 +639,8 @@ type CreateServiceAccountRequest struct {
 }
 
 func (s *CreateServiceAccountRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateServiceAccountRequest
-	raw := noMethod(*s)
+	type NoMethod CreateServiceAccountRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -510,8 +711,255 @@ type Expr struct {
 }
 
 func (s *Expr) MarshalJSON() ([]byte, error) {
-	type noMethod Expr
-	raw := noMethod(*s)
+	type NoMethod Expr
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// LintPolicyRequest: The request to lint a Cloud IAM policy object.
+// LintPolicy is currently
+// functional only for `lint_object` of type `condition`.
+type LintPolicyRequest struct {
+	// Binding: Binding object to be linted. The functionality of linting a
+	// binding is
+	// not yet implemented and if this field is set, it returns
+	// NOT_IMPLEMENTED
+	// error.
+	Binding *Binding `json:"binding,omitempty"`
+
+	// Condition: google.iam.v1.Binding.condition object to be linted.
+	Condition *Expr `json:"condition,omitempty"`
+
+	// Context: `context` contains additional *permission-controlled* data
+	// that any
+	// lint unit may depend on, in form of `{key: value}` pairs. Currently,
+	// this
+	// field is non-operational and it will not be used during the lint
+	// operation.
+	Context googleapi.RawMessage `json:"context,omitempty"`
+
+	// FullResourceName: The full resource name of the policy this lint
+	// request is about.
+	//
+	// The name follows the Google Cloud Platform (GCP) resource format.
+	// For example, a GCP project with ID `my-project` will be
+	// named
+	// `//cloudresourcemanager.googleapis.com/projects/my-project`.
+	//
+	// Th
+	// e resource name is not used to read the policy instance from the
+	// Cloud
+	// IAM database. The candidate policy for lint has to be provided in the
+	// same
+	// request object.
+	FullResourceName string `json:"fullResourceName,omitempty"`
+
+	// Policy: Policy object to be linted. The functionality of linting a
+	// policy is not
+	// yet implemented and if this field is set, it returns
+	// NOT_IMPLEMENTED
+	// error.
+	Policy *Policy `json:"policy,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Binding") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Binding") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *LintPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod LintPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// LintPolicyResponse: The response of a lint operation. An empty
+// response indicates
+// the operation was able to fully execute and no lint issue was found.
+type LintPolicyResponse struct {
+	// LintResults: List of lint results sorted by a composite <severity,
+	// binding_ordinal> key,
+	// descending order of severity and ascending order of
+	// binding_ordinal.
+	// There is no certain order among the same keys.
+	//
+	// For cross-binding results (only if the input object to lint
+	// is
+	// instance of google.iam.v1.Policy), there will be
+	// a
+	// google.iam.admin.v1.LintResult for each of the involved bindings,
+	// and the associated debug_message may enumerate the other
+	// involved
+	// binding ordinal number(s).
+	LintResults []*LintResult `json:"lintResults,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "LintResults") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "LintResults") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *LintPolicyResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod LintPolicyResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// LintResult: Structured response of a single validation unit.
+type LintResult struct {
+	// BindingOrdinal: 0-based index ordinality of the binding in the input
+	// object associated
+	// with this result.
+	// This field is populated only if the input object to lint is of
+	// type
+	// google.iam.v1.Policy, which can comprise more than one binding.
+	// It is set to -1 if the result is not associated with any
+	// particular
+	// binding and only targets the policy as a whole, such as results
+	// about
+	// policy size violations.
+	BindingOrdinal int64 `json:"bindingOrdinal,omitempty"`
+
+	// DebugMessage: Human readable debug message associated with the issue.
+	DebugMessage string `json:"debugMessage,omitempty"`
+
+	// FieldName: The name of the field for which this lint result is about,
+	// relative to the
+	// input object to lint in the request.
+	//
+	// For nested messages, `field_name` consists of names of the embedded
+	// fields
+	// separated by period character. For instance, if the lint request is
+	// on a
+	// google.iam.v1.Policy and this lint result is about a
+	// condition
+	// expression of one of the input policy bindings, the field would
+	// be
+	// populated as `bindings.condition.expression`.
+	//
+	// This field does not identify the ordinality of the repetitive fields
+	// (for
+	// instance bindings in a policy).
+	FieldName string `json:"fieldName,omitempty"`
+
+	// Level: The validation unit level.
+	//
+	// Possible values:
+	//   "LEVEL_UNSPECIFIED" - Level is unspecified.
+	//   "POLICY" - A validation unit which operates on a policy. It is
+	// executed only if the
+	// input object to lint is of type google.iam.v1.Policy.
+	//   "BINDING" - A validation unit which operates on an individual
+	// binding. It is executed
+	// in both cases where the input object to lint is of
+	// type
+	// google.iam.v1.Policy or google.iam.v1.Binding.
+	//   "CONDITION" - A validation unit which operates on an individual
+	// condition within a
+	// binding. It is executed in all three cases where the input object
+	// to
+	// lint is of type google.iam.v1.Policy,
+	// google.iam.v1.Binding or
+	// google.iam.v1.Binding.condition.
+	Level string `json:"level,omitempty"`
+
+	// LocationOffset: 0-based character position of problematic construct
+	// within the object
+	// identified by `field_name`. Currently, this is populated only for
+	// condition
+	// expression.
+	LocationOffset int64 `json:"locationOffset,omitempty"`
+
+	// Severity: The validation unit severity.
+	//
+	// Possible values:
+	//   "SEVERITY_UNSPECIFIED" - Severity is unspecified.
+	//   "ERROR" - A validation unit returns an error only for critical
+	// issues. If an
+	// attempt is made to set the problematic policy without rectifying
+	// the
+	// critical issue, it causes the `setPolicy` operation to fail.
+	//   "WARNING" - Any issue which is severe enough but does not cause an
+	// error.
+	// For example, suspicious constructs in the input object will
+	// not
+	// necessarily fail `setPolicy`, but there is a high likelihood that
+	// they
+	// won't behave as expected during policy evaluation in
+	// `checkPolicy`.
+	// This includes the following common scenarios:
+	//
+	// - Unsatisfiable condition: Expired timestamp in date/time
+	// condition.
+	// - Ineffective condition: Condition on a <member, role> pair which is
+	//   granted unconditionally in another binding of the same policy.
+	//   "NOTICE" - Reserved for the issues that are not severe as
+	// `ERROR`/`WARNING`, but
+	// need special handling. For instance, messages about skipped
+	// validation
+	// units are issued as `NOTICE`.
+	//   "INFO" - Any informative statement which is not severe enough to
+	// raise
+	// `ERROR`/`WARNING`/`NOTICE`, like auto-correction recommendations on
+	// the
+	// input content. Note that current version of the linter does not
+	// utilize
+	// `INFO`.
+	//   "DEPRECATED" - Deprecated severity level.
+	Severity string `json:"severity,omitempty"`
+
+	// ValidationUnitName: The validation unit name, for
+	// instance
+	// “lintValidationUnits/ConditionComplexityCheck”.
+	ValidationUnitName string `json:"validationUnitName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BindingOrdinal") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BindingOrdinal") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *LintResult) MarshalJSON() ([]byte, error) {
+	type NoMethod LintResult
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -548,8 +996,8 @@ type ListRolesResponse struct {
 }
 
 func (s *ListRolesResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListRolesResponse
-	raw := noMethod(*s)
+	type NoMethod ListRolesResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -581,8 +1029,8 @@ type ListServiceAccountKeysResponse struct {
 }
 
 func (s *ListServiceAccountKeysResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListServiceAccountKeysResponse
-	raw := noMethod(*s)
+	type NoMethod ListServiceAccountKeysResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -619,13 +1067,17 @@ type ListServiceAccountsResponse struct {
 }
 
 func (s *ListServiceAccountsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListServiceAccountsResponse
-	raw := noMethod(*s)
+	type NoMethod ListServiceAccountsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Permission: A permission which can be included by a role.
 type Permission struct {
+	// ApiDisabled: The service API associated with the permission is not
+	// enabled.
+	ApiDisabled bool `json:"apiDisabled,omitempty"`
+
 	// CustomRolesSupportLevel: The current custom role support level.
 	//
 	// Possible values:
@@ -657,28 +1109,26 @@ type Permission struct {
 	// Title: The title of this Permission.
 	Title string `json:"title,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "CustomRolesSupportLevel") to unconditionally include in API
-	// requests. By default, fields with empty values are omitted from API
-	// requests. However, any non-pointer, non-interface field appearing in
-	// ForceSendFields will be sent to the server regardless of whether the
-	// field is empty or not. This may be used to include empty fields in
-	// Patch requests.
+	// ForceSendFields is a list of field names (e.g. "ApiDisabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "CustomRolesSupportLevel")
-	// to include in API requests with the JSON null value. By default,
-	// fields with empty values are omitted from API requests. However, any
-	// field with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "ApiDisabled") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
 func (s *Permission) MarshalJSON() ([]byte, error) {
-	type noMethod Permission
-	raw := noMethod(*s)
+	type NoMethod Permission
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -687,7 +1137,7 @@ func (s *Permission) MarshalJSON() ([]byte, error) {
 // specify access control policies for Cloud Platform resources.
 //
 //
-// A `Policy` consists of a list of `bindings`. A `Binding` binds a list
+// A `Policy` consists of a list of `bindings`. A `binding` binds a list
 // of
 // `members` to a `role`, where the members can be user accounts, Google
 // groups,
@@ -695,7 +1145,7 @@ func (s *Permission) MarshalJSON() ([]byte, error) {
 // permissions
 // defined by IAM.
 //
-// **Example**
+// **JSON Example**
 //
 //     {
 //       "bindings": [
@@ -706,7 +1156,7 @@ func (s *Permission) MarshalJSON() ([]byte, error) {
 //             "group:admins@example.com",
 //             "domain:google.com",
 //
-// "serviceAccount:my-other-app@appspot.gserviceaccount.com",
+// "serviceAccount:my-other-app@appspot.gserviceaccount.com"
 //           ]
 //         },
 //         {
@@ -716,9 +1166,27 @@ func (s *Permission) MarshalJSON() ([]byte, error) {
 //       ]
 //     }
 //
+// **YAML Example**
+//
+//     bindings:
+//     - members:
+//       - user:mike@example.com
+//       - group:admins@example.com
+//       - domain:google.com
+//       - serviceAccount:my-other-app@appspot.gserviceaccount.com
+//       role: roles/owner
+//     - members:
+//       - user:sean@example.com
+//       role: roles/viewer
+//
+//
 // For a description of IAM and its features, see the
-// [IAM developer's guide](https://cloud.google.com/iam).
+// [IAM developer's guide](https://cloud.google.com/iam/docs).
 type Policy struct {
+	// AuditConfigs: Specifies cloud audit logging configuration for this
+	// policy.
+	AuditConfigs []*AuditConfig `json:"auditConfigs,omitempty"`
+
 	// Bindings: Associates a list of `members` to a `role`.
 	// `bindings` with no members will result in an error.
 	Bindings []*Binding `json:"bindings,omitempty"`
@@ -743,14 +1211,14 @@ type Policy struct {
 	// policy is overwritten blindly.
 	Etag string `json:"etag,omitempty"`
 
-	// Version: Version of the `Policy`. The default version is 0.
+	// Version: Deprecated.
 	Version int64 `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Bindings") to
+	// ForceSendFields is a list of field names (e.g. "AuditConfigs") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -758,18 +1226,18 @@ type Policy struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Bindings") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "AuditConfigs") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
 func (s *Policy) MarshalJSON() ([]byte, error) {
-	type noMethod Policy
-	raw := noMethod(*s)
+	type NoMethod Policy
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -796,8 +1264,78 @@ type PolicyDelta struct {
 }
 
 func (s *PolicyDelta) MarshalJSON() ([]byte, error) {
-	type noMethod PolicyDelta
-	raw := noMethod(*s)
+	type NoMethod PolicyDelta
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// QueryAuditableServicesRequest: A request to get the list of auditable
+// services for a resource.
+type QueryAuditableServicesRequest struct {
+	// FullResourceName: Required. The full resource name to query from the
+	// list of auditable
+	// services.
+	//
+	// The name follows the Google Cloud Platform resource format.
+	// For example, a Cloud Platform project with id `my-project` will be
+	// named
+	// `//cloudresourcemanager.googleapis.com/projects/my-project`.
+	FullResourceName string `json:"fullResourceName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FullResourceName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FullResourceName") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *QueryAuditableServicesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod QueryAuditableServicesRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// QueryAuditableServicesResponse: A response containing a list of
+// auditable services for a resource.
+type QueryAuditableServicesResponse struct {
+	// Services: The auditable services for a resource.
+	Services []*AuditableService `json:"services,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Services") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Services") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *QueryAuditableServicesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod QueryAuditableServicesResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -846,8 +1384,8 @@ type QueryGrantableRolesRequest struct {
 }
 
 func (s *QueryGrantableRolesRequest) MarshalJSON() ([]byte, error) {
-	type noMethod QueryGrantableRolesRequest
-	raw := noMethod(*s)
+	type NoMethod QueryGrantableRolesRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -883,8 +1421,8 @@ type QueryGrantableRolesResponse struct {
 }
 
 func (s *QueryGrantableRolesResponse) MarshalJSON() ([]byte, error) {
-	type noMethod QueryGrantableRolesResponse
-	raw := noMethod(*s)
+	type NoMethod QueryGrantableRolesResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -929,8 +1467,8 @@ type QueryTestablePermissionsRequest struct {
 }
 
 func (s *QueryTestablePermissionsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod QueryTestablePermissionsRequest
-	raw := noMethod(*s)
+	type NoMethod QueryTestablePermissionsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -967,8 +1505,8 @@ type QueryTestablePermissionsResponse struct {
 }
 
 func (s *QueryTestablePermissionsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod QueryTestablePermissionsResponse
-	raw := noMethod(*s)
+	type NoMethod QueryTestablePermissionsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1045,8 +1583,8 @@ type Role struct {
 }
 
 func (s *Role) MarshalJSON() ([]byte, error) {
-	type noMethod Role
-	raw := noMethod(*s)
+	type NoMethod Role
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1076,15 +1614,15 @@ func (s *Role) MarshalJSON() ([]byte, error) {
 // the
 // `unique_id` of the service account.
 type ServiceAccount struct {
-	// DisplayName: Optional. A user-specified description of the service
-	// account.  Must be
-	// fewer than 100 UTF-8 bytes.
+	// DisplayName: Optional. A user-specified name for the service account.
+	// Must be
+	// less than or equal to 100 UTF-8 bytes.
 	DisplayName string `json:"displayName,omitempty"`
 
 	// Email: @OutputOnly The email address of the service account.
 	Email string `json:"email,omitempty"`
 
-	// Etag: Used to perform a consistent read-modify-write.
+	// Etag: Optional. Not currently used.
 	Etag string `json:"etag,omitempty"`
 
 	// Name: The resource name of the service account in the following
@@ -1139,8 +1677,8 @@ type ServiceAccount struct {
 }
 
 func (s *ServiceAccount) MarshalJSON() ([]byte, error) {
-	type noMethod ServiceAccount
-	raw := noMethod(*s)
+	type NoMethod ServiceAccount
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1175,7 +1713,6 @@ type ServiceAccountKey struct {
 	//   "KEY_ALG_UNSPECIFIED" - An unspecified key algorithm.
 	//   "KEY_ALG_RSA_1024" - 1k RSA Key.
 	//   "KEY_ALG_RSA_2048" - 2k RSA Key.
-	//   "KEY_ALG_GCS_SYMMETRIC_HMAC" - HMAC.
 	KeyAlgorithm string `json:"keyAlgorithm,omitempty"`
 
 	// Name: The resource name of the service account key in the following
@@ -1188,7 +1725,7 @@ type ServiceAccountKey struct {
 	// responses. Make sure to keep the private key data secure because
 	// it
 	// allows for the assertion of the service account identity.
-	// When decoded, the private key data can be used to authenticate
+	// When base64 decoded, the private key data can be used to authenticate
 	// with
 	// Google API client libraries and with
 	// <a
@@ -1247,8 +1784,8 @@ type ServiceAccountKey struct {
 }
 
 func (s *ServiceAccountKey) MarshalJSON() ([]byte, error) {
-	type noMethod ServiceAccountKey
-	raw := noMethod(*s)
+	type NoMethod ServiceAccountKey
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1261,6 +1798,15 @@ type SetIamPolicyRequest struct {
 	// Projects)
 	// might reject them.
 	Policy *Policy `json:"policy,omitempty"`
+
+	// UpdateMask: OPTIONAL: A FieldMask specifying which fields of the
+	// policy to modify. Only
+	// the fields in the mask will be modified. If no mask is provided,
+	// the
+	// following default mask is used:
+	// paths: "bindings, etag"
+	// This field is only used by Cloud IAM.
+	UpdateMask string `json:"updateMask,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Policy") to
 	// unconditionally include in API requests. By default, fields with
@@ -1280,8 +1826,8 @@ type SetIamPolicyRequest struct {
 }
 
 func (s *SetIamPolicyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetIamPolicyRequest
-	raw := noMethod(*s)
+	type NoMethod SetIamPolicyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1308,8 +1854,8 @@ type SignBlobRequest struct {
 }
 
 func (s *SignBlobRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SignBlobRequest
-	raw := noMethod(*s)
+	type NoMethod SignBlobRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1343,8 +1889,8 @@ type SignBlobResponse struct {
 }
 
 func (s *SignBlobResponse) MarshalJSON() ([]byte, error) {
-	type noMethod SignBlobResponse
-	raw := noMethod(*s)
+	type NoMethod SignBlobResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1371,8 +1917,8 @@ type SignJwtRequest struct {
 }
 
 func (s *SignJwtRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SignJwtRequest
-	raw := noMethod(*s)
+	type NoMethod SignJwtRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1406,8 +1952,8 @@ type SignJwtResponse struct {
 }
 
 func (s *SignJwtResponse) MarshalJSON() ([]byte, error) {
-	type noMethod SignJwtResponse
-	raw := noMethod(*s)
+	type NoMethod SignJwtResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1441,8 +1987,8 @@ type TestIamPermissionsRequest struct {
 }
 
 func (s *TestIamPermissionsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod TestIamPermissionsRequest
-	raw := noMethod(*s)
+	type NoMethod TestIamPermissionsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1476,8 +2022,8 @@ type TestIamPermissionsResponse struct {
 }
 
 func (s *TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod TestIamPermissionsResponse
-	raw := noMethod(*s)
+	type NoMethod TestIamPermissionsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1504,9 +2050,281 @@ type UndeleteRoleRequest struct {
 }
 
 func (s *UndeleteRoleRequest) MarshalJSON() ([]byte, error) {
-	type noMethod UndeleteRoleRequest
-	raw := noMethod(*s)
+	type NoMethod UndeleteRoleRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// method id "iam.iamPolicies.lintPolicy":
+
+type IamPoliciesLintPolicyCall struct {
+	s                 *Service
+	lintpolicyrequest *LintPolicyRequest
+	urlParams_        gensupport.URLParams
+	ctx_              context.Context
+	header_           http.Header
+}
+
+// LintPolicy: Lints a Cloud IAM policy object or its sub fields.
+// Currently supports
+// google.iam.v1.Policy, google.iam.v1.Binding
+// and
+// google.iam.v1.Binding.condition.
+//
+// Each lint operation consists of multiple lint validation
+// units.
+// Validation units have the following properties:
+//
+// - Each unit inspects the input object in regard to a particular
+//   linting aspect and issues a google.iam.admin.v1.LintResult
+//   disclosing the result.
+// - Domain of discourse of each unit can be either
+//   google.iam.v1.Policy, google.iam.v1.Binding, or
+//   google.iam.v1.Binding.condition depending on the purpose of the
+//   validation.
+// - A unit may require additional data (like the list of all possible
+//   enumerable values of a particular attribute used in the policy
+// instance)
+//   which shall be provided by the caller. Refer to the comments of
+//   google.iam.admin.v1.LintPolicyRequest.context for more
+// details.
+//
+// The set of applicable validation units is determined by the Cloud
+// IAM
+// server and is not configurable.
+//
+// Regardless of any lint issues or their severities, successful calls
+// to
+// `lintPolicy` return an HTTP 200 OK status code.
+func (r *IamPoliciesService) LintPolicy(lintpolicyrequest *LintPolicyRequest) *IamPoliciesLintPolicyCall {
+	c := &IamPoliciesLintPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.lintpolicyrequest = lintpolicyrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *IamPoliciesLintPolicyCall) Fields(s ...googleapi.Field) *IamPoliciesLintPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *IamPoliciesLintPolicyCall) Context(ctx context.Context) *IamPoliciesLintPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *IamPoliciesLintPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *IamPoliciesLintPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.lintpolicyrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/iamPolicies:lintPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "iam.iamPolicies.lintPolicy" call.
+// Exactly one of *LintPolicyResponse or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *LintPolicyResponse.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *IamPoliciesLintPolicyCall) Do(opts ...googleapi.CallOption) (*LintPolicyResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &LintPolicyResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lints a Cloud IAM policy object or its sub fields. Currently supports\ngoogle.iam.v1.Policy, google.iam.v1.Binding and\ngoogle.iam.v1.Binding.condition.\n\nEach lint operation consists of multiple lint validation units.\nValidation units have the following properties:\n\n- Each unit inspects the input object in regard to a particular\n  linting aspect and issues a google.iam.admin.v1.LintResult\n  disclosing the result.\n- Domain of discourse of each unit can be either\n  google.iam.v1.Policy, google.iam.v1.Binding, or\n  google.iam.v1.Binding.condition depending on the purpose of the\n  validation.\n- A unit may require additional data (like the list of all possible\n  enumerable values of a particular attribute used in the policy instance)\n  which shall be provided by the caller. Refer to the comments of\n  google.iam.admin.v1.LintPolicyRequest.context for more details.\n\nThe set of applicable validation units is determined by the Cloud IAM\nserver and is not configurable.\n\nRegardless of any lint issues or their severities, successful calls to\n`lintPolicy` return an HTTP 200 OK status code.",
+	//   "flatPath": "v1/iamPolicies:lintPolicy",
+	//   "httpMethod": "POST",
+	//   "id": "iam.iamPolicies.lintPolicy",
+	//   "parameterOrder": [],
+	//   "parameters": {},
+	//   "path": "v1/iamPolicies:lintPolicy",
+	//   "request": {
+	//     "$ref": "LintPolicyRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "LintPolicyResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "iam.iamPolicies.queryAuditableServices":
+
+type IamPoliciesQueryAuditableServicesCall struct {
+	s                             *Service
+	queryauditableservicesrequest *QueryAuditableServicesRequest
+	urlParams_                    gensupport.URLParams
+	ctx_                          context.Context
+	header_                       http.Header
+}
+
+// QueryAuditableServices: Returns a list of services that support
+// service level audit logging
+// configuration for the given resource.
+func (r *IamPoliciesService) QueryAuditableServices(queryauditableservicesrequest *QueryAuditableServicesRequest) *IamPoliciesQueryAuditableServicesCall {
+	c := &IamPoliciesQueryAuditableServicesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.queryauditableservicesrequest = queryauditableservicesrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *IamPoliciesQueryAuditableServicesCall) Fields(s ...googleapi.Field) *IamPoliciesQueryAuditableServicesCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *IamPoliciesQueryAuditableServicesCall) Context(ctx context.Context) *IamPoliciesQueryAuditableServicesCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *IamPoliciesQueryAuditableServicesCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *IamPoliciesQueryAuditableServicesCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.queryauditableservicesrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/iamPolicies:queryAuditableServices")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "iam.iamPolicies.queryAuditableServices" call.
+// Exactly one of *QueryAuditableServicesResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *QueryAuditableServicesResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *IamPoliciesQueryAuditableServicesCall) Do(opts ...googleapi.CallOption) (*QueryAuditableServicesResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &QueryAuditableServicesResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns a list of services that support service level audit logging\nconfiguration for the given resource.",
+	//   "flatPath": "v1/iamPolicies:queryAuditableServices",
+	//   "httpMethod": "POST",
+	//   "id": "iam.iamPolicies.queryAuditableServices",
+	//   "parameterOrder": [],
+	//   "parameters": {},
+	//   "path": "v1/iamPolicies:queryAuditableServices",
+	//   "request": {
+	//     "$ref": "QueryAuditableServicesRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "QueryAuditableServicesResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
 }
 
 // method id "iam.organizations.roles.create":
@@ -1609,7 +2427,7 @@ func (c *OrganizationsRolesCreateCall) Do(opts ...googleapi.CallOption) (*Role, 
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -1755,7 +2573,7 @@ func (c *OrganizationsRolesDeleteCall) Do(opts ...googleapi.CallOption) (*Role, 
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -1900,7 +2718,7 @@ func (c *OrganizationsRolesGetCall) Do(opts ...googleapi.CallOption) (*Role, err
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2071,7 +2889,7 @@ func (c *OrganizationsRolesListCall) Do(opts ...googleapi.CallOption) (*ListRole
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2256,7 +3074,7 @@ func (c *OrganizationsRolesPatchCall) Do(opts ...googleapi.CallOption) (*Role, e
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2397,7 +3215,7 @@ func (c *OrganizationsRolesUndeleteCall) Do(opts ...googleapi.CallOption) (*Role
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2530,7 +3348,7 @@ func (c *PermissionsQueryTestablePermissionsCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2676,7 +3494,7 @@ func (c *ProjectsRolesCreateCall) Do(opts ...googleapi.CallOption) (*Role, error
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2822,7 +3640,7 @@ func (c *ProjectsRolesDeleteCall) Do(opts ...googleapi.CallOption) (*Role, error
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2967,7 +3785,7 @@ func (c *ProjectsRolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3138,7 +3956,7 @@ func (c *ProjectsRolesListCall) Do(opts ...googleapi.CallOption) (*ListRolesResp
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3323,7 +4141,7 @@ func (c *ProjectsRolesPatchCall) Do(opts ...googleapi.CallOption) (*Role, error)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3464,7 +4282,7 @@ func (c *ProjectsRolesUndeleteCall) Do(opts ...googleapi.CallOption) (*Role, err
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3600,7 +4418,7 @@ func (c *ProjectsServiceAccountsCreateCall) Do(opts ...googleapi.CallOption) (*S
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3728,7 +4546,7 @@ func (c *ProjectsServiceAccountsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3867,7 +4685,7 @@ func (c *ProjectsServiceAccountsGetCall) Do(opts ...googleapi.CallOption) (*Serv
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3994,7 +4812,7 @@ func (c *ProjectsServiceAccountsGetIamPolicyCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4153,7 +4971,7 @@ func (c *ProjectsServiceAccountsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4319,7 +5137,7 @@ func (c *ProjectsServiceAccountsSetIamPolicyCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4455,7 +5273,7 @@ func (c *ProjectsServiceAccountsSignBlobCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4597,7 +5415,7 @@ func (c *ProjectsServiceAccountsSignJwtCall) Do(opts ...googleapi.CallOption) (*
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4734,7 +5552,7 @@ func (c *ProjectsServiceAccountsTestIamPermissionsCall) Do(opts ...googleapi.Cal
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4783,8 +5601,7 @@ type ProjectsServiceAccountsUpdateCall struct {
 // Update: Updates a ServiceAccount.
 //
 // Currently, only the following fields are updatable:
-// `display_name` .
-// The `etag` is mandatory.
+// `display_name`, `description`.
 func (r *ProjectsServiceAccountsService) Update(name string, serviceaccount *ServiceAccount) *ProjectsServiceAccountsUpdateCall {
 	c := &ProjectsServiceAccountsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4873,12 +5690,12 @@ func (c *ProjectsServiceAccountsUpdateCall) Do(opts ...googleapi.CallOption) (*S
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a ServiceAccount.\n\nCurrently, only the following fields are updatable:\n`display_name` .\nThe `etag` is mandatory.",
+	//   "description": "Updates a ServiceAccount.\n\nCurrently, only the following fields are updatable:\n`display_name`, `description`.",
 	//   "flatPath": "v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "iam.projects.serviceAccounts.update",
@@ -5009,7 +5826,7 @@ func (c *ProjectsServiceAccountsKeysCreateCall) Do(opts ...googleapi.CallOption)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5137,7 +5954,7 @@ func (c *ProjectsServiceAccountsKeysDeleteCall) Do(opts ...googleapi.CallOption)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5290,7 +6107,7 @@ func (c *ProjectsServiceAccountsKeysGetCall) Do(opts ...googleapi.CallOption) (*
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5453,7 +6270,7 @@ func (c *ProjectsServiceAccountsKeysListCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5603,7 +6420,7 @@ func (c *RolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5780,7 +6597,7 @@ func (c *RolesListCall) Do(opts ...googleapi.CallOption) (*ListRolesResponse, er
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5953,7 +6770,7 @@ func (c *RolesQueryGrantableRolesCall) Do(opts ...googleapi.CallOption) (*QueryG
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil

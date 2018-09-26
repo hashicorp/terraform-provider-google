@@ -84,6 +84,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
+	"max_pods_per_node": &schema.Schema{
+		Type:     schema.TypeInt,
+		Optional: true,
+		Computed: true,
+	},
+
 	"initial_node_count": &schema.Schema{
 		Type:     schema.TypeInt,
 		Optional: true,
@@ -420,6 +426,9 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 
 		d.Set("cluster", parts[2])
 		d.Set("name", parts[3])
+
+		// override the inputted ID with the <location>/<cluster>/<name> format
+		d.SetId(strings.Join(parts[1:], "/"))
 	default:
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
 	}
@@ -465,6 +474,12 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
 			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
 			ForceSendFields: []string{"MinNodeCount"},
+		}
+	}
+
+	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
+		np.MaxPodsConstraint = &containerBeta.MaxPodsConstraint{
+			MaxPodsPerNode: int64(v.(int)),
 		}
 	}
 
@@ -518,6 +533,10 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 				"max_node_count": np.Autoscaling.MaxNodeCount,
 			},
 		}
+	}
+
+	if np.MaxPodsConstraint != nil {
+		nodePool["max_pods_per_node"] = np.MaxPodsConstraint.MaxPodsPerNode
 	}
 
 	nodePool["management"] = []map[string]interface{}{

@@ -190,7 +190,7 @@ The optional `settings.database_flags` sublist supports:
 The optional `settings.backup_configuration` subblock supports:
 
 * `binary_log_enabled` - (Optional) True if binary logging is enabled. If
-    `logging` is false, this must be as well.
+    `logging` is false, this must be as well. Cannot be used with Postgres.
 
 * `enabled` - (Optional) True if backup configuration is enabled.
 
@@ -301,6 +301,8 @@ when the resource is configured with a `count`.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
 
+* `service_account_email_address` - The service account email address assigned to the
+instance. This property is applicable only to Second Generation instances.
 
 ## Timeouts
 
@@ -321,3 +323,8 @@ $ terraform import google_sql_database_instance.master {{project}}/{{name}}
 $ terraform import google_sql_database_instance.master {{name}}
 
 ```
+
+~> **NOTE:** Some fields (such as `replica_configuration`) won't show a diff if they are unset in
+config and set on the server.
+When importing, double-check that your config has all the fields set that you expect- just seeing
+no diff isn't sufficient to know that your config could reproduce the imported resource.

@@ -66,11 +66,6 @@
       "location": "query",
       "type": "string"
     },
-    "bearer_token": {
-      "description": "OAuth bearer token.",
-      "location": "query",
-      "type": "string"
-    },
     "callback": {
       "description": "JSONP",
       "location": "query",
@@ -90,12 +85,6 @@
       "description": "OAuth 2.0 token for the current user.",
       "location": "query",
       "type": "string"
-    },
-    "pp": {
-      "default": "true",
-      "description": "Pretty-print response.",
-      "location": "query",
-      "type": "boolean"
     },
     "prettyPrint": {
       "default": "true",
@@ -349,7 +338,7 @@
       }
     }
   },
-  "revision": "20180503",
+  "revision": "20180820",
   "rootUrl": "https://serviceusage.googleapis.com/",
   "schemas": {
     "Api": {
@@ -474,10 +463,6 @@
         "allowWithoutCredential": {
           "description": "If true, the service accepts API keys without any other credential.",
           "type": "boolean"
-        },
-        "customAuth": {
-          "$ref": "CustomAuthRequirements",
-          "description": "Configuration for custom authentication."
         },
         "oauth": {
           "$ref": "OAuthRequirements",
@@ -693,17 +678,6 @@
       },
       "type": "object"
     },
-    "CustomAuthRequirements": {
-      "description": "Configuration for a custom authentication provider.",
-      "id": "CustomAuthRequirements",
-      "properties": {
-        "provider": {
-          "description": "A configuration string containing connection information for the\nauthentication provider, typically formatted as a SmartService string\n(go/smartservice).",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
     "CustomError": {
       "description": "Customize service error responses.  For example, list any service\nspecific protobuf types that can appear in error detail lists of\nerror responses.\n\nExample:\n\n    custom_error:\n      types:\n      - google.foo.v1.CustomError\n      - google.foo.v1.AnotherError",
       "id": "CustomError",
@@ -824,7 +798,14 @@
       },
       "type": "object"
     },
+    "Empty": {
+      "description": "A generic empty message that you can re-use to avoid defining duplicated\nempty messages in your APIs. A typical example is to use it as the request\nor the response type of an API method. For instance:\n\n    service Foo {\n      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);\n    }\n\nThe JSON representation for `Empty` is empty JSON object `{}`.",
+      "id": "Empty",
+      "properties": {},
+      "type": "object"
+    },
     "EnableFailure": {
+      "description": "Provides error messages for the failing services.",
       "id": "EnableFailure",
       "properties": {
         "errorMessage": {
@@ -1136,7 +1117,7 @@
           "description": "HTTP configuration."
         },
         "id": {
-          "description": "A unique ID for a specific instance of this message, typically assigned\nby the client for tracking purpose. If empty, the server may choose to\ngenerate one instead.",
+          "description": "A unique ID for a specific instance of this message, typically assigned\nby the client for tracking purpose. If empty, the server may choose to\ngenerate one instead. Must be no longer than 60 characters.",
           "type": "string"
         },
         "logging": {
@@ -1209,6 +1190,20 @@
         "usage": {
           "$ref": "Usage",
           "description": "Configuration controlling usage of this service."
+        }
+      },
+      "type": "object"
+    },
+    "GoogleApiServiceusageV1OperationMetadata": {
+      "description": "The operation metadata returned for the batchend services operation.",
+      "id": "GoogleApiServiceusageV1OperationMetadata",
+      "properties": {
+        "resourceNames": {
+          "description": "The full name of the resources that this operation is directly\nassociated with.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "type": "object"
@@ -1361,6 +1356,10 @@
         },
         "put": {
           "description": "Used for updating a resource.",
+          "type": "string"
+        },
+        "responseBody": {
+          "description": "Optional. The name of the response field whose value is mapped to the HTTP\nbody of response. Other response fields are ignored. When\nnot set, the response message will be used as HTTP body of response.",
           "type": "string"
         },
         "restCollection": {
@@ -1648,6 +1647,10 @@
           },
           "type": "array"
         },
+        "metadata": {
+          "$ref": "MetricDescriptorMetadata",
+          "description": "Optional. Metadata which can be used to guide usage of the metric."
+        },
         "metricKind": {
           "description": "Whether the metric records instantaneous values, changes to a value, etc.\nSome combinations of `metric_kind` and `value_type` might not be supported.",
           "enum": [
@@ -1669,7 +1672,7 @@
           "type": "string"
         },
         "type": {
-          "description": "The metric type, including its DNS name prefix. The type is not\nURL-encoded.  All user-defined custom metric types have the DNS name\n`custom.googleapis.com`.  Metric types should use a natural hierarchical\ngrouping. For example:\n\n    \"custom.googleapis.com/invoice/paid/amount\"\n    \"appengine.googleapis.com/http/server/response_latencies\"",
+          "description": "The metric type, including its DNS name prefix. The type is not\nURL-encoded.  All user-defined metric types have the DNS name\n`custom.googleapis.com` or `external.googleapis.com`.  Metric types should\nuse a natural hierarchical grouping. For example:\n\n    \"custom.googleapis.com/invoice/paid/amount\"\n    \"external.googleapis.com/prometheus/up\"\n    \"appengine.googleapis.com/http/server/response_latencies\"",
           "type": "string"
         },
         "unit": {
@@ -1696,6 +1699,43 @@
             "The value is a `Distribution`.",
             "The value is money."
           ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "MetricDescriptorMetadata": {
+      "description": "Additional annotations that can be used to guide the usage of a metric.",
+      "id": "MetricDescriptorMetadata",
+      "properties": {
+        "ingestDelay": {
+          "description": "The delay of data points caused by ingestion. Data points older than this\nage are guaranteed to be ingested and available to be read, excluding\ndata loss due to errors.",
+          "format": "google-duration",
+          "type": "string"
+        },
+        "launchStage": {
+          "description": "The launch stage of the metric definition.",
+          "enum": [
+            "LAUNCH_STAGE_UNSPECIFIED",
+            "EARLY_ACCESS",
+            "ALPHA",
+            "BETA",
+            "GA",
+            "DEPRECATED"
+          ],
+          "enumDescriptions": [
+            "Do not use this default value.",
+            "Early Access features are limited to a closed group of testers. To use\nthese features, you must sign up in advance and sign a Trusted Tester\nagreement (which includes confidentiality provisions). These features may\nbe unstable, changed in backward-incompatible ways, and are not\nguaranteed to be released.",
+            "Alpha is a limited availability test for releases before they are cleared\nfor widespread use. By Alpha, all significant design issues are resolved\nand we are in the process of verifying functionality. Alpha customers\nneed to apply for access, agree to applicable terms, and have their\nprojects whitelisted. Alpha releases don’t have to be feature complete,\nno SLAs are provided, and there are no technical support obligations, but\nthey will be far enough along that customers can actually use them in\ntest environments or for limited-use tests -- just like they would in\nnormal production cases.",
+            "Beta is the point at which we are ready to open a release for any\ncustomer to use. There are no SLA or technical support obligations in a\nBeta release. Products will be complete from a feature perspective, but\nmay have some open outstanding issues. Beta releases are suitable for\nlimited production use cases.",
+            "GA features are open to all developers and are considered stable and\nfully qualified for production use.",
+            "Deprecated features are scheduled to be shut down and removed. For more\ninformation, see the “Deprecation Policy” section of our [Terms of\nService](https://cloud.google.com/terms/)\nand the [Google Cloud Platform Subject to the Deprecation\nPolicy](https://cloud.google.com/terms/deprecation) documentation."
+          ],
+          "type": "string"
+        },
+        "samplePeriod": {
+          "description": "The sampling period of metric data points. For metrics which are written\nperiodically, consecutive data points are stored at this time interval,\nexcluding data loss due to errors. Metrics with a higher granularity have\na smaller sampling period.",
+          "format": "google-duration",
           "type": "string"
         }
       },
@@ -1851,30 +1891,13 @@
       "type": "object"
     },
     "OperationMetadata": {
-      "description": "The metadata associated with a long running operation resource.",
+      "description": "The operation metadata returned for the batchend services operation.",
       "id": "OperationMetadata",
       "properties": {
-        "progressPercentage": {
-          "description": "Percentage of completion of this operation, ranging from 0 to 100.",
-          "format": "int32",
-          "type": "integer"
-        },
         "resourceNames": {
           "description": "The full name of the resources that this operation is directly\nassociated with.",
           "items": {
             "type": "string"
-          },
-          "type": "array"
-        },
-        "startTime": {
-          "description": "The start time of the operation.",
-          "format": "google-datetime",
-          "type": "string"
-        },
-        "steps": {
-          "description": "Detailed status information for each step. The order is undetermined.",
-          "items": {
-            "$ref": "Step"
           },
           "type": "array"
         }
@@ -2126,37 +2149,6 @@
         },
         "message": {
           "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\ngoogle.rpc.Status.details field, or localized by the client.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "Step": {
-      "description": "Represents the status of one operation step.",
-      "id": "Step",
-      "properties": {
-        "description": {
-          "description": "The short description of the step.",
-          "type": "string"
-        },
-        "status": {
-          "description": "The status code.",
-          "enum": [
-            "STATUS_UNSPECIFIED",
-            "DONE",
-            "NOT_STARTED",
-            "IN_PROGRESS",
-            "FAILED",
-            "CANCELLED"
-          ],
-          "enumDescriptions": [
-            "Unspecifed code.",
-            "The operation or step has completed without errors.",
-            "The operation or step has not started yet.",
-            "The operation or step is in progress.",
-            "The operation or step has completed with errors. If the operation is\nrollbackable, the rollback completed with errors too.",
-            "The operation or step has completed with cancellation."
-          ],
           "type": "string"
         }
       },

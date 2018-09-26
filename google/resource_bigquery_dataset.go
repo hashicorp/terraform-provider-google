@@ -108,6 +108,63 @@ func resourceBigQueryDataset() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			// Access: [Optional] An array of objects that define dataset access
+			// for one or more entities. You can set this property when inserting
+			// or updating a dataset in order to control who is allowed to access
+			// the data.
+			"access": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				// Computed because if unset, BQ adds 4 entries automatically
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"role": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
+						},
+						"domain": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"group_by_email": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"special_group": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"user_by_email": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"view": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"project_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"dataset_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			// SelfLink: [Output-only] A URL that can be used to access the resource
 			// again. You can use this URL in Get or Update requests to the
 			// resource.
@@ -180,6 +237,48 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 		dataset.Labels = labels
 	}
 
+	if v, ok := d.GetOk("access"); ok {
+		access := []*bigquery.DatasetAccess{}
+		for _, m := range v.([]interface{}) {
+			da := bigquery.DatasetAccess{}
+			accessMap := m.(map[string]interface{})
+			da.Role = accessMap["role"].(string)
+			if val, ok := accessMap["domain"]; ok {
+				da.Domain = val.(string)
+			}
+			if val, ok := accessMap["group_by_email"]; ok {
+				da.GroupByEmail = val.(string)
+			}
+			if val, ok := accessMap["special_group"]; ok {
+				da.SpecialGroup = val.(string)
+			}
+			if val, ok := accessMap["user_by_email"]; ok {
+				da.UserByEmail = val.(string)
+			}
+			if val, ok := accessMap["view"]; ok {
+				views := val.([]interface{})
+				if len(views) > 0 {
+					vm := views[0].(map[string]interface{})
+					if len(vm) > 0 {
+						view := bigquery.TableReference{}
+						if dsId, ok := vm["dataset_id"]; ok {
+							view.DatasetId = dsId.(string)
+						}
+						if pId, ok := vm["project_id"]; ok {
+							view.ProjectId = pId.(string)
+						}
+						if tId, ok := vm["table_id"]; ok {
+							view.TableId = tId.(string)
+						}
+						da.View = &view
+					}
+				}
+			}
+			access = append(access, &da)
+		}
+		dataset.Access = access
+	}
+
 	return dataset, nil
 }
 
@@ -228,6 +327,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", id.Project)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
+	if err := d.Set("access", flattenAccess(res.Access)); err != nil {
+		return err
+	}
 	d.Set("self_link", res.SelfLink)
 	d.Set("description", res.Description)
 	d.Set("friendly_name", res.FriendlyName)
@@ -303,4 +405,28 @@ func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
 	}
 
 	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+}
+
+func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
+	access := make([]map[string]interface{}, 0, len(a))
+	for _, da := range a {
+		ai := map[string]interface{}{
+			"role":           da.Role,
+			"domain":         da.Domain,
+			"group_by_email": da.GroupByEmail,
+			"special_group":  da.SpecialGroup,
+			"user_by_email":  da.UserByEmail,
+		}
+		if da.View != nil {
+			view := []map[string]interface{}{{
+				"project_id": da.View.ProjectId,
+				"dataset_id": da.View.DatasetId,
+				"table_id":   da.View.TableId,
+			},
+			}
+			ai["view"] = view
+		}
+		access = append(access, ai)
+	}
+	return access
 }

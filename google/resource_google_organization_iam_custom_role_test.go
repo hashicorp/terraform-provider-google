@@ -78,6 +78,45 @@ func TestAccOrganizationIamCustomRole_undelete(t *testing.T) {
 	})
 }
 
+func TestAccOrganizationIamCustomRole_createAfterDestroy(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	roleId := "tfIamCustomRole" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
+				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					"google_organization_iam_custom_role.foo",
+					"My Custom Role",
+					"foo",
+					"GA",
+					[]string{"resourcemanager.projects.list"}),
+			},
+			// Destroy resources
+			{
+				Config:  " ",
+				Destroy: true,
+			},
+			// Re-create with no existing state
+			{
+				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
+				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					"google_organization_iam_custom_role.foo",
+					"My Custom Role",
+					"foo",
+					"GA",
+					[]string{"resourcemanager.projects.list"}),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleOrganizationIamCustomRoleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
