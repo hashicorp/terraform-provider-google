@@ -179,7 +179,7 @@ func TestAccComputeInstance_IP(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+					testAccCheckComputeInstanceAccessConfigHasNatIP(&instance),
 				),
 			},
 		},
@@ -213,32 +213,10 @@ func TestAccComputeInstance_PTRRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
+					testAccCheckComputeInstanceAccessConfigHasNatIP(&instance),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
-		},
-	})
-}
-
-func TestAccComputeInstance_GenerateIP(t *testing.T) {
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeInstance_generateIp(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
-					testAccCheckComputeInstanceHasAssignedIP,
-				),
-			},
 		},
 	})
 }
@@ -257,8 +235,8 @@ func TestAccComputeInstance_networkTier(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceAccessConfigHasIP(&instance),
-					testAccCheckComputeInstanceHasAssignedIP,
+					testAccCheckComputeInstanceAccessConfigHasNatIP(&instance),
+					testAccCheckComputeInstanceHasAssignedNatIP,
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -765,7 +743,7 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_address_auto(t *testing.T) {
+func TestAccComputeInstance_networkIPAuto(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
@@ -777,34 +755,34 @@ func TestAccComputeInstance_address_auto(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_address_auto(instanceName),
+				Config: testAccComputeInstance_networkIPAuto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasAnyAddress(&instance),
+					testAccCheckComputeInstanceHasAnyNetworkIP(&instance),
 				),
 			},
 		},
 	})
 }
 
-func TestAccComputeInstance_address_custom(t *testing.T) {
+func TestAccComputeInstance_network_ip_custom(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var address = "10.0.200.200"
+	var ipAddress = "10.0.200.200"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstance_address_custom(instanceName, address),
+				Config: testAccComputeInstance_network_ip_custom(instanceName, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasAddress(&instance, address),
+					testAccCheckComputeInstanceHasNetworkIP(&instance, ipAddress),
 				),
 			},
 		},
@@ -1192,7 +1170,7 @@ func testAccCheckComputeInstanceAccessConfig(instance *compute.Instance) resourc
 	}
 }
 
-func testAccCheckComputeInstanceAccessConfigHasIP(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceAccessConfigHasNatIP(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
 			for _, c := range i.AccessConfigs {
@@ -1428,11 +1406,11 @@ func testAccCheckComputeInstanceHasSubnet(instance *compute.Instance) resource.T
 	}
 }
 
-func testAccCheckComputeInstanceHasAnyAddress(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasAnyNetworkIP(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
 			if i.NetworkIP == "" {
-				return fmt.Errorf("no address")
+				return fmt.Errorf("no network_ip")
 			}
 		}
 
@@ -1440,11 +1418,11 @@ func testAccCheckComputeInstanceHasAnyAddress(instance *compute.Instance) resour
 	}
 }
 
-func testAccCheckComputeInstanceHasAddress(instance *compute.Instance, address string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, networkIP string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
-			if i.NetworkIP != address {
-				return fmt.Errorf("Wrong address found: expected %v, got %v", address, i.NetworkIP)
+			if i.NetworkIP != networkIP {
+				return fmt.Errorf("Wrong network_ip found: expected %v, got %v", networkIP, i.NetworkIP)
 			}
 		}
 
@@ -1514,7 +1492,7 @@ func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subn
 	}
 }
 
-func testAccCheckComputeInstanceHasAssignedIP(s *terraform.State) error {
+func testAccCheckComputeInstanceHasAssignedNatIP(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_instance" {
 			continue
@@ -1903,39 +1881,6 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, instance, record)
-}
-
-func testAccComputeInstance_generateIp(instance string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
-}
-
-resource "google_compute_instance" "foobar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
-	tags         = ["foo", "bar"]
-
-	boot_disk {
-		initialize_params{
-			image = "${data.google_compute_image.my_image.self_link}"
-		}
-	}
-
-	network_interface {
-		network = "default"
-		access_config {
-			// generate ephemeral IP
-		}
-	}
-
-	metadata {
-		foo = "bar"
-	}
-}
-`, instance)
 }
 
 func testAccComputeInstance_networkTier(instance string) string {
@@ -2626,7 +2571,7 @@ resource "google_compute_instance" "foobar" {
 `, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
-func testAccComputeInstance_address_auto(instance string) string {
+func testAccComputeInstance_networkIPAuto(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -2662,7 +2607,7 @@ resource "google_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
-func testAccComputeInstance_address_custom(instance, address string) string {
+func testAccComputeInstance_network_ip_custom(instance, ipAddress string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -2691,12 +2636,12 @@ resource "google_compute_instance" "foobar" {
 
 	network_interface {
 		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.name}"
-		address    = "%s"
+		network_ip    = "%s"
 		access_config {	}
 	}
 
 }
-`, acctest.RandString(10), acctest.RandString(10), instance, address)
+`, acctest.RandString(10), acctest.RandString(10), instance, ipAddress)
 }
 
 func testAccComputeInstance_private_image_family(disk, family, instance string) string {
