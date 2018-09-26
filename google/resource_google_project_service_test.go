@@ -63,6 +63,31 @@ func TestAccProjectService_basic(t *testing.T) {
 	})
 }
 
+func TestAccProjectService_handleNotFound(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	service := "iam.googleapis.com"
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccProjectService_handleNotFound(service, pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProjectService([]string{service}, pid, true),
+				),
+			},
+			// Delete the project, implicitly deletes service, expect the plan to want to create the service again
+			resource.TestStep{
+				Config:             testAccProjectService_handleNotFoundNoProject(service, pid),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
 func testAccCheckProjectService(services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -131,4 +156,34 @@ resource "google_project_service" "test2" {
   disable_on_destroy = false
 }
 `, pid, name, org, services[0], services[1])
+}
+
+func testAccProjectService_handleNotFound(service, pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+// by passing through locals, we break the dependency chain
+// see terraform-provider-google#1292
+locals {
+  project_id = "${google_project.acceptance.project_id}"
+}
+
+resource "google_project_service" "test" {
+  project = "${local.project_id}"
+  service = "%s"
+}
+`, pid, name, org, service)
+}
+
+func testAccProjectService_handleNotFoundNoProject(service, pid string) string {
+	return fmt.Sprintf(`
+resource "google_project_service" "test" {
+  project = "%s"
+  service = "%s"
+}
+`, pid, service)
 }
