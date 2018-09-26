@@ -784,23 +784,31 @@ func expandComputeHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceDa
 	transformedHost, err := expandComputeHealthCheckHttpHealthCheckHost(original["host"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedHost); val.IsValid() && !isEmptyValue(val) {
+		transformed["host"] = transformedHost
 	}
-	transformed["host"] = transformedHost
+
 	transformedRequestPath, err := expandComputeHealthCheckHttpHealthCheckRequestPath(original["request_path"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestPath"] = transformedRequestPath
 	}
-	transformed["requestPath"] = transformedRequestPath
+
 	transformedPort, err := expandComputeHealthCheckHttpHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
 	}
-	transformed["port"] = transformedPort
+
 	transformedProxyHeader, err := expandComputeHealthCheckHttpHealthCheckProxyHeader(original["proxy_header"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyHeader); val.IsValid() && !isEmptyValue(val) {
+		transformed["proxyHeader"] = transformedProxyHeader
 	}
-	transformed["proxyHeader"] = transformedProxyHeader
+
 	return transformed, nil
 }
 
@@ -832,23 +840,31 @@ func expandComputeHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceD
 	transformedHost, err := expandComputeHealthCheckHttpsHealthCheckHost(original["host"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedHost); val.IsValid() && !isEmptyValue(val) {
+		transformed["host"] = transformedHost
 	}
-	transformed["host"] = transformedHost
+
 	transformedRequestPath, err := expandComputeHealthCheckHttpsHealthCheckRequestPath(original["request_path"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestPath"] = transformedRequestPath
 	}
-	transformed["requestPath"] = transformedRequestPath
+
 	transformedPort, err := expandComputeHealthCheckHttpsHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
 	}
-	transformed["port"] = transformedPort
+
 	transformedProxyHeader, err := expandComputeHealthCheckHttpsHealthCheckProxyHeader(original["proxy_header"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyHeader); val.IsValid() && !isEmptyValue(val) {
+		transformed["proxyHeader"] = transformedProxyHeader
 	}
-	transformed["proxyHeader"] = transformedProxyHeader
+
 	return transformed, nil
 }
 
@@ -880,23 +896,31 @@ func expandComputeHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceDat
 	transformedRequest, err := expandComputeHealthCheckTcpHealthCheckRequest(original["request"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRequest); val.IsValid() && !isEmptyValue(val) {
+		transformed["request"] = transformedRequest
 	}
-	transformed["request"] = transformedRequest
+
 	transformedResponse, err := expandComputeHealthCheckTcpHealthCheckResponse(original["response"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !isEmptyValue(val) {
+		transformed["response"] = transformedResponse
 	}
-	transformed["response"] = transformedResponse
+
 	transformedPort, err := expandComputeHealthCheckTcpHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
 	}
-	transformed["port"] = transformedPort
+
 	transformedProxyHeader, err := expandComputeHealthCheckTcpHealthCheckProxyHeader(original["proxy_header"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyHeader); val.IsValid() && !isEmptyValue(val) {
+		transformed["proxyHeader"] = transformedProxyHeader
 	}
-	transformed["proxyHeader"] = transformedProxyHeader
+
 	return transformed, nil
 }
 
@@ -928,23 +952,31 @@ func expandComputeHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceDat
 	transformedRequest, err := expandComputeHealthCheckSslHealthCheckRequest(original["request"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRequest); val.IsValid() && !isEmptyValue(val) {
+		transformed["request"] = transformedRequest
 	}
-	transformed["request"] = transformedRequest
+
 	transformedResponse, err := expandComputeHealthCheckSslHealthCheckResponse(original["response"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !isEmptyValue(val) {
+		transformed["response"] = transformedResponse
 	}
-	transformed["response"] = transformedResponse
+
 	transformedPort, err := expandComputeHealthCheckSslHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
 	}
-	transformed["port"] = transformedPort
+
 	transformedProxyHeader, err := expandComputeHealthCheckSslHealthCheckProxyHeader(original["proxy_header"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyHeader); val.IsValid() && !isEmptyValue(val) {
+		transformed["proxyHeader"] = transformedProxyHeader
 	}
-	transformed["proxyHeader"] = transformedProxyHeader
+
 	return transformed, nil
 }
 

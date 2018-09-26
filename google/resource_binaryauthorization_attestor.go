@@ -324,18 +324,24 @@ func expandBinaryAuthorizationAttestorAttestationAuthorityNote(v interface{}, d 
 	transformedNoteReference, err := expandBinaryAuthorizationAttestorAttestationAuthorityNoteNoteReference(original["note_reference"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedNoteReference); val.IsValid() && !isEmptyValue(val) {
+		transformed["noteReference"] = transformedNoteReference
 	}
-	transformed["noteReference"] = transformedNoteReference
+
 	transformedPublicKeys, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeys(original["public_keys"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedPublicKeys); val.IsValid() && !isEmptyValue(val) {
+		transformed["publicKeys"] = transformedPublicKeys
 	}
-	transformed["publicKeys"] = transformedPublicKeys
+
 	transformedDelegationServiceAccountEmail, err := expandBinaryAuthorizationAttestorAttestationAuthorityNoteDelegationServiceAccountEmail(original["delegation_service_account_email"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedDelegationServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["delegationServiceAccountEmail"] = transformedDelegationServiceAccountEmail
 	}
-	transformed["delegationServiceAccountEmail"] = transformedDelegationServiceAccountEmail
+
 	return transformed, nil
 }
 
@@ -363,18 +369,24 @@ func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeys(v inter
 		transformedComment, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysComment(original["comment"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedComment); val.IsValid() && !isEmptyValue(val) {
+			transformed["comment"] = transformedComment
 		}
-		transformed["comment"] = transformedComment
+
 		transformedId, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(original["id"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
+			transformed["id"] = transformedId
 		}
-		transformed["id"] = transformedId
+
 		transformedAsciiArmoredPgpPublicKey, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysAsciiArmoredPgpPublicKey(original["ascii_armored_pgp_public_key"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedAsciiArmoredPgpPublicKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["asciiArmoredPgpPublicKey"] = transformedAsciiArmoredPgpPublicKey
 		}
-		transformed["asciiArmoredPgpPublicKey"] = transformedAsciiArmoredPgpPublicKey
+
 		req = append(req, transformed)
 	}
 	return req, nil
