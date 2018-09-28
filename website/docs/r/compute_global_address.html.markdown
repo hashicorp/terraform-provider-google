@@ -111,7 +111,7 @@ In addition to the arguments listed above, the following computed attributes are
   Creation timestamp in RFC3339 text format.
 
 * `label_fingerprint` -
-  The fingerprint used for optimistic locking of this resource.  Used
+  The fingerprint used for optimistic locking of this resource.  Used	
   internally during updates.
 * `self_link` - The URI of the created resource.
 
