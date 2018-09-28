@@ -181,10 +181,5 @@ resource "google_redis_instance" "test" {
 		my_key    = "my_val"
 		other_key = "other_val"
 	}
-
-	redis_configs {
-		maxmemory-policy       = "allkeys-lru"
-		notify-keyspace-events = "KEA"
-	}
 }`, network, name)
 }
