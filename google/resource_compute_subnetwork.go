@@ -645,13 +645,17 @@ func expandComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceDa
 		transformedRangeName, err := expandComputeSubnetworkSecondaryIpRangeRangeName(original["range_name"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedRangeName); val.IsValid() && !isEmptyValue(val) {
+			transformed["rangeName"] = transformedRangeName
 		}
-		transformed["rangeName"] = transformedRangeName
+
 		transformedIpCidrRange, err := expandComputeSubnetworkSecondaryIpRangeIpCidrRange(original["ip_cidr_range"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedIpCidrRange); val.IsValid() && !isEmptyValue(val) {
+			transformed["ipCidrRange"] = transformedIpCidrRange
 		}
-		transformed["ipCidrRange"] = transformedIpCidrRange
+
 		req = append(req, transformed)
 	}
 	return req, nil

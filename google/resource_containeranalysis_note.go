@@ -264,8 +264,10 @@ func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.Re
 	transformedHint, err := expandContainerAnalysisNoteAttestationAuthorityHint(original["hint"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedHint); val.IsValid() && !isEmptyValue(val) {
+		transformed["hint"] = transformedHint
 	}
-	transformed["hint"] = transformedHint
+
 	return transformed, nil
 }
 
@@ -281,8 +283,10 @@ func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *schem
 	transformedHumanReadableName, err := expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(original["human_readable_name"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedHumanReadableName); val.IsValid() && !isEmptyValue(val) {
+		transformed["humanReadableName"] = transformedHumanReadableName
 	}
-	transformed["humanReadableName"] = transformedHumanReadableName
+
 	return transformed, nil
 }
 

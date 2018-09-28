@@ -743,13 +743,17 @@ func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.ResourceD
 	transformedRawKey, err := expandComputeRegionDiskDiskEncryptionKeyRawKey(original["raw_key"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
 	}
-	transformed["rawKey"] = transformedRawKey
+
 	transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !isEmptyValue(val) {
+		transformed["sha256"] = transformedSha256
 	}
-	transformed["sha256"] = transformedSha256
+
 	return transformed, nil
 }
 
@@ -781,13 +785,17 @@ func expandComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d *schema
 	transformedRawKey, err := expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["raw_key"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
 	}
-	transformed["rawKey"] = transformedRawKey
+
 	transformedSha256, err := expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !isEmptyValue(val) {
+		transformed["sha256"] = transformedSha256
 	}
-	transformed["sha256"] = transformedSha256
+
 	return transformed, nil
 }
 

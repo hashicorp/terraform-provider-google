@@ -417,8 +417,10 @@ func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d 
 		transformedNamePattern, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(original["name_pattern"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedNamePattern); val.IsValid() && !isEmptyValue(val) {
+			transformed["namePattern"] = transformedNamePattern
 		}
-		transformed["namePattern"] = transformedNamePattern
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -505,18 +507,24 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *schem
 	transformedEvaluationMode, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(original["evaluation_mode"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["evaluationMode"] = transformedEvaluationMode
 	}
-	transformed["evaluationMode"] = transformedEvaluationMode
+
 	transformedRequireAttestationsBy, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(original["require_attestations_by"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedRequireAttestationsBy); val.IsValid() && !isEmptyValue(val) {
+		transformed["requireAttestationsBy"] = transformedRequireAttestationsBy
 	}
-	transformed["requireAttestationsBy"] = transformedRequireAttestationsBy
+
 	transformedEnforcementMode, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(original["enforcement_mode"], d, config)
 	if err != nil {
 		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforcementMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["enforcementMode"] = transformedEnforcementMode
 	}
-	transformed["enforcementMode"] = transformedEnforcementMode
+
 	return transformed, nil
 }
 

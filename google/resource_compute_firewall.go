@@ -750,13 +750,17 @@ func expandComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *C
 		transformedProtocol, err := expandComputeFirewallAllowProtocol(original["protocol"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedProtocol); val.IsValid() && !isEmptyValue(val) {
+			transformed["IPProtocol"] = transformedProtocol
 		}
-		transformed["IPProtocol"] = transformedProtocol
+
 		transformedPorts, err := expandComputeFirewallAllowPorts(original["ports"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedPorts); val.IsValid() && !isEmptyValue(val) {
+			transformed["ports"] = transformedPorts
 		}
-		transformed["ports"] = transformedPorts
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -781,13 +785,17 @@ func expandComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *Co
 		transformedProtocol, err := expandComputeFirewallDenyProtocol(original["protocol"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedProtocol); val.IsValid() && !isEmptyValue(val) {
+			transformed["IPProtocol"] = transformedProtocol
 		}
-		transformed["IPProtocol"] = transformedProtocol
+
 		transformedPorts, err := expandComputeFirewallDenyPorts(original["ports"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedPorts); val.IsValid() && !isEmptyValue(val) {
+			transformed["ports"] = transformedPorts
 		}
-		transformed["ports"] = transformedPorts
+
 		req = append(req, transformed)
 	}
 	return req, nil
