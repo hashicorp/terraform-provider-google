@@ -565,10 +565,6 @@ func flattenComputeVpnTunnelPeerIp(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelSharedSecret(v interface{}) interface{} {
-	return v
-}
-
 func flattenComputeVpnTunnelSharedSecretHash(v interface{}) interface{} {
 	return v
 }

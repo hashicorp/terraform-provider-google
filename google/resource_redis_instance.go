@@ -310,9 +310,6 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"])); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("region", flattenRedisInstanceRegion(res["region"])); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -570,10 +567,6 @@ func flattenRedisInstanceReservedIpRange(v interface{}) interface{} {
 }
 
 func flattenRedisInstanceTier(v interface{}) interface{} {
-	return v
-}
-
-func flattenRedisInstanceRegion(v interface{}) interface{} {
 	return v
 }
 
