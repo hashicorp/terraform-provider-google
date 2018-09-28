@@ -108,17 +108,21 @@ The `default_admission_rule` block supports:
 
 * `admission_whitelist_patterns` -
   (Optional)
-  Admission policy whitelisting. A matching admission request will
-  always be permitted. This feature is typically used to exclude Google
-  or third-party infrastructure images from Binary Authorization
-  policies.  Structure is documented below.
+  A whitelist of image patterns to exclude from admission rules. If an
+  image's name matches a whitelist pattern, the image's admission
+  requests will always be permitted regardless of your admission rules.  Structure is documented below.
 
 * `cluster_admission_rules` -
   (Optional)
-  Admission policy whitelisting. A matching admission request will
-  always be permitted. This feature is typically used to exclude Google
-  or third-party infrastructure images from Binary Authorization
-  policies.
+  Per-cluster admission rules. An admission rule specifies either that
+  all container images used in a pod creation request must be attested
+  to by one or more attestors, that all pod creations will be allowed,
+  or that all pod creations will be denied. There can be at most one
+  admission rule per cluster spec.
+
+  Identifier format: `{{location}}.{{clusterId}}`.
+  A location is either a compute zone (e.g. `us-central1-a`) or a region
+  (e.g. `us-central1`).  Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -133,6 +137,8 @@ The `admission_whitelist_patterns` block supports:
   part.
 
 The `cluster_admission_rules` block supports:
+
+* `cluster` - (Required) The identifier for this object. Format specified above.
 
 * `evaluation_mode` -
   (Optional)
