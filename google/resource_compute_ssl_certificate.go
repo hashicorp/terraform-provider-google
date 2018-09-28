@@ -297,10 +297,6 @@ func flattenComputeSslCertificateName(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificatePrivateKey(v interface{}) interface{} {
-	return v
-}
-
 func expandComputeSslCertificateCertificate(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

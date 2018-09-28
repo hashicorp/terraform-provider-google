@@ -501,10 +501,6 @@ func flattenFilestoreInstanceEtag(v interface{}) interface{} {
 	return v
 }
 
-func flattenFilestoreInstanceZone(v interface{}) interface{} {
-	return v
-}
-
 func expandFilestoreInstanceDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
