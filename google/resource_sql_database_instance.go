@@ -455,7 +455,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	instance := &sqladmin.DatabaseInstance{
 		Name:                 name,
 		Region:               region,
-		Settings:             expandSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
+		Settings:             expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
 		DatabaseVersion:      d.Get("database_version").(string),
 		MasterInstanceName:   d.Get("master_instance_name").(string),
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
@@ -521,7 +521,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func expandSettings(configured []interface{}, secondGen bool) *sqladmin.Settings {
+func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool) *sqladmin.Settings {
 	if len(configured) == 0 {
 		return nil
 	}
