@@ -180,8 +180,6 @@ func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -189,11 +187,26 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_disks(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "terraform-test-foobar", false, false),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_regionDisks(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_regionDisks(),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_instance_template.foobar",
@@ -531,34 +544,6 @@ func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *compute.In
 		}
 
 		return nil
-	}
-}
-
-func testAccCheckComputeInstanceTemplateDisk(instanceTemplate *compute.InstanceTemplate, source string, delete bool, boot bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Disks == nil {
-			return fmt.Errorf("no disks")
-		}
-
-		for _, disk := range instanceTemplate.Properties.Disks {
-			if disk.InitializeParams == nil {
-				// Check disk source
-				if disk.Source == source {
-					if disk.AutoDelete == delete && disk.Boot == boot {
-						return nil
-					}
-				}
-			} else {
-				// Check source image
-				if disk.InitializeParams.SourceImage == source {
-					if disk.AutoDelete == delete && disk.Boot == boot {
-						return nil
-					}
-				}
-			}
-		}
-
-		return fmt.Errorf("Disk not found: %s", source)
 	}
 }
 
@@ -942,7 +927,49 @@ resource "google_compute_instance_template" "foobar" {
 	}
 
 	disk {
-		source = "terraform-test-foobar"
+		source = "${google_compute_disk.foobar.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_regionDisks() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_region_disk" "foobar" {
+	name = "instancet-test-%s"
+	size = 10
+	type = "pd-ssd"
+	region = "us-central1"
+	replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_region_disk.foobar.name}"
 		auto_delete = false
 		boot = false
 	}

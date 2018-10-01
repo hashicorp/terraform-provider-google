@@ -45,7 +45,8 @@ resource "google_compute_instance_template" "default" {
 
   // Use an existing disk resource
   disk {
-    source      = "foo_existing_disk"
+    // Instance Templates reference disks by name, not self link
+    source      = "${google_compute_disk.foobar.name}"
     auto_delete = false
     boot        = false
   }
@@ -61,6 +62,19 @@ resource "google_compute_instance_template" "default" {
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "existing-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 ```
 
@@ -260,9 +274,8 @@ The `disk` block supports:
     or READ_ONLY. If you are attaching or creating a boot disk, this must
     read-write mode.
 
-* `source` - (Required if source_image not set) The name of the disk (such as
-    those managed by `google_compute_disk`) to attach. This cannot be a regional
-    disk.
+* `source` - (Required if source_image not set) The name (**not self_link**)
+    of the disk (such as those managed by `google_compute_disk`) to attach. 
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
     `"local-ssd"`, or `"pd-standard"`.
