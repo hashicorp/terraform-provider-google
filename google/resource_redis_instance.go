@@ -209,7 +209,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		obj["tier"] = tierProp
 	}
 
-	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
+	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -392,7 +392,7 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["tier"] = tierProp
 	}
 
-	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1beta1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
