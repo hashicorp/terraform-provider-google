@@ -2,18 +2,18 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/resource"
 	"log"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/customdiff"
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
-	sqladmin "google.golang.org/api/sqladmin/v1beta4"
+	"google.golang.org/api/sqladmin/v1beta4"
 )
 
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
@@ -442,260 +442,36 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	databaseVersion := d.Get("database_version").(string)
 
-	_settingsList := d.Get("settings").([]interface{})
-
-	_settings := _settingsList[0].(map[string]interface{})
-	settings := &sqladmin.Settings{
-		Tier:            _settings["tier"].(string),
-		ForceSendFields: []string{"StorageAutoResize"},
+	var name string
+	if v, ok := d.GetOk("name"); ok {
+		name = v.(string)
+	} else {
+		name = resource.UniqueId()
 	}
 
-	if v, ok := _settings["activation_policy"]; ok {
-		settings.ActivationPolicy = v.(string)
-	}
-
-	if v, ok := _settings["authorized_gae_applications"]; ok {
-		settings.AuthorizedGaeApplications = make([]string, 0)
-		for _, app := range v.([]interface{}) {
-			settings.AuthorizedGaeApplications = append(settings.AuthorizedGaeApplications,
-				app.(string))
-		}
-	}
-
-	if v, ok := _settings["availability_type"]; ok {
-		settings.AvailabilityType = v.(string)
-	}
-
-	if v, ok := _settings["backup_configuration"]; ok {
-		_backupConfigurationList := v.([]interface{})
-
-		if len(_backupConfigurationList) == 1 && _backupConfigurationList[0] != nil {
-			settings.BackupConfiguration = &sqladmin.BackupConfiguration{}
-			_backupConfiguration := _backupConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _backupConfiguration["binary_log_enabled"]; okp {
-				settings.BackupConfiguration.BinaryLogEnabled = vp.(bool)
-			}
-
-			if vp, okp := _backupConfiguration["enabled"]; okp {
-				settings.BackupConfiguration.Enabled = vp.(bool)
-			}
-
-			if vp, okp := _backupConfiguration["start_time"]; okp {
-				settings.BackupConfiguration.StartTime = vp.(string)
-			}
-		}
-	}
-
-	if v, ok := _settings["crash_safe_replication"]; ok {
-		settings.CrashSafeReplicationEnabled = v.(bool)
-	}
-
-	// 1st Generation instances don't support the disk_autoresize parameter
-	if !isFirstGen(d) {
-		autoResize := _settings["disk_autoresize"].(bool)
-		settings.StorageAutoResize = &autoResize
-	}
-
-	if v, ok := _settings["disk_size"]; ok && v.(int) > 0 {
-		settings.DataDiskSizeGb = int64(v.(int))
-	}
-
-	if v, ok := _settings["disk_type"]; ok && len(v.(string)) > 0 {
-		settings.DataDiskType = v.(string)
-	}
-
-	if v, ok := _settings["database_flags"]; ok {
-		settings.DatabaseFlags = make([]*sqladmin.DatabaseFlags, 0)
-		_databaseFlagsList := v.([]interface{})
-		for _, _flag := range _databaseFlagsList {
-			_entry := _flag.(map[string]interface{})
-			flag := &sqladmin.DatabaseFlags{}
-			if vp, okp := _entry["name"]; okp {
-				flag.Name = vp.(string)
-			}
-
-			if vp, okp := _entry["value"]; okp {
-				flag.Value = vp.(string)
-			}
-
-			settings.DatabaseFlags = append(settings.DatabaseFlags, flag)
-		}
-	}
-
-	if v, ok := _settings["ip_configuration"]; ok {
-		_ipConfigurationList := v.([]interface{})
-
-		if len(_ipConfigurationList) == 1 && _ipConfigurationList[0] != nil {
-			settings.IpConfiguration = &sqladmin.IpConfiguration{}
-			_ipConfiguration := _ipConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _ipConfiguration["ipv4_enabled"]; okp {
-				settings.IpConfiguration.Ipv4Enabled = vp.(bool)
-			}
-
-			if vp, okp := _ipConfiguration["require_ssl"]; okp {
-				settings.IpConfiguration.RequireSsl = vp.(bool)
-			}
-
-			if vp, okp := _ipConfiguration["authorized_networks"]; okp {
-				settings.IpConfiguration.AuthorizedNetworks = make([]*sqladmin.AclEntry, 0)
-				_authorizedNetworksList := vp.(*schema.Set).List()
-				for _, _acl := range _authorizedNetworksList {
-					_entry := _acl.(map[string]interface{})
-					entry := &sqladmin.AclEntry{}
-
-					if vpp, okpp := _entry["expiration_time"]; okpp {
-						entry.ExpirationTime = vpp.(string)
-					}
-
-					if vpp, okpp := _entry["name"]; okpp {
-						entry.Name = vpp.(string)
-					}
-
-					if vpp, okpp := _entry["value"]; okpp {
-						entry.Value = vpp.(string)
-					}
-
-					settings.IpConfiguration.AuthorizedNetworks = append(
-						settings.IpConfiguration.AuthorizedNetworks, entry)
-				}
-			}
-		}
-	}
-
-	if v, ok := _settings["location_preference"]; ok {
-		_locationPreferenceList := v.([]interface{})
-
-		if len(_locationPreferenceList) == 1 && _locationPreferenceList[0] != nil {
-			settings.LocationPreference = &sqladmin.LocationPreference{}
-			_locationPreference := _locationPreferenceList[0].(map[string]interface{})
-
-			if vp, okp := _locationPreference["follow_gae_application"]; okp {
-				settings.LocationPreference.FollowGaeApplication = vp.(string)
-			}
-
-			if vp, okp := _locationPreference["zone"]; okp {
-				settings.LocationPreference.Zone = vp.(string)
-			}
-		}
-	}
-
-	if v, ok := _settings["maintenance_window"]; ok {
-		windows := v.([]interface{})
-		if len(windows) > 0 && windows[0] != nil {
-			settings.MaintenanceWindow = &sqladmin.MaintenanceWindow{}
-			window := windows[0].(map[string]interface{})
-
-			if vp, okp := window["day"]; okp {
-				settings.MaintenanceWindow.Day = int64(vp.(int))
-			}
-
-			if vp, okp := window["hour"]; okp {
-				settings.MaintenanceWindow.Hour = int64(vp.(int))
-			}
-
-			if vp, ok := window["update_track"]; ok {
-				if len(vp.(string)) > 0 {
-					settings.MaintenanceWindow.UpdateTrack = vp.(string)
-				}
-			}
-		}
-	}
-
-	if v, ok := _settings["pricing_plan"]; ok {
-		settings.PricingPlan = v.(string)
-	}
-
-	if v, ok := _settings["replication_type"]; ok {
-		settings.ReplicationType = v.(string)
-	}
-
-	if v, ok := _settings["user_labels"]; ok {
-		settings.UserLabels = convertStringMap(v.(map[string]interface{}))
-	}
+	d.Set("name", name)
 
 	instance := &sqladmin.DatabaseInstance{
-		Region:          region,
-		Settings:        settings,
-		DatabaseVersion: databaseVersion,
+		Name:                 name,
+		Region:               region,
+		Settings:             expandSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
+		DatabaseVersion:      d.Get("database_version").(string),
+		MasterInstanceName:   d.Get("master_instance_name").(string),
+		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
 	}
 
-	if v, ok := d.GetOk("name"); ok {
-		instance.Name = v.(string)
-	} else {
-		instance.Name = resource.UniqueId()
-		d.Set("name", instance.Name)
-	}
-
-	if v, ok := d.GetOk("replica_configuration"); ok {
-		_replicaConfigurationList := v.([]interface{})
-
-		if len(_replicaConfigurationList) == 1 && _replicaConfigurationList[0] != nil {
-			replicaConfiguration := &sqladmin.ReplicaConfiguration{}
-			mySqlReplicaConfiguration := &sqladmin.MySqlReplicaConfiguration{}
-			_replicaConfiguration := _replicaConfigurationList[0].(map[string]interface{})
-
-			if vp, okp := _replicaConfiguration["failover_target"]; okp {
-				replicaConfiguration.FailoverTarget = vp.(bool)
-			}
-
-			if vp, okp := _replicaConfiguration["ca_certificate"]; okp {
-				mySqlReplicaConfiguration.CaCertificate = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["client_certificate"]; okp {
-				mySqlReplicaConfiguration.ClientCertificate = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["client_key"]; okp {
-				mySqlReplicaConfiguration.ClientKey = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["connect_retry_interval"]; okp {
-				mySqlReplicaConfiguration.ConnectRetryInterval = int64(vp.(int))
-			}
-
-			if vp, okp := _replicaConfiguration["dump_file_path"]; okp {
-				mySqlReplicaConfiguration.DumpFilePath = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["master_heartbeat_period"]; okp {
-				mySqlReplicaConfiguration.MasterHeartbeatPeriod = int64(vp.(int))
-			}
-
-			if vp, okp := _replicaConfiguration["password"]; okp {
-				mySqlReplicaConfiguration.Password = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["ssl_cipher"]; okp {
-				mySqlReplicaConfiguration.SslCipher = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["username"]; okp {
-				mySqlReplicaConfiguration.Username = vp.(string)
-			}
-
-			if vp, okp := _replicaConfiguration["verify_server_certificate"]; okp {
-				mySqlReplicaConfiguration.VerifyServerCertificate = vp.(bool)
-			}
-
-			replicaConfiguration.MysqlReplicaConfiguration = mySqlReplicaConfiguration
-			instance.ReplicaConfiguration = replicaConfiguration
-		}
-	}
-
-	if v, ok := d.GetOk("master_instance_name"); ok {
-		instance.MasterInstanceName = v.(string)
+	// Modifying a replica during Create can cause problems if the master is
+	// modified at the same time. Lock the master until we're done in order
+	// to prevent that.
+	if !sqlDatabaseIsMaster(d) {
 		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+		if googleapiError, ok := err.(*googleapi.Error); ok && googleapiError.Code == 409 {
 			return fmt.Errorf("Error, the name %s is unavailable because it was used recently", instance.Name)
 		} else {
 			return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
@@ -715,9 +491,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	// If a default root user was created with a wildcard ('%') hostname, delete it. Note that if the resource is a
-	// replica, then any users are inherited from the master instance and should be left alone.
-	if !sqlResourceIsReplica(d) {
+	// If a default root user was created with a wildcard ('%') hostname, delete it.
+	// Users in a replica instance are inherited from the master instance and should be left alone.
+	if sqlDatabaseIsMaster(d) {
 		var users *sqladmin.UsersListResponse
 		err = retryTime(func() error {
 			users, err = config.clientSqlAdmin.Users.List(project, instance.Name).Do()
@@ -743,6 +519,151 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func expandSettings(configured []interface{}, secondGen bool) *sqladmin.Settings {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	_settings := configured[0].(map[string]interface{})
+	settings := &sqladmin.Settings{
+		Tier:                        _settings["tier"].(string),
+		ForceSendFields:             []string{"StorageAutoResize"},
+		ActivationPolicy:            _settings["activation_policy"].(string),
+		AvailabilityType:            _settings["availability_type"].(string),
+		CrashSafeReplicationEnabled: _settings["crash_safe_replication"].(bool),
+		DataDiskSizeGb:              int64(_settings["disk_size"].(int)),
+		DataDiskType:                _settings["disk_type"].(string),
+		PricingPlan:                 _settings["pricing_plan"].(string),
+		ReplicationType:             _settings["replication_type"].(string),
+		UserLabels:                  convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		BackupConfiguration:         expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
+		DatabaseFlags:               expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		AuthorizedGaeApplications:   expandAuthorizedGaeApplications(_settings["authorized_gae_applications"].([]interface{})),
+		IpConfiguration:             expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
+		LocationPreference:          expandLocationPreference(_settings["location_preference"].([]interface{})),
+		MaintenanceWindow:           expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+	}
+
+	// 1st Generation instances don't support the disk_autoresize parameter
+	// and it defaults to true - so we shouldn't set it if this is first gen
+	if secondGen {
+		settings.StorageAutoResize = googleapi.Bool(_settings["disk_autoresize"].(bool))
+	}
+
+	return settings
+}
+
+func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfiguration {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	_replicaConfiguration := configured[0].(map[string]interface{})
+	return &sqladmin.ReplicaConfiguration{
+		FailoverTarget: _replicaConfiguration["failover_target"].(bool),
+
+		// MysqlReplicaConfiguration has been flattened in the TF schema, so
+		// we'll keep it flat here instead of another expand method.
+		MysqlReplicaConfiguration: &sqladmin.MySqlReplicaConfiguration{
+			CaCertificate:           _replicaConfiguration["ca_certificate"].(string),
+			ClientCertificate:       _replicaConfiguration["client_certificate"].(string),
+			ClientKey:               _replicaConfiguration["client_key"].(string),
+			ConnectRetryInterval:    int64(_replicaConfiguration["connect_retry_interval"].(int)),
+			DumpFilePath:            _replicaConfiguration["dump_file_path"].(string),
+			MasterHeartbeatPeriod:   int64(_replicaConfiguration["master_heartbeat_period"].(int)),
+			Password:                _replicaConfiguration["password"].(string),
+			SslCipher:               _replicaConfiguration["ssl_cipher"].(string),
+			Username:                _replicaConfiguration["username"].(string),
+			VerifyServerCertificate: _replicaConfiguration["verify_server_certificate"].(bool),
+		},
+	}
+}
+
+func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	window := configured[0].(map[string]interface{})
+	return &sqladmin.MaintenanceWindow{
+		Day:         int64(window["day"].(int)),
+		Hour:        int64(window["hour"].(int)),
+		UpdateTrack: window["update_track"].(string),
+	}
+}
+
+func expandLocationPreference(configured []interface{}) *sqladmin.LocationPreference {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	_locationPreference := configured[0].(map[string]interface{})
+	return &sqladmin.LocationPreference{
+		FollowGaeApplication: _locationPreference["follow_gae_application"].(string),
+		Zone:                 _locationPreference["zone"].(string),
+	}
+}
+
+func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	_ipConfiguration := configured[0].(map[string]interface{})
+	return &sqladmin.IpConfiguration{
+		Ipv4Enabled:        _ipConfiguration["ipv4_enabled"].(bool),
+		RequireSsl:         _ipConfiguration["require_ssl"].(bool),
+		AuthorizedNetworks: expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
+	}
+}
+func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
+	an := make([]*sqladmin.AclEntry, 0, len(configured))
+	for _, _acl := range configured {
+		_entry := _acl.(map[string]interface{})
+		an = append(an, &sqladmin.AclEntry{
+			ExpirationTime: _entry["expiration_time"].(string),
+			Name:           _entry["name"].(string),
+			Value:          _entry["value"].(string),
+		})
+	}
+
+	return an
+}
+
+func expandAuthorizedGaeApplications(configured []interface{}) []string {
+	aga := make([]string, 0, len(configured))
+	for _, app := range configured {
+		aga = append(aga, app.(string))
+	}
+	return aga
+}
+
+func expandDatabaseFlags(configured []interface{}) []*sqladmin.DatabaseFlags {
+	databaseFlags := make([]*sqladmin.DatabaseFlags, 0, len(configured))
+	for _, _flag := range configured {
+		_entry := _flag.(map[string]interface{})
+
+		databaseFlags = append(databaseFlags, &sqladmin.DatabaseFlags{
+			Name:  _entry["name"].(string),
+			Value: _entry["value"].(string),
+		})
+	}
+	return databaseFlags
+}
+
+func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfiguration {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	_backupConfiguration := configured[0].(map[string]interface{})
+	return &sqladmin.BackupConfiguration{
+		BinaryLogEnabled: _backupConfiguration["binary_log_enabled"].(bool),
+		Enabled:          _backupConfiguration["enabled"].(bool),
+		StartTime:        _backupConfiguration["start_time"].(string),
+	}
 }
 
 func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
@@ -1311,9 +1232,9 @@ func instanceMutexKey(project, instance_name string) string {
 	return fmt.Sprintf("google-sql-database-instance-%s-%s", project, instance_name)
 }
 
-// sqlResourceIsReplica returns true if the provided schema.ResourceData represents a replica SQL instance, and false
-// otherwise.
-func sqlResourceIsReplica(d *schema.ResourceData) bool {
+// sqlDatabaseIsMaster returns true if the provided schema.ResourceData represents a
+// master SQL Instance, and false if it is a replica.
+func sqlDatabaseIsMaster(d *schema.ResourceData) bool {
 	_, ok := d.GetOk("master_instance_name")
-	return ok
+	return !ok
 }
