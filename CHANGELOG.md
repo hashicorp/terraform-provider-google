@@ -9,6 +9,7 @@ FEATURES:
 * **New Resource**: `google_filestore_instance` [GH-2088]
 
 ENHANCEMENTS:
+* container: Add `enable_tpu` flag to google_container_cluster [GH-1974]
 * dns: `google_dns_managed_zone` is now importable [GH-1944]
 * runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
 * services: containeranalysis.googleapis.com can now be enabled [GH-2095]
