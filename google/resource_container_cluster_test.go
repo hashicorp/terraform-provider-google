@@ -1798,7 +1798,7 @@ resource "google_container_cluster" "with_tpu" {
 	zone = "us-central1-b"
 	initial_node_count = 1
 
-    enable_tpu = true
+	enable_tpu = true
 
 	network = "${google_compute_network.container_network.name}"
 	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
