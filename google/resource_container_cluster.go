@@ -213,6 +213,13 @@ func resourceContainerCluster() *schema.Resource {
 				Default:  false,
 			},
 
+			"enable_tpu": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
+
 			"enable_legacy_abac": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -553,6 +560,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
 		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
+		EnableTpu:               d.Get("enable_tpu").(bool),
 		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
 		MasterIpv4CidrBlock:     d.Get("master_ipv4_cidr_block").(string),
@@ -733,6 +741,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
 	d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha)
+	d.Set("enable_tpu", cluster.EnableTpu)
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)

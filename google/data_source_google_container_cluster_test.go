@@ -66,6 +66,7 @@ func testAccDataSourceGoogleContainerClusterCheck(dataSourceName string, resourc
 			"cluster_ipv4_cidr",
 			"description",
 			"enable_kubernetes_alpha",
+			"enable_tpu",
 			"enable_legacy_abac",
 			"endpoint",
 			"enable_legacy_abac",
