@@ -650,7 +650,7 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) ([]
 		diskMap["boot"] = disk.Boot
 		diskMap["device_name"] = disk.DeviceName
 		diskMap["interface"] = disk.Interface
-		diskMap["source"] = disk.Source
+		diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
 		diskMap["mode"] = disk.Mode
 		diskMap["type"] = disk.Type
 		result = append(result, diskMap)
