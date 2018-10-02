@@ -20,6 +20,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		SchemaVersion: 1,
+		CustomizeDiff: resourceComputeInstanceTemplateSourceImageCustomizeDiff,
 		MigrateState:  resourceComputeInstanceTemplateMigrateState,
 
 		// A compute instance template is more or less a subset of a compute
@@ -99,10 +100,9 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						},
 
 						"source_image": &schema.Schema{
-							Type:             schema.TypeString,
-							Optional:         true,
-							DiffSuppressFunc: compareSelfLinkRelativePaths,
-							ForceNew:         true,
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 
 						"interface": &schema.Schema{
@@ -418,6 +418,57 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	config := meta.(*Config)
+	project, err := getProjectFromDiff(diff, config)
+	if err != nil {
+		return err
+	}
+	numDisks := diff.Get("disk.#").(int)
+	for i := 0; i < numDisks; i++ {
+		key := fmt.Sprintf("disk.%d.source_image", i)
+		if diff.HasChange(key) {
+			old, new := diff.GetChange(key)
+			if old == "" || new == "" {
+				// no sense in resolving empty strings
+				err = diff.ForceNew(key)
+				if err != nil {
+					return err
+				}
+				continue
+			}
+			oldResolved, err := resolveImage(config, project, old.(string))
+			if err != nil {
+				return err
+			}
+			oldResolved, err = resolvedImageSelfLink(project, oldResolved)
+			if err != nil {
+				return err
+			}
+			newResolved, err := resolveImage(config, project, new.(string))
+			if err != nil {
+				return err
+			}
+			newResolved, err = resolvedImageSelfLink(project, newResolved)
+			if err != nil {
+				return err
+			}
+			if oldResolved != newResolved {
+				err = diff.ForceNew(key)
+				if err != nil {
+					return err
+				}
+				continue
+			}
+			err = diff.Clear(key)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.AttachedDisk, error) {
