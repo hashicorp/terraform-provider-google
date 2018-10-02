@@ -204,8 +204,9 @@ func resourceComputeInstance() *schema.Resource {
 									// nat_ip can be both optional and computed.
 									// Consider deprecating it.
 									"assigned_nat_ip": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "Use network_interface.access_config.nat_ip instead.",
 									},
 
 									"public_ptr_domain_name": &schema.Schema{

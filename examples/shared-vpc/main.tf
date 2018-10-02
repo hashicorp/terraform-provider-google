@@ -198,8 +198,8 @@ resource "google_compute_instance" "project_2_vm" {
   }
 
   metadata_startup_script = <<EOF
-VM1_EXT_IP=${google_compute_instance.project_1_vm.network_interface.0.access_config.0.assigned_nat_ip}
-ST_VM_EXT_IP=${google_compute_instance.standalone_project_vm.network_interface.0.access_config.0.assigned_nat_ip}
+VM1_EXT_IP=${google_compute_instance.project_1_vm.network_interface.0.access_config.0.nat_ip}
+ST_VM_EXT_IP=${google_compute_instance.standalone_project_vm.network_interface.0.access_config.0.nat_ip}
 VM1_INT_IP=${google_compute_instance.project_1_vm.network_interface.0.address}
 ST_VM_INT_IP=${google_compute_instance.standalone_project_vm.network_interface.0.address}
 ${file("scripts/install-network-page.sh")}

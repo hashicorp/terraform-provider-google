@@ -1497,7 +1497,7 @@ func testAccCheckComputeInstanceHasAssignedNatIP(s *terraform.State) error {
 		if rs.Type != "google_compute_instance" {
 			continue
 		}
-		ip := rs.Primary.Attributes["network_interface.0.access_config.0.assigned_nat_ip"]
+		ip := rs.Primary.Attributes["network_interface.0.access_config.0.nat_ip"]
 		if ip == "" {
 			return fmt.Errorf("No assigned NatIP for instance %s", rs.Primary.Attributes["name"])
 		}
