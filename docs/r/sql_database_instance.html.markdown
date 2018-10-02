@@ -78,7 +78,7 @@ data "null_data_source" "auth_netw_postgres_allowed_1" {
 
   inputs = {
     name  = "apps-${count.index + 1}"
-    value = "${element(google_compute_instance.apps.*.network_interface.0.access_config.0.assigned_nat_ip, count.index)}"
+    value = "${element(google_compute_instance.apps.*.network_interface.0.access_config.0.nat_ip, count.index)}"
   }
 }
 
