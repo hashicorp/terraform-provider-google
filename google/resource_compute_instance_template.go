@@ -20,7 +20,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		SchemaVersion: 1,
-		CustomizeDiff: resourceComputeInstanceTemplateCustomizeDiff,
+		CustomizeDiff: resourceComputeInstanceTemplateSourceImageCustomizeDiff,
 		MigrateState:  resourceComputeInstanceTemplateMigrateState,
 
 		// A compute instance template is more or less a subset of a compute
@@ -420,7 +420,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 	}
 }
 
-func resourceComputeInstanceTemplateCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProjectFromDiff(diff, config)
 	if err != nil {
@@ -443,7 +443,15 @@ func resourceComputeInstanceTemplateCustomizeDiff(diff *schema.ResourceDiff, met
 			if err != nil {
 				return err
 			}
+			oldResolved, err = resolvedImageSelfLink(project, oldResolved)
+			if err != nil {
+				return err
+			}
 			newResolved, err := resolveImage(config, project, new.(string))
+			if err != nil {
+				return err
+			}
+			newResolved, err = resolvedImageSelfLink(project, newResolved)
 			if err != nil {
 				return err
 			}
@@ -452,6 +460,7 @@ func resourceComputeInstanceTemplateCustomizeDiff(diff *schema.ResourceDiff, met
 				if err != nil {
 					return err
 				}
+				continue
 			}
 			err = diff.Clear(key)
 			if err != nil {
