@@ -251,8 +251,8 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									// the schema to allow us to share flatten
 									// code with an instance, which could.
 									"assigned_nat_ip": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:       schema.TypeString,
+										Computed:   true,
 										Deprecated: "Use network_interface.access_config.nat_ip instead.",
 									},
 								},
