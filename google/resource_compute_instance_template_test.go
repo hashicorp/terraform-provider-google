@@ -43,6 +43,32 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_imageShorthand(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						"google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 	t.Parallel()
 
@@ -749,6 +775,59 @@ resource "google_compute_instance_template" "foobar" {
         my_label = "foobar"
     }
 }`, acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_imageShorthand() string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+	name = "test-%s"
+	description = "description-test"
+	family = "family-test"
+	raw_disk {
+	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+	}
+	labels = {
+		my-label = "my-label-value"
+		empty-label = ""
+	}
+	timeouts {
+		create = "5m"
+	}
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+
+	disk {
+		source_image = "${google_compute_image.foobar.name}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		preemptible = false
+		automatic_restart = true
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+    labels {
+        my_label = "foobar"
+    }
+}`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_preemptible() string {

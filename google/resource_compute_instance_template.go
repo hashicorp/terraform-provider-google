@@ -684,12 +684,16 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) ([]map[string]interface{}, error) {
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0, len(disks))
 	for _, disk := range disks {
 		diskMap := make(map[string]interface{})
 		if disk.InitializeParams != nil {
-			path, err := getRelativePath(disk.InitializeParams.SourceImage)
+			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
+			}
+			path, err := getRelativePath(selfLink)
 			if err != nil {
 				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
 			}
@@ -761,7 +765,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	if instanceTemplate.Properties.Disks != nil {
-		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d)
+		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d, project)
 		if err != nil {
 			return fmt.Errorf("error flattening disks: %s", err)
 		}
