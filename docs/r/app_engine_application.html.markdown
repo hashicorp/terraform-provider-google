@@ -11,9 +11,9 @@ description: |-
 Allows creation and management of an App Engine application.
 
 ~> App Engine applications cannot be deleted once they're created; you have to delete the
-   entire project to delete the application. Terraform will force you to set the `ack_delete_noop`
-   field to `true` to acknowledge this limitation before you can successfully delete an App Engine
-   application. There's no harm in leaving the `ack_delete_noop` field set to true at all times.
+   entire project to delete the application. Terraform will report the application has been
+   successfully deleted; this is a limitation of Terraform, and will go away in the future.
+   Terraform is not able to delete App Engine applications.
 
 ## Example Usage
 
@@ -27,7 +27,6 @@ resource "google_project" "my_project" {
 resource "google_app_engine_application" "app" {
   project         = "${google_project.my_project.project_id}"
   location_id     = "us-central'
-  ack_delete_noop = true
 }
 ```
 
@@ -37,10 +36,6 @@ The following arguments are supported:
 
 * `location_id` - (Required) The [location](https://cloud.google.com/appengine/docs/locations)
    to serve the app from.
-
-* `ack_delete_noop` - (Optional) Set to true to allow Terraform to "delete" your application without error.
-   Has no bearing except to indicate that you're aware that when Terraform says it deletes an application,
-   the application has not actually been deleted. To delete an application, the entire project must be deleted.
 
 * `auth_domain` - (Optional) The domain to authenticate users with when using App Engine's User API.
 
