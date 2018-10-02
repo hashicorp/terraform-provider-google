@@ -668,7 +668,7 @@
 			"checksumSHA1": "OOwTGBTHcUmQTPBdyscTMkjApbI=",
 			"path": "github.com/hashicorp/terraform/helper/schema",
 			"revision": "35d82b055591e9d47a254e68754216d8849ba67a",
-			"revisionTime": "2018-09-26T21:21:28Z",
+			"revisionTime": "2018-09-26T21:21:28Z"
 		},
 		{
 			"checksumSHA1": "Fzbv+N7hFXOtrR6E7ZcHT3jEE9s=",
