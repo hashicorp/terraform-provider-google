@@ -16,6 +16,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: fix instance template interaction with regional disk self links [GH-2138]
+* container: Make max_pods_per_node ForceNew [GH-2139]
 * services: make google_project_service more resilient to projects being deleted [GH-2090]
 
 ## 1.18.0 (September 17, 2018)
