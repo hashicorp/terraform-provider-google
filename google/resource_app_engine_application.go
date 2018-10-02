@@ -68,10 +68,6 @@ func resourceAppEngineApplication() *schema.Resource {
 				MaxItems: 1,
 				Elem:     appEngineApplicationFeatureSettingsResource(),
 			},
-			"ack_delete_noop": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -224,10 +220,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAppEngineApplicationDelete(d *schema.ResourceData, meta interface{}) error {
-	// only delete app engine applications if the user has acknowledged it does nothing
-	if !d.Get("ack_delete_noop").(bool) {
-		return fmt.Errorf("App Engine applications cannot be destroyed once created. The project must be deleted to delete the application. To acknowledge this limitation and let Terraform think it deleted your application--even though it won't--set the `ack_delete_noop` field to true, and this error will go away.")
-	}
+	log.Println("[DEBUG] App Engine applications cannot be destroyed once created. The project must be deleted to delete the application.")
 	return nil
 }
 
