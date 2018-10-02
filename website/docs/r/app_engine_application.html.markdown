@@ -6,7 +6,7 @@ description: |-
  Allows management of an App Engine application.
 ---
 
-# google\_app_engine_application
+# google_app_engine_application
 
 Allows creation and management of an App Engine application.
 
@@ -19,14 +19,14 @@ Allows creation and management of an App Engine application.
 
 ```hcl
 resource "google_project" "my_project" {
-  name = "My Project"
+  name       = "My Project"
   project_id = "your-project-id"
   org_id     = "1234567"
 }
 
 resource "google_app_engine_application" "app" {
-  project         = "${google_project.my_project.project_id}"
-  location_id     = "us-central'
+  project     = "${google_project.my_project.project_id}"
+  location_id = "us-central'
 }
 ```
 
@@ -39,7 +39,7 @@ The following arguments are supported:
 
 * `auth_domain` - (Optional) The domain to authenticate users with when using App Engine's User API.
 
-* `serving_status` - (Optional) The serving status of the app. Note that this can't be updated at the moment.
+* `serving_status` - (Optional) The serving status of the app.
 
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
 

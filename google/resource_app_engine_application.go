@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	appengine "google.golang.org/api/appengine/v1"
@@ -20,10 +21,15 @@ func resourceAppEngineApplication() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		CustomizeDiff: customdiff.All(
+			appEngineApplicationLocationIDCustomizeDiff,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"project": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validateProjectID(),
 			},
@@ -127,6 +133,14 @@ func appEngineApplicationFeatureSettingsResource() *schema.Resource {
 	}
 }
 
+func appEngineApplicationLocationIDCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+	old, new := d.GetChange("location_id")
+	if old != "" && old != new {
+		return fmt.Errorf("Cannot change location_id once the resource is created.")
+	}
+	return nil
+}
+
 func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -138,7 +152,6 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	app.Id = project
 	log.Printf("[DEBUG] Creating App Engine App")
 	op, err := config.clientAppEngine.Apps.Create(app).Do()
 	if err != nil {
@@ -162,12 +175,8 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	pid := d.Id()
 
 	app, err := config.clientAppEngine.Apps.Get(pid).Do()
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return fmt.Errorf("Error retrieving App Engine application %q: %s", pid, err.Error())
-	} else if isGoogleApiErrorWithCode(err, 404) {
-		log.Printf("[WARN] App Engine application %q not found, removing from state", pid)
-		d.SetId("")
-		return nil
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("App Engine Application %q", pid))
 	}
 	d.Set("auth_domain", app.AuthDomain)
 	d.Set("code_bucket", app.CodeBucket)
@@ -220,7 +229,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAppEngineApplicationDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Println("[DEBUG] App Engine applications cannot be destroyed once created. The project must be deleted to delete the application.")
+	log.Println("[WARN] App Engine applications cannot be destroyed once created. The project must be deleted to delete the application.")
 	return nil
 }
 
@@ -244,9 +253,6 @@ func expandAppEngineApplicationFeatureSettings(d *schema.ResourceData) (*appengi
 	blocks := d.Get("feature_settings").([]interface{})
 	if len(blocks) < 1 {
 		return nil, nil
-	}
-	if len(blocks) > 1 {
-		return nil, fmt.Errorf("only one feature_settings block may be defined per app")
 	}
 	return &appengine.FeatureSettings{
 		SplitHealthChecks: d.Get("feature_settings.0.split_health_checks").(bool),
