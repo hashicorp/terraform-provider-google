@@ -92,10 +92,12 @@ func resourceGoogleProject() *schema.Resource {
 				Set:      schema.HashString,
 			},
 			"app_engine": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     appEngineResource(),
-				MaxItems: 1,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Computed:   true,
+				Elem:       appEngineResource(),
+				MaxItems:   1,
+				Deprecated: "Use the google_app_engine_application resource instead.",
 			},
 		},
 	}
@@ -206,10 +208,7 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 }
 
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
-	if old, new := diff.GetChange("app_engine.#"); old != nil && new != nil && old.(int) > 0 && new.(int) < 1 {
-		// if we're going from app_engine set to unset, we need to delete the project, app_engine has no delete
-		return diff.ForceNew("app_engine")
-	} else if old, _ := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && old.(string) != "" {
+	if old, _ := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && old.(string) != "" {
 		// if location_id was already set, and has a new value, that forces a new app
 		// if location_id wasn't set, don't force a new value, as we're just enabling app engine
 		return diff.ForceNew("app_engine.0.location_id")
