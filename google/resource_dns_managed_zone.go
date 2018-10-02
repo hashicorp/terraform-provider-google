@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
-	dnsBeta "google.golang.org/api/dns/v1beta2"
 )
 
 func resourceDnsManagedZone() *schema.Resource {
@@ -126,7 +125,7 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	zone := &dnsBeta.ManagedZone{
+	zone := &dns.ManagedZone{
 		Name:        d.Get("name").(string),
 		DnsName:     d.Get("dns_name").(string),
 		Description: d.Get("description").(string),
@@ -136,12 +135,12 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		zone.Labels = expandLabels(d)
 	}
 
-	op, err := config.clientDnsBeta.ManagedZones.Patch(project, d.Id(), zone).Do()
+	op, err := config.clientDns.ManagedZones.Patch(project, d.Id(), zone).Do()
 	if err != nil {
 		return err
 	}
 
-	err = dnsOperationWait(config.clientDnsBeta, op, project, "Updating DNS Managed Zone")
+	err = dnsOperationWait(config.clientDns, op, project, "Updating DNS Managed Zone")
 	if err != nil {
 		return err
 	}

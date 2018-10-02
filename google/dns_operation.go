@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/dns/v1beta2"
+	"google.golang.org/api/dns/v1"
 )
 
 type DnsOperationWaiter struct {
