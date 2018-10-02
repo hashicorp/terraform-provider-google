@@ -12,23 +12,26 @@ import (
 
 var IamComputeSubnetworkSchema = map[string]*schema.Schema{
 	"subnetwork": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Type:       schema.TypeString,
+		Required:   true,
+		ForceNew:   true,
 	},
 
 	"project": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Type:       schema.TypeString,
+		Optional:   true,
+		Computed:   true,
+		ForceNew:   true,
 	},
 
 	"region": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Type:       schema.TypeString,
+		Optional:   true,
+		Computed:   true,
+		ForceNew:   true,
 	},
 }
 

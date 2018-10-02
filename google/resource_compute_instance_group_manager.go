@@ -38,9 +38,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"version": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+				Type:       schema.TypeList,
+				Optional:   true,
+				Computed:   true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -159,9 +160,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"auto_healing_policies": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+				Type:       schema.TypeList,
+				Optional:   true,
+				MaxItems:   1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"health_check": &schema.Schema{
@@ -180,9 +182,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"rolling_update_policy": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+				Type:       schema.TypeList,
+				Optional:   true,
+				MaxItems:   1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"minimal_action": &schema.Schema{

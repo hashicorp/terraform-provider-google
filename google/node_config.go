@@ -142,6 +142,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
+				Deprecated:       "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
 				Type:             schema.TypeList,
 				Optional:         true,
 				ForceNew:         true,
@@ -169,10 +170,11 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"workload_metadata_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+				Type:       schema.TypeList,
+				Optional:   true,
+				ForceNew:   true,
+				MaxItems:   1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"node_metadata": {

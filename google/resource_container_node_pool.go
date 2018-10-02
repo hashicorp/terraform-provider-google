@@ -54,9 +54,10 @@ func resourceContainerNodePool() *schema.Resource {
 					ForceNew: true,
 				},
 				"region": &schema.Schema{
-					Type:     schema.TypeString,
-					Optional: true,
-					ForceNew: true,
+					Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+					Type:       schema.TypeString,
+					Optional:   true,
+					ForceNew:   true,
 				},
 			}),
 	}
@@ -85,10 +86,11 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 
 	"max_pods_per_node": &schema.Schema{
-		Type:     schema.TypeInt,
-		Optional: true,
-		ForceNew: true,
-		Computed: true,
+		Deprecated: "This field is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Type:       schema.TypeInt,
+		Optional:   true,
+		ForceNew:   true,
+		Computed:   true,
 	},
 
 	"initial_node_count": &schema.Schema{
