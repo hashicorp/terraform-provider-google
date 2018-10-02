@@ -253,6 +253,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									"assigned_nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Computed: true,
+										Deprecated: "Use network_interface.access_config.nat_ip instead.",
 									},
 								},
 							},
