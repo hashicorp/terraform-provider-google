@@ -78,10 +78,11 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 
 func resourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudFunctionsCreate,
-		Read:   resourceCloudFunctionsRead,
-		Update: resourceCloudFunctionsUpdate,
-		Delete: resourceCloudFunctionsDestroy,
+		Create:        resourceCloudFunctionsCreate,
+		Read:          resourceCloudFunctionsRead,
+		Update:        resourceCloudFunctionsUpdate,
+		Delete:        resourceCloudFunctionsDestroy,
+		CustomizeDiff: resourceCloudFunctionsCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -177,7 +178,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"trigger_bucket": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
+				Computed:      true,
+				Deprecated:    "This field is deprecated. Use `event_trigger` instead.",
 				ConflictsWith: []string{"trigger_http", "trigger_topic"},
 			},
 
@@ -191,8 +193,44 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"trigger_topic": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
+				Computed:      true,
+				Deprecated:    "This field is deprecated. Use `event_trigger` instead.",
 				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
+			},
+
+			"event_trigger": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"trigger_http", "retry_on_failure", "trigger_topic", "trigger_http"},
+				MaxItems:      1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"event_type": {
+							Type:     schema.TypeString,
+							ForceNew: true,
+							Required: true,
+						},
+						"resource": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"failure_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"retry": {
+										Type: schema.TypeBool,
+										// not strictly required, but this way an empty block can't be specified
+										Required: true,
+									},
+								}},
+						},
+					},
+				},
 			},
 
 			"https_trigger_url": {
@@ -204,6 +242,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"retry_on_failure": {
 				Type:          schema.TypeBool,
 				Optional:      true,
+				Computed:      true,
+				Deprecated:    "This field is deprecated. Use `event_trigger.failure_policy.retry` instead.",
 				ConflictsWith: []string{"trigger_http"},
 			},
 
@@ -223,6 +263,28 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceCloudFunctionsCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.HasChange("trigger_topic") {
+		_, n := diff.GetChange("trigger_topic")
+		if n == "" {
+			diff.Clear("trigger_topic")
+		} else {
+			diff.ForceNew("trigger_topic")
+		}
+	}
+
+	if diff.HasChange("trigger_bucket") {
+		_, n := diff.GetChange("trigger_bucket")
+		if n == "" {
+			diff.Clear("trigger_bucket")
+		} else {
+			diff.ForceNew("trigger_bucket")
+		}
+	}
+
+	return nil
 }
 
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
@@ -253,7 +315,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	function := &cloudfunctions.CloudFunction{
-		Name: cloudFuncId.cloudFunctionId(),
+		Name:            cloudFuncId.cloudFunctionId(),
+		ForceSendFields: []string{},
 	}
 
 	sourceArchiveBucket := d.Get("source_archive_bucket").(string)
@@ -277,13 +340,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.Timeout = fmt.Sprintf("%vs", v.(int))
 	}
 
-	v, triggHttpOk := d.GetOk("trigger_http")
-	if triggHttpOk && v.(bool) {
+	if v, ok := d.GetOk("event_trigger"); ok {
+		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
+	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
 		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
-	}
-
-	v, triggTopicOk := d.GetOk("trigger_topic")
-	if triggTopicOk {
+	} else if v, ok := d.GetOk("trigger_topic"); ok {
 		// Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			// Other events are not supported
@@ -297,10 +358,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 				Retry: &cloudfunctions.Retry{},
 			}
 		}
-	}
-
-	v, triggBucketOk := d.GetOk("trigger_bucket")
-	if triggBucketOk {
+	} else if v, ok := d.GetOk("trigger_bucket"); ok {
 		// Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
 		function.EventTrigger = &cloudfunctions.EventTrigger{
 			EventType: "providers/cloud.storage/eventTypes/object.change",
@@ -313,10 +371,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 				Retry: &cloudfunctions.Retry{},
 			}
 		}
-	}
-
-	if !triggHttpOk && !triggTopicOk && !triggBucketOk {
-		return fmt.Errorf("One of arguments [trigger_topic, trigger_bucket, trigger_http] is required: " +
+	} else {
+		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
 	}
 
@@ -389,16 +445,24 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("https_trigger_url", function.HttpsTrigger.Url)
 	}
 
+	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
 	if function.EventTrigger != nil {
 		switch function.EventTrigger.EventType {
 		// From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
 		case "google.pubsub.topic.publish":
-			d.Set("trigger_topic", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
+			if _, ok := d.GetOk("trigger_topic"); ok {
+				d.Set("trigger_topic", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
+			}
 		case "providers/cloud.storage/eventTypes/object.change":
-			d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
+			if _, ok := d.GetOk("trigger_bucket"); ok {
+				d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
+			}
 		}
-		retry := function.EventTrigger.FailurePolicy != nil && function.EventTrigger.FailurePolicy.Retry != nil
-		d.Set("retry_on_failure", retry)
+
+		if _, ok := d.GetOk("retry_on_failure"); ok {
+			retry := function.EventTrigger.FailurePolicy != nil && function.EventTrigger.FailurePolicy.Retry != nil
+			d.Set("retry_on_failure", retry)
+		}
 	}
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
@@ -409,6 +473,11 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_cloudfunctions_function")
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
 	if err != nil {
@@ -455,6 +524,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "environment_variables")
 	}
 
+	// Event trigger will run after failure policy and take precedence
 	if d.HasChange("retry_on_failure") {
 		if d.Get("retry_on_failure").(bool) {
 			if function.EventTrigger == nil {
@@ -465,6 +535,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 		updateMaskArr = append(updateMaskArr, "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("event_trigger") {
+		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
+		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
 	}
 
 	if len(updateMaskArr) > 0 {
@@ -508,4 +583,71 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 	d.SetId("")
 
 	return nil
+}
+
+func expandEventTrigger(configured []interface{}, project string) *cloudfunctions.EventTrigger {
+	if len(configured) == 0 {
+		return nil
+	}
+
+	if data, ok := configured[0].(map[string]interface{}); ok {
+		eventType := data["event_type"].(string)
+		shape := ""
+		switch eventType {
+		case "providers/cloud.storage/eventTypes/object.change":
+			shape = "projects/%s/buckets/%s"
+		case "providers/cloud.pubsub/eventTypes/topic.publish":
+			shape = "projects/%s/topics/%s"
+		}
+
+		return &cloudfunctions.EventTrigger{
+			EventType:     eventType,
+			Resource:      fmt.Sprintf(shape, project, data["resource"].(string)),
+			FailurePolicy: expandFailurePolicy(data["failure_policy"].([]interface{})),
+		}
+	}
+
+	return nil
+}
+
+func flattenEventTrigger(eventTrigger *cloudfunctions.EventTrigger) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	if eventTrigger == nil {
+		return result
+	}
+
+	result = append(result, map[string]interface{}{
+		"event_type":     eventTrigger.EventType,
+		"resource":       GetResourceNameFromSelfLink(eventTrigger.Resource),
+		"failure_policy": flattenFailurePolicy(eventTrigger.FailurePolicy),
+	})
+
+	return result
+}
+
+func expandFailurePolicy(configured []interface{}) *cloudfunctions.FailurePolicy {
+	if len(configured) == 0 {
+		return &cloudfunctions.FailurePolicy{}
+	}
+
+	if data, ok := configured[0].(map[string]interface{}); ok && data["retry"].(bool) {
+		return &cloudfunctions.FailurePolicy{
+			Retry: &cloudfunctions.Retry{},
+		}
+	}
+
+	return nil
+}
+
+func flattenFailurePolicy(failurePolicy *cloudfunctions.FailurePolicy) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	if failurePolicy == nil {
+		return nil
+	}
+
+	result = append(result, map[string]interface{}{
+		"retry": failurePolicy.Retry != nil,
+	})
+
+	return result
 }
