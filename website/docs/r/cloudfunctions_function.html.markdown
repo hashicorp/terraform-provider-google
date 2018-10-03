@@ -84,16 +84,16 @@ Deprecated. Use `event_trigger.failure_policy.retry` instead.
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"providers/cloud.storage/eventTypes/object.change"`
-    and `"providers/cloud.pubsub/eventTypes/topic.publish"`  Only `"providers/cloud.storage/eventTypes/object.change"` and
-    `"providers/cloud.pubsub/eventTypes/topic.publish"` are supported at this time.
+    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+    for a full reference. Only Cloud Storage and Cloud Pub/Sub triggers are supported at this time.
 
 * `resource` - (Required) Required. The name of the resource from which to observe events, for example, `"myBucket"`   
 
-* `failure_policy` - (Required) Specifies policy for failed executions. Structure is documented below.
+* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is documented below.
 
 The `failure_policy` block supports:
 
-* `retry` - (Optional) Whether the function should be retried on failure. Defaults to `false`.
+* `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
 ## Attributes Reference
 

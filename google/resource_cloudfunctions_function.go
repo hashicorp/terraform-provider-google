@@ -593,10 +593,10 @@ func expandEventTrigger(configured []interface{}, project string) *cloudfunction
 	if data, ok := configured[0].(map[string]interface{}); ok {
 		eventType := data["event_type"].(string)
 		shape := ""
-		switch eventType {
-		case "providers/cloud.storage/eventTypes/object.change":
+		switch {
+		case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
 			shape = "projects/%s/buckets/%s"
-		case "providers/cloud.pubsub/eventTypes/topic.publish":
+		case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
 			shape = "projects/%s/topics/%s"
 		}
 
