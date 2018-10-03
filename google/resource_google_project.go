@@ -209,9 +209,7 @@ func appEngineFeatureSettingsResource() *schema.Resource {
 
 func resourceGoogleProjectCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	if old, _ := diff.GetChange("app_engine.0.location_id"); diff.HasChange("app_engine.0.location_id") && old != nil && old.(string) != "" {
-		// if location_id was already set, and has a new value, that forces a new app
-		// if location_id wasn't set, don't force a new value, as we're just enabling app engine
-		return diff.ForceNew("app_engine.0.location_id")
+		return fmt.Errorf("Cannot change app_engine.0.location_id once the app is created.")
 	}
 	return nil
 }

@@ -163,6 +163,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	// Wait for the operation to complete
 	waitErr := appEngineOperationWait(config.clientAppEngine, op, project, "App Engine app to create")
 	if waitErr != nil {
+		d.SetId("")
 		return waitErr
 	}
 	log.Printf("[DEBUG] Created App Engine App")
