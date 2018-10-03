@@ -12,14 +12,14 @@ import (
 
 var IamComputeSubnetworkSchema = map[string]*schema.Schema{
 	"subnetwork": {
-		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
 		Type:       schema.TypeString,
 		Required:   true,
 		ForceNew:   true,
 	},
 
 	"project": {
-		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
 		Type:       schema.TypeString,
 		Optional:   true,
 		Computed:   true,
@@ -27,7 +27,7 @@ var IamComputeSubnetworkSchema = map[string]*schema.Schema{
 	},
 
 	"region": {
-		Deprecated: "This resource is in beta and will be removed from this provider. Use terraform-provider-google-beta to continue using it.",
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
 		Type:       schema.TypeString,
 		Optional:   true,
 		Computed:   true,
