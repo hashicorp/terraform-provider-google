@@ -2,6 +2,7 @@
 
 BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. [GH-2096]
+* compute: `google_compute_instance`, `google_compute_instance_from_template` have had the `network_interface.0.access_config.0.assigned_nat_ip` field deprecated. Please use `network_interface.0.access_config.0.nat_ip` instead.
 * project: `google_project`'s `app_engine` sub-block has been deprecated. Please use the `google_app_engine_app` resource instead. Changing between the two should not force project re-creation. [GH-2147]
 
 FEATURES: 
@@ -13,6 +14,7 @@ FEATURES:
 ENHANCEMENTS:
 * container: Add `enable_tpu` flag to google_container_cluster [GH-1974]
 * dns: `google_dns_managed_zone` is now importable [GH-1944]
+* dns: `google_dns_managed_zone` is now entirely GA [GH-2154]
 * runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
 * services: containeranalysis.googleapis.com can now be enabled [GH-2095]
 
