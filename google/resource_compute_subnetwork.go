@@ -639,6 +639,9 @@ func expandComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceDa
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
