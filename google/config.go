@@ -91,7 +91,7 @@ type Config struct {
 	clientCloudFunctions         *cloudfunctions.Service
 	clientCloudIoT               *cloudiot.Service
 	clientAppEngine              *appengine.APIService
-	clientStorageTransfer        *storagetransfer.Service
+	clientStorageTransferJob     *storagetransfer.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -380,11 +380,11 @@ func (c *Config) loadAndValidate() error {
 	c.clientComposer.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer Client...")
-	c.clientStorageTransfer, err = storagetransfer.New(client)
+	c.clientStorageTransferJob, err = storagetransfer.New(client)
 	if err != nil {
 		return err
 	}
-	c.clientStorageTransfer.UserAgent = userAgent
+	c.clientStorageTransferJob.UserAgent = userAgent
 
 	return nil
 }

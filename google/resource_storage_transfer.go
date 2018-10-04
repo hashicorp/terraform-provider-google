@@ -12,15 +12,15 @@ import (
 // https://cloud.google.com/storage/transfer/create-manage-transfer-program
 // https://cloud.google.com/storage/transfer/reference/rest/v1/transferJobs/patch
 // https://cloud.google.com/storage/transfer/reference/rest/v1/transferJobs#Status
-func resourceStorageTransfer() *schema.Resource {
+func resourceStorageTransferJob() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceStorageTransferCreate,
-		Read:   resourceStorageTransferRead,
-		Update: resourceStorageTransferUpdate,
-		Delete: resourceStorageTransferDelete,
+		Create: resourceStorageTransferJobCreate,
+		Read:   resourceStorageTransferJobRead,
+		Update: resourceStorageTransferJobUpdate,
+		Delete: resourceStorageTransferJobDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceStorageTransferStateImporter,
+			State: resourceStorageTransferJobStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -252,7 +252,7 @@ func dateObject(required bool, optional bool) *schema.Schema {
 	}
 }
 
-func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	var transferJob *storagetransfer.TransferJob
@@ -261,7 +261,7 @@ func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) err
 
 	var err error
 	err = retry(func() error {
-		res, err = config.clientStorageTransfer.TransferJobs.Create(transferJob).Do()
+		res, err = config.clientStorageTransferJob.TransferJobs.Create(transferJob).Do()
 
 		return err
 	})
@@ -277,16 +277,16 @@ func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceStorageBucketRead(d, meta)
 }
 
-func resourceStorageTransferUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceStorageTransferRead(d *schema.ResourceData, meta interface{}) error {
+func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	// Get the bucket and acl
 	name := d.Get("name").(string)
-	res, err := config.clientStorageTransfer.TransferJobs.Get(name).Do()
+	res, err := config.clientStorageTransferJob.TransferJobs.Get(name).Do()
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Transfer %q", d.Get("name").(string)))
@@ -299,10 +299,10 @@ func resourceStorageTransferRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceStorageTransferDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceStorageTransferStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	return nil, nil
 }

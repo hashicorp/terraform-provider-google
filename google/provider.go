@@ -240,7 +240,7 @@ func Provider() terraform.ResourceProvider {
 				"google_storage_object_acl":         resourceStorageObjectAcl(),
 				"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
 				"google_storage_notification":       resourceStorageNotification(),
-				"google_storage_transfer":           resourceStorageTransfer(),
+				"google_storage_transfer_job":       resourceStorageTransferJob(),
 			},
 		),
 
