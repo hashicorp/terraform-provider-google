@@ -71,8 +71,8 @@ func resourceStorageTransfer() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"schedule_start_date": dateObject(),
-						"schedule_end_date":   dateObject(),
+						"schedule_start_date": dateObject(true, false),
+						"schedule_end_date":   dateObject(false, true),
 						"start_time_of_day":   timeObject(),
 					},
 				},
@@ -80,17 +80,19 @@ func resourceStorageTransfer() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Default:      "ENABLED",
 				ValidateFunc: validation.StringInSlice([]string{"STATUS_UNSPECIFIED", "ENABLED", "DISABLED", "DELETED"}, true),
 			},
 			"creation_time": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"last_modification_time": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"deletion_time": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -98,7 +100,7 @@ func resourceStorageTransfer() *schema.Resource {
 
 func gcsData() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"bucketName": &schema.Schema{
+		"bucket_name": &schema.Schema{
 			Required: true,
 			Type:     schema.TypeString,
 		},
@@ -115,20 +117,24 @@ func objectConditions() *schema.Schema {
 				"min_time_elapsed_since_last_modification": &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateDuration(),
+					Optional:     true,
 				},
 				"max_time_elapsed_since_last_modification": &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateDuration(),
+					Optional:     true,
 				},
 				"include_prefixes": &schema.Schema{
-					Type: schema.TypeList,
+					Type:     schema.TypeList,
+					Optional: true,
 					Elem: &schema.Schema{
 						MaxItems: 1000,
 						Type:     schema.TypeString,
 					},
 				},
 				"exclude_prefixes": &schema.Schema{
-					Type: schema.TypeList,
+					Type:     schema.TypeList,
+					Optional: true,
 					Elem: &schema.Schema{
 						MaxItems: 1000,
 						Type:     schema.TypeString,
@@ -186,7 +192,7 @@ func transferOptions() *schema.Schema {
 func timeObject() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
-		Optional: false,
+		Optional: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -216,10 +222,11 @@ func timeObject() *schema.Schema {
 
 }
 
-func dateObject() *schema.Schema {
+func dateObject(required bool, optional bool) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
-		Optional: false,
+		Required: required,
+		Optional: optional,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -260,7 +267,7 @@ func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) err
 	})
 
 	if err != nil {
-		fmt.Printf("Error creating transferJob %s: %v", transferJob, err)
+		fmt.Printf("Error creating transferJob %v: %v", transferJob, err)
 		return err
 	}
 
