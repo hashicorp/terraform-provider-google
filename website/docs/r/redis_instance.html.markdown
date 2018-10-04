@@ -23,6 +23,7 @@ description: |-
 
 A Google Cloud Redis instance.
 
+
 To get more information about Instance, see:
 
 * [API documentation](https://cloud.google.com/memorystore/docs/redis/reference/rest/)

@@ -25,6 +25,7 @@ An SslCertificate resource, used for HTTPS load balancing. This resource
 provides a mechanism to upload an SSL key and certificate to
 the load balancer to serve secure connections from the user.
 
+
 To get more information about SslCertificate, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/sslCertificates)
