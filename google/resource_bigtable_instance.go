@@ -41,7 +41,7 @@ func resourceBigtableInstance() *schema.Resource {
 			"cluster": {
 				Type:          schema.TypeSet,
 				Optional:      true,
-				MaxItems:      2,
+				MaxItems:      1,
 				ConflictsWith: []string{"cluster_id", "zone", "num_nodes", "storage_type"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
