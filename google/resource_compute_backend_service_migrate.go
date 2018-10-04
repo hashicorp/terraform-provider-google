@@ -99,8 +99,12 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	group, _ := getRelativePath(m["group"].(string))
-	buf.WriteString(fmt.Sprintf("%s-", group))
+	if group, err := getRelativePath(m["group"].(string)); err != nil {
+		log.Printf("[WARN] Error on retrieving relative path of instance group: %s", err)
+		buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
+	} else {
+		buf.WriteString(fmt.Sprintf("%s-", group))
+	}
 
 	if v, ok := m["balancing_mode"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
@@ -116,6 +120,12 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
+	}
+	if v, ok := m["max_connections"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
+	}
+	if v, ok := m["max_connections_per_instance"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
 	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))

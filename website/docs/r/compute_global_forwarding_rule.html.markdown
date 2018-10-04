@@ -101,6 +101,7 @@ The following arguments are supported:
 
 * `ip_version` - (Optional)
 The IP Version that will be used by this resource's address. One of `"IPV4"` or `"IPV6"`.
+  You cannot provide this and `ip_address`.
 
 - - -
 

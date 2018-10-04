@@ -51,6 +51,11 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
+	ppolicy, err := u.Config.clientStorage.Buckets.GetIamPolicy(u.bucket).Do()
+	if err != nil {
+		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+	}
+	storagePolicy.Etag = ppolicy.Etag
 	_, err = u.Config.clientStorage.Buckets.SetIamPolicy(u.bucket, storagePolicy).Do()
 
 	if err != nil {

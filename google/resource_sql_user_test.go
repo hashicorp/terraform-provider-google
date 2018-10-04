@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccSqlUser_firstGen(t *testing.T) {
+func TestAccSqlUser_mysql(t *testing.T) {
 	t.Parallel()
 
 	instance := acctest.RandomWithPrefix("i")
@@ -19,7 +19,7 @@ func TestAccSqlUser_firstGen(t *testing.T) {
 		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleSqlUser_firstGen(instance, "password"),
+				Config: testGoogleSqlUser_mysql(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
@@ -27,7 +27,7 @@ func TestAccSqlUser_firstGen(t *testing.T) {
 			},
 			resource.TestStep{
 				// Update password
-				Config: testGoogleSqlUser_firstGen(instance, "new_password"),
+				Config: testGoogleSqlUser_mysql(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
@@ -44,7 +44,7 @@ func TestAccSqlUser_firstGen(t *testing.T) {
 	})
 }
 
-func TestAccSqlUser_secondGen(t *testing.T) {
+func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
 	instance := acctest.RandomWithPrefix("i")
@@ -54,14 +54,14 @@ func TestAccSqlUser_secondGen(t *testing.T) {
 		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testGoogleSqlUser_secondGen(instance, "password"),
+				Config: testGoogleSqlUser_postgres(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
 			},
 			resource.TestStep{
 				// Update password
-				Config: testGoogleSqlUser_secondGen(instance, "new_password"),
+				Config: testGoogleSqlUser_postgres(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
@@ -90,6 +90,10 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 		host := rs.Primary.Attributes["host"]
 		users, err := config.clientSqlAdmin.Users.List(config.Project,
 			instance).Do()
+
+		if err != nil {
+			return err
+		}
 
 		for _, user := range users.Items {
 			if user.Name == name && user.Host == host {
@@ -126,7 +130,7 @@ func testAccSqlUserDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testGoogleSqlUser_firstGen(instance, password string) string {
+func testGoogleSqlUser_mysql(instance, password string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
 		name = "%s"
@@ -152,7 +156,7 @@ func testGoogleSqlUser_firstGen(instance, password string) string {
 	`, instance, password)
 }
 
-func testGoogleSqlUser_secondGen(instance, password string) string {
+func testGoogleSqlUser_postgres(instance, password string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
 		name = "%s"

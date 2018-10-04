@@ -17,6 +17,14 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+type TerraformResourceData interface {
+	HasChange(string) bool
+	GetOk(string) (interface{}, bool)
+	Set(string, interface{}) error
+	SetId(string)
+	Id() string
+}
+
 // getRegionFromZone returns the region from a zone for Google cloud.
 func getRegionFromZone(zone string) string {
 	if zone != "" && len(zone) > 2 {
@@ -33,19 +41,6 @@ func getRegionFromZone(zone string) string {
 // - region extracted from the provider-level zone
 func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
-}
-
-// getZone reads the "zone" value from the given resource data and falls back
-// to provider's value if not given.  If neither is provided, returns an error.
-func getZone(d TerraformResourceData, config *Config) (string, error) {
-	res, ok := d.GetOk("zone")
-	if !ok {
-		if config.Zone != "" {
-			return config.Zone, nil
-		}
-		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
-	}
-	return GetResourceNameFromSelfLink(res.(string)), nil
 }
 
 func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
@@ -67,6 +62,20 @@ func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (st
 // given, an error is returned.
 func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
+}
+
+// getProjectFromDiff reads the "project" field from the given diff and falls
+// back to the provider's value if not given. If the provider's value is not
+// given, an error is returned.
+func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) {
+	res, ok := d.GetOk("project")
+	if ok {
+		return res.(string), nil
+	}
+	if config.Project != "" {
+		return config.Project, nil
+	}
+	return "", fmt.Errorf("%s: required field is not set", "project")
 }
 
 func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
@@ -131,18 +140,6 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 	return nil, nil
 }
 
-func getNetworkNameFromSelfLink(network string) (string, error) {
-	if !strings.HasPrefix(network, "https://www.googleapis.com/compute/") {
-		return network, nil
-	}
-	// extract the network name from SelfLink URL
-	networkName := network[strings.LastIndex(network, "/")+1:]
-	if networkName == "" {
-		return "", fmt.Errorf("network url not valid")
-	}
-	return networkName, nil
-}
-
 func getRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
 }
@@ -162,6 +159,44 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 func isGoogleApiErrorWithCode(err error, errCode int) bool {
 	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
 	return ok && gerr != nil && gerr.Code == errCode
+}
+
+func isApiNotEnabledError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 403 {
+		return false
+	}
+	for _, e := range gerr.Errors {
+		if e.Reason == "accessNotConfigured" {
+			return true
+		}
+	}
+	return false
+}
+
+func isFailedPreconditionError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 400 {
+		return false
+	}
+	for _, e := range gerr.Errors {
+		if e.Reason == "failedPrecondition" {
+			return true
+		}
+	}
+	return false
 }
 
 func isConflictError(err error) bool {
@@ -223,6 +258,10 @@ func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+func caseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.ToUpper(old) == strings.ToUpper(new)
+}
+
 // Port range '80' and '80-80' is equivalent.
 // `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
 // `new` can be either a single port or a port range.
@@ -245,6 +284,11 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
 func expandLabels(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "labels")
+}
+
+// expandEnvironmentVariables pulls the value of "environment_variables" out of a schema.ResourceData as a map[string]string.
+func expandEnvironmentVariables(d *schema.ResourceData) map[string]string {
+	return expandStringMap(d, "environment_variables")
 }
 
 // expandStringMap pulls the value of key out of a schema.ResourceData as a map[string]string.
@@ -311,18 +355,36 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	return merged
 }
 
+func mergeResourceMaps(ms ...map[string]*schema.Resource) map[string]*schema.Resource {
+	merged := make(map[string]*schema.Resource)
+
+	for _, m := range ms {
+		for k, v := range m {
+			merged[k] = v
+		}
+	}
+
+	return merged
+}
+
 func retry(retryFunc func() error) error {
 	return retryTime(retryFunc, 1)
 }
 
 func retryTime(retryFunc func() error, minutes int) error {
-	return resource.Retry(time.Duration(minutes)*time.Minute, func() *resource.RetryError {
+	return retryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
+}
+
+func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
+	return resource.Retry(duration, func() *resource.RetryError {
 		err := retryFunc()
 		if err == nil {
 			return nil
 		}
-		if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
-			return resource.RetryableError(gerr)
+		for _, e := range errwrap.GetAllType(err, &googleapi.Error{}) {
+			if gerr, ok := e.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+				return resource.RetryableError(gerr)
+			}
 		}
 		return resource.NonRetryableError(err)
 	})
@@ -341,4 +403,30 @@ func lockedCall(lockKey string, f func() error) error {
 	defer mutexKV.Unlock(lockKey)
 
 	return f()
+}
+
+// serviceAccountFQN will attempt to generate the fully qualified name in the format of:
+// "projects/(-|<project>)/serviceAccounts/<service_account_id>@<project>.iam.gserviceaccount.com"
+// A project is required if we are trying to build the FQN from a service account id and
+// and error will be returned in this case if no project is set in the resource or the
+// provider-level config
+func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *Config) (string, error) {
+	// If the service account id is already the fully qualified name
+	if strings.HasPrefix(serviceAccount, "projects/") {
+		return serviceAccount, nil
+	}
+
+	// If the service account id is an email
+	if strings.Contains(serviceAccount, "@") {
+		return "projects/-/serviceAccounts/" + serviceAccount, nil
+	}
+
+	// Get the project from the resource or fallback to the project
+	// in the provider configuration
+	project, err := getProject(d, config)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project), nil
 }

@@ -122,6 +122,11 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "ubuntu-os-cloud/ubuntu-1404-lts",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family - minimal": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-1804-bionic-v20180705",
+			New:                "ubuntu-minimal-1804-lts",
+			ExpectDiffSuppress: true,
+		},
 		"different image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "family/debian-7",
@@ -232,12 +237,13 @@ func TestAccComputeDisk_basic(t *testing.T) {
 func TestAccComputeDisk_timeout(t *testing.T) {
 	t.Parallel()
 
+	diskName := acctest.RandomWithPrefix("tf-test-disk")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config:      testAccComputeDisk_timeout(),
+				Config:      testAccComputeDisk_timeout(diskName),
 				ExpectError: regexp.MustCompile("timeout"),
 			},
 		},
@@ -323,6 +329,26 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_encryption(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			// Update from top-level attribute to nested.
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionMigrate(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			// Update from nested attribute back to top-level.
 			resource.TestStep{
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
@@ -546,11 +572,9 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 		}
 
 		attr := rs.Primary.Attributes["disk_encryption_key_sha256"]
-		if disk.DiskEncryptionKey == nil && attr != "" {
+		if disk.DiskEncryptionKey == nil {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", n, attr)
-		}
-
-		if attr != disk.DiskEncryptionKey.Sha256 {
+		} else if attr != disk.DiskEncryptionKey.Sha256 {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, disk.DiskEncryptionKey.Sha256)
 		}
@@ -582,9 +606,14 @@ func testAccCheckComputeDiskInstances(n string, disk *compute.Disk) resource.Tes
 
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -594,25 +623,35 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
-func testAccComputeDisk_timeout() string {
+func testAccComputeDisk_timeout(diskName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name  = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	type  = "pd-ssd"
 	zone  = "us-central1-a"
 
 	timeouts {
-		Create = "1s"
+		create = "1s"
 	}
-}`, acctest.RandString(10))
+}`, diskName)
 }
 
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 100
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -625,9 +664,14 @@ resource "google_compute_disk" "foobar" {
 
 func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "d1-%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -652,9 +696,14 @@ resource "google_compute_disk" "seconddisk" {
 
 func testAccComputeDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -662,11 +711,35 @@ resource "google_compute_disk" "foobar" {
 }`, diskName)
 }
 
+func testAccComputeDisk_encryptionMigrate(diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}`, diskName)
+}
+
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foo" {
 	name = "%s"
-	image = "debian-8-jessie-v20170523"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -679,7 +752,7 @@ resource "google_compute_instance" "bar" {
 
 	boot_disk {
 		initialize_params {
-			image = "debian-8-jessie-v20170523"
+			image = "${data.google_compute_image.my_image.self_link}"
 		}
 	}
 
@@ -695,9 +768,14 @@ resource "google_compute_instance" "bar" {
 
 func testAccComputeDisk_deleteDetachIGM(diskName, mgrName string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foo" {
 	name = "%s"
-	image = "debian-8-jessie-v20170523"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"

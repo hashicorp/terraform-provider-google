@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -80,8 +81,9 @@ func testAccCheckComputeRegionAutoscalerDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		_, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err == nil {
 			return fmt.Errorf("Autoscaler still exists")
 		}
@@ -103,13 +105,14 @@ func testAccCheckComputeRegionAutoscalerExists(n string, ascaler *compute.Autosc
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		found, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("Autoscaler not found")
 		}
 
@@ -132,8 +135,9 @@ func testAccCheckComputeRegionAutoscalerUpdated(n string, max int64) resource.Te
 
 		config := testAccProvider.Meta().(*Config)
 
-		ascaler, err := config.clientCompute.RegionAutoscalers.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+		idParts := strings.Split(rs.Primary.ID, "/")
+		region, name := idParts[0], idParts[1]
+		ascaler, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
 		if err != nil {
 			return err
 		}
@@ -148,6 +152,11 @@ func testAccCheckComputeRegionAutoscalerUpdated(n string, max int64) resource.Te
 
 func testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "%s"
 	machine_type = "n1-standard-1"
@@ -155,7 +164,7 @@ resource "google_compute_instance_template" "foobar" {
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -208,6 +217,11 @@ resource "google_compute_region_autoscaler" "foobar" {
 
 func testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "%s"
 	machine_type = "n1-standard-1"
@@ -215,7 +229,7 @@ resource "google_compute_instance_template" "foobar" {
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-cloud/debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}

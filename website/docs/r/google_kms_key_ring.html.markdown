@@ -48,7 +48,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `id` - The ID of the created KeyRing. Its format is `{projectId}/{location}/{keyRingName}`.
+* `self_link` - The self link of the created KeyRing. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}`.
 
 ## Import
 

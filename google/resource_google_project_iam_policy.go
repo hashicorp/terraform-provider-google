@@ -18,7 +18,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		Update: resourceGoogleProjectIamPolicyUpdate,
 		Delete: resourceGoogleProjectIamPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceGoogleProjectIamPolicyImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -36,7 +36,7 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 			"authoritative": &schema.Schema{
 				Type:       schema.TypeBool,
 				Optional:   true,
-				Deprecated: "Use google_project_iam_policy_binding and google_project_iam_policy_member instead.",
+				Deprecated: "A future version of Terraform will remove the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
 			},
 			"etag": &schema.Schema{
 				Type:     schema.TypeString,
@@ -61,6 +61,11 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
+
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
 	if err != nil {
@@ -153,6 +158,10 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
+
 	// Get the policy in the template
 	p, err := getResourceIamPolicy(d)
 	if err != nil {
@@ -220,6 +229,10 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	mutexKey := getProjectIamPolicyMutexKey(pid)
+	mutexKV.Lock(mutexKey)
+	defer mutexKV.Unlock(mutexKey)
+
 	// Get the existing IAM policy from the API
 	ep, err := getProjectIamPolicy(pid, config)
 	if err != nil {
@@ -249,6 +262,11 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceGoogleProjectIamPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("project", d.Id())
+	return []*schema.ResourceData{d}, nil
 }
 
 // Subtract all bindings in policy b from policy a, and return the result
@@ -399,4 +417,8 @@ func (b sortableBindings) Swap(i, j int) {
 }
 func (b sortableBindings) Less(i, j int) bool {
 	return b[i].Role < b[j].Role
+}
+
+func getProjectIamPolicyMutexKey(pid string) string {
+	return fmt.Sprintf("iam-project-%s", pid)
 }

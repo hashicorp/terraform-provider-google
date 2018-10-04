@@ -18,6 +18,10 @@ resource "google_dns_managed_zone" "prod" {
   name        = "prod-zone"
   dns_name    = "prod.mydomain.com."
   description = "Production DNS zone"
+
+  labels = {
+    foo = "bar"
+  }
 }
 ```
 
@@ -25,7 +29,7 @@ resource "google_dns_managed_zone" "prod" {
 
 The following arguments are supported:
 
-* `dns_name` - (Required) The DNS name of this zone, e.g. "terraform.io".
+* `dns_name` - (Required) The fully qualified DNS name of this zone, e.g. `terraform.io.`.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -36,6 +40,8 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 ## Attributes Reference
 
@@ -48,8 +54,10 @@ exported:
 
 ## Import
 
-DNS managed zones can be imported using the `name`, e.g.
+Managed zones can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_dns_managed_zone.prod prod-zone
+$ terraform import google_dns_managed_zone.prod projects/{{project-id}}/managedZones/{{zone}}
+$ terraform import google_compute_disk.default {{project-id}}/managedZones/{{zone}}
+$ terraform import google_compute_disk.default {{zone}}
 ```

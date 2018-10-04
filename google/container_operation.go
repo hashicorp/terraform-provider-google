@@ -17,7 +17,22 @@ type ContainerOperationWaiter struct {
 	Zone    string
 }
 
+type ContainerBetaOperationWaiter struct {
+	Service  *containerBeta.Service
+	Op       *containerBeta.Operation
+	Project  string
+	Location string
+}
+
 func (w *ContainerOperationWaiter) Conf() *resource.StateChangeConf {
+	return &resource.StateChangeConf{
+		Pending: []string{"PENDING", "RUNNING"},
+		Target:  []string{"DONE"},
+		Refresh: w.RefreshFunc(),
+	}
+}
+
+func (w *ContainerBetaOperationWaiter) Conf() *resource.StateChangeConf {
 	return &resource.StateChangeConf{
 		Pending: []string{"PENDING", "RUNNING"},
 		Target:  []string{"DONE"},
@@ -44,7 +59,34 @@ func (w *ContainerOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
+func (w *ContainerBetaOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		name := fmt.Sprintf("projects/%s/locations/%s/operations/%s",
+			w.Project, w.Location, w.Op.Name)
+		resp, err := w.Service.Projects.Locations.Operations.Get(name).Do()
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		if resp.StatusMessage != "" {
+			return resp, resp.Status, fmt.Errorf(resp.StatusMessage)
+		}
+
+		log.Printf("[DEBUG] Progress of operation %q: %q", w.Op.Name, resp.Status)
+
+		return resp, resp.Status, err
+	}
+}
+
 func containerOperationWait(config *Config, op *container.Operation, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op.Status == "DONE" {
+		if op.StatusMessage != "" {
+			return fmt.Errorf(op.StatusMessage)
+		}
+		return nil
+	}
+
 	w := &ContainerOperationWaiter{
 		Service: config.clientContainer,
 		Op:      op,
@@ -53,36 +95,48 @@ func containerOperationWait(config *Config, op *container.Operation, project, zo
 	}
 
 	state := w.Conf()
+	return waitForState(state, activity, timeoutMinutes, minTimeoutSeconds)
+}
+
+func containerBetaOperationWait(config *Config, op *containerBeta.Operation, project, location, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op.Status == "DONE" {
+		if op.StatusMessage != "" {
+			return fmt.Errorf(op.StatusMessage)
+		}
+		return nil
+	}
+
+	w := &ContainerBetaOperationWaiter{
+		Service:  config.clientContainerBeta,
+		Op:       op,
+		Project:  project,
+		Location: location,
+	}
+
+	state := w.Conf()
+	return waitForState(state, activity, timeoutMinutes, minTimeoutSeconds)
+}
+
+func waitForState(state *resource.StateChangeConf, activity string, timeoutMinutes, minTimeoutSeconds int) error {
 	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	_, err := state.WaitForState()
 	if err != nil {
 		return fmt.Errorf("Error waiting for %s: %s", activity, err)
 	}
-
 	return nil
 }
 
-func containerBetaOperationWait(config *Config, op *containerBeta.Operation, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
-	opV1 := &container.Operation{}
-	err := Convert(op, opV1)
-	if err != nil {
-		return err
-	}
-
-	return containerOperationWait(config, opV1, project, zone, activity, timeoutMinutes, minTimeoutSeconds)
-}
-
-func containerSharedOperationWait(config *Config, op interface{}, project, zone, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+func containerSharedOperationWait(config *Config, op interface{}, project, location, activity string, timeoutMinutes, minTimeoutSeconds int) error {
 	if op == nil {
 		panic("Attempted to wait on an Operation that was nil.")
 	}
 
 	switch op.(type) {
 	case *container.Operation:
-		return containerOperationWait(config, op.(*container.Operation), project, zone, activity, timeoutMinutes, minTimeoutSeconds)
+		return containerOperationWait(config, op.(*container.Operation), project, location, activity, timeoutMinutes, minTimeoutSeconds)
 	case *containerBeta.Operation:
-		return containerBetaOperationWait(config, op.(*containerBeta.Operation), project, zone, activity, timeoutMinutes, minTimeoutSeconds)
+		return containerBetaOperationWait(config, op.(*containerBeta.Operation), project, location, activity, timeoutMinutes, minTimeoutSeconds)
 	default:
 		panic("Attempted to wait on an Operation of unknown type.")
 	}

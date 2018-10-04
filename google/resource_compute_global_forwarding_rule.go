@@ -8,13 +8,8 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/compute/v1"
+	compute "google.golang.org/api/compute/v1"
 )
-
-var GlobalForwardingRuleBaseApiVersion = v1
-var GlobalForwardingRuleVersionedFeatures = []Feature{
-	{Version: v0beta, Item: "labels"},
-}
 
 func resourceComputeGlobalForwardingRule() *schema.Resource {
 	return &schema.Resource{
@@ -61,10 +56,11 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 			},
 
 			"labels": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:       schema.TypeMap,
+				Optional:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Set:        schema.HashString,
 			},
 
 			"label_fingerprint": &schema.Schema{
@@ -109,7 +105,6 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 }
 
 func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, GlobalForwardingRuleBaseApiVersion, GlobalForwardingRuleVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -127,30 +122,9 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		Target:      d.Get("target").(string),
 	}
 
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		v1Frule := &compute.ForwardingRule{}
-		err = Convert(frule, v1Frule)
-		if err != nil {
-			return err
-		}
-
-		op, err = config.clientCompute.GlobalForwardingRules.Insert(project, v1Frule).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating Global Forwarding Rule: %s", err)
-		}
-	case v0beta:
-		v0BetaFrule := &computeBeta.ForwardingRule{}
-		err = Convert(frule, v0BetaFrule)
-		if err != nil {
-			return err
-		}
-
-		op, err = config.clientComputeBeta.GlobalForwardingRules.Insert(project, v0BetaFrule).Do()
-		if err != nil {
-			return fmt.Errorf("Error creating Global Forwarding Rule: %s", err)
-		}
+	op, err := config.clientComputeBeta.GlobalForwardingRules.Insert(project, frule).Do()
+	if err != nil {
+		return fmt.Errorf("Error creating Global Forwarding Rule: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -165,12 +139,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	if _, ok := d.GetOk("labels"); ok {
 		labels := expandLabels(d)
 		// Do a read to get the fingerprint value so we can update
-		fingerprint, err := resourceComputeGlobalForwardingRuleReadLabelFingerprint(config, computeApiVersion, project, frule.Name)
+		fingerprint, err := resourceComputeGlobalForwardingRuleReadLabelFingerprint(config, project, frule.Name)
 		if err != nil {
 			return err
 		}
 
-		err = resourceComputeGlobalForwardingRuleSetLabels(config, computeApiVersion, project, frule.Name, labels, fingerprint)
+		err = resourceComputeGlobalForwardingRuleSetLabels(config, project, frule.Name, labels, fingerprint)
 		if err != nil {
 			return err
 		}
@@ -180,7 +154,6 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersionUpdate(d, GlobalForwardingRuleBaseApiVersion, GlobalForwardingRuleVersionedFeatures, []Feature{})
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -192,34 +165,12 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("target") {
 		target := d.Get("target").(string)
-		targetRef := &computeBeta.TargetReference{Target: target}
+		targetRef := &compute.TargetReference{Target: target}
 
-		var op interface{}
-		switch computeApiVersion {
-		case v1:
-			v1TargetRef := &compute.TargetReference{}
-			err = Convert(targetRef, v1TargetRef)
-			if err != nil {
-				return err
-			}
-
-			op, err = config.clientCompute.GlobalForwardingRules.SetTarget(
-				project, d.Id(), v1TargetRef).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating target: %s", err)
-			}
-		case v0beta:
-			v0BetaTargetRef := &compute.TargetReference{}
-			err = Convert(targetRef, v0BetaTargetRef)
-			if err != nil {
-				return err
-			}
-
-			op, err = config.clientCompute.GlobalForwardingRules.SetTarget(
-				project, d.Id(), v0BetaTargetRef).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating target: %s", err)
-			}
+		op, err := config.clientCompute.GlobalForwardingRules.SetTarget(
+			project, d.Id(), targetRef).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating target: %s", err)
 		}
 
 		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Global Forwarding Rule")
@@ -233,7 +184,7 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 		labels := expandLabels(d)
 		fingerprint := d.Get("label_fingerprint").(string)
 
-		err = resourceComputeGlobalForwardingRuleSetLabels(config, computeApiVersion, project, d.Get("name").(string), labels, fingerprint)
+		err = resourceComputeGlobalForwardingRuleSetLabels(config, project, d.Get("name").(string), labels, fingerprint)
 		if err != nil {
 			return err
 		}
@@ -247,7 +198,6 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, GlobalForwardingRuleBaseApiVersion, GlobalForwardingRuleVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -255,28 +205,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	frule := &computeBeta.ForwardingRule{}
-	switch computeApiVersion {
-	case v1:
-		v1Frule, err := config.clientCompute.GlobalForwardingRules.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Global Forwarding Rule %q", d.Get("name").(string)))
-		}
-
-		err = Convert(v1Frule, frule)
-		if err != nil {
-			return err
-		}
-	case v0beta:
-		v0BetaFrule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Global Forwarding Rule %q", d.Get("name").(string)))
-		}
-
-		err = Convert(v0BetaFrule, frule)
-		if err != nil {
-			return err
-		}
+	frule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Global Forwarding Rule %q", d.Get("name").(string)))
 	}
 
 	d.Set("name", frule.Name)
@@ -295,7 +226,6 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	computeApiVersion := getComputeApiVersion(d, GlobalForwardingRuleBaseApiVersion, GlobalForwardingRuleVersionedFeatures)
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -305,20 +235,10 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 
 	// Delete the GlobalForwardingRule
 	log.Printf("[DEBUG] GlobalForwardingRule delete request")
-	var op interface{}
-	switch computeApiVersion {
-	case v1:
-		op, err = config.clientCompute.GlobalForwardingRules.Delete(project, d.Id()).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting GlobalForwardingRule: %s", err)
-		}
-	case v0beta:
-		op, err = config.clientComputeBeta.GlobalForwardingRules.Delete(project, d.Id()).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting GlobalForwardingRule: %s", err)
-		}
+	op, err := config.clientCompute.GlobalForwardingRules.Delete(project, d.Id()).Do()
+	if err != nil {
+		return fmt.Errorf("Error deleting GlobalForwardingRule: %s", err)
 	}
-
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting GlobalForwarding Rule")
 	if err != nil {
 		return err
@@ -330,43 +250,24 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 
 // resourceComputeGlobalForwardingRuleReadLabelFingerprint performs a read on the remote resource and returns only the
 // fingerprint. Used on create when setting labels as we don't know the label fingerprint initially.
-func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, computeApiVersion ApiVersion,
-	project, name string) (string, error) {
-	switch computeApiVersion {
-	case v0beta:
-		frule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, name).Do()
-		if err != nil {
-			return "", fmt.Errorf("Unable to read global forwarding rule to update labels: %s", err)
-		}
-
-		return frule.LabelFingerprint, nil
-	default:
-		return "", fmt.Errorf(
-			"Unable to read label fingerprint due to an internal error: can only handle v0beta but compute api logic indicates %d",
-			computeApiVersion)
+func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, project, name string) (string, error) {
+	frule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, name).Do()
+	if err != nil {
+		return "", fmt.Errorf("Unable to read global forwarding rule to update labels: %s", err)
 	}
+
+	return frule.LabelFingerprint, nil
 }
 
 // resourceComputeGlobalForwardingRuleSetLabels sets the Labels attribute on a forwarding rule.
-func resourceComputeGlobalForwardingRuleSetLabels(config *Config, computeApiVersion ApiVersion, project,
-	name string, labels map[string]string, fingerprint string) error {
-	var op interface{}
-	var err error
-
-	switch computeApiVersion {
-	case v0beta:
-		setLabels := computeBeta.GlobalSetLabelsRequest{
-			Labels:           labels,
-			LabelFingerprint: fingerprint,
-		}
-		op, err = config.clientComputeBeta.GlobalForwardingRules.SetLabels(project, name, &setLabels).Do()
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf(
-			"Unable to set labels due to an internal error: can only handle v0beta but compute api logic indicates %d",
-			computeApiVersion)
+func resourceComputeGlobalForwardingRuleSetLabels(config *Config, project, name string, labels map[string]string, fingerprint string) error {
+	setLabels := computeBeta.GlobalSetLabelsRequest{
+		Labels:           labels,
+		LabelFingerprint: fingerprint,
+	}
+	op, err := config.clientComputeBeta.GlobalForwardingRules.SetLabels(project, name, &setLabels).Do()
+	if err != nil {
+		return err
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Setting labels on Global Forwarding Rule")

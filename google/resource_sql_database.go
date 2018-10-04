@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -16,7 +17,7 @@ func resourceSqlDatabase() *schema.Resource {
 		Update: resourceSqlDatabaseUpdate,
 		Delete: resourceSqlDatabaseDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSqlDatabaseImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -56,6 +57,11 @@ func resourceSqlDatabase() *schema.Resource {
 				Computed: true,
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(15 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 	}
 }
 
@@ -89,7 +95,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, project, "Insert Database")
+	err = sqladminOperationWaitTime(config, op, project, "Insert Database", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for insertion of %s "+
@@ -164,7 +170,7 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, project, "Update Database")
+	err = sqladminOperationWaitTime(config, op, project, "Update Database", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for update of %s "+
@@ -196,7 +202,7 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWait(config, op, project, "Delete Database")
+	err = sqladminOperationWaitTime(config, op, project, "Delete Database", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of %s "+
@@ -204,4 +210,24 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceSqlDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance>[^/]+):(?P<name>[^/]+)",
+	}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

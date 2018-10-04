@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -89,6 +90,11 @@ func resourceComputeSnapshot() *schema.Resource {
 				Computed: true,
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
 	}
 }
 
@@ -131,7 +137,8 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	// It probably maybe worked, so store the ID now
 	d.SetId(snapshot.Name)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Snapshot")
+	timeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Creating Snapshot", timeout)
 	if err != nil {
 		return err
 	}
@@ -144,7 +151,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Eror when reading snapshot for label update: %s", err)
 		}
 
-		err = updateLabels(config.clientCompute, project, d.Id(), labels, apiSnapshot.LabelFingerprint)
+		err = updateLabels(config.clientCompute, project, d.Id(), labels, apiSnapshot.LabelFingerprint, timeout)
 		if err != nil {
 			return err
 		}
@@ -202,7 +209,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 
 	if d.HasChange("labels") {
-		err = updateLabels(config.clientCompute, project, d.Id(), expandLabels(d), d.Get("label_fingerprint").(string))
+		err = updateLabels(config.clientCompute, project, d.Id(), expandLabels(d), d.Get("label_fingerprint").(string), int(d.Timeout(schema.TimeoutDelete).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -236,7 +243,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error deleting snapshot: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting Snapshot")
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Snapshot", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -245,7 +252,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string) error {
+func updateLabels(client *compute.Service, project string, resourceId string, labels map[string]string, labelFingerprint string, timeout int) error {
 	setLabelsReq := compute.GlobalSetLabelsRequest{
 		Labels:           labels,
 		LabelFingerprint: labelFingerprint,
@@ -255,5 +262,5 @@ func updateLabels(client *compute.Service, project string, resourceId string, la
 		return err
 	}
 
-	return computeOperationWait(client, op, project, "Setting labels on snapshot")
+	return computeOperationWaitTime(client, op, project, "Setting labels on snapshot", timeout)
 }

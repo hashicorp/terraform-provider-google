@@ -31,8 +31,33 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateTag(&instanceTemplate, "foo"),
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
-					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_imageShorthand(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						"google_compute_instance_template.foobar", &instanceTemplate),
 				),
 			},
 			resource.TestStep{
@@ -99,6 +124,26 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_networkTier(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_networkTier(),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 	t.Parallel()
 
@@ -128,11 +173,11 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
-func TestAccComputeInstanceTemplate_address(t *testing.T) {
+func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	address := "10.128.0.2"
+	ipAddress := "10.128.0.2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -140,13 +185,13 @@ func TestAccComputeInstanceTemplate_address(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeInstanceTemplate_address(address),
+				Config: testAccComputeInstanceTemplate_networkIPAddress(ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
-					testAccCheckComputeInstanceTemplateAddress(
-						"google_compute_instance_template.foobar", address, &instanceTemplate),
+					testAccCheckComputeInstanceTemplateNetworkIPAddress(
+						"google_compute_instance_template.foobar", ipAddress, &instanceTemplate),
 				),
 			},
 			resource.TestStep{
@@ -161,8 +206,6 @@ func TestAccComputeInstanceTemplate_address(t *testing.T) {
 func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -170,12 +213,26 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccComputeInstanceTemplate_disks(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists(
-						"google_compute_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "projects/debian-cloud/global/images/debian-8-jessie-v20160803", true, true),
-					testAccCheckComputeInstanceTemplateDisk(&instanceTemplate, "terraform-test-foobar", false, false),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_regionDisks(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_regionDisks(),
 			},
 			resource.TestStep{
 				ResourceName:      "google_compute_instance_template.foobar",
@@ -516,34 +573,6 @@ func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *compute.In
 	}
 }
 
-func testAccCheckComputeInstanceTemplateDisk(instanceTemplate *compute.InstanceTemplate, source string, delete bool, boot bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Disks == nil {
-			return fmt.Errorf("no disks")
-		}
-
-		for _, disk := range instanceTemplate.Properties.Disks {
-			if disk.InitializeParams == nil {
-				// Check disk source
-				if disk.Source == source {
-					if disk.AutoDelete == delete && disk.Boot == boot {
-						return nil
-					}
-				}
-			} else {
-				// Check source image
-				if disk.InitializeParams.SourceImage == source {
-					if disk.AutoDelete == delete && disk.Boot == boot {
-						return nil
-					}
-				}
-			}
-		}
-
-		return fmt.Errorf("Disk not found: %s", source)
-	}
-}
-
 func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instanceTemplate.Properties.NetworkInterfaces {
@@ -630,14 +659,14 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
-func testAccCheckComputeInstanceTemplateAddress(n, address string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
 		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
 		if err != nil {
 			return err
 		}
-		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", address)(s)
+		return resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ipAddress)(s)
 	}
 }
 
@@ -708,6 +737,11 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 
 func testAccComputeInstanceTemplate_basic() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
@@ -715,7 +749,7 @@ resource "google_compute_instance_template" "foobar" {
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -743,8 +777,24 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10))
 }
 
-func testAccComputeInstanceTemplate_preemptible() string {
+func testAccComputeInstanceTemplate_imageShorthand() string {
 	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+	name = "test-%s"
+	description = "description-test"
+	family = "family-test"
+	raw_disk {
+	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+	}
+	labels = {
+		my-label = "my-label-value"
+		empty-label = ""
+	}
+	timeouts {
+		create = "5m"
+	}
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
@@ -752,7 +802,49 @@ resource "google_compute_instance_template" "foobar" {
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${google_compute_image.foobar.name}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		preemptible = false
+		automatic_restart = true
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+    labels {
+        my_label = "foobar"
+    }
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_preemptible() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	tags = ["foo", "bar"]
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		boot = true
 	}
@@ -782,13 +874,18 @@ resource "google_compute_address" "foo" {
 	name = "instancet-test-%s"
 }
 
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 	}
 
 	network_interface {
@@ -804,15 +901,44 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10), acctest.RandString(10))
 }
 
+func testAccComputeInstanceTemplate_networkTier() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+	}
+
+	network_interface {
+		network = "default"
+		access_config {
+			network_tier = "STANDARD"
+		}
+	}
+}`, acctest.RandString(10))
+}
+
 func testAccComputeInstanceTemplate_networkIP(networkIP string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 	}
 
 	network_interface {
@@ -826,33 +952,43 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10), networkIP)
 }
 
-func testAccComputeInstanceTemplate_address(address string) string {
+func testAccComputeInstanceTemplate_networkIPAddress(ipAddress string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
 	machine_type = "n1-standard-1"
 	tags = ["foo", "bar"]
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 	}
 
 	network_interface {
 		network    = "default"
-		address    = "%s"
+		network_ip    = "%s"
 	}
 
 	metadata {
 		foo = "bar"
 	}
-}`, acctest.RandString(10), address)
+}`, acctest.RandString(10), ipAddress)
 }
 
 func testAccComputeInstanceTemplate_disks() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "instancet-test-%s"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
@@ -863,14 +999,56 @@ resource "google_compute_instance_template" "foobar" {
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 100
 		boot = true
 	}
 
 	disk {
-		source = "terraform-test-foobar"
+		source = "${google_compute_disk.foobar.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_regionDisks() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_region_disk" "foobar" {
+	name = "instancet-test-%s"
+	size = 10
+	type = "pd-ssd"
+	region = "us-central1"
+	replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_region_disk.foobar.name}"
 		auto_delete = false
 		boot = false
 	}
@@ -887,6 +1065,11 @@ resource "google_compute_instance_template" "foobar" {
 
 func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_network" "auto-network" {
 		name = "%s"
 		auto_create_subnetworks = true
@@ -897,7 +1080,7 @@ func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 		machine_type = "n1-standard-1"
 
 		disk {
-			source_image = "debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			disk_size_gb = 10
 			boot = true
@@ -927,13 +1110,18 @@ resource "google_compute_subnetwork" "subnetwork" {
 	network = "${google_compute_network.network.self_link}"
 }
 
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 	region = "us-central1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true
@@ -998,13 +1186,18 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 		project = "${google_compute_shared_vpc_host_project.host_project.project}"
 	}
 
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance_template" "foobar" {
 		name = "instance-test-%s"
 		machine_type = "n1-standard-1"
 		region = "us-central1"
 
 		disk {
-			source_image = "debian-8-jessie-v20160803"
+			source_image = "${data.google_compute_image.my_image.self_link}"
 			auto_delete = true
 			disk_size_gb = 10
 			boot = true
@@ -1024,12 +1217,17 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 
 func testAccComputeInstanceTemplate_startup_script() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true
@@ -1049,12 +1247,17 @@ resource "google_compute_instance_template" "foobar" {
 
 func testAccComputeInstanceTemplate_primaryAliasIpRange(i string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true
@@ -1088,12 +1291,16 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 		ip_cidr_range = "172.16.0.0/20"
 	}
 }
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true
@@ -1121,12 +1328,17 @@ resource "google_compute_instance_template" "foobar" {
 
 func testAccComputeInstanceTemplate_guestAccelerator(i string, count uint8) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true
@@ -1150,12 +1362,17 @@ resource "google_compute_instance_template" "foobar" {
 
 func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "foobar" {
 	name = "instance-test-%s"
 	machine_type = "n1-standard-1"
 
 	disk {
-		source_image = "debian-8-jessie-v20160803"
+		source_image = "${data.google_compute_image.my_image.self_link}"
 		auto_delete = true
 		disk_size_gb = 10
 		boot = true

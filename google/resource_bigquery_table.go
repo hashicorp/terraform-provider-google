@@ -78,7 +78,7 @@ func resourceBigQueryTable() *schema.Resource {
 			"labels": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			// Schema: [Optional] Describes the schema of this table.

@@ -26,7 +26,7 @@ resource "google_compute_instance" "default" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "debian-cloud/debian-9"
     }
   }
 
@@ -61,10 +61,11 @@ The following arguments are supported:
 * `boot_disk` - (Required) The boot disk for the instance.
     Structure is documented below.
 
-* `machine_type` - (Required) The machine type to create. To create a custom
-    machine type, value should be set as specified
-    [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+* `machine_type` - (Required) The machine type to create.
+
+    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
+
+    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -94,6 +95,7 @@ The following arguments are supported:
     **Note:** you must disable deletion protection before removing the resource (e.g., via `terraform destroy`), or the instance cannot be deleted and the Terraform run will not complete successfully.
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+    **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
@@ -132,8 +134,8 @@ The `boot_disk` block supports:
 * `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
     is deleted. Defaults to true.
 
-* `device_name` - (Optional) Name with which attached disk will be accessible
-    under `/dev/disk/by-id/`
+* `device_name` - (Optional) Name with which attached disk will be accessible.
+    On the instance, this device will be `/dev/disk/by-id/google-{{device_name}}`.
 
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
@@ -200,7 +202,11 @@ The `network_interface` block supports:
    defined in the subnetwork self_link. If the `subnetwork` is a name and this
    field is not provided, the provider project is used.
 
-* `address` - (Optional) The private IP address to assign to the instance. If
+* `address` - (Optional, Deprecated) The private IP address to assign to the instance. If
+    empty, the address will be automatically assigned. This attribute has been deprecated.
+    Use `network_interface.network_ip` instead.
+
+* `network_ip` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
@@ -219,6 +225,15 @@ The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
+
+* `public_ptr_domain_name` - (Optional) The DNS domain name for the public PTR record.
+    To set this field on an instance, you must be verified as the owner of the domain.
+    See [the docs](https://cloud.google.com/compute/docs/instances/create-ptr-record) for how
+    to become verified as a domain owner.
+
+* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring this instance.
+    This field can take the following values: PREMIUM or STANDARD. If this field is
+    not specified, it is assumed to be PREMIUM.
 
 The `alias_ip_range` block supports:
 
@@ -276,9 +291,15 @@ exported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `network_interface.0.address` - The internal ip address of the instance, either manually or dynamically assigned.
+* `network_interface.0.address` - (Deprecated) The internal ip address of the instance, either manually or dynamically assigned.
+This attribute has been deprecated. Use `network_interface.0.network_ip`instead.
 
-* `network_interface.0.access_config.0.assigned_nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+* `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
+
+* `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+
+* `network_interface.0.access_config.0.assigned_nat_ip` -  (Deprecated)  If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+This attribute has been deprecated. Use `network_interface.0.access_config.0.nat_ip` instead.
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
@@ -294,10 +315,13 @@ exported:
 
 ## Import
 
-~> **Note:** The fields `boot_disk.0.disk_entryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+~> **Note:** The fields `boot_disk.0.disk_encryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
 
 Instances can be imported using the `project`, `zone` and `name`, e.g.
 
 ```
 $ terraform import google_compute_instance.default gcp-project/us-central1-a/test
 ```
+
+[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
+[network-tier]: https://cloud.google.com/network-tiers/docs/overview

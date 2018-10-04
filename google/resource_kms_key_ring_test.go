@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -23,6 +22,12 @@ func TestKeyRingIdParsing(t *testing.T) {
 			ExpectedError:       false,
 			ExpectedTerraformId: "test-project/us-central1/test-key-ring",
 			ExpectedKeyRingId:   "projects/test-project/locations/us-central1/keyRings/test-key-ring",
+		},
+		"id is in domain:project/location/keyRingName format": {
+			ImportId:            "example.com:test-project/us-central1/test-key-ring",
+			ExpectedError:       false,
+			ExpectedTerraformId: "example.com:test-project/us-central1/test-key-ring",
+			ExpectedKeyRingId:   "projects/example.com:test-project/locations/us-central1/keyRings/test-key-ring",
 		},
 		"id contains name that is longer than 63 characters": {
 			ImportId:      "test-project/us-central1/can-you-believe-that-this-key-ring-name-is-exactly-64-characters",
@@ -79,9 +84,11 @@ func TestAccKmsKeyRing_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleKmsKeyRingExists("google_kms_key_ring.key_ring"),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_kms_key_ring.key_ring",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount),
@@ -91,38 +98,6 @@ func TestAccKmsKeyRing_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckGoogleKmsKeyRingExists(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("Resource not found: %s", resourceName)
-		}
-
-		keyRingId := &kmsKeyRingId{
-			Project:  rs.Primary.Attributes["project"],
-			Location: rs.Primary.Attributes["location"],
-			Name:     rs.Primary.Attributes["name"],
-		}
-
-		listKeyRingsResponse, err := config.clientKms.Projects.Locations.KeyRings.List(keyRingId.parentId()).Do()
-		if err != nil {
-			return fmt.Errorf("Error listing KeyRings: %s", err)
-		}
-
-		for _, keyRing := range listKeyRingsResponse.KeyRings {
-			log.Printf("[DEBUG] Found KeyRing: %s", keyRing.Name)
-
-			if keyRing.Name == keyRingId.keyRingId() {
-				return nil
-			}
-		}
-
-		return fmt.Errorf("KeyRing not found: %s", keyRingId.keyRingId())
-	}
 }
 
 /*

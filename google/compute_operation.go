@@ -67,6 +67,13 @@ func computeOperationWait(client *compute.Service, op *compute.Operation, projec
 }
 
 func computeOperationWaitTime(client *compute.Service, op *compute.Operation, project, activity string, timeoutMin int) error {
+	if op.Status == "DONE" {
+		if op.Error != nil {
+			return ComputeOperationError(*op.Error)
+		}
+		return nil
+	}
+
 	w := &ComputeOperationWaiter{
 		Service: client,
 		Op:      op,

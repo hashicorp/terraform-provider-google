@@ -2,10 +2,12 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 func TestValidateGCPName(t *testing.T) {
@@ -117,6 +119,8 @@ func TestValidateServiceAccountLink(t *testing.T) {
 		{TestName: "valid with dash", Value: "projects/my-project/serviceAccounts/svcacct@my-project.iam.gserviceaccount.com"},
 		{TestName: "valid with colon", Value: "projects/my:project/serviceAccounts/svcacct@project.my.iam.gserviceaccount.com"},
 		{TestName: "valid with dot and colon", Value: "projects/my.thing:project/serviceAccounts/svcacct@project.my.thing.iam.gserviceaccount.com"},
+		{TestName: "valid with compute default service account", Value: "projects/my-project/serviceAccounts/123456-compute@developer.gserviceaccount.com"},
+		{TestName: "valid with app engine default service account", Value: "projects/my-project/serviceAccounts/my-project@appspot.gserviceaccount.com"},
 
 		// Errors
 		{TestName: "multiple colons", Value: "projects/my:project:thing/serviceAccounts/svcacct@thing.project.my.iam.gserviceaccount.com", ExpectError: true},
@@ -234,5 +238,82 @@ func TestValidateCloudIoTID(t *testing.T) {
 	es := testStringValidationCases(x, validateCloudIoTID)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate CloudIoT ID names: %v", es)
+	}
+}
+
+func TestOrEmpty(t *testing.T) {
+	cases := map[string]struct {
+		Value                  string
+		ValidateFunc           schema.SchemaValidateFunc
+		ExpectValidationErrors bool
+	}{
+		"accept empty value": {
+			Value:                  "",
+			ExpectValidationErrors: false,
+		},
+		"non empty value is accepted when valid": {
+			Value:                  "valid",
+			ExpectValidationErrors: false,
+		},
+		"non empty value is rejected if invalid": {
+			Value:                  "invalid",
+			ExpectValidationErrors: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		validateFunc := orEmpty(validation.StringInSlice([]string{"valid"}, false))
+		_, errors := validateFunc(tc.Value, tn)
+		if len(errors) > 0 && !tc.ExpectValidationErrors {
+			t.Errorf("%s: unexpected errors %s", tn, errors)
+		} else if len(errors) == 0 && tc.ExpectValidationErrors {
+			t.Errorf("%s: expected errors but got none", tn)
+		}
+	}
+}
+
+func TestValidateProjectID(t *testing.T) {
+	x := []StringValidationTestCase{
+		// No errors
+		{TestName: "basic", Value: "foobar"},
+		{TestName: "with numbers", Value: "foobar123"},
+		{TestName: "short", Value: "foofoo"},
+		{TestName: "long", Value: "foobarfoobarfoobarfoobarfoobar"},
+		{TestName: "has a hyphen", Value: "foo-bar"},
+
+		// With errors
+		{TestName: "empty", Value: "", ExpectError: true},
+		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
+		{TestName: "has an upercase letter", Value: "foo-Bar", ExpectError: true},
+		{TestName: "has a final hyphen", Value: "foo-bar-", ExpectError: true},
+	}
+
+	es := testStringValidationCases(x, validateProjectID())
+	if len(es) > 0 {
+		t.Errorf("Failed to validate project ID's: %v", es)
+	}
+}
+
+func TestValidateProjectName(t *testing.T) {
+	x := []StringValidationTestCase{
+		// No errors
+		{TestName: "basic", Value: "fooBar"},
+		{TestName: "complex", Value: "project! 'A-1234'"},
+		{TestName: "with numbers", Value: "foobar123"},
+		{TestName: "short", Value: "foof"},
+		{TestName: "long", Value: "foobarfoobarfoobarfoobarfoobar"},
+		{TestName: "has a hyphen", Value: "foo-bar"},
+		{TestName: "starts with a number", Value: "1foobar"},
+		{TestName: "has a final hyphen", Value: "foo-bar-"},
+
+		// With errors
+		{TestName: "empty", Value: "", ExpectError: true},
+		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
+		{TestName: "too long", Value: strings.Repeat("a", 31), ExpectError: true},
+	}
+
+	es := testStringValidationCases(x, validateProjectName())
+	if len(es) > 0 {
+		t.Errorf("Failed to validate project ID's: %v", es)
 	}
 }

@@ -41,12 +41,24 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 				}),
 			},
 			{
+				ResourceName:      "google_kms_key_ring_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.terraformId(), roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Test Iam Binding update
 				Config: testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId),
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
+			},
+			{
+				ResourceName:      "google_kms_key_ring_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.terraformId(), roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -79,6 +91,12 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
+			{
+				ResourceName:      "google_kms_key_ring_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.terraformId(), roleId, account, projectId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -108,6 +126,12 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
+			},
+			{
+				ResourceName:      "google_kms_key_ring_iam_policy.foo",
+				ImportStateId:     keyRingId.terraformId(),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

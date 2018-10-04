@@ -79,12 +79,15 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 
 	bucket := d.Get("bucket").(string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	topicName := d.Get("topic").(string)
+	computedTopicName := getComputedTopicName("", topicName)
+	if computedTopicName != topicName {
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		computedTopicName = getComputedTopicName(project, topicName)
 	}
-
-	computedTopicName := getComputedTopicName(project, d.Get("topic").(string))
 
 	storageNotification := &storage.Notification{
 		CustomAttributes: expandStringMap(d, "custom_attributes"),

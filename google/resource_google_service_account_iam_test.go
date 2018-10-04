@@ -27,9 +27,10 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_service_account_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s %s", getServiceAccountCanonicalId(account), "roles/viewer"),
-				ImportState:   true,
+				ResourceName:      "google_service_account_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s %s", getServiceAccountCanonicalId(account), "roles/viewer"),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -50,9 +51,10 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 				Check:  testAccCheckGoogleServiceAccountIam(account, "roles/editor", []string{identity}),
 			},
 			{
-				ResourceName:  "google_service_account_iam_member.foo",
-				ImportStateId: fmt.Sprintf("%s %s %s", getServiceAccountCanonicalId(account), "roles/editor", identity),
-				ImportState:   true,
+				ResourceName:      "google_service_account_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s %s %s", getServiceAccountCanonicalId(account), "roles/editor", identity),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -74,9 +76,10 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_service_account_iam_policy.foo",
-				ImportStateId: getServiceAccountCanonicalId(account),
-				ImportState:   true,
+				ResourceName:      "google_service_account_iam_policy.foo",
+				ImportStateId:     getServiceAccountCanonicalId(account),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

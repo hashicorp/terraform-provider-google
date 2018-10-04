@@ -89,11 +89,34 @@ resource "google_container_cluster" "primary" {
 }
 
 ```
+
+### Usage with a regional cluster
+
+```hcl
+
+resource "google_container_cluster" "regional" {
+  name   = "marcellus-wallace"
+  region = "us-central1"
+}
+
+resource "google_container_node_pool" "regional-np" {
+  name       = "my-node-pool"
+  region     = "us-central1"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+}
+
+```
+
 ## Argument Reference
 
-* `zone` - (Required) The zone in which the cluster resides.
+* `zone` - (Optional) The zone in which the cluster resides.
 
-* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for this resource.
+* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+
+* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
+
+Note: You must be provide region for regional clusters and zone for zonal clusters
 
 - - -
 
@@ -105,6 +128,10 @@ resource "google_container_cluster" "primary" {
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
+
+* `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
+    Note that this does not work on node pools which are "route-based" - that is, node
+    pools belonging to clusters that do not have IP Aliasing enabled.
 
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
@@ -140,8 +167,11 @@ The `management` block supports:
 
 ## Import
 
-Node pools can be imported using the `zone`, `cluster` and `name`, e.g.
+Node pools can be imported using the `project`, `zone`, `cluster` and `name`. If
+the project is omitted, the default provider value will be used. Examples:
 
 ```
+$ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
+
 $ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
 ```

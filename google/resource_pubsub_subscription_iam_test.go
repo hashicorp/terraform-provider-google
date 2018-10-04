@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
@@ -37,9 +38,10 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_subscription_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(getTestProjectFromEnv(), subscription)),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_subscription_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(getTestProjectFromEnv(), subscription)),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -65,9 +67,10 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_subscription_iam_member.foo",
-				ImportStateId: fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(getTestProjectFromEnv(), subscription), accountEmail),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_subscription_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(getTestProjectFromEnv(), subscription), accountEmail),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -97,9 +100,10 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 				}),
 			},
 			{
-				ResourceName:  "google_pubsub_subscription_iam_policy.foo",
-				ImportStateId: getComputedSubscriptionName(getTestProjectFromEnv(), subscription),
-				ImportState:   true,
+				ResourceName:      "google_pubsub_subscription_iam_policy.foo",
+				ImportStateId:     getComputedSubscriptionName(getTestProjectFromEnv(), subscription),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

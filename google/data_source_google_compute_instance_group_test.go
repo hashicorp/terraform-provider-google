@@ -193,6 +193,11 @@ func testAccCheckDataSourceGoogleComputeInstanceGroup(dataSourceName string) res
 
 func testAccCheckDataSourceGoogleComputeInstanceGroupConfig() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
   machine_type = "n1-standard-1"
@@ -200,7 +205,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "${data.google_compute_image.my_image.self_link}"
     }
   }
 
@@ -231,6 +236,11 @@ data "google_compute_instance_group" "test" {
 
 func testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
   machine_type = "n1-standard-1"
@@ -238,7 +248,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "${data.google_compute_image.my_image.self_link}"
     }
   }
 
@@ -279,12 +289,17 @@ data "google_compute_instance_group" "test" {
 
 func testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_instance_template" "igm-basic" {
   name = "%s"
   machine_type = "n1-standard-1"
 
   disk {
-    source_image = "debian-cloud/debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete = true
     boot = true
   }

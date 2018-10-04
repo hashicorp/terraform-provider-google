@@ -11,7 +11,6 @@ description: |-
 Creates a new Google SQL Database on a Google SQL Database Instance. For more information, see
 the [official documentation](https://cloud.google.com/sql/),
 or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/databases).
-Postgres support for `google_sql_database` is in [Beta](/docs/providers/google/index.html#beta-features).
 
 ## Example Usage
 
@@ -68,8 +67,13 @@ exported:
 
 ## Import
 
-SQL databases can be imported using the `instance` and `name`, e.g.
+SQL databases can be imported using one of any of these accepted formats:
 
 ```
-$ terraform import google_sql_database.database master-instance:users-db
+$ terraform import google_sql_database.database projects/{{project}}/instances/{{instance}}/databases/{{name}}
+$ terraform import google_sql_database.database {{project}}/{{instance}}/{{name}}
+$ terraform import google_sql_database.database instances/{{name}}/databases/{{name}}
+$ terraform import google_sql_database.database {{instance}}/{{name}}
+$ terraform import google_sql_database.database {{name}}
+
 ```

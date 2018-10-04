@@ -54,6 +54,12 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"region": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"max_workers": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -100,6 +106,12 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
 	params := expandStringMap(d, "parameters")
 
 	env := dataflow.RuntimeEnvironment{
@@ -115,7 +127,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		Environment: &env,
 	}
 
-	job, err := config.clientDataflow.Projects.Templates.Create(project, &request).Do()
+	job, err := createJob(config, project, region, &request)
 	if err != nil {
 		return err
 	}
@@ -132,9 +144,14 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
 	id := d.Id()
 
-	job, err := config.clientDataflow.Projects.Jobs.Get(project, id).Do()
+	job, err := getJob(config, project, region, id)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
@@ -161,6 +178,11 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
 	id := d.Id()
 	requestedState, err := mapOnDelete(d.Get("on_delete").(string))
 	if err != nil {
@@ -171,7 +193,7 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 			RequestedState: requestedState,
 		}
 
-		_, err = config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
+		_, err = updateJob(config, project, region, id, job)
 		if err != nil {
 			if gerr, err_ok := err.(*googleapi.Error); !err_ok {
 				// If we have an error and it's not a google-specific error, we should go ahead and return.
@@ -215,4 +237,25 @@ func mapOnDelete(policy string) (string, error) {
 	default:
 		return "", fmt.Errorf("Invalid `on_delete` policy: %s", policy)
 	}
+}
+
+func createJob(config *Config, project string, region string, request *dataflow.CreateJobFromTemplateRequest) (*dataflow.Job, error) {
+	if region == "" {
+		return config.clientDataflow.Projects.Templates.Create(project, request).Do()
+	}
+	return config.clientDataflow.Projects.Locations.Templates.Create(project, region, request).Do()
+}
+
+func getJob(config *Config, project string, region string, id string) (*dataflow.Job, error) {
+	if region == "" {
+		return config.clientDataflow.Projects.Jobs.Get(project, id).Do()
+	}
+	return config.clientDataflow.Projects.Locations.Jobs.Get(project, region, id).Do()
+}
+
+func updateJob(config *Config, project string, region string, id string, job *dataflow.Job) (*dataflow.Job, error) {
+	if region == "" {
+		return config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
+	}
+	return config.clientDataflow.Projects.Locations.Jobs.Update(project, region, id, job).Do()
 }

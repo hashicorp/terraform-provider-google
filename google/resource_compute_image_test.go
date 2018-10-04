@@ -36,6 +36,33 @@ func TestAccComputeImage_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeImage_withLicense(t *testing.T) {
+	t.Parallel()
+
+	var image compute.Image
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						"google_compute_image.foobar", &image),
+					testAccCheckComputeImageDescription(&image, "description-test"),
+					testAccCheckComputeImageFamily(&image, "family-test"),
+					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
+					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckComputeImageContainsLicense(&image, "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"),
+					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeImage_update(t *testing.T) {
 	t.Parallel()
 
@@ -184,6 +211,19 @@ func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, val
 	}
 }
 
+func testAccCheckComputeImageContainsLicense(image *compute.Image, expectedLicense string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		for _, thisLicense := range image.Licenses {
+			if thisLicense == expectedLicense {
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Expected license '%s' was not found", expectedLicense)
+	}
+}
+
 func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if v, ok := image.Labels[key]; ok {
@@ -242,6 +282,26 @@ resource "google_compute_image" "foobar" {
 }`, name)
 }
 
+func testAccComputeImage_license(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+	name = "%s"
+	description = "description-test"
+	family = "family-test"
+	raw_disk {
+	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+	}
+	create_timeout = 5
+	labels = {
+		my-label = "my-label-value"
+		empty-label = ""
+	}
+	licenses = [
+		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
+	]
+}`, name)
+}
+
 func testAccComputeImage_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
@@ -261,10 +321,15 @@ resource "google_compute_image" "foobar" {
 
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "disk-test-%s"
 	zone = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 }
 resource "google_compute_image" "foobar" {
 	name = "image-test-%s"

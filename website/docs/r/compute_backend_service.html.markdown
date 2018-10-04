@@ -49,7 +49,7 @@ resource "google_compute_instance_template" "webserver" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-8"
+    source_image = "debian-cloud/debian-9"
     auto_delete  = true
     boot         = true
   }
@@ -83,6 +83,9 @@ The following arguments are supported:
 
 * `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
 but still work to finish started ones). Defaults to `300`.
+
+* `custom_request_headers` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Headers that the
+    HTTP/S load balancer should add to proxied requests. See [guide](https://cloud.google.com/compute/docs/load-balancing/http/backend-service#user-defined-request-headers) for details.
 
 * `description` - (Optional) The textual description for the backend service.
 
@@ -128,6 +131,17 @@ The `backend` block supports:
 
 * `max_rate_per_instance` - (Optional) The maximum per-instance requests per
     second (RPS).
+
+* `max_connections` - (Optional) The max number of simultaneous connections for the
+    group. Can be used with either CONNECTION or UTILIZATION balancing
+    modes. For CONNECTION mode, either maxConnections or
+    maxConnectionsPerInstance must be set.
+
+* `max_connections_per_instance` - (Optional) The max number of simultaneous connections
+    that a single backend instance can handle. This is used to calculate
+    the capacity of the group. Can be used in either CONNECTION or
+    UTILIZATION balancing modes. For CONNECTION mode, either
+    maxConnections or maxConnectionsPerInstance must be set.
 
 * `max_utilization` - (Optional) The target CPU utilization for the group as a
     float in the range [0.0, 1.0]. This flag can only be provided when the

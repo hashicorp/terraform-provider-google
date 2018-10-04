@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -34,7 +35,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	parent := d.Get("parent").(string)
 	displayName := d.Get("display_name").(string)
 
-	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
+	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, url.QueryEscape(displayName))
 	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
 		Query: queryString,
 	}
@@ -43,12 +44,12 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", displayName))
 	}
 
-	folders := searchResponse.Folders
-	if len(folders) != 1 {
-		return fmt.Errorf("More than one folder found")
+	for _, folder := range searchResponse.Folders {
+		if folder.DisplayName == displayName {
+			d.SetId(folder.Name)
+			d.Set("name", folder.Name)
+			return nil
+		}
 	}
-
-	d.SetId(folders[0].Name)
-	d.Set("name", folders[0].Name)
-	return nil
+	return fmt.Errorf("Folder not found")
 }

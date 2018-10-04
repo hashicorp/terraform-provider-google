@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccContainerClusterDatasource_basic(t *testing.T) {
+func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -17,7 +17,24 @@ func TestAccContainerClusterDatasource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerClusterDatasourceConfig,
+				Config: testAccContainerClusterDatasource_zonal(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleContainerClusterCheck("data.google_container_cluster.kubes", "google_container_cluster.kubes"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerClusterDatasource_regional(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerClusterDatasource_regional(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleContainerClusterCheck("data.google_container_cluster.kubes", "google_container_cluster.kubes"),
 				),
@@ -49,6 +66,7 @@ func testAccDataSourceGoogleContainerClusterCheck(dataSourceName string, resourc
 			"cluster_ipv4_cidr",
 			"description",
 			"enable_kubernetes_alpha",
+			"enable_tpu",
 			"enable_legacy_abac",
 			"endpoint",
 			"enable_legacy_abac",
@@ -59,6 +77,7 @@ func testAccDataSourceGoogleContainerClusterCheck(dataSourceName string, resourc
 			"master_auth",
 			"master_auth.0.password",
 			"master_auth.0.username",
+			"master_auth.0.client_certificate_config.0.issue_client_certificate",
 			"master_auth.0.client_certificate",
 			"master_auth.0.client_key",
 			"master_auth.0.cluster_ca_certificate",
@@ -87,20 +106,37 @@ func testAccDataSourceGoogleContainerClusterCheck(dataSourceName string, resourc
 	}
 }
 
-var testAccContainerClusterDatasourceConfig = fmt.Sprintf(`
-	resource "google_container_cluster" "kubes" {
-		name = "cluster-test-%s"
-		zone = "us-central1-a"
-		initial_node_count = 1
+func testAccContainerClusterDatasource_zonal() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "kubes" {
+	name               = "cluster-test-%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
 	
-		master_auth {
-			username = "mr.yoda"
-			password = "adoy.rm.123456789"
-		}
+	master_auth {
+		username = "mr.yoda"
+		password = "adoy.rm.123456789"
 	}
+}
 	
-	data "google_container_cluster" "kubes" {
-		name = "${google_container_cluster.kubes.name}"
-		zone = "${google_container_cluster.kubes.zone}"
-	}
+data "google_container_cluster" "kubes" {
+	name = "${google_container_cluster.kubes.name}"
+	zone = "${google_container_cluster.kubes.zone}"
+}
 `, acctest.RandString(10))
+}
+
+func testAccContainerClusterDatasource_regional() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "kubes" {
+	name               = "cluster-test-%s"
+	region             = "us-central1"
+	initial_node_count = 1
+}
+	
+data "google_container_cluster" "kubes" {
+	name   = "${google_container_cluster.kubes.name}"
+	region = "${google_container_cluster.kubes.region}"
+}
+`, acctest.RandString(10))
+}

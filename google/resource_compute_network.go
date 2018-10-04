@@ -95,7 +95,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Build the network parameter
 	network := &compute.Network{
-		Name: d.Get("name").(string),
+		Name:                  d.Get("name").(string),
 		AutoCreateSubnetworks: autoCreateSubnetworks,
 		Description:           d.Get("description").(string),
 	}
@@ -195,9 +195,12 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	// Delete the network
+	return deleteComputeNetwork(project, d.Id(), config)
+}
+
+func deleteComputeNetwork(project, network string, config *Config) error {
 	op, err := config.clientCompute.Networks.Delete(
-		project, d.Id()).Do()
+		project, network).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting network: %s", err)
 	}
@@ -206,7 +209,5 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-
-	d.SetId("")
 	return nil
 }

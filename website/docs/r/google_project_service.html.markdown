@@ -11,7 +11,7 @@ description: |-
 Allows management of a single API service for an existing Google Cloud Platform project. 
 
 For a list of services available, visit the
-[API library page](https://console.cloud.google.com/apis/library) or run `gcloud service-management list`.
+[API library page](https://console.cloud.google.com/apis/library) or run `gcloud services list`.
 
 ~> **Note:** This resource _must not_ be used in conjunction with
    `google_project_services` or they will fight over which services should be enabled.
@@ -34,3 +34,11 @@ The following arguments are supported:
 * `project` - (Optional) The project ID. If not provided, the provider project is used.
 
 * `disable_on_destroy` - (Optional) If true, disable the service when the terraform resource is destroyed.  Defaults to true.  May be useful in the event that a project is long-lived but the infrastructure running in that project changes frequently.
+
+## Import
+
+Project services can be imported using the `project_id` and `service`, e.g.
+
+```
+$ terraform import google_project_service.my_project your-project-id/iam.googleapis.com
+```

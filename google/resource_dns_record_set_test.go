@@ -9,6 +9,31 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+func TestIpv6AddressDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New       string
+		ShouldSuppress bool
+	}{
+		"compact form should suppress diff": {
+			Old:            "2a03:b0c0:1:e0::29b:8001",
+			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			ShouldSuppress: true,
+		},
+		"different address should not suppress diff": {
+			Old:            "2a03:b0c0:1:e00::29b:8001",
+			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			ShouldSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		shouldSuppress := ipv6AddressDiffSuppress("", tc.Old, tc.New, nil)
+		if shouldSuppress != tc.ShouldSuppress {
+			t.Errorf("%s: expected %t", tn, tc.ShouldSuppress)
+		}
+	}
+}
+
 func TestAccDnsRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
@@ -27,7 +52,7 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/test-record.hashicorptest.com./A", zoneName),
+				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./A", zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +139,7 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/hashicorptest.com./NS", zoneName),
+				ImportStateId:     fmt.Sprintf("%s/%s.hashicorptest.com./NS", zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

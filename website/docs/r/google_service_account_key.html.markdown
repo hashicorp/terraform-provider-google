@@ -14,13 +14,13 @@ Creates and manages service account key-pairs, which allow the user to establish
 ## Example Usage, creating a new Key Pair
 
 ```hcl
-resource "google_service_account" "acceptance" {
-  account_id = "%v"
-  display_name = "%v"
+resource "google_service_account" "myaccount" {
+  account_id = "myaccount"
+  display_name = "My Service Account"
 }
 
-resource "google_service_account_key" "acceptance" {
-  service_account_id = "${google_service_account.acceptance.name}"
+resource "google_service_account_key" "mykey" {
+  service_account_id = "${google_service_account.myaccount.name}"
   public_key_type = "TYPE_X509_PEM_FILE"
 }
 ```
@@ -32,9 +32,11 @@ resource "google_service_account" "myaccount" {
   account_id   = "myaccount"
   display_name = "My Service Account"
 }
+
 resource "google_service_account_key" "mykey" {
   service_account_id = "${google_service_account.myaccount.name}"
 }
+
 resource "kubernetes_secret" "google-application-credentials" {
   metadata {
     name = "google-application-credentials"
@@ -48,13 +50,13 @@ resource "kubernetes_secret" "google-application-credentials" {
 ## Create new Key Pair, encrypting the private key with a PGP Key
 
 ```hcl
-resource "google_service_account" "acceptance" {
-  account_id = "%v"
-  display_name = "%v"
+resource "google_service_account" "myaccount" {
+  account_id = "myaccount"
+  display_name = "My Service Account"
 }
 
-resource "google_service_account_key" "acceptance" {
-  service_account_id = "${google_service_account.acceptance.name}"
+resource "google_service_account_key" "mykey" {
+  service_account_id = "${google_service_account.myaccount.name}"
   pgp_key = "keybase:keybaseusername"
   public_key_type = "TYPE_X509_PEM_FILE"
 }
@@ -94,7 +96,7 @@ The following attributes are exported in addition to the arguments listed above:
 * `public_key` - The public key, base64 encoded
 
 * `private_key` - The private key in JSON format, base64 encoded. This is what you normally get as a file when creating
-service account keys through the CLI or web console. This is only populated when creating a new key, and when no 
+service account keys through the CLI or web console. This is only populated when creating a new key, and when no
 `pgp_key` is provided.
 
 * `private_key_encrypted` – The private key material, base 64 encoded and

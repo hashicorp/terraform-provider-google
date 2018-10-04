@@ -171,6 +171,51 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
+						"enable_flow_logs", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -356,4 +401,21 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 	},
 }
 `, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogs(cnName, subnetworkName string, enableLogs bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	enable_flow_logs = %v
+}
+`, cnName, subnetworkName, enableLogs)
 }

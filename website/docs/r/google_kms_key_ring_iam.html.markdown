@@ -76,7 +76,7 @@ The following arguments are supported:
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
-  * **domain:{domain}**: A Google Apps domain name that represents all the users of that domain. For example, google.com or example.com.
+  * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
 * `role` - (Required) The role that should be applied. Only one
     `google_kms_key_ring_iam_binding` can be used per role. Note that custom roles must be of the format
@@ -100,7 +100,7 @@ IAM member imports use space-delimited identifiers; the resource in question, th
 $ terraform import google_kms_key_ring_iam_member.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer foo@example.com"
 ```
 
-IAM binging imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `key_ring_id`, role, and account e.g.
+IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `key_ring_id`, role, and account e.g.
 
 ```
 $ terraform import google_kms_key_ring_iam_binding.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer"

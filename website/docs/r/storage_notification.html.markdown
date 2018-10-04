@@ -14,41 +14,45 @@ Creates a new notification configuration on a specified bucket, establishing a f
 and 
 [API](https://cloud.google.com/storage/docs/json_api/v1/notifications).
 
+In order to enable notifications, a special Google Cloud Storage service account unique to the project
+must have the IAM permission "projects.topics.publish" for a Cloud Pub/Sub topic in the project. To get the service
+account's email address, use the `google_storage_project_service_account` datasource's `email_address` value, and see below
+for an example of enabling notifications by granting the correct IAM permission. See
+[the notifications documentation](https://cloud.google.com/storage/docs/gsutil/commands/notification) for more details.
+
 ## Example Usage
 
 ```hcl
-resource "google_storage_bucket" "bucket" {
-	name = "default_bucket"
-}
-		
-resource "google_pubsub_topic" "topic" {
-	name = "default_topic"
-}
-
-// In order to enable notifications,
-// a GCS service account unique to each project
-// must have the IAM permission "projects.topics.publish" to a Cloud Pub/Sub topic from this project
-// The only reference to this requirement can be found here:
-// https://cloud.google.com/storage/docs/gsutil/commands/notification
-// The GCS service account has the format of <project-id>@gs-project-accounts.iam.gserviceaccount.com
-// API for retrieving it https://cloud.google.com/storage/docs/json_api/v1/projects/serviceAccount/get
-
-resource "google_pubsub_topic_iam_binding" "binding" {
-	topic       = "${google_pubsub_topic.topic.name}"
-	role        = "roles/pubsub.publisher"
-		  
-	members     = ["serviceAccount:my-project-id@gs-project-accounts.iam.gserviceaccount.com"]
-}
-
 resource "google_storage_notification" "notification" {
 	bucket            = "${google_storage_bucket.bucket.name}"
 	payload_format    = "JSON_API_V1"
 	topic             = "${google_pubsub_topic.topic.id}"
-	event_types       = ["%s","%s"]
+	event_types       = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
 	custom_attributes {
 		new-attribute = "new-attribute-value"
 	}
 	depends_on        = ["google_pubsub_topic_iam_binding.binding"]
+}
+
+// Enable notifications by giving the correct IAM permission to the unique service account.
+
+data "google_storage_project_service_account" "gcs_account" {}
+
+resource "google_pubsub_topic_iam_binding" "binding" {
+	topic       = "${google_pubsub_topic.topic.name}"
+	role        = "roles/pubsub.publisher"
+	members     = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+}
+
+// End enabling notifications
+
+
+resource "google_storage_bucket" "bucket" {
+	name = "default_bucket"
+}
+
+resource "google_pubsub_topic" "topic" {
+	name = "default_topic"
 }
 ```
 
@@ -60,8 +64,10 @@ The following arguments are supported:
 
 * `payload_format` - (Required) The desired content of the Payload. One of `"JSON_API_V1"` or `"NONE"`.
 
-* `topic` - (Required) The Cloud PubSub topic to which this subscription publishes.
-
+* `topic` - (Required) The Cloud PubSub topic to which this subscription publishes. Expects either the 
+    topic name, assumed to belong to the default GCP provider project, or the project-level name, 
+    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`.
+    
 - - -
 
 * `custom_attributes` - (Optional)  A set of key/value attribute pairs to attach to each Cloud PubSub message published for this notification subscription

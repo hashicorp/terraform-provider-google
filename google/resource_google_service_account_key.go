@@ -2,7 +2,7 @@ package google
 
 import (
 	"fmt"
-	"strings"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/encryption"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -88,9 +88,9 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	serviceAccount := d.Get("service_account_id").(string)
-	if !strings.HasPrefix(serviceAccount, "projects/") {
-		serviceAccount = "projects/-/serviceAccounts/" + serviceAccount
+	serviceAccountName, err := serviceAccountFQN(d.Get("service_account_id").(string), d, config)
+	if err != nil {
+		return err
 	}
 
 	r := &iam.CreateServiceAccountKeyRequest{
@@ -98,7 +98,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		PrivateKeyType: d.Get("private_key_type").(string),
 	}
 
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccount, r).Do()
+	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccountName, r).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating service account key: %s", err)
 	}
@@ -139,7 +139,18 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 	// Confirm the service account key exists
 	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(d.Id()).PublicKeyType(publicKeyType).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {
+			return nil
+		} else {
+			// This resource also returns 403 when it's not found.
+			if isGoogleApiErrorWithCode(err, 403) {
+				log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
+				d.SetId("")
+				return nil
+			} else {
+				return err
+			}
+		}
 	}
 
 	d.Set("name", sak.Name)
@@ -152,8 +163,20 @@ func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interfac
 	config := meta.(*Config)
 
 	_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
+
 	if err != nil {
-		return err
+		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {
+			return nil
+		} else {
+			// This resource also returns 403 when it's not found.
+			if isGoogleApiErrorWithCode(err, 403) {
+				log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
+				d.SetId("")
+				return nil
+			} else {
+				return err
+			}
+		}
 	}
 
 	d.SetId("")

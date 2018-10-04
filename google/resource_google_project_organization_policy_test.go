@@ -122,6 +122,22 @@ func TestAccProjectOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func TestAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	projectId := getTestProjectFromEnv()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectOrganizationPolicy_restore_defaultTrue(projectId),
+				Check:  getGoogleProjectOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -169,6 +185,10 @@ func testAccCheckGoogleProjectOrganizationListPolicyAll(n, policyType string) re
 			return err
 		}
 
+		if policy.ListPolicy == nil {
+			return nil
+		}
+
 		if len(policy.ListPolicy.AllowedValues) > 0 || len(policy.ListPolicy.DeniedValues) > 0 {
 			return fmt.Errorf("The `values` field shouldn't be set")
 		}
@@ -209,6 +229,22 @@ func testAccCheckGoogleProjectOrganizationListPolicyDeniedValues(n string, value
 		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.DeniedValues, values) {
 			return fmt.Errorf("Expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
+		}
+
+		return nil
+	}
+}
+
+func getGoogleProjectOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleProjectOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -293,6 +329,19 @@ resource "google_project_organization_policy" "list" {
       ]
     }
   }
+}
+`, pid)
+}
+
+func testAccProjectOrganizationPolicy_restore_defaultTrue(pid string) string {
+	return fmt.Sprintf(`
+resource "google_project_organization_policy" "restore" {
+  project    = "%s"
+  constraint = "constraints/serviceuser.services"
+
+    restore_policy {
+        default = true
+    }
 }
 `, pid)
 }

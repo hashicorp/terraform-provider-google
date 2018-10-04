@@ -32,6 +32,10 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.basic"),
 				),
+			}, {
+				ResourceName:      "google_logging_folder_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -58,6 +62,10 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.basic"),
 				),
+			}, {
+				ResourceName:      "google_logging_folder_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -92,6 +100,10 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sinkAfter),
 					testAccCheckLoggingFolderSink(&sinkAfter, "google_logging_folder_sink.basic"),
 				),
+			}, {
+				ResourceName:      "google_logging_folder_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -127,6 +139,10 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.heredoc", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.heredoc"),
 				),
+			}, {
+				ResourceName:      "google_logging_folder_sink.heredoc",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

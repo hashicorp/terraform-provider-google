@@ -13,10 +13,11 @@ import (
 
 func resourceStorageBucketAcl() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageBucketAclCreate,
-		Read:   resourceStorageBucketAclRead,
-		Update: resourceStorageBucketAclUpdate,
-		Delete: resourceStorageBucketAclDelete,
+		Create:        resourceStorageBucketAclCreate,
+		Read:          resourceStorageBucketAclRead,
+		Update:        resourceStorageBucketAclUpdate,
+		Delete:        resourceStorageBucketAclDelete,
+		CustomizeDiff: resourceStorageRoleEntityCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -40,11 +41,39 @@ func resourceStorageBucketAcl() *schema.Resource {
 			"role_entity": &schema.Schema{
 				Type:          schema.TypeList,
 				Optional:      true,
+				Computed:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"predefined_acl"},
 			},
 		},
 	}
+}
+
+func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	keys := diff.GetChangedKeysPrefix("role_entity")
+	if len(keys) < 1 {
+		return nil
+	}
+	count := diff.Get("role_entity.#").(int)
+	if count < 1 {
+		return nil
+	}
+	state := map[string]struct{}{}
+	conf := map[string]struct{}{}
+	for i := 0; i < count; i++ {
+		old, new := diff.GetChange(fmt.Sprintf("role_entity.%d", i))
+		state[old.(string)] = struct{}{}
+		conf[new.(string)] = struct{}{}
+	}
+	if len(state) != len(conf) {
+		return nil
+	}
+	for k, _ := range state {
+		if _, ok := conf[k]; !ok {
+			return nil
+		}
+	}
+	return diff.Clear("role_entity")
 }
 
 type RoleEntity struct {
@@ -101,6 +130,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		}
 
 	}
+
 	if len(role_entity) > 0 {
 		current, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
 		if err != nil {
@@ -181,6 +211,13 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.Set("role_entity", entities)
+	} else {
+		// if we don't set `role_entity` to nil (effectively setting it
+		// to empty in Terraform state), because it's computed now,
+		// Terraform will think it's missing from state, is supposed
+		// to be there, and throw up a diff for role_entity.#. So it
+		// must always be set in state.
+		d.Set("role_entity", nil)
 	}
 
 	return nil

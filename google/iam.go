@@ -129,7 +129,9 @@ func mergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourceman
 		for m := range members {
 			b.Members = append(b.Members, m)
 		}
-		rb = append(rb, &b)
+		if len(b.Members) > 0 {
+			rb = append(rb, &b)
+		}
 	}
 
 	return rb
