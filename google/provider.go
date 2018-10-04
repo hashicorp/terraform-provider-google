@@ -106,7 +106,9 @@ func Provider() terraform.ResourceProvider {
 			GeneratedFilestoreResourcesMap,
 			GeneratedRedisResourcesMap,
 			GeneratedResourceManagerResourcesMap,
+			GeneratedMonitoringResourcesMap,
 			map[string]*schema.Resource{
+				"google_app_engine_application":                resourceAppEngineApplication(),
 				"google_bigquery_dataset":                      resourceBigQueryDataset(),
 				"google_bigquery_table":                        resourceBigQueryTable(),
 				"google_bigtable_instance":                     resourceBigtableInstance(),

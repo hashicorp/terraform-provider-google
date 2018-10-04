@@ -744,6 +744,9 @@ func expandComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *C
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
@@ -779,6 +782,9 @@ func expandComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *Co
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 

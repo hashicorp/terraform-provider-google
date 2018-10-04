@@ -1,16 +1,23 @@
 ## 1.19.0 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES:
+* all: beta fields have been deprecated in favor of the new `google-beta` provider. See https://terraform.io/docs/providers/google/provider_versions.html for more info. [GH-2152]
+* bigtable: `google_bigtable_instance` deprecated the `cluster_id`, `zone`, `num_nodes`, and `storage_type` fields, creating a `cluster` block containing those fields instead. [GH-2161]
+* cloudfunctions: `google_cloudfunctions_function` deprecated `trigger_bucket` and `trigger_topic` in favor of the new `event_trigger` field, and deprecated `retry_on_failure` in favor of the `event_trigger.failure_policy.retry` field. [GH-2158]
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. [GH-2096]
+* compute: `google_compute_instance`, `google_compute_instance_from_template` have had the `network_interface.0.access_config.0.assigned_nat_ip` field deprecated. Please use `network_interface.0.access_config.0.nat_ip` instead.
+* project: `google_project`'s `app_engine` sub-block has been deprecated. Please use the `google_app_engine_app` resource instead. Changing between the two should not force project re-creation. [GH-2147]
 
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
 * **New Resource**: `google_compute_interconnect_attachment` [GH-1140]
 * **New Resource**: `google_filestore_instance` [GH-2088]
+* **New Resource**: `google_app_engine_application` [GH-2147]
 
 ENHANCEMENTS:
 * container: Add `enable_tpu` flag to google_container_cluster [GH-1974]
 * dns: `google_dns_managed_zone` is now importable [GH-1944]
+* dns: `google_dns_managed_zone` is now entirely GA [GH-2154]
 * runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
 * services: containeranalysis.googleapis.com can now be enabled [GH-2095]
 

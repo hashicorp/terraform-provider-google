@@ -134,8 +134,6 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	t.Parallel()
 
-	var function cloudfunctions.CloudFunction
-
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
@@ -154,6 +152,39 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 			{
 				Config: testAccCloudFunctionsFunction_pubsub(functionName, bucketName,
 					topicName, zipFilePath),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_oldPubsub(t *testing.T) {
+	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
+	zipFilePath, err := createZIPArchiveForIndexJs(testPubSubTriggerPath)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_oldPubsub(functionName, bucketName,
+					topicName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						funcResourceName, &function),
@@ -170,6 +201,43 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"retry_on_failure", "trigger_topic"},
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
+	t.Parallel()
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	zipFilePath, err := createZIPArchiveForIndexJs(testBucketTriggerPath)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudFunctionsFunction_bucketNoRetry(functionName, bucketName, zipFilePath),
+			},
+			{
 				ResourceName:      funcResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -177,7 +245,8 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 		},
 	})
 }
-func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
+
+func TestAccCloudFunctionsFunction_oldBucket(t *testing.T) {
 	t.Parallel()
 
 	var function cloudfunctions.CloudFunction
@@ -197,7 +266,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
+				Config: testAccCloudFunctionsFunction_oldBucket(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						funcResourceName, &function),
@@ -214,12 +283,13 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"retry_on_failure", "trigger_bucket"},
 			},
 			{
-				Config: testAccCloudFunctionsFunction_bucketNoRetry(functionName, bucketName, zipFilePath),
+				Config: testAccCloudFunctionsFunction_OldBucketNoRetry(functionName, bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						funcResourceName, &function),
@@ -236,9 +306,10 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"retry_on_failure", "trigger_bucket"},
 			},
 		},
 	})
@@ -471,7 +542,7 @@ resource "google_cloudfunctions_function" "function" {
 }`, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,
+func testAccCloudFunctionsFunction_oldPubsub(functionName string, bucketName string,
 	topic string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
@@ -500,7 +571,98 @@ resource "google_cloudfunctions_function" "function" {
 }`, bucketName, zipFilePath, topic, functionName)
 }
 
+func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,
+	topic string, zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_pubsub_topic" "sub" {
+  name = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  timeout               = 61
+  entry_point           = "helloPubSub"
+  event_trigger {
+    event_type = "providers/cloud.pubsub/eventTypes/topic.publish"
+    resource   = "${google_pubsub_topic.sub.name}"
+    failure_policy {
+      retry = false
+    }
+  }
+}`, bucketName, zipFilePath, topic, functionName)
+}
+
 func testAccCloudFunctionsFunction_bucket(functionName string, bucketName string,
+	zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  timeout               = 61
+  entry_point           = "helloGCS"
+  event_trigger {
+    event_type = "providers/cloud.storage/eventTypes/object.change"
+    resource   = "${google_storage_bucket.bucket.name}"
+    failure_policy {
+      retry = true
+    }
+  }
+}`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_bucketNoRetry(functionName string, bucketName string,
+	zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  timeout               = 61
+  entry_point           = "helloGCS"
+  event_trigger {
+    event_type = "providers/cloud.storage/eventTypes/object.change"
+    resource   = "${google_storage_bucket.bucket.name}"
+  }
+}`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_oldBucket(functionName string, bucketName string,
 	zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
@@ -525,7 +687,7 @@ resource "google_cloudfunctions_function" "function" {
 }`, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_bucketNoRetry(functionName string, bucketName string,
+func testAccCloudFunctionsFunction_OldBucketNoRetry(functionName string, bucketName string,
 	zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {

@@ -140,7 +140,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	descriptionProp, err := expandComputeRouterDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); ok || !reflect.DeepEqual(v, descriptionProp) {
 		obj["description"] = descriptionProp
 	}
 	networkProp, err := expandComputeRouterNetwork(d.Get("network"), d, config)
@@ -270,7 +270,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	descriptionProp, err := expandComputeRouterDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); ok || !reflect.DeepEqual(v, descriptionProp) {
 		obj["description"] = descriptionProp
 	}
 	networkProp, err := expandComputeRouterNetwork(d.Get("network"), d, config)
@@ -515,14 +515,14 @@ func expandComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Confi
 	transformedAdvertisedGroups, err := expandComputeRouterBgpAdvertisedGroups(original["advertised_groups"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAdvertisedGroups); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["advertisedGroups"] = transformedAdvertisedGroups
 	}
 
 	transformedAdvertisedIpRanges, err := expandComputeRouterBgpAdvertisedIpRanges(original["advertised_ip_ranges"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAdvertisedIpRanges); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["advertisedIpRanges"] = transformedAdvertisedIpRanges
 	}
 
@@ -545,20 +545,23 @@ func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceD
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
 		transformedRange, err := expandComputeRouterBgpAdvertisedIpRangesRange(original["range"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["range"] = transformedRange
 		}
 
 		transformedDescription, err := expandComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["description"] = transformedDescription
 		}
 
