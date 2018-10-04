@@ -86,6 +86,8 @@ but still work to finish started ones). Defaults to `300`.
 
 * `custom_request_headers` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Headers that the
     HTTP/S load balancer should add to proxied requests. See [guide](https://cloud.google.com/compute/docs/load-balancing/http/backend-service#user-defined-request-headers) for details.
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `description` - (Optional) The textual description for the backend service.
 
