@@ -189,8 +189,7 @@ The following arguments are supported:
   (Optional)
   The networking tier used for configuring this address. This field can
   take the following values: PREMIUM or STANDARD. If this field is not
-  specified, it is assumed to be PREMIUM.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  specified, it is assumed to be PREMIUM.
 
 * `service_label` -
   (Optional)
