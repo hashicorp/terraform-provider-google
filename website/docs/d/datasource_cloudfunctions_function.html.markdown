@@ -47,7 +47,22 @@ exported:
 * `timeout` - Function execution timeout (in seconds).
 * `entry_point` - Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
 * `trigger_http` - If function is triggered by HTTP, this boolean is set.
-* `trigger_bucket` - If function is triggered by bucket, bucket name is set here.
-* `trigger_topic` - If function is triggered by Pub/Sub topic, name of topic is set here.
+* `event_trigger` - A source that fires events in response to a condition in another service. Structure is documented below.
+* `trigger_bucket` - If function is triggered by bucket, bucket name is set here. Deprecated. Use `event_trigger` instead.
+* `trigger_topic` - If function is triggered by Pub/Sub topic, name of topic is set here. Deprecated. Use `event_trigger` instead.
 * `https_trigger_url` - If function is triggered by HTTP, trigger URL is set here.
 * `labels` - A map of labels applied to this function.
+
+The `event_trigger` block contains:
+
+* `event_type` - The type of event being observed. For example: `"providers/cloud.storage/eventTypes/object.change"`
+    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+    for a full reference.
+
+* `resource` - The name of the resource whose events are being observed, for example, `"myBucket"`
+
+* `failure_policy` - Policy for failed executions. Structure is documented below.
+
+The `failure_policy` block supports:
+
+* `retry` - Whether the function should be retried on failure.
