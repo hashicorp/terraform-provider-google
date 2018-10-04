@@ -268,7 +268,6 @@ func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) err
 
 	d.SetId(res.Name)
 	return resourceStorageBucketRead(d, meta)
-
 }
 
 func resourceStorageTransferUpdate(d *schema.ResourceData, meta interface{}) error {
