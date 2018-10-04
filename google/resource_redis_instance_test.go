@@ -115,6 +115,7 @@ func testAccRedisInstance_basic(name string) string {
 resource "google_redis_instance" "test" {
 	name           = "%s"
 	memory_size_gb = 1
+	region         = "us-central1"
 }`, name)
 }
 
@@ -124,6 +125,7 @@ resource "google_redis_instance" "test" {
 	name           = "%s"
 	display_name   = "pre-update"
 	memory_size_gb = 1
+	region         = "us-central1"
 
 	labels {
 		my_key    = "my_val"
