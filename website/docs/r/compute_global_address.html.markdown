@@ -84,8 +84,7 @@ The following arguments are supported:
   (Optional)
   The type of the address to reserve, default is EXTERNAL.
   * EXTERNAL indicates public/external single IP address.
-  * INTERNAL indicates internal IP ranges belonging to some network.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  * INTERNAL indicates internal IP ranges belonging to some network.
 
 * `purpose` -
   (Optional)

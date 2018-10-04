@@ -123,8 +123,7 @@ The following arguments are supported:
   Denotes whether the firewall rule is disabled, i.e not applied to the
   network it is associated with. When set to true, the firewall rule is
   not enforced and the network behaves as if it did not exist. If this
-  is unspecified, the firewall rule will be enabled.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  is unspecified, the firewall rule will be enabled.
 
 * `enable_logging` -
   (Optional)
