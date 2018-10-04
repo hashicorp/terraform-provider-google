@@ -1,3 +1,4 @@
+
 package google
 
 import (
@@ -32,20 +33,20 @@ func resourceStorageTransfer() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"projectId": {
+			"project": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"transferSpec": {
+			"transfer_spec": {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"objectConditions": objectConditions(),
-						"transferOptions":  transferOptions(),
-						"gcsDataSink": &schema.Schema{
+						"object_conditions": objectConditions(),
+						"transfer_options":  transferOptions(),
+						"gcs_data_sink": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
@@ -53,7 +54,7 @@ func resourceStorageTransfer() *schema.Resource {
 								Schema: gcsData(),
 							},
 						},
-						"gcsDataSource": &schema.Schema{
+						"gcs_data_source": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
@@ -71,9 +72,9 @@ func resourceStorageTransfer() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"scheduleStartDate": dateObject(),
-						"scheduleEndDate":   dateObject(),
-						"startTimeOfDay":    timeObject(),
+						"schedule_start_date": dateObject(),
+						"schedule_end_date":   dateObject(),
+						"start_time_of_day":    timeObject(),
 					},
 				},
 			},
@@ -83,13 +84,13 @@ func resourceStorageTransfer() *schema.Resource {
 				Default:      "ENABLED",
 				ValidateFunc: validation.StringInSlice([]string{"STATUS_UNSPECIFIED", "ENABLED", "DISABLED", "DELETED"}, true),
 			},
-			"creationTime": {
+			"creation_time": {
 				Type: schema.TypeString,
 			},
-			"lastModificationTime": {
+			"last_modification_time": {
 				Type: schema.TypeString,
 			},
-			"deletionTime": {
+			"deletion_time": {
 				Type: schema.TypeString,
 			},
 		},
@@ -112,22 +113,22 @@ func objectConditions() *schema.Schema {
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"minTimeElapsedSinceLastModification": &schema.Schema{
+				"min_time_elapsed_since_last_modification": &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateDuration(),
 				},
-				"maxTimeElapsedSinceLastModification": &schema.Schema{
+				"max_time_elapsed_since_last_modification": &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateDuration(),
 				},
-				"includePrefixes": &schema.Schema{
+				"include_prefixes": &schema.Schema{
 					Type: schema.TypeList,
 					Elem: &schema.Schema{
 						MaxItems: 1000,
 						Type:     schema.TypeString,
 					},
 				},
-				"excludePrefixes": &schema.Schema{
+				"exclude_prefixes": &schema.Schema{
 					Type: schema.TypeList,
 					Elem: &schema.Schema{
 						MaxItems: 1000,
@@ -163,13 +164,13 @@ func transferOptions() *schema.Schema {
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"overwriteObjectsAlreadyExistingInSink": &schema.Schema{
+				"overwrite_objects_already_existing_in_sink": &schema.Schema{
 					Type: schema.TypeBool,
 				},
-				"deleteObjectsUniqueInSink": &schema.Schema{
+				"delete_objects_unique_in_sink": &schema.Schema{
 					Type: schema.TypeBool,
 				},
-				"deleteObjectsFromSourceAfterTransfer": &schema.Schema{
+				"delete_objects_from_source_after_transfer": &schema.Schema{
 					Type: schema.TypeBool,
 				},
 			},
