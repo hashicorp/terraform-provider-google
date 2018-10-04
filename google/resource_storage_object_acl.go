@@ -152,6 +152,8 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.Set("role_entity", role_entity)
+	} else {
+		d.Set("role_entity", nil)
 	}
 
 	d.SetId(getObjectAclId(object))
