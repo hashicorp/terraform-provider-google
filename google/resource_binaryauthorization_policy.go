@@ -51,6 +51,9 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceBinaryAuthorizationPolicyImport,
 		},
+		DeprecationMessage: `This resource is in beta and will be removed from this provider.
+Use the BinaryAuthorizationPolicy resource in the terraform-provider-google-beta provider to continue using it.
+See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta resources.`,
 
 		Schema: map[string]*schema.Schema{
 			"default_admission_rule": {
