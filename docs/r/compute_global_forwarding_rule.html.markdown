@@ -106,7 +106,8 @@ The IP Version that will be used by this resource's address. One of `"IPV4"` or 
 - - -
 
 * `labels` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
-A set of key/value label pairs to assign to the resource.
+A set of key/value label pairs to assign to the resource. This property is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 
 ## Attributes Reference
