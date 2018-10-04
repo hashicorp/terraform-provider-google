@@ -46,7 +46,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:       schema.TypeList,
 				Optional:   true,
 				Computed:   true,
-				Deprecated: "Use the region_instance_group_manager resource in the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -175,7 +175,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,
-				Deprecated: "Use the region_instance_group_manager resource in the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"health_check": &schema.Schema{
@@ -209,7 +209,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,
-				Deprecated: "Use the region_instance_group_manager resource in the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"minimal_action": &schema.Schema{
