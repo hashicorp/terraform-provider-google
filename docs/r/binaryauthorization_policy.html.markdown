@@ -23,6 +23,9 @@ description: |-
 
 A policy for container image binary authorization.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta resources.
+
 To get more information about Policy, see:
 
 * [API documentation](https://cloud.google.com/binary-authorization/docs/reference/rest/)

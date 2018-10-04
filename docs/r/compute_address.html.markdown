@@ -35,6 +35,7 @@ the instance is assigned a new internal IP address, either by Compute
 Engine or by you. External IP addresses can be either ephemeral or
 static.
 
+
 To get more information about Address, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/beta/addresses)
@@ -108,7 +109,8 @@ The following arguments are supported:
   (Optional)
   The networking tier used for configuring this address. This field can
   take the following values: PREMIUM or STANDARD. If this field is not
-  specified, it is assumed to be PREMIUM.
+  specified, it is assumed to be PREMIUM.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `subnetwork` -
   (Optional)
@@ -119,7 +121,8 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Labels to apply to this address.  A list of key->value pairs.
+  Labels to apply to this address.  A list of key->value pairs.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `region` -
   (Optional)
@@ -142,7 +145,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
-  internally during updates.
+  internally during updates.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 * `self_link` - The URI of the created resource.
 
 

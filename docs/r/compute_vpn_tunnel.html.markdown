@@ -23,6 +23,7 @@ description: |-
 
 VPN tunnel resource.
 
+
 To get more information about VpnTunnel, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/vpnTunnels)

@@ -23,6 +23,7 @@ description: |-
 
 Represents a Router resource.
 
+
 To get more information about Router, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/routers)
