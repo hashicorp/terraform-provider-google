@@ -18,7 +18,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"list_policy"},
+		ConflictsWith: []string{"list_policy", "restore_policy"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
@@ -32,7 +32,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:          schema.TypeList,
 		Optional:      true,
 		MaxItems:      1,
-		ConflictsWith: []string{"boolean_policy"},
+		ConflictsWith: []string{"boolean_policy", "restore_policy"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
@@ -99,6 +99,20 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:     schema.TypeString,
 		Computed: true,
 	},
+	"restore_policy": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ConflictsWith: []string{"boolean_policy", "list_policy"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"default": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+			},
+		},
+	},
 }
 
 func resourceGoogleOrganizationPolicy() *schema.Resource {
@@ -152,6 +166,7 @@ func resourceGoogleOrganizationPolicyRead(d *schema.ResourceData, meta interface
 	d.Set("version", policy.Version)
 	d.Set("etag", policy.Etag)
 	d.Set("update_time", policy.UpdateTime)
+	d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault))
 
 	return nil
 }
@@ -200,13 +215,19 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	restoreDefault, err := expandRestoreOrganizationPolicy(d.Get("restore_policy").([]interface{}))
+	if err != nil {
+		return err
+	}
+
 	_, err = config.clientResourceManager.Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
 		Policy: &cloudresourcemanager.OrgPolicy{
-			Constraint:    canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-			BooleanPolicy: expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
-			ListPolicy:    listPolicy,
-			Version:       int64(d.Get("version").(int)),
-			Etag:          d.Get("etag").(string),
+			Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+			BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
+			ListPolicy:     listPolicy,
+			RestoreDefault: restoreDefault,
+			Version:        int64(d.Get("version").(int)),
+			Etag:           d.Get("etag").(string),
 		},
 	}).Do()
 
@@ -227,6 +248,20 @@ func flattenBooleanOrganizationPolicy(policy *cloudresourcemanager.BooleanPolicy
 	return bPolicies
 }
 
+func flattenRestoreOrganizationPolicy(restore_policy *cloudresourcemanager.RestoreDefault) []map[string]interface{} {
+	rp := make([]map[string]interface{}, 0, 1)
+
+	if restore_policy == nil {
+		return rp
+	}
+
+	rp = append(rp, map[string]interface{}{
+		"default": true,
+	})
+
+	return rp
+}
+
 func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourcemanager.BooleanPolicy {
 	if len(configured) == 0 {
 		return nil
@@ -236,6 +271,21 @@ func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourceman
 	return &cloudresourcemanager.BooleanPolicy{
 		Enforced: booleanPolicy["enforced"].(bool),
 	}
+}
+
+func expandRestoreOrganizationPolicy(configured []interface{}) (*cloudresourcemanager.RestoreDefault, error) {
+	if len(configured) == 0 {
+		return nil, nil
+	}
+
+	restoreDefaultMap := configured[0].(map[string]interface{})
+	default_value := restoreDefaultMap["default"].(bool)
+
+	if default_value {
+		return &cloudresourcemanager.RestoreDefault{}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid value for restore_policy. Expecting default = true")
 }
 
 func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []map[string]interface{} {

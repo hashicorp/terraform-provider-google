@@ -49,6 +49,12 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 						"google_compute_ssl_certificate.foobar"),
 				),
 			},
+			resource.TestStep{
+				ResourceName:            "google_compute_ssl_certificate.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"private_key"},
+			},
 		},
 	})
 }
@@ -67,6 +73,12 @@ func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
 				),
+			},
+			resource.TestStep{
+				ResourceName:            "google_compute_ssl_certificate.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
 			},
 		},
 	})

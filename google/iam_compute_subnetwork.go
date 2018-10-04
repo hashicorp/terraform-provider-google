@@ -12,23 +12,26 @@ import (
 
 var IamComputeSubnetworkSchema = map[string]*schema.Schema{
 	"subnetwork": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+		Type:       schema.TypeString,
+		Required:   true,
+		ForceNew:   true,
 	},
 
 	"project": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+		Type:       schema.TypeString,
+		Optional:   true,
+		Computed:   true,
+		ForceNew:   true,
 	},
 
 	"region": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Deprecated: "This resource is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+		Type:       schema.TypeString,
+		Optional:   true,
+		Computed:   true,
+		ForceNew:   true,
 	},
 }
 
@@ -121,7 +124,10 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientComputeBeta.Subnetworks.SetIamPolicy(u.project, u.region, u.resourceId, computePolicy).Do()
+	req := &computeBeta.RegionSetPolicyRequest{
+		Policy: computePolicy,
+	}
+	_, err = u.Config.clientComputeBeta.Subnetworks.SetIamPolicy(u.project, u.region, u.resourceId, req).Do()
 
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)

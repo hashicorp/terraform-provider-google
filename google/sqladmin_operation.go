@@ -61,6 +61,13 @@ func sqladminOperationWait(config *Config, op *sqladmin.Operation, project, acti
 }
 
 func sqladminOperationWaitTime(config *Config, op *sqladmin.Operation, project, activity string, timeoutMinutes int) error {
+	if op.Status == "DONE" {
+		if op.Error != nil {
+			return SqlAdminOperationError(*op.Error)
+		}
+		return nil
+	}
+
 	w := &SqlAdminOperationWaiter{
 		Service: config.clientSqlAdmin,
 		Op:      op,

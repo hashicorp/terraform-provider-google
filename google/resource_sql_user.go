@@ -87,7 +87,7 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 			"user %s into instance %s: %s", name, instance, err)
 	}
 
-	// This will include a double-slash (//) for 2nd generation instances,
+	// This will include a double-slash (//) for postgres instances,
 	// for which user.Host is an empty string.  That's okay.
 	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
@@ -125,7 +125,7 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
-		// The second part of this conditional is irrelevant for 2nd generation instances because
+		// The second part of this conditional is irrelevant for postgres instances because
 		// host and currentUser.Host will always both be empty.
 		if currentUser.Name == name && currentUser.Host == host {
 			user = currentUser
@@ -235,7 +235,7 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 		d.Set("host", parts[1])
 		d.Set("name", parts[2])
 	} else {
-		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for 2nd generation instance and {instance}/{host}/{name} for 1st generation instance")
+		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for postgres instance and {instance}/{host}/{name} for MySQL instance")
 	}
 
 	return []*schema.ResourceData{d}, nil

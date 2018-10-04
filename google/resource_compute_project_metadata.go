@@ -8,9 +8,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-var ProjectMetadataBaseApiVersion = v1
-var ProjectMetadataVersionedFeatures = []Feature{}
-
 func resourceComputeProjectMetadata() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeProjectMetadataCreate,
@@ -22,9 +19,9 @@ func resourceComputeProjectMetadata() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"metadata": &schema.Schema{
-				Elem:     schema.TypeString,
 				Type:     schema.TypeMap,
 				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"project": &schema.Schema{

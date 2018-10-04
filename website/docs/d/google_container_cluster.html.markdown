@@ -49,7 +49,7 @@ The following arguments are supported:
 
 * `name` - The name of the cluster.
 
-* `zone` - The zones this cluster has been created in.
+* `zone` or `region` - The zone or region this cluster has been created in.
 
 - - -
 

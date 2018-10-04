@@ -245,6 +245,14 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", pid),
 				),
 			},
+			resource.TestStep{
+				ResourceName: "google_project_iam_policy.acceptance",
+				ImportState:  true,
+				// Skipping the normal "ImportStateVerify" - Unfortunately, it's not
+				// really possible to make the imported policy match exactly, since
+				// the policy depends on the service account being used to create the
+				// project.
+			},
 			// Finally, remove the custom IAM policy from config and apply, then
 			// confirm that the project is in its original state.
 			resource.TestStep{

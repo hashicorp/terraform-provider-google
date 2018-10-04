@@ -111,6 +111,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.num_instances", "1"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.disk_config.0.num_local_ssds"),
+					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.disk_config.0.boot_disk_type"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.machine_type"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.0.instance_names.#", "1"),
 
@@ -119,6 +120,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.num_instances", "2"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.disk_config.0.num_local_ssds"),
+					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.disk_config.0.boot_disk_type"),
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.machine_type"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.worker_config.0.instance_names.#", "2"),
 
@@ -132,7 +134,7 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
+func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
 	t.Parallel()
 
 	var cluster dataproc.Cluster
@@ -143,7 +145,7 @@ func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd),
+				Config: testAccDataprocCluster_withInternalIpOnlyTrue(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
 
@@ -155,7 +157,7 @@ func TestAccDataprocCluster_basicWithInternalIpOnlyTrue(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
+func TestAccDataprocCluster_withMetadata(t *testing.T) {
 	t.Parallel()
 
 	var cluster dataproc.Cluster
@@ -166,7 +168,7 @@ func TestAccDataprocCluster_basicWithMetadata(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_basicWithMetadata(rnd),
+				Config: testAccDataprocCluster_withMetadata(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
 
@@ -358,7 +360,7 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 				Config: testAccDataprocCluster_withImageVersion(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.with_image_version", &cluster),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", "preview"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", "1.3.7-deb9"),
 				),
 			},
 		},
@@ -534,12 +536,14 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.MasterConfig.NumInstances))},
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "10", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.master_config.0.disk_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
+			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.MasterConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
 			{"cluster_config.0.master_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.MasterConfig.InstanceNames))},
 
 			{"cluster_config.0.worker_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "11", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
+			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type", "pd-standard", cluster.Config.WorkerConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
 			{"cluster_config.0.worker_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.WorkerConfig.InstanceNames))},
 
@@ -626,7 +630,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocCluster_basicWithInternalIpOnlyTrue(rnd string) string {
+func testAccDataprocCluster_withInternalIpOnlyTrue(rnd string) string {
 	return fmt.Sprintf(`
 variable subnetwork_cidr {
 	default = "10.0.0.0/16"
@@ -692,7 +696,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_basicWithMetadata(rnd string) string {
+func testAccDataprocCluster_withMetadata(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
 	name   = "dproc-cluster-test-%s"
@@ -740,6 +744,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 			num_instances     = 3
 			machine_type      = "n1-standard-1"
 			disk_config {
+				boot_disk_type    = "pd-ssd"
 				boot_disk_size_gb = 10
 			}
 		}
@@ -748,6 +753,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 			num_instances     = 3
 			machine_type      = "n1-standard-1"
 			disk_config {
+				boot_disk_type    = "pd-standard"
 				boot_disk_size_gb = 11
 				num_local_ssds    = 1
 			}
@@ -909,7 +915,7 @@ resource "google_dataproc_cluster" "with_image_version" {
 
 	cluster_config {
 		software_config {
-			image_version = "preview"
+			image_version = "1.3.7-deb9"
 		}
 	}
 }`, rnd)

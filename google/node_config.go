@@ -1,11 +1,12 @@
 package google
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
-	"strconv"
-	"strings"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -34,6 +35,14 @@ var schemaNodeConfig = &schema.Schema{
 				ValidateFunc: validation.IntAtLeast(10),
 			},
 
+			"disk_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
+			},
+
 			"guest_accelerator": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -60,14 +69,13 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"local_ssd_count": {
@@ -89,7 +97,7 @@ var schemaNodeConfig = &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"min_cpu_platform": {
@@ -134,6 +142,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
+				Deprecated:       "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:             schema.TypeList,
 				Optional:         true,
 				ForceNew:         true,
@@ -161,10 +170,11 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"workload_metadata_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:       schema.TypeList,
+				Optional:   true,
+				ForceNew:   true,
+				MaxItems:   1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"node_metadata": {
@@ -214,6 +224,10 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 
 	if v, ok := nodeConfig["disk_size_gb"]; ok {
 		nc.DiskSizeGb = int64(v.(int))
+	}
+
+	if v, ok := nodeConfig["disk_type"]; ok {
+		nc.DiskType = v.(string)
 	}
 
 	if v, ok := nodeConfig["local_ssd_count"]; ok {
@@ -304,6 +318,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	config = append(config, map[string]interface{}{
 		"machine_type":             c.MachineType,
 		"disk_size_gb":             c.DiskSizeGb,
+		"disk_type":                c.DiskType,
 		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
 		"service_account":          c.ServiceAccount,

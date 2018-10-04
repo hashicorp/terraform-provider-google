@@ -1,7 +1,9 @@
 package google
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -10,7 +12,7 @@ import (
 )
 
 // Compare only the relative path of two self links.
-func compareSelfLinkRelativePaths(k, old, new string, d *schema.ResourceData) bool {
+func compareSelfLinkRelativePaths(_, old, new string, _ *schema.ResourceData) bool {
 	oldStripped, err := getRelativePath(old)
 	if err != nil {
 		return false
@@ -28,9 +30,11 @@ func compareSelfLinkRelativePaths(k, old, new string, d *schema.ResourceData) bo
 	return false
 }
 
+// compareSelfLinkOrResourceName checks if two resources are the same resource
+//
 // Use this method when the field accepts either a name or a self_link referencing a resource.
 // The value we store (i.e. `old` in this method), must be a self_link.
-func compareSelfLinkOrResourceName(k, old, new string, d *schema.ResourceData) bool {
+func compareSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
 	newParts := strings.Split(new, "/")
 
 	if len(newParts) == 1 {
@@ -42,7 +46,7 @@ func compareSelfLinkOrResourceName(k, old, new string, d *schema.ResourceData) b
 	}
 
 	// The `new` string is a self_link
-	return compareSelfLinkRelativePaths(k, old, new, d)
+	return compareSelfLinkRelativePaths("", old, new, nil)
 }
 
 // Hash the relative path of a self link.
@@ -58,6 +62,12 @@ func getRelativePath(selfLink string) (string, error) {
 	}
 
 	return "projects/" + stringParts[1], nil
+}
+
+// Hash the name path of a self link.
+func selfLinkNameHash(selfLink interface{}) int {
+	name := GetResourceNameFromSelfLink(selfLink.(string))
+	return hashcode.String(name)
 }
 
 func ConvertSelfLinkToV1(link string) string {
@@ -76,4 +86,59 @@ func NameFromSelfLinkStateFunc(v interface{}) string {
 
 func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
+}
+
+type LocationType int
+
+const (
+	Zonal LocationType = iota
+	Regional
+	Global
+)
+
+func GetZonalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Zonal)
+}
+
+func GetRegionalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Regional)
+}
+
+func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config, locationType LocationType) (string, string, string, error) {
+	if selfLink, ok := d.GetOk("self_link"); ok {
+		parsed, err := url.Parse(selfLink.(string))
+		if err != nil {
+			return "", "", "", err
+		}
+
+		s := strings.Split(parsed.Path, "/")
+		// https://www.googleapis.com/compute/beta/projects/project_name/regions/region_name/instanceGroups/foobarbaz
+		// =>  project_name, region_name, foobarbaz
+		return s[4], s[6], s[8], nil
+	} else {
+		project, err := getProject(d, config)
+		if err != nil {
+			return "", "", "", err
+		}
+
+		location := ""
+		if locationType == Regional {
+			location, err = getRegion(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		} else if locationType == Zonal {
+			location, err = getZone(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		}
+
+		n, ok := d.GetOk("name")
+		name := n.(string)
+		if !ok {
+			return "", "", "", errors.New("must provide either `self_link` or `name`")
+		}
+		return project, location, name, nil
+	}
 }

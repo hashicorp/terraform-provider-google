@@ -3,15 +3,13 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
-
-var InstanceTemplateBaseApiVersion = v1
-var InstanceTemplateVersionedFeatures = []Feature{}
 
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -22,6 +20,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		SchemaVersion: 1,
+		CustomizeDiff: resourceComputeInstanceTemplateSourceImageCustomizeDiff,
 		MigrateState:  resourceComputeInstanceTemplateMigrateState,
 
 		// A compute instance template is more or less a subset of a compute
@@ -103,7 +102,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"source_image": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 						},
 
 						"interface": &schema.Schema{
@@ -238,15 +237,23 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									"nat_ip": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
+										ForceNew: true,
 										Computed: true,
+									},
+									"network_tier": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 									// Instance templates will never have an
 									// 'assigned NAT IP', but we need this in
 									// the schema to allow us to share flatten
 									// code with an instance, which could.
 									"assigned_nat_ip": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "Use network_interface.access_config.nat_ip instead.",
 									},
 								},
 							},
@@ -412,6 +419,57 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	config := meta.(*Config)
+	project, err := getProjectFromDiff(diff, config)
+	if err != nil {
+		return err
+	}
+	numDisks := diff.Get("disk.#").(int)
+	for i := 0; i < numDisks; i++ {
+		key := fmt.Sprintf("disk.%d.source_image", i)
+		if diff.HasChange(key) {
+			old, new := diff.GetChange(key)
+			if old == "" || new == "" {
+				// no sense in resolving empty strings
+				err = diff.ForceNew(key)
+				if err != nil {
+					return err
+				}
+				continue
+			}
+			oldResolved, err := resolveImage(config, project, old.(string))
+			if err != nil {
+				return err
+			}
+			oldResolved, err = resolvedImageSelfLink(project, oldResolved)
+			if err != nil {
+				return err
+			}
+			newResolved, err := resolveImage(config, project, new.(string))
+			if err != nil {
+				return err
+			}
+			newResolved, err = resolvedImageSelfLink(project, newResolved)
+			if err != nil {
+				return err
+			}
+			if oldResolved != newResolved {
+				err = diff.ForceNew(key)
+				if err != nil {
+					return err
+				}
+				continue
+			}
+			err = diff.Clear(key)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.AttachedDisk, error) {
@@ -610,17 +668,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	var op interface{}
-	switch getComputeApiVersion(d, InstanceTemplateBaseApiVersion, InstanceGroupManagerVersionedFeatures) {
-	case v1:
-		instanceTemplateV1 := &compute.InstanceTemplate{}
-		if err := Convert(instanceTemplate, instanceTemplateV1); err != nil {
-			return err
-		}
-		op, err = config.clientCompute.InstanceTemplates.Insert(project, instanceTemplateV1).Do()
-	case v0beta:
-		op, err = config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
-	}
+	op, err := config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -636,17 +684,20 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []map[string]interface{} {
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0, len(disks))
-	for i, disk := range disks {
+	for _, disk := range disks {
 		diskMap := make(map[string]interface{})
 		if disk.InitializeParams != nil {
-			var source_img = fmt.Sprintf("disk.%d.source_image", i)
-			if d.Get(source_img) == nil || d.Get(source_img) == "" {
-				diskMap["source_image"] = GetResourceNameFromSelfLink(disk.InitializeParams.SourceImage)
-			} else {
-				diskMap["source_image"] = d.Get(source_img)
+			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
 			}
+			path, err := getRelativePath(selfLink)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
+			}
+			diskMap["source_image"] = path
 			diskMap["disk_type"] = disk.InitializeParams.DiskType
 			diskMap["disk_name"] = disk.InitializeParams.DiskName
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
@@ -655,12 +706,12 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData) []m
 		diskMap["boot"] = disk.Boot
 		diskMap["device_name"] = disk.DeviceName
 		diskMap["interface"] = disk.Interface
-		diskMap["source"] = disk.Source
+		diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
 		diskMap["mode"] = disk.Mode
 		diskMap["type"] = disk.Type
 		result = append(result, diskMap)
 	}
-	return result
+	return result, nil
 }
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
@@ -670,22 +721,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	instanceTemplate := &computeBeta.InstanceTemplate{}
-	switch getComputeApiVersion(d, InstanceBaseApiVersion, InstanceVersionedFeatures) {
-	case v1:
-		instanceTemplateV1, err := config.clientCompute.InstanceTemplates.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
-		}
-		if err := Convert(instanceTemplateV1, instanceTemplate); err != nil {
-			return err
-		}
-	case v0beta:
-		var err error
-		instanceTemplate, err = config.clientComputeBeta.InstanceTemplates.Get(project, d.Id()).Do()
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
-		}
+	instanceTemplate, err := config.clientComputeBeta.InstanceTemplates.Get(project, d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
 
 	// Set the metadata fingerprint if there is one.
@@ -714,6 +752,8 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		if err = d.Set("tags_fingerprint", instanceTemplate.Properties.Tags.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
+	} else {
+		d.Set("tags_fingerprint", "")
 	}
 	if instanceTemplate.Properties.Labels != nil {
 		d.Set("labels", instanceTemplate.Properties.Labels)
@@ -725,7 +765,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	if instanceTemplate.Properties.Disks != nil {
-		if err = d.Set("disk", flattenDisks(instanceTemplate.Properties.Disks, d)); err != nil {
+		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d, project)
+		if err != nil {
+			return fmt.Errorf("error flattening disks: %s", err)
+		}
+		if err = d.Set("disk", disks); err != nil {
 			return fmt.Errorf("Error setting disk: %s", err)
 		}
 	}
@@ -773,6 +817,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.Tags != nil {
 		if err = d.Set("tags", instanceTemplate.Properties.Tags.Items); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
+		}
+	} else {
+		if err = d.Set("tags", nil); err != nil {
+			return fmt.Errorf("Error setting empty tags: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.ServiceAccounts != nil {

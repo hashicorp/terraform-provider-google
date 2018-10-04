@@ -25,6 +25,7 @@ func TestAccOrganizationPolicy(t *testing.T) {
 		"list_allowSome": testAccOrganizationPolicy_list_allowSome,
 		"list_denySome":  testAccOrganizationPolicy_list_denySome,
 		"list_update":    testAccOrganizationPolicy_list_update,
+		"restore_policy": testAccOrganizationPolicy_restore_defaultTrue,
 	}
 
 	for name, tc := range testCases {
@@ -165,6 +166,26 @@ func testAccOrganizationPolicy_list_update(t *testing.T) {
 	})
 }
 
+func testAccOrganizationPolicy_restore_defaultTrue(t *testing.T) {
+	org := getTestOrgTargetFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOrganizationPolicyConfig_restore_defaultTrue(org),
+				Check:  testAccCheckGoogleOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+			{
+				ResourceName:      "google_organization_policy.restore",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleOrganizationPolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -258,6 +279,22 @@ func testAccCheckGoogleOrganizationListPolicyDeniedValues(n string, values []str
 	}
 }
 
+func testAccCheckGoogleOrganizationRestoreDefaultTrue(n string, policyDefault *cloudresourcemanager.RestoreDefault) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		policy, err := getGoogleOrganizationPolicyTestResource(s, n)
+		if err != nil {
+			return err
+		}
+
+		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
+			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
+		}
+
+		return nil
+	}
+}
+
 func getGoogleOrganizationPolicyTestResource(s *terraform.State, n string) (*cloudresourcemanager.OrgPolicy, error) {
 	rn := "google_organization_policy." + n
 	rs, ok := s.RootModule().Resources[rn]
@@ -279,12 +316,12 @@ func getGoogleOrganizationPolicyTestResource(s *terraform.State, n string) (*clo
 func testAccOrganizationPolicyConfig_boolean(org string, enforced bool) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "bool" {
-	org_id = "%s"
-	constraint = "constraints/compute.disableSerialPortAccess"
+    org_id = "%s"
+    constraint = "constraints/compute.disableSerialPortAccess"
 
-	boolean_policy {
-		enforced = %t
-	}
+    boolean_policy {
+        enforced = %t
+    }
 }
 `, org, enforced)
 }
@@ -292,14 +329,14 @@ resource "google_organization_policy" "bool" {
 func testAccOrganizationPolicyConfig_list_allowAll(org string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "constraints/serviceuser.services"
+    org_id = "%s"
+    constraint = "constraints/serviceuser.services"
 
-	list_policy {
-		allow {
-			all = true
-		}
-	}
+    list_policy {
+        allow {
+            all = true
+        }
+    }
 }
 `, org)
 }
@@ -307,16 +344,16 @@ resource "google_organization_policy" "list" {
 func testAccOrganizationPolicyConfig_list_allowSome(org, project string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "constraints/compute.trustedImageProjects"
+    org_id = "%s"
+    constraint = "constraints/compute.trustedImageProjects"
 
-	list_policy {
-		allow {
-			values = [
-				"projects/%s",
-				"projects/debian-cloud"
-			]
-		}
+    list_policy {
+        allow {
+            values = [
+                "projects/%s",
+                "projects/debian-cloud"
+            ]
+        }
   }
 }
 `, org, project)
@@ -325,17 +362,30 @@ resource "google_organization_policy" "list" {
 func testAccOrganizationPolicyConfig_list_denySome(org string) string {
 	return fmt.Sprintf(`
 resource "google_organization_policy" "list" {
-	org_id = "%s"
-	constraint = "serviceuser.services"
+    org_id = "%s"
+    constraint = "serviceuser.services"
 
-  	list_policy {
-		deny {
-			values = [
-				"doubleclicksearch.googleapis.com",
-				"replicapoolupdater.googleapis.com",
-			]
-		}
-	}
+    list_policy {
+        deny {
+            values = [
+                "doubleclicksearch.googleapis.com",
+                "replicapoolupdater.googleapis.com",
+            ]
+        }
+    }
+}
+`, org)
+}
+
+func testAccOrganizationPolicyConfig_restore_defaultTrue(org string) string {
+	return fmt.Sprintf(`
+resource "google_organization_policy" "restore" {
+    org_id = "%s"
+    constraint = "serviceuser.services"
+
+    restore_policy {
+        default = true
+    }
 }
 `, org)
 }

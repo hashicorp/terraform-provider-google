@@ -50,8 +50,8 @@ The following arguments are supported:
 - - -
 
 * `host` - (Optional) The host the user can connect from. This is only supported
-    for first generation SQL instances. Don't set this field for second generation
-    SQL instances. Can be an IP address. Changing this forces a new resource to be created.
+    for MySQL instances. Don't set this field for PostgreSQL instances.
+    Can be an IP address. Changing this forces a new resource to be created.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -62,13 +62,13 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-SQL users for 1st generation databases can be imported using the `instance`, `host` and `name`, e.g.
+SQL users for MySQL databases can be imported using the `instance`, `host` and `name`, e.g.
 
 ```
 $ terraform import google_sql_user.users master-instance/my-domain.com/me
 ```
 
-SQL users for 2nd generation databases can be imported using the `instance` and `name`, e.g.
+SQL users for PostgreSQL databases can be imported using the `instance` and `name`, e.g.
 
 ```
 $ terraform import google_sql_user.users master-instance/me

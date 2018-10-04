@@ -37,6 +37,13 @@ func (w *DataprocClusterOperationWaiter) RefreshFunc() resource.StateRefreshFunc
 }
 
 func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	if op.Done {
+		if op.Error != nil {
+			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		}
+		return nil
+	}
+
 	w := &DataprocClusterOperationWaiter{
 		Service: config.clientDataproc,
 		Op:      op,

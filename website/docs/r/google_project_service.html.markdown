@@ -34,3 +34,11 @@ The following arguments are supported:
 * `project` - (Optional) The project ID. If not provided, the provider project is used.
 
 * `disable_on_destroy` - (Optional) If true, disable the service when the terraform resource is destroyed.  Defaults to true.  May be useful in the event that a project is long-lived but the infrastructure running in that project changes frequently.
+
+## Import
+
+Project services can be imported using the `project_id` and `service`, e.g.
+
+```
+$ terraform import google_project_service.my_project your-project-id/iam.googleapis.com
+```

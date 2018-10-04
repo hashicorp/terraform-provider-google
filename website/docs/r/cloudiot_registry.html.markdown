@@ -6,11 +6,11 @@ description: |-
   Creates a device registry in Google's Cloud IoT Core platform
 ---
 
-# google\cloudiot\_registry
+# google\_cloudiot\_registry
 
  Creates a device registry in Google's Cloud IoT Core platform. For more information see
 [the official documentation](https://cloud.google.com/iot/docs/) and
-[API](https://cloud.google.com/iot/docs/reference/rest/v1/projects.locations.registries).
+[API](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries).
 
 
 ## Example Usage
@@ -28,11 +28,11 @@ resource "google_cloudiot_registry" "default-registry" {
   name = "default-registry"
 
   event_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
   }
 
   state_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
   }
 
   http_config = {

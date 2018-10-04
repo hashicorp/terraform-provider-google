@@ -63,21 +63,26 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		family := rs.Primary.Attributes["family"]
 		link := rs.Primary.Attributes["self_link"]
 
+		latestDebian, err := config.clientCompute.Images.GetFromFamily("debian-cloud", "debian-9").Do()
+		if err != nil {
+			return fmt.Errorf("Error retrieving latest debian: %s", err)
+		}
+
 		images := map[string]string{
-			"family/debian-8":                                               "projects/debian-cloud/global/images/family/debian-8",
-			"projects/debian-cloud/global/images/debian-8-jessie-v20170110": "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
-			"debian-8":                                                                                            "projects/debian-cloud/global/images/family/debian-8",
-			"debian-8-jessie-v20170110":                                                                           "projects/debian-cloud/global/images/debian-8-jessie-v20170110",
-			"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20170110": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20170110",
+			"family/" + latestDebian.Family:                            "projects/debian-cloud/global/images/family/" + latestDebian.Family,
+			"projects/debian-cloud/global/images/" + latestDebian.Name: "projects/debian-cloud/global/images/" + latestDebian.Name,
+			latestDebian.Family:                                        "projects/debian-cloud/global/images/family/" + latestDebian.Family,
+			latestDebian.Name:                                          "projects/debian-cloud/global/images/" + latestDebian.Name,
+			latestDebian.SelfLink:                                      latestDebian.SelfLink,
 
 			"global/images/" + name:          "global/images/" + name,
 			"global/images/family/" + family: "global/images/family/" + family,
-			name:                   "global/images/" + name,
-			family:                 "global/images/family/" + family,
-			"family/" + family:     "global/images/family/" + family,
-			project + "/" + name:   "projects/" + project + "/global/images/" + name,
-			project + "/" + family: "projects/" + project + "/global/images/family/" + family,
-			link: link,
+			name:                             "global/images/" + name,
+			family:                           "global/images/family/" + family,
+			"family/" + family:               "global/images/family/" + family,
+			project + "/" + name:             "projects/" + project + "/global/images/" + name,
+			project + "/" + family:           "projects/" + project + "/global/images/family/" + family,
+			link:                             link,
 		}
 
 		for input, expectation := range images {
@@ -95,10 +100,15 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 
 func testAccComputeImage_resolving(name, family string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_disk" "foobar" {
 	name = "%s"
 	zone = "us-central1-a"
-	image = "debian-8-jessie-v20160803"
+	image = "${data.google_compute_image.my_image.self_link}"
 }
 resource "google_compute_image" "foobar" {
 	name = "%s"

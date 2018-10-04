@@ -27,6 +27,7 @@ Represents a TargetSslProxy resource, which is used by one or more
 global forwarding rule to route incoming SSL requests to a backend
 service.
 
+
 To get more information about TargetSslProxy, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetSslProxies)
@@ -68,35 +69,46 @@ resource "google_compute_health_check" "default" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
-created. The name must be 1-63 characters long, and comply with
-RFC1035. Specifically, the name must be 1-63 characters long and match
-the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the
-first character must be a lowercase letter, and all following
-characters must be a dash, lowercase letter, or digit, except the last
-character, which cannot be a dash.
+  created. The name must be 1-63 characters long, and comply with
+  RFC1035. Specifically, the name must be 1-63 characters long and match
+  the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the
+  first character must be a lowercase letter, and all following
+  characters must be a dash, lowercase letter, or digit, except the last
+  character, which cannot be a dash.
+
 * `backend_service` -
   (Required)
-  A reference to BackendService resource
+  A reference to the BackendService resource.
+
 * `ssl_certificates` -
   (Required)
   A list of SslCertificate resources that are used to authenticate
-connections between users and the load balancer. Currently, exactly
-one SSL certificate must be specified.
+  connections between users and the load balancer. Currently, exactly
+  one SSL certificate must be specified.
 
 
 - - -
 
+
 * `description` -
   (Optional)
   An optional description of this resource.
+
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to
-the backend, either NONE or PROXY_V1. The default is NONE.
-* `project` (Optional) The ID of the project in which the resource belongs.
+  the backend, either NONE or PROXY_V1. The default is NONE.
+
+* `ssl_policy` -
+  (Optional)
+  A reference to the SslPolicy resource that will be associated with
+  the TargetSslProxy resource. If not set, the TargetSslProxy
+  resource will not have any SSL policy configured.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
@@ -104,8 +116,10 @@ the backend, either NONE or PROXY_V1. The default is NONE.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
 * `proxy_id` -
   The unique identifier for the resource.
 * `self_link` - The URI of the created resource.

@@ -2,12 +2,13 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"net"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 const (
@@ -41,12 +42,16 @@ var (
 	}
 	ServiceAccountLinkRegex = ServiceAccountLinkRegexPrefix + "(" + strings.Join(PossibleServiceAccountNames, "|") + ")"
 
+	ServiceAccountKeyNameRegex = ServiceAccountLinkRegexPrefix + "(.+)/keys/(.+)"
+
 	// Format of service accounts created through the API
 	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
 	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"
 
 	// Format of default App Engine service accounts created by Google
 	AppEngineServiceAccountNameRegex = ProjectRegex + "@appspot.gserviceaccount.com"
+
+	ProjectNameRegex = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
 )
 
 var rfc1918Networks = []string{
@@ -146,4 +151,38 @@ func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []er
 			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
 	}
 	return
+}
+
+func orEmpty(f schema.SchemaValidateFunc) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) ([]string, []error) {
+		v, ok := i.(string)
+		if ok && v == "" {
+			return nil, nil
+		}
+		return f(i, k)
+	}
+}
+
+func validateProjectID() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+
+		if !regexp.MustCompile("^" + ProjectRegex + "$").MatchString(value) {
+			errors = append(errors, fmt.Errorf(
+				"%q project_id must be 6 to 30 with lowercase letters, digits, hyphens and start with a letter. Trailing hyphens are prohibited.", value))
+		}
+		return
+	}
+}
+
+func validateProjectName() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+
+		if !regexp.MustCompile(ProjectNameRegex).MatchString(value) {
+			errors = append(errors, fmt.Errorf(
+				"%q name must be 4 to 30 characters with lowercase and uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.", value))
+		}
+		return
+	}
 }

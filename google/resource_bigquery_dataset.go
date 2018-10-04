@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
+
+const datasetIdRegexp = `[0-9A-Za-z_]+`
 
 func resourceBigQueryDataset() *schema.Resource {
 	return &schema.Resource{
@@ -30,7 +31,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if !regexp.MustCompile(`^[0-9A-Za-z_]+$`).MatchString(value) {
+					if !regexp.MustCompile(datasetIdRegexp).MatchString(value) {
 						errors = append(errors, fmt.Errorf(
 							"%q must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_)", k))
 					}
@@ -65,14 +66,13 @@ func resourceBigQueryDataset() *schema.Resource {
 			},
 
 			// Location: [Experimental] The geographic location where the dataset
-			// should reside. Possible values include EU and US. The default value
-			// is US.
+			// should reside.
 			"location": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1"}, false),
 			},
 
 			// DefaultTableExpirationMs: [Optional] The default lifetime of all
@@ -105,7 +105,64 @@ func resourceBigQueryDataset() *schema.Resource {
 			"labels": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			// Access: [Optional] An array of objects that define dataset access
+			// for one or more entities. You can set this property when inserting
+			// or updating a dataset in order to control who is allowed to access
+			// the data.
+			"access": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				// Computed because if unset, BQ adds 4 entries automatically
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"role": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
+						},
+						"domain": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"group_by_email": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"special_group": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"user_by_email": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"view": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"project_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"dataset_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 
 			// SelfLink: [Output-only] A URL that can be used to access the resource
@@ -180,6 +237,48 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 		dataset.Labels = labels
 	}
 
+	if v, ok := d.GetOk("access"); ok {
+		access := []*bigquery.DatasetAccess{}
+		for _, m := range v.([]interface{}) {
+			da := bigquery.DatasetAccess{}
+			accessMap := m.(map[string]interface{})
+			da.Role = accessMap["role"].(string)
+			if val, ok := accessMap["domain"]; ok {
+				da.Domain = val.(string)
+			}
+			if val, ok := accessMap["group_by_email"]; ok {
+				da.GroupByEmail = val.(string)
+			}
+			if val, ok := accessMap["special_group"]; ok {
+				da.SpecialGroup = val.(string)
+			}
+			if val, ok := accessMap["user_by_email"]; ok {
+				da.UserByEmail = val.(string)
+			}
+			if val, ok := accessMap["view"]; ok {
+				views := val.([]interface{})
+				if len(views) > 0 {
+					vm := views[0].(map[string]interface{})
+					if len(vm) > 0 {
+						view := bigquery.TableReference{}
+						if dsId, ok := vm["dataset_id"]; ok {
+							view.DatasetId = dsId.(string)
+						}
+						if pId, ok := vm["project_id"]; ok {
+							view.ProjectId = pId.(string)
+						}
+						if tId, ok := vm["table_id"]; ok {
+							view.TableId = tId.(string)
+						}
+						da.View = &view
+					}
+				}
+			}
+			access = append(access, &da)
+		}
+		dataset.Access = access
+	}
+
 	return dataset, nil
 }
 
@@ -210,27 +309,27 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceBigQueryDatasetRead(d, meta)
 }
 
-func resourceBigQueryDatasetParseID(id string) (string, string) {
-	// projectID, datasetID
-	parts := strings.Split(id, ":")
-	return parts[0], parts[1]
-}
-
 func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	log.Printf("[INFO] Reading BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
-
-	res, err := config.clientBigQuery.Datasets.Get(projectID, datasetID).Do()
+	id, err := parseBigQueryDatasetId(d.Id())
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery dataset %q", datasetID))
+		return err
 	}
 
-	d.Set("project", projectID)
+	res, err := config.clientBigQuery.Datasets.Get(id.Project, id.DatasetId).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery dataset %q", id.DatasetId))
+	}
+
+	d.Set("project", id.Project)
 	d.Set("etag", res.Etag)
 	d.Set("labels", res.Labels)
+	if err := d.Set("access", flattenAccess(res.Access)); err != nil {
+		return err
+	}
 	d.Set("self_link", res.SelfLink)
 	d.Set("description", res.Description)
 	d.Set("friendly_name", res.FriendlyName)
@@ -261,9 +360,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Updating BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
+	id, err := parseBigQueryDatasetId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if _, err = config.clientBigQuery.Datasets.Update(projectID, datasetID, dataset).Do(); err != nil {
+	if _, err = config.clientBigQuery.Datasets.Update(id.Project, id.DatasetId, dataset).Do(); err != nil {
 		return err
 	}
 
@@ -275,12 +377,56 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Deleting BigQuery dataset: %s", d.Id())
 
-	projectID, datasetID := resourceBigQueryDatasetParseID(d.Id())
+	id, err := parseBigQueryDatasetId(d.Id())
+	if err != nil {
+		return err
+	}
 
-	if err := config.clientBigQuery.Datasets.Delete(projectID, datasetID).Do(); err != nil {
+	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).Do(); err != nil {
 		return err
 	}
 
 	d.SetId("")
 	return nil
+}
+
+type bigQueryDatasetId struct {
+	Project, DatasetId string
+}
+
+func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
+	pd := fmt.Sprintf("(%s):(%s)", ProjectRegex, datasetIdRegexp)
+	re := regexp.MustCompile(pd)
+	if parts := re.FindStringSubmatch(id); parts != nil {
+		return &bigQueryDatasetId{
+			Project:   parts[1],
+			DatasetId: parts[2],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+}
+
+func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
+	access := make([]map[string]interface{}, 0, len(a))
+	for _, da := range a {
+		ai := map[string]interface{}{
+			"role":           da.Role,
+			"domain":         da.Domain,
+			"group_by_email": da.GroupByEmail,
+			"special_group":  da.SpecialGroup,
+			"user_by_email":  da.UserByEmail,
+		}
+		if da.View != nil {
+			view := []map[string]interface{}{{
+				"project_id": da.View.ProjectId,
+				"dataset_id": da.View.DatasetId,
+				"table_id":   da.View.TableId,
+			},
+			}
+			ai["view"] = view
+		}
+		access = append(access, ai)
+	}
+	return access
 }

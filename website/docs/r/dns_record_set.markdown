@@ -29,7 +29,7 @@ resource "google_dns_record_set" "frontend" {
 
   managed_zone = "${google_dns_managed_zone.prod.name}"
 
-  rrdatas = ["${google_compute_instance.frontend.network_interface.0.access_config.0.assigned_nat_ip}"]
+  rrdatas = ["${google_compute_instance.frontend.network_interface.0.access_config.0.nat_ip}"]
 }
 
 resource "google_compute_instance" "frontend" {
@@ -39,7 +39,7 @@ resource "google_compute_instance" "frontend" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-8"
+      image = "debian-cloud/debian-9"
     }
   }
 

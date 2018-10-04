@@ -105,6 +105,11 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 
 func testAccComputeTargetPool_basic() string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
 resource "google_compute_http_health_check" "foobar" {
 	name = "healthcheck-test-%s"
 	host = "example.com"
@@ -117,7 +122,7 @@ resource "google_compute_instance" "foobar" {
 
 	boot_disk {
 		initialize_params{
-			image = "debian-8-jessie-v20160803"
+			image = "${data.google_compute_image.my_image.self_link}"
 		}
 	}
 

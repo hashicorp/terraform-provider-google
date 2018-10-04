@@ -212,9 +212,9 @@ resource "google_project" "project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "services" {
+resource "google_project_service" "compute" {
   project = "${google_project.project.project_id}"
-  services = ["compute.googleapis.com"]
+  service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -223,7 +223,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     banana = "orange"
     sofa = "darwinism"
   }
-  depends_on = ["google_project_services.services"]
+  depends_on = ["google_project_service.compute"]
 }`, projectID, name, org, billing)
 }
 
@@ -236,9 +236,9 @@ resource "google_project" "project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "services" {
+resource "google_project_service" "compute" {
   project = "${google_project.project.project_id}"
-  services = ["compute.googleapis.com"]
+  service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -247,7 +247,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     kiwi = "papaya"
     finches = "darwinism"
   }
-  depends_on = ["google_project_services.services"]
+  depends_on = ["google_project_service.compute"]
 }`, projectID, name, org, billing)
 }
 
@@ -260,9 +260,9 @@ resource "google_project" "project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "services" {
+resource "google_project_service" "compute" {
   project = "${google_project.project.project_id}"
-  services = ["compute.googleapis.com"]
+  service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -272,7 +272,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     genghis_khan = "french bread"
     happy = "smiling"
   }
-  depends_on = ["google_project_services.services"]
+  depends_on = ["google_project_service.compute"]
 }`, projectID, name, org, billing)
 }
 
@@ -285,9 +285,9 @@ resource "google_project" "project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "services" {
+resource "google_project_service" "compute" {
   project = "${google_project.project.project_id}"
-  services = ["compute.googleapis.com"]
+  service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -297,6 +297,6 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     paris = "french bread"
     happy = "laughing"
   }
-  depends_on = ["google_project_services.services"]
+  depends_on = ["google_project_service.compute"]
 }`, projectID, name, org, billing)
 }

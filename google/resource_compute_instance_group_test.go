@@ -40,6 +40,37 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_recreatedInstances(t *testing.T) {
+	t.Parallel()
+
+	var instanceGroup compute.InstanceGroup
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroup_update(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccComputeInstanceGroup_exists(
+						"google_compute_instance_group.update", &instanceGroup),
+				),
+			},
+			{
+				Config: testAccComputeInstanceGroup_recreateInstances(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccComputeInstanceGroup_exists(
+						"google_compute_instance_group.update", &instanceGroup),
+					testAccComputeInstanceGroup_updated(
+						"google_compute_instance_group.update", 2, &instanceGroup),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
@@ -276,6 +307,11 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 
 func testAccComputeInstanceGroup_basic(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s"
 		machine_type = "n1-standard-1"
@@ -284,7 +320,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -325,6 +361,11 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 
 func testAccComputeInstanceGroup_update(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family    = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-${count.index}"
 		machine_type = "n1-standard-1"
@@ -334,7 +375,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -362,6 +403,11 @@ func testAccComputeInstanceGroup_update(instance string) string {
 // Change IGM's instance template and target size
 func testAccComputeInstanceGroup_update2(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-${count.index}"
 		machine_type = "n1-standard-1"
@@ -371,7 +417,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -397,8 +443,56 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 	}`, instance, instance)
 }
 
+func testAccComputeInstanceGroup_recreateInstances(instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_instance" "ig_instance" {
+		name = "%s-${count.index}"
+		machine_type = "n1-standard-1"
+		can_ip_forward = false
+		zone = "us-central1-c"
+		count = 2
+
+		boot_disk {
+			initialize_params {
+				image = "${data.google_compute_image.my_image.self_link}"
+			}
+		}
+
+		metadata_startup_script = "echo 'foo'"
+
+		network_interface {
+			network = "default"
+		}
+	}
+
+	resource "google_compute_instance_group" "update" {
+		description = "Terraform test instance group"
+		name = "%s"
+		zone = "us-central1-c"
+		instances = [ "${google_compute_instance.ig_instance.*.self_link}" ]
+		named_port {
+			name = "http"
+			port = "8080"
+		}
+		named_port {
+			name = "https"
+			port = "8443"
+		}
+	}`, instance, instance)
+}
+
 func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_instance" "ig_instance" {
 		name = "%s-1"
 		machine_type = "n1-standard-1"
@@ -407,7 +501,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -424,7 +518,7 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 
@@ -451,6 +545,11 @@ func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 
 func testAccComputeInstanceGroup_network(instance string) string {
 	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
 	resource "google_compute_network" "ig_network" {
 		name = "%[1]s"
 		auto_create_subnetworks = true
@@ -464,7 +563,7 @@ func testAccComputeInstanceGroup_network(instance string) string {
 
 		boot_disk {
 			initialize_params {
-				image = "debian-8-jessie-v20160803"
+				image = "${data.google_compute_image.my_image.self_link}"
 			}
 		}
 

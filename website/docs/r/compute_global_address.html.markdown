@@ -24,6 +24,7 @@ description: |-
 Represents a Global Address resource. Global addresses are used for
 HTTP(S) load balancing.
 
+
 To get more information about GlobalAddress, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/globalAddresses)
@@ -42,28 +43,65 @@ resource "google_compute_global_address" "default" {
 
 The following arguments are supported:
 
+
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
-created. The name must be 1-63 characters long, and comply with
-RFC1035.  Specifically, the name must be 1-63 characters long and
-match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means
-the first character must be a lowercase letter, and all following
-characters must be a dash, lowercase letter, or digit, except the last
-character, which cannot be a dash.
+  created. The name must be 1-63 characters long, and comply with
+  RFC1035.  Specifically, the name must be 1-63 characters long and
+  match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means
+  the first character must be a lowercase letter, and all following
+  characters must be a dash, lowercase letter, or digit, except the last
+  character, which cannot be a dash.
 
 
 - - -
 
+
 * `description` -
   (Optional)
   An optional description of this resource.
-Provide this property when you create the resource.
+  Provide this property when you create the resource.
+
+* `labels` -
+  (Optional)
+  Labels to apply to this address.  A list of key->value pairs.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. Valid options are
-IPV4 or IPV6. The default value is IPV4.
-* `project` (Optional) The ID of the project in which the resource belongs.
+  IPV4 or IPV6. The default value is IPV4.
+
+* `prefix_length` -
+  (Optional)
+  The prefix length of the IP range. If not present, it means the
+  address field is a single IP address.
+  This field is not applicable to addresses with addressType=EXTERNAL.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+
+* `address_type` -
+  (Optional)
+  The type of the address to reserve, default is EXTERNAL.
+  * EXTERNAL indicates public/external single IP address.
+  * INTERNAL indicates internal IP ranges belonging to some network.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+
+* `purpose` -
+  (Optional)
+  The purpose of the resource. For global internal addresses it can be
+  * VPC_PEERING - for peer networks
+  This should only be set when using an Internal address.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+
+* `network` -
+  (Optional)
+  The URL of the network in which to reserve the IP range. The IP range
+  must be in RFC1918 space. The network cannot be deleted if there are
+  any reserved IP ranges referring to it.
+  This should only be set when using an Internal address.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
+  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+* `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
@@ -71,10 +109,16 @@ IPV4 or IPV6. The default value is IPV4.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+
 * `address` -
   The static external IP address represented by this resource.
+
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -84,6 +128,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

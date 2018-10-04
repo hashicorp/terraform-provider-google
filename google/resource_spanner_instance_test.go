@@ -3,16 +3,16 @@ package google
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 	"testing"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/spanner/v1"
 	"strings"
+
+	"google.golang.org/api/googleapi"
 )
 
 // Unit Tests
@@ -147,9 +147,7 @@ func expectEquals(t *testing.T, expected, actual string) {
 func TestAccSpannerInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	var instance spanner.Instance
-	rnd := acctest.RandString(10)
-	idName := fmt.Sprintf("spanner-test-%s", rnd)
+	idName := fmt.Sprintf("spanner-test-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -158,13 +156,13 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 			{
 				Config: testAccSpannerInstance_basic(idName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSpannerInstanceExists("google_spanner_instance.basic", &instance),
-
-					resource.TestCheckResourceAttr("google_spanner_instance.basic", "name", idName),
-					resource.TestCheckResourceAttr("google_spanner_instance.basic", "display_name", idName+"-dname"),
-					resource.TestCheckResourceAttr("google_spanner_instance.basic", "num_nodes", "1"),
 					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
 				),
+			},
+			{
+				ResourceName:      "google_spanner_instance.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -173,9 +171,7 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 	t.Parallel()
 
-	var instance spanner.Instance
-	rnd := acctest.RandString(10)
-	displayName := fmt.Sprintf("spanner-test-%s-dname", rnd)
+	displayName := fmt.Sprintf("spanner-test-%s-dname", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -184,37 +180,13 @@ func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 			{
 				Config: testAccSpannerInstance_basicWithAutogenName(displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSpannerInstanceExists("google_spanner_instance.basic", &instance),
-
-					resource.TestCheckResourceAttr("google_spanner_instance.basic", "display_name", displayName),
 					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "name"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
-	t.Parallel()
-
-	var instance spanner.Instance
-	rnd := acctest.RandString(10)
-	idName := fmt.Sprintf("spanner-test-%s", rnd)
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccSpannerInstance_duplicateNameError_part1(idName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSpannerInstanceExists("google_spanner_instance.basic1", &instance),
-				),
-			},
-			{
-				Config: testAccSpannerInstance_duplicateNameError_part2(idName),
-				ExpectError: regexp.MustCompile(
-					fmt.Sprintf("Error, the name %s is not unique within project", idName)),
+				ResourceName:      "google_spanner_instance.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -223,10 +195,8 @@ func TestAccSpannerInstance_duplicateNameError(t *testing.T) {
 func TestAccSpannerInstance_update(t *testing.T) {
 	t.Parallel()
 
-	var instance spanner.Instance
-	rnd := acctest.RandString(10)
-	dName1 := fmt.Sprintf("spanner-dname1-%s", rnd)
-	dName2 := fmt.Sprintf("spanner-dname2-%s", rnd)
+	dName1 := fmt.Sprintf("spanner-dname1-%s", acctest.RandString(10))
+	dName2 := fmt.Sprintf("spanner-dname2-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -234,21 +204,19 @@ func TestAccSpannerInstance_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_update(dName1, 1, false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSpannerInstanceExists("google_spanner_instance.updater", &instance),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "display_name", dName1),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "num_nodes", "1"),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "labels.%", "1"),
-				),
+			},
+			{
+				ResourceName:      "google_spanner_instance.updater",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccSpannerInstance_update(dName2, 2, true),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSpannerInstanceExists("google_spanner_instance.updater", &instance),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "display_name", dName2),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "num_nodes", "2"),
-					resource.TestCheckResourceAttr("google_spanner_instance.updater", "labels.%", "2"),
-				),
+			},
+			{
+				ResourceName:      "google_spanner_instance.updater",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -279,50 +247,17 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 		_, err = config.clientSpanner.Projects.Instances.Get(
 			id.instanceUri()).Do()
 
-		if err != nil {
-			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
-				return nil
-			}
-			return fmt.Errorf("Error make GCP platform call to verify spanner instance deleted: %s", err.Error())
+		if err == nil {
+			return fmt.Errorf("Spanner instance still exists")
 		}
-		return fmt.Errorf("Spanner instance not destroyed - still exists")
+
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
+			return nil
+		}
+		return errwrap.Wrapf("Error verifying spanner instance deleted: {{err}}", err)
 	}
 
 	return nil
-}
-
-func testAccCheckSpannerInstanceExists(n string, instance *spanner.Instance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Terraform resource Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set for Spanner instance")
-		}
-
-		id, err := extractSpannerInstanceId(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		found, err := config.clientSpanner.Projects.Instances.Get(
-			id.instanceUri()).Do()
-		if err != nil {
-			return err
-		}
-
-		fName := GetResourceNameFromSelfLink(found.Name)
-		if fName != GetResourceNameFromSelfLink(rs.Primary.ID) {
-			return fmt.Errorf("Spanner instance %s not found, found %s instead", rs.Primary.ID, fName)
-		}
-
-		*instance = *found
-
-		return nil
-	}
 }
 
 func testAccSpannerInstance_basic(name string) string {
@@ -336,18 +271,6 @@ resource "google_spanner_instance" "basic" {
 `, name, name)
 }
 
-func testAccSpannerInstance_basicWithProject(project, name string) string {
-	return fmt.Sprintf(`
-resource "google_spanner_instance" "basic" {
-  project       = "%s"
-  name          = "%s"
-  config        = "regional-us-central1"
-  display_name  = "%s-dname"
-  num_nodes     = 1
-}
-`, project, name, name)
-}
-
 func testAccSpannerInstance_basicWithAutogenName(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -358,33 +281,7 @@ resource "google_spanner_instance" "basic" {
 `, name)
 }
 
-func testAccSpannerInstance_duplicateNameError_part1(name string) string {
-	return fmt.Sprintf(`
-resource "google_spanner_instance" "basic1" {
-  name          = "%s"
-  config        = "regional-us-central1"
-  display_name  = "%s-dname"
-  num_nodes     = 1
-}
-
-`, name, name)
-}
-
-func testAccSpannerInstance_duplicateNameError_part2(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "google_spanner_instance" "basic2" {
-  name          = "%s"
-  config        = "regional-us-central1"
-  display_name  = "%s-dname"
-  num_nodes     = 1
-}
-`, testAccSpannerInstance_duplicateNameError_part1(name), name, name)
-}
-
 func testAccSpannerInstance_update(name string, nodes int, addLabel bool) string {
-
 	extraLabel := ""
 	if addLabel {
 		extraLabel = "\"key2\" = \"value2\""

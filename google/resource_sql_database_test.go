@@ -16,20 +16,51 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 
 	var database sqladmin.Database
 
+	resourceName := "google_sql_database.database"
+	instanceName := acctest.RandomWithPrefix("sqldatabasetest")
+	dbName := acctest.RandomWithPrefix("sqldatabasetest")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: fmt.Sprintf(
-					testGoogleSqlDatabase_basic, acctest.RandString(10), acctest.RandString(10)),
+				Config: fmt.Sprintf(testGoogleSqlDatabase_basic, instanceName, dbName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseExists(
-						"google_sql_database.database", &database),
-					testAccCheckGoogleSqlDatabaseEquals(
-						"google_sql_database.database", &database),
+					testAccCheckGoogleSqlDatabaseExists(resourceName, &database),
+					testAccCheckGoogleSqlDatabaseEquals(resourceName, &database),
 				),
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("%s/%s", instanceName, dbName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("instances/%s/databases/%s", instanceName, dbName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), instanceName, dbName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      resourceName,
+				ImportStateId:     fmt.Sprintf("projects/%s/instances/%s/databases/%s", getTestProjectFromEnv(), instanceName, dbName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -40,8 +71,8 @@ func TestAccSqlDatabase_update(t *testing.T) {
 
 	var database sqladmin.Database
 
-	instance_name := acctest.RandString(10)
-	database_name := acctest.RandString(10)
+	instance_name := acctest.RandomWithPrefix("sqldatabasetest")
+	database_name := acctest.RandomWithPrefix("sqldatabasetest")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -151,7 +182,7 @@ func testAccSqlDatabaseDestroy(s *terraform.State) error {
 
 var testGoogleSqlDatabase_basic = `
 resource "google_sql_database_instance" "instance" {
-	name = "sqldatabasetest%s"
+	name = "%s"
 	region = "us-central"
 	settings {
 		tier = "D0"
@@ -159,13 +190,13 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "database" {
-	name = "sqldatabasetest%s"
+	name = "%s"
 	instance = "${google_sql_database_instance.instance.name}"
 }
 `
 var testGoogleSqlDatabase_latin1 = `
 resource "google_sql_database_instance" "instance" {
-	name = "sqldatabasetest%s"
+	name = "%s"
 	region = "us-central"
 	settings {
 		tier = "D0"
@@ -173,7 +204,7 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "database" {
-	name = "sqldatabasetest%s"
+	name = "%s"
 	instance = "${google_sql_database_instance.instance.name}"
 	charset = "latin1"
 	collation = "latin1_swedish_ci"

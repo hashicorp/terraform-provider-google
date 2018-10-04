@@ -12,9 +12,10 @@ func resourceDnsManagedZone() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDnsManagedZoneCreate,
 		Read:   resourceDnsManagedZoneRead,
+		Update: resourceDnsManagedZoneUpdate,
 		Delete: resourceDnsManagedZoneDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceDnsManagedZoneImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"dns_name": &schema.Schema{
@@ -32,7 +33,6 @@ func resourceDnsManagedZone() *schema.Resource {
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "Managed by Terraform",
 			},
 
@@ -52,6 +52,12 @@ func resourceDnsManagedZone() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			"labels": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -66,18 +72,17 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Build the parameter
 	zone := &dns.ManagedZone{
-		Name:    d.Get("name").(string),
-		DnsName: d.Get("dns_name").(string),
+		Name:        d.Get("name").(string),
+		DnsName:     d.Get("dns_name").(string),
+		Description: d.Get("description").(string),
 	}
-	// Optional things
-	if v, ok := d.GetOk("description"); ok {
-		zone.Description = v.(string)
-	}
-	if v, ok := d.GetOk("dns_name"); ok {
-		zone.DnsName = v.(string)
+
+	if _, ok := d.GetOk("labels"); ok {
+		zone.Labels = expandLabels(d)
 	}
 
 	log.Printf("[DEBUG] DNS ManagedZone create request: %#v", zone)
+
 	zone, err = config.clientDns.ManagedZones.Create(project, zone).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating DNS ManagedZone: %s", err)
@@ -107,8 +112,40 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("dns_name", zone.DnsName)
 	d.Set("description", zone.Description)
 	d.Set("project", project)
+	d.Set("labels", zone.Labels)
 
 	return nil
+}
+
+func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	zone := &dns.ManagedZone{
+		Name:        d.Get("name").(string),
+		DnsName:     d.Get("dns_name").(string),
+		Description: d.Get("description").(string),
+	}
+
+	if _, ok := d.GetOk("labels"); ok {
+		zone.Labels = expandLabels(d)
+	}
+
+	op, err := config.clientDns.ManagedZones.Patch(project, d.Id(), zone).Do()
+	if err != nil {
+		return err
+	}
+
+	err = dnsOperationWait(config.clientDns, op, project, "Updating DNS Managed Zone")
+	if err != nil {
+		return err
+	}
+
+	return resourceDnsManagedZoneRead(d, meta)
 }
 
 func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {
@@ -126,4 +163,20 @@ func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId("")
 	return nil
+}
+
+func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{"projects/(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

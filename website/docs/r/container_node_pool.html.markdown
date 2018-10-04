@@ -129,6 +129,10 @@ Note: You must be provide region for regional clusters and zone for zonal cluste
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
 
+* `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
+    Note that this does not work on node pools which are "route-based" - that is, node
+    pools belonging to clusters that do not have IP Aliasing enabled.
+
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
@@ -163,8 +167,11 @@ The `management` block supports:
 
 ## Import
 
-Node pools can be imported using the `zone`, `cluster` and `name`, e.g.
+Node pools can be imported using the `project`, `zone`, `cluster` and `name`. If
+the project is omitted, the default provider value will be used. Examples:
 
 ```
+$ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
+
 $ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
 ```

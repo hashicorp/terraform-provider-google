@@ -4,8 +4,11 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/googleapi"
 )
 
 func TestConvertStringArr(t *testing.T) {
@@ -442,5 +445,80 @@ func TestEmptyOrDefaultStringSuppress(t *testing.T) {
 		if testFunc("", tc.Old, tc.New, nil) != tc.ExpectDiffSupress {
 			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSupress)
 		}
+	}
+}
+
+func TestServiceAccountFQN(t *testing.T) {
+	// Every test case should produce this fully qualified service account name
+	serviceAccountExpected := "projects/-/serviceAccounts/test-service-account@test-project.iam.gserviceaccount.com"
+	cases := map[string]struct {
+		serviceAccount string
+		project        string
+	}{
+		"service account fully qualified name from account id": {
+			serviceAccount: "test-service-account",
+			project:        "test-project",
+		},
+		"service account fully qualified name from account email": {
+			serviceAccount: "test-service-account@test-project.iam.gserviceaccount.com",
+		},
+		"service account fully qualified name from account name": {
+			serviceAccount: "projects/-/serviceAccounts/test-service-account@test-project.iam.gserviceaccount.com",
+		},
+	}
+
+	for tn, tc := range cases {
+		config := &Config{Project: tc.project}
+		d := &schema.ResourceData{}
+		serviceAccountName, err := serviceAccountFQN(tc.serviceAccount, d, config)
+		if err != nil {
+			t.Fatalf("unexpected error for service account FQN: %s", err)
+		}
+		if serviceAccountName != serviceAccountExpected {
+			t.Errorf("bad: %s, expected '%s' but returned '%s", tn, serviceAccountExpected, serviceAccountName)
+		}
+	}
+}
+
+func TestRetryTimeDuration(t *testing.T) {
+	i := 0
+	f := func() error {
+		i++
+		return &googleapi.Error{
+			Code: 500,
+		}
+	}
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
+	if i < 2 {
+		t.Errorf("expected error function to be called at least twice, but was called %d times", i)
+	}
+}
+
+func TestRetryTimeDuration_wrapped(t *testing.T) {
+	i := 0
+	f := func() error {
+		i++
+		err := &googleapi.Error{
+			Code: 500,
+		}
+		return errwrap.Wrapf("nested error: {{err}}", err)
+	}
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
+	if i < 2 {
+		t.Errorf("expected error function to be called at least twice, but was called %d times", i)
+	}
+}
+
+func TestRetryTimeDuration_noretry(t *testing.T) {
+	i := 0
+	f := func() error {
+		i++
+		return &googleapi.Error{
+			Code: 400,
+		}
+	}
+	retryTimeDuration(f, time.Duration(1000)*time.Millisecond)
+	if i != 1 {
+		t.Errorf("expected error function to be called exactly once, but was called %d times", i)
 	}
 }

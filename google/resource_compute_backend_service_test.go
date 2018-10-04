@@ -588,6 +588,37 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 	}
 }
 
+func TestAccComputeBackendService_withCustomHeaders(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeBackendService_withCustomHeaders(serviceName, checkName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				Config: testAccComputeBackendService_basic(serviceName, checkName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -647,6 +678,11 @@ resource "google_compute_http_health_check" "one" {
 func testAccComputeBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -682,7 +718,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -700,6 +736,11 @@ resource "google_compute_http_health_check" "default" {
 func testAccComputeBackendService_withBackendAndIAP(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -736,7 +777,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -853,6 +894,11 @@ resource "google_compute_security_policy" "policy" {
 func testAccComputeBackendService_withMaxConnections(
 	serviceName, igName, itName, checkName string, maxConnections int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -888,7 +934,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -906,6 +952,11 @@ resource "google_compute_health_check" "default" {
 func testAccComputeBackendService_withMaxConnectionsPerInstance(
 	serviceName, igName, itName, checkName string, maxConnectionsPerInstance int64) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
 resource "google_compute_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
@@ -941,7 +992,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "debian-8-jessie-v20160803"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     auto_delete  = true
     boot         = true
   }
@@ -954,4 +1005,22 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, serviceName, maxConnectionsPerInstance, igName, itName, checkName)
+}
+
+func testAccComputeBackendService_withCustomHeaders(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+
+  custom_request_headers =  ["Client-Region: {client_region}", "Client-Rtt: {client_rtt_msec}"]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
 }

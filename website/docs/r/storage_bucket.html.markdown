@@ -64,6 +64,8 @@ The following arguments are supported:
 
 * `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
 
+* `encryption` - (Optional) The bucket's encryption configuration.
+
 The `lifecycle_rule` block supports:
 
 * `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
@@ -82,7 +84,7 @@ The `condition` block supports the following elements, and requires at least one
 
 * `created_before` - (Optional) Creation date of an object in RFC 3339 (e.g. `2017-06-13`) to satisfy this condition.
 
-* `is_live` - (Optional) Relevant only for versioned objects. If `true`, this condition matches live objects, archived objects otherwise.
+* `is_live` - (Optional) Defaults to `false` to match archived objects. If `true`, this condition matches live objects. Unversioned buckets have only live objects.
 
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
@@ -115,7 +117,13 @@ The `logging` block supports:
 * `log_bucket` - (Required) The bucket that will receive log objects.
 
 * `log_object_prefix` - (Optional, Computed) The object prefix for log objects. If it's not provided,
-    by default GCS sets this to the log_bucket's name.
+    by default GCS sets this to this bucket's name.
+
+The `encryption` block supports:
+
+* `default_kms_key_name`: A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
+  You must pay attention to whether the crypto key is available in the location that this bucket is created in.
+  See [the docs](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) for more details.
 
 ## Attributes Reference
 
@@ -133,3 +141,5 @@ Storage buckets can be imported using the `name`, e.g.
 ```
 $ terraform import google_storage_bucket.image-store image-store-bucket
 ```
+
+Note that when importing a bucket (and only when importing), the Compute API needs to be enabled - you'll see an error with a link to the enablement page if it is not.

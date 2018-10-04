@@ -35,6 +35,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // CallOption is an option used by Invoke to control behaviors of RPC calls.
@@ -80,7 +81,11 @@ type boRetryer struct {
 }
 
 func (r *boRetryer) Retry(err error) (time.Duration, bool) {
-	c := grpc.Code(err)
+	st, ok := status.FromError(err)
+	if !ok {
+		return 0, false
+	}
+	c := st.Code()
 	for _, rc := range r.codes {
 		if c == rc {
 			return r.backoff.Pause(), true

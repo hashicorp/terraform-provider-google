@@ -160,6 +160,8 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		"containerregistry.googleapis.com",
 		"storage-api.googleapis.com",
 		"pubsub.googleapis.com",
+		"oslogin.googleapis.com",
+		"bigquery-json.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -176,16 +178,29 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 	})
 }
 
-func TestAccProjectServices_manyServices(t *testing.T) {
+func TestAccProjectServices_pagination(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
+
+	// we need at least 50 services (doesn't matter what they are) to exercise the
+	// pagination handling code.
 	services := []string{
+		"actions.googleapis.com",
+		"appengine.googleapis.com",
+		"appengineflex.googleapis.com",
 		"bigquery-json.googleapis.com",
+		"bigquerydatatransfer.googleapis.com",
+		"bigtableadmin.googleapis.com",
+		"bigtabletableadmin.googleapis.com",
 		"cloudbuild.googleapis.com",
+		"clouderrorreporting.googleapis.com",
 		"cloudfunctions.googleapis.com",
+		"cloudiot.googleapis.com",
+		"cloudkms.googleapis.com",
+		"cloudmonitoring.googleapis.com",
 		"cloudresourcemanager.googleapis.com",
 		"cloudtrace.googleapis.com",
 		"compute.googleapis.com",
@@ -193,13 +208,20 @@ func TestAccProjectServices_manyServices(t *testing.T) {
 		"containerregistry.googleapis.com",
 		"dataflow.googleapis.com",
 		"dataproc.googleapis.com",
+		"datastore.googleapis.com",
 		"deploymentmanager.googleapis.com",
+		"dialogflow.googleapis.com",
 		"dns.googleapis.com",
 		"endpoints.googleapis.com",
+		"firebaserules.googleapis.com",
+		"firestore.googleapis.com",
+		"genomics.googleapis.com",
 		"iam.googleapis.com",
+		"language.googleapis.com",
 		"logging.googleapis.com",
 		"ml.googleapis.com",
 		"monitoring.googleapis.com",
+		"oslogin.googleapis.com",
 		"pubsub.googleapis.com",
 		"replicapool.googleapis.com",
 		"replicapoolupdater.googleapis.com",
@@ -209,8 +231,17 @@ func TestAccProjectServices_manyServices(t *testing.T) {
 		"servicemanagement.googleapis.com",
 		"sourcerepo.googleapis.com",
 		"spanner.googleapis.com",
+		"speech.googleapis.com",
+		"sql-component.googleapis.com",
 		"storage-api.googleapis.com",
 		"storage-component.googleapis.com",
+		"storagetransfer.googleapis.com",
+		"testing.googleapis.com",
+		"toolresults.googleapis.com",
+		"translate.googleapis.com",
+		"videointelligence.googleapis.com",
+		"vision.googleapis.com",
+		"zync.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
