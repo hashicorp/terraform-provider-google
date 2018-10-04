@@ -67,6 +67,6 @@ To go from GA to beta, simply change the `provider` field from `"google"` to `"g
 To go from beta to GA, do the reverse. If you were previously using beta fields that you no longer wish to use:
 
 1. (Optional) Explicitly set the fields back to their default values in your Terraform config file, and run `terraform apply`.
-1. Change the `provider` field to `"google-beta"`.
+1. Change the `provider` field to `"google"`.
 1. Remove any beta fields from your Terraform config.
 1. Run  `terraform plan` or `terraform refresh`+`terraform show` to see that the beta fields are no longer in state.
