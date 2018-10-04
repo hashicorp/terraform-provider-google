@@ -28,6 +28,7 @@ BUG FIXES:
 * compute: fix error when reading instance templates created from disks and referenced by name instead of self_link [GH-2153]
 * container: Make max_pods_per_node ForceNew [GH-2139]
 * services: make google_project_service more resilient to projects being deleted [GH-2090]
+* sql: retry failed sql calls [GH-2174]
 
 ## 1.18.0 (September 17, 2018)
 
