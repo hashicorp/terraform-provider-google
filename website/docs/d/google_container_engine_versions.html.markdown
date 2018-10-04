@@ -33,7 +33,7 @@ resource "google_container_cluster" "foo" {
 The following arguments are supported:
 
 * `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
-    If not specified, the provider-level zone is used. One of zone, or provider-level zone is required.
+    If not specified, the provider-level zone is used. One of zone or provider-level zone is required.
 
 * `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
     For regional clusters, this value must be specified and cannot be inferred from provider-level region. One of zone,
