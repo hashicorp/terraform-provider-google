@@ -102,9 +102,6 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"enable_flow_logs": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
 			},
 			"private_ip_google_access": {
 				Type:     schema.TypeBool,
@@ -121,9 +118,6 @@ See https://terraform.io/docs/provider/google/provider_versions.html for more de
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_cidr_range": {
@@ -146,9 +140,6 @@ See https://terraform.io/docs/provider/google/provider_versions.html for more de
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
 			},
 			"gateway_address": {
 				Type:     schema.TypeString,

@@ -112,8 +112,7 @@ The following arguments are supported:
 
 * `enable_flow_logs` -
   (Optional)
-  Whether to enable flow logging for this subnetwork.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  Whether to enable flow logging for this subnetwork.
 
 * `secondary_ip_range` -
   (Optional)
@@ -121,8 +120,6 @@ The following arguments are supported:
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.  Structure is documented below.
-  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `private_ip_google_access` -
   (Optional)
@@ -166,8 +163,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `fingerprint` -
   Fingerprint of this resource. This field is used internally during
-  updates of this resource.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  updates of this resource.
 * `self_link` - The URI of the created resource.
 
 

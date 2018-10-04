@@ -50,12 +50,9 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				ForceNew: true,
 			},
 			"address_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("EXTERNAL"),
 				Default:          "EXTERNAL",
