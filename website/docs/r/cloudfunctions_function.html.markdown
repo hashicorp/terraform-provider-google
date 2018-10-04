@@ -64,17 +64,36 @@ The following arguments are supported:
 
 * `entry_point` - (Optional) Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
 
+* `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is documented below. Cannot be used with `trigger_http`.
+
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `trigger_bucket` and `trigger_topic`.
 
 * `trigger_bucket` - (Optional) Google Cloud Storage bucket name. Every change in files in this bucket will trigger function execution. Cannot be used with `trigger_http` and `trigger_topic`.
+Deprecated. Use `event_trigger` instead.
 
 * `trigger_topic` - (Optional) Name of Pub/Sub topic. Every message published in this topic will trigger function execution with message contents passed as input data. Cannot be used with `trigger_http` and `trigger_bucket`.
+Deprecated. Use `event_trigger` instead.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
 * `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
+Deprecated. Use `event_trigger.failure_policy.retry` instead.
+
+The `event_trigger` block supports:
+
+* `event_type` - (Required) The type of event to observe. For example: `"providers/cloud.storage/eventTypes/object.change"`
+    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+    for a full reference. Only Cloud Storage and Cloud Pub/Sub triggers are supported at this time.
+
+* `resource` - (Required) Required. The name of the resource from which to observe events, for example, `"myBucket"`   
+
+* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is documented below.
+
+The `failure_policy` block supports:
+
+* `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
 ## Attributes Reference
 
