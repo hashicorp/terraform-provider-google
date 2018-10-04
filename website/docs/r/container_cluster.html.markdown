@@ -80,6 +80,8 @@ output "cluster_ca_certificate" {
     [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
     In a Regional Cluster, the number of nodes specified in `initial_node_count` is 
     created in three zones of the region (this can be changed by setting `additional_zones`).
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
@@ -96,6 +98,8 @@ output "cluster_ca_certificate" {
 
 * `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
@@ -103,6 +107,8 @@ output "cluster_ca_certificate" {
 
 * `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
@@ -133,6 +139,8 @@ output "cluster_ca_certificate" {
 * `master_ipv4_cidr_block` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a private
     [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
     The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
@@ -169,11 +177,15 @@ output "cluster_ca_certificate" {
 * `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
     [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
     nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
     `ip_allocation_policy` with this option.
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -355,10 +367,13 @@ The `node_config` block supports:
 
 * `taint` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of
     [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
-    to apply to each node. Structure is documented below.
+    to apply to each node. Structure is documented below. This property is in beta, and should be
+    used with the terraform-provider-google-beta provider. See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html)
+    for more details on beta fields.
 
 * `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
-    Structure is documented below.
+    Structure is documented below. This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 The `guest_accelerator` block supports:
 
@@ -426,8 +441,9 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If
-the project is omitted, the default provider value will be used. Examples:
+GKE clusters can be imported using the `project` , `zone` or `region` (`region`
+is deprecated, see above), and `name`. If the project is omitted, the default
+provider value will be used. Examples:
 
 ```
 $ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/my-cluster

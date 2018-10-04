@@ -8,6 +8,9 @@ description: |-
 
 # IAM policy for GCE subnetwork
 
+~> **Warning:** These resources are in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta resources.
+
 Three different resources help you manage your IAM policy for GCE subnetwork. Each of these resources serves a different use case:
 
 * `google_compute_subnetwork_iam_policy`: Authoritative. Sets the IAM policy for the subnetwork and replaces any existing policy already attached.
