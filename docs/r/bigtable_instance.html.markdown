@@ -40,7 +40,7 @@ The following arguments are supported:
 
 * `display_name` - (Optional) The human-readable display name of the Bigtable instance. Defaults to the instance `name`.
 
-* `cluster` - (Optional) A block of cluster configuration options. Either `cluster` or `cluster_id` must be used. At most two clusters may be specified. See structure below.
+* `cluster` - (Optional) A block of cluster configuration options. Either `cluster` or `cluster_id` must be used. Only one cluster may be specified. See structure below.
 
 * `cluster_id` - (Optional, Deprecated) The ID of the Cloud Bigtable cluster. Use `cluster.cluster_id` instead.
 
