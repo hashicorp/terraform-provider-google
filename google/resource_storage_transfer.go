@@ -1,13 +1,12 @@
-
 package google
 
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"time"
 	"google.golang.org/api/storagetransfer/v1"
 	"log"
+	"time"
 )
 
 // https://cloud.google.com/storage/transfer/create-manage-transfer-program
@@ -74,7 +73,7 @@ func resourceStorageTransfer() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"schedule_start_date": dateObject(),
 						"schedule_end_date":   dateObject(),
-						"start_time_of_day":    timeObject(),
+						"start_time_of_day":   timeObject(),
 					},
 				},
 			},
@@ -165,17 +164,17 @@ func transferOptions() *schema.Schema {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"overwrite_objects_already_existing_in_sink": &schema.Schema{
-					Type: schema.TypeBool,
+					Type:     schema.TypeBool,
 					Optional: true,
 					Computed: true,
 				},
 				"delete_objects_unique_in_sink": &schema.Schema{
-					Type: schema.TypeBool,
+					Type:     schema.TypeBool,
 					Optional: true,
 					Computed: true,
 				},
 				"delete_objects_from_source_after_transfer": &schema.Schema{
-					Type: schema.TypeBool,
+					Type:     schema.TypeBool,
 					Optional: true,
 					Computed: true,
 				},
@@ -252,7 +251,6 @@ func resourceStorageTransferCreate(d *schema.ResourceData, meta interface{}) err
 	var transferJob *storagetransfer.TransferJob
 
 	var res *storagetransfer.TransferJob
-
 
 	var err error
 	err = retry(func() error {
