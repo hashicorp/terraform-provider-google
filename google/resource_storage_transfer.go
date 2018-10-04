@@ -200,7 +200,7 @@ func timeObject() *schema.Schema {
 					Required:     true,
 					ValidateFunc: validation.IntBetween(0, 59),
 				},
-				"naons": &schema.Schema{
+				"nanos": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntBetween(0, 999999999),
