@@ -140,8 +140,17 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"update_strategy": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "RESTART",
-				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE", "ROLLING_UPDATE"}, false),
+				Default:      "REPLACE",
+				ValidateFunc: validation.StringInSlice([]string{"RESTART", "NONE", "ROLLING_UPDATE", "REPLACE"}, false),
+				DiffSuppressFunc: func(key, old, new string, d *schema.ResourceData) bool {
+					if old == "REPLACE" && new == "RESTART" {
+						return true
+					}
+					if old == "RESTART" && new == "REPLACE" {
+						return true
+					}
+					return false
+				},
 			},
 
 			"target_pools": &schema.Schema{
@@ -438,7 +447,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
 	update_strategy, ok := d.GetOk("update_strategy")
 	if !ok {
-		update_strategy = "RESTART"
+		update_strategy = "REPLACE"
 	}
 	d.Set("update_strategy", update_strategy.(string))
 	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
@@ -463,7 +472,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 // and rolling update policy (PROACTIVE, OPPORTUNISTIC). Updates performed by API
 // are OPPORTUNISTIC by default.
 func performZoneUpdate(config *Config, id string, updateStrategy string, rollingUpdatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy, versions []*computeBeta.InstanceGroupManagerVersion, project string, zone string) error {
-	if updateStrategy == "RESTART" {
+	if updateStrategy == "RESTART" || updateStrategy == "REPLACE" {
 		managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, id).Do()
 		if err != nil {
 			return fmt.Errorf("Error getting instance group managers instances: %s", err)

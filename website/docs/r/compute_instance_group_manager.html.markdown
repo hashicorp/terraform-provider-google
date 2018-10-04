@@ -118,9 +118,9 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `update_strategy` - (Optional, Default `"RESTART"`) If the `instance_template`
+* `update_strategy` - (Optional, Default `"REPLACE"`) If the `instance_template`
     resource is modified, a value of `"NONE"` will prevent any of the managed
-    instances from being restarted by Terraform. A value of `"RESTART"` will
+    instances from being restarted by Terraform. A value of `"REPLACE"` will
     restart all of the instances at once. `"ROLLING_UPDATE"` is supported as [Beta feature].
     A value of `"ROLLING_UPDATE"` requires `rolling_update_policy` block to be set
 
