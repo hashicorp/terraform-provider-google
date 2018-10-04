@@ -142,7 +142,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
-				Deprecated:       "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated:       "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:             schema.TypeList,
 				Optional:         true,
 				ForceNew:         true,
@@ -170,7 +170,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"workload_metadata_config": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				ForceNew:   true,

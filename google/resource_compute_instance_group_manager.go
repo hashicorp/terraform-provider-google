@@ -38,7 +38,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"version": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				Computed:   true,
@@ -160,7 +160,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"auto_healing_policies": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,
@@ -182,7 +182,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"rolling_update_policy": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,

@@ -159,7 +159,7 @@ func resourceComputeBackendService() *schema.Resource {
 			},
 
 			"custom_request_headers": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeSet,
 				Optional:   true,
 				Elem:       &schema.Schema{Type: schema.TypeString},

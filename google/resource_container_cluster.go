@@ -97,7 +97,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"region": {
-				Deprecated:    "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated:    "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
@@ -202,7 +202,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Default:    false,
@@ -216,7 +216,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_tpu": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeBool,
 				Optional:   true,
 				ForceNew:   true,
@@ -395,7 +395,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"pod_security_policy_config": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,
@@ -505,7 +505,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"private_cluster": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeBool,
 				Optional:   true,
 				ForceNew:   true,
@@ -513,7 +513,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"master_ipv4_cidr_block": {
-				Deprecated:   "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider-versions.html for more details.",
+				Deprecated:   "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
