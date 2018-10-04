@@ -1151,7 +1151,7 @@ func flattenAuthorizedNetworks(entries []*sqladmin.AclEntry) interface{} {
 func flattenLocationPreference(locationPreference *sqladmin.LocationPreference) interface{} {
 	data := map[string]interface{}{
 		"follow_gae_application": locationPreference.FollowGaeApplication,
-		"zone": locationPreference.Zone,
+		"zone":                   locationPreference.Zone,
 	}
 
 	return []map[string]interface{}{data}
