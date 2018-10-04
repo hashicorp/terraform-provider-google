@@ -13,7 +13,7 @@ The Google Provider comes in two versions:
 * terraform-provider-google
 * terraform-provider-google-beta
 
-All GA products and features will be available in both versions of the provider.
+All GA products and features are available in both versions of the provider.
 
 In version 2.0.0 and beyond of the providers, beta features will only be available in the beta version of the provider.
 Beta GCP Features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
@@ -21,7 +21,7 @@ with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
 available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
-The beta provider sends all requests to the beta endpoint for GCP if there exists one for that product, regardless of whether the request contains any beta features.
+The beta provider sends all requests to the beta endpoint for GCP if one exists for that product, regardless of whether the request contains any beta features.
 
 ## Using multiple provider versions together
 
@@ -66,8 +66,7 @@ To go from GA to beta, simply change the `provider` field from `"google"` to `"g
 
 To go from beta to GA, do the reverse. If you were previously using beta fields that you no longer wish to use:
 
-1. (Optional) Explicitly set the fields back to their default values in your Terraform config file.
-1. If you did the previous step, run `terraform apply`.
+1. (Optional) Explicitly set the fields back to their default values in your Terraform config file, and run `terraform apply`.
 1. Change the `provider` field to `"google-beta"`.
 1. Remove any beta fields from your Terraform config.
 1. Run  `terraform plan` or `terraform refresh`+`terraform show` to see that the beta fields are no longer in state.
