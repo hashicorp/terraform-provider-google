@@ -379,7 +379,7 @@ func (c *Config) loadAndValidate() error {
 	}
 	c.clientComposer.UserAgent = userAgent
 
-	log.Printf("[INFO] Instantiating Google Cloud Data Transfer Client...")
+	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer Client...")
 	c.clientStorageTransfer, err = storagetransfer.New(client)
 	if err != nil {
 		return err

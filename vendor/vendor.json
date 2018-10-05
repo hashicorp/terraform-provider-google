@@ -1597,6 +1597,12 @@
 			"revisionTime": "2018-08-29T00:05:35Z"
 		},
 		{
+			"checksumSHA1": "QPkkT8KKWYyCnhHkVzz7tplueuw=",
+			"path": "google.golang.org/api/storagetransfer/v1",
+			"revision": "f5c49d98d21cc639f7ba8c7e4b127e88ee2af7ed",
+			"revisionTime": "2018-10-03T00:07:58Z"
+		},
+		{
 			"checksumSHA1": "ff2VA6uoFKnT/k+NnsRQf9aHQGk=",
 			"path": "google.golang.org/api/transport",
 			"revision": "087779f1d2c96357d4c45bd04c4d10d7b5f22736",
