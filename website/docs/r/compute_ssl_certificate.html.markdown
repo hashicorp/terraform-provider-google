@@ -45,20 +45,9 @@ resource "google_compute_ssl_certificate" "default" {
     create_before_destroy = true
   }
 }
-
+```
+```hcl
 # You may also want to control name generation explicitly:
-
-resource "random_id" "certificate" {
-  byte_length = 4
-  prefix      = "my-certificate-"
-
-  # For security, do not expose raw certificate values in the output
-  keepers {
-    private_key = "${base64sha256(file("path/to/private.key"))}"
-    certificate = "${base64sha256(file("path/to/certificate.crt"))}"
-  }
-}
-
 resource "google_compute_ssl_certificate" "default" {
   # The name will contain 8 random hex digits,
   # e.g. "my-certificate-48ab27cd2a"
@@ -68,6 +57,17 @@ resource "google_compute_ssl_certificate" "default" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+resource "random_id" "certificate" {
+  byte_length = 4
+  prefix      = "my-certificate-"
+
+  # For security, do not expose raw certificate values in the output
+  keepers {
+    private_key = "${base64sha256(file("path/to/private.key"))}"
+    certificate = "${base64sha256(file("path/to/certificate.crt"))}"
   }
 }
 ```
@@ -84,7 +84,6 @@ resource "google_compute_ssl_certificate" "default" {
 
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
-  description = "a description"
   private_key = "${file("path/to/private.key")}"
   certificate = "${file("path/to/certificate.crt")}"
 
@@ -93,10 +92,48 @@ resource "google_compute_ssl_certificate" "default" {
   }
 }
 
-resource "google_compute_target_https_proxy" "my_proxy" {
-  name             = "public-proxy"
-  url_map          = # ...
+resource "google_compute_target_https_proxy" "default" {
+  name             = "test-proxy"
+  url_map          = "${google_compute_url_map.default.self_link}"
   ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
+}
+
+resource "google_compute_url_map" "default" {
+  name        = "url-map"
+  description = "a description"
+
+  default_service = "${google_compute_backend_service.default.self_link}"
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = "${google_compute_backend_service.default.self_link}"
+
+    path_rule {
+      paths   = ["/*"]
+      service = "${google_compute_backend_service.default.self_link}"
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "backend-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "http-health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 ```
 

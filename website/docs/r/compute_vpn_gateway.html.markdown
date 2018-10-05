@@ -32,25 +32,21 @@ To get more information about VpnGateway, see:
 ## Example Usage
 
 ```hcl
-resource "google_compute_network" "network1" {
-  name       = "network1"
-  ipv4_range = "10.120.0.0/16"
-}
-
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
   network = "${google_compute_network.network1.self_link}"
-  region  = "${var.region}"
+}
+
+resource "google_compute_network" "network1" {
+  name       = "network1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
   name   = "vpn-static-ip"
-  region = "${var.region}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
   name        = "fr-esp"
-  region      = "${var.region}"
   ip_protocol = "ESP"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
@@ -58,7 +54,6 @@ resource "google_compute_forwarding_rule" "fr_esp" {
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
   name        = "fr-udp500"
-  region      = "${var.region}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -67,7 +62,6 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
   name        = "fr-udp4500"
-  region      = "${var.region}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -76,7 +70,6 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
   name          = "tunnel1"
-  region        = "${var.region}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 

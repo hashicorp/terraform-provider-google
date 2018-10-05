@@ -37,14 +37,11 @@ To get more information about TargetHttpProxy, see:
 ```hcl
 resource "google_compute_target_http_proxy" "default" {
   name        = "test-proxy"
-  description = "a description"
   url_map     = "${google_compute_url_map.default.self_link}"
 }
 
 resource "google_compute_url_map" "default" {
   name        = "url-map"
-  description = "a description"
-
   default_service = "${google_compute_backend_service.default.self_link}"
 
   host_rule {
@@ -64,7 +61,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "default-backend"
+  name        = "backend-service"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -73,7 +70,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "test"
+  name               = "http-health-check"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
