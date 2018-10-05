@@ -99,6 +99,8 @@ The following arguments are supported:
     exactly one version must not specify a target size. It means that versions with
     a target size will respect the setting, and the one without target size will
     be applied to all remaining Instances (top level target_size - each version target_size).
+    This property is in beta, and should be used with the terraform-provider-google-beta provider.
+    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
