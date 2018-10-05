@@ -21,8 +21,6 @@ Three different resources help you manage your IAM policy for GCE subnetwork. Ea
 
 ~> **Note:** `google_compute_subnetwork_iam_binding` resources **can be** used in conjunction with `google_compute_subnetwork_iam_member` resources **only if** they do not grant privilege to the same role.
 
-~> **Note:** These entire resources are in [Beta](/docs/providers/google/index.html#beta-features)
-
 ## google\_compute\_subnetwork\_iam\_policy
 
 ```hcl

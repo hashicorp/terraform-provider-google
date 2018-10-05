@@ -123,7 +123,7 @@ The following arguments are supported:
 * `update_strategy` - (Optional, Default `"REPLACE"`) If the `instance_template`
     resource is modified, a value of `"NONE"` will prevent any of the managed
     instances from being restarted by Terraform. A value of `"REPLACE"` will
-    restart all of the instances at once. `"ROLLING_UPDATE"` is supported as [Beta feature].
+    restart all of the instances at once. `"ROLLING_UPDATE"` is supported as a beta feature.
     A value of `"ROLLING_UPDATE"` requires `rolling_update_policy` block to be set
 
 * `target_size` - (Optional) The target number of running instances for this managed
@@ -140,12 +140,12 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 This property is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
-* `rolling_update_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
+* `rolling_update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
 This property is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 - - -
