@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"regexp"
@@ -21,6 +22,7 @@ func resourceBigQueryDataset() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		CustomizeDiff: bigqueryDatasetAccessCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			// DatasetId: [Required] A unique ID for this dataset, without the
 			// project name. The ID must contain only letters (a-z, A-Z), numbers
@@ -429,4 +431,33 @@ func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {
 		access = append(access, ai)
 	}
 	return access
+}
+
+func bigqueryDatasetAccessCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	keys := diff.GetChangedKeysPrefix("access")
+	if len(keys) < 1 {
+		return nil
+	}
+	count := diff.Get("access.#").(int)
+	if count < 1 {
+		return nil
+	}
+	state := map[string]struct{}{}
+	conf := map[string]struct{}{}
+	for i := 0; i < count; i++ {
+		old, new := diff.GetChange(fmt.Sprintf("access.%d", i))
+		oldMarshaled, _ := json.Marshal(old)
+		state[string(oldMarshaled)] = struct{}{}
+		newMarshaled, _ := json.Marshal(new)
+		conf[string(newMarshaled)] = struct{}{}
+	}
+	if len(state) != len(conf) {
+		return nil
+	}
+	for k := range state {
+		if _, ok := conf[k]; !ok {
+			return nil
+		}
+	}
+	return diff.Clear("access")
 }
