@@ -87,6 +87,28 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_unorderedAccess(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_access_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetWithUnorderedAccess(datasetID),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -149,6 +171,22 @@ resource "google_bigquery_dataset" "access_test" {
   labels {
     env                         = "foo"
     default_table_expiration_ms = 3600000
+  }
+}`, datasetID)
+}
+
+func testAccBigQueryDatasetWithUnorderedAccess(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "access_test" {
+  dataset_id = "%s"
+
+  access {
+    role   = "READER"
+    domain = "example.com"
+  }
+  access {
+    role          = "OWNER"
+    user_by_email = "Joe@example.com"
   }
 }`, datasetID)
 }
