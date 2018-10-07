@@ -24,15 +24,16 @@ Example creating a nightly Transfer Job from an AWS S3 Bucket to a GCS bucket.
 ```hcl
 resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 	description	= "Nightly backup of S3 bucket"
+	status		= "ENABLED"
 
 	transfer_spec {
 		object_conditions {
 			min_time_elapsed_since_last_modification = "30.5s"
 			max_time_elapsed_since_last_modification = "600s"
-			includePrefixes = [
+			include_prefixes = [
 				"logs/"
 			]
-			excludePrefixes = [
+			exclude_prefixes = [
 				"requests.gz"
 			]
 		}
@@ -82,8 +83,6 @@ The following arguments are supported:
 * `transfer_spec` - (Required) Transfer specification. Structure documented below.
 
 * `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and and what time to run. Structure documented below.
-
-* `status` - (Required) Status of the job. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
 
 The `transfer_spec` block supports:
 
@@ -174,6 +173,8 @@ The `schedule_start_date` blocks support:
 
 * `project` - (Optional) The project in which the resource belongs. If it
 	is not provided, the provider project is used.
+
+* `status` - (Optional) Status of the job. Default: `ENABLED`. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
 
 ## Attributes Reference
 

@@ -106,7 +106,8 @@ func resourceStorageTransferJob() *schema.Resource {
 			},
 			"status": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Default:      "ENABLED",
 				ValidateFunc: validation.StringInSlice([]string{"ENABLED", "DISABLED", "DELETED"}, false),
 			},
 			"creation_time": {
@@ -135,13 +136,15 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 
 	description := d.Get("description").(string)
 	status := d.Get("status").(string)
+	schedules := d.Get("schedule").([]interface{})
+	transferSpecs := d.Get("transfer_spec").([]interface{})
 
 	transferJob := &storagetransfer.TransferJob{
 		Description:  description,
 		ProjectId:    project,
 		Status:       status,
-		Schedule:     expandTransferSchedule(d),
-		TransferSpec: expandTransferSpec(d),
+		Schedule:     expandTransferSchedules(schedules)[0],
+		TransferSpec: expandTransferSpecs(transferSpecs)[0],
 	}
 
 	var res *storagetransfer.TransferJob
@@ -190,14 +193,14 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("schedule") {
 		if v, ok := d.GetOk("schedule"); ok {
 			fieldMask = append(fieldMask, "schedule")
-			transferJob.Schedule = expandTransferSchedule(v.([]interface{}))
+			transferJob.Schedule = expandTransferSchedules(v.([]interface{}))[0]
 		}
 	}
 
 	if d.HasChange("transfer_spec") {
 		if v, ok := d.GetOk("transfer_spec"); ok {
 			fieldMask = append(fieldMask, "transfer_spec")
-			transferJob.TransferSpec = expandTransferSpec(v.([]interface{}))
+			transferJob.TransferSpec = expandTransferSpecs(v.([]interface{}))[0]
 		}
 	}
 
@@ -222,17 +225,34 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	res, err := config.clientStorageTransfer.TransferJobs.Get(d.Get("name").(string)).Do()
+	project, err := getProject(d, config)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", d.Get("name").(string)))
+		return err
 	}
-	log.Printf("[DEBUG] Read transfer job %v\n\n", res.Name)
+
+	name := d.Get("name").(string)
+	res, err := config.clientStorageTransfer.TransferJobs.Get(name).ProjectId(project).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
+	}
+	log.Printf("[DEBUG] Read transfer job: %v in project: %v \n\n", res.Name, res.ProjectId)
 
 	d.Set("project", res.ProjectId)
 	d.Set("description", res.Description)
 	d.Set("status", res.Status)
-	d.Set("schedule", flattenTransferSchedule(res.Schedule))
-	d.Set("transfer_spec", flattenTransferSpec(res.TransferSpec))
+	d.Set("last_modification_time", res.LastModificationTime)
+	d.Set("creation_time", res.CreationTime)
+	d.Set("deletion_time", res.DeletionTime)
+
+	err = d.Set("schedule", flattenTransferSchedules([]*storagetransfer.Schedule{res.Schedule}))
+	if err != nil {
+		return err
+	}
+
+	d.Set("transfer_spec", flattenTransferSpecs([]*storagetransfer.TransferSpec{res.TransferSpec}))
+	if err != nil {
+		return err
+	}
 
 	d.SetId(res.Name)
 	return nil
@@ -262,6 +282,7 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 	updateRequest.UpdateTransferJobFieldMask = fieldMask
 
 	// Update transfer job with status set to DELETE
+	log.Printf("[DEBUG] Setting status to DELETE for: %v\n\n", transferJobName)
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		_, err := config.clientStorageTransfer.TransferJobs.Patch(transferJobName, updateRequest).Do()
 		if err != nil {
@@ -274,7 +295,7 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 	})
 
 	if err != nil {
-		fmt.Printf("Error deleting transfer job %s: %v\n\n", transferJob, err)
+		fmt.Printf("Error deleting transfer job %v: %v\n\n", transferJob, err)
 		return err
 	}
 
@@ -286,142 +307,6 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	d.Set("name", d.Id())
 	return []*schema.ResourceData{d}, nil
-}
-
-func expandTransferSchedule(configured interface{}) *storagetransfer.Schedule {
-	schedules := configured.([]interface{})
-	schedule := schedules[0].(map[string]map[string]interface{})
-
-	transferSchedule := &storagetransfer.Schedule{
-		ScheduleStartDate: &storagetransfer.Date{
-			Day:   int64(schedule["schedule_start_date"]["day"].(int)),
-			Month: int64(schedule["schedule_start_date"]["month"].(int)),
-			Year:  int64(schedule["schedule_start_date"]["year"].(int)),
-		},
-		ScheduleEndDate: &storagetransfer.Date{
-			Day:   int64(schedule["schedule_end_date"]["day"].(int)),
-			Month: int64(schedule["schedule_end_date"]["month"].(int)),
-			Year:  int64(schedule["schedule_end_date"]["year"].(int)),
-		},
-		StartTimeOfDay: &storagetransfer.TimeOfDay{
-			Hours:   int64(schedule["start_time_of_day"]["hours"].(int)),
-			Minutes: int64(schedule["start_time_of_day"]["minutes"].(int)),
-			Seconds: int64(schedule["start_time_of_day"]["seconds"].(int)),
-			Nanos:   int64(schedule["start_time_of_day"]["nanos"].(int)),
-		},
-	}
-
-	return transferSchedule
-}
-
-func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[string]map[string]interface{} {
-	schedules := make([]map[string]map[string]interface{}, 0, 1)
-
-	if transferSchedule == nil {
-		return schedules
-	}
-
-	schedule := map[string]map[string]interface{}{
-		"schedule_start_date": map[string]interface{}{
-			"year":  transferSchedule.ScheduleStartDate.Year,
-			"month": transferSchedule.ScheduleStartDate.Month,
-			"day":   transferSchedule.ScheduleStartDate.Day,
-		},
-		"schedule_end_date": map[string]interface{}{
-			"year":  transferSchedule.ScheduleEndDate.Year,
-			"month": transferSchedule.ScheduleEndDate.Month,
-			"day":   transferSchedule.ScheduleEndDate.Day,
-		},
-		"start_time_of_day": map[string]interface{}{
-			"hours":   transferSchedule.StartTimeOfDay.Hours,
-			"minutes": transferSchedule.StartTimeOfDay.Minutes,
-			"seconds": transferSchedule.StartTimeOfDay.Seconds,
-			"nanos":   transferSchedule.StartTimeOfDay.Nanos,
-		},
-	}
-
-	schedules = append(schedules, schedule)
-	return schedules
-}
-
-func expandTransferSpec(configured interface{}) *storagetransfer.TransferSpec {
-	specs := configured.([]interface{})
-	spec := specs[0].(map[string]map[string]interface{})
-
-	transferSpec := &storagetransfer.TransferSpec{}
-
-	// object_conditions
-	// transfer_options
-	// gcs_data_sink
-	// gcs_data_source
-	// aws_s3_data_source
-	// http_data_source
-
-	return transferSpec
-}
-
-func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec) []map[string]map[string]interface{} {
-	specs := make([]map[string]map[string]interface{}, 0, 1)
-
-	if transferSpec == nil {
-		return specs
-	}
-
-	spec := map[string]map[string]interface{}{}
-
-	// object_conditions
-	// transfer_options
-	// gcs_data_sink
-	// gcs_data_source
-	// aws_s3_data_source
-	// http_data_source
-
-	specs = append(specs, spec)
-	return specs
-}
-
-func gcsData() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
-		"bucket_name": &schema.Schema{
-			Required: true,
-			Type:     schema.TypeString,
-		},
-	}
-}
-
-func awsS3Data() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
-		"bucket_name": &schema.Schema{
-			Required: true,
-			Type:     schema.TypeString,
-		},
-		"aws_access_key": &schema.Schema{
-			Type:     schema.TypeList,
-			Required: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"access_key_id": &schema.Schema{
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"secret_access_key": &schema.Schema{
-						Type:     schema.TypeString,
-						Required: true,
-					},
-				},
-			},
-		},
-	}
-}
-
-func httpData() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
-		"list_url": &schema.Schema{
-			Type:     schema.TypeString,
-			Required: true,
-		},
-	}
 }
 
 func objectConditions() *schema.Schema {
@@ -459,23 +344,6 @@ func objectConditions() *schema.Schema {
 				},
 			},
 		},
-	}
-}
-
-func validateDuration() schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (s []string, es []error) {
-		v, ok := i.(string)
-		if !ok {
-			es = append(es, fmt.Errorf("expected type of %s to be string", k))
-			return
-		}
-
-		if _, err := time.ParseDuration(v); err != nil {
-			es = append(es, fmt.Errorf("expected %s to be a duration, but parsing gave an error: %s", k, err.Error()))
-			return
-		}
-
-		return
 	}
 }
 
@@ -567,6 +435,50 @@ func dateObject(required bool, optional bool) *schema.Schema {
 					ValidateFunc: validation.IntBetween(0, 31),
 				},
 			},
+		},
+	}
+}
+
+func gcsData() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"bucket_name": &schema.Schema{
+			Required: true,
+			Type:     schema.TypeString,
+		},
+	}
+}
+
+func awsS3Data() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"bucket_name": &schema.Schema{
+			Required: true,
+			Type:     schema.TypeString,
+		},
+		"aws_access_key": &schema.Schema{
+			Type:     schema.TypeList,
+			Required: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"access_key_id": &schema.Schema{
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"secret_access_key": &schema.Schema{
+						Type:     schema.TypeString,
+						Required: true,
+					},
+				},
+			},
+		},
+	}
+}
+
+func httpData() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"list_url": &schema.Schema{
+			Type:     schema.TypeString,
+			Required: true,
 		},
 	}
 }
