@@ -63,11 +63,18 @@ func expandTransferSchedules(transferSchedules []interface{}) []*storagetransfer
 	schedules := make([]*storagetransfer.Schedule, 0, len(transferSchedules))
 	for _, raw := range transferSchedules {
 		schedule := raw.(map[string]interface{})
-		schedules = append(schedules, &storagetransfer.Schedule{
+		sched := &storagetransfer.Schedule{
 			ScheduleStartDate: expandDates([]interface{}{schedule["schedule_start_date"]})[0],
-			ScheduleEndDate:   expandDates([]interface{}{schedule["schedule_end_date"]})[0],
-			StartTimeOfDay:    expandTimeOfDays([]interface{}{schedule["start_time_of_day"]})[0],
-		})
+		}
+
+		if v, ok := schedule["schedule_end_date"]; ok && len([]interface{}{v}) > 0 {
+			sched.ScheduleEndDate = expandDates([]interface{}{v})[0]
+		}
+		if v, ok := schedule["start_time_of_day"]; ok && len(v.([]interface{})) > 0 {
+			sched.StartTimeOfDay = expandTimeOfDays([]interface{}{v})[0]
+		}
+
+		schedules = append(schedules, sched)
 	}
 	return schedules
 }
@@ -75,11 +82,19 @@ func expandTransferSchedules(transferSchedules []interface{}) []*storagetransfer
 func flattenTransferSchedules(transferSchedules []*storagetransfer.Schedule) []map[string][]map[string]interface{} {
 	transferSchedulesSchema := make([]map[string][]map[string]interface{}, 0, len(transferSchedules))
 	for _, transferSchedule := range transferSchedules {
-		transferSchedulesSchema = append(transferSchedulesSchema, map[string][]map[string]interface{}{
+		schedule := map[string][]map[string]interface{}{
 			"schedule_start_date": flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleStartDate}),
-			"schedule_end_date":   flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleEndDate}),
-			"start_time_of_day":   flattenTimeOfDays([]*storagetransfer.TimeOfDay{transferSchedule.StartTimeOfDay}),
-		})
+		}
+
+		if transferSchedule.ScheduleEndDate != nil {
+			schedule["schedule_end_date"] = flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleEndDate})
+		}
+
+		if transferSchedule.StartTimeOfDay != nil {
+			schedule["start_time_of_day"] = flattenTimeOfDays([]*storagetransfer.TimeOfDay{transferSchedule.StartTimeOfDay})
+		}
+
+		transferSchedulesSchema = append(transferSchedulesSchema, schedule)
 	}
 	return transferSchedulesSchema
 }
