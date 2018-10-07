@@ -72,13 +72,13 @@ func expandTransferSchedules(transferSchedules []interface{}) []*storagetransfer
 	return schedules
 }
 
-func flattenTransferSchedules(transferSchedules []*storagetransfer.Schedule) []map[string]map[string]interface{} {
-	transferSchedulesSchema := make([]map[string]map[string]interface{}, 0, len(transferSchedules))
+func flattenTransferSchedules(transferSchedules []*storagetransfer.Schedule) []map[string][]map[string]interface{} {
+	transferSchedulesSchema := make([]map[string][]map[string]interface{}, 0, len(transferSchedules))
 	for _, transferSchedule := range transferSchedules {
-		transferSchedulesSchema = append(transferSchedulesSchema, map[string]map[string]interface{}{
-			"schedule_start_date": flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleStartDate})[0],
-			"schedule_end_date":   flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleEndDate})[0],
-			"start_time_of_day":   flattenTimeOfDays([]*storagetransfer.TimeOfDay{transferSchedule.StartTimeOfDay})[0],
+		transferSchedulesSchema = append(transferSchedulesSchema, map[string][]map[string]interface{}{
+			"schedule_start_date": flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleStartDate}),
+			"schedule_end_date":   flattenDates([]*storagetransfer.Date{transferSchedule.ScheduleEndDate}),
+			"start_time_of_day":   flattenTimeOfDays([]*storagetransfer.TimeOfDay{transferSchedule.StartTimeOfDay}),
 		})
 	}
 	return transferSchedulesSchema
@@ -256,14 +256,25 @@ func expandTransferSpecs(transferSpecs []interface{}) []*storagetransfer.Transfe
 func flattenTransferSpecs(transferSpecs []*storagetransfer.TransferSpec) []map[string][]map[string]interface{} {
 	transferSpecsSchema := make([]map[string][]map[string]interface{}, 0, len(transferSpecs))
 	for _, transferSpec := range transferSpecs {
-		transferSpecsSchema = append(transferSpecsSchema, map[string][]map[string]interface{}{
-			"object_conditions":  flattenObjectConditions([]*storagetransfer.ObjectConditions{transferSpec.ObjectConditions}),
-			"transfer_options":   flattenTransferOptions([]*storagetransfer.TransferOptions{transferSpec.TransferOptions}),
-			"gcs_data_sink":      flattenGcsData([]*storagetransfer.GcsData{transferSpec.GcsDataSink}),
-			"gcs_data_source":    flattenGcsData([]*storagetransfer.GcsData{transferSpec.GcsDataSource}),
-			"aws_s3_data_source": flattenAwsS3Data([]*storagetransfer.AwsS3Data{transferSpec.AwsS3DataSource}),
-			"http_data_source":   flattenHttpData([]*storagetransfer.HttpData{transferSpec.HttpDataSource}),
-		})
+		schema := map[string][]map[string]interface{}{
+			"gcs_data_sink": flattenGcsData([]*storagetransfer.GcsData{transferSpec.GcsDataSink}),
+		}
+
+		if transferSpec.ObjectConditions != nil {
+			schema["object_conditions"] = flattenObjectConditions([]*storagetransfer.ObjectConditions{transferSpec.ObjectConditions})
+		}
+		if transferSpec.TransferOptions != nil {
+			schema["transfer_options"] = flattenTransferOptions([]*storagetransfer.TransferOptions{transferSpec.TransferOptions})
+		}
+		if transferSpec.GcsDataSource != nil {
+			schema["gcs_data_source"] = flattenGcsData([]*storagetransfer.GcsData{transferSpec.GcsDataSource})
+		} else if transferSpec.AwsS3DataSource != nil {
+			schema["aws_s3_data_source"] = flattenAwsS3Data([]*storagetransfer.AwsS3Data{transferSpec.AwsS3DataSource})
+		} else if transferSpec.HttpDataSource != nil {
+			schema["http_data_source"] = flattenHttpData([]*storagetransfer.HttpData{transferSpec.HttpDataSource})
+		}
+
+		transferSpecsSchema = append(transferSpecsSchema, schema)
 	}
 	return transferSpecsSchema
 }

@@ -3,7 +3,7 @@
 BACKWARDS INCOMPATIBILITIES:
 * all: beta fields have been deprecated in favor of the new `google-beta` provider. See https://terraform.io/docs/providers/google/provider_versions.html for more info. [GH-2152] [GH-2142]
 * bigtable: `google_bigtable_instance` deprecated the `cluster_id`, `zone`, `num_nodes`, and `storage_type` fields, creating a `cluster` block containing those fields instead. [GH-2161]
-* cloudfunctions: `google_cloudfunctions_function` deprecated `trigger_bucket` and `trigger_topic` in favor of the new `event_trigger` field, and deprecated `retry_on_failure` in favor of the `event_trigger.failure_policy.retry` field. [GH-2158]
+* cloudfunctions: `google_cloudfunctions_function` and `datasource_google_cloudfunctions_function` deprecated `trigger_bucket` and `trigger_topic` in favor of the new `event_trigger` field, and deprecated `retry_on_failure` in favor of the `event_trigger.failure_policy.retry` field. [GH-2158]
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. [GH-2096]
 * compute: `google_compute_instance`, `google_compute_instance_from_template` have had the `network_interface.0.access_config.0.assigned_nat_ip` field deprecated. Please use `network_interface.0.access_config.0.nat_ip` instead.
 * compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields deprecated. `google_compute_instance_group_manager` also now accepts `REPLACE` for `update_strategy`, which is an alias for `RESTART`, and is preferred. [GH-2156]
@@ -28,6 +28,7 @@ BUG FIXES:
 * compute: fix error when reading instance templates created from disks and referenced by name instead of self_link [GH-2153]
 * container: Make max_pods_per_node ForceNew [GH-2139]
 * services: make google_project_service more resilient to projects being deleted [GH-2090]
+* sql: retry failed sql calls [GH-2174]
 
 ## 1.18.0 (September 17, 2018)
 

@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storagetransfer/v1"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -159,9 +160,15 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	log.Printf("[DEBUG] Created transfer job %v \n\n", res.Name)
+	d.Set("name", res.Name)
+	jobId, err := extractTransferJobId(res.Name)
+	if err != nil {
+		fmt.Printf("Error extracting transfer job id %v: %v", transferJob, err)
+		return err
+	}
 
-	d.SetId(res.Name)
+	log.Printf("[DEBUG] Created transfer job %v \n\n", jobId)
+	d.SetId(jobId)
 	return nil
 }
 
@@ -216,9 +223,14 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	log.Printf("[DEBUG] Patched transfer job %v\n\n", res.Name)
+	jobId, err := extractTransferJobId(res.Name)
+	if err != nil {
+		fmt.Printf("Error extracting transfer job id %v: %v", transferJob, err)
+		return err
+	}
 
-	d.SetId(res.Name)
+	log.Printf("[DEBUG] Patched transfer job: %v\n\n", jobId)
+	d.SetId(jobId)
 	return nil
 }
 
@@ -254,7 +266,14 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	d.SetId(res.Name)
+	jobId, err := extractTransferJobId(res.Name)
+	if err != nil {
+		fmt.Printf("Error extracting transfer job id %v: %v", name, err)
+		return err
+	}
+
+	log.Printf("[DEBUG] Patched transfer job: %v\n\n", jobId)
+	d.SetId(jobId)
 	return nil
 }
 
@@ -305,7 +324,14 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.Set("name", d.Id())
+	parts := strings.Split(d.Id(), "/")
+	switch len(parts) {
+	case 2:
+		d.Set("project", parts[0])
+		d.Set("name", fmt.Sprintf("transferJobs/%s", parts[1]))
+	default:
+		return nil, fmt.Errorf("Invalid transfer job specifier. Expecting {projectId}/{transferJobName}")
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -461,12 +487,14 @@ func awsS3Data() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"access_key_id": &schema.Schema{
-						Type:     schema.TypeString,
-						Required: true,
+						Type:      schema.TypeString,
+						Required:  true,
+						Sensitive: true,
 					},
 					"secret_access_key": &schema.Schema{
-						Type:     schema.TypeString,
-						Required: true,
+						Type:      schema.TypeString,
+						Required:  true,
+						Sensitive: true,
 					},
 				},
 			},
@@ -481,4 +509,12 @@ func httpData() map[string]*schema.Schema {
 			Required: true,
 		},
 	}
+}
+
+func extractTransferJobId(id string) (string, error) {
+	if !regexp.MustCompile("^transferJobs/.+$").Match([]byte(id)) {
+		return "", fmt.Errorf("Invalid transferJob id format, expecting transferJob/{id}")
+	}
+	parts := strings.Split(id, "/")
+	return parts[1], nil
 }

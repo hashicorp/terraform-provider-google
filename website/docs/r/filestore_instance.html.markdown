@@ -24,7 +24,7 @@ description: |-
 A Google Cloud Filestore instance.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta resources.
+See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
@@ -36,21 +36,22 @@ To get more information about Instance, see:
 
 ## Example Usage
 
-### Basic Usage
 ```hcl
-  resource "google_file_instance" "instance" {
-    name = "test-instance"
-    zone = "us-central1-b"
-    file_shares {
-      capacity_gb = 2660
-      name = "share1"
-    }
-    networks {
-      network = "default"
-      modes = ["MODE_IPV4"]
-    }
-    tier = "PREMIUM"
+resource "google_filestore_instance" "instance" {
+  name = "test-instance"
+  zone = "us-central1-b"
+  tier = "PREMIUM"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
   }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
 ```
 
 ## Argument Reference

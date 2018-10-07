@@ -28,17 +28,12 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 
 	transfer_spec {
 		object_conditions {
-			min_time_elapsed_since_last_modification = "30.5s"
 			max_time_elapsed_since_last_modification = "600s"
-			include_prefixes = [
-				"logs/"
-			]
 			exclude_prefixes = [
 				"requests.gz"
 			]
 		}
 		transfer_options {
-			overwrite_objects_already_existing_in_sink = true
 			delete_objects_unique_in_sink = false
 		}
 		aws_s3_data_source {
@@ -191,10 +186,10 @@ exported:
 
 ## Import
 
-Storage buckets can be imported using the `name`, e.g.
+Storage buckets can be imported using the Transfer Job's `project` and `name` without the `transferJob/` prefix, e.g.
 
 ```
-$ terraform import google_storage_transfer_job.s3-bucket-nightly-backup s3-bucket-nightly-backup
+$ terraform import google_storage_transfer_job.nightly-backup-transfer-job my-project-1asd32/8422144862922355674
 ```
 
 Note that when importing a Transfer Job (and only when importing), the Compute API needs to be enabled - you'll see an error with a link to the enablement page if it is not.
