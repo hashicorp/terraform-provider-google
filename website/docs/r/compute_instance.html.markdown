@@ -266,7 +266,7 @@ The `scheduling` block supports:
     [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options)
 
 * `automatic_restart` - (Optional) Specifies if the instance should be
-    restarted if it was terminated by Compute Engine (not a user).
+    restarted if it was terminated by Compute Engine (not a user). This defaults to true.
 
 The `guest_accelerator` block supports:
 

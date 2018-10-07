@@ -478,6 +478,7 @@ func resourceComputeInstance() *schema.Resource {
 
 						"automatic_restart": &schema.Schema{
 							Type:     schema.TypeBool,
+							Default:  true,
 							Optional: true,
 							Default:  true,
 						},
