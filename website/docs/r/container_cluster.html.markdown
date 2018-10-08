@@ -181,7 +181,7 @@ output "cluster_ca_certificate" {
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
-* `privat_cluster_config` - (Optional) A set of options for creating
+* `private_cluster_config` - (Optional) A set of options for creating
     a private cluster. Structure is documented below.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
