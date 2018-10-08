@@ -67,7 +67,7 @@ func expandTransferSchedules(transferSchedules []interface{}) []*storagetransfer
 			ScheduleStartDate: expandDates([]interface{}{schedule["schedule_start_date"]})[0],
 		}
 
-		if v, ok := schedule["schedule_end_date"]; ok && len([]interface{}{v}) > 0 {
+		if v, ok := schedule["schedule_end_date"]; ok && len(v.([]interface{})) > 0 {
 			sched.ScheduleEndDate = expandDates([]interface{}{v})[0]
 		}
 		if v, ok := schedule["start_time_of_day"]; ok && len(v.([]interface{})) > 0 {
