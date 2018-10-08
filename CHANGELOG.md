@@ -8,6 +8,7 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance`, `google_compute_instance_from_template` have had the `network_interface.0.access_config.0.assigned_nat_ip` field deprecated. Please use `network_interface.0.access_config.0.nat_ip` instead.
 * compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields deprecated. `google_compute_instance_group_manager` also now accepts `REPLACE` for `update_strategy`, which is an alias for `RESTART`, and is preferred. [GH-2156]
 * project: `google_project`'s `app_engine` sub-block has been deprecated. Please use the `google_app_engine_app` resource instead. Changing between the two should not force project re-creation. [GH-2147]
+* project: `google_project_iam_policy`'s `restore_policy` field is now deprecated [GH-2186]
 
 FEATURES: 
 * **New Datasource**: `google_compute_instance` [GH-1906]
