@@ -22,9 +22,29 @@ To get more information about Google Cloud Storage Transfer, see:
 Example creating a nightly Transfer Job from an AWS S3 Bucket to a GCS bucket.
 
 ```hcl
+
+data "google_storage_transfer_project_service_account" "default" {
+  project       = "${var.project}"
+}
+
+resource "google_storage_bucket" "s3-backup-bucket" {
+  name          = "${var.aws_s3_bucket}"
+  storage_class = "NEARLINE"
+  project       = "${var.project}"
+}
+
+resource "google_storage_bucket_iam_member" "s3-backup-bucket" {
+  bucket        = "${var.aws_s3_bucket}"
+  role          = "roles/storage.admin"
+  member        = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+  depends_on    = [
+    "google_storage_bucket.s3-backup-bucket"
+  ]
+}
+
 resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 	description	= "Nightly backup of S3 bucket"
-	status		= "ENABLED"
+	project     = "${var.project}"
 
 	transfer_spec {
 		object_conditions {
@@ -66,6 +86,10 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 			nanos	= 0
 		}
 	}
+
+	depends_on = [
+	    "google_storage_bucket.s3-backup-bucket"
+	]
 }
 ```
 
