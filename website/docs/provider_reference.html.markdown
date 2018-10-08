@@ -7,6 +7,10 @@ description: |-
 ---
 
 # `google` provider reference
+
+-> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html)
+for more details on how to use `google-beta`.
+
 The `google` provider block is used to configure default values for your GCP
 project and location (`zone` and `region`), and add your credentials.
 
@@ -18,6 +22,15 @@ environments and deploy to different projects, try it out!
 
 ```hcl
 provider "google" {
+  credentials = "${file("account.json")}"
+  project     = "my-project-id"
+  region      = "us-central1"
+  zone        = "us-central1-c"
+}
+```
+
+```hcl
+provider "google-beta" {
   credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"

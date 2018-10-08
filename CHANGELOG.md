@@ -1,34 +1,36 @@
-## 1.19.0 (Unreleased)
+## 2.0.0 (Unreleased)
+## 1.19.0 (October 08, 2018)
 
 BACKWARDS INCOMPATIBILITIES:
-* all: beta fields have been deprecated in favor of the new `google-beta` provider. See https://terraform.io/docs/providers/google/provider_versions.html for more info. [GH-2152] [GH-2142]
-* bigtable: `google_bigtable_instance` deprecated the `cluster_id`, `zone`, `num_nodes`, and `storage_type` fields, creating a `cluster` block containing those fields instead. [GH-2161]
-* cloudfunctions: `google_cloudfunctions_function` and `datasource_google_cloudfunctions_function` deprecated `trigger_bucket` and `trigger_topic` in favor of the new `event_trigger` field, and deprecated `retry_on_failure` in favor of the `event_trigger.failure_policy.retry` field. [GH-2158]
-* compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. [GH-2096]
+* all: beta fields have been deprecated in favor of the new `google-beta` provider. See https://terraform.io/docs/providers/google/provider_versions.html for more info. ([#2152](https://github.com/terraform-providers/terraform-provider-google/issues/2152)] [[#2142](https://github.com/terraform-providers/terraform-provider-google/issues/2142))
+* bigtable: `google_bigtable_instance` deprecated the `cluster_id`, `zone`, `num_nodes`, and `storage_type` fields, creating a `cluster` block containing those fields instead. ([#2161](https://github.com/terraform-providers/terraform-provider-google/issues/2161))
+* cloudfunctions: `google_cloudfunctions_function` and `datasource_google_cloudfunctions_function` deprecated `trigger_bucket` and `trigger_topic` in favor of the new `event_trigger` field, and deprecated `retry_on_failure` in favor of the `event_trigger.failure_policy.retry` field. ([#2158](https://github.com/terraform-providers/terraform-provider-google/issues/2158))
+* compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field deprecated and the `network_interface.network_ip` field undeprecated to better match the API. Terraform configurations should migrate from `network_interface.address` to `network_interface.network_ip`. ([#2096](https://github.com/terraform-providers/terraform-provider-google/issues/2096))
 * compute: `google_compute_instance`, `google_compute_instance_from_template` have had the `network_interface.0.access_config.0.assigned_nat_ip` field deprecated. Please use `network_interface.0.access_config.0.nat_ip` instead.
-* compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields deprecated. `google_compute_instance_group_manager` also now accepts `REPLACE` for `update_strategy`, which is an alias for `RESTART`, and is preferred. [GH-2156]
-* project: `google_project`'s `app_engine` sub-block has been deprecated. Please use the `google_app_engine_app` resource instead. Changing between the two should not force project re-creation. [GH-2147]
+* compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields deprecated. `google_compute_instance_group_manager` also now accepts `REPLACE` for `update_strategy`, which is an alias for `RESTART`, and is preferred. ([#2156](https://github.com/terraform-providers/terraform-provider-google/issues/2156))
+* project: `google_project`'s `app_engine` sub-block has been deprecated. Please use the `google_app_engine_app` resource instead. Changing between the two should not force project re-creation. ([#2147](https://github.com/terraform-providers/terraform-provider-google/issues/2147))
+* project: `google_project_iam_policy`'s `restore_policy` field is now deprecated ([#2186](https://github.com/terraform-providers/terraform-provider-google/issues/2186))
 
 FEATURES: 
-* **New Datasource**: `google_compute_instance` [GH-1906]
-* **New Resource**: `google_compute_interconnect_attachment` [GH-1140]
-* **New Resource**: `google_filestore_instance` [GH-2088]
-* **New Resource**: `google_app_engine_application` [GH-2147]
+* **New Datasource**: `google_compute_instance` ([#1906](https://github.com/terraform-providers/terraform-provider-google/issues/1906))
+* **New Resource**: `google_compute_interconnect_attachment` ([#1140](https://github.com/terraform-providers/terraform-provider-google/issues/1140))
+* **New Resource**: `google_filestore_instance` ([#2088](https://github.com/terraform-providers/terraform-provider-google/issues/2088))
+* **New Resource**: `google_app_engine_application` ([#2147](https://github.com/terraform-providers/terraform-provider-google/issues/2147))
 
 ENHANCEMENTS:
-* container: Add `enable_tpu` flag to google_container_cluster [GH-1974]
-* dns: `google_dns_managed_zone` is now importable [GH-1944]
-* dns: `google_dns_managed_zone` is now entirely GA [GH-2154]
-* runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. [GH-2054]
-* services: containeranalysis.googleapis.com can now be enabled [GH-2095]
+* container: Add `enable_tpu` flag to google_container_cluster ([#1974](https://github.com/terraform-providers/terraform-provider-google/issues/1974))
+* dns: `google_dns_managed_zone` is now importable ([#1944](https://github.com/terraform-providers/terraform-provider-google/issues/1944))
+* dns: `google_dns_managed_zone` is now entirely GA ([#2154](https://github.com/terraform-providers/terraform-provider-google/issues/2154))
+* runtimeconfig: `google_runtimeconfig_config` and `google_runtimeconfig_variable` are now importable. ([#2054](https://github.com/terraform-providers/terraform-provider-google/issues/2054))
+* services: containeranalysis.googleapis.com can now be enabled ([#2095](https://github.com/terraform-providers/terraform-provider-google/issues/2095))
 
 BUG FIXES:
-* compute: fix instance template interaction with regional disk self links [GH-2138]
-* compute: fix diff when using image shorthands for instance templates [GH-1995]
-* compute: fix error when reading instance templates created from disks and referenced by name instead of self_link [GH-2153]
-* container: Make max_pods_per_node ForceNew [GH-2139]
-* services: make google_project_service more resilient to projects being deleted [GH-2090]
-* sql: retry failed sql calls [GH-2174]
+* compute: fix instance template interaction with regional disk self links ([#2138](https://github.com/terraform-providers/terraform-provider-google/issues/2138))
+* compute: fix diff when using image shorthands for instance templates ([#1995](https://github.com/terraform-providers/terraform-provider-google/issues/1995))
+* compute: fix error when reading instance templates created from disks and referenced by name instead of self_link ([#2153](https://github.com/terraform-providers/terraform-provider-google/issues/2153))
+* container: Make max_pods_per_node ForceNew ([#2139](https://github.com/terraform-providers/terraform-provider-google/issues/2139))
+* services: make google_project_service more resilient to projects being deleted ([#2090](https://github.com/terraform-providers/terraform-provider-google/issues/2090))
+* sql: retry failed sql calls ([#2174](https://github.com/terraform-providers/terraform-provider-google/issues/2174))
 
 ## 1.18.0 (September 17, 2018)
 
