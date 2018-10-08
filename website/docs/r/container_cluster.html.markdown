@@ -136,7 +136,7 @@ output "cluster_ca_certificate" {
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
     external access (except the cluster node IPs, which GKE automatically whitelists).
 
-* `master_ipv4_cidr_block` - (Optional, Deprecated, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a private
+* `master_ipv4_cidr_block` - (Optional, Deprecated) Specifies a private
     [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
     The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
@@ -175,18 +175,18 @@ output "cluster_ca_certificate" {
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version.
 
-* `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
+* `pod_security_policy_config` - (Optional) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
-* `privat_cluster_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) A set of options for creating
+* `private_cluster_config` - (Optional) A set of options for creating
     a private cluster. Structure is documented below.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
-* `private_cluster` - (Optional, Deprecated, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
+* `private_cluster` - (Optional, Deprecated) If true, a
     [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
     nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
     `ip_allocation_policy` with this option.
@@ -372,7 +372,7 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
-* `taint` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of
+* `taint` - (Optional) List of
     [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
     to apply to each node. Structure is documented below. This property is in beta, and should be
     used with the terraform-provider-google-beta provider. See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html)

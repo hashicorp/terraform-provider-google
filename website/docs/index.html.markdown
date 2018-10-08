@@ -8,6 +8,9 @@ description: |-
 
 # Google Cloud Platform Provider
 
+-> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html)
+for more details on how to use `google-beta`.
+
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
 See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
 
@@ -90,14 +93,3 @@ or thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull
 the existing request if one exists. By filing and reacting to requests, we can
 gauge your interest in yet-to-be-supported GCP features and make sure that we
 prioritize support for them when they enter Beta.
-
-### Beta Features
-Some resources contain Beta features; Beta GCP Features have no
-deprecation policy, and no SLA, but are otherwise considered to be feature-complete
-with only minor outstanding issues after their Alpha period. Beta is when GCP
-features are publicly announced, and is when they generally become publicly
-available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
-
-Terraform resources that support Beta features will always use the Beta APIs to provision
-the resource. Importing a resource that supports Beta features will always import those
-features, even if the resource was created in a matter that was not explicitly Beta.
