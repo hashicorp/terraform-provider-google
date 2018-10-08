@@ -88,7 +88,7 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 	}
 
 	depends_on = [
-	    "google_storage_bucket.s3-backup-bucket"
+	    "google_storage_bucket_iam_member.s3-backup-bucket"
 	]
 }
 ```
