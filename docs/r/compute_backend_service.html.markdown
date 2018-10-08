@@ -84,7 +84,7 @@ The following arguments are supported:
 * `connection_draining_timeout_sec` - (Optional) Time for which instance will be drained (not accept new connections,
 but still work to finish started ones). Defaults to `300`.
 
-* `custom_request_headers` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Headers that the
+* `custom_request_headers` - (Optional) Headers that the
     HTTP/S load balancer should add to proxied requests. See [guide](https://cloud.google.com/compute/docs/load-balancing/http/backend-service#user-defined-request-headers) for details.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
@@ -102,7 +102,7 @@ but still work to finish started ones). Defaults to `300`.
 * `protocol` - (Optional) The protocol for incoming requests. Defaults to
     `HTTP`.
 
-* `security_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Name or URI of a
+* `security_policy` - (Optional) Name or URI of a
     [security policy](https://cloud.google.com/armor/docs/security-policy-concepts) to add to the backend service.
 
 * `session_affinity` - (Optional) How to distribute load. Options are `NONE` (no
