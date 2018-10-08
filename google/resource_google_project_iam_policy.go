@@ -44,8 +44,8 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 			},
 			"restore_policy": &schema.Schema{
 				Deprecated: "This field will be removed alongside the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:       schema.TypeString,
+				Computed:   true,
 			},
 			"disable_project": &schema.Schema{
 				Deprecated: "This will be removed with the authoritative field. Use lifecycle.prevent_destroy instead.",
