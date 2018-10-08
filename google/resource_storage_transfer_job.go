@@ -406,27 +406,32 @@ func timeObject() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
+		ForceNew: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"hours": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 23),
 				},
 				"minutes": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 59),
 				},
 				"seconds": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 59),
 				},
 				"nanos": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 999999999),
 				},
 			},
@@ -440,24 +445,28 @@ func dateObject(required bool, optional bool) *schema.Schema {
 		Type:     schema.TypeList,
 		Required: required,
 		Optional: optional,
+		ForceNew: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"year": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 9999),
 				},
 
 				"month": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(1, 12),
 				},
 
 				"day": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
+					ForceNew:     true,
 					ValidateFunc: validation.IntBetween(0, 31),
 				},
 			},
