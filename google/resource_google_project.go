@@ -383,6 +383,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("app_engine", []map[string]interface{}{})
 	} else if isApiNotEnabledError(err) {
 		log.Printf("[WARN] App Engine Admin API not enabled, please enable it to read App Engine info about project %q: %s", pid, err.Error())
+		d.Set("app_engine", []map[string]interface{}{})
 	} else {
 		appBlocks, err := flattenAppEngineApp(app)
 		if err != nil {
