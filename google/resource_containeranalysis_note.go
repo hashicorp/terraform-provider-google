@@ -35,7 +35,7 @@ func resourceContainerAnalysisNote() *schema.Resource {
 		},
 		DeprecationMessage: `This resource is in beta and will be removed from this provider.
 Use the ContainerAnalysisNote resource in the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta resources.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta resources.`,
 
 		Schema: map[string]*schema.Schema{
 			"attestation_authority": {
