@@ -9,7 +9,7 @@ import (
 func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "data.google_storage_project_service_account.default"
+	resourceName := "data.google_storage_project_service_account.gcs_account"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -26,6 +26,6 @@ func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 }
 
 const testAccCheckGoogleStorageProjectServiceAccount_basic = `
-data "google_storage_project_service_account" "default" {
+data "google_storage_project_service_account" "gcs_account" {
 }
 `
