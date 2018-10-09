@@ -27,7 +27,6 @@ A description of the conditions under which some aspect of your system is
 considered to be "unhealthy" and the ways to notify people or services
 about this state.
 
-
 To get more information about AlertPolicy, see:
 
 * [API documentation](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.alertPolicies)

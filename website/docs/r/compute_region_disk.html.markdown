@@ -38,7 +38,6 @@ storage space requirements.
 Add a persistent disk to your instance when you need reliable and
 affordable storage with consistent performance characteristics.
 
-
 To get more information about RegionDisk, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionDisks)

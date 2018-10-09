@@ -31,7 +31,6 @@ should be preferred for all uses except
 [Network Load Balancers](https://cloud.google.com/compute/docs/load-balancing/network/)
 which still require the legacy version.
 
-
 To get more information about HttpHealthCheck, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/httpHealthChecks)

@@ -33,7 +33,6 @@ continue to poll unhealthy instances. If an instance later responds
 successfully to some number of consecutive probes, it is marked
 healthy again and can receive new connections.
 
-
 To get more information about HealthCheck, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/latest/healthChecks)

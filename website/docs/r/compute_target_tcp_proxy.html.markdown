@@ -27,7 +27,6 @@ Represents a TargetTcpProxy resource, which is used by one or more
 global forwarding rule to route incoming TCP requests to a Backend
 service.
 
-
 To get more information about TargetTcpProxy, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetTcpProxies)
