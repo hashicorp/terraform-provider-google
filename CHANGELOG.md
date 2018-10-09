@@ -1,4 +1,8 @@
-## 1.20.1 (Unreleased)
+## 2.0.0 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES:
+* compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
+
 ## 1.20.0 (December 14, 2018)
 
 DEPRECATIONS:
