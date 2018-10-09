@@ -28,4 +28,5 @@ output "gcr_location" {
 
 ## Attributes Reference
 In addition to the arguments listed above, this data source exports:
+
 * `repository_url`: The URL at which the repository can be accessed.
