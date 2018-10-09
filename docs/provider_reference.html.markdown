@@ -8,7 +8,7 @@ description: |-
 
 # `google` provider reference
 
--> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html)
+-> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
 for more details on how to use `google-beta`.
 
 The `google` provider block is used to configure default values for your GCP
