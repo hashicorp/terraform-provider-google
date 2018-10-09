@@ -24,7 +24,6 @@ description: |-
 Represents a VPN gateway running in GCP. This virtual device is managed
 by Google, but used only by you.
 
-
 To get more information about VpnGateway, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/targetVpnGateways)

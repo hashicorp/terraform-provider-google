@@ -30,7 +30,6 @@ backend bucket rather than a backend service. It can send requests for
 static content to a Cloud Storage bucket and requests for dynamic content
 a virtual machine instance.
 
-
 To get more information about BackendBucket, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/backendBuckets)

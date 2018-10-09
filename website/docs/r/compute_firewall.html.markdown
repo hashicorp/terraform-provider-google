@@ -35,7 +35,6 @@ outgoing traffic and a default "deny" for incoming traffic. For all
 networks except the default network, you must create any firewall rules
 you need.
 
-
 To get more information about Firewall, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/firewalls)
@@ -124,13 +123,6 @@ The following arguments are supported:
   network it is associated with. When set to true, the firewall rule is
   not enforced and the network behaves as if it did not exist. If this
   is unspecified, the firewall rule will be enabled.
-
-* `enable_logging` -
-  (Optional)
-  This field denotes whether to enable logging for a particular
-  firewall rule. If logging is enabled, logs will be exported to
-  Stackdriver.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
 
 * `priority` -
   (Optional)

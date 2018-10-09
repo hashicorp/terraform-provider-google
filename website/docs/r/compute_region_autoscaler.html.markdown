@@ -27,7 +27,6 @@ Autoscalers allow you to automatically scale virtual machine instances in
 managed instance groups according to an autoscaling policy that you
 define.
 
-
 To get more information about RegionAutoscaler, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionAutoscalers)

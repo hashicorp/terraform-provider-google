@@ -43,7 +43,6 @@ sending virtual machine's routing table will be dropped.
 A Route resource must have exactly one specification of either
 nextHopGateway, nextHopInstance, nextHopIp, or nextHopVpnTunnel.
 
-
 To get more information about Route, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/routes)
