@@ -100,7 +100,8 @@ The following arguments are supported:
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
-    within the instance.
+    within the instance. Ssh keys attached in the Cloud Console will be removed.
+    Add them to your config in order to keep them attached to your instance.
 
 * `metadata_startup_script` - (Optional) An alternative to using the
     startup-script metadata key, except this one forces the instance to be
