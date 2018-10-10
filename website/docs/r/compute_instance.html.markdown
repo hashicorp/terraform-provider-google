@@ -203,10 +203,6 @@ The `network_interface` block supports:
    defined in the subnetwork self_link. If the `subnetwork` is a name and this
    field is not provided, the provider project is used.
 
-* `address` - (Optional, Deprecated) The private IP address to assign to the instance. If
-    empty, the address will be automatically assigned. This attribute has been deprecated.
-    Use `network_interface.network_ip` instead.
-
 * `network_ip` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
 
