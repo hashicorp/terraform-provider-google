@@ -74,7 +74,7 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				Optional: true,
 				Deprecated: `This field is in beta and will be removed from this provider.
 Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"network": {
@@ -83,7 +83,7 @@ See https://terraform.io/docs/provider/google/provider_versions.html for more de
 				ForceNew: true,
 				Deprecated: `This field is in beta and will be removed from this provider.
 Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"prefix_length": {
@@ -92,7 +92,7 @@ See https://terraform.io/docs/provider/google/provider_versions.html for more de
 				ForceNew: true,
 				Deprecated: `This field is in beta and will be removed from this provider.
 Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 			},
 			"purpose": {
 				Type:     schema.TypeString,
@@ -100,7 +100,7 @@ See https://terraform.io/docs/provider/google/provider_versions.html for more de
 				ForceNew: true,
 				Deprecated: `This field is in beta and will be removed from this provider.
 Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 				ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", ""}, false),
 			},
 			"address": {
