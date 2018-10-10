@@ -689,15 +689,19 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, def
 	for _, disk := range disks {
 		diskMap := make(map[string]interface{})
 		if disk.InitializeParams != nil {
-			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
-			if err != nil {
-				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
+			if disk.InitializeParams.SourceImage != "" {
+				selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+				if err != nil {
+					return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
+				}
+				path, err := getRelativePath(selfLink)
+				if err != nil {
+					return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
+				}
+				diskMap["source_image"] = path
+			} else {
+				diskMap["source_image"] = ""
 			}
-			path, err := getRelativePath(selfLink)
-			if err != nil {
-				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
-			}
-			diskMap["source_image"] = path
 			diskMap["disk_type"] = disk.InitializeParams.DiskType
 			diskMap["disk_name"] = disk.InitializeParams.DiskName
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
