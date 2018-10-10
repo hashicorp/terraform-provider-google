@@ -1,4 +1,9 @@
-## 2.0.0 (Unreleased)
+## 1.19.1 (Unreleased)
+
+BUG FIXES:
+
+* all: fix deprecation links in resources [GH-2197] [GH-2196]
+
 ## 1.19.0 (October 08, 2018)
 
 BACKWARDS INCOMPATIBILITIES:
