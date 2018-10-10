@@ -246,13 +246,19 @@ resource "google_compute_disk" "foobar" {
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
-	disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
 }
 resource "google_compute_snapshot" "foobar" {
 	name = "%s"
 	source_disk = "${google_compute_disk.foobar.name}"
 	zone = "us-central1-a"
-	source_disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	snapshot_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	source_disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+	snapshot_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
 }`, diskName, snapshotName)
 }
