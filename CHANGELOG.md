@@ -3,6 +3,9 @@
 BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
 
+BUG FIXES:
+* compute: allow instance templates to have disks with no source image set [GH-2218]
+* project: fix plan output when app engine api is not enabled [GH-2204]
 
 ## 1.19.0 (October 08, 2018)
 
