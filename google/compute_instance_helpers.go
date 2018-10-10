@@ -77,7 +77,6 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
-			"address":            iface.NetworkIP,
 			"network_ip":         iface.NetworkIP,
 			"network":            ConvertSelfLinkToV1(iface.Network),
 			"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
@@ -145,12 +144,6 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 			Subnetwork:    sf.RelativeLink(),
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-		}
-
-		// address is deprecated, but address took priority over networkIP before
-		// so it should until it's removed.
-		if data["address"].(string) != "" {
-			ifaces[i].NetworkIP = data["address"].(string)
 		}
 
 	}

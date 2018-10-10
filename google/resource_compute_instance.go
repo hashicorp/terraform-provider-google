@@ -167,14 +167,6 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
-						"address": &schema.Schema{
-							Type:       schema.TypeString,
-							Optional:   true,
-							ForceNew:   true,
-							Computed:   true,
-							Deprecated: "Please use network_ip",
-						},
-
 						"network_ip": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
@@ -286,13 +278,6 @@ func resourceComputeInstance() *schema.Resource {
 				Optional: true,
 				Default:  false,
 				ForceNew: true,
-			},
-
-			"create_timeout": &schema.Schema{
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Default:    4,
-				Deprecated: "Use timeouts block instead.",
 			},
 
 			"description": &schema.Schema{
@@ -735,11 +720,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Read create timeout
-	// Until "create_timeout" is removed, use that timeout if set.
 	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
-		createTimeout = v.(int)
-	}
 
 	log.Printf("[INFO] Requesting instance creation")
 	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()

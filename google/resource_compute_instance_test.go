@@ -14,11 +14,10 @@ import (
 )
 
 func computeInstanceImportStep(zone, instanceName string, additionalImportIgnores []string) resource.TestStep {
-	// create_timeout has a default value, but it's deprecated so don't worry about it
 	// metadata is only read into state if set in the config
 	// since importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
 	// it guesses metadata_startup_script
-	ignores := []string{"create_timeout", "metadata.%", "metadata.startup-script", "metadata_startup_script"}
+	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script"}
 
 	return resource.TestStep{
 		ResourceName:            "google_compute_instance.foobar",
@@ -1545,8 +1544,6 @@ resource "google_compute_instance" "foobar" {
 		baz = "qux"
 	}
 
-	create_timeout = 5
-
 	metadata {
 		startup-script = "echo Hello"
 	}
@@ -1803,8 +1800,6 @@ resource "google_compute_instance" "foobar" {
 		bar            = "baz"
 		startup-script = "echo Hello"
 	}
-
-	create_timeout = 5
 
 	labels {
 		only_me = "nothing_else"
