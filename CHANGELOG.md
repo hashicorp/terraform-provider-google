@@ -3,6 +3,8 @@
 BUG FIXES:
 
 * all: fix deprecation links in resources [GH-2197] [GH-2196]
+* compute: allow instance templates to have disks with no source image set [GH-2218]
+* project: fix plan output when app engine api is not enabled [GH-2204]
 
 ## 1.19.0 (October 08, 2018)
 
