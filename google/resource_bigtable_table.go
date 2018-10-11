@@ -21,10 +21,18 @@ func resourceBigtableTable() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"family": {
-				Type:     schema.TypeString,
+			"column_family": {
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"family": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 
 			"instance_name": {
@@ -85,9 +93,17 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if v, ok := d.GetOk("family"); ok {
-		if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
-			return fmt.Errorf("Error creating column family. %s", err)
+	if d.Get("column_family.#").(int) > 0 {
+		columns := d.Get("column_family").(*schema.Set).List()
+
+		for _, co := range columns {
+			column := co.(map[string]interface{})
+
+			if v, ok := column["family"]; ok {
+				if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
+					return fmt.Errorf("Error creating column family %s. %s", v, err)
+				}
+			}
 		}
 	}
 
