@@ -167,6 +167,14 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"address": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							Removed:  "Please use network_ip",
+						},
+
 						"network_ip": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
@@ -278,6 +286,13 @@ func resourceComputeInstance() *schema.Resource {
 				Optional: true,
 				Default:  false,
 				ForceNew: true,
+			},
+
+			"create_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  4,
+				Removed:  "Use timeouts block instead.",
 			},
 
 			"description": &schema.Schema{
