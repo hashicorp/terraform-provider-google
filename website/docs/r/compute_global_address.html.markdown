@@ -118,7 +118,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 * `self_link` - The URI of the created resource.
 
 
