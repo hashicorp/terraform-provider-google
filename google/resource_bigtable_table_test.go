@@ -169,7 +169,7 @@ resource "google_bigtable_instance" "instance" {
   name          = "%s"
 
   cluster {
-	cluster_id = "%s"
+    cluster_id = "%s"
     zone       = "us-central1-b"
   }
 
