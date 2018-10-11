@@ -5,6 +5,13 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
 
 BUG FIXES:
+
+
+## 1.19.1 (Unreleased)
+
+BUG FIXES:
+
+* all: fix deprecation links in resources [GH-2197] [GH-2196]
 * compute: allow instance templates to have disks with no source image set [GH-2218]
 * project: fix plan output when app engine api is not enabled [GH-2204]
 

@@ -66,7 +66,7 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Labels to apply to this address.  A list of key->value pairs.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `ip_version` -
   (Optional)
@@ -78,7 +78,7 @@ The following arguments are supported:
   The prefix length of the IP range. If not present, it means the
   address field is a single IP address.
   This field is not applicable to addresses with addressType=EXTERNAL.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `address_type` -
   (Optional)
@@ -91,7 +91,7 @@ The following arguments are supported:
   The purpose of the resource. For global internal addresses it can be
   * VPC_PEERING - for peer networks
   This should only be set when using an Internal address.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `network` -
   (Optional)
@@ -99,7 +99,7 @@ The following arguments are supported:
   must be in RFC1918 space. The network cannot be deleted if there are
   any reserved IP ranges referring to it.
   This should only be set when using an Internal address.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
