@@ -21,6 +21,12 @@ func resourceBigtableTable() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"family": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"instance_name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -76,6 +82,12 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		err = c.CreateTable(ctx, name)
 		if err != nil {
 			return fmt.Errorf("Error creating table. %s", err)
+		}
+	}
+
+	if v, ok := d.GetOk("family"); ok {
+		if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
+			return fmt.Errorf("Error creating column family. %s", err)
 		}
 	}
 

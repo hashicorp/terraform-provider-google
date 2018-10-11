@@ -54,6 +54,29 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 	})
 }
 
+func TestAccBigtableTable_family(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	family := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableTableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableTable_family(instanceName, tableName, family),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableTableExists(
+						"google_bigtable_table.table"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckBigtableTableDestroy(s *terraform.State) error {
 	var ctx = context.Background()
 	for _, rs := range s.RootModule().Resources {
@@ -138,4 +161,25 @@ resource "google_bigtable_table" "table" {
   split_keys    = ["a", "b", "c"]
 }
 `, instanceName, instanceName, tableName)
+}
+
+func testAccBigtableTable_family(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name          = "%s"
+
+  cluster {
+	cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
+
+  instance_type = "DEVELOPMENT"
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = "${google_bigtable_instance.instance.name}"
+  family        = "%s"
+}
+`, instanceName, instanceName, tableName, family)
 }
