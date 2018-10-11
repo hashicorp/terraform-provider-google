@@ -41,6 +41,8 @@ The following arguments are supported:
 
 * `split_keys` - (Optional) A list of predefined keys to split the table on.
 
+* `family` - (Optional) Creates a new column family in a table.
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
