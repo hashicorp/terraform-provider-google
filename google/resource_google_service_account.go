@@ -114,7 +114,6 @@ func resourceGoogleServiceAccountDelete(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	var err error
 	if ok := d.HasChange("display_name"); ok {
 		sa, err := config.clientIAM.Projects.ServiceAccounts.Get(d.Id()).Do()
 		if err != nil {
