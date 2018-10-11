@@ -3,6 +3,7 @@
 BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
 * compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
+* sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
 
 ## 1.20.0 (December 14, 2018)
 
