@@ -263,7 +263,7 @@ func flattenRestoreOrganizationPolicy(restore_policy *cloudresourcemanager.Resto
 }
 
 func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourcemanager.BooleanPolicy {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -274,7 +274,7 @@ func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourceman
 }
 
 func expandRestoreOrganizationPolicy(configured []interface{}) (*cloudresourcemanager.RestoreDefault, error) {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil, nil
 	}
 
@@ -321,7 +321,7 @@ func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []ma
 }
 
 func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanager.ListPolicy, error) {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil, nil
 	}
 

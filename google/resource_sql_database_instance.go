@@ -522,7 +522,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 }
 
 func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool) *sqladmin.Settings {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -556,7 +556,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 }
 
 func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfiguration {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -582,7 +582,7 @@ func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfi
 }
 
 func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -595,7 +595,7 @@ func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWind
 }
 
 func expandLocationPreference(configured []interface{}) *sqladmin.LocationPreference {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -607,7 +607,7 @@ func expandLocationPreference(configured []interface{}) *sqladmin.LocationPrefer
 }
 
 func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -654,7 +654,7 @@ func expandDatabaseFlags(configured []interface{}) []*sqladmin.DatabaseFlags {
 }
 
 func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfiguration {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
