@@ -38,6 +38,9 @@ func resourceComputeRegionDisk() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeRegionDiskImport,
 		},
+		DeprecationMessage: `This resource is in beta and will be removed from this provider.
+Use the ComputeRegionDisk resource in the terraform-provider-google-beta provider to continue using it.
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta resources.`,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(300 * time.Second),
