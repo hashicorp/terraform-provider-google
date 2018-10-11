@@ -91,8 +91,6 @@ func TestAccServiceAccount_createPolicy(t *testing.T) {
 				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
-				// policy_data isn't a field on the service account object, and so isn't set in state.
-				ImportStateVerifyIgnore: []string{"policy_data"},
 			},
 			// The second step updates the service account with no IAM policy
 			resource.TestStep{
@@ -102,10 +100,9 @@ func TestAccServiceAccount_createPolicy(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_service_account.acceptance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"policy_data"},
+				ResourceName:      "google_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// The final step re-applies the IAM policy
 			resource.TestStep{
@@ -115,10 +112,9 @@ func TestAccServiceAccount_createPolicy(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:            "google_service_account.acceptance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"policy_data"},
+				ResourceName:      "google_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -169,7 +165,6 @@ func testAccServiceAccountPolicy(account, project string) string {
 resource "google_service_account" "acceptance" {
     account_id = "%v"
     display_name = "%v"
-    policy_data = "${data.google_iam_policy.service_account.policy_data}"
 }
 
 data "google_iam_policy" "service_account" {
