@@ -99,7 +99,7 @@ The following arguments are supported:
     a target size will respect the setting, and the one without target size will
     be applied to all remaining Instances (top level target_size - each version target_size).
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -143,11 +143,11 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 This property is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `rolling_update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
 This property is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 - - -
 
 The **rolling_update_policy** block supports:
