@@ -3,6 +3,7 @@
 BUG FIXES:
 
 * all: fix deprecation links in resources [GH-2197] [GH-2196]
+* all: fix panics caused by including empty blocks with lists [GH-2229] [GH-2233] [GH-2239]
 * compute: allow instance templates to have disks with no source image set [GH-2218]
 * project: fix plan output when app engine api is not enabled [GH-2204]
 
