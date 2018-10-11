@@ -116,7 +116,7 @@ See https://terraform.io/docs/providers/google/provider_versions.html for more d
 				Computed: true,
 				Deprecated: `This field is in beta and will be removed from this provider.
 Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
+See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
