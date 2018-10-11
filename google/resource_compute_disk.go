@@ -1039,7 +1039,7 @@ func expandComputeDiskSourceImageEncryptionKeySha256(v interface{}, d *schema.Re
 
 func expandComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
