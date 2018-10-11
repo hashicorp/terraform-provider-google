@@ -206,6 +206,11 @@ resource "google_monitoring_alert_policy" "full" {
       display_name = "%s"
     },
   ]
+
+  documentation {
+    content = "test content"
+    mime_type = "text/markdown"
+  }
 }
 `, alertName, conditionName1, conditionName2)
 }
