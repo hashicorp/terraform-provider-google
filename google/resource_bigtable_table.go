@@ -29,7 +29,7 @@ func resourceBigtableTable() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"family": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},
