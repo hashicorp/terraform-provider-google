@@ -317,9 +317,10 @@ func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
 }
 
 func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicyRuleMatcher {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
+
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyRuleMatcher{
 		VersionedExpr: data["versioned_expr"].(string),
@@ -328,9 +329,10 @@ func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicy
 }
 
 func expandSecurityPolicyMatchConfig(configured []interface{}) *compute.SecurityPolicyRuleMatcherConfig {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
+
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyRuleMatcherConfig{
 		SrcIpRanges: convertStringArr(data["src_ip_ranges"].(*schema.Set).List()),
