@@ -5,6 +5,9 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
 * sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
 
+ENHANCEMENTS:
+* bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228] 
+
 BUG FIXES:
 
 
