@@ -1,3 +1,4 @@
+## 1.19.2 (Unreleased)
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
