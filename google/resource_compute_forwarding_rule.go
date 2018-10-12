@@ -80,14 +80,6 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
-			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -132,15 +124,6 @@ See https://terraform.io/docs/providers/google/provider_versions.html for more d
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
-			"service_label": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
-				ValidateFunc: validateGCPName,
-			},
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -156,20 +139,6 @@ See https://terraform.io/docs/providers/google/provider_versions.html for more d
 			"creation_timestamp": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"label_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
-			},
-			"service_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/providers/google/provider_versions.html for more details on beta fields.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -261,23 +230,11 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	labelsProp, err := expandComputeForwardingRuleLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	networkTierProp, err := expandComputeForwardingRuleNetworkTier(d.Get("network_tier"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("network_tier"); !isEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
 		obj["networkTier"] = networkTierProp
-	}
-	serviceLabelProp, err := expandComputeForwardingRuleServiceLabel(d.Get("service_label"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("service_label"); !isEmptyValue(reflect.ValueOf(serviceLabelProp)) && (ok || !reflect.DeepEqual(v, serviceLabelProp)) {
-		obj["serviceLabel"] = serviceLabelProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -286,7 +243,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules")
 	if err != nil {
 		return err
 	}
@@ -326,51 +283,13 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished creating ForwardingRule %q: %#v", d.Id(), res)
 
-	if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		// Labels cannot be set in a create.  We'll have to set them here.
-		err = resourceComputeForwardingRuleRead(d, meta)
-		if err != nil {
-			return err
-		}
-
-		obj := make(map[string]interface{})
-		// d.Get("labels") will have been overridden by the Read call.
-		labelsProp, err := expandComputeForwardingRuleLabels(v, d, config)
-		obj["labels"] = labelsProp
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
-
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
-		if err != nil {
-			return err
-		}
-		res, err = sendRequest(config, "POST", url, obj)
-		if err != nil {
-			return fmt.Errorf("Error adding labels to ComputeForwardingRule %q: %s", d.Id(), err)
-		}
-
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating ComputeForwardingRule Labels",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-	}
-
 	return resourceComputeForwardingRuleRead(d, meta)
 }
 
 func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,19 +338,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"])); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("labels", flattenComputeForwardingRuleLabels(res["labels"])); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeForwardingRuleLabelFingerprint(res["labelFingerprint"])); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
 	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"])); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("service_label", flattenComputeForwardingRuleServiceLabel(res["serviceLabel"])); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("service_name", flattenComputeForwardingRuleServiceName(res["serviceName"])); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"])); err != nil {
@@ -465,7 +372,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["target"] = targetProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
 		if err != nil {
 			return err
 		}
@@ -494,47 +401,6 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 
 		d.SetPartial("target")
 	}
-	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
-		obj := make(map[string]interface{})
-		labelsProp, err := expandComputeForwardingRuleLabels(d.Get("labels"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-			obj["labels"] = labelsProp
-		}
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
-
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequest(config, "POST", url, obj)
-		if err != nil {
-			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating ForwardingRule",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("labels")
-		d.SetPartial("label_fingerprint")
-	}
 
 	d.Partial(false)
 
@@ -544,7 +410,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -659,23 +525,7 @@ func flattenComputeForwardingRuleTarget(v interface{}) interface{} {
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeForwardingRuleLabels(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeForwardingRuleLabelFingerprint(v interface{}) interface{} {
-	return v
-}
-
 func flattenComputeForwardingRuleNetworkTier(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeForwardingRuleServiceLabel(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeForwardingRuleServiceName(v interface{}) interface{} {
 	return v
 }
 
@@ -792,22 +642,7 @@ func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, co
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeForwardingRuleServiceLabel(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
