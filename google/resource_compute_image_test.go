@@ -100,7 +100,7 @@ func TestAccComputeImage_update(t *testing.T) {
 				ResourceName:            "google_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk", "create_timeout"},
+				ImportStateVerifyIgnore: []string{"raw_disk"},
 			},
 		},
 	})
@@ -274,7 +274,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		my-label = "my-label-value"
 		empty-label = ""
@@ -291,7 +290,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		my-label = "my-label-value"
 		empty-label = ""
@@ -311,7 +309,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		empty-label = "oh-look-theres-a-label-now"
 		new-field = "only-shows-up-when-updated"
