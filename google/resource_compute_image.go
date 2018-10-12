@@ -94,9 +94,9 @@ func resourceComputeImage() *schema.Resource {
 			},
 
 			"create_timeout": &schema.Schema{
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Deprecated: "Use timeouts block instead. See https://www.terraform.io/docs/configuration/resources.html#timeouts.",
+				Type:     schema.TypeInt,
+				Optional: true,
+				Removed:  "Use timeouts block instead. See https://www.terraform.io/docs/configuration/resources.html#timeouts.",
 			},
 
 			"labels": &schema.Schema{
@@ -172,12 +172,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Read create timeout
-	var createTimeout int
-	if v, ok := d.GetOk("create_timeout"); ok {
-		createTimeout = v.(int)
-	} else {
-		createTimeout = int(d.Timeout(schema.TimeoutCreate).Minutes())
-	}
+	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	// Insert the image
 	op, err := config.clientCompute.Images.Insert(
