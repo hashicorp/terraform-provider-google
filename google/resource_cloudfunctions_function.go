@@ -586,28 +586,25 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 }
 
 func expandEventTrigger(configured []interface{}, project string) *cloudfunctions.EventTrigger {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
-	if data, ok := configured[0].(map[string]interface{}); ok {
-		eventType := data["event_type"].(string)
-		shape := ""
-		switch {
-		case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
-			shape = "projects/%s/buckets/%s"
-		case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
-			shape = "projects/%s/topics/%s"
-		}
-
-		return &cloudfunctions.EventTrigger{
-			EventType:     eventType,
-			Resource:      fmt.Sprintf(shape, project, data["resource"].(string)),
-			FailurePolicy: expandFailurePolicy(data["failure_policy"].([]interface{})),
-		}
+	data := configured[0].(map[string]interface{})
+	eventType := data["event_type"].(string)
+	shape := ""
+	switch {
+	case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
+		shape = "projects/%s/buckets/%s"
+	case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
+		shape = "projects/%s/topics/%s"
 	}
 
-	return nil
+	return &cloudfunctions.EventTrigger{
+		EventType:     eventType,
+		Resource:      fmt.Sprintf(shape, project, data["resource"].(string)),
+		FailurePolicy: expandFailurePolicy(data["failure_policy"].([]interface{})),
+	}
 }
 
 func flattenEventTrigger(eventTrigger *cloudfunctions.EventTrigger) []map[string]interface{} {
@@ -626,11 +623,11 @@ func flattenEventTrigger(eventTrigger *cloudfunctions.EventTrigger) []map[string
 }
 
 func expandFailurePolicy(configured []interface{}) *cloudfunctions.FailurePolicy {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return &cloudfunctions.FailurePolicy{}
 	}
 
-	if data, ok := configured[0].(map[string]interface{}); ok && data["retry"].(bool) {
+	if data := configured[0].(map[string]interface{}); data["retry"].(bool) {
 		return &cloudfunctions.FailurePolicy{
 			Retry: &cloudfunctions.Retry{},
 		}

@@ -23,9 +23,10 @@ output "gcr_location" {
 ```
 
 ## Argument Reference
-* `project`: (Optional) The project ID that this repository is attached to.  If not provider, provider project will be used instead.
+* `project`: (Optional) The project ID that this repository is attached to.  If not provided, provider project will be used instead.
 * `region`: (Optional) The GCR region to use.  As of this writing, one of `asia`, `eu`, and `us`.  See [the documentation](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for additional information.
 
 ## Attributes Reference
 In addition to the arguments listed above, this data source exports:
+
 * `repository_url`: The URL at which the repository can be accessed.

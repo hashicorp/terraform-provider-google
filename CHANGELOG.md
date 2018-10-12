@@ -10,14 +10,14 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-
-## 1.19.1 (Unreleased)
+## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
 
-* all: fix deprecation links in resources [GH-2197] [GH-2196]
-* compute: allow instance templates to have disks with no source image set [GH-2218]
-* project: fix plan output when app engine api is not enabled [GH-2204]
+* all: fix deprecation links in resources ([#2197](https://github.com/terraform-providers/terraform-provider-google/issues/2197)] [[#2196](https://github.com/terraform-providers/terraform-provider-google/issues/2196))
+* all: fix panics caused by including empty blocks with lists ([#2229](https://github.com/terraform-providers/terraform-provider-google/issues/2229)] [[#2233](https://github.com/terraform-providers/terraform-provider-google/issues/2233)] [[#2239](https://github.com/terraform-providers/terraform-provider-google/issues/2239))
+* compute: allow instance templates to have disks with no source image set ([#2218](https://github.com/terraform-providers/terraform-provider-google/issues/2218))
+* project: fix plan output when app engine api is not enabled ([#2204](https://github.com/terraform-providers/terraform-provider-google/issues/2204))
 
 ## 1.19.0 (October 08, 2018)
 
