@@ -1363,9 +1363,10 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 
 func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	config := l[0].(map[string]interface{})
 	ac := &containerBeta.AddonsConfig{}
 
@@ -1406,9 +1407,10 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 
 func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocationPolicy {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	config := l[0].(map[string]interface{})
 
 	return &containerBeta.IPAllocationPolicy{
@@ -1427,9 +1429,10 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 
 func expandMaintenancePolicy(configured interface{}) *containerBeta.MaintenancePolicy {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	maintenancePolicy := l[0].(map[string]interface{})
 	dailyMaintenanceWindow := maintenancePolicy["daily_maintenance_window"].([]interface{})[0].(map[string]interface{})
 	startTime := dailyMaintenanceWindow["start_time"].(string)
@@ -1444,9 +1447,10 @@ func expandMaintenancePolicy(configured interface{}) *containerBeta.MaintenanceP
 
 func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	masterAuth := l[0].(map[string]interface{})
 	result := &containerBeta.MasterAuth{
 		Username: masterAuth["username"].(string),
@@ -1507,9 +1511,10 @@ func expandNetworkPolicy(configured interface{}) *containerBeta.NetworkPolicy {
 
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	config := l[0].(map[string]interface{})
 	return &containerBeta.PodSecurityPolicyConfig{
 		Enabled:         config["enabled"].(bool),
