@@ -180,30 +180,11 @@ The following arguments are supported:
   must be of a type appropriate to the target object.
   This field is not used for internal load balancing.
 
-* `labels` -
-  (Optional)
-  Labels to apply to this forwarding rule.  A list of key->value pairs.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-
 * `network_tier` -
   (Optional)
   The networking tier used for configuring this address. This field can
   take the following values: PREMIUM or STANDARD. If this field is not
   specified, it is assumed to be PREMIUM.
-
-* `service_label` -
-  (Optional)
-  An optional prefix to the service name for this Forwarding Rule.
-  If specified, will be the first label of the fully qualified service
-  name.
-  The label must be 1-63 characters long, and comply with RFC1035.
-  Specifically, the label must be 1-63 characters long and match the
-  regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first
-  character must be a lowercase letter, and all following characters
-  must be a dash, lowercase letter, or digit, except the last
-  character, which cannot be a dash.
-  This field is only used for internal load balancing.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `region` -
   (Optional)
@@ -220,16 +201,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
-
-* `label_fingerprint` -
-  The fingerprint used for optimistic locking of this resource.  Used
-  internally during updates.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-
-* `service_name` -
-  The internal fully qualified service name for this Forwarding Rule.
-  This field is only used for internal load balancing.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 * `self_link` - The URI of the created resource.
 
 
