@@ -35,15 +35,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
 
-* `policy_data` - (DEPRECATED, Optional) The `google_iam_policy` data source that represents
-    the IAM policy that will be applied to the service account. The policy will be
-    merged with any existing policy.
-
-    This attribute has been deprecated. Use the [google_service_account_iam_* resources](google_service_account_iam.html) instead.
-
-    Deleting this removes the policy declared in Terraform. Any policy bindings
-    associated with the project before Terraform was used are not deleted.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
