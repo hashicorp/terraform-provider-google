@@ -3,15 +3,9 @@
 BUG FIXES:
 
 * all: fix deprecation links in resources [GH-2197] [GH-2196]
-* cloudfunctions: fix panic when creating or updating triggers [GH-2229]
+* all: fix panics caused by including empty blocks with lists [GH-2229] [GH-2233] [GH-2239]
 * compute: allow instance templates to have disks with no source image set [GH-2218]
-* compute: fix panic when creating or updating backend services [GH-2229]
-* compute: fix panic when creating or updating security policies [GH-2229]
-* container: fix panic when creating or updating clusters [GH-2229]
-* organization: fix panic when creating or updating organization policy [GH-2229]
 * project: fix plan output when app engine api is not enabled [GH-2204]
-* pubsub: fix panic when creating or updating subscription [GH-2229]
-* sql: fix panic when creating or updating instance [GH-2229]
 
 ## 1.19.0 (October 08, 2018)
 
