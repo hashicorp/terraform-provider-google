@@ -148,28 +148,28 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"disk.#":                               "1",
-		"disk.0.disk":                          "disk-1",
-		"disk.0.type":                          "pd-ssd",
-		"disk.0.auto_delete":                   "false",
-		"disk.0.size":                          "12",
-		"disk.0.device_name":                   "persistent-disk-0",
-		"disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"zone":                                 zone,
+		"disk.#":                            "1",
+		"disk.0.disk":                       "disk-1",
+		"disk.0.type":                       "pd-ssd",
+		"disk.0.auto_delete":                "false",
+		"disk.0.size":                       "12",
+		"disk.0.device_name":                "persistent-disk-0",
+		"disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                               "1",
-		"boot_disk.0.auto_delete":                   "false",
-		"boot_disk.0.device_name":                   "persistent-disk-0",
-		"boot_disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"boot_disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"boot_disk.0.initialize_params.#":           "1",
-		"boot_disk.0.initialize_params.0.size":      "12",
-		"boot_disk.0.initialize_params.0.type":      "pd-ssd",
-		"boot_disk.0.source":                        instanceName,
-		"zone":                                      zone,
-		"create_timeout":                            "4",
+		"boot_disk.#":                            "1",
+		"boot_disk.0.auto_delete":                "false",
+		"boot_disk.0.device_name":                "persistent-disk-0",
+		"boot_disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"boot_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"boot_disk.0.initialize_params.#":        "1",
+		"boot_disk.0.initialize_params.0.size":   "12",
+		"boot_disk.0.initialize_params.0.type":   "pd-ssd",
+		"boot_disk.0.source":                     instanceName,
+		"zone":                                   zone,
+		"create_timeout":                         "4",
 	}
 
 	runInstanceMigrateTest(t, instanceName, "migrate disk to boot disk", 2 /* state version */, attributes, expected, config)
@@ -215,27 +215,27 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"disk.#":                               "1",
-		"disk.0.disk":                          "disk-1",
-		"disk.0.type":                          "pd-ssd",
-		"disk.0.auto_delete":                   "false",
-		"disk.0.size":                          "12",
-		"disk.0.device_name":                   "persistent-disk-0",
-		"disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"zone":                                 zone,
+		"disk.#":                            "1",
+		"disk.0.disk":                       "disk-1",
+		"disk.0.type":                       "pd-ssd",
+		"disk.0.auto_delete":                "false",
+		"disk.0.size":                       "12",
+		"disk.0.device_name":                "persistent-disk-0",
+		"disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                               "1",
-		"boot_disk.0.auto_delete":                   "false",
-		"boot_disk.0.device_name":                   "persistent-disk-0",
-		"boot_disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"boot_disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"boot_disk.0.initialize_params.#":           "1",
-		"boot_disk.0.initialize_params.0.size":      "12",
-		"boot_disk.0.initialize_params.0.type":      "pd-ssd",
-		"boot_disk.0.source":                        instanceName,
-		"zone":                                      zone,
+		"boot_disk.#":                            "1",
+		"boot_disk.0.auto_delete":                "false",
+		"boot_disk.0.device_name":                "persistent-disk-0",
+		"boot_disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"boot_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"boot_disk.0.initialize_params.#":        "1",
+		"boot_disk.0.initialize_params.0.size":   "12",
+		"boot_disk.0.initialize_params.0.type":   "pd-ssd",
+		"boot_disk.0.source":                     instanceName,
+		"zone":                                   zone,
 	}
 
 	runInstanceMigrateTest(t, instanceName, "migrate disk to boot disk", 4 /* state version */, attributes, expected, config)
@@ -299,21 +299,21 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"boot_disk.#":                          "1",
-		"disk.#":                               "1",
-		"disk.0.disk":                          diskName,
-		"disk.0.device_name":                   "persistent-disk-1",
-		"disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"zone":                                 zone,
+		"boot_disk.#":                       "1",
+		"disk.#":                            "1",
+		"disk.0.disk":                       diskName,
+		"disk.0.device_name":                "persistent-disk-1",
+		"disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                                   "1",
-		"attached_disk.#":                               "1",
-		"attached_disk.0.source":                        "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
-		"attached_disk.0.device_name":                   "persistent-disk-1",
-		"attached_disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"attached_disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
+		"boot_disk.#":                                "1",
+		"attached_disk.#":                            "1",
+		"attached_disk.0.source":                     "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
+		"attached_disk.0.device_name":                "persistent-disk-1",
+		"attached_disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"attached_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
 		"zone":           zone,
 		"create_timeout": "4",
 	}
@@ -379,21 +379,21 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"boot_disk.#":                          "1",
-		"disk.#":                               "1",
-		"disk.0.disk":                          diskName,
-		"disk.0.device_name":                   "persistent-disk-1",
-		"disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
-		"zone":                                 zone,
+		"boot_disk.#":                       "1",
+		"disk.#":                            "1",
+		"disk.0.disk":                       diskName,
+		"disk.0.device_name":                "persistent-disk-1",
+		"disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                                   "1",
-		"attached_disk.#":                               "1",
-		"attached_disk.0.source":                        "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
-		"attached_disk.0.device_name":                   "persistent-disk-1",
-		"attached_disk.0.disk_encryption_key.0.raw_key": "encrypt-key",
-		"attached_disk.0.disk_encryption_key.0.sha256":  "encrypt-key-sha",
+		"boot_disk.#":                                "1",
+		"attached_disk.#":                            "1",
+		"attached_disk.0.source":                     "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
+		"attached_disk.0.device_name":                "persistent-disk-1",
+		"attached_disk.0.disk_encryption_key_raw":    "encrypt-key",
+		"attached_disk.0.disk_encryption_key_sha256": "encrypt-key-sha",
 		"zone": zone,
 	}
 
@@ -447,20 +447,20 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"boot_disk.#":                          "1",
-		"disk.#":                               "1",
-		"disk.0.image":                         "projects/debian-cloud/global/images/family/debian-9",
-		"disk.0.disk_encryption_key.0.raw_key": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
-		"disk.0.disk_encryption_key.0.sha256":  "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
-		"zone":                                 zone,
+		"boot_disk.#":                       "1",
+		"disk.#":                            "1",
+		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-9",
+		"disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                                   "1",
-		"attached_disk.#":                               "1",
-		"attached_disk.0.source":                        "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
-		"attached_disk.0.device_name":                   "persistent-disk-1",
-		"attached_disk.0.disk_encryption_key.0.raw_key": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
-		"attached_disk.0.disk_encryption_key.0.sha256":  "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"boot_disk.#":                                "1",
+		"attached_disk.#":                            "1",
+		"attached_disk.0.source":                     "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
+		"attached_disk.0.device_name":                "persistent-disk-1",
+		"attached_disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"attached_disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
 		"zone":           zone,
 		"create_timeout": "4",
 	}
@@ -515,20 +515,20 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	defer cleanUpInstance(config, instanceName, zone)
 
 	attributes := map[string]string{
-		"boot_disk.#":                          "1",
-		"disk.#":                               "1",
-		"disk.0.image":                         "projects/debian-cloud/global/images/family/debian-9",
-		"disk.0.disk_encryption_key.0.raw_key": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
-		"disk.0.disk_encryption_key.0.sha256":  "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
-		"zone":                                 zone,
+		"boot_disk.#":                       "1",
+		"disk.#":                            "1",
+		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-9",
+		"disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"zone":                              zone,
 	}
 	expected := map[string]string{
-		"boot_disk.#":                                   "1",
-		"attached_disk.#":                               "1",
-		"attached_disk.0.source":                        "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
-		"attached_disk.0.device_name":                   "persistent-disk-1",
-		"attached_disk.0.disk_encryption_key.0.raw_key": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
-		"attached_disk.0.disk_encryption_key.0.sha256":  "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
+		"boot_disk.#":                                "1",
+		"attached_disk.#":                            "1",
+		"attached_disk.0.source":                     "https://www.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks/" + instanceName + "-1",
+		"attached_disk.0.device_name":                "persistent-disk-1",
+		"attached_disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"attached_disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
 		"zone": zone,
 	}
 

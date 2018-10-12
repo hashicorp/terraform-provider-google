@@ -115,8 +115,6 @@ resource "google_compute_instance" "foo" {
 		baz = "qux"
 	}
 
-	create_timeout = 5
-
 	metadata {
 		startup-script = "echo Hello"
 	}
