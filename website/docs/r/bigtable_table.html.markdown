@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `split_keys` - (Optional) A list of predefined keys to split the table on.
 
-* `column_family` - (Optional) A block of column family configuration options.
+* `column_family` - (Optional) A group of columns within a table which share a common configuration. This can be specified multiple times. Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
