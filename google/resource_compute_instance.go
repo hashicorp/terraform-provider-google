@@ -291,7 +291,6 @@ func resourceComputeInstance() *schema.Resource {
 			"create_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  4,
 				Removed:  "Use timeouts block instead.",
 			},
 
