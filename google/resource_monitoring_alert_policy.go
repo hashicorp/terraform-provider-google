@@ -849,7 +849,7 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceData
 
 func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
@@ -948,7 +948,7 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeries
 
 func expandMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
@@ -994,7 +994,7 @@ func expandMonitoringAlertPolicyConditionsName(v interface{}, d *schema.Resource
 
 func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
@@ -1137,7 +1137,7 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdComparison(v interfa
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
