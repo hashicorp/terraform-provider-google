@@ -91,7 +91,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 resource "google_compute_route" "route1" {
   name       = "route1"
   network    = "${google_compute_network.network1.name}"
-  dest_range = "15.0.0.0/24"
+  dest_range = "172.16.0.0/12"
   priority   = 1000
 
   next_hop_vpn_tunnel = "${google_compute_vpn_tunnel.tunnel1.self_link}"
