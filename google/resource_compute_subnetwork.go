@@ -234,6 +234,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_flow_logs"); ok || !reflect.DeepEqual(v, enableFlowLogsProp) {
 		obj["enableFlowLogs"] = enableFlowLogsProp
 	}
+	fingerprintProp, err := expandComputeSubnetworkFingerprint(d.Get("fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+		obj["fingerprint"] = fingerprintProp
+	}
 	secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
 	if err != nil {
 		return err
@@ -407,8 +413,12 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		} else if v, ok := d.GetOkExists("enable_flow_logs"); ok || !reflect.DeepEqual(v, enableFlowLogsProp) {
 			obj["enableFlowLogs"] = enableFlowLogsProp
 		}
-		fingerprintProp := d.Get("fingerprint")
-		obj["fingerprint"] = fingerprintProp
+		fingerprintProp, err := expandComputeSubnetworkFingerprint(d.Get("fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+			obj["fingerprint"] = fingerprintProp
+		}
 		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
 		if err != nil {
 			return err
@@ -632,6 +642,10 @@ func expandComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData, confi
 }
 
 func expandComputeSubnetworkEnableFlowLogs(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

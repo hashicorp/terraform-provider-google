@@ -418,6 +418,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	labelFingerprintProp, err := expandComputeDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		obj["labelFingerprint"] = labelFingerprintProp
+	}
 	descriptionProp, err := expandComputeDiskDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -626,8 +632,12 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("label_fingerprint") || d.HasChange("labels") {
 		obj := make(map[string]interface{})
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
+		labelFingerprintProp, err := expandComputeDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
 		labelsProp, err := expandComputeDiskLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
@@ -971,6 +981,10 @@ func flattenComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}) interfac
 
 func flattenComputeDiskSourceSnapshotId(v interface{}) interface{} {
 	return v
+}
+
+func expandComputeDiskLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeDiskDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
