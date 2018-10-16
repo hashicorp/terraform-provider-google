@@ -1,4 +1,10 @@
 ## 1.19.2 (Unreleased)
+
+ENHANCEMENTS:
+* iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
+
+BUG FIXES:
+
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
