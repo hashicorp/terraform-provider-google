@@ -15,7 +15,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 		Delete: resourceGoogleServiceAccountDelete,
 		Update: resourceGoogleServiceAccountUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceGoogleServiceAccountImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"email": &schema.Schema{
@@ -193,4 +193,21 @@ func saMergeBindings(bindings []*iam.Binding) []*iam.Binding {
 	}
 
 	return rb
+}
+
+func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{
+		"projects/(?P<project>[^/]+)/serviceAccounts/(?P<email>[^/]+)",
+		"(?P<project>[^/]+)/(?P<email>[^/]+)",
+		"(?P<email>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/serviceAccounts/{{email}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
