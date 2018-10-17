@@ -677,10 +677,34 @@ func expandComposerEnvironmentZone(v interface{}, d *schema.ResourceData, config
 	return getRelativePath(zone)
 }
 
-func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *Config, nodeCfgZone interface{}) (string, error) {
+func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *Config, nodeCfgZone string) (string, error) {
+	machineType := v.(string)
+	requiredZone := GetResourceNameFromSelfLink(nodeCfgZone)
+
 	fv, err := ParseMachineTypesFieldValue(v.(string), d, config)
 	if err != nil {
-		return "", nil
+		if requiredZone == "" {
+			return "", err
+		}
+
+		// Try to construct machine type with zone/project given in config.
+		project, err := getProject(d, config)
+		if err != nil {
+			return "", err
+		}
+
+		fv = &ZonalFieldValue{
+			Project:      project,
+			Zone:         requiredZone,
+			Name:         GetResourceNameFromSelfLink(machineType),
+			resourceType: "machineTypes",
+		}
+	}
+
+	// Make sure zone in node_config.machineType matches node_config.zone if
+	// given.
+	if requiredZone != "" && fv.Zone != requiredZone {
+		return "", fmt.Errorf("node_config machine_type %q must be in node_config zone %q", machineType, requiredZone)
 	}
 	return fv.RelativeLink(), nil
 }
