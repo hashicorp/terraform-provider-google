@@ -106,6 +106,7 @@ func Provider() terraform.ResourceProvider {
 			GeneratedFilestoreResourcesMap,
 			GeneratedRedisResourcesMap,
 			GeneratedResourceManagerResourcesMap,
+			GeneratedStorageResourcesMap,
 			GeneratedMonitoringResourcesMap,
 			map[string]*schema.Resource{
 				"google_app_engine_application":                resourceAppEngineApplication(),
