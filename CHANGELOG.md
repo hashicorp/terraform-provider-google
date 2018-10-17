@@ -1,5 +1,9 @@
 ## 1.19.2 (Unreleased)
 
+
+FEATURES: 
+* **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
+
 ENHANCEMENTS:
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
 
