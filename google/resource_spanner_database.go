@@ -41,9 +41,9 @@ func resourceSpannerDatabase() *schema.Resource {
 						errors = append(errors, fmt.Errorf(
 							"%q must be between 2 and 30 characters in length", k))
 					}
-					if !regexp.MustCompile("^[a-z0-9-]+$").MatchString(value) {
+					if !regexp.MustCompile("^[a-z0-9-_]+$").MatchString(value) {
 						errors = append(errors, fmt.Errorf(
-							"%q can only contain lowercase letters, numbers and hyphens", k))
+							"%q can only contain lowercase letters, numbers, underscores, and hyphens", k))
 					}
 					if !regexp.MustCompile("^[a-z]").MatchString(value) {
 						errors = append(errors, fmt.Errorf(
