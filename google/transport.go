@@ -62,6 +62,12 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 		return nil, err
 	}
 
+	// 204 responses will have no body, so we're going to error with "EOF" if we
+	// try to parse it. Instead, we can just return nil.
+	if res.StatusCode == 204 {
+		return nil, nil
+	}
+
 	result := make(map[string]interface{})
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, err
