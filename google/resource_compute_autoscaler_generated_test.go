@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
@@ -103,4 +104,26 @@ data "google_compute_image" "debian_9" {
 }
 `, val, val, val, val,
 	)
+}
+
+func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_autoscaler" {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("ComputeAutoscaler still exists at %s", url)
+		}
+	}
+
+	return nil
 }

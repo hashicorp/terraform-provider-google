@@ -465,24 +465,6 @@ func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
 
 }
 
-func testAccCheckComputeDiskDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_disk" {
-			continue
-		}
-
-		_, err := config.clientCompute.Disks.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Disk still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		p := getTestProjectFromEnv()

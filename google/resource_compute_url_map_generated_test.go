@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
@@ -119,4 +120,26 @@ resource "google_storage_bucket" "static" {
 }
 `, val, val, val, val, val, val,
 	)
+}
+
+func testAccCheckComputeUrlMapDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_url_map" {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/urlMaps/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("ComputeUrlMap still exists at %s", url)
+		}
+	}
+
+	return nil
 }

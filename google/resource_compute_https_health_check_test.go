@@ -80,24 +80,6 @@ func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeHttpsHealthCheckDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_https_health_check" {
-			continue
-		}
-
-		_, err := config.clientCompute.HttpsHealthChecks.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("HttpsHealthCheck still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeHttpsHealthCheckExists(n string, healthCheck *compute.HttpsHealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
