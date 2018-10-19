@@ -9,6 +9,10 @@ import (
 
 // AsHCLBlock returns the block data expressed as a *hcl.Block.
 func (b *Block) AsHCLBlock() *hcl.Block {
+	if b == nil {
+		return nil
+	}
+
 	lastHeaderRange := b.TypeRange
 	if len(b.LabelRanges) > 0 {
 		lastHeaderRange = b.LabelRanges[len(b.LabelRanges)-1]
@@ -25,7 +29,7 @@ func (b *Block) AsHCLBlock() *hcl.Block {
 	}
 }
 
-// Body is the implementation of hcl.Body for the zcl native syntax.
+// Body is the implementation of hcl.Body for the HCL native syntax.
 type Body struct {
 	Attributes Attributes
 	Blocks     Blocks
@@ -43,8 +47,8 @@ type Body struct {
 var assertBodyImplBody hcl.Body = &Body{}
 
 func (b *Body) walkChildNodes(w internalWalkFunc) {
-	b.Attributes = w(b.Attributes).(Attributes)
-	b.Blocks = w(b.Blocks).(Blocks)
+	w(b.Attributes)
+	w(b.Blocks)
 }
 
 func (b *Body) Range() hcl.Range {
@@ -282,8 +286,8 @@ func (b *Body) MissingItemRange() hcl.Range {
 type Attributes map[string]*Attribute
 
 func (a Attributes) walkChildNodes(w internalWalkFunc) {
-	for k, attr := range a {
-		a[k] = w(attr).(*Attribute)
+	for _, attr := range a {
+		w(attr)
 	}
 }
 
@@ -317,7 +321,7 @@ type Attribute struct {
 }
 
 func (a *Attribute) walkChildNodes(w internalWalkFunc) {
-	a.Expr = w(a.Expr).(Expression)
+	w(a.Expr)
 }
 
 func (a *Attribute) Range() hcl.Range {
@@ -326,6 +330,9 @@ func (a *Attribute) Range() hcl.Range {
 
 // AsHCLAttribute returns the block data expressed as a *hcl.Attribute.
 func (a *Attribute) AsHCLAttribute() *hcl.Attribute {
+	if a == nil {
+		return nil
+	}
 	return &hcl.Attribute{
 		Name: a.Name,
 		Expr: a.Expr,
@@ -339,8 +346,8 @@ func (a *Attribute) AsHCLAttribute() *hcl.Attribute {
 type Blocks []*Block
 
 func (bs Blocks) walkChildNodes(w internalWalkFunc) {
-	for i, block := range bs {
-		bs[i] = w(block).(*Block)
+	for _, block := range bs {
+		w(block)
 	}
 }
 
@@ -371,7 +378,7 @@ type Block struct {
 }
 
 func (b *Block) walkChildNodes(w internalWalkFunc) {
-	b.Body = w(b.Body).(*Body)
+	w(b.Body)
 }
 
 func (b *Block) Range() hcl.Range {
