@@ -206,10 +206,10 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"rolling_update_policy": &schema.Schema{
+				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:       schema.TypeList,
 				Optional:   true,
 				MaxItems:   1,
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"minimal_action": &schema.Schema{
@@ -348,8 +348,13 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceDat
 func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	manager, err := getRegionalManager(d, meta)
-	if err != nil || manager == nil {
+	if err != nil {
 		return err
+	}
+	if manager == nil {
+		log.Printf("[WARN] Region Instance Group Manager %q not found, removing from state.", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	project, err := getProject(d, config)
@@ -358,7 +363,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
-	d.Set("instance_template", manager.InstanceTemplate)
+	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
 	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
 		return err
 	}
@@ -367,11 +372,17 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("description", manager.Description)
 	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
-	d.Set("target_pools", manager.TargetPools)
-	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
+	if err := d.Set("target_pools", manager.TargetPools); err != nil {
+		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+	}
+	if err := d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
+		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
+	}
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
-	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
+	if err := d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
+		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
+	}
 	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
 		return err
 	}

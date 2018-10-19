@@ -199,7 +199,7 @@ func TestAccInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy(igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerBetaExists(
@@ -218,7 +218,7 @@ func TestAccInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 						"google_compute_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "20"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy2(igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceGroupManagerBetaExists(
