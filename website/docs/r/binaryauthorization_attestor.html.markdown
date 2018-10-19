@@ -32,7 +32,8 @@ To get more information about Attestor, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/binary-authorization/)
 
-## Example Usage
+## Example Usage - Binary Authorization Attestor Basic
+
 
 ```hcl
 resource "google_binary_authorization_attestor" "attestor" {
