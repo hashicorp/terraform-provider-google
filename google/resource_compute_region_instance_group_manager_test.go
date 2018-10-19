@@ -161,12 +161,12 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm),
 			},
 			// No import step because rolling updates are broken and the field will be removed in 2.0.0.
 			// TODO(danawillow): Remove this test once we've removed the field.
-			resource.TestStep{
+			{
 				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm),
 			},
 		},
@@ -698,6 +698,7 @@ resource "google_compute_http_health_check" "zero" {
 }
 	`, template, target, igm, hck)
 }
+
 func testAccRegionInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {

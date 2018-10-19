@@ -438,8 +438,13 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 
 	manager, err := getManager(d, meta)
-	if err != nil || manager == nil {
+	if err != nil {
 		return err
+	}
+	if manager == nil {
+		log.Printf("[WARN] Instance Group Manager %q not found, removing from state.", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
@@ -452,17 +457,24 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("description", manager.Description)
 	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
-	d.Set("target_pools", manager.TargetPools)
-	d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts))
+	if err = d.Set("target_pools", manager.TargetPools); err != nil {
+		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+	}
+	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
+		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
+	}
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
+
 	update_strategy, ok := d.GetOk("update_strategy")
 	if !ok {
 		update_strategy = "REPLACE"
 	}
 	d.Set("update_strategy", update_strategy.(string))
-	d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies))
+	if err = d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
+		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
+	}
 
 	if d.Get("wait_for_instances").(bool) {
 		conf := resource.StateChangeConf{
