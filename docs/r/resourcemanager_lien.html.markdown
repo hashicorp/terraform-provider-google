@@ -25,7 +25,8 @@ A Lien represents an encumbrance on the actions that can be performed on a resou
 
 
 
-## Example Usage
+## Example Usage - Resource Manager Lien
+
 
 ```hcl
 resource "google_resource_manager_lien" "lien" {
