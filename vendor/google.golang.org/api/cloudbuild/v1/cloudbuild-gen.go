@@ -478,6 +478,17 @@ type BuildOptions struct {
 	// more than the maximum are rejected with an error.
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
 
+	// Env: A list of global environment variable definitions that will
+	// exist for all
+	// build steps in this build. If a variable is defined in both globally
+	// and in
+	// a build step, the variable will use the build step value.
+	//
+	// The elements are of the form "KEY=VALUE" for the environment variable
+	// "KEY"
+	// being given the value "VALUE".
+	Env []string `json:"env,omitempty"`
+
 	// LogStreamingOption: Option to define build log streaming behavior to
 	// Google Cloud
 	// Storage.
@@ -493,11 +504,13 @@ type BuildOptions struct {
 	LogStreamingOption string `json:"logStreamingOption,omitempty"`
 
 	// Logging: Option to specify the logging mode, which determines where
-	// the logs are stored.
+	// the logs are
+	// stored.
 	//
 	// Possible values:
 	//   "LOGGING_UNSPECIFIED" - The service determines the logging mode.
-	// The default is `LEGACY`
+	// The default is `LEGACY`. Do not
+	// rely on the default logging behavior as it may change in the future.
 	//   "LEGACY" - Stackdriver logging and Cloud Storage logging are
 	// enabled.
 	//   "GCS_ONLY" - Only Cloud Storage logging is enabled.
@@ -518,6 +531,15 @@ type BuildOptions struct {
 	//   "VERIFIED" - Verified build.
 	RequestedVerifyOption string `json:"requestedVerifyOption,omitempty"`
 
+	// SecretEnv: A list of global environment variables, which are
+	// encrypted using a Cloud
+	// Key Management Service crypto key. These values must be specified in
+	// the
+	// build's `Secret`. These variables will be available to all build
+	// steps
+	// in this build.
+	SecretEnv []string `json:"secretEnv,omitempty"`
+
 	// SourceProvenanceHash: Requested hash for SourceProvenance.
 	//
 	// Possible values:
@@ -537,6 +559,21 @@ type BuildOptions struct {
 	//   "ALLOW_LOOSE" - Do not fail the build if error in substitutions
 	// checks.
 	SubstitutionOption string `json:"substitutionOption,omitempty"`
+
+	// Volumes: Global list of volumes to mount for ALL build steps
+	//
+	// Each volume is created as an empty volume prior to starting the
+	// build
+	// process. Upon completion of the build, volumes and their contents
+	// are
+	// discarded. Global volume names and paths cannot conflict with the
+	// volumes
+	// defined a build step.
+	//
+	// Using a global volume in a build with only one step is not valid
+	// as
+	// it is indicative of a build request with an incorrect configuration.
+	Volumes []*Volume `json:"volumes,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DiskSizeGb") to
 	// unconditionally include in API requests. By default, fields with
@@ -641,6 +678,11 @@ type BuildStep struct {
 	// later build step.
 	Name string `json:"name,omitempty"`
 
+	// PullTiming: Output only. Stores timing information for pulling this
+	// build step's
+	// builder image only.
+	PullTiming *TimeSpan `json:"pullTiming,omitempty"`
+
 	// SecretEnv: A list of environment variables which are encrypted using
 	// a Cloud Key
 	// Management Service crypto key. These values must be specified in
@@ -678,15 +720,15 @@ type BuildStep struct {
 
 	// Volumes: List of volumes to mount into the build step.
 	//
-	// Each volume will be created as an empty volume prior to execution of
+	// Each volume is created as an empty volume prior to execution of
 	// the
 	// build step. Upon completion of the build, volumes and their contents
-	// will
-	// be discarded.
+	// are
+	// discarded.
 	//
 	// Using a named volume in only one step is not valid as it is
 	// indicative
-	// of a mis-configured build request.
+	// of a build request with an incorrect configuration.
 	Volumes []*Volume `json:"volumes,omitempty"`
 
 	// WaitFor: The ID(s) of the step(s) that this build step depends
@@ -1252,7 +1294,7 @@ type Secret struct {
 	// build's
 	// secrets, and must be used by at least one build step. Values can be
 	// at most
-	// 1 KB in size. There can be at most ten secret values across all of
+	// 64 KB in size. There can be at most 100 secret values across all of
 	// a
 	// build's secrets.
 	SecretEnv map[string]string `json:"secretEnv,omitempty"`

@@ -1,5 +1,5 @@
 /*
-Copyright 2015 Google LLC
+Copyright 2015 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,15 +21,14 @@ import (
 	"math/rand"
 	"time"
 
-	"log"
-	"os"
-
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"log"
+	"os"
 )
 
-var Logger *log.Logger = log.New(os.Stderr, "", log.LstdFlags)
+var logger *log.Logger = log.New(os.Stderr, "", log.LstdFlags)
 
 // A user defined call stub.
 type APICall func(context.Context) error
@@ -64,9 +63,7 @@ func invokeWithRetry(ctx context.Context, stub APICall, callSettings CallSetting
 		// Sleep a random amount up to the current delay
 		d := time.Duration(rand.Int63n(int64(delay)))
 		delayCtx, _ := context.WithTimeout(ctx, delay)
-		if Logger != nil {
-			Logger.Printf("Retryable error: %v, retrying in %v", err, d)
-		}
+		logger.Printf("Retryable error: %v, retrying in %v", err, d)
 		<-delayCtx.Done()
 
 		delay = scaleDuration(delay, backoffSettings.DelayTimeoutSettings.Multiplier)

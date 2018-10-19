@@ -4877,6 +4877,10 @@ func (s *ConnectionDraining) MarshalJSON() ([]byte, error) {
 
 // CustomerEncryptionKey: Represents a customer-supplied encryption key
 type CustomerEncryptionKey struct {
+	// KmsKeyName: The name of the encryption key that is stored in Google
+	// Cloud KMS.
+	KmsKeyName string `json:"kmsKeyName,omitempty"`
+
 	// RawKey: Specifies a 256-bit customer-supplied encryption key, encoded
 	// in RFC 4648 base64 to either encrypt or decrypt this resource.
 	RawKey string `json:"rawKey,omitempty"`
@@ -4885,7 +4889,7 @@ type CustomerEncryptionKey struct {
 	// customer-supplied encryption key that protects this resource.
 	Sha256 string `json:"sha256,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "RawKey") to
+	// ForceSendFields is a list of field names (e.g. "KmsKeyName") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -4893,8 +4897,8 @@ type CustomerEncryptionKey struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "RawKey") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "KmsKeyName") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -6801,7 +6805,8 @@ type ForwardingRule struct {
 	//
 	// When the load balancing scheme is INTERNAL_SELF_MANAGED, this must be
 	// a URL reference to an existing Address resource ( internal regional
-	// static IP address).
+	// static IP address), with a purpose of GCE_END_POINT and address_type
+	// of INTERNAL.
 	//
 	// When the load balancing scheme is INTERNAL, this can only be an RFC
 	// 1918 IP address belonging to the network/subnet configured for the
@@ -7556,6 +7561,11 @@ type HTTPHealthCheck struct {
 	// default value is /.
 	RequestPath string `json:"requestPath,omitempty"`
 
+	// Response: The string to match anywhere in the first 1024 bytes of the
+	// response body. If left empty (the default value), the status code
+	// determines health. The response data can only be ASCII.
+	Response string `json:"response,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "Host") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
@@ -7605,6 +7615,11 @@ type HTTPSHealthCheck struct {
 	// RequestPath: The request path of the HTTPS health check request. The
 	// default value is /.
 	RequestPath string `json:"requestPath,omitempty"`
+
+	// Response: The string to match anywhere in the first 1024 bytes of the
+	// response body. If left empty (the default value), the status code
+	// determines health. The response data can only be ASCII.
+	Response string `json:"response,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Host") to
 	// unconditionally include in API requests. By default, fields with
@@ -13386,8 +13401,8 @@ type License struct {
 	// license to images, snapshots, and disks.
 	LicenseCode uint64 `json:"licenseCode,omitempty,string"`
 
-	// Name: [Output Only] Name of the resource. The name is 1-63 characters
-	// long and complies with RFC1035.
+	// Name: Name of the resource. The name must be 1-63 characters long and
+	// comply with RFC1035.
 	Name string `json:"name,omitempty"`
 
 	ResourceRequirements *LicenseResourceRequirements `json:"resourceRequirements,omitempty"`
@@ -14567,22 +14582,22 @@ func (s *NamedPort) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Network: Represents a Network resource. Read Networks and Firewalls
-// for more information. (== resource_for v1.networks ==) (==
-// resource_for beta.networks ==)
+// Network: Represents a Network resource. Read Virtual Private Cloud
+// (VPC) Network Overview for more information. (== resource_for
+// v1.networks ==) (== resource_for beta.networks ==)
 type Network struct {
 	// IPv4Range: The range of internal addresses that are legal on this
 	// network. This range is a CIDR specification, for example:
 	// 192.168.0.0/16. Provided by the client when the network is created.
 	IPv4Range string `json:"IPv4Range,omitempty"`
 
-	// AutoCreateSubnetworks: When set to true, the network is created in
-	// "auto subnet mode". When set to false, the network is in "custom
-	// subnet mode".
+	// AutoCreateSubnetworks: When set to true, the VPC network is created
+	// in "auto" mode. When set to false, the VPC network is created in
+	// "custom" mode.
 	//
-	// In "auto subnet mode", a newly created network is assigned the
-	// default CIDR of 10.128.0.0/9 and it automatically creates one
-	// subnetwork per region.
+	// An auto mode VPC network starts with one subnet per region. Each
+	// subnet has a predetermined range as described in Auto mode VPC
+	// network IP ranges.
 	AutoCreateSubnetworks bool `json:"autoCreateSubnetworks,omitempty"`
 
 	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
@@ -14593,9 +14608,8 @@ type Network struct {
 	// property when you create the resource.
 	Description string `json:"description,omitempty"`
 
-	// GatewayIPv4: A gateway address for default routing to other networks.
-	// This value is read only and is selected by the Google Compute Engine,
-	// typically as the first usable address in the IPv4Range.
+	// GatewayIPv4: [Output Only] The gateway address for default routing
+	// out of the network. This value is read only and is selected by GCP.
 	GatewayIPv4 string `json:"gatewayIPv4,omitempty"`
 
 	// Id: [Output Only] The unique identifier for the resource. This
@@ -14627,7 +14641,7 @@ type Network struct {
 	SelfLink string `json:"selfLink,omitempty"`
 
 	// Subnetworks: [Output Only] Server-defined fully-qualified URLs for
-	// all subnetworks in this network.
+	// all subnetworks in this VPC network.
 	Subnetworks []string `json:"subnetworks,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -14967,9 +14981,9 @@ func (s *NetworkPeering) MarshalJSON() ([]byte, error) {
 type NetworkRoutingConfig struct {
 	// RoutingMode: The network-wide routing mode to use. If set to
 	// REGIONAL, this network's cloud routers will only advertise routes
-	// with subnetworks of this network in the same region as the router. If
-	// set to GLOBAL, this network's cloud routers will advertise routes
-	// with all subnetworks of this network, across regions.
+	// with subnets of this network in the same region as the router. If set
+	// to GLOBAL, this network's cloud routers will advertise routes with
+	// all subnets of this network, across regions.
 	//
 	// Possible values:
 	//   "GLOBAL"
@@ -18049,6 +18063,7 @@ type Quota struct {
 	//   "DISKS_TOTAL_GB"
 	//   "FIREWALLS"
 	//   "FORWARDING_RULES"
+	//   "GLOBAL_INTERNAL_ADDRESSES"
 	//   "GPUS_ALL_REGIONS"
 	//   "HEALTH_CHECKS"
 	//   "IMAGES"
@@ -22509,6 +22524,8 @@ type Subnetwork struct {
 	Description string `json:"description,omitempty"`
 
 	// EnableFlowLogs: Whether to enable flow logging for this subnetwork.
+	// If this field is not explicitly set, it will not appear in get
+	// listings. If not set the default behavior is to disable flow logging.
 	EnableFlowLogs bool `json:"enableFlowLogs,omitempty"`
 
 	// Fingerprint: Fingerprint of this resource. A hash of the contents
@@ -52129,7 +52146,7 @@ func (c *InstancesGetCall) Do(opts ...googleapi.CallOption) (*Instance, error) {
 	//     "instance": {
 	//       "description": "Name of the instance resource to return.",
 	//       "location": "path",
-	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
+	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?|[1-9][0-9]{0,19}",
 	//       "required": true,
 	//       "type": "string"
 	//     },
@@ -52408,10 +52425,9 @@ func (c *InstancesInsertCall) RequestId(requestId string) *InstancesInsertCall {
 // This field is optional. It can be a full or partial URL. For example,
 // the following are all valid URLs to an instance template:
 // -
-// https://www.googleapis.com/compute/v1/projects/project/global/global/instanceTemplates/instanceTemplate
-// - projects/project/global/global/instanceTemplates/instanceTemplate
-//
-// - global/instancesTemplates/instanceTemplate
+// https://www.googleapis.com/compute/v1/projects/project/global/instanceTemplates/instanceTemplate
+// - projects/project/global/instanceTemplates/instanceTemplate
+// - global/instanceTemplates/instanceTemplate
 func (c *InstancesInsertCall) SourceInstanceTemplate(sourceInstanceTemplate string) *InstancesInsertCall {
 	c.urlParams_.Set("sourceInstanceTemplate", sourceInstanceTemplate)
 	return c
@@ -52526,7 +52542,7 @@ func (c *InstancesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     },
 	//     "sourceInstanceTemplate": {
-	//       "description": "Specifies instance template to create the instance.\n\nThis field is optional. It can be a full or partial URL. For example, the following are all valid URLs to an instance template:  \n- https://www.googleapis.com/compute/v1/projects/project/global/global/instanceTemplates/instanceTemplate \n- projects/project/global/global/instanceTemplates/instanceTemplate \n- global/instancesTemplates/instanceTemplate",
+	//       "description": "Specifies instance template to create the instance.\n\nThis field is optional. It can be a full or partial URL. For example, the following are all valid URLs to an instance template:  \n- https://www.googleapis.com/compute/v1/projects/project/global/instanceTemplates/instanceTemplate \n- projects/project/global/instanceTemplates/instanceTemplate \n- global/instanceTemplates/instanceTemplate",
 	//       "location": "query",
 	//       "type": "string"
 	//     },

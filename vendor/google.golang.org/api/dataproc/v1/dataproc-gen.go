@@ -1156,7 +1156,7 @@ func (s *InstanceGroupConfig) MarshalJSON() ([]byte, error) {
 // workflow template.
 type InstantiateWorkflowTemplateRequest struct {
 	// Parameters: Optional. Map from parameter names to values that should
-	// be used for those parameters.
+	// be used for those parameters. Values may not exceed 100 characters.
 	Parameters map[string]string `json:"parameters,omitempty"`
 
 	// RequestId: Optional. A tag that prevents multiple concurrent workflow
@@ -2724,12 +2724,18 @@ type WorkflowMetadata struct {
 	// DeleteCluster: Output only. The delete cluster operation metadata.
 	DeleteCluster *ClusterOperation `json:"deleteCluster,omitempty"`
 
+	// EndTime: Output only. Workflow end time.
+	EndTime string `json:"endTime,omitempty"`
+
 	// Graph: Output only. The workflow graph.
 	Graph *WorkflowGraph `json:"graph,omitempty"`
 
 	// Parameters: Map from parameter names to values that were used for
 	// those parameters.
 	Parameters map[string]string `json:"parameters,omitempty"`
+
+	// StartTime: Output only. Workflow start time.
+	StartTime string `json:"startTime,omitempty"`
 
 	// State: Output only. The workflow state.
 	//

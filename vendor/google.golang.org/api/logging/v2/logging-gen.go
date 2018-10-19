@@ -1123,6 +1123,15 @@ type LogEntry struct {
 	// projects/my-projectid/traces/06796866738c859f2f19b7cfb3214824
 	Trace string `json:"trace,omitempty"`
 
+	// TraceSampled: Optional. The sampling decision of the trace associated
+	// with the log entry. True means that the trace resource name in the
+	// trace field was sampled for storage in a trace backend. False means
+	// that the trace was not sampled for storage when this log entry was
+	// written, or the sampling decision was unknown at the time. A
+	// non-sampled trace value is still useful as a request correlation
+	// identifier. The default is False.
+	TraceSampled bool `json:"traceSampled,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "HttpRequest") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
@@ -4036,7 +4045,7 @@ func (c *BillingAccountsSinksPatchCall) UniqueWriterIdentity(uniqueWriterIdentit
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *BillingAccountsSinksPatchCall) UpdateMask(updateMask string) *BillingAccountsSinksPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -4151,7 +4160,7 @@ func (c *BillingAccountsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSi
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -4218,7 +4227,7 @@ func (c *BillingAccountsSinksUpdateCall) UniqueWriterIdentity(uniqueWriterIdenti
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *BillingAccountsSinksUpdateCall) UpdateMask(updateMask string) *BillingAccountsSinksUpdateCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -4333,7 +4342,7 @@ func (c *BillingAccountsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogS
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -7141,7 +7150,7 @@ func (c *FoldersSinksPatchCall) UniqueWriterIdentity(uniqueWriterIdentity bool) 
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *FoldersSinksPatchCall) UpdateMask(updateMask string) *FoldersSinksPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -7256,7 +7265,7 @@ func (c *FoldersSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink, erro
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -7323,7 +7332,7 @@ func (c *FoldersSinksUpdateCall) UniqueWriterIdentity(uniqueWriterIdentity bool)
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *FoldersSinksUpdateCall) UpdateMask(updateMask string) *FoldersSinksUpdateCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -7438,7 +7447,7 @@ func (c *FoldersSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, err
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -9721,7 +9730,7 @@ func (c *OrganizationsSinksPatchCall) UniqueWriterIdentity(uniqueWriterIdentity 
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *OrganizationsSinksPatchCall) UpdateMask(updateMask string) *OrganizationsSinksPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -9836,7 +9845,7 @@ func (c *OrganizationsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -9903,7 +9912,7 @@ func (c *OrganizationsSinksUpdateCall) UniqueWriterIdentity(uniqueWriterIdentity
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *OrganizationsSinksUpdateCall) UpdateMask(updateMask string) *OrganizationsSinksUpdateCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -10018,7 +10027,7 @@ func (c *OrganizationsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSin
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -12535,7 +12544,7 @@ func (c *ProjectsSinksPatchCall) UniqueWriterIdentity(uniqueWriterIdentity bool)
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *ProjectsSinksPatchCall) UpdateMask(updateMask string) *ProjectsSinksPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -12650,7 +12659,7 @@ func (c *ProjectsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink, err
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -12717,7 +12726,7 @@ func (c *ProjectsSinksUpdateCall) UniqueWriterIdentity(uniqueWriterIdentity bool
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *ProjectsSinksUpdateCall) UpdateMask(updateMask string) *ProjectsSinksUpdateCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -12832,7 +12841,7 @@ func (c *ProjectsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, er
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -13526,7 +13535,7 @@ func (c *SinksUpdateCall) UniqueWriterIdentity(uniqueWriterIdentity bool) *Sinks
 // compatibility purposes:  destination,filter,includeChildren At some
 // point in the future, behavior will be removed and specifying an empty
 // updateMask will be an error.For a detailed FieldMask definition, see
-// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample:
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample:
 // updateMask=filter.
 func (c *SinksUpdateCall) UpdateMask(updateMask string) *SinksUpdateCall {
 	c.urlParams_.Set("updateMask", updateMask)
@@ -13641,7 +13650,7 @@ func (c *SinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, error) {
 	//       "type": "boolean"
 	//     },
 	//     "updateMask": {
-	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#FieldMaskExample: updateMask=filter.",
+	//       "description": "Optional. Field mask that specifies the fields in sink that need an update. A sink field will be overwritten if, and only if, it is in the update mask. name and output only fields cannot be updated.An empty updateMask is temporarily treated as using the following mask for backwards compatibility purposes:  destination,filter,includeChildren At some point in the future, behavior will be removed and specifying an empty updateMask will be an error.For a detailed FieldMask definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMaskExample: updateMask=filter.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
