@@ -152,7 +152,7 @@ that it's you making the request. The preferred method of provisioning resources
 with Terraform is to use a [GCP service account](https://cloud.google.com/docs/authentication/getting-started),
 a "robot account" that can be granted a limited set of IAM permissions.
 
-From [the service account key page in the Cloud Console](https://pantheon.corp.google.com/apis/credentials/serviceaccountkey)
+From [the service account key page in the Cloud Console](https://console.cloud.google.com/apis/credentials/serviceaccountkey)
 choose an existing account, or create a new one. Next, download the JSON key
 file. Name it something you can remember, and store it somewhere secure on your
 machine.
