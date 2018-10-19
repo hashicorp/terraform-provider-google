@@ -1,7 +1,9 @@
-# cloud.google.com/go v0.15.0
+# cloud.google.com/go v0.26.0
 cloud.google.com/go/bigtable
 cloud.google.com/go/bigtable/internal/gax
 cloud.google.com/go/bigtable/internal/option
+cloud.google.com/go/iam
+cloud.google.com/go/internal/optional
 cloud.google.com/go/longrunning
 cloud.google.com/go/longrunning/autogen
 cloud.google.com/go/compute/metadata
@@ -61,12 +63,12 @@ github.com/dustinkirkland/golang-petname
 github.com/go-ini/ini
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
-github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes
-github.com/golang/protobuf/ptypes/empty
-github.com/golang/protobuf/ptypes/timestamp
-github.com/golang/protobuf/ptypes/wrappers
+github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/any
+github.com/golang/protobuf/ptypes/timestamp
+github.com/golang/protobuf/ptypes/empty
+github.com/golang/protobuf/ptypes/wrappers
 github.com/golang/protobuf/protoc-gen-go/descriptor
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
@@ -237,19 +239,19 @@ github.com/zclconf/go-cty/cty/function
 github.com/zclconf/go-cty/cty/function/stdlib
 # go.opencensus.io v0.17.0
 go.opencensus.io/plugin/ocgrpc
+go.opencensus.io/trace
 go.opencensus.io/stats
 go.opencensus.io/stats/view
 go.opencensus.io/tag
-go.opencensus.io/trace
 go.opencensus.io/trace/propagation
-go.opencensus.io/plugin/ochttp
-go.opencensus.io/stats/internal
-go.opencensus.io/internal/tagencoding
 go.opencensus.io/internal
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/tracestate
-go.opencensus.io/plugin/ochttp/propagation/b3
+go.opencensus.io/stats/internal
+go.opencensus.io/internal/tagencoding
 go.opencensus.io
+go.opencensus.io/plugin/ochttp
+go.opencensus.io/plugin/ochttp/propagation/b3
 # golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/bcrypt
@@ -323,11 +325,11 @@ google.golang.org/api/spanner/v1
 google.golang.org/api/sqladmin/v1beta4
 google.golang.org/api/storage/v1
 google.golang.org/api/discovery/v1
+google.golang.org/api/iterator
 google.golang.org/api/transport/grpc
 google.golang.org/api/gensupport
 google.golang.org/api/googleapi/internal/uritemplates
 google.golang.org/api/internal
-google.golang.org/api/iterator
 google.golang.org/api/transport
 google.golang.org/api/transport/http
 google.golang.org/api/googleapi/transport
@@ -349,10 +351,10 @@ google.golang.org/appengine/internal/remote_api
 # google.golang.org/genproto v0.0.0-20180831171423-11092d34479b
 google.golang.org/genproto/googleapis/bigtable/admin/v2
 google.golang.org/genproto/googleapis/bigtable/v2
+google.golang.org/genproto/protobuf/field_mask
+google.golang.org/genproto/googleapis/iam/v1
 google.golang.org/genproto/googleapis/longrunning
 google.golang.org/genproto/googleapis/api/annotations
-google.golang.org/genproto/googleapis/iam/v1
-google.golang.org/genproto/protobuf/field_mask
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.14.0
 google.golang.org/grpc

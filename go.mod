@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-google
 
 require (
-	cloud.google.com/go v0.15.0
+	cloud.google.com/go v0.26.0
 	github.com/apparentlymart/go-cidr v0.0.0-20170616213631-2bd8b58cf427
 	github.com/armon/go-radix v0.0.0-20170727155443-1fca145dffbc // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
