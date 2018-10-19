@@ -42,7 +42,8 @@ To get more information about ObjectAccessControl, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/storage/docs/access-control/create-manage-lists)
 
-## Example Usage
+## Example Usage - Storage Object Access Control Public Object
+
 
 ```hcl
 resource "google_storage_object_access_control" "public_rule" {
