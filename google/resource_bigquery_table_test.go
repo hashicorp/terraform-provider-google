@@ -52,6 +52,7 @@ func TestAccBigQueryTable_View(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroy,
 		Steps: []resource.TestStep{
 			{
+
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
@@ -122,7 +123,8 @@ resource "google_bigquery_table" "test" {
 
   time_partitioning {
     type = "DAY"
-    field = "ts"	
+    field = "ts"
+	require_partition_filter = true
   }
 
   schema = <<EOH
