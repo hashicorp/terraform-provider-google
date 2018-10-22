@@ -32,7 +32,8 @@ To get more information about Policy, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/binary-authorization/)
 
-## Example Usage
+## Example Usage - Binary Authorization Policy Basic
+
 
 ```hcl
 resource "google_binary_authorization_policy" "policy" {
