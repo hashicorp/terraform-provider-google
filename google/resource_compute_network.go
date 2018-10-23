@@ -54,7 +54,7 @@ func resourceComputeNetwork() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				// This needs to remain deprecated until the API is retired
-				Removed: "Please use google_compute_subnetwork resources instead.",
+				Deprecated: "Please use google_compute_subnetwork resources instead.",
 			},
 
 			"project": &schema.Schema{
@@ -89,6 +89,9 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	//   - 2.b - Custom subnet mode - auto_create_subnetworks = false & ipv4_range not set,
 	//
 	autoCreateSubnetworks := d.Get("auto_create_subnetworks").(bool)
+	if autoCreateSubnetworks && d.Get("ipv4_range").(string) != "" {
+		return fmt.Errorf("ipv4_range can't be set if auto_create_subnetworks is true.")
+	}
 
 	// Build the network parameter
 	network := &compute.Network{
@@ -104,10 +107,14 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		network.RoutingConfig = routingConfig
 	}
 
-	// make sure AutoCreateSubnetworks field is included in request otherwise
-	// google will create a network in legacy mode.
-	network.ForceSendFields = []string{"AutoCreateSubnetworks"}
-
+	if v, ok := d.GetOk("ipv4_range"); ok {
+		log.Printf("[DEBUG] Setting IPv4Range (%#v) for legacy network mode", v.(string))
+		network.IPv4Range = v.(string)
+	} else {
+		// custom subnet mode, so make sure AutoCreateSubnetworks field is included in request otherwise
+		// google will create a network in legacy mode.
+		network.ForceSendFields = []string{"AutoCreateSubnetworks"}
+	}
 	log.Printf("[DEBUG] Network insert request: %#v", network)
 	op, err := config.clientCompute.Networks.Insert(
 		project, network).Do()
@@ -144,6 +151,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("routing_mode", routingConfig.RoutingMode)
 	d.Set("gateway_ipv4", network.GatewayIPv4)
+	d.Set("ipv4_range", network.IPv4Range)
 	d.Set("self_link", network.SelfLink)
 	d.Set("name", network.Name)
 	d.Set("description", network.Description)
