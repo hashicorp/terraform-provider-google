@@ -36,6 +36,10 @@ The following arguments are supported:
     automatically. If set to false, a custom subnetted network will be created that
     can support `google_compute_subnetwork` resources. Defaults to true.
 
+* `ipv4_range` - (Optional) If set to a CIDR block, uses the legacy VPC API with the
+  specified range. This API is deprecated. If set, `auto_create_subnetworks` must be
+  explicitly set to false.
+
 * `routing_mode` - (Optional) Sets the network-wide routing mode for Cloud Routers
   to use. Accepted values are `"GLOBAL"` or `"REGIONAL"`. Defaults to `"REGIONAL"`.
   Refer to the [Cloud Router documentation](https://cloud.google.com/router/docs/concepts/overview#dynamic-routing-mode)
