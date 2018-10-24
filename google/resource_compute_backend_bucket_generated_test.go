@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
+func TestAccComputeBackendBucket_BackendBucketBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendBucket_backendBucketBasicExample(acctest.RandString(10)),
+				Config: testAccComputeBackendBucket_BackendBucketBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_backend_bucket.image_backend",
@@ -42,7 +42,7 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeBackendBucket_backendBucketBasicExample(val string) string {
+func testAccComputeBackendBucket_BackendBucketBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "image-backend-bucket-%s"

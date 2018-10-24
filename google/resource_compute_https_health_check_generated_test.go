@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(t *testing.T) {
+func TestAccComputeHttpsHealthCheck_HttpsHealthCheckBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(acctest.RandString(10)),
+				Config: testAccComputeHttpsHealthCheck_HttpsHealthCheckBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_https_health_check.default",
@@ -42,7 +42,7 @@ func TestAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(val string) string {
+func testAccComputeHttpsHealthCheck_HttpsHealthCheckBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_https_health_check" "default" {
   name         = "authentication-health-check-%s"

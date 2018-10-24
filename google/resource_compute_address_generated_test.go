@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeAddress_addressBasicExample(t *testing.T) {
+func TestAccComputeAddress_AddressBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_addressBasicExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_AddressBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_address.ip_address",
@@ -42,7 +42,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_addressBasicExample(val string) string {
+func testAccComputeAddress_AddressBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "ip_address" {
   name = "my-address-%s"
@@ -51,7 +51,7 @@ resource "google_compute_address" "ip_address" {
 	)
 }
 
-func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
+func TestAccComputeAddress_AddressWithSubnetworkExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -60,7 +60,7 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_addressWithSubnetworkExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_AddressWithSubnetworkExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
@@ -71,7 +71,7 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_addressWithSubnetworkExample(val string) string {
+func testAccComputeAddress_AddressWithSubnetworkExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "default" {
   name = "my-network-%s"
@@ -95,7 +95,7 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 	)
 }
 
-func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
+func TestAccComputeAddress_InstanceWithIpExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -104,7 +104,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_instanceWithIpExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_InstanceWithIpExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_address.static",
@@ -115,7 +115,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_instanceWithIpExample(val string) string {
+func testAccComputeAddress_InstanceWithIpExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "static" {
   name = "ipv4-address-%s"

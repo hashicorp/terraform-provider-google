@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
+func TestAccComputeAutoscaler_AutoscalerBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAutoscaler_autoscalerBasicExample(acctest.RandString(10)),
+				Config: testAccComputeAutoscaler_AutoscalerBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_autoscaler.foobar",
@@ -42,7 +42,7 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAutoscaler_autoscalerBasicExample(val string) string {
+func testAccComputeAutoscaler_AutoscalerBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_autoscaler" "foobar" {
   name   = "my-autoscaler-%s"

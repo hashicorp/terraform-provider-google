@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
+func TestAccComputeGlobalAddress_GlobalAddressBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_globalAddressBasicExample(acctest.RandString(10)),
+				Config: testAccComputeGlobalAddress_GlobalAddressBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_global_address.default",
@@ -42,7 +42,7 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeGlobalAddress_globalAddressBasicExample(val string) string {
+func testAccComputeGlobalAddress_GlobalAddressBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "default" {
   name = "global-appserver-ip-%s"

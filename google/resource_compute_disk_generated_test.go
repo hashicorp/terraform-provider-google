@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeDisk_diskBasicExample(t *testing.T) {
+func TestAccComputeDisk_DiskBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_diskBasicExample(acctest.RandString(10)),
+				Config: testAccComputeDisk_DiskBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_disk.default",
@@ -42,7 +42,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeDisk_diskBasicExample(val string) string {
+func testAccComputeDisk_DiskBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "default" {
   name  = "test-disk-%s"
