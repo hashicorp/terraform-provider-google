@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
+func TestAccComputeTargetHttpsProxy_TargetHttpsProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(acctest.RandString(10)),
+				Config: testAccComputeTargetHttpsProxy_TargetHttpsProxyBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_target_https_proxy.default",
@@ -42,7 +42,7 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(val string) string {
+func testAccComputeTargetHttpsProxy_TargetHttpsProxyBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "default" {
   name             = "test-proxy-%s"

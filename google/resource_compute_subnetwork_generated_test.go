@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
+func TestAccComputeSubnetwork_SubnetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSubnetwork_subnetworkBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSubnetwork_SubnetworkBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
@@ -42,7 +42,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSubnetwork_subnetworkBasicExample(val string) string {
+func testAccComputeSubnetwork_SubnetworkBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "test-subnetwork-%s"
