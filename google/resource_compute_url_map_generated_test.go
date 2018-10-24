@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
+func TestAccComputeUrlMap_UrlMapBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_urlMapBasicExample(acctest.RandString(10)),
+				Config: testAccComputeUrlMap_UrlMapBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_url_map.urlmap",
@@ -42,7 +42,7 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeUrlMap_urlMapBasicExample(val string) string {
+func testAccComputeUrlMap_UrlMapBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap-%s"

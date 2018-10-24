@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
+func TestAccComputeForwardingRule_ForwardingRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeForwardingRule_forwardingRuleBasicExample(acctest.RandString(10)),
+				Config: testAccComputeForwardingRule_ForwardingRuleBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_forwarding_rule.default",
@@ -42,7 +42,7 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeForwardingRule_forwardingRuleBasicExample(val string) string {
+func testAccComputeForwardingRule_ForwardingRuleBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_forwarding_rule" "default" {
   name       = "website-forwarding-rule-%s"

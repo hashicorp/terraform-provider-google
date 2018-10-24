@@ -136,7 +136,7 @@ resource "google_spanner_instance" "basic" {
 
 resource "google_spanner_database" "basic" {
   instance      = "${google_spanner_instance.basic.name}"
-  name          = "%s"
+  name          = "my-db-%s"
 }
 `, instanceName, instanceName, databaseName)
 }
