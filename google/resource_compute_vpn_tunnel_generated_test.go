@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
+func TestAccComputeVpnTunnel_VpnTunnelBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnel_vpnTunnelBasicExample(acctest.RandString(10)),
+				Config: testAccComputeVpnTunnel_VpnTunnelBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.tunnel1",
@@ -43,7 +43,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeVpnTunnel_vpnTunnelBasicExample(val string) string {
+func testAccComputeVpnTunnel_VpnTunnelBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_vpn_tunnel" "tunnel1" {
   name          = "tunnel1-%s"
