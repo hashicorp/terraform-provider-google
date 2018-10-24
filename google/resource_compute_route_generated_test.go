@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeRoute_routeBasicExample(t *testing.T) {
+func TestAccComputeRoute_RouteBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_routeBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRoute_RouteBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_route.default",
@@ -42,7 +42,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRoute_routeBasicExample(val string) string {
+func testAccComputeRoute_RouteBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_route" "default" {
   name        = "network-route-%s"

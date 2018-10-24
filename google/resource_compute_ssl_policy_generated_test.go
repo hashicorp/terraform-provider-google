@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
+func TestAccComputeSslPolicy_SslPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslPolicy_sslPolicyBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSslPolicy_SslPolicyBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_ssl_policy.prod-ssl-policy",
@@ -42,7 +42,7 @@ func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSslPolicy_sslPolicyBasicExample(val string) string {
+func testAccComputeSslPolicy_SslPolicyBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_policy" "prod-ssl-policy" {
   name    = "production-ssl-policy-%s"
