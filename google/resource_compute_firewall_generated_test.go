@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
+func TestAccComputeFirewall_FirewallBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeFirewall_firewallBasicExample(acctest.RandString(10)),
+				Config: testAccComputeFirewall_FirewallBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_firewall.default",
@@ -42,7 +42,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeFirewall_firewallBasicExample(val string) string {
+func testAccComputeFirewall_FirewallBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_firewall" "default" {
   name    = "test-firewall-%s"
