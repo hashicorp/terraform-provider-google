@@ -9,6 +9,8 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
+* bigquery: added australia and europe regions to the validate function [GH-2333]
+
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
