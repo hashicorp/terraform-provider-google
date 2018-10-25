@@ -78,11 +78,10 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 
 func resourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceCloudFunctionsCreate,
-		Read:          resourceCloudFunctionsRead,
-		Update:        resourceCloudFunctionsUpdate,
-		Delete:        resourceCloudFunctionsDestroy,
-		CustomizeDiff: resourceCloudFunctionsCustomizeDiff,
+		Create: resourceCloudFunctionsCreate,
+		Read:   resourceCloudFunctionsRead,
+		Update: resourceCloudFunctionsUpdate,
+		Delete: resourceCloudFunctionsDestroy,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -179,7 +178,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				Deprecated:    "This field is deprecated. Use `event_trigger` instead.",
+				Removed:       "This field is removed. Use `event_trigger` instead.",
 				ConflictsWith: []string{"trigger_http", "trigger_topic"},
 			},
 
@@ -194,7 +193,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				Deprecated:    "This field is deprecated. Use `event_trigger` instead.",
+				Removed:       "This field is removed. Use `event_trigger` instead.",
 				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
 			},
 
@@ -265,28 +264,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 	}
 }
 
-func resourceCloudFunctionsCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
-	if diff.HasChange("trigger_topic") {
-		_, n := diff.GetChange("trigger_topic")
-		if n == "" {
-			diff.Clear("trigger_topic")
-		} else {
-			diff.ForceNew("trigger_topic")
-		}
-	}
-
-	if diff.HasChange("trigger_bucket") {
-		_, n := diff.GetChange("trigger_bucket")
-		if n == "" {
-			diff.Clear("trigger_bucket")
-		} else {
-			diff.ForceNew("trigger_bucket")
-		}
-	}
-
-	return nil
-}
-
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -344,33 +321,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
 	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
 		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
-	} else if v, ok := d.GetOk("trigger_topic"); ok {
-		// Make PubSub event publish as in https://cloud.google.com/functions/docs/calling/pubsub
-		function.EventTrigger = &cloudfunctions.EventTrigger{
-			// Other events are not supported
-			EventType: "google.pubsub.topic.publish",
-			// Must be like projects/PROJECT_ID/topics/NAME
-			// Topic must be in same project as function
-			Resource: fmt.Sprintf("projects/%s/topics/%s", project, v.(string)),
-		}
-		if d.Get("retry_on_failure").(bool) {
-			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
-				Retry: &cloudfunctions.Retry{},
-			}
-		}
-	} else if v, ok := d.GetOk("trigger_bucket"); ok {
-		// Make Storage event as in https://cloud.google.com/functions/docs/calling/storage
-		function.EventTrigger = &cloudfunctions.EventTrigger{
-			EventType: "providers/cloud.storage/eventTypes/object.change",
-			// Must be like projects/PROJECT_ID/buckets/NAME
-			// Bucket must be in same project as function
-			Resource: fmt.Sprintf("projects/%s/buckets/%s", project, v.(string)),
-		}
-		if d.Get("retry_on_failure").(bool) {
-			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
-				Retry: &cloudfunctions.Retry{},
-			}
-		}
 	} else {
 		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
@@ -447,23 +397,12 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
 	if function.EventTrigger != nil {
-		switch function.EventTrigger.EventType {
-		// From https://github.com/google/google-api-go-client/blob/master/cloudfunctions/v1/cloudfunctions-gen.go#L335
-		case "google.pubsub.topic.publish":
-			if _, ok := d.GetOk("trigger_topic"); ok {
-				d.Set("trigger_topic", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
-			}
-		case "providers/cloud.storage/eventTypes/object.change":
-			if _, ok := d.GetOk("trigger_bucket"); ok {
-				d.Set("trigger_bucket", GetResourceNameFromSelfLink(function.EventTrigger.Resource))
-			}
-		}
-
 		if _, ok := d.GetOk("retry_on_failure"); ok {
 			retry := function.EventTrigger.FailurePolicy != nil && function.EventTrigger.FailurePolicy.Retry != nil
 			d.Set("retry_on_failure", retry)
 		}
 	}
+
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
 
