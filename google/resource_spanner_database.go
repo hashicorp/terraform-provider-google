@@ -13,17 +13,20 @@ import (
 	"google.golang.org/api/spanner/v1"
 )
 
+const (
+	spannerDatabaseNameFormat = "^[a-z][a-z0-9_-]*[a-z0-9]$"
+)
+
 func resourceSpannerDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerDatabaseCreate,
 		Read:   resourceSpannerDatabaseRead,
 		Delete: resourceSpannerDatabaseDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceSpannerDatabaseImportState,
+			State: resourceSpannerDatabaseImport,
 		},
 
 		Schema: map[string]*schema.Schema{
-
 			"instance": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -31,30 +34,10 @@ func resourceSpannerDatabase() *schema.Resource {
 			},
 
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-
-					if len(value) < 2 && len(value) > 30 {
-						errors = append(errors, fmt.Errorf(
-							"%q must be between 2 and 30 characters in length", k))
-					}
-					if !regexp.MustCompile("^[a-z0-9-]+$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q can only contain lowercase letters, numbers and hyphens", k))
-					}
-					if !regexp.MustCompile("^[a-z]").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must start with a letter", k))
-					}
-					if !regexp.MustCompile("[a-z0-9]$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must end with a number or a letter", k))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateResourceSpannerDatabaseName,
 			},
 
 			"project": {
@@ -154,25 +137,23 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func resourceSpannerDatabaseImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	id, err := importSpannerDatabaseId(d.Id())
+	err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
+	}, d, config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 
-	if id.Project != "" {
-		d.Set("project", id.Project)
-	} else {
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
-		id.Project = project
+	id, err := buildSpannerDatabaseId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 
-	d.Set("instance", id.Instance)
-	d.Set("name", id.Database)
 	d.SetId(id.terraformId())
 
 	return []*schema.ResourceData{d}, nil
@@ -215,26 +196,8 @@ func (s spannerDatabaseId) databaseUri() string {
 	return fmt.Sprintf("%s/databases/%s", s.parentInstanceUri(), s.Database)
 }
 
-func importSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
-	if !regexp.MustCompile("^[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) &&
-		!regexp.MustCompile("^"+ProjectRegex+"/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
-		return nil, fmt.Errorf("Invalid spanner database specifier. " +
-			"Expecting either {projectId}/{instanceId}/{dbId} OR " +
-			"{instanceId}/{dbId} (where project will be derived from the provider)")
-	}
-
-	parts := strings.Split(id, "/")
-	if len(parts) == 2 {
-		log.Printf("[INFO] Spanner database import format of {instanceId}/{dbId} specified: %s", id)
-		return &spannerDatabaseId{Instance: parts[0], Database: parts[1]}, nil
-	}
-
-	log.Printf("[INFO] Spanner database import format of {projectId}/{instanceId}/{dbId} specified: %s", id)
-	return extractSpannerDatabaseId(id)
-}
-
 func extractSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
-	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+/[a-z0-9-]+$").Match([]byte(id)) {
+	if !regexp.MustCompile(fmt.Sprintf("^%s/[a-z0-9-]+/%s$", ProjectRegex, spannerDatabaseNameFormat)).Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}/{databaseId}")
 	}
 	parts := strings.Split(id, "/")
@@ -243,4 +206,18 @@ func extractSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
 		Instance: parts[1],
 		Database: parts[2],
 	}, nil
+}
+
+func validateResourceSpannerDatabaseName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) < 2 && len(value) > 30 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be between 2 and 30 characters in length", k))
+	}
+
+	if !regexp.MustCompile(spannerDatabaseNameFormat).MatchString(value) {
+		errors = append(errors, fmt.Errorf("database name %q must match regexp %q", value, spannerDatabaseNameFormat))
+	}
+	return
 }
