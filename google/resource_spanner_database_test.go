@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/errwrap"
@@ -14,123 +13,46 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// Unit Tests
-
-func TestDatabaseNameForApi(t *testing.T) {
-	id := spannerDatabaseId{
-		Project:  "project123",
-		Instance: "instance456",
-		Database: "db789",
-	}
-	actual := id.databaseUri()
-	expected := "projects/project123/instances/instance456/databases/db789"
-	expectEquals(t, expected, actual)
-}
-
-func TestImportSpannerDatabaseId_InstanceDB(t *testing.T) {
-	id, e := importSpannerDatabaseId("instance456/database789")
-	if e != nil {
-		t.Errorf("Error should have been nil")
-	}
-	expectEquals(t, "", id.Project)
-	expectEquals(t, "instance456", id.Instance)
-	expectEquals(t, "database789", id.Database)
-}
-
-func TestImportSpannerDatabaseId_ProjectInstanceDB(t *testing.T) {
-	id, e := importSpannerDatabaseId("project123/instance456/database789")
-	if e != nil {
-		t.Errorf("Error should have been nil")
-	}
-	expectEquals(t, "project123", id.Project)
-	expectEquals(t, "instance456", id.Instance)
-	expectEquals(t, "database789", id.Database)
-}
-
-func TestImportSpannerDatabaseId_projectId(t *testing.T) {
-	shouldPass := []string{
-		"project-id/instance/database",
-		"123123/instance/123",
-		"hashicorptest.net:project-123/instance/123",
-		"123/456/789",
-	}
-
-	shouldFail := []string{
-		"project-id#/instance/database",
-		"project-id/instance#/database",
-		"project-id/instance/database#",
-		"hashicorptest.net:project-123:invalid:project/instance/123",
-		"hashicorptest.net:/instance/123",
-	}
-
-	for _, element := range shouldPass {
-		_, e := importSpannerDatabaseId(element)
-		if e != nil {
-			t.Error("importSpannerDatabaseId should pass on '" + element + "' but doesn't")
-		}
-	}
-
-	for _, element := range shouldFail {
-		_, e := importSpannerDatabaseId(element)
-		if e == nil {
-			t.Error("importSpannerDatabaseId should fail on '" + element + "' but doesn't")
-		}
-	}
-}
-
-func TestImportSpannerDatabaseId_invalidLeadingSlash(t *testing.T) {
-	id, e := importSpannerDatabaseId("/instance456/database789")
-	expectInvalidSpannerDbImportId(t, id, e)
-}
-
-func TestImportSpannerDatabaseId_invalidTrailingSlash(t *testing.T) {
-	id, e := importSpannerDatabaseId("instance456/database789/")
-	expectInvalidSpannerDbImportId(t, id, e)
-}
-
-func TestImportSpannerDatabaseId_invalidSingleSlash(t *testing.T) {
-	id, e := importSpannerDatabaseId("/")
-	expectInvalidSpannerDbImportId(t, id, e)
-}
-
-func TestImportSpannerDatabaseId_invalidMultiSlash(t *testing.T) {
-	id, e := importSpannerDatabaseId("project123/instance456/db789/next")
-	expectInvalidSpannerDbImportId(t, id, e)
-}
-
-func expectInvalidSpannerDbImportId(t *testing.T, id *spannerDatabaseId, e error) {
-	if id != nil {
-		t.Errorf("Expected spannerDatabaseId to be nil")
-		return
-	}
-	if e == nil {
-		t.Errorf("Expected an Error but did not get one")
-		return
-	}
-	if !strings.HasPrefix(e.Error(), "Invalid spanner database specifier") {
-		t.Errorf("Expecting Error starting with 'Invalid spanner database specifier'")
-	}
-}
-
-// Acceptance Tests
-
 func TestAccSpannerDatabase_basic(t *testing.T) {
 	t.Parallel()
 
+	project := getTestProjectFromEnv()
 	rnd := acctest.RandString(10)
+	instanceName := fmt.Sprintf("my-instance-%s", rnd)
+	databaseName := fmt.Sprintf("mydb_%s", rnd)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSpannerDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSpannerDatabase_basic(rnd),
+				Config: testAccSpannerDatabase_basic(instanceName, databaseName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_spanner_database.basic", "state"),
 				),
 			},
 			{
+				// Test import with default Terraform ID
 				ResourceName:      "google_spanner_database.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_spanner_database.basic",
+				ImportStateId:     fmt.Sprintf("projects/%s/instances/%s/databases/%s", project, instanceName, databaseName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_spanner_database.basic",
+				ImportStateId:     fmt.Sprintf("instances/%s/databases/%s", instanceName, databaseName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_spanner_database.basic",
+				ImportStateId:     fmt.Sprintf("%s/%s", instanceName, databaseName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -142,13 +64,15 @@ func TestAccSpannerDatabase_basicWithInitialDDL(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(10)
+	instanceName := fmt.Sprintf("my-instance-%s", rnd)
+	databaseName := fmt.Sprintf("mydb-%s", rnd)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSpannerDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSpannerDatabase_basicWithInitialDDL(rnd),
+				Config: testAccSpannerDatabase_basicWithInitialDDL(instanceName, databaseName),
 			},
 			{
 				ResourceName:      "google_spanner_database.basic",
@@ -201,37 +125,49 @@ func testAccCheckSpannerDatabaseDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccSpannerDatabase_basic(rnd string) string {
+func testAccSpannerDatabase_basic(instanceName, databaseName string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
-  name          = "my-instance-%s"
+  name          = "%s"
   config        = "regional-us-central1"
-  display_name  = "my-displayname-%s"
+  display_name  = "display-%s"
   num_nodes     = 1
 }
 
 resource "google_spanner_database" "basic" {
   instance      = "${google_spanner_instance.basic.name}"
-  name          = "my-db-%s"
+  name          = "%s"
 }
-`, rnd, rnd, rnd)
+`, instanceName, instanceName, databaseName)
 }
 
-func testAccSpannerDatabase_basicWithInitialDDL(rnd string) string {
+func testAccSpannerDatabase_basicWithInitialDDL(instanceName, databaseName string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
-  name          = "my-instance-%s"
+  name          = "%s"
   config        = "regional-us-central1"
-  display_name  = "my-displayname-%s"
+  display_name  = "display-%s"
   num_nodes     = 1
 }
 
 resource "google_spanner_database" "basic" {
   instance      = "${google_spanner_instance.basic.name}"
-  name          = "my-db-%s"
+  name          = "%s"
   ddl           =  [
      "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
      "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)" ]
 }
-`, rnd, rnd, rnd)
+`, instanceName, instanceName, databaseName)
+}
+
+// Unit Tests for type spannerDatabaseId
+func TestDatabaseNameForApi(t *testing.T) {
+	id := spannerDatabaseId{
+		Project:  "project123",
+		Instance: "instance456",
+		Database: "db789",
+	}
+	actual := id.databaseUri()
+	expected := "projects/project123/instances/instance456/databases/db789"
+	expectEquals(t, expected, actual)
 }
