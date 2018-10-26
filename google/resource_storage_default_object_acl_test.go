@@ -12,7 +12,6 @@ func TestAccStorageDefaultObjectAcl_basic(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName()
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -24,6 +23,22 @@ func TestAccStorageDefaultObjectAcl_basic(t *testing.T) {
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageDefaultObjectAcl(bucketName, roleEntityBasic2),
 				),
+			},
+		},
+	})
+}
+
+func TestAccStorageDefaultObjectAcl_noRoleEntity(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageDefaultObjectAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageDefaultObjectsAclNoRoleEntity(bucketName),
 			},
 		},
 	})
@@ -178,6 +193,19 @@ func testAccCheckGoogleStorageDefaultObjectAclDelete(bucket, roleEntityS string)
 	}
 }
 
+func testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntity1, roleEntity2 string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+}
+
+resource "google_storage_default_object_acl" "acl" {
+	bucket = "${google_storage_bucket.bucket.name}"
+	role_entity = ["%s", "%s"]
+}
+`, bucketName, roleEntity1, roleEntity2)
+}
+
 func testGoogleStorageDefaultObjectsAclBasicDelete(bucketName, roleEntity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
@@ -191,7 +219,7 @@ resource "google_storage_default_object_acl" "acl" {
 `, bucketName, roleEntity)
 }
 
-func testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntity1, roleEntity2 string) string {
+func testGoogleStorageDefaultObjectsAclNoRoleEntity(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
@@ -199,9 +227,9 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_default_object_acl" "acl" {
 	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+	role_entity = []
 }
-`, bucketName, roleEntity1, roleEntity2)
+`, bucketName)
 }
 
 func testGoogleStorageDefaultObjectAclUnordered(bucketName string) string {
