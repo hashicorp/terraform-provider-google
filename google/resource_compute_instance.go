@@ -200,13 +200,10 @@ func resourceComputeInstance() *schema.Resource {
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 
-									// It's unclear why this field exists, as
-									// nat_ip can be both optional and computed.
-									// Consider deprecating it.
 									"assigned_nat_ip": &schema.Schema{
-										Type:       schema.TypeString,
-										Computed:   true,
-										Deprecated: "Use network_interface.access_config.nat_ip instead.",
+										Type:     schema.TypeString,
+										Computed: true,
+										Removed:  "Use network_interface.access_config.nat_ip instead.",
 									},
 
 									"public_ptr_domain_name": &schema.Schema{
