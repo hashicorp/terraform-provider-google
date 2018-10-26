@@ -263,14 +263,10 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
-									// Instance templates will never have an
-									// 'assigned NAT IP', but we need this in
-									// the schema to allow us to share flatten
-									// code with an instance, which could.
 									"assigned_nat_ip": &schema.Schema{
-										Type:       schema.TypeString,
-										Computed:   true,
-										Deprecated: "Use network_interface.access_config.nat_ip instead.",
+										Type:     schema.TypeString,
+										Computed: true,
+										Removed:  "Use network_interface.access_config.nat_ip instead.",
 									},
 								},
 							},
