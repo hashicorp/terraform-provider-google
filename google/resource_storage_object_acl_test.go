@@ -176,6 +176,72 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 	})
 }
 
+func TestAccStorageObjectAcl_predefinedToExplicit(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	objectName := testAclObjectName()
+	objectData := []byte("data data data")
+	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			if errObjectAcl != nil {
+				panic(errObjectAcl)
+			}
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageObjectAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageObjectsAclPredefined(bucketName, objectName),
+			},
+			resource.TestStep{
+				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObjectAcl(bucketName,
+						objectName, roleEntityBasic1),
+					testAccCheckGoogleStorageObjectAcl(bucketName,
+						objectName, roleEntityBasic2),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	objectName := testAclObjectName()
+	objectData := []byte("data data data")
+	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			if errObjectAcl != nil {
+				panic(errObjectAcl)
+			}
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageObjectAclDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObjectAcl(bucketName,
+						objectName, roleEntityBasic1),
+					testAccCheckGoogleStorageObjectAcl(bucketName,
+						objectName, roleEntityBasic2),
+				),
+			},
+			resource.TestStep{
+				Config: testGoogleStorageObjectsAclPredefined(bucketName, objectName),
+			},
+		},
+	})
+}
+
 // Test that we allow the API to reorder our role entities without perma-diffing.
 func TestAccStorageObjectAcl_unordered(t *testing.T) {
 	t.Parallel()
