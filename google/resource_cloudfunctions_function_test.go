@@ -109,6 +109,11 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFileUpdatePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
@@ -126,6 +131,11 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("NEW_ENV_VARIABLE",
 						"new-env-variable-value", &function),
 				),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -529,6 +539,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
   trigger_http          = true
+  runtime               = "nodejs8"
   timeout               = 91
   entry_point           = "helloGET"
   labels {

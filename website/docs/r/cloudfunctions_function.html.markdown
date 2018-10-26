@@ -76,6 +76,8 @@ Deprecated. Use `event_trigger` instead.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
+* `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
+
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
 * `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
