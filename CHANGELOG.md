@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 
 ENHANCEMENTS:
+* cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
 
 BUG FIXES:
