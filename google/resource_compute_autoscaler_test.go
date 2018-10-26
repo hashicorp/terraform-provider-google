@@ -104,26 +104,6 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_autoscaler" {
-			continue
-		}
-
-		idParts := strings.Split(rs.Primary.ID, "/")
-		zone, name := idParts[0], idParts[1]
-		_, err := config.clientCompute.Autoscalers.Get(
-			config.Project, zone, name).Do()
-		if err == nil {
-			return fmt.Errorf("Autoscaler still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeAutoscalerExists(n string, ascaler *compute.Autoscaler) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
