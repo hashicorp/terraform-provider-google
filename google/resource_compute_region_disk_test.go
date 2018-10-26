@@ -175,24 +175,6 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRegionDiskDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_region_disk" {
-			continue
-		}
-
-		_, err := config.clientComputeBeta.RegionDisks.Get(
-			config.Project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("RegionDisk still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeRegionDiskExists(n string, disk *computeBeta.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		p := getTestProjectFromEnv()

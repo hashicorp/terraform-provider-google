@@ -95,24 +95,6 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRouteDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_route" {
-			continue
-		}
-
-		_, err := config.clientCompute.Routes.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Route still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeRouteExists(n string, route *compute.Route) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

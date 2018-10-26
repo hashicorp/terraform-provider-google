@@ -6,9 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeVpnTunnel_basic(t *testing.T) {
@@ -73,31 +70,6 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeVpnTunnelDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	project := config.Project
-
-	vpnTunnelsService := compute.NewVpnTunnelsService(config.clientCompute)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_network" {
-			continue
-		}
-
-		region := rs.Primary.Attributes["region"]
-		name := rs.Primary.Attributes["name"]
-
-		_, err := vpnTunnelsService.Get(project, region, name).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, VPN Tunnel %s in region %s still exists",
-				name, region)
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeVpnTunnel_basic() string {
