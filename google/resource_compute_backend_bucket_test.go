@@ -78,24 +78,6 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 	}
 }
 
-func testAccCheckComputeBackendBucketDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_bucket" {
-			continue
-		}
-
-		_, err := config.clientCompute.BackendBuckets.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Backend bucket %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeBackendBucketExists(n string, svc *compute.BackendBucket) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

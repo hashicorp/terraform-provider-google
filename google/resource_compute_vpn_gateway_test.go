@@ -32,31 +32,6 @@ func TestAccComputeVpnGateway_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeVpnGatewayDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	project := config.Project
-
-	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.clientCompute)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_network" {
-			continue
-		}
-
-		region := rs.Primary.Attributes["region"]
-		name := rs.Primary.Attributes["name"]
-
-		_, err := vpnGatewaysService.Get(project, region, name).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, VPN Gateway %s in region %s still exists",
-				name, region)
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeVpnGatewayExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

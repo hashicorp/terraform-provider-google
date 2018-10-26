@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
@@ -110,39 +109,6 @@ func TestAccComputeRouter_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeRouterDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	routersService := config.clientCompute.Routers
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_router" {
-			continue
-		}
-
-		project, err := getTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		region, err := getTestRegion(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		name := rs.Primary.Attributes["name"]
-
-		_, err = routersService.Get(project, region, name).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, Router %s in region %s still exists",
-				name, region)
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeRouterBasic(testId, resourceRegion string) string {

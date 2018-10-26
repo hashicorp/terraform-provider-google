@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeAddress_basic(t *testing.T) {
@@ -77,26 +76,6 @@ func TestAccComputeAddress_internal(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeAddressDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_address" {
-			continue
-		}
-
-		addressId, err := parseComputeAddressId(rs.Primary.ID, config)
-
-		_, err = config.clientCompute.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err == nil {
-			return fmt.Errorf("Address still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeAddress_basic(i string) string {
