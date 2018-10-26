@@ -342,42 +342,6 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 	})
 }
 
-func TestAccComputeDisk_encryptionKMS(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := "tf-test-" + acctest.RandString(10)
-	billingAccount := getTestBillingAccountFromEnv(t)
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	keyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	importID := fmt.Sprintf("%s/%s/%s", pid, "us-central1-a", diskName)
-	var disk compute.Disk
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeDisk_encryptionKMS(pid, pname, org, billingAccount, diskName, keyRingName, keyName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", pid, &disk),
-					testAccCheckEncryptionKey(
-						"google_compute_disk.foobar", &disk),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "google_compute_disk.foobar",
-				ImportStateId:     importID,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
