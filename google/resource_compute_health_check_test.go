@@ -215,24 +215,6 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeHealthCheckDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_health_check" {
-			continue
-		}
-
-		_, err := config.clientCompute.HealthChecks.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("HealthCheck %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeHealthCheckExists(n string, healthCheck *compute.HealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

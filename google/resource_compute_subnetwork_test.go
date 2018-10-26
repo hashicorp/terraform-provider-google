@@ -216,25 +216,6 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_subnetwork" {
-			continue
-		}
-
-		region, subnet_name := splitSubnetID(rs.Primary.ID)
-		_, err := config.clientCompute.Subnetworks.Get(
-			config.Project, region, subnet_name).Do()
-		if err == nil {
-			return fmt.Errorf("Network still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

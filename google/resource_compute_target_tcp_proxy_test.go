@@ -67,24 +67,6 @@ func TestAccComputeTargetTcpProxy_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeTargetTcpProxyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_tcp_proxy" {
-			continue
-		}
-
-		_, err := config.clientCompute.TargetTcpProxies.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("TargetTcpProxy still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeTargetTcpProxyExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
