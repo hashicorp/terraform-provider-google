@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeForwardingRule_ForwardingRuleBasicExample(t *testing.T) {
@@ -55,4 +56,26 @@ resource "google_compute_target_pool" "default" {
 }
 `, val, val,
 	)
+}
+
+func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_forwarding_rule" {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("ComputeForwardingRule still exists at %s", url)
+		}
+	}
+
+	return nil
 }
