@@ -48,9 +48,8 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 	natIP := ""
 	for i, ac := range accessConfigs {
 		flattened[i] = map[string]interface{}{
-			"nat_ip":          ac.NatIP,
-			"network_tier":    ac.NetworkTier,
-			"assigned_nat_ip": ac.NatIP,
+			"nat_ip":       ac.NatIP,
+			"network_tier": ac.NetworkTier,
 		}
 		if ac.SetPublicPtr {
 			flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
