@@ -78,24 +78,6 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeTargetHttpsProxyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_https_proxy" {
-			continue
-		}
-
-		_, err := config.clientCompute.TargetHttpsProxies.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("TargetHttpsProxy still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeTargetHttpsProxyExists(n string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

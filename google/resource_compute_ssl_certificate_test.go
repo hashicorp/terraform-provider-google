@@ -84,24 +84,6 @@ func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSslCertificateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_ssl_certificate" {
-			continue
-		}
-
-		_, err := config.clientCompute.SslCertificates.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("SslCertificate still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeSslCertificateExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

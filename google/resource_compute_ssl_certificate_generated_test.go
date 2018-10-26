@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
@@ -197,4 +198,26 @@ resource "google_compute_http_health_check" "default" {
 }
 `, val, val, val, val,
 	)
+}
+
+func testAccCheckComputeSslCertificateDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_ssl_certificate" {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/sslCertificates/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("ComputeSslCertificate still exists at %s", url)
+		}
+	}
+
+	return nil
 }

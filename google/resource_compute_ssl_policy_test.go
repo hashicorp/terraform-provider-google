@@ -308,24 +308,6 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) 
 	}
 }
 
-func testAccCheckComputeSslPolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_ssl_policy" {
-			continue
-		}
-
-		_, err := config.clientCompute.SslPolicies.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("SSL Policy still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccComputeSslPolicyBasic(resourceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_policy" "basic" {
