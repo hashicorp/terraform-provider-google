@@ -472,6 +472,38 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	org := getTestOrgFromEnv(t)
+	pid := "tf-test-" + acctest.RandString(10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billingAccount, diskName, keyRingName, keyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1389,4 +1421,88 @@ resource "google_compute_instance_template" "foobar" {
 
 	min_cpu_platform = "%s"
 }`, i, DEFAULT_MIN_CPU_TEST_VALUE)
+}
+
+func testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billing, diskName, keyRingName, keyName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "project" {
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_project_services" "apis" {
+  project = "${google_project.project.project_id}"
+
+  services = [
+    "oslogin.googleapis.com",
+    "compute.googleapis.com",
+    "cloudkms.googleapis.com",
+    "appengine.googleapis.com",
+  ]
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com"
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_crypto_key_iam_binding" "kms-key-binding" {
+  crypto_key_id = "${google_kms_crypto_key.my_crypto_key.self_link}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com",
+  ]
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_key_ring" "my_key_ring" {
+  name     = "%s"
+  project  = "${google_project.project.project_id}"
+  location = "us-central1"
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_crypto_key" "my_crypto_key" {
+  name     = "%s"
+  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
+}
+
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		disk_encryption_key {
+      kms_key_self_link = "${google_kms_crypto_key.my_crypto_key.self_link}"
+    }
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+    labels {
+        my_label = "foobar"
+    }
+}`, pid, pname, org, billing, keyRingName, keyName, acctest.RandString(10))
 }

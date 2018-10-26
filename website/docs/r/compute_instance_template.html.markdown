@@ -286,6 +286,20 @@ The `disk` block supports:
 * `type` - (Optional) The type of GCE disk, can be either `"SCRATCH"` or
     `"PERSISTENT"`.
 
+* `disk_encryption_key` - (Optional) Encrypts or decrypts a disk using a customer-supplied encryption key.
+
+    If you are creating a new disk, this field encrypts the new disk using an encryption key that you provide. If you are attaching an existing disk that is already encrypted, this field decrypts the disk using the customer-supplied encryption key.
+
+    If you encrypt a disk using a customer-supplied key, you must provide the same key again when you attempt to use this resource at a later time. For example, you must provide the key when you create a snapshot or an image from the disk or when you attach the disk to a virtual machine instance.
+
+    If you do not provide an encryption key, then the disk will be encrypted using an automatically generated key and you do not need to provide a key to use the disk later.
+
+    Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
+
+The `disk_encryption_key` block supports:
+
+* `kms_key_self_link` - (Optional) The self link of the encryption key that is stored in Google Cloud KMS
+
 The `network_interface` block supports:
 
 * `network` - (Optional) The name or self_link of the network to attach this interface to.
