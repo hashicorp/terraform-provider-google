@@ -131,6 +131,28 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
+	t.Parallel()
+
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_softwareCfg(envName),
+				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 // Checks behavior of config for creation for attributes that must
 // be updated during create.
 func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
@@ -304,6 +326,21 @@ resource "google_project_iam_member" "composer-worker" {
   member  = "serviceAccount:${google_service_account.test.email}"
 }
 `, environment, network, subnetwork, serviceAccount)
+}
+
+func testAccComposerEnvironment_softwareCfg(name string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name           = "%s"
+  region         = "us-central1"
+	config {
+		software_config {
+			image_version = "composer-latest-airflow-1.10"
+			python_version = "3"
+		}
+	}
+}
+`, name)
 }
 
 func testAccComposerEnvironment_updateOnlyFields(name string) string {
