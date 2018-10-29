@@ -157,9 +157,11 @@ func testAccBigtableTable(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
   name          = "%s"
-  cluster_id    = "%s"
-  zone          = "us-central1-b"
   instance_type = "DEVELOPMENT"
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
 }
 
 resource "google_bigtable_table" "table" {
@@ -173,9 +175,11 @@ func testAccBigtableTable_splitKeys(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
   name          = "%s"
-  cluster_id    = "%s"
-  zone          = "us-central1-b"
   instance_type = "DEVELOPMENT"
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
 }
 
 resource "google_bigtable_table" "table" {
