@@ -295,9 +295,6 @@ This attribute has been deprecated. Use `network_interface.0.network_ip`instead.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
-* `network_interface.0.access_config.0.assigned_nat_ip` -  (Deprecated)  If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
-This attribute has been deprecated. Use `network_interface.0.access_config.0.nat_ip` instead.
-
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
