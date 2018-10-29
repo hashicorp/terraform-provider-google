@@ -46,9 +46,9 @@ func resourceComposerEnvironment() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			// Composer takes <= 1 hr for create/update.
-			Create: schema.DefaultTimeout(3600 * time.Second),
-			Update: schema.DefaultTimeout(3600 * time.Second),
-			Delete: schema.DefaultTimeout(360 * time.Second),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
