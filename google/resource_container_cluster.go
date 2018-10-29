@@ -659,7 +659,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
 
 	parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
-	op, err := config.clientContainerBeta.Projects.Locations.Clusters.Create(parent, req).Do()
+	var op interface{}
+	err = retry(func() error {
+		op, err = config.clientContainerBeta.Projects.Locations.Clusters.Create(parent, req).Do()
+		return err
+	})
 	if err != nil {
 		return err
 	}
