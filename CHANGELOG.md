@@ -12,6 +12,7 @@ BACKWARDS INCOMPATIBILITIES:
 
 FEATURES: 
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
+* **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 
 ENHANCEMENTS:
 * bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228]
