@@ -100,10 +100,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: mergeResourceMaps(
-			GeneratedBinaryAuthorizationResourcesMap,
 			GeneratedComputeResourcesMap,
-			GeneratedContainerAnalysisResourcesMap,
-			GeneratedFilestoreResourcesMap,
 			GeneratedRedisResourcesMap,
 			GeneratedResourceManagerResourcesMap,
 			GeneratedStorageResourcesMap,
