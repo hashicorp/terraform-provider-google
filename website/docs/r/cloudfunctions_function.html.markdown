@@ -68,12 +68,6 @@ The following arguments are supported:
 
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `trigger_bucket` and `trigger_topic`.
 
-* `trigger_bucket` - (Optional) Google Cloud Storage bucket name. Every change in files in this bucket will trigger function execution. Cannot be used with `trigger_http` and `trigger_topic`.
-Deprecated. Use `event_trigger` instead.
-
-* `trigger_topic` - (Optional) Name of Pub/Sub topic. Every message published in this topic will trigger function execution with message contents passed as input data. Cannot be used with `trigger_http` and `trigger_bucket`.
-Deprecated. Use `event_trigger` instead.
-
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
 * `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
