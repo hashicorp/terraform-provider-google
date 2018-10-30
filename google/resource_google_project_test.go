@@ -431,6 +431,24 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 	}
 }
 
+func testAccProject_createWithoutOrg(pid, name string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+}`, pid, name)
+}
+
+func testAccProject_createBilling(pid, name, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+    billing_account = "%s"
+}`, pid, name, org, billing)
+}
+
 func testAccProject_labels(pid, name, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {

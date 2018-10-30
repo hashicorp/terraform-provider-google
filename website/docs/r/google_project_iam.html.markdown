@@ -21,7 +21,11 @@ Three different resources help you manage your IAM policy for a project. Each of
 ## google\_project\_iam\_policy
 
 ~> **Be careful!** You can accidentally lock yourself out of your project
-   using this resource. Proceed with caution.
+   using this resource. Deleting a `google_project_iam_policy` removes access
+   from anyone without organization-level access to the project. Proceed with caution.
+   It's not recommended to use `google_project_iam_policy` with your provider project
+   to avoid locking yourself out, and it should generally only be used with projects
+   fully managed by Terraform.
 
 ```hcl
 resource "google_project_iam_policy" "project" {
@@ -86,28 +90,13 @@ The following arguments are supported:
 
     Changing this updates the policy.
 
-    Deleting this removes the policy, but leaves the original project policy
-    intact. If there are overlapping `binding` entries between the original
-    project policy and the data source policy, they will be removed.
+    Deleting this removes all policies from the project, locking out users without
+    organization-level access.
 
-* `project` - (Optional) The project ID. If not specified, uses the
-    ID of the project configured with the provider.
-
-* `authoritative` - (DEPRECATED) (Optional, only for `google_project_iam_policy`)
-    A boolean value indicating if this policy
-    should overwrite any existing IAM policy on the project. When set to true,
-    **any policies not in your config file will be removed**. This can **lock
-    you out** of your project until an Organization Administrator grants you
-    access again, so please exercise caution. If this argument is `true` and you
-    want to delete the resource, you must set the `disable_project` argument to
-    `true`, acknowledging that the project will be inaccessible to anyone but the
-    Organization Admins, as it will no longer have an IAM policy. Rather than using
-    this, you should use `google_project_iam_binding` and
-    `google_project_iam_member`.
-
-* `disable_project` - (DEPRECATED) (Optional, only for `google_project_iam_policy`)
-    A boolean value that must be set to `true`
-    if you want to delete a `google_project_iam_policy` that is authoritative.
+* `project` - (Optional) The project ID. If not specified for `google_project_iam_binding`
+or `google_project_iam_member`, uses the ID of the project configured with the provider.
+Required for `google_project_iam_policy` - you must explicitly set the project, and it
+will not be inferred from the provider.
     
 ## Attributes Reference
 
@@ -116,9 +105,6 @@ exported:
 
 * `etag` - (Computed) The etag of the project's IAM policy.
 
-* `restore_policy` - (DEPRECATED) (Computed, only for `google_project_iam_policy`)
-    The IAM policy that will be restored when a
-    non-authoritative policy resource is deleted.
 
 ## Import
 
