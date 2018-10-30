@@ -76,8 +76,11 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Check out the [provider README](https://github.com/terraform-providers/terraform-provider-google)
-for instructions about getting started developing, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
+contributions! Pull requests should be made against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)
+to ensure they are applied to both `google` and `google-beta`.
+
+Check out the [Magic Modules setup guide](https://github.com/GoogleCloudPlatform/magic-modules#one-time-setup) to get set up, the [provider README](https://github.com/terraform-providers/terraform-provider-google)
+for instructions about running your generated code, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
 for a Terraform provider development overview, and the [Google provider contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
 for our provider-specific advice.
 
@@ -85,7 +88,7 @@ for our provider-specific advice.
 
 The Google provider supports generally available (GA) and Beta GCP features. We
 are focusing on filling out general GA feature coverage and on adding support
-for beta features that customers request. So if you need us to support a feature
+for beta features that customers request. If you need us to support a feature
 whether GA or beta, please [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)!
 
 If you're interested in using Alpha GCP features, you should still [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)
