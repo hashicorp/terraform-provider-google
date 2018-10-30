@@ -13,213 +13,6 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-func TestSubtractIamPolicy(t *testing.T) {
-	table := []struct {
-		a      *cloudresourcemanager.Policy
-		b      *cloudresourcemanager.Policy
-		expect cloudresourcemanager.Policy
-	}{
-		{
-			a: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-				},
-			},
-			b: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"3",
-							"4",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-				},
-			},
-			expect: cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-				},
-			},
-		},
-		{
-			a: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-				},
-			},
-			b: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-						},
-					},
-				},
-			},
-			expect: cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{},
-			},
-		},
-		{
-			a: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-				},
-			},
-			b: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"3",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-				},
-			},
-			expect: cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"2",
-						},
-					},
-				},
-			},
-		},
-		{
-			a: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-				},
-			},
-			b: &cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{
-					{
-						Role: "a",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-					{
-						Role: "b",
-						Members: []string{
-							"1",
-							"2",
-							"3",
-						},
-					},
-				},
-			},
-			expect: cloudresourcemanager.Policy{
-				Bindings: []*cloudresourcemanager.Binding{},
-			},
-		},
-	}
-
-	for _, test := range table {
-		c := subtractIamPolicy(test.a, test.b)
-		sort.Sort(sortableBindings(c.Bindings))
-		for i, _ := range c.Bindings {
-			sort.Strings(c.Bindings[i].Members)
-		}
-
-		if !reflect.DeepEqual(derefBindings(c.Bindings), derefBindings(test.expect.Bindings)) {
-			t.Errorf("\ngot %+v\nexpected %+v", derefBindings(c.Bindings), derefBindings(test.expect.Bindings))
-		}
-	}
-}
-
 // Test that an IAM policy can be applied to a project
 func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
@@ -241,52 +34,10 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			// merges policies, so we validate the expected state.
 			resource.TestStep{
 				Config: testAccProjectAssociatePolicyBasic(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", pid),
-				),
 			},
 			resource.TestStep{
 				ResourceName: "google_project_iam_policy.acceptance",
 				ImportState:  true,
-				// Skipping the normal "ImportStateVerify" - Unfortunately, it's not
-				// really possible to make the imported policy match exactly, since
-				// the policy depends on the service account being used to create the
-				// project.
-			},
-			// Finally, remove the custom IAM policy from config and apply, then
-			// confirm that the project is in its original state.
-			resource.TestStep{
-				Config: testAccProject_create(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
-				),
-			},
-		},
-	})
-}
-
-// Test that an IAM policy can be applied to a project when no project is set in the resource
-func TestAccProjectIamPolicy_defaultProject(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// Create a new project
-			resource.TestStep{
-				Config: testAccProjectDefaultAssociatePolicyBasic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(getTestProjectFromEnv()),
-				),
-			},
-			// Apply an IAM policy from a data source. The application
-			// merges policies, so we validate the expected state.
-			resource.TestStep{
-				Config: testAccProjectDefaultAssociatePolicyBasic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectIamPolicyIsMerged("google_project_iam_policy.acceptance", "data.google_iam_policy.admin", getTestProjectFromEnv()),
-				),
 			},
 		},
 	})
@@ -368,165 +119,6 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
 		}
 		return nil
-	}
-}
-
-func testAccCheckGoogleProjectIamPolicyIsMerged(projectRes, policyRes, pid string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		err := testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid)(s)
-		if err != nil {
-			return err
-		}
-
-		projectPolicy, err := getGoogleProjectIamPolicyFromState(s, projectRes, pid)
-		if err != nil {
-			return fmt.Errorf("Error retrieving IAM policy for project from state: %s", err)
-		}
-
-		// Merge the project policy in Terraform state with the policy the project had before the config was applied
-		var expected []*cloudresourcemanager.Binding
-		expected = append(expected, originalPolicy.Bindings...)
-		expected = append(expected, projectPolicy.Bindings...)
-		expected = mergeBindings(expected)
-
-		// Retrieve the actual policy from the project
-		c := testAccProvider.Meta().(*Config)
-		actual, err := getProjectIamPolicy(pid, c)
-		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
-		}
-		// The bindings should match, indicating the policy was successfully applied and merged
-		if !compareBindings(actual.Bindings, expected) {
-			return fmt.Errorf("Actual and expected project policies do not match: actual policy is %+v, expected policy is  %+v", derefBindings(actual.Bindings), derefBindings(expected))
-		}
-
-		return nil
-	}
-}
-
-func TestIamRolesToMembersBinding(t *testing.T) {
-	table := []struct {
-		expect []*cloudresourcemanager.Binding
-		input  map[string]map[string]bool
-	}{
-		{
-			expect: []*cloudresourcemanager.Binding{
-				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-					},
-				},
-			},
-			input: map[string]map[string]bool{
-				"role-1": map[string]bool{
-					"member-1": true,
-					"member-2": true,
-				},
-			},
-		},
-		{
-			expect: []*cloudresourcemanager.Binding{
-				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-					},
-				},
-			},
-			input: map[string]map[string]bool{
-				"role-1": map[string]bool{
-					"member-1": true,
-					"member-2": true,
-				},
-			},
-		},
-		{
-			expect: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{},
-				},
-			},
-			input: map[string]map[string]bool{
-				"role-1": map[string]bool{},
-			},
-		},
-	}
-
-	for _, test := range table {
-		got := rolesToMembersBinding(test.input)
-
-		sort.Sort(sortableBindings(got))
-		for i, _ := range got {
-			sort.Strings(got[i].Members)
-		}
-
-		if !reflect.DeepEqual(derefBindings(got), derefBindings(test.expect)) {
-			t.Errorf("got %+v, expected %+v", derefBindings(got), derefBindings(test.expect))
-		}
-	}
-}
-func TestIamRolesToMembersMap(t *testing.T) {
-	table := []struct {
-		input  []*cloudresourcemanager.Binding
-		expect map[string]map[string]bool
-	}{
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-					},
-				},
-			},
-			expect: map[string]map[string]bool{
-				"role-1": map[string]bool{
-					"member-1": true,
-					"member-2": true,
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-						"member-1",
-						"member-2",
-					},
-				},
-			},
-			expect: map[string]map[string]bool{
-				"role-1": map[string]bool{
-					"member-1": true,
-					"member-2": true,
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role: "role-1",
-				},
-			},
-			expect: map[string]map[string]bool{
-				"role-1": map[string]bool{},
-			},
-		},
-	}
-
-	for _, test := range table {
-		got := rolesToMembersMap(test.input)
-		if !reflect.DeepEqual(got, test.expect) {
-			t.Errorf("got %+v, expected %+v", got, test.expect)
-		}
 	}
 }
 
@@ -631,14 +223,12 @@ func TestIamMergeBindings(t *testing.T) {
 			},
 		},
 	}
-
 	for _, test := range table {
 		got := mergeBindings(test.input)
 		sort.Sort(sortableBindings(got))
 		for i, _ := range got {
 			sort.Strings(got[i].Members)
 		}
-
 		if !reflect.DeepEqual(derefBindings(got), test.expect) {
 			t.Errorf("\ngot %+v\nexpected %+v", derefBindings(got), test.expect)
 		}
@@ -671,29 +261,6 @@ func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
 	}
 }
 
-func testAccProjectDefaultAssociatePolicyBasic() string {
-	return fmt.Sprintf(`
-resource "google_project_iam_policy" "acceptance" {
-    policy_data = "${data.google_iam_policy.admin.policy_data}"
-}
-data "google_iam_policy" "admin" {
-  binding {
-    role = "roles/storage.objectViewer"
-    members = [
-      "user:evanbrown@google.com",
-    ]
-  }
-  binding {
-    role = "roles/compute.instanceAdmin"
-    members = [
-      "user:evanbrown@google.com",
-      "user:evandbrown@gmail.com",
-    ]
-  }
-}
-`)
-}
-
 func testAccProjectAssociatePolicyBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -701,10 +268,12 @@ resource "google_project" "acceptance" {
     name = "%s"
     org_id = "%s"
 }
+
 resource "google_project_iam_policy" "acceptance" {
     project = "${google_project.acceptance.id}"
     policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
+
 data "google_iam_policy" "admin" {
   binding {
     role = "roles/storage.objectViewer"
@@ -723,14 +292,6 @@ data "google_iam_policy" "admin" {
 `, pid, name, org)
 }
 
-func testAccProject_createWithoutOrg(pid, name string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-}`, pid, name)
-}
-
 func testAccProject_create(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -738,16 +299,6 @@ resource "google_project" "acceptance" {
     name = "%s"
     org_id = "%s"
 }`, pid, name, org)
-}
-
-func testAccProject_createBilling(pid, name, org, billing string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-    billing_account = "%s"
-}`, pid, name, org, billing)
 }
 
 func testAccProjectAssociatePolicyExpanded(pid, name, org string) string {
@@ -760,8 +311,8 @@ resource "google_project" "acceptance" {
 resource "google_project_iam_policy" "acceptance" {
     project = "${google_project.acceptance.id}"
     policy_data = "${data.google_iam_policy.expanded.policy_data}"
-    authoritative = false
 }
+
 data "google_iam_policy" "expanded" {
     binding {
         role = "roles/viewer"
