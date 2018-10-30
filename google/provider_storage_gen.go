@@ -17,5 +17,6 @@ package google
 import "github.com/hashicorp/terraform/helper/schema"
 
 var GeneratedStorageResourcesMap = map[string]*schema.Resource{
-	"google_storage_object_access_control": resourceStorageObjectAccessControl(),
+	"google_storage_object_access_control":         resourceStorageObjectAccessControl(),
+	"google_storage_default_object_access_control": resourceStorageDefaultObjectAccessControl(),
 }
