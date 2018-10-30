@@ -288,9 +288,6 @@ exported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `network_interface.0.address` - (Deprecated) The internal ip address of the instance, either manually or dynamically assigned.
-This attribute has been deprecated. Use `network_interface.0.network_ip`instead.
-
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
