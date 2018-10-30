@@ -8,14 +8,14 @@ description: |-
 
 # Google Provider Versions
 
-The Google Provider comes in two versions:
+Starting with version `1.19.0`, there are two versions of the Google provider:
 
 * terraform-provider-google
 * terraform-provider-google-beta
 
 All GA products and features are available in both versions of the provider.
 
-In version 2.0.0 and beyond of the providers, beta features will only be available in the beta version of the provider.
+From version `2.0.0` onwards, beta features are only available in the beta version of the provider (`google-beta`).
 Beta GCP Features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
@@ -33,6 +33,7 @@ provider "google" {
   project     = "my-project-id"
   region      = "us-central1"
 }
+
 provider "google-beta" {
   credentials = "${file("account.json")}"
   project     = "my-project-id"
@@ -62,7 +63,7 @@ If the `provider` field is omitted, Terraform will choose one of the versions av
 
 Resources can safely be converted from one version to the other without needing to rebuild infrastructure.
 
-To go from GA to beta, simply change the `provider` field from `"google"` to `"google-beta"`.
+To go from GA to beta, change the `provider` field from `"google"` to `"google-beta"`.
 
 To go from beta to GA, do the reverse. If you were previously using beta fields that you no longer wish to use:
 
