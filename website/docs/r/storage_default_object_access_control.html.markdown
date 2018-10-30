@@ -13,18 +13,20 @@
 #
 # ----------------------------------------------------------------------------
 layout: "google"
-page_title: "Google: google_storage_object_access_control"
-sidebar_current: "docs-google-storage-object-access-control"
+page_title: "Google: google_storage_default_object_access_control"
+sidebar_current: "docs-google-storage-default-object-access-control"
 description: |-
-  The ObjectAccessControls resources represent the Access Control Lists
-  (ACLs) for objects within Google Cloud Storage.
+  The DefaultObjectAccessControls resources represent the Access Control
+  Lists (ACLs) applied to a new object within a Google Cloud Storage bucket
+  when no ACL was provided for that object.
 ---
 
-# google\_storage\_object\_access\_control
+# google\_storage\_default\_object\_access\_control
 
-The ObjectAccessControls resources represent the Access Control Lists
-(ACLs) for objects within Google Cloud Storage. ACLs let you specify
-who has access to your data and to what extent.
+The DefaultObjectAccessControls resources represent the Access Control
+Lists (ACLs) applied to a new object within a Google Cloud Storage bucket
+when no ACL was provided for that object. ACLs let you specify who has
+access to your bucket contents and to what extent.
 
 There are two roles that can be assigned to an entity:
 
@@ -36,22 +38,22 @@ For more information, see Access Control, with the caveat that this API
 uses READER and OWNER instead of READ and FULL_CONTROL.
 
 
-To get more information about ObjectAccessControl, see:
+To get more information about DefaultObjectAccessControl, see:
 
-* [API documentation](https://cloud.google.com/storage/docs/json_api/v1/objectAccessControls)
+* [API documentation](https://cloud.google.com/storage/docs/json_api/v1/defaultObjectAccessControls)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/storage/docs/access-control/create-manage-lists)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=storage_object_access_control_public_object&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=storage_default_object_access_control_public&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Storage Object Access Control Public Object
+## Example Usage - Storage Default Object Access Control Public
+
 
 ```hcl
-resource "google_storage_object_access_control" "public_rule" {
-  object = "${google_storage_bucket_object.object.name}"
+resource "google_storage_default_object_access_control" "public_rule" {
   bucket = "${google_storage_bucket.bucket.name}"
   role   = "READER"
   entity = "allUsers"
@@ -59,12 +61,6 @@ resource "google_storage_object_access_control" "public_rule" {
 
 resource "google_storage_bucket" "bucket" {
 	name = "static-content-bucket"
-}
-
- resource "google_storage_bucket_object" "object" {
-	name   = "public-object"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "../static/img/header-logo.png"
 }
 ```
 
@@ -89,10 +85,6 @@ The following arguments are supported:
     * allUsers
     * allAuthenticatedUsers
 
-* `object` -
-  (Required)
-  The name of the object to apply the access control to.
-
 * `role` -
   (Required)
   The access permission for the entity.
@@ -100,6 +92,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `object` -
+  (Optional)
+  The name of the object, if applied to an object.
 
 
 ## Attributes Reference
@@ -136,8 +132,8 @@ The `project_team` block contains:
 
 ## Import
 
-ObjectAccessControl can be imported using any of these accepted formats:
+DefaultObjectAccessControl can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_storage_object_access_control.default {{bucket}}/{{object}}/{{entity}}
+$ terraform import google_storage_default_object_access_control.default {{bucket}}/{{entity}}
 ```
