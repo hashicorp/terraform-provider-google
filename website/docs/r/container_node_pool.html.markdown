@@ -140,9 +140,6 @@ Note: You must be provide region for regional clusters and zone for zonal cluste
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
-* `name_prefix` - (Deprecated, Optional) Creates a unique name for the node pool beginning
-    with the specified prefix. Conflicts with `name`.
-
 * `node_config` - (Optional) The node configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 

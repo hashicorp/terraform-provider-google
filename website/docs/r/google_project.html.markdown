@@ -105,10 +105,6 @@ The following arguments are supported:
 * `skip_delete` - (Optional) If true, the Terraform resource can be deleted
     without deleting the Project via the Google API.
 
-* `policy_data` - (Deprecated) The IAM policy associated with the project.
-    This argument is no longer supported, and will be removed in a future version
-    of Terraform. It should be replaced with a `google_project_iam_policy` resource.
-
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
 
 * `auto_create_network` - (Optional) Create the 'default' network automatically.  Default true.
@@ -136,11 +132,6 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `number` - The numeric identifier of the project.
-
-* `policy_etag` - (Deprecated) The etag of the project's IAM policy, used to
-    determine if the IAM policy has changed. Please use `google_project_iam_policy`'s
-    `etag` property instead; future versions of Terraform will remove the `policy_etag`
-    attribute
 
 * `app_engine.0.name` - Unique name of the app, usually `apps/{PROJECT_ID}`
 * `app_engine.0.url_dispatch_rule` - A list of dispatch rule blocks. Each block has a `domain`, `path`, and `service` field.
