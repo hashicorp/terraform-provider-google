@@ -3,12 +3,12 @@ layout: "google"
 page_title: "Google: google_bigtable_table"
 sidebar_current: "docs-google-bigtable-table"
 description: |-
-  Creates a Google Bigtable table inside an instance.
+  Creates a Google Cloud Bigtable table inside an instance.
 ---
 
 # google_bigtable_table
 
-Creates a Google Bigtable table inside an instance. For more information see
+Creates a Google Cloud Bigtable table inside an instance. For more information see
 [the official documentation](https://cloud.google.com/bigtable/) and
 [API](https://cloud.google.com/bigtable/docs/go/reference).
 
@@ -50,7 +50,7 @@ The following arguments are supported:
 
 `column_family` supports the following arguments:
 
-* `family` - (Optional) Creates a new column family in a table.
+* `family` - (Optional) The name of the column family.
 
 ## Attributes Reference
 
