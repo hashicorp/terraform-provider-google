@@ -130,7 +130,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	defer c.Close()
 
 	name := d.Id()
-	_, err = c.TableInfo(ctx, name)
+	table, err := c.TableInfo(ctx, name)
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", name)
 		d.SetId("")
@@ -138,6 +138,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("project", project)
+	d.Set("column_family", flattenColumnFamily(table.Families))
 
 	return nil
 }
@@ -168,4 +169,16 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 	d.SetId("")
 
 	return nil
+}
+
+func flattenColumnFamily(families []string) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(families))
+
+	for _, f := range families {
+		data := make(map[string]interface{})
+		data["family"] = f
+		result = append(result, data)
+	}
+
+	return result
 }
