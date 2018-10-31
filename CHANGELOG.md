@@ -12,6 +12,11 @@ BACKWARDS INCOMPATIBILITIES:
 
 
 FEATURES: 
+* `2.0.0` is the first release including Open in Cloud Shell. Examples in the documentation for Magic Modules resources now
+have Open in Cloud Shell links in their documentation that open them in an interactive editor and shell - all without
+leaving the browser.
+See the [blog post announcing the feature](https://www.hashicorp.com/blog/kickstart-terraform-on-gcp-with-google-cloud-shell)
+for more details.
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 
