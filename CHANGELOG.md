@@ -27,6 +27,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * bigquery: added australia and europe regions to the validate function [GH-2333]
+* iam: fix permadiff when stage is ALPHA [GH-2370]
 
 ## 1.19.1 (October 12, 2018)
 
