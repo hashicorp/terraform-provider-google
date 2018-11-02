@@ -74,9 +74,6 @@ The following arguments are supported:
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
-* `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
-Deprecated. Use `event_trigger.failure_policy.retry` instead.
-
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"providers/cloud.storage/eventTypes/object.change"`

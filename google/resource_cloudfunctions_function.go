@@ -207,7 +207,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"trigger_http", "retry_on_failure", "trigger_topic", "trigger_http"},
+				ConflictsWith: []string{"trigger_http"},
 				MaxItems:      1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -245,11 +245,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"retry_on_failure": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Computed:      true,
-				Deprecated:    "This field is deprecated. Use `event_trigger.failure_policy.retry` instead.",
-				ConflictsWith: []string{"trigger_http"},
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				Removed:  "This field is removed. Use `event_trigger.failure_policy.retry` instead.",
 			},
 
 			"project": {
@@ -404,12 +403,6 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
-	if function.EventTrigger != nil {
-		if _, ok := d.GetOk("retry_on_failure"); ok {
-			retry := function.EventTrigger.FailurePolicy != nil && function.EventTrigger.FailurePolicy.Retry != nil
-			d.Set("retry_on_failure", retry)
-		}
-	}
 
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
@@ -474,19 +467,6 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "environment_variables")
-	}
-
-	// Event trigger will run after failure policy and take precedence
-	if d.HasChange("retry_on_failure") {
-		if d.Get("retry_on_failure").(bool) {
-			if function.EventTrigger == nil {
-				function.EventTrigger = &cloudfunctions.EventTrigger{}
-			}
-			function.EventTrigger.FailurePolicy = &cloudfunctions.FailurePolicy{
-				Retry: &cloudfunctions.Retry{},
-			}
-		}
-		updateMaskArr = append(updateMaskArr, "eventTrigger.failurePolicy.retry")
 	}
 
 	if d.HasChange("event_trigger") {
