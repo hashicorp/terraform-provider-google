@@ -35,9 +35,10 @@ func resourceEndpointsService() *schema.Resource {
 				Optional: true,
 			},
 			"protoc_output": &schema.Schema{
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "Please use protoc_output_base64 instead.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "Please use protoc_output_base64 instead.",
 			},
 			"protoc_output_base64": &schema.Schema{
 				Type:     schema.TypeString,
@@ -204,14 +205,6 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		grpcConfig, gok := d.GetOk("grpc_config")
 		protocOutput, pok := d.GetOk("protoc_output_base64")
-
-		// Support conversion from raw file -> base64 until the field is totally removed.
-		if !pok {
-			protocOutput, pok = d.GetOk("protoc_output")
-			if pok {
-				protocOutput = base64.StdEncoding.EncodeToString([]byte(protocOutput.(string)))
-			}
-		}
 
 		if gok && pok {
 			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
