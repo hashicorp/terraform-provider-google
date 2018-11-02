@@ -48,6 +48,12 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
+			"requester_pays": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  nil,
+			},
+
 			"force_destroy": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -313,6 +319,12 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.Encryption = expandBucketEncryption(v.([]interface{}))
 	}
 
+	if v, ok := d.GetOk("requester_pays"); ok {
+		sb.Billing = &storage.BucketBilling{
+			RequesterPays: v.(bool),
+		}
+	}
+
 	var res *storage.Bucket
 
 	err = retry(func() error {
@@ -339,6 +351,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("lifecycle_rule") {
 		if err := resourceGCSBucketLifecycleCreateOrUpdate(d, sb); err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("requester_pays") {
+		v := d.Get("requester_pays")
+		sb.Billing = &storage.BucketBilling{
+			RequesterPays:   v.(bool),
+			ForceSendFields: []string{"RequesterPays"},
 		}
 	}
 
@@ -471,6 +491,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+
+	if res.Billing != nil {
+		d.Set("requester_pays", res.Billing.RequesterPays)
+	}
+
 	d.SetId(res.Id)
 	return nil
 }
