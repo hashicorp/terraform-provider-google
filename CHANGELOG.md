@@ -8,6 +8,7 @@ BACKWARDS INCOMPATIBILITIES:
 * container: `google_container_node_pool.max_pods_per_node` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2391]
 * sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
 * bigtable: `google_bigtable_instance` `zone` field is no longer inferred from the provider.
+* endpoints: `google_endpoints_service.protoc_output` was removed. Use `google_endpoints_service.protoc_output_base64` instead. [GH-2396]
 * resourcemanager: `google_project_iam_policy` is now authoritative and will remove values not explicitly set in config. Several fields were removed that made it authoritative: `authoritative`, `restore_policy`, and `disable_project`. This resource is very dangerous! Ensure you are not using the removed fields (`authoritative`, `restore_policy`, `disable_project`). [GH-2315]
 * resourcemanager: `google_project.app_engine` has been removed. Use the `google_app_engine_application` resource instead. [GH-2386]
 * storage: `google_storage_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. Use `google_storage_object_access_control` for fine-grained management. [GH-2316]
