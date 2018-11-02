@@ -5,6 +5,7 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
 * compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
 * compute: `google_compute_url_map` resource is now authoritative and will remove values not explicitly set in config. [GH-2245]
+* compute: `google_compute_global_forwarding_rule.labels` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2399]
 * container: `google_container_node_pool.max_pods_per_node` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2391]
 * sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
 * bigtable: `google_bigtable_instance` `zone` field is no longer inferred from the provider.
