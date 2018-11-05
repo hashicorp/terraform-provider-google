@@ -52,7 +52,7 @@ make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic'
 
 The `TESTARGS` variable is regexp-like, so multiple tests can be run in parallel by specifying a common substring of those tests (for example, `TestAccContainerNodePool` to run all node pool tests).
 
-To run all tests, you can simply use `TESTARGS='-run=TestAcc'` - but please keep in mind that that is quite a few tests and will take quite a long time and create some fairly expensive resources.  It usually is not advisable to run all tests.
+To run all tests, you can simply omit the `TESTARGS` argument - but please keep in mind that that is quite a few tests and will take quite a long time and create some fairly expensive resources.  It usually is not advisable to run all tests.
 
 ### Writing Tests
 
