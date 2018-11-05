@@ -43,12 +43,16 @@ GOOGLE_ORG
 GOOGLE_BILLING_ACCOUNT
 ```
 
+The only region we support running tests in right now is `us-central1` - some products that are tested here are only available in a few regions, and the only region that all products are available in is `us-central1`.
+
 To run a specific test, use a command such as:
 ```
 make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic'
 ```
 
 The `TESTARGS` variable is regexp-like, so multiple tests can be run in parallel by specifying a common substring of those tests (for example, `TestAccContainerNodePool` to run all node pool tests).
+
+To run all tests, you can simply omit the `TESTARGS` argument - but please keep in mind that that is quite a few tests and will take quite a long time and create some fairly expensive resources.  It usually is not advisable to run all tests.
 
 ### Writing Tests
 
