@@ -136,13 +136,6 @@ output "cluster_ca_certificate" {
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
     external access (except the cluster node IPs, which GKE automatically whitelists).
 
-* `master_ipv4_cidr_block` - (Optional, Deprecated) Specifies a private
-    [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
-    The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
-    This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-    This field is deprecated, use `private_cluster_config.master_ipv4_cidr_block` instead.
-
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
     current master version--use the read-only `master_version` field to obtain that.
@@ -185,14 +178,6 @@ output "cluster_ca_certificate" {
     a private cluster. Structure is documented below.
     This property is in beta, and should be used with the terraform-provider-google-beta provider.
     See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-
-* `private_cluster` - (Optional, Deprecated) If true, a
-    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
-    nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
-    `ip_allocation_policy` with this option.
-    This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-    This field is deprecated, use `private_cluster_config.enable_private_nodes` instead.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
