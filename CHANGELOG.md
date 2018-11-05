@@ -1,6 +1,7 @@
 ## 2.0.0 (Unreleased)
 
 BACKWARDS INCOMPATIBILITIES:
+* bigtable: `google_bigtable_instance.cluster.num_nodes` will fail at plan time if `DEVELOPMENT` instances have `num_nodes = "0"` set explicitly. If it has been set, unset the field. [GH-2401]
 * cloudfunctions: `google_cloudfunctions_function.retry_on_failure` has been removed. Use `event_trigger.failure_policy.retry` instead. [GH-2392]
 * compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
 * compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
