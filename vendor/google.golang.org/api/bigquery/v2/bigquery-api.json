@@ -32,7 +32,7 @@
   "description": "A data platform for customers to create, manage, share and query data.",
   "discoveryVersion": "v1",
   "documentationLink": "https://cloud.google.com/bigquery/",
-  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/VdW6yLWLV4EG3GBmsDZLc41_FBk\"",
+  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/SZY-9_ScteTEtTSIjMIigLgnbt8\"",
   "icons": {
     "x16": "https://www.google.com/images/icons/product/search-16.gif",
     "x32": "https://www.google.com/images/icons/product/search-32.gif"
@@ -998,7 +998,7 @@
       }
     }
   },
-  "revision": "20180805",
+  "revision": "20181012",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "BigQueryModelTraining": {
@@ -1792,6 +1792,10 @@
           "format": "int64",
           "type": "string"
         },
+        "jobType": {
+          "description": "[Output-only] The type of the job. Can be QUERY, LOAD, EXTRACT, COPY or UNKNOWN.",
+          "type": "string"
+        },
         "labels": {
           "additionalProperties": {
             "type": "string"
@@ -1956,6 +1960,10 @@
           "$ref": "TimePartitioning",
           "description": "Time-based partitioning specification for the destination table."
         },
+        "useAvroLogicalTypes": {
+          "description": "If sourceFormat is set to \"AVRO\", indicates whether to enable interpreting logical types into their corresponding types (ie. TIMESTAMP), instead of only using their raw types (ie. INTEGER). The default value will be true once this feature launches, but can be set now in preparation.",
+          "type": "boolean"
+        },
         "writeDisposition": {
           "description": "[Optional] Specifies the action that occurs if the destination table already exists. The following values are supported: WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data. WRITE_APPEND: If the table already exists, BigQuery appends the data to the table. WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result. The default value is WRITE_APPEND. Each action is atomic and only occurs if BigQuery is able to complete the job successfully. Creation, truncation and append actions occur as one atomic update upon job completion.",
           "type": "string"
@@ -1981,7 +1989,7 @@
         },
         "defaultDataset": {
           "$ref": "DatasetReference",
-          "description": "[Optional] Specifies the default dataset to use for unqualified table names in the query."
+          "description": "[Optional] Specifies the default dataset to use for unqualified table names in the query. Note that this does not alter behavior of unqualified dataset names."
         },
         "destinationEncryptionConfiguration": {
           "$ref": "EncryptionConfiguration",
@@ -2183,7 +2191,7 @@
           "type": "string"
         },
         "location": {
-          "description": "The geographic location of the job. Required except for US and EU. See details at https://cloud.google.com/bigquery/docs/dataset-locations#specifying_your_location.",
+          "description": "The geographic location of the job. See details at https://cloud.google.com/bigquery/docs/locations#specifying_your_location.",
           "type": "string"
         },
         "projectId": {
@@ -2261,12 +2269,12 @@
           "type": "boolean"
         },
         "ddlOperationPerformed": {
-          "description": "[Output-only, Beta] The DDL operation performed, possibly dependent on the pre-existence of the DDL target. Possible values (new values might be added in the future): \"CREATE\": The query created the DDL target. \"SKIP\": No-op. Example cases: the query is CREATE TABLE IF NOT EXISTS while the table already exists, or the query is DROP TABLE IF EXISTS while the table does not exist. \"REPLACE\": The query replaced the DDL target. Example case: the query is CREATE OR REPLACE TABLE, and the table already exists. \"DROP\": The query deleted the DDL target.",
+          "description": "The DDL operation performed, possibly dependent on the pre-existence of the DDL target. Possible values (new values might be added in the future): \"CREATE\": The query created the DDL target. \"SKIP\": No-op. Example cases: the query is CREATE TABLE IF NOT EXISTS while the table already exists, or the query is DROP TABLE IF EXISTS while the table does not exist. \"REPLACE\": The query replaced the DDL target. Example case: the query is CREATE OR REPLACE TABLE, and the table already exists. \"DROP\": The query deleted the DDL target.",
           "type": "string"
         },
         "ddlTargetTable": {
           "$ref": "TableReference",
-          "description": "[Output-only, Beta] The DDL target table. Present only for CREATE/DROP TABLE/VIEW queries."
+          "description": "The DDL target table. Present only for CREATE/DROP TABLE/VIEW queries."
         },
         "estimatedBytesProcessed": {
           "description": "[Output-only] The original estimate of bytes processed for the job.",
@@ -2329,7 +2337,7 @@
           "description": "[Output-only] The schema of the results. Present only for successful dry run of non-legacy SQL queries."
         },
         "statementType": {
-          "description": "[Output-only, Beta] The type of query statement, if valid. Possible values (new values might be added in the future): \"SELECT\": SELECT query. \"INSERT\": INSERT query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"UPDATE\": UPDATE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"DELETE\": DELETE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"MERGE\": MERGE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"CREATE_TABLE\": CREATE [OR REPLACE] TABLE without AS SELECT. \"CREATE_TABLE_AS_SELECT\": CREATE [OR REPLACE] TABLE ... AS SELECT ... \"DROP_TABLE\": DROP TABLE query. \"CREATE_VIEW\": CREATE [OR REPLACE] VIEW ... AS SELECT ... \"DROP_VIEW\": DROP VIEW query.",
+          "description": "The type of query statement, if valid. Possible values (new values might be added in the future): \"SELECT\": SELECT query. \"INSERT\": INSERT query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"UPDATE\": UPDATE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"DELETE\": DELETE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"MERGE\": MERGE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"CREATE_TABLE\": CREATE [OR REPLACE] TABLE without AS SELECT. \"CREATE_TABLE_AS_SELECT\": CREATE [OR REPLACE] TABLE ... AS SELECT ... \"DROP_TABLE\": DROP TABLE query. \"CREATE_VIEW\": CREATE [OR REPLACE] VIEW ... AS SELECT ... \"DROP_VIEW\": DROP VIEW query.",
           "type": "string"
         },
         "timeline": {
@@ -2360,7 +2368,7 @@
           "type": "string"
         },
         "undeclaredQueryParameters": {
-          "description": "[Output-only, Beta] Standard SQL only: list of undeclared query parameters detected during a dry run validation.",
+          "description": "Standard SQL only: list of undeclared query parameters detected during a dry run validation.",
           "items": {
             "$ref": "QueryParameter"
           },
@@ -2872,6 +2880,11 @@
         },
         "numLongTermBytes": {
           "description": "[Output-only] The number of bytes in the table that are considered \"long-term storage\".",
+          "format": "int64",
+          "type": "string"
+        },
+        "numPhysicalBytes": {
+          "description": "[Output-only] [Experimental] The physical size of this table in bytes, excluding any data in the streaming buffer. This includes compression and storage used for time travel.",
           "format": "int64",
           "type": "string"
         },
