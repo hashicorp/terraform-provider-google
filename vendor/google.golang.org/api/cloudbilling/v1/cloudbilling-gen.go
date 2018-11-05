@@ -14,15 +14,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -1450,9 +1451,13 @@ func (c *BillingAccountsCreateCall) doRequest(alt string) (*http.Response, error
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/billingAccounts")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
@@ -1584,9 +1589,13 @@ func (c *BillingAccountsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -1730,9 +1739,13 @@ func (c *BillingAccountsGetIamPolicyCall) doRequest(alt string) (*http.Response,
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:getIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -1905,9 +1918,13 @@ func (c *BillingAccountsListCall) doRequest(alt string) (*http.Response, error) 
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/billingAccounts")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
@@ -2078,9 +2095,13 @@ func (c *BillingAccountsPatchCall) doRequest(alt string) (*http.Response, error)
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -2227,9 +2248,13 @@ func (c *BillingAccountsSetIamPolicyCall) doRequest(alt string) (*http.Response,
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:setIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -2366,9 +2391,13 @@ func (c *BillingAccountsTestIamPermissionsCall) doRequest(alt string) (*http.Res
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:testIamPermissions")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -2534,9 +2563,13 @@ func (c *BillingAccountsProjectsListCall) doRequest(alt string) (*http.Response,
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/projects")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -2711,9 +2744,13 @@ func (c *ProjectsGetBillingInfoCall) doRequest(alt string) (*http.Response, erro
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/billingInfo")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -2898,9 +2935,13 @@ func (c *ProjectsUpdateBillingInfoCall) doRequest(alt string) (*http.Response, e
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/billingInfo")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PUT", urls, body)
+	req, err := http.NewRequest("PUT", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3055,9 +3096,13 @@ func (c *ServicesListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/services")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
@@ -3272,9 +3317,13 @@ func (c *ServicesSkusListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/skus")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
