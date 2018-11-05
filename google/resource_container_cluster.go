@@ -201,10 +201,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Default:    false,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Computed: true,
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 
 			"enable_kubernetes_alpha": {
@@ -215,11 +215,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_tpu": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   true,
-				Default:    false,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Computed: true,
 			},
 
 			"enable_legacy_abac": {
@@ -394,10 +394,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"pod_security_policy_config": {
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:       schema.TypeList,
-				Optional:   true,
-				MaxItems:   1,
+				// Remove return nil from expand when this is removed for good.
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -406,7 +407,6 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
-				DiffSuppressFunc: podSecurityPolicyCfgSuppress,
 			},
 
 			"project": {
@@ -504,12 +504,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"private_cluster": {
-				Deprecated:    "Use private_cluster_config.enable_private_nodes instead.",
-				ConflictsWith: []string{"private_cluster_config"},
-				Computed:      true,
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
+				Removed:  "Use private_cluster_config.enable_private_nodes instead.",
+				Computed: true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"private_cluster_config": {
@@ -549,11 +548,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"master_ipv4_cidr_block": {
-				Deprecated:   "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.CIDRNetwork(28, 28),
+				Removed:  "Use private_cluster_config.master_ipv4_cidr_block instead.",
+				Computed: true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"resource_labels": {
@@ -602,16 +600,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
 		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
-		EnableTpu:               d.Get("enable_tpu").(bool),
 		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
-		MasterIpv4CidrBlock:     d.Get("master_ipv4_cidr_block").(string),
-		BinaryAuthorization: &containerBeta.BinaryAuthorization{
-			Enabled:         d.Get("enable_binary_authorization").(bool),
-			ForceSendFields: []string{"Enabled"},
-		},
-		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
-		ResourceLabels: expandStringMap(d, "resource_labels"),
+		MasterAuth:              expandMasterAuth(d.Get("master_auth")),
+		ResourceLabels:          expandStringMap(d, "resource_labels"),
 	}
 
 	// Only allow setting node_version on create if it's set to the equivalent master version,
@@ -674,17 +666,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("node_config"); ok {
 		cluster.NodeConfig = expandNodeConfig(v)
-	}
-
-	if v, ok := d.GetOk("private_cluster"); ok {
-		if cluster.PrivateCluster = v.(bool); cluster.PrivateCluster {
-			if cluster.MasterIpv4CidrBlock == "" {
-				return fmt.Errorf("master_ipv4_cidr_block is mandatory when private_cluster=true")
-			}
-			if cluster.IpAllocationPolicy == nil {
-				return fmt.Errorf("ip_allocation_policy is mandatory when private_cluster=true")
-			}
-		}
 	}
 
 	if v, ok := d.GetOk("private_cluster_config"); ok {
@@ -791,13 +772,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
 	d.Set("description", cluster.Description)
 	d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha)
-	d.Set("enable_tpu", cluster.EnableTpu)
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
 	d.Set("logging_service", cluster.LoggingService)
 	d.Set("monitoring_service", cluster.MonitoringService)
 	d.Set("network", cluster.NetworkConfig.Network)
 	d.Set("subnetwork", cluster.NetworkConfig.Subnetwork)
-	d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled)
 	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
 		return err
 	}
@@ -829,14 +808,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("pod_security_policy_config", flattenPodSecurityPolicyConfig(cluster.PodSecurityPolicyConfig)); err != nil {
-		return err
-	}
-
-	d.Set("private_cluster", cluster.PrivateCluster)
-	d.Set("master_ipv4_cidr_block", cluster.MasterIpv4CidrBlock)
 	d.Set("resource_labels", cluster.ResourceLabels)
-
 	return nil
 }
 
@@ -960,28 +932,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			d.SetPartial("addons_config")
 		}
-	}
-
-	if d.HasChange("enable_binary_authorization") {
-		enabled := d.Get("enable_binary_authorization").(bool)
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
-				DesiredBinaryAuthorization: &containerBeta.BinaryAuthorization{
-					Enabled:         enabled,
-					ForceSendFields: []string{"Enabled"},
-				},
-			},
-		}
-
-		updateF := updateFunc(req, "updating GKE binary authorization")
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), enabled)
-
-		d.SetPartial("enable_binary_authorization")
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -1254,31 +1204,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s: master auth has been updated", d.Id())
 		d.SetPartial("master_auth")
-	}
-
-	if d.HasChange("pod_security_policy_config") {
-		c := d.Get("pod_security_policy_config")
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
-				DesiredPodSecurityPolicyConfig: expandPodSecurityPolicyConfig(c),
-			},
-		}
-
-		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
-			if err != nil {
-				return err
-			}
-			// Wait until it's updated
-			return containerSharedOperationWait(config, op, project, location, "updating GKE cluster pod security policy config", timeoutInMinutes, 2)
-		}
-		if err := lockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-		log.Printf("[INFO] GKE cluster %s pod security policy config has been updated", d.Id())
-
-		d.SetPartial("pod_security_policy_config")
 	}
 
 	if d.HasChange("resource_labels") {
@@ -1572,16 +1497,9 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 }
 
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
-	l := configured.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil
-	}
-
-	config := l[0].(map[string]interface{})
-	return &containerBeta.PodSecurityPolicyConfig{
-		Enabled:         config["enabled"].(bool),
-		ForceSendFields: []string{"Enabled"},
-	}
+	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
+	// If we set this to empty on Read, it will be stable.
+	return nil
 }
 
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
@@ -1740,17 +1658,6 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 	return []map[string]interface{}{result}
 }
 
-func flattenPodSecurityPolicyConfig(c *containerBeta.PodSecurityPolicyConfig) []map[string]interface{} {
-	if c == nil {
-		return nil
-	}
-	return []map[string]interface{}{
-		{
-			"enabled": c.Enabled,
-		},
-	}
-}
-
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 
@@ -1826,18 +1733,4 @@ func masterAuthClientCertCfgSuppress(k, old, new string, r *schema.ResourceData)
 	}
 
 	return strings.HasSuffix(k, ".issue_client_certificate") && old == "" && new == "true"
-}
-
-func podSecurityPolicyCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
-	if k == "pod_security_policy_config.#" && old == "1" && new == "0" {
-		if v, ok := r.GetOk("pod_security_policy_config"); ok {
-			cfgList := v.([]interface{})
-			if len(cfgList) > 0 {
-				d := cfgList[0].(map[string]interface{})
-				// Suppress if old value was {enabled == false}
-				return !d["enabled"].(bool)
-			}
-		}
-	}
-	return false
 }
