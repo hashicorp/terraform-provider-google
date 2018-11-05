@@ -13,15 +13,31 @@ Creates a Google Bigtable instance. For more information see
 [API](https://cloud.google.com/bigtable/docs/go/reference).
 
 
-## Example Usage
+## Example Usage - Production Instance
 
 ```hcl
-resource "google_bigtable_instance" "instance" {
+resource "google_bigtable_instance" "production-instance" {
   name         = "tf-instance"
+
   cluster {
     cluster_id   = "tf-instance-cluster"
     zone         = "us-central1-b"
     num_nodes    = 3
+    storage_type = "HDD"
+  }
+}
+```
+
+## Example Usage - Development Instance
+
+```hcl
+resource "google_bigtable_instance" "development-instance" {
+  name          = "tf-instance"
+  instance_type = "DEVELOPMENT"
+
+  cluster {
+    cluster_id   = "tf-instance-cluster"
+    zone         = "us-central1-b"
     storage_type = "HDD"
   }
 }
@@ -53,7 +69,7 @@ The `cluster` block supports the following arguments:
 
 * `zone` - (Required) The zone to create the Cloud Bigtable cluster in. Each cluster must have a different zone in the same region. Zones that support Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
-* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster. Required, with a minimum of `3` for a `PRODUCTION` instance. Cannot be set for a `DEVELOPMENT` instance.
+* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster. Required, with a minimum of `3` for a `PRODUCTION` instance. Must be left unset for a `DEVELOPMENT` instance.
 
 * `storage_type` - (Optional) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `"SSD"`.
 

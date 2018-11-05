@@ -40,8 +40,9 @@ func resourceBigtableInstance() *schema.Resource {
 							Required: true,
 						},
 						"num_nodes": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"storage_type": {
 							Type:         schema.TypeString,
