@@ -473,7 +473,7 @@ resource "google_cloudfunctions_function" "function" {
   timeout               = 61
   entry_point           = "helloGCS"
   event_trigger {
-    event_type = "providers/cloud.storage/eventTypes/object.change"
+    event_type = "google.storage.object.finalize"
     resource   = "${google_storage_bucket.bucket.name}"
     failure_policy {
       retry = true
@@ -503,7 +503,7 @@ resource "google_cloudfunctions_function" "function" {
   timeout               = 61
   entry_point           = "helloGCS"
   event_trigger {
-    event_type = "providers/cloud.storage/eventTypes/object.change"
+    event_type = "google.storage.object.finalize"
     resource   = "${google_storage_bucket.bucket.name}"
   }
 }`, bucketName, zipFilePath, functionName)
