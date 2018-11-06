@@ -20,11 +20,18 @@ Upgrade topics:
 - [`google-beta` provider](#google-beta-provider)
 - [Open in Cloud Shell](#open-in-cloud-shell)
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
+- [Resource: `google_cloudfunctions_function`](#resource-google_cloudfunctions_function)
+- [Resource: `google_compute_disk`](#resource-google_compute_disk)
+- [Resource: `google_compute_image`](#resource-google_compute_image)
 - [Resource: `google_compute_instance`](#resource-google_compute_instance)
 - [Resource: `google_compute_instance_from_template`](#resource-google_compute_instance_from_template)
 - [Resource: `google_compute_project_metadata`](#resource-google_compute_project_metadata)
+- [Resource: `google_compute_target_pool`](#resource-google_compute_target_pool)
 - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
+- [Resource: `google_container_node_pool`](#resource-google_container_node_pool)
+- [Resource: `google_dataproc_cluster`](#resource-google_dataproc_cluster)
 - [Resource: `google_project_iam_policy`](#resource-google_project_iam_policy)
+- [Resource: `google_service_account`](#resource-google_service_account)
 - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
 - [Resource: `google_storage_default_object_acl`](#resource-google_storage_default_object_acl)
 - [Resource: `google_storage_object_acl`](#resource-google_storage_object_acl)
@@ -152,12 +159,93 @@ resource "google_bigtable_instance" "instance" {
 
 `cluster.zone` is now required, even if the provider block has a zone set.
 
+## Resource: `google_cloudfunctions_function`
+
+### `trigger_bucket`, `trigger_topic`, and `retry_on_failure` have been removed
+
+Use the `event_trigger` block instead.
+
+Example updated configuration:
+
+```hcl
+resource "google_cloudfunctions_function" "function" {
+  name                  = "example-function"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  timeout               = 61
+  entry_point           = "helloGCS"
+
+  event_trigger {
+    event_type = "providers/cloud.storage/eventTypes/object.change"
+    resource   = "${google_storage_bucket.bucket.name}"
+    failure_policy {
+      retry = true
+    }
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name = "example-bucket"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "path/to/source.zip"
+}
+```
+
+See the documentation at
+[`google_cloudfunctions_function`](https://www.terraform.io/docs/providers/google/r/cloudfunctions_function.html)
+for more details.
+
+## Resource: `google_compute_disk`
+
+### `disk_encryption_key_raw` and `disk_encryption_key_sha256` have been removed.
+
+Use the `disk_encryption_key` block instead:
+
+```hcl
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name = "example-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size = 50
+  type = "pd-ssd"
+  zone = "us-central1-a"
+  disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
+}
+```
+
+## Resource: `google_compute_image`
+
+### `create_timeout` has been removed
+
+Use the standard [timeouts](https://www.terraform.io/docs/configuration/resources.html#timeouts)
+block instead.
+
 ## Resource: `google_compute_instance`
+
+### `create_timeout` has been removed
+
+Use the standard [timeouts](https://www.terraform.io/docs/configuration/resources.html#timeouts)
+block instead.
 
 ### `metadata` is now authoritative
 
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
+
+### `network_interface.*.address` has been removed
+
+Use `network_interface.*.network_ip` instead.
 
 ## Resource: `google_compute_instance_from_template`
 
@@ -173,12 +261,91 @@ that were added outside of Terraform should be added to the config.
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
 
+## Resource: `google_compute_target_pool`
+
+### `instances` is now a Set
+
+The order of entries in `instances` no longer matters. Any configurations that
+interpolate based on an item at a specific index will need to be updated as items
+may have been reordered.
+
 ## Resource: `google_compute_url_map`
 
 ### `host_rule`, `path_matcher`, and `test` are now authoritative
 
 Terraform will remove values not explicitly set in these fields. Any `host_rule`, `path_matcher`, or `test`
 values that were added outside of Terraform should be added to the config.
+
+## Resource: `google_container_node_pool`
+
+### `name_prefix` has been removed
+
+Use the `name` field along with the `random` provider instead.
+
+Sample config:
+
+```hcl
+variable "machine_type" {}
+
+resource "google_container_cluster" "example" {
+  name               = "example-cluster"
+  zone               = "us-central1-a"
+  initial_node_count = 1
+
+  remove_default_node_pool = true
+}
+
+resource "random_id" "np" {
+  byte_length = 11
+  prefix      = "example-np-"
+  keepers = {
+    machine_type = "${var.machine_type}"
+  }
+}
+
+resource "google_container_node_pool" "example" {
+  name               = "${random_id.np.dec}"
+  zone               = "us-central1-a"
+  cluster            = "${google_container_cluster.example.name}"
+  node_count         = 1
+
+  node_config {
+    machine_type = "${var.machine_type}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
+The `keepers` parameter in `random_id` takes a map of values that cause the random id to be regenerated.
+By tying it to attributes that might change, it makes sure the random id changes too.
+
+To make sure the node pool keeps its old name, figure out what the suffix was by running `terraform show`:
+
+```
+google_container_node_pool.example:
+  ...
+  name = example-np-20180329213336514500000001
+```
+
+Determine the base64 encoding of that value by running [this script](https://play.golang.org/p/9KrkDoxRTOw).
+Then, import that suffix as the value of `random_id`:
+
+```
+terraform import random_id.np example-np-,ELFZ1rbrAThoeQE
+```
+
+For more details, see [terraform-provider-google#1054](https://github.com/terraform-providers/terraform-provider-google/issues/1054).
+
+## Resource: `google_dataproc_cluster`
+
+### `cluster_config.0.delete_autogen_bucket` has been removed
+
+Autogenerated buckets are shared by all clusters in the same region, so deleting
+this bucket could adversely harm other dataproc clusters. If you need a bucket
+that can be deleted, please create a new one and set the `staging_bucket` field.
 
 ## Resource: `google_project_iam_policy`
 
@@ -194,6 +361,13 @@ policy values that exist on the project.
 
 This resource is very dangerous. Consider using `google_project_iam_binding` or
 `google_project_iam_member` instead.
+
+## Resource: `google_service_account`
+
+### `policy_data` has been removed
+
+Use one of the other
+[service account IAM resources](https://www.terraform.io/docs/providers/google/r/google_service_account_iam.html) instead.
 
 ## Resource: `google_sql_database_instance`
 
