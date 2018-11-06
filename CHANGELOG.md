@@ -7,6 +7,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
+* cloudfunctions: Add new-style Storage and Pub/Sub trigger support to `google_cloudfunctions_function` [GH-2412]
 * container: regional and private clusters are in GA now [GH-2364]
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
 
