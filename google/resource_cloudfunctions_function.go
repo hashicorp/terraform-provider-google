@@ -526,6 +526,11 @@ func expandEventTrigger(configured []interface{}, project string) *cloudfunction
 	eventType := data["event_type"].(string)
 	shape := ""
 	switch {
+	case strings.HasPrefix(eventType, "google.storage.object."):
+		shape = "projects/%s/buckets/%s"
+	case strings.HasPrefix(eventType, "google.pubsub.topic."):
+		shape = "projects/%s/topics/%s"
+	// Legacy style triggers
 	case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
 		shape = "projects/%s/buckets/%s"
 	case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
