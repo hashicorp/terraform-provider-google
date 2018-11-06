@@ -113,7 +113,7 @@ func resourceBigQueryDataset() *schema.Resource {
 			// or updating a dataset in order to control who is allowed to access
 			// the data.
 			"access": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				// Computed because if unset, BQ adds 4 entries automatically
 				Computed: true,
@@ -239,7 +239,8 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 
 	if v, ok := d.GetOk("access"); ok {
 		access := []*bigquery.DatasetAccess{}
-		for _, m := range v.([]interface{}) {
+		vs := v.(*schema.Set)
+		for _, m := range vs.List() {
 			da := bigquery.DatasetAccess{}
 			accessMap := m.(map[string]interface{})
 			da.Role = accessMap["role"].(string)
