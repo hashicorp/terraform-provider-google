@@ -14,16 +14,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -254,7 +253,7 @@ func (s *BackupConfiguration) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// BackupRun: A BackupRun resource.
+// BackupRun: A database instance backup run resource.
 type BackupRun struct {
 	// Description: The description of this run, only applicable to
 	// on-demand backups.
@@ -272,8 +271,8 @@ type BackupRun struct {
 	// only present if the run has the FAILED status.
 	Error *OperationError `json:"error,omitempty"`
 
-	// Id: The identifier for this backup run. Unique only for a specific
-	// Cloud SQL instance.
+	// Id: A unique identifier for this backup run. Note that this is unique
+	// only within the scope of a particular Cloud SQL instance.
 	Id int64 `json:"id,omitempty,string"`
 
 	// Instance: Name of the database instance.
@@ -445,7 +444,7 @@ func (s *CloneContext) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Database: Represents a SQL database on the Cloud SQL instance.
+// Database: A database resource inside a Cloud SQL instance.
 type Database struct {
 	// Charset: The MySQL charset value.
 	Charset string `json:"charset,omitempty"`
@@ -453,8 +452,7 @@ type Database struct {
 	// Collation: The MySQL collation value.
 	Collation string `json:"collation,omitempty"`
 
-	// Etag: This field is deprecated and will be removed from a future
-	// version of the API.
+	// Etag: HTTP 1.1 Entity tag for the resource.
 	Etag string `json:"etag,omitempty"`
 
 	// Instance: The name of the Cloud SQL instance. This does not include
@@ -502,13 +500,14 @@ func (s *Database) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// DatabaseFlags: Database flags for Cloud SQL instances.
+// DatabaseFlags: MySQL flags for Cloud SQL instances.
 type DatabaseFlags struct {
 	// Name: The name of the flag. These flags are passed at instance
-	// startup, so include both server options and system variables for
-	// MySQL. Flags should be specified with underscores, not hyphens. For
-	// more information, see Configuring Database Flags in the Cloud SQL
-	// documentation.
+	// startup, so include both MySQL server options and MySQL system
+	// variables. Flags should be specified with underscores, not hyphens.
+	// For more information, see Configuring MySQL Flags in the Google Cloud
+	// SQL documentation, as well as the official MySQL documentation for
+	// server options and system variables.
 	Name string `json:"name,omitempty"`
 
 	// Value: The value of the flag. Booleans should be set to on for true
@@ -541,13 +540,11 @@ func (s *DatabaseFlags) MarshalJSON() ([]byte, error) {
 
 // DatabaseInstance: A Cloud SQL instance resource.
 type DatabaseInstance struct {
-	// BackendType: FIRST_GEN: First Generation instance. MySQL
-	// only.
-	// SECOND_GEN: Second Generation instance or PostgreSQL
-	// instance.
-	// EXTERNAL: A database server that is not managed by Google.
-	// This property is read-only; use the tier property in the settings
-	// object to determine the database type and Second or First Generation.
+	// BackendType: FIRST_GEN: Basic Cloud SQL instance that runs in a
+	// Google-managed container.
+	// SECOND_GEN: A newer Cloud SQL backend that runs in a Compute Engine
+	// VM.
+	// EXTERNAL: A MySQL server that is not managed by Google.
 	BackendType string `json:"backendType,omitempty"`
 
 	// ConnectionName: Connection name of the Cloud SQL instance used in
@@ -557,7 +554,9 @@ type DatabaseInstance struct {
 	// CurrentDiskSize: The current disk usage of the instance in bytes.
 	// This property has been deprecated. Users should use the
 	// "cloudsql.googleapis.com/database/disk/bytes_used" metric in Cloud
-	// Monitoring API instead. Please see this announcement for details.
+	// Monitoring API instead. Please see
+	// https://groups.google.com/d/msg/google-cloud-sql-announce/I_7-F9EBhT0/BtvFtdFeAgAJ for
+	// details.
 	CurrentDiskSize int64 `json:"currentDiskSize,omitempty,string"`
 
 	// DatabaseVersion: The database engine type and version. The
@@ -567,8 +566,7 @@ type DatabaseInstance struct {
 	// MYSQL_5_6 (default) or MYSQL_5_5
 	DatabaseVersion string `json:"databaseVersion,omitempty"`
 
-	// Etag: This field is deprecated and will be removed from a future
-	// version of the API. Use the settings.settingsVersion field instead.
+	// Etag: HTTP 1.1 Entity tag for the resource.
 	Etag string `json:"etag,omitempty"`
 
 	// FailoverReplica: The name and status of the failover replica. This
@@ -627,8 +625,8 @@ type DatabaseInstance struct {
 	// can not be changed after instance creation.
 	Region string `json:"region,omitempty"`
 
-	// ReplicaConfiguration: Configuration specific to failover replicas and
-	// read replicas.
+	// ReplicaConfiguration: Configuration specific to read-replicas
+	// replicating from on-premises masters.
 	ReplicaConfiguration *ReplicaConfiguration `json:"replicaConfiguration,omitempty"`
 
 	// ReplicaNames: The replicas of the instance.
@@ -1055,7 +1053,7 @@ func (s *FailoverContext) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Flag: A flag resource.
+// Flag: A Google Cloud SQL service flag resource.
 type Flag struct {
 	// AllowedStringValues: For STRING flags, a list of strings that the
 	// value can be set to.
@@ -2142,7 +2140,8 @@ type Settings struct {
 	ActivationPolicy string `json:"activationPolicy,omitempty"`
 
 	// AuthorizedGaeApplications: The App Engine app IDs that can access
-	// this instance. First Generation instances only.
+	// this instance. This property is only applicable to First Generation
+	// instances.
 	AuthorizedGaeApplications []string `json:"authorizedGaeApplications,omitempty"`
 
 	// AvailabilityType: Availability type (PostgreSQL instances only).
@@ -2165,11 +2164,12 @@ type Settings struct {
 	CrashSafeReplicationEnabled bool `json:"crashSafeReplicationEnabled,omitempty"`
 
 	// DataDiskSizeGb: The size of data disk, in GB. The data disk size
-	// minimum is 10GB. Not used for First Generation instances.
+	// minimum is 10GB. Applies only to Second Generation instances.
 	DataDiskSizeGb int64 `json:"dataDiskSizeGb,omitempty,string"`
 
-	// DataDiskType: The type of data disk: PD_SSD (default) or PD_HDD. Not
-	// used for First Generation instances.
+	// DataDiskType: The type of data disk. Only supported for Second
+	// Generation instances. The default type is PD_SSD. Applies only to
+	// Second Generation instances.
 	DataDiskType string `json:"dataDiskType,omitempty"`
 
 	// DatabaseFlags: The database flags passed to the instance at startup.
@@ -2195,8 +2195,8 @@ type Settings struct {
 	LocationPreference *LocationPreference `json:"locationPreference,omitempty"`
 
 	// MaintenanceWindow: The maintenance window for this instance. This
-	// specifies when the instance can be restarted for maintenance
-	// purposes. Not used for First Generation instances.
+	// specifies when the instance may be restarted for maintenance
+	// purposes. Applies only to Second Generation instances.
 	MaintenanceWindow *MaintenanceWindow `json:"maintenanceWindow,omitempty"`
 
 	// PricingPlan: The pricing plan for this instance. This can be either
@@ -2216,21 +2216,18 @@ type Settings struct {
 	SettingsVersion int64 `json:"settingsVersion,omitempty,string"`
 
 	// StorageAutoResize: Configuration to increase storage size
-	// automatically. The default value is true. Not used for First
+	// automatically. The default value is true. Applies only to Second
 	// Generation instances.
 	StorageAutoResize *bool `json:"storageAutoResize,omitempty"`
 
 	// StorageAutoResizeLimit: The maximum size to which storage capacity
 	// can be automatically increased. The default value is 0, which
-	// specifies that there is no limit. Not used for First Generation
+	// specifies that there is no limit. Applies only to Second Generation
 	// instances.
 	StorageAutoResizeLimit int64 `json:"storageAutoResizeLimit,omitempty,string"`
 
-	// Tier: The tier (or machine type) for this instance, for example
-	// db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL
-	// instances). For MySQL instances, this property determines whether the
-	// instance is First or Second Generation. For more information, see
-	// Instance Settings.
+	// Tier: The tier of service for this instance, for example D1, D2. For
+	// more information, see pricing.
 	Tier string `json:"tier,omitempty"`
 
 	// UserLabels: User-provided labels, represented as a dictionary where
@@ -2600,8 +2597,7 @@ func (s *TruncateLogContext) MarshalJSON() ([]byte, error) {
 
 // User: A Cloud SQL user resource.
 type User struct {
-	// Etag: This field is deprecated and will be removed from a future
-	// version of the API.
+	// Etag: HTTP 1.1 Entity tag for the resource.
 	Etag string `json:"etag,omitempty"`
 
 	// Host: The host name from which the user can connect. For insert
@@ -2619,7 +2615,7 @@ type User struct {
 	Kind string `json:"kind,omitempty"`
 
 	// Name: The name of the user in the Cloud SQL instance. Can be omitted
-	// for update since it is already specified in the URL.
+	// for update since it is already specified on the URL.
 	Name string `json:"name,omitempty"`
 
 	// Password: The password for the user.
@@ -2747,13 +2743,9 @@ func (c *BackupRunsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/backupRuns/{id}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("DELETE", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -2910,13 +2902,9 @@ func (c *BackupRunsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/backupRuns/{id}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3065,13 +3053,9 @@ func (c *BackupRunsInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/backupRuns")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3167,8 +3151,8 @@ type BackupRunsListCall struct {
 }
 
 // List: Lists all backup runs associated with a given instance and
-// configuration in the reverse chronological order of the backup
-// initiation time.
+// configuration in the reverse chronological order of the enqueued
+// time.
 func (r *BackupRunsService) List(project string, instance string) *BackupRunsListCall {
 	c := &BackupRunsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -3237,13 +3221,9 @@ func (c *BackupRunsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/backupRuns")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3290,7 +3270,7 @@ func (c *BackupRunsListCall) Do(opts ...googleapi.CallOption) (*BackupRunsListRe
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists all backup runs associated with a given instance and configuration in the reverse chronological order of the backup initiation time.",
+	//   "description": "Lists all backup runs associated with a given instance and configuration in the reverse chronological order of the enqueued time.",
 	//   "httpMethod": "GET",
 	//   "id": "sql.backupRuns.list",
 	//   "parameterOrder": [
@@ -3409,13 +3389,9 @@ func (c *DatabasesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases/{database}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("DELETE", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3572,13 +3548,9 @@ func (c *DatabasesGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases/{database}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3726,13 +3698,9 @@ func (c *DatabasesInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -3881,13 +3849,9 @@ func (c *DatabasesListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4029,13 +3993,9 @@ func (c *DatabasesPatchCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases/{database}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PATCH", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("PATCH", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4188,13 +4148,9 @@ func (c *DatabasesUpdateCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/databases/{database}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PUT", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("PUT", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4302,8 +4258,8 @@ func (r *FlagsService) List() *FlagsListCall {
 }
 
 // DatabaseVersion sets the optional parameter "databaseVersion":
-// Database type and version you want to retrieve flags for. By default,
-// this method returns flags for all database types and versions.
+// Database version for flag retrieval. Flags are specific to the
+// database version.
 func (c *FlagsListCall) DatabaseVersion(databaseVersion string) *FlagsListCall {
 	c.urlParams_.Set("databaseVersion", databaseVersion)
 	return c
@@ -4355,13 +4311,9 @@ func (c *FlagsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "flags")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
@@ -4409,7 +4361,7 @@ func (c *FlagsListCall) Do(opts ...googleapi.CallOption) (*FlagsListResponse, er
 	//   "id": "sql.flags.list",
 	//   "parameters": {
 	//     "databaseVersion": {
-	//       "description": "Database type and version you want to retrieve flags for. By default, this method returns flags for all database types and versions.",
+	//       "description": "Database version for flag retrieval. Flags are specific to the database version.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -4482,13 +4434,9 @@ func (c *InstancesAddServerCaCall) doRequest(alt string) (*http.Response, error)
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/addServerCa")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4628,13 +4576,9 @@ func (c *InstancesCloneCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/clone")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4769,13 +4713,9 @@ func (c *InstancesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("DELETE", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -4915,13 +4855,9 @@ func (c *InstancesDemoteMasterCall) doRequest(alt string) (*http.Response, error
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/demoteMaster")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -5064,13 +5000,9 @@ func (c *InstancesExportCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/export")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -5211,13 +5143,9 @@ func (c *InstancesFailoverCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/failover")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -5367,13 +5295,9 @@ func (c *InstancesGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -5513,13 +5437,9 @@ func (c *InstancesImportCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/import")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -5658,13 +5578,9 @@ func (c *InstancesInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project": c.project,
@@ -5826,13 +5742,9 @@ func (c *InstancesListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project": c.project,
@@ -6011,13 +5923,9 @@ func (c *InstancesListServerCasCall) doRequest(alt string) (*http.Response, erro
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/listServerCas")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6159,13 +6067,9 @@ func (c *InstancesPatchCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PATCH", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("PATCH", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6301,13 +6205,9 @@ func (c *InstancesPromoteReplicaCall) doRequest(alt string) (*http.Response, err
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/promoteReplica")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6440,13 +6340,9 @@ func (c *InstancesResetSslConfigCall) doRequest(alt string) (*http.Response, err
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/resetSslConfig")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6578,13 +6474,9 @@ func (c *InstancesRestartCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/restart")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6723,13 +6615,9 @@ func (c *InstancesRestoreBackupCall) doRequest(alt string) (*http.Response, erro
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/restoreBackup")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -6873,13 +6761,9 @@ func (c *InstancesRotateServerCaCall) doRequest(alt string) (*http.Response, err
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/rotateServerCa")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -7014,13 +6898,9 @@ func (c *InstancesStartReplicaCall) doRequest(alt string) (*http.Response, error
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/startReplica")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -7152,13 +7032,9 @@ func (c *InstancesStopReplicaCall) doRequest(alt string) (*http.Response, error)
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/stopReplica")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -7297,13 +7173,9 @@ func (c *InstancesTruncateLogCall) doRequest(alt string) (*http.Response, error)
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/truncateLog")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -7447,13 +7319,9 @@ func (c *InstancesUpdateCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PUT", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("PUT", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -7501,6 +7369,7 @@ func (c *InstancesUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	return ret, nil
 	// {
 	//   "description": "Updates settings of a Cloud SQL instance. Caution: This is not a partial update, so you must include values for all the settings that you want to retain. For partial updates, use patch.",
+	//   "etagRequired": true,
 	//   "httpMethod": "PUT",
 	//   "id": "sql.instances.update",
 	//   "parameterOrder": [
@@ -7603,13 +7472,9 @@ func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/operations/{operation}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":   c.project,
@@ -7771,13 +7636,9 @@ func (c *OperationsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/operations")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project": c.project,
@@ -7950,13 +7811,9 @@ func (c *SslCertsCreateEphemeralCall) doRequest(alt string) (*http.Response, err
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/createEphemeral")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -8094,13 +7951,9 @@ func (c *SslCertsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/sslCerts/{sha1Fingerprint}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("DELETE", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":         c.project,
@@ -8258,13 +8111,9 @@ func (c *SslCertsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/sslCerts/{sha1Fingerprint}")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":         c.project,
@@ -8413,13 +8262,9 @@ func (c *SslCertsInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/sslCerts")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -8568,13 +8413,9 @@ func (c *SslCertsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/sslCerts")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -8719,13 +8560,9 @@ func (c *TiersListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/tiers")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project": c.project,
@@ -8851,13 +8688,9 @@ func (c *UsersDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/users")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("DELETE", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -9010,13 +8843,9 @@ func (c *UsersInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/users")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -9165,13 +8994,9 @@ func (c *UsersListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/users")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -9264,19 +9089,13 @@ type UsersUpdateCall struct {
 }
 
 // Update: Updates an existing user in a Cloud SQL instance.
-func (r *UsersService) Update(project string, instance string, name string, user *User) *UsersUpdateCall {
+func (r *UsersService) Update(project string, instance string, host string, name string, user *User) *UsersUpdateCall {
 	c := &UsersUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
 	c.instance = instance
+	c.urlParams_.Set("host", host)
 	c.urlParams_.Set("name", name)
 	c.user = user
-	return c
-}
-
-// Host sets the optional parameter "host": Host of the user in the
-// instance.
-func (c *UsersUpdateCall) Host(host string) *UsersUpdateCall {
-	c.urlParams_.Set("host", host)
 	return c
 }
 
@@ -9318,13 +9137,9 @@ func (c *UsersUpdateCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{project}/instances/{instance}/users")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PUT", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("PUT", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"project":  c.project,
@@ -9377,12 +9192,14 @@ func (c *UsersUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 	//   "parameterOrder": [
 	//     "project",
 	//     "instance",
+	//     "host",
 	//     "name"
 	//   ],
 	//   "parameters": {
 	//     "host": {
 	//       "description": "Host of the user in the instance.",
 	//       "location": "query",
+	//       "required": true,
 	//       "type": "string"
 	//     },
 	//     "instance": {
