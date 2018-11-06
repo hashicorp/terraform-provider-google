@@ -60,12 +60,11 @@ func resourceComputeSslCertificate() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:          schema.TypeString,
-				Computed:      true,
-				Optional:      true,
-				ForceNew:      true,
-				ValidateFunc:  validateGCPName,
-				ConflictsWith: []string{"name_prefix"},
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 			"certificate_id": {
 				Type:     schema.TypeInt,
