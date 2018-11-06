@@ -159,11 +159,11 @@ func resourceComputeBackendService() *schema.Resource {
 			},
 
 			"custom_request_headers": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:       schema.TypeSet,
-				Optional:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Set:        schema.HashString,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 
 			"description": &schema.Schema{
@@ -322,8 +322,8 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	d.Set("security_policy", service.SecurityPolicy)
-	d.Set("custom_request_headers", service.CustomRequestHeaders)
 
+	d.Set("custom_request_headers", nil)
 	return nil
 }
 
@@ -532,7 +532,6 @@ func expandBackendService(d *schema.ResourceData) (*computeBeta.BackendService, 
 				ForceSendFields: []string{"IncludeProtocol", "IncludeHost", "IncludeQueryString", "QueryStringWhitelist", "QueryStringBlacklist"},
 			},
 		},
-		CustomRequestHeaders: convertStringSet(d.Get("custom_request_headers").(*schema.Set)),
 	}
 
 	if v, ok := d.GetOk("iap"); ok {
