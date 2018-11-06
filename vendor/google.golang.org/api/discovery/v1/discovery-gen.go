@@ -14,16 +14,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -1011,13 +1010,9 @@ func (c *ApisGetRestCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "apis/{api}/{version}/rest")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"api":     c.api,
@@ -1169,13 +1164,9 @@ func (c *ApisListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "apis")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
+	req, _ := http.NewRequest("GET", urls, body)
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
