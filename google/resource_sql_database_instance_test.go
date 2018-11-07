@@ -1,16 +1,8 @@
 package google
 
-/**
- * Note! You must run these tests once at a time. Google Cloud SQL does
- * not allow you to reuse a database for a short time after you reserved it,
- * and for this reason the tests will fail if the same config is used serveral
- * times in short succession.
- */
-
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -157,7 +149,6 @@ func testSweepDatabases(region string) error {
 func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	instanceID := acctest.RandInt()
 	instanceName := fmt.Sprintf("tf-lw-%d", instanceID)
 	resourceName := "google_sql_database_instance.instance"
@@ -168,12 +159,7 @@ func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 		CheckDestroy: testAccSqlDatabaseInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic, instanceID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(resourceName, &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(resourceName, &instance),
-				),
+				Config: fmt.Sprintf(testGoogleSqlDatabaseInstance_basic, instanceID),
 			},
 			resource.TestStep{
 				ResourceName:      resourceName,
@@ -199,8 +185,6 @@ func TestAccSqlDatabaseInstance_basicFirstGen(t *testing.T) {
 func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -208,12 +192,11 @@ func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstance_basic2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -222,8 +205,7 @@ func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
-	databaseID := acctest.RandInt()
+	databaseName := "tf-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -232,15 +214,13 @@ func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic3, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(
-						&instance),
-				),
+					testGoogleSqlDatabaseInstance_basic3, databaseName),
+				Check: testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(databaseName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -249,7 +229,6 @@ func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	databaseName := "sql-instance-test-" + acctest.RandString(10)
 	failoverName := "sql-instance-test-failover-" + acctest.RandString(10)
 	// 1. Create an instance.
@@ -263,13 +242,13 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstanceConfig_withoutReplica(databaseName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
-			}, resource.TestStep{
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				PreConfig: func() {
 					// Add a root user
 					config := testAccProvider.Meta().(*Config)
@@ -298,7 +277,6 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -309,12 +287,11 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -358,7 +335,6 @@ func TestAccSqlDatabaseInstance_replica(t *testing.T) {
 func TestAccSqlDatabaseInstance_slave(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 	slaveID := acctest.RandInt()
 
@@ -370,16 +346,16 @@ func TestAccSqlDatabaseInstance_slave(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_slave, masterID, slaveID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance_master", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance_master", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance_slave", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance_slave", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_master",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_slave",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -388,7 +364,6 @@ func TestAccSqlDatabaseInstance_slave(t *testing.T) {
 func TestAccSqlDatabaseInstance_highAvailability(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	instanceID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -399,21 +374,11 @@ func TestAccSqlDatabaseInstance_highAvailability(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_highAvailability, instanceID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-					// Check that we've set our high availability type correctly, and it's been
-					// accepted by the API
-					func(s *terraform.State) error {
-						if instance.Settings.AvailabilityType != "REGIONAL" {
-							return fmt.Errorf("Database %s was not configured with Regional HA", instance.Name)
-						}
-
-						return nil
-					},
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -422,7 +387,6 @@ func TestAccSqlDatabaseInstance_highAvailability(t *testing.T) {
 func TestAccSqlDatabaseInstance_diskspecs(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -433,12 +397,11 @@ func TestAccSqlDatabaseInstance_diskspecs(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_diskspecs, masterID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -447,7 +410,6 @@ func TestAccSqlDatabaseInstance_diskspecs(t *testing.T) {
 func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	masterID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -458,12 +420,11 @@ func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_maintenance, masterID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -472,7 +433,6 @@ func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 func TestAccSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -483,22 +443,20 @@ func TestAccSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -507,7 +465,6 @@ func TestAccSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 func TestAccSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
 	databaseID := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -518,22 +475,20 @@ func TestAccSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -541,9 +496,7 @@ func TestAccSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 
 // GH-4222
 func TestAccSqlDatabaseInstance_authNets(t *testing.T) {
-	t.Parallel(
-	// var instance sqladmin.DatabaseInstance
-	)
+	t.Parallel()
 
 	databaseID := acctest.RandInt()
 
@@ -557,12 +510,27 @@ func TestAccSqlDatabaseInstance_authNets(t *testing.T) {
 					testGoogleSqlDatabaseInstance_authNets_step1, databaseID),
 			},
 			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_authNets_step2, databaseID),
 			},
 			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_authNets_step1, databaseID),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -584,6 +552,11 @@ func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_multipleOperations, databaseID, instanceID, userID),
 			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -591,8 +564,7 @@ func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
 	t.Parallel()
 
-	var instance sqladmin.DatabaseInstance
-	databaseID := acctest.RandInt()
+	databaseName := "tf-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -601,256 +573,25 @@ func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic_with_user_labels, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(
-						&instance),
-				),
+					testGoogleSqlDatabaseInstance_basic_with_user_labels, databaseName),
+				Check: testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(databaseName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			resource.TestStep{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseInstanceExists(
-						"google_sql_database_instance.instance", &instance),
-					testAccCheckGoogleSqlDatabaseInstanceEquals(
-						"google_sql_database_instance.instance", &instance),
-				),
+					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckGoogleSqlDatabaseInstanceEquals(n string,
-	instance *sqladmin.DatabaseInstance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		attributes := rs.Primary.Attributes
-
-		server := instance.Name
-		local := attributes["name"]
-		if server != local {
-			return fmt.Errorf("Error name mismatch, (%s, %s)", server, local)
-		}
-
-		server = instance.Settings.Tier
-		local = attributes["settings.0.tier"]
-		if server != local {
-			return fmt.Errorf("Error settings.tier mismatch, (%s, %s)", server, local)
-		}
-
-		server = strings.TrimPrefix(instance.MasterInstanceName, instance.Project+":")
-		local = attributes["master_instance_name"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error master_instance_name mismatch, (%s, %s)", server, local)
-		}
-
-		ip_len, err := strconv.Atoi(attributes["ip_address.#"])
-		if err != nil {
-			return fmt.Errorf("Error parsing ip_addresses.# : %s", err.Error())
-		}
-		if ip_len != len(instance.IpAddresses) {
-			return fmt.Errorf("Error ip_addresses.# mismatch, server has %d but local has %d", len(instance.IpAddresses), ip_len)
-		}
-		// For now, assume the order matches
-		for idx, ip := range instance.IpAddresses {
-			server = attributes["ip_address."+strconv.Itoa(idx)+".ip_address"]
-			local = ip.IpAddress
-			if server != local {
-				return fmt.Errorf("Error ip_addresses.%d.ip_address mismatch, server has %s but local has %s", idx, server, local)
-			}
-
-			server = attributes["ip_address."+strconv.Itoa(idx)+".time_to_retire"]
-			local = ip.TimeToRetire
-			if server != local {
-				return fmt.Errorf("Error ip_addresses.%d.time_to_retire mismatch, server has %s but local has %s", idx, server, local)
-			}
-		}
-
-		if len(instance.IpAddresses) > 0 {
-			server = instance.IpAddresses[0].IpAddress
-			local = attributes["first_ip_address"]
-			if server != local {
-				return fmt.Errorf("Error first_ip_address mismatch, server has %s but local has %s", server, local)
-			}
-		}
-
-		server = instance.Settings.ActivationPolicy
-		local = attributes["settings.0.activation_policy"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.activation_policy mismatch, (%s, %s)", server, local)
-		}
-
-		server = instance.Settings.AvailabilityType
-		local = attributes["settings.0.availability_type"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.availability_type mismatch, (%s, %s)", server, local)
-		}
-
-		if instance.Settings.BackupConfiguration != nil {
-			server = strconv.FormatBool(instance.Settings.BackupConfiguration.BinaryLogEnabled)
-			local = attributes["settings.0.backup_configuration.0.binary_log_enabled"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.backup_configuration.binary_log_enabled mismatch, (%s, %s)", server, local)
-			}
-
-			server = strconv.FormatBool(instance.Settings.BackupConfiguration.Enabled)
-			local = attributes["settings.0.backup_configuration.0.enabled"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.backup_configuration.enabled mismatch, (%s, %s)", server, local)
-			}
-
-			server = instance.Settings.BackupConfiguration.StartTime
-			local = attributes["settings.0.backup_configuration.0.start_time"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.backup_configuration.start_time mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		server = strconv.FormatBool(instance.Settings.CrashSafeReplicationEnabled)
-		local = attributes["settings.0.crash_safe_replication"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.crash_safe_replication mismatch, (%s, %s)", server, local)
-		}
-
-		// First generation CloudSQL instances will not have any value for StorageAutoResize.
-		// We need to check if this value has been omitted before we potentially deference a
-		// nil pointer.
-		if instance.Settings.StorageAutoResize != nil {
-			server = strconv.FormatBool(*instance.Settings.StorageAutoResize)
-			local = attributes["settings.0.disk_autoresize"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.disk_autoresize mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		server = strconv.FormatInt(instance.Settings.DataDiskSizeGb, 10)
-		local = attributes["settings.0.disk_size"]
-		if server != local && len(server) > 0 && len(local) > 0 && local != "0" {
-			return fmt.Errorf("Error settings.disk_size mismatch, (%s, %s)", server, local)
-		}
-
-		server = instance.Settings.DataDiskType
-		local = attributes["settings.0.disk_type"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.disk_type mismatch, (%s, %s)", server, local)
-		}
-
-		if instance.Settings.IpConfiguration != nil {
-			server = strconv.FormatBool(instance.Settings.IpConfiguration.Ipv4Enabled)
-			local = attributes["settings.0.ip_configuration.0.ipv4_enabled"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.ip_configuration.ipv4_enabled mismatch, (%s, %s)", server, local)
-			}
-
-			server = strconv.FormatBool(instance.Settings.IpConfiguration.RequireSsl)
-			local = attributes["settings.0.ip_configuration.0.require_ssl"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.ip_configuration.require_ssl mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		if instance.Settings.LocationPreference != nil {
-			server = instance.Settings.LocationPreference.FollowGaeApplication
-			local = attributes["settings.0.location_preference.0.follow_gae_application"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.location_preference.follow_gae_application mismatch, (%s, %s)", server, local)
-			}
-
-			server = instance.Settings.LocationPreference.Zone
-			local = attributes["settings.0.location_preference.0.zone"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.location_preference.zone mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		if instance.Settings.MaintenanceWindow != nil {
-			server = strconv.FormatInt(instance.Settings.MaintenanceWindow.Day, 10)
-			local = attributes["settings.0.maintenance_window.0.day"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.maintenance_window.day mismatch, (%s, %s)", server, local)
-			}
-
-			server = strconv.FormatInt(instance.Settings.MaintenanceWindow.Hour, 10)
-			local = attributes["settings.0.maintenance_window.0.hour"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.maintenance_window.hour mismatch, (%s, %s)", server, local)
-			}
-
-			server = instance.Settings.MaintenanceWindow.UpdateTrack
-			local = attributes["settings.0.maintenance_window.0.update_track"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error settings.maintenance_window.update_track mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		server = instance.Settings.PricingPlan
-		local = attributes["settings.0.pricing_plan"]
-		if server != local && len(server) > 0 && len(local) > 0 {
-			return fmt.Errorf("Error settings.pricing_plan mismatch, (%s, %s)", server, local)
-		}
-
-		if instance.Settings.UserLabels != nil {
-			server := instance.Settings.UserLabels["location"]
-			local = attributes["settings.0.user_labels.location"]
-
-			if server != local {
-				return fmt.Errorf("Error settings.user_labels.location mismatch, (%s, %s)", server, local)
-			}
-
-			server = instance.Settings.UserLabels["track"]
-			local = attributes["settings.0.user_labels.track"]
-
-			if server != local {
-				return fmt.Errorf("Error settings.user_labels.track mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		if instance.ReplicaConfiguration != nil {
-			server = strconv.FormatBool(instance.ReplicaConfiguration.FailoverTarget)
-			local = attributes["replica_configuration.0.failover_target"]
-			if server != local && len(server) > 0 && len(local) > 0 {
-				return fmt.Errorf("Error replica_configuration.failover_target mismatch, (%s, %s)", server, local)
-			}
-		}
-
-		server = instance.ConnectionName
-		local = attributes["connection_name"]
-		if server != local {
-			return fmt.Errorf("Error connection_name mismatch. (%s, %s)", server, local)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckGoogleSqlDatabaseInstanceExists(n string,
-	instance *sqladmin.DatabaseInstance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		found, err := config.clientSqlAdmin.Instances.Get(config.Project,
-			rs.Primary.Attributes["name"]).Do()
-
-		*instance = *found
-
-		if err != nil {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		return nil
-	}
 }
 
 func testAccSqlDatabaseInstanceDestroy(s *terraform.State) error {
@@ -870,15 +611,14 @@ func testAccSqlDatabaseInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(
-	instance *sqladmin.DatabaseInstance) resource.TestCheckFunc {
+func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(instance string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		users, err := config.clientSqlAdmin.Users.List(config.Project, instance.Name).Do()
+		users, err := config.clientSqlAdmin.Users.List(config.Project, instance).Do()
 
 		if err != nil {
-			return fmt.Errorf("Could not list database users for %q: %s", instance.Name, err)
+			return fmt.Errorf("Could not list database users for %q: %s", instance, err)
 		}
 
 		for _, u := range users.Items {
@@ -913,7 +653,7 @@ resource "google_sql_database_instance" "instance" {
 `
 var testGoogleSqlDatabaseInstance_basic3 = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
+	name = "%s"
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
@@ -1201,7 +941,7 @@ resource "google_sql_user" "user" {
 
 var testGoogleSqlDatabaseInstance_basic_with_user_labels = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
+	name = "%s"
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
@@ -1214,7 +954,7 @@ resource "google_sql_database_instance" "instance" {
 `
 var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
+	name = "%s"
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
