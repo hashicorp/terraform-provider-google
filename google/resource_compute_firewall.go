@@ -458,12 +458,6 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
 	}
-	nameProp, err := expandComputeFirewallName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
 	networkProp, err := expandComputeFirewallNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err

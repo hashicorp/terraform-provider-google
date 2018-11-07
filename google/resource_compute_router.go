@@ -261,35 +261,17 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeRouterName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
 	descriptionProp, err := expandComputeRouterDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); ok || !reflect.DeepEqual(v, descriptionProp) {
 		obj["description"] = descriptionProp
 	}
-	networkProp, err := expandComputeRouterNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
-	}
 	bgpProp, err := expandComputeRouterBgp(d.Get("bgp"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("bgp"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bgpProp)) {
 		obj["bgp"] = bgpProp
-	}
-	regionProp, err := expandComputeRouterRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
 	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
