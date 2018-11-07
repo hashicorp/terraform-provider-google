@@ -362,6 +362,12 @@ The `node_config` block supports:
   * `monitoring` (`https://www.googleapis.com/auth/monitoring`),
     if `monitoring_service` points to Google
 
+  In addition to the `oauth_scopes`, the `service_account` which is used by the Node VMs
+  needs to have the corresponding IAM permissions to make use of these services. To enable
+  the logging and monitoring this means setting at least the [roles/logging.logWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_logging_roles)
+  and [roles/monitoring.metricWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_monitoring_roles)
+  roles.
+
 * `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
