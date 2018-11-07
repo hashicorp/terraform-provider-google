@@ -30,6 +30,7 @@ See the [blog post announcing the feature](https://www.hashicorp.com/blog/kickst
 for more details.
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
+* **New Resource**: `google_access_context_manager_access_policy` for managing the container for an organization's access levels. ([`google-beta`#96](https://github.com/terraform-providers/terraform-provider-google-beta/pull/96))
 
 ENHANCEMENTS:
 * bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228]
