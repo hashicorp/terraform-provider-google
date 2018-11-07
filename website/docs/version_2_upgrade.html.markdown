@@ -19,17 +19,28 @@ Upgrade topics:
 - [Provider Version Configuration](#provider-version-configuration)
 - [`google-beta` provider](#google-beta-provider)
 - [Open in Cloud Shell](#open-in-cloud-shell)
+- [Resource: `google_bigquery_dataset`](#resource-google_bigquery_dataset)
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
+- [Resource: `google_binary_authorizaton_attestor`](#resource-google_binary_authorization_attestor)
+- [Resource: `google_binary_authorizaton_policy`](#resource-google_binary_authorization_policy)
 - [Resource: `google_cloudfunctions_function`](#resource-google_cloudfunctions_function)
+- [Resource: `google_compute_backend_service`](#resource-google_compute_backend_service)
 - [Resource: `google_compute_disk`](#resource-google_compute_disk)
+- [Resource: `google_compute_global_forwarding_rule`](#resource-google_compute_global_forwarding_rule)
 - [Resource: `google_compute_image`](#resource-google_compute_image)
 - [Resource: `google_compute_instance`](#resource-google_compute_instance)
 - [Resource: `google_compute_instance_from_template`](#resource-google_compute_instance_from_template)
 - [Resource: `google_compute_project_metadata`](#resource-google_compute_project_metadata)
+- [Resource: `google_compute_subnetwork_iam_*`](#resource-google_compute_subnetwork_iam_*)
 - [Resource: `google_compute_target_pool`](#resource-google_compute_target_pool)
 - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
+- [Resource: `google_container_analysis_note`](#resource-google_container_analysis_note)
+- [Resource: `google_container_cluster`](#resource-google_container_cluster)
 - [Resource: `google_container_node_pool`](#resource-google_container_node_pool)
 - [Resource: `google_dataproc_cluster`](#resource-google_dataproc_cluster)
+- [Resource: `google_endpoints_service`](#resource-google_endpoints_service)
+- [Resource: `google_filestore_instance`](#resource-google_filestore_instance)
+- [Resource: `google_project`](#resource-google_project)
 - [Resource: `google_project_iam_policy`](#resource-google_project_iam_policy)
 - [Resource: `google_service_account`](#resource-google_service_account)
 - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
@@ -125,6 +136,14 @@ them in an interactive editor and shell - all without leaving the browser. See t
 [blog post announcing the feature](https://www.hashicorp.com/blog/kickstart-terraform-on-gcp-with-google-cloud-shell)
 for more details.
 
+## Resource: `google_bigquery_dataset`
+
+### `access` is now a Set
+
+The order of entries in `access` no longer matters. Any configurations that
+interpolate based on an item at a specific index will need to be updated, as items
+may have been reordered.
+
 ## Resource: `google_bigtable_instance`
 
 ### `cluster_id`, `zone`, `num_nodes`, and `storage_type` have moved into a `cluster` block
@@ -158,6 +177,18 @@ resource "google_bigtable_instance" "instance" {
 ### `zone` is no longer inferred from the provider
 
 `cluster.zone` is now required, even if the provider block has a zone set.
+
+## Resource: `google_binary_authorization_attestor`
+
+### binary authorization resources have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
+## Resource: `google_binary_authorization_policy`
+
+### binary authorization resources have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these resources.
 
 ## Resource: `google_cloudfunctions_function`
 
@@ -200,6 +231,12 @@ See the documentation at
 [`google_cloudfunctions_function`](https://www.terraform.io/docs/providers/google/r/cloudfunctions_function.html)
 for more details.
 
+## Resource: `google_compute_backend_service`
+
+### `custom_request_headers` has been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to set this field.
+
 ## Resource: `google_compute_disk`
 
 ### `disk_encryption_key_raw` and `disk_encryption_key_sha256` have been removed.
@@ -224,6 +261,12 @@ resource "google_compute_disk" "foobar" {
 }
 ```
 
+## Resource: `google_compute_global_forwarding_rule`
+
+### `labels` has been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to set this field.
+
 ## Resource: `google_compute_image`
 
 ### `create_timeout` has been removed
@@ -243,6 +286,10 @@ block instead.
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
 
+### `network` has been removed
+
+Use `network_interface` instead.
+
 ### `network_interface.*.address` has been removed
 
 Use `network_interface.*.network_ip` instead.
@@ -261,12 +308,18 @@ that were added outside of Terraform should be added to the config.
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
 
+## Resource: `google_compute_subnetwork_iam_*`
+
+### subnetwork IAM resources have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
 ## Resource: `google_compute_target_pool`
 
 ### `instances` is now a Set
 
 The order of entries in `instances` no longer matters. Any configurations that
-interpolate based on an item at a specific index will need to be updated as items
+interpolate based on an item at a specific index will need to be updated, as items
 may have been reordered.
 
 ## Resource: `google_compute_url_map`
@@ -276,7 +329,23 @@ may have been reordered.
 Terraform will remove values not explicitly set in these fields. Any `host_rule`, `path_matcher`, or `test`
 values that were added outside of Terraform should be added to the config.
 
+## Resource: `google_container_analysis_note`
+
+### container analysis resources have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
+## Resource: `google_container_cluster`
+
+### `enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`, `private_cluster`, and `master_ipv4_cidr_block` have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to set these fields.
+
 ## Resource: `google_container_node_pool`
+
+### `max_pods_per_node` has been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to set this field.
 
 ### `name_prefix` has been removed
 
@@ -339,6 +408,31 @@ terraform import random_id.np example-np-,ELFZ1rbrAThoeQE
 
 For more details, see [terraform-provider-google#1054](https://github.com/terraform-providers/terraform-provider-google/issues/1054).
 
+## Resource: `google_endpoints_service`
+
+### `protoc_output` has been removed
+
+Use `protoc_output_base64` instead.
+
+Example previous configuration:
+
+```hcl
+resource "google_endpoints_service" "grpc_service" {
+  service_name  = "api-name.endpoints.project-id.cloud.goog"
+  grpc_config   = "${file("service_spec.yml")}"
+  protoc_output = "${file("compiled_descriptor_file.pb")}"
+```
+
+Example updated configuration:
+
+```hcl
+resource "google_endpoints_service" "grpc_service" {
+  service_name         = "api-name.endpoints.project-id.cloud.goog"
+  grpc_config          = "${file("service_spec.yml")}"
+  protoc_output_base64 = "${base64encode(file("compiled_descriptor_file.pb"))}"
+}
+```
+
 ## Resource: `google_dataproc_cluster`
 
 ### `cluster_config.0.delete_autogen_bucket` has been removed
@@ -346,6 +440,25 @@ For more details, see [terraform-provider-google#1054](https://github.com/terraf
 Autogenerated buckets are shared by all clusters in the same region, so deleting
 this bucket could adversely harm other dataproc clusters. If you need a bucket
 that can be deleted, please create a new one and set the `staging_bucket` field.
+
+## Resource: `google_filestore_instance`
+
+### filestore resources have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
+## Resource: `google_project`
+
+### `app_engine` has been removed
+
+Use the
+[`google_app_engine_application` resource](https://www.terraform.io/docs/providers/google/r/app_engine_application.html) instead.
+
+To avoid errors trying to recreate the resource, import it into your state first by running:
+
+```
+terraform import google_app_engine_application.app your-project-id
+```
 
 ## Resource: `google_project_iam_policy`
 
