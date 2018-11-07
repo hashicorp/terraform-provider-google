@@ -258,18 +258,6 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandComputeSslPolicyDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	nameProp, err := expandComputeSslPolicyName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
 	profileProp, err := expandComputeSslPolicyProfile(d.Get("profile"), d, config)
 	if err != nil {
 		return err
