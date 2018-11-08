@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"testing"
 
+	"log"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/composer/v1"
 	"google.golang.org/api/storage/v1"
-	"log"
-	"strings"
-	"time"
 )
 
 const testComposerEnvironmentPrefix = "tf-cc-testenv"
@@ -274,6 +275,7 @@ resource "google_composer_environment" "test" {
 		node_config {
 			network = "${google_compute_network.test.self_link}"
 			subnetwork =  "${google_compute_subnetwork.test.self_link}"
+			zone = "us-central1-a"
 
 			service_account = "${google_service_account.test.name}"
 		}
