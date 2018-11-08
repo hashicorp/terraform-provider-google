@@ -75,3 +75,12 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `label_fingerprint` - The unique fingerprint of the labels.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
+- `update` - Default is 5 minutes.
+- `delete` - Default is 5 minutes.

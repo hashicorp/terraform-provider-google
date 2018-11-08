@@ -46,3 +46,12 @@ Project metadata items can be imported using the `key`, e.g.
 ```
 $ terraform import google_compute_project_metadata_item.default my_metadata
 ```
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
+- `update` - Default is 5 minutes.
+- `delete` - Default is 5 minutes.
