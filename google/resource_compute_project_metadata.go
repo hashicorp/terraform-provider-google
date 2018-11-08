@@ -14,6 +14,9 @@ func resourceComputeProjectMetadata() *schema.Resource {
 		Read:   resourceComputeProjectMetadataRead,
 		Update: resourceComputeProjectMetadataUpdate,
 		Delete: resourceComputeProjectMetadataDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		SchemaVersion: 0,
 
@@ -91,16 +94,19 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	projectID, err := getProject(d, config)
-	if err != nil {
-		return err
+	if d.Id() == "" {
+		projectID, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		d.SetId(projectID)
 	}
 
 	// Load project service
-	log.Printf("[DEBUG] Loading project service: %s", projectID)
-	project, err := config.clientCompute.Projects.Get(projectID).Do()
+	log.Printf("[DEBUG] Loading project service: %s", d.Id())
+	project, err := config.clientCompute.Projects.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
+		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", d.Id()))
 	}
 
 	md := flattenMetadata(project.CommonInstanceMetadata)
@@ -116,9 +122,8 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
-	d.Set("project", projectID)
-	d.SetId("common_metadata")
-
+	d.Set("project", d.Id())
+	d.SetId(d.Id())
 	return nil
 }
 

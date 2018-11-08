@@ -44,3 +44,9 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource can be imported using the project ID:
+
+`terraform import google_compute_project_metadata.foo my-project-id`
