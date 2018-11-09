@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeSslCertificate_SslCertificateBasicExample(t *testing.T) {
+func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeSslCertificate_SslCertificateBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_SslCertificateBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -44,7 +44,7 @@ func TestAccComputeSslCertificate_SslCertificateBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSslCertificate_SslCertificateBasicExample(val string) string {
+func testAccComputeSslCertificate_sslCertificateBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
@@ -60,7 +60,7 @@ resource "google_compute_ssl_certificate" "default" {
 	)
 }
 
-func TestAccComputeSslCertificate_SslCertificateRandomProviderExample(t *testing.T) {
+func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccComputeSslCertificate_SslCertificateRandomProviderExample(t *testing
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_SslCertificateRandomProviderExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateRandomProviderExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -81,7 +81,7 @@ func TestAccComputeSslCertificate_SslCertificateRandomProviderExample(t *testing
 	})
 }
 
-func testAccComputeSslCertificate_SslCertificateRandomProviderExample(val string) string {
+func testAccComputeSslCertificate_sslCertificateRandomProviderExample(val string) string {
 	return fmt.Sprintf(`
 # You may also want to control name generation explicitly:
 resource "google_compute_ssl_certificate" "default" {
@@ -110,7 +110,7 @@ resource "random_id" "certificate" {
 	)
 }
 
-func TestAccComputeSslCertificate_SslCertificateTargetHttpsProxiesExample(t *testing.T) {
+func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -119,7 +119,7 @@ func TestAccComputeSslCertificate_SslCertificateTargetHttpsProxiesExample(t *tes
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_SslCertificateTargetHttpsProxiesExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -131,7 +131,7 @@ func TestAccComputeSslCertificate_SslCertificateTargetHttpsProxiesExample(t *tes
 	})
 }
 
-func testAccComputeSslCertificate_SslCertificateTargetHttpsProxiesExample(val string) string {
+func testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(val string) string {
 	return fmt.Sprintf(`
 // Using with Target HTTPS Proxies
 //

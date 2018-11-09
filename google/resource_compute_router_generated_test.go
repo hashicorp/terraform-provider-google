@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeRouter_RouterBasicExample(t *testing.T) {
+func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeRouter_RouterBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRouter_RouterBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRouter_routerBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_router.foobar",
@@ -43,7 +43,7 @@ func TestAccComputeRouter_RouterBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRouter_RouterBasicExample(val string) string {
+func testAccComputeRouter_routerBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_router" "foobar" {
   name    = "my-router-%s"

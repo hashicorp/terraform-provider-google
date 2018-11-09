@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccStorageDefaultObjectAccessControl_StorageDefaultObjectAccessControlPublicExample(t *testing.T) {
+func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccStorageDefaultObjectAccessControl_StorageDefaultObjectAccessControlP
 		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageDefaultObjectAccessControl_StorageDefaultObjectAccessControlPublicExample(acctest.RandString(10)),
+				Config: testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_storage_default_object_access_control.public_rule",
@@ -44,7 +44,7 @@ func TestAccStorageDefaultObjectAccessControl_StorageDefaultObjectAccessControlP
 	})
 }
 
-func testAccStorageDefaultObjectAccessControl_StorageDefaultObjectAccessControlPublicExample(val string) string {
+func testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_storage_default_object_access_control" "public_rule" {
   bucket = "${google_storage_bucket.bucket.name}"
