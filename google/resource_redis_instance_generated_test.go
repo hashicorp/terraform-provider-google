@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccRedisInstance_RedisInstanceBasicExample(t *testing.T) {
+func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccRedisInstance_RedisInstanceBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_RedisInstanceBasicExample(acctest.RandString(10)),
+				Config: testAccRedisInstance_redisInstanceBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_redis_instance.cache",
@@ -44,7 +44,7 @@ func TestAccRedisInstance_RedisInstanceBasicExample(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_RedisInstanceBasicExample(val string) string {
+func testAccRedisInstance_redisInstanceBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "cache" {
   name           = "memory-cache-%s"
@@ -54,7 +54,7 @@ resource "google_redis_instance" "cache" {
 	)
 }
 
-func TestAccRedisInstance_RedisInstanceFullExample(t *testing.T) {
+func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -63,7 +63,7 @@ func TestAccRedisInstance_RedisInstanceFullExample(t *testing.T) {
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_RedisInstanceFullExample(acctest.RandString(10)),
+				Config: testAccRedisInstance_redisInstanceFullExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:            "google_redis_instance.cache",
@@ -75,7 +75,7 @@ func TestAccRedisInstance_RedisInstanceFullExample(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_RedisInstanceFullExample(val string) string {
+func testAccRedisInstance_redisInstanceFullExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "cache" {
   name           = "ha-memory-cache-%s"

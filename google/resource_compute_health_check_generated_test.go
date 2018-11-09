@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeHealthCheck_HealthCheckBasicExample(t *testing.T) {
+func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeHealthCheck_HealthCheckBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeHealthCheck_HealthCheckBasicExample(acctest.RandString(10)),
+				Config: testAccComputeHealthCheck_healthCheckBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_health_check.internal-health-check",
@@ -43,7 +43,7 @@ func TestAccComputeHealthCheck_HealthCheckBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeHealthCheck_HealthCheckBasicExample(val string) string {
+func testAccComputeHealthCheck_healthCheckBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "internal-health-check" {
  name = "internal-service-health-check-%s"

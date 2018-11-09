@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeRegionDisk_RegionDiskBasicExample(t *testing.T) {
+func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeRegionDisk_RegionDiskBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionDisk_RegionDiskBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRegionDisk_regionDiskBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
@@ -43,7 +43,7 @@ func TestAccComputeRegionDisk_RegionDiskBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRegionDisk_RegionDiskBasicExample(val string) string {
+func testAccComputeRegionDisk_regionDiskBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name = "my-region-disk-%s"
