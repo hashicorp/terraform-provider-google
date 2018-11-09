@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeVpnGateway_TargetVpnGatewayBasicExample(t *testing.T) {
+func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeVpnGateway_TargetVpnGatewayBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeVpnGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnGateway_TargetVpnGatewayBasicExample(acctest.RandString(10)),
+				Config: testAccComputeVpnGateway_targetVpnGatewayBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_vpn_gateway.target_gateway",
@@ -43,7 +43,7 @@ func TestAccComputeVpnGateway_TargetVpnGatewayBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeVpnGateway_TargetVpnGatewayBasicExample(val string) string {
+func testAccComputeVpnGateway_targetVpnGatewayBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1-%s"
