@@ -67,26 +67,6 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 	})
 }
 
-func TestAccComputeGlobalAddress_internal(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeGlobalAddress_internal(),
-			},
-			resource.TestStep{
-				ResourceName:      "google_compute_global_address.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func testAccCheckComputeGlobalAddressExists(n string, addr *compute.Address) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -157,20 +137,4 @@ resource "google_compute_global_address" "foobar" {
 	description = "Created for Terraform acceptance testing"
 	ip_version = "IPV6"
 }`, acctest.RandString(10))
-}
-
-func testAccComputeGlobalAddress_internal() string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-  name = "address-test-%s"
-}
-
-
-resource "google_compute_global_address" "foobar" {
-  name = "address-test-%s"
-  address_type = "INTERNAL"
-  purpose = "VPC_PEERING"
-  prefix_length = 24
-  network = "${google_compute_network.foobar.self_link}"
-}`, acctest.RandString(10), acctest.RandString(10))
 }
