@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeRegionAutoscaler_RegionAutoscalerBasicExample(t *testing.T) {
+func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
@@ -32,7 +32,7 @@ func TestAccComputeRegionAutoscaler_RegionAutoscalerBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionAutoscaler_RegionAutoscalerBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(acctest.RandString(10)),
 			},
 			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
@@ -43,7 +43,7 @@ func TestAccComputeRegionAutoscaler_RegionAutoscalerBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRegionAutoscaler_RegionAutoscalerBasicExample(val string) string {
+func testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(val string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
   name   = "my-region-autoscaler-%s"
