@@ -119,8 +119,8 @@ The following arguments are supported:
 * `redis_configs` -
   (Optional)
   Redis configuration parameters, according to http://redis.io/topics/config.
-  Currently, the only supported parameters are maxmemory-policy and notify-keyspace-events
-  (https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances#Instance.FIELDS.redis_configs).
+  Please check Memorystore documentation for the list of supported parameters:
+  https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances#Instance.FIELDS.redis_configs
 
 * `location_id` -
   (Optional)
