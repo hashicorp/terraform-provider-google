@@ -1182,25 +1182,6 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 		log.Printf("[DEBUG] Image name resolved to: %s", imageUrl)
 	}
 
-	if v, ok := d.GetOk("snapshot"); ok {
-		snapshotName := v.(string)
-		match, _ := regexp.MatchString("^https://www.googleapis.com/compute", snapshotName)
-		if match {
-			obj["sourceSnapshot"] = snapshotName
-		} else {
-			log.Printf("[DEBUG] Loading snapshot: %s", snapshotName)
-			snapshotData, err := config.clientCompute.Snapshots.Get(
-				project, snapshotName).Do()
-
-			if err != nil {
-				return nil, fmt.Errorf(
-					"Error loading snapshot '%s': %s",
-					snapshotName, err)
-			}
-			obj["sourceSnapshot"] = snapshotData.SelfLink
-		}
-	}
-
 	return obj, nil
 }
 
