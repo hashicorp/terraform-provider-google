@@ -102,7 +102,7 @@ resource "google_container_cluster" "regional" {
 resource "google_container_node_pool" "regional-np" {
   name       = "my-node-pool"
   region     = "us-central1"
-  cluster    = "${google_container_cluster.primary.name}"
+  cluster    = "${google_container_cluster.regional.name}"
   node_count = 1
 }
 
