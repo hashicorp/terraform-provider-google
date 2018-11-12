@@ -6,6 +6,7 @@ FEATURES:
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 
 ENHANCEMENTS:
+* cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
 * cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
 * cloudfunctions: Add new-style Storage and Pub/Sub trigger support to `google_cloudfunctions_function` [GH-2412]
 * container: regional and private clusters are in GA now [GH-2364]
