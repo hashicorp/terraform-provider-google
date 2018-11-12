@@ -35,6 +35,15 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				ImportStateIdPrefix: fmt.Sprintf("%s/", projectID),
 			},
 			resource.TestStep{
+				Config: testGoogleCloudBuildTrigger_updated(projectID, projectOrg, projectBillingAccount),
+			},
+			resource.TestStep{
+				ResourceName:        "google_cloudbuild_trigger.build_trigger",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateIdPrefix: fmt.Sprintf("%s/", projectID),
+			},
+			resource.TestStep{
 				Config: testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.build_trigger"),
@@ -204,6 +213,59 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     step {
       name = "gcr.io/cloud-builders/docker"
       args = "build -t gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA -f Dockerfile ."
+    }
+  }
+}
+  `, projectID, projectID, projectOrg, projectBillingAccount)
+}
+
+func testGoogleCloudBuildTrigger_updated(projectID, projectOrg, projectBillingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_services" "acceptance" {
+  project = "${google_project.acceptance.project_id}"
+
+  services = [
+    "cloudbuild.googleapis.com",
+    "containerregistry.googleapis.com",
+    "logging.googleapis.com",
+    "pubsub.googleapis.com",
+    "storage-api.googleapis.com",
+  ]
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  project = "${google_project_services.acceptance.project}"
+  description = "acceptance test build trigger updated"
+  trigger_template {
+    branch_name = "master-updated"
+    project     = "${google_project_services.acceptance.project}"
+    repo_name   = "some-repo-updated"
+  }
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
+    tags = ["team-a", "service-b", "updated"]
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = "cp gs://mybucket/remotefile.zip localfile-updated.zip "
+    }
+    step {
+      name = "gcr.io/cloud-builders/go"
+      args = "build my_package_updated"
+    }
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = "build -t gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA -f Dockerfile ."
+    }
+    step {
+      name = "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"
+      args = "test"
     }
   }
 }
