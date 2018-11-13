@@ -142,6 +142,10 @@ output "cluster_ca_certificate" {
     If unset, the cluster's version will be set by GKE to the version of the most recent
     official release (which is not necessarily the latest version).
 
+-> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
+to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a 
+`region` are guaranteed to support the same version.
+
 * `monitoring_service` - (Optional) The monitoring service that the cluster
     should write metrics to.
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
