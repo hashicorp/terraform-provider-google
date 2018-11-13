@@ -33,6 +33,7 @@ for more details.
 * **New Resource**: `google_access_context_manager_access_policy` for managing the container for an organization's access levels. ([`google-beta`#96](https://github.com/terraform-providers/terraform-provider-google-beta/pull/96))
 
 ENHANCEMENTS:
+* bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
 * bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228]
 * bigtable: Add multi-zone (inside one region) replication to `google_bigtable_instance`. [GH-2313] [GH-2289]
 * cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
