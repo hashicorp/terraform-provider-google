@@ -111,6 +111,7 @@ resource "google_bigquery_dataset" "test" {
   friendly_name               = "foo"
   description                 = "This is a foo description"
   location                    = "EU"
+  default_partition_expiration_ms = 3600000
   default_table_expiration_ms = 3600000
 
   labels {
@@ -127,6 +128,7 @@ resource "google_bigquery_dataset" "test" {
   friendly_name               = "bar"
   description                 = "This is a bar description"
   location                    = "EU"
+  default_partition_expiration_ms = 7200000
   default_table_expiration_ms = 7200000
 
   labels {
