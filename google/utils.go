@@ -341,6 +341,15 @@ func convertStringSet(set *schema.Set) []string {
 	return s
 }
 
+func golangSetFromStringSlice(strings []string) map[string]struct{} {
+	set := map[string]struct{}{}
+	for _, v := range strings {
+		set[v] = struct{}{}
+	}
+
+	return set
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 
