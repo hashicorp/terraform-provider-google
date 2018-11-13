@@ -10,6 +10,12 @@ description: |-
 
 Provides access to available Google Container Engine versions in a zone or region for a given project.
 
+-> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
+to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a 
+`region` are guaranteed to support the same version.
+
+## Example Usage
+
 ```hcl
 data "google_container_engine_versions" "central1b" {
   zone = "us-central1-b"
