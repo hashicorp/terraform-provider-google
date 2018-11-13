@@ -279,13 +279,13 @@ func resourceContainerCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"password": {
 							Type:      schema.TypeString,
-							Required:  true,
+							Optional:  true,
 							Sensitive: true,
 						},
 
 						"username": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 
 						"client_certificate_config": {
