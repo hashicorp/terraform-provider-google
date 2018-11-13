@@ -270,11 +270,11 @@ The `ip_allocation_policy` block supports:
 
 The `master_auth` block supports:
 
-* `password` - (Required) The password to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint
+* `password` - (Optional) The password to use for HTTP basic authentication when accessing
+    the Kubernetes master endpoint.
 
-* `username` - (Required) The username to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint
+* `username` - (Optional) The username to use for HTTP basic authentication when accessing
+    the Kubernetes master endpoint. If not present basic auth will be disabled.
 
 * `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
 
