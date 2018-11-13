@@ -16,6 +16,7 @@ BUG FIXES:
 
 * bigquery: added australia and europe regions to the validate function [GH-2333]
 * compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
+* pubsub: fix issue where not all attributes were saved in state [GH-2469]
 
 ## 1.19.1 (October 12, 2018)
 
