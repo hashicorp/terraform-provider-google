@@ -32,8 +32,11 @@ func resourceGoogleProjectServices() *schema.Resource {
 			"services": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: StringNotInSlice(ignoredProjectServices, false),
+				},
 			},
 			"disable_on_destroy": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -44,13 +47,11 @@ func resourceGoogleProjectServices() *schema.Resource {
 	}
 }
 
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
+
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
-var ignoreProjectServices = map[string]struct{}{
-	"dataproc-control.googleapis.com":        struct{}{},
-	"source.googleapis.com":                  struct{}{},
-	"stackdriverprovisioning.googleapis.com": struct{}{},
-}
+var ignoreProjectServices = golangSetFromStringSlice(ignoredProjectServices)
 
 func resourceGoogleProjectServicesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
