@@ -23,26 +23,38 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
+			{
+				Config: testAccComputeRegionDisk_basic(diskName, "${data.google_self_link.snapdisk.self_link}"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
-				Config: testAccComputeRegionDisk_basic(diskName, "name"),
+			{
+				Config: testAccComputeRegionDisk_basic(diskName, "${data.google_self_link.snapdisk.relative_uri}"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
 			},
-			resource.TestStep{
+			{
+				ResourceName:      "google_compute_region_disk.regiondisk",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionDisk_basic(diskName, "${data.google_self_link.snapdisk.name}"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						"google_compute_region_disk.regiondisk", &disk),
+				),
+			},
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -64,7 +76,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
+				Config: testAccComputeRegionDisk_basic(diskName, "${data.google_self_link.snapdisk.self_link}"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
@@ -279,25 +291,28 @@ func testAccCheckComputeRegionDiskInstances(n string, disk *computeBeta.Disk) re
 func testAccComputeRegionDisk_basic(diskName, refSelector string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
-	name = "%s"
+	name  = "%s"
 	image = "debian-cloud/debian-9"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
+	size  = 50
+	type  = "pd-ssd"
+	zone  = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-	name = "%s"
+	name        = "%s"
 	source_disk = "${google_compute_disk.disk.name}"
-	zone = "us-central1-a"
+	zone        = "us-central1-a"
+}
+
+data "google_self_link" "snapdisk" {
+  self_link = "${google_compute_snapshot.snapdisk.self_link}"
 }
 
 resource "google_compute_region_disk" "regiondisk" {
-	name = "%s"
-	snapshot = "${google_compute_snapshot.snapdisk.%s}"
-	type = "pd-ssd"
-	region = "us-central1"
-
+	name          = "%s"
+	snapshot      = "%s"
+	type          = "pd-ssd"
+	region        = "us-central1"
 	replica_zones = ["us-central1-a", "us-central1-f"]
 }`, diskName, diskName, diskName, refSelector)
 }
