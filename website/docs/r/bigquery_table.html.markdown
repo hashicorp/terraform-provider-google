@@ -88,7 +88,7 @@ The `time_partitioning` block supports:
 * `type` - (Required) The only type supported is DAY, which will generate
     one partition per day based on data loading time.
 
-* `require_partition_filter` - (Optional) f set to true, queries over this table
+* `require_partition_filter` - (Optional) If set to true, queries over this table
     require a partition filter that can be used for partition elimination to be
     specified.
 
