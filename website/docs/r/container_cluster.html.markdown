@@ -167,6 +167,10 @@ to the datasource. A `region` can have a different set of supported versions tha
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
+    **Warning:** node pools defined inside a cluster can't be changed (or added/removed) after
+    cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability
+    to say "these are the _only_ node pools associated with this cluster", use the
+    [google_container_node_pool](container_node_pool.html) resource instead of this property.
 
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
