@@ -10,7 +10,9 @@ description: |-
 
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.
-[ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied using the `google_storage_bucket_acl` resource.
+[ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied
+using the [`google_storage_bucket_acl` resource](/docs/providers/google/r/storage_bucket_acl.html).
+
 For more information see
 [the official documentation](https://cloud.google.com/storage/docs/overview)
 and
