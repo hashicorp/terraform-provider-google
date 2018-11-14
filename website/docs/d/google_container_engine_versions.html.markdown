@@ -41,10 +41,9 @@ The following arguments are supported:
 * `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
     If not specified, the provider-level zone is used. One of zone or provider-level zone is required.
 
-* `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
+* `region` (optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
     For regional clusters, this value must be specified and cannot be inferred from provider-level region. One of zone,
-    region, or provider-level zone is required. This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
+    region, or provider-level zone is required.
 
 * `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.
