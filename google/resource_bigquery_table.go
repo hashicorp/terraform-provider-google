@@ -157,7 +157,6 @@ func resourceBigQueryTable() *schema.Resource {
 						"require_partition_filter": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							//ForceNew: true,
 						},
 					},
 				},
