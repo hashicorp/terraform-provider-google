@@ -52,7 +52,6 @@ func TestAccBigQueryTable_View(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroy,
 		Steps: []resource.TestStep{
 			{
-
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
