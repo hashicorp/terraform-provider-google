@@ -10,7 +10,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
-	"github.com/hashicorp/terraform/version"
+	"github.com/hashicorp/terraform/httpclient"
+	"github.com/terraform-providers/terraform-provider-google/version"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -154,9 +155,10 @@ func (c *Config) loadAndValidate() error {
 
 	client.Transport = logging.NewTransport("Google", client.Transport)
 
-	projectURL := "https://www.terraform.io"
-	userAgent := fmt.Sprintf("Terraform/%s (+%s)",
-		version.String(), projectURL)
+	terraformVersion := httpclient.UserAgentString()
+	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
+	terraformWebsite := "(+https://www.terraform.io)"
+	userAgent := fmt.Sprintf("%s %s %s", terraformVersion, terraformWebsite, providerVersion)
 
 	c.client = client
 	c.userAgent = userAgent
