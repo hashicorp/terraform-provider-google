@@ -62,7 +62,7 @@ The following arguments are supported:
 
 * `timeout` - (Optional) Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.
 
-* `entry_point` - (Optional) Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
+* `entry_point` - (Optional) Name of the function that will be executed when the Google Cloud Function is triggered.
 
 * `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is documented below. Cannot be used with `trigger_http`.
 
