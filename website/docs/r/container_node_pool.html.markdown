@@ -112,9 +112,7 @@ resource "google_container_node_pool" "regional-np" {
 
 * `zone` - (Optional) The zone in which the cluster resides.
 
-* `region` - (Optional) The region in which the cluster resides (for regional clusters).
-    This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
+* `region` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The region in which the cluster resides (for regional clusters).
 
 * `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
 
@@ -131,11 +129,9 @@ Note: You must be provide region for regional clusters and zone for zonal cluste
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
 
-* `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
+* `max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
     pools belonging to clusters that do not have IP Aliasing enabled.
-    This property is in beta, and should be used with the terraform-provider-google-beta provider.
-    See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
