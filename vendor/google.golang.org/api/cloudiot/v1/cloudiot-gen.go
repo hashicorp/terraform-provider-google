@@ -14,15 +14,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -361,6 +362,23 @@ type Device struct {
 	// minutes.
 	LastStateTime string `json:"lastStateTime,omitempty"`
 
+	// LogLevel: **Beta Feature**
+	//
+	// The logging verbosity for device activity. If
+	// unspecified,
+	// DeviceRegistry.log_level will be used.
+	//
+	// Possible values:
+	//   "LOG_LEVEL_UNSPECIFIED" - No logging specified. If not specified,
+	// logging will be disabled.
+	//   "NONE" - Disables logging.
+	//   "ERROR" - Error events will be logged.
+	//   "INFO" - Informational events will be logged, such as connections
+	// and
+	// disconnections.
+	//   "DEBUG" - All events will be logged.
+	LogLevel string `json:"logLevel,omitempty"`
+
 	// Metadata: The metadata key-value pairs assigned to the device. This
 	// metadata is not
 	// interpreted or indexed by Cloud IoT Core. It can be used to add
@@ -599,6 +617,23 @@ type DeviceRegistry struct {
 	// Id: The identifier of this device registry. For example,
 	// `myRegistry`.
 	Id string `json:"id,omitempty"`
+
+	// LogLevel: **Beta Feature**
+	//
+	// The default logging verbosity for activity from devices in this
+	// registry.
+	// The verbosity level can be overridden by Device.log_level.
+	//
+	// Possible values:
+	//   "LOG_LEVEL_UNSPECIFIED" - No logging specified. If not specified,
+	// logging will be disabled.
+	//   "NONE" - Disables logging.
+	//   "ERROR" - Error events will be logged.
+	//   "INFO" - Informational events will be logged, such as connections
+	// and
+	// disconnections.
+	//   "DEBUG" - All events will be logged.
+	LogLevel string `json:"logLevel,omitempty"`
 
 	// MqttConfig: The MQTT configuration for this device registry.
 	MqttConfig *MqttConfig `json:"mqttConfig,omitempty"`
@@ -1308,6 +1343,53 @@ func (s *RegistryCredential) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SendCommandToDeviceRequest: Request for `SendCommandToDevice`.
+type SendCommandToDeviceRequest struct {
+	// BinaryData: The command data to send to the device.
+	BinaryData string `json:"binaryData,omitempty"`
+
+	// Subfolder: Optional subfolder for the command. If empty, the command
+	// will be delivered
+	// to the /devices/{device-id}/commands topic, otherwise it will be
+	// delivered
+	// to the /devices/{device-id}/commands/{subfolder} topic.
+	// Multi-level
+	// subfolders are allowed. This field must not have more than 256
+	// characters,
+	// and must not contain any MQTT wildcards ("+" or "#") or null
+	// characters.
+	Subfolder string `json:"subfolder,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BinaryData") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BinaryData") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SendCommandToDeviceRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod SendCommandToDeviceRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SendCommandToDeviceResponse: Response for `SendCommandToDevice`.
+type SendCommandToDeviceResponse struct {
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+}
+
 // SetIamPolicyRequest: Request message for `SetIamPolicy` method.
 type SetIamPolicyRequest struct {
 	// Policy: REQUIRED: The complete policy to be applied to the
@@ -1663,9 +1745,13 @@ func (c *ProjectsLocationsRegistriesCreateCall) doRequest(alt string) (*http.Res
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/registries")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
@@ -1792,9 +1878,13 @@ func (c *ProjectsLocationsRegistriesDeleteCall) doRequest(alt string) (*http.Res
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("DELETE", urls, body)
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -1932,9 +2022,13 @@ func (c *ProjectsLocationsRegistriesGetCall) doRequest(alt string) (*http.Respon
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -2068,9 +2162,13 @@ func (c *ProjectsLocationsRegistriesGetIamPolicyCall) doRequest(alt string) (*ht
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:getIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -2169,9 +2267,9 @@ func (r *ProjectsLocationsRegistriesService) List(parent string) *ProjectsLocati
 // of registries to return in the response. If this value
 // is zero, the service will select a default size. A call may return
 // fewer
-// objects than requested, but if there is a non-empty `page_token`,
-// it
-// indicates that more entries are available.
+// objects than requested. A non-empty `next_page_token` in the
+// response
+// indicates that more data is available.
 func (c *ProjectsLocationsRegistriesListCall) PageSize(pageSize int64) *ProjectsLocationsRegistriesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -2179,9 +2277,9 @@ func (c *ProjectsLocationsRegistriesListCall) PageSize(pageSize int64) *Projects
 
 // PageToken sets the optional parameter "pageToken": The value returned
 // by the last `ListDeviceRegistriesResponse`; indicates
-// that this is a continuation of a prior `ListDeviceRegistries` call,
+// that this is a continuation of a prior `ListDeviceRegistries` call
 // and
-// that the system should return the next page of data.
+// the system should return the next page of data.
 func (c *ProjectsLocationsRegistriesListCall) PageToken(pageToken string) *ProjectsLocationsRegistriesListCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
@@ -2233,9 +2331,13 @@ func (c *ProjectsLocationsRegistriesListCall) doRequest(alt string) (*http.Respo
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/registries")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
@@ -2290,13 +2392,13 @@ func (c *ProjectsLocationsRegistriesListCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "The maximum number of registries to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested, but if there is a non-empty `page_token`, it\nindicates that more entries are available.",
+	//       "description": "The maximum number of registries to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested. A non-empty `next_page_token` in the response\nindicates that more data is available.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "The value returned by the last `ListDeviceRegistriesResponse`; indicates\nthat this is a continuation of a prior `ListDeviceRegistries` call, and\nthat the system should return the next page of data.",
+	//       "description": "The value returned by the last `ListDeviceRegistriesResponse`; indicates\nthat this is a continuation of a prior `ListDeviceRegistries` call and\nthe system should return the next page of data.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -2411,9 +2513,13 @@ func (c *ProjectsLocationsRegistriesPatchCall) doRequest(alt string) (*http.Resp
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -2555,9 +2661,13 @@ func (c *ProjectsLocationsRegistriesSetIamPolicyCall) doRequest(alt string) (*ht
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:setIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -2695,9 +2805,13 @@ func (c *ProjectsLocationsRegistriesTestIamPermissionsCall) doRequest(alt string
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:testIamPermissions")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -2831,9 +2945,13 @@ func (c *ProjectsLocationsRegistriesDevicesCreateCall) doRequest(alt string) (*h
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/devices")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
@@ -2960,9 +3078,13 @@ func (c *ProjectsLocationsRegistriesDevicesDeleteCall) doRequest(alt string) (*h
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("DELETE", urls, body)
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3108,9 +3230,13 @@ func (c *ProjectsLocationsRegistriesDevicesGetCall) doRequest(alt string) (*http
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3209,18 +3335,16 @@ func (r *ProjectsLocationsRegistriesDevicesService) List(parent string) *Project
 }
 
 // DeviceIds sets the optional parameter "deviceIds": A list of device
-// string identifiers. If empty, it will ignore this field.
-// For example, `['device0', 'device12']`. This field cannot hold more
-// than
-// 10,000 entries.
+// string IDs. For example, `['device0', 'device12']`.
+// If empty, this field is ignored. Maximum IDs: 10,000
 func (c *ProjectsLocationsRegistriesDevicesListCall) DeviceIds(deviceIds ...string) *ProjectsLocationsRegistriesDevicesListCall {
 	c.urlParams_.SetMulti("deviceIds", append([]string{}, deviceIds...))
 	return c
 }
 
 // DeviceNumIds sets the optional parameter "deviceNumIds": A list of
-// device numerical ids. If empty, it will ignore this field. This
-// field cannot hold more than 10,000 entries.
+// device numeric IDs. If empty, this field is ignored. Maximum
+// IDs: 10,000.
 func (c *ProjectsLocationsRegistriesDevicesListCall) DeviceNumIds(deviceNumIds ...uint64) *ProjectsLocationsRegistriesDevicesListCall {
 	var deviceNumIds_ []string
 	for _, v := range deviceNumIds {
@@ -3232,8 +3356,7 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) DeviceNumIds(deviceNumIds .
 
 // FieldMask sets the optional parameter "fieldMask": The fields of the
 // `Device` resource to be returned in the response. The
-// fields `id`, and `num_id` are always returned by default, along with
-// any
+// fields `id` and `num_id` are always returned, along with any
 // other fields specified.
 func (c *ProjectsLocationsRegistriesDevicesListCall) FieldMask(fieldMask string) *ProjectsLocationsRegistriesDevicesListCall {
 	c.urlParams_.Set("fieldMask", fieldMask)
@@ -3244,9 +3367,9 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) FieldMask(fieldMask string)
 // of devices to return in the response. If this value
 // is zero, the service will select a default size. A call may return
 // fewer
-// objects than requested, but if there is a non-empty `page_token`,
-// it
-// indicates that more entries are available.
+// objects than requested. A non-empty `next_page_token` in the
+// response
+// indicates that more data is available.
 func (c *ProjectsLocationsRegistriesDevicesListCall) PageSize(pageSize int64) *ProjectsLocationsRegistriesDevicesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -3254,8 +3377,8 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) PageSize(pageSize int64) *P
 
 // PageToken sets the optional parameter "pageToken": The value returned
 // by the last `ListDevicesResponse`; indicates
-// that this is a continuation of a prior `ListDevices` call, and
-// that the system should return the next page of data.
+// that this is a continuation of a prior `ListDevices` call and
+// the system should return the next page of data.
 func (c *ProjectsLocationsRegistriesDevicesListCall) PageToken(pageToken string) *ProjectsLocationsRegistriesDevicesListCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
@@ -3307,9 +3430,13 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) doRequest(alt string) (*htt
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/devices")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
@@ -3364,32 +3491,32 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "deviceIds": {
-	//       "description": "A list of device string identifiers. If empty, it will ignore this field.\nFor example, `['device0', 'device12']`. This field cannot hold more than\n10,000 entries.",
+	//       "description": "A list of device string IDs. For example, `['device0', 'device12']`.\nIf empty, this field is ignored. Maximum IDs: 10,000",
 	//       "location": "query",
 	//       "repeated": true,
 	//       "type": "string"
 	//     },
 	//     "deviceNumIds": {
-	//       "description": "A list of device numerical ids. If empty, it will ignore this field. This\nfield cannot hold more than 10,000 entries.",
+	//       "description": "A list of device numeric IDs. If empty, this field is ignored. Maximum\nIDs: 10,000.",
 	//       "format": "uint64",
 	//       "location": "query",
 	//       "repeated": true,
 	//       "type": "string"
 	//     },
 	//     "fieldMask": {
-	//       "description": "The fields of the `Device` resource to be returned in the response. The\nfields `id`, and `num_id` are always returned by default, along with any\nother fields specified.",
+	//       "description": "The fields of the `Device` resource to be returned in the response. The\nfields `id` and `num_id` are always returned, along with any\nother fields specified.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "The maximum number of devices to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested, but if there is a non-empty `page_token`, it\nindicates that more entries are available.",
+	//       "description": "The maximum number of devices to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested. A non-empty `next_page_token` in the response\nindicates that more data is available.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "The value returned by the last `ListDevicesResponse`; indicates\nthat this is a continuation of a prior `ListDevices` call, and\nthat the system should return the next page of data.",
+	//       "description": "The value returned by the last `ListDevicesResponse`; indicates\nthat this is a continuation of a prior `ListDevices` call and\nthe system should return the next page of data.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3495,9 +3622,13 @@ func (c *ProjectsLocationsRegistriesDevicesModifyCloudToDeviceConfigCall) doRequ
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:modifyCloudToDeviceConfig")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3642,9 +3773,13 @@ func (c *ProjectsLocationsRegistriesDevicesPatchCall) doRequest(alt string) (*ht
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3718,6 +3853,166 @@ func (c *ProjectsLocationsRegistriesDevicesPatchCall) Do(opts ...googleapi.CallO
 	//   },
 	//   "response": {
 	//     "$ref": "Device"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloudiot"
+	//   ]
+	// }
+
+}
+
+// method id "cloudiot.projects.locations.registries.devices.sendCommandToDevice":
+
+type ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall struct {
+	s                          *Service
+	name                       string
+	sendcommandtodevicerequest *SendCommandToDeviceRequest
+	urlParams_                 gensupport.URLParams
+	ctx_                       context.Context
+	header_                    http.Header
+}
+
+// SendCommandToDevice: Sends a command to the specified device. In
+// order for a device to be able
+// to receive commands, it must:
+// 1) be connected to Cloud IoT Core using the MQTT protocol, and
+// 2) be subscribed to the group of MQTT topics specified by
+//    /devices/{device-id}/commands/#. This subscription will receive
+// commands
+//    at the top-level topic /devices/{device-id}/commands as well as
+// commands
+//    for subfolders, like /devices/{device-id}/commands/subfolder.
+//    Note that subscribing to specific subfolders is not supported.
+// If the command could not be delivered to the device, this method
+// will
+// return an error; in particular, if the device is not subscribed,
+// this
+// method will return FAILED_PRECONDITION. Otherwise, this method
+// will
+// return OK. If the subscription is QoS 1, at least once delivery will
+// be
+// guaranteed; for QoS 0, no acknowledgment will be expected from the
+// device.
+func (r *ProjectsLocationsRegistriesDevicesService) SendCommandToDevice(name string, sendcommandtodevicerequest *SendCommandToDeviceRequest) *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall {
+	c := &ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.sendcommandtodevicerequest = sendcommandtodevicerequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Fields(s ...googleapi.Field) *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Context(ctx context.Context) *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.sendcommandtodevicerequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:sendCommandToDevice")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "cloudiot.projects.locations.registries.devices.sendCommandToDevice" call.
+// Exactly one of *SendCommandToDeviceResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *SendCommandToDeviceResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Do(opts ...googleapi.CallOption) (*SendCommandToDeviceResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &SendCommandToDeviceResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sends a command to the specified device. In order for a device to be able\nto receive commands, it must:\n1) be connected to Cloud IoT Core using the MQTT protocol, and\n2) be subscribed to the group of MQTT topics specified by\n   /devices/{device-id}/commands/#. This subscription will receive commands\n   at the top-level topic /devices/{device-id}/commands as well as commands\n   for subfolders, like /devices/{device-id}/commands/subfolder.\n   Note that subscribing to specific subfolders is not supported.\nIf the command could not be delivered to the device, this method will\nreturn an error; in particular, if the device is not subscribed, this\nmethod will return FAILED_PRECONDITION. Otherwise, this method will\nreturn OK. If the subscription is QoS 1, at least once delivery will be\nguaranteed; for QoS 0, no acknowledgment will be expected from the device.",
+	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:sendCommandToDevice",
+	//   "httpMethod": "POST",
+	//   "id": "cloudiot.projects.locations.registries.devices.sendCommandToDevice",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:sendCommandToDevice",
+	//   "request": {
+	//     "$ref": "SendCommandToDeviceRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "SendCommandToDeviceResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -3803,9 +4098,13 @@ func (c *ProjectsLocationsRegistriesDevicesConfigVersionsListCall) doRequest(alt
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/configVersions")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -3961,9 +4260,13 @@ func (c *ProjectsLocationsRegistriesDevicesStatesListCall) doRequest(alt string)
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/states")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -4103,9 +4406,13 @@ func (c *ProjectsLocationsRegistriesGroupsGetIamPolicyCall) doRequest(alt string
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:getIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -4241,9 +4548,13 @@ func (c *ProjectsLocationsRegistriesGroupsSetIamPolicyCall) doRequest(alt string
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:setIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -4381,9 +4692,13 @@ func (c *ProjectsLocationsRegistriesGroupsTestIamPermissionsCall) doRequest(alt 
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:testIamPermissions")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"resource": c.resource,
@@ -4532,9 +4847,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesGetCall) doRequest(alt string) 
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -4633,18 +4952,16 @@ func (r *ProjectsLocationsRegistriesGroupsDevicesService) List(parent string) *P
 }
 
 // DeviceIds sets the optional parameter "deviceIds": A list of device
-// string identifiers. If empty, it will ignore this field.
-// For example, `['device0', 'device12']`. This field cannot hold more
-// than
-// 10,000 entries.
+// string IDs. For example, `['device0', 'device12']`.
+// If empty, this field is ignored. Maximum IDs: 10,000
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) DeviceIds(deviceIds ...string) *ProjectsLocationsRegistriesGroupsDevicesListCall {
 	c.urlParams_.SetMulti("deviceIds", append([]string{}, deviceIds...))
 	return c
 }
 
 // DeviceNumIds sets the optional parameter "deviceNumIds": A list of
-// device numerical ids. If empty, it will ignore this field. This
-// field cannot hold more than 10,000 entries.
+// device numeric IDs. If empty, this field is ignored. Maximum
+// IDs: 10,000.
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) DeviceNumIds(deviceNumIds ...uint64) *ProjectsLocationsRegistriesGroupsDevicesListCall {
 	var deviceNumIds_ []string
 	for _, v := range deviceNumIds {
@@ -4656,8 +4973,7 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) DeviceNumIds(deviceNu
 
 // FieldMask sets the optional parameter "fieldMask": The fields of the
 // `Device` resource to be returned in the response. The
-// fields `id`, and `num_id` are always returned by default, along with
-// any
+// fields `id` and `num_id` are always returned, along with any
 // other fields specified.
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) FieldMask(fieldMask string) *ProjectsLocationsRegistriesGroupsDevicesListCall {
 	c.urlParams_.Set("fieldMask", fieldMask)
@@ -4668,9 +4984,9 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) FieldMask(fieldMask s
 // of devices to return in the response. If this value
 // is zero, the service will select a default size. A call may return
 // fewer
-// objects than requested, but if there is a non-empty `page_token`,
-// it
-// indicates that more entries are available.
+// objects than requested. A non-empty `next_page_token` in the
+// response
+// indicates that more data is available.
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) PageSize(pageSize int64) *ProjectsLocationsRegistriesGroupsDevicesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -4678,8 +4994,8 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) PageSize(pageSize int
 
 // PageToken sets the optional parameter "pageToken": The value returned
 // by the last `ListDevicesResponse`; indicates
-// that this is a continuation of a prior `ListDevices` call, and
-// that the system should return the next page of data.
+// that this is a continuation of a prior `ListDevices` call and
+// the system should return the next page of data.
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) PageToken(pageToken string) *ProjectsLocationsRegistriesGroupsDevicesListCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
@@ -4731,9 +5047,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) doRequest(alt string)
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/devices")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"parent": c.parent,
@@ -4788,32 +5108,32 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "deviceIds": {
-	//       "description": "A list of device string identifiers. If empty, it will ignore this field.\nFor example, `['device0', 'device12']`. This field cannot hold more than\n10,000 entries.",
+	//       "description": "A list of device string IDs. For example, `['device0', 'device12']`.\nIf empty, this field is ignored. Maximum IDs: 10,000",
 	//       "location": "query",
 	//       "repeated": true,
 	//       "type": "string"
 	//     },
 	//     "deviceNumIds": {
-	//       "description": "A list of device numerical ids. If empty, it will ignore this field. This\nfield cannot hold more than 10,000 entries.",
+	//       "description": "A list of device numeric IDs. If empty, this field is ignored. Maximum\nIDs: 10,000.",
 	//       "format": "uint64",
 	//       "location": "query",
 	//       "repeated": true,
 	//       "type": "string"
 	//     },
 	//     "fieldMask": {
-	//       "description": "The fields of the `Device` resource to be returned in the response. The\nfields `id`, and `num_id` are always returned by default, along with any\nother fields specified.",
+	//       "description": "The fields of the `Device` resource to be returned in the response. The\nfields `id` and `num_id` are always returned, along with any\nother fields specified.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "The maximum number of devices to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested, but if there is a non-empty `page_token`, it\nindicates that more entries are available.",
+	//       "description": "The maximum number of devices to return in the response. If this value\nis zero, the service will select a default size. A call may return fewer\nobjects than requested. A non-empty `next_page_token` in the response\nindicates that more data is available.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "The value returned by the last `ListDevicesResponse`; indicates\nthat this is a continuation of a prior `ListDevices` call, and\nthat the system should return the next page of data.",
+	//       "description": "The value returned by the last `ListDevicesResponse`; indicates\nthat this is a continuation of a prior `ListDevices` call and\nthe system should return the next page of data.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4919,9 +5239,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesModifyCloudToDeviceConfigCall) 
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:modifyCloudToDeviceConfig")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -5066,9 +5390,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesPatchCall) doRequest(alt string
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -5142,6 +5470,166 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesPatchCall) Do(opts ...googleapi
 	//   },
 	//   "response": {
 	//     "$ref": "Device"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloudiot"
+	//   ]
+	// }
+
+}
+
+// method id "cloudiot.projects.locations.registries.groups.devices.sendCommandToDevice":
+
+type ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall struct {
+	s                          *Service
+	name                       string
+	sendcommandtodevicerequest *SendCommandToDeviceRequest
+	urlParams_                 gensupport.URLParams
+	ctx_                       context.Context
+	header_                    http.Header
+}
+
+// SendCommandToDevice: Sends a command to the specified device. In
+// order for a device to be able
+// to receive commands, it must:
+// 1) be connected to Cloud IoT Core using the MQTT protocol, and
+// 2) be subscribed to the group of MQTT topics specified by
+//    /devices/{device-id}/commands/#. This subscription will receive
+// commands
+//    at the top-level topic /devices/{device-id}/commands as well as
+// commands
+//    for subfolders, like /devices/{device-id}/commands/subfolder.
+//    Note that subscribing to specific subfolders is not supported.
+// If the command could not be delivered to the device, this method
+// will
+// return an error; in particular, if the device is not subscribed,
+// this
+// method will return FAILED_PRECONDITION. Otherwise, this method
+// will
+// return OK. If the subscription is QoS 1, at least once delivery will
+// be
+// guaranteed; for QoS 0, no acknowledgment will be expected from the
+// device.
+func (r *ProjectsLocationsRegistriesGroupsDevicesService) SendCommandToDevice(name string, sendcommandtodevicerequest *SendCommandToDeviceRequest) *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall {
+	c := &ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.sendcommandtodevicerequest = sendcommandtodevicerequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall) Fields(s ...googleapi.Field) *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall) Context(ctx context.Context) *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.sendcommandtodevicerequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:sendCommandToDevice")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "cloudiot.projects.locations.registries.groups.devices.sendCommandToDevice" call.
+// Exactly one of *SendCommandToDeviceResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *SendCommandToDeviceResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsRegistriesGroupsDevicesSendCommandToDeviceCall) Do(opts ...googleapi.CallOption) (*SendCommandToDeviceResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &SendCommandToDeviceResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sends a command to the specified device. In order for a device to be able\nto receive commands, it must:\n1) be connected to Cloud IoT Core using the MQTT protocol, and\n2) be subscribed to the group of MQTT topics specified by\n   /devices/{device-id}/commands/#. This subscription will receive commands\n   at the top-level topic /devices/{device-id}/commands as well as commands\n   for subfolders, like /devices/{device-id}/commands/subfolder.\n   Note that subscribing to specific subfolders is not supported.\nIf the command could not be delivered to the device, this method will\nreturn an error; in particular, if the device is not subscribed, this\nmethod will return FAILED_PRECONDITION. Otherwise, this method will\nreturn OK. If the subscription is QoS 1, at least once delivery will be\nguaranteed; for QoS 0, no acknowledgment will be expected from the device.",
+	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}/devices/{devicesId}:sendCommandToDevice",
+	//   "httpMethod": "POST",
+	//   "id": "cloudiot.projects.locations.registries.groups.devices.sendCommandToDevice",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/groups/[^/]+/devices/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:sendCommandToDevice",
+	//   "request": {
+	//     "$ref": "SendCommandToDeviceRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "SendCommandToDeviceResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -5227,9 +5715,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesConfigVersionsListCall) doReque
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/configVersions")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
@@ -5385,9 +5877,13 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesStatesListCall) doRequest(alt s
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}/states")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"name": c.name,
