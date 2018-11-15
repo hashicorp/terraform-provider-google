@@ -1995,6 +1995,43 @@ resource "google_container_cluster" "with_node_pool" {
 }`, cluster, nodePool)
 }
 
+func testAccContainerCluster_autoprovisioning(cluster string, autoprovisioning bool) string {
+	config := fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  zone = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autoprovisioning" {
+	name = "%s"
+	zone = "us-central1-a"
+  min_master_version = "${data.google_container_engine_versions.central1a.latest_master_version}"
+  node_version       = "${data.google_container_engine_versions.central1a.latest_node_version}"
+	initial_node_count = 3
+`, cluster)
+	if autoprovisioning {
+		config += `
+	cluster_autoscaling {
+		enabled = true
+		resource_limits {
+			resource_type = "cpu"
+			maximum = 2
+		}
+		resource_limits {
+			resource_type = "memory"
+			maximum = 2048
+		}
+	}`
+	} else {
+		config += `
+		cluster_autoscaling {
+			enabled = false
+		}`
+	}
+	config += `
+}`
+	return config
+}
+
 func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool" {
