@@ -92,6 +92,11 @@ output "cluster_ca_certificate" {
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
 
+* `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+    Configuration for cluster autoscaling (also called autoprovisioning), as described in
+    [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning).
+    Structure is documented below.
+
 * `description` - (Optional) Description of the cluster.
 
 * `enable_binary_authorization` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Enable Binary Authorization for this cluster.
@@ -218,6 +223,21 @@ addons_config {
   }
 }
 ```
+
+The `cluster_autoscaling` block supports:
+* `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
+    enabled.  To set this to true, make sure your config meets the rest of the
+    requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+* `resource_limits` - (Optional) A list of limits on the autoprovisioning.
+    See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+    for an explanation of what options are available.  If enabling autoprovisioning, make
+    sure to set at least `cpu` and `memory`.  Structure is documented below.
+
+The `resource_limits` block supports:
+* `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+    for a list of permitted types - `cpu`, `memory`, and others.
+* `minimum` - (Optional) The minimum value for the resource type specified.
+* `maximum` - (Optional) The maximum value for the resource type specified.
 
 The `maintenance_policy` block supports:
 
