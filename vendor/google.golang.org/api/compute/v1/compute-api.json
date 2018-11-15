@@ -29,7 +29,7 @@
   "description": "Creates and runs virtual machines on Google Cloud Platform.",
   "discoveryVersion": "v1",
   "documentationLink": "https://developers.google.com/compute/docs/reference/latest/",
-  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/YNEYVcvvIGNMtQqDhq2IeA4gjxw\"",
+  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/r9hRWZel6GOAdJ-acDw6uQoAlog\"",
   "icons": {
     "x16": "https://www.google.com/images/icons/product/compute_engine-16.png",
     "x32": "https://www.google.com/images/icons/product/compute_engine-32.png"
@@ -5691,7 +5691,7 @@
             "instance": {
               "description": "Name of the instance resource to return.",
               "location": "path",
-              "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
+              "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?|[1-9][0-9]{0,19}",
               "required": true,
               "type": "string"
             },
@@ -5799,7 +5799,7 @@
               "type": "string"
             },
             "sourceInstanceTemplate": {
-              "description": "Specifies instance template to create the instance.\n\nThis field is optional. It can be a full or partial URL. For example, the following are all valid URLs to an instance template:  \n- https://www.googleapis.com/compute/v1/projects/project/global/global/instanceTemplates/instanceTemplate \n- projects/project/global/global/instanceTemplates/instanceTemplate \n- global/instancesTemplates/instanceTemplate",
+              "description": "Specifies instance template to create the instance.\n\nThis field is optional. It can be a full or partial URL. For example, the following are all valid URLs to an instance template:  \n- https://www.googleapis.com/compute/v1/projects/project/global/instanceTemplates/instanceTemplate \n- projects/project/global/instanceTemplates/instanceTemplate \n- global/instanceTemplates/instanceTemplate",
               "location": "query",
               "type": "string"
             },
@@ -16497,7 +16497,7 @@
       }
     }
   },
-  "revision": "20180817",
+  "revision": "20181017",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -19268,6 +19268,10 @@
       "description": "Represents a customer-supplied encryption key",
       "id": "CustomerEncryptionKey",
       "properties": {
+        "kmsKeyName": {
+          "description": "The name of the encryption key that is stored in Google Cloud KMS.",
+          "type": "string"
+        },
         "rawKey": {
           "description": "Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource.",
           "type": "string"
@@ -20539,7 +20543,7 @@
       "id": "ForwardingRule",
       "properties": {
         "IPAddress": {
-          "description": "The IP address that this forwarding rule is serving on behalf of.\n\nAddresses are restricted based on the forwarding rule's load balancing scheme (EXTERNAL or INTERNAL) and scope (global or regional).\n\nWhen the load balancing scheme is EXTERNAL, for global forwarding rules, the address must be a global IP, and for regional forwarding rules, the address must live in the same region as the forwarding rule. If this field is empty, an ephemeral IPv4 address from the same scope (global or regional) will be assigned. A regional forwarding rule supports IPv4 only. A global forwarding rule supports either IPv4 or IPv6.\n\nWhen the load balancing scheme is INTERNAL_SELF_MANAGED, this must be a URL reference to an existing Address resource ( internal regional static IP address).\n\nWhen the load balancing scheme is INTERNAL, this can only be an RFC 1918 IP address belonging to the network/subnet configured for the forwarding rule. By default, if this field is empty, an ephemeral internal IP address will be automatically allocated from the IP range of the subnet or network configured for this forwarding rule.\n\nAn address can be specified either by a literal IP address or a URL reference to an existing Address resource. The following examples are all valid:  \n- 100.1.2.3 \n- https://www.googleapis.com/compute/v1/projects/project/regions/region/addresses/address \n- projects/project/regions/region/addresses/address \n- regions/region/addresses/address \n- global/addresses/address \n- address",
+          "description": "The IP address that this forwarding rule is serving on behalf of.\n\nAddresses are restricted based on the forwarding rule's load balancing scheme (EXTERNAL or INTERNAL) and scope (global or regional).\n\nWhen the load balancing scheme is EXTERNAL, for global forwarding rules, the address must be a global IP, and for regional forwarding rules, the address must live in the same region as the forwarding rule. If this field is empty, an ephemeral IPv4 address from the same scope (global or regional) will be assigned. A regional forwarding rule supports IPv4 only. A global forwarding rule supports either IPv4 or IPv6.\n\nWhen the load balancing scheme is INTERNAL_SELF_MANAGED, this must be a URL reference to an existing Address resource ( internal regional static IP address), with a purpose of GCE_END_POINT and address_type of INTERNAL.\n\nWhen the load balancing scheme is INTERNAL, this can only be an RFC 1918 IP address belonging to the network/subnet configured for the forwarding rule. By default, if this field is empty, an ephemeral internal IP address will be automatically allocated from the IP range of the subnet or network configured for this forwarding rule.\n\nAn address can be specified either by a literal IP address or a URL reference to an existing Address resource. The following examples are all valid:  \n- 100.1.2.3 \n- https://www.googleapis.com/compute/v1/projects/project/regions/region/addresses/address \n- projects/project/regions/region/addresses/address \n- regions/region/addresses/address \n- global/addresses/address \n- address",
           "type": "string"
         },
         "IPProtocol": {
@@ -21057,6 +21061,10 @@
         "requestPath": {
           "description": "The request path of the HTTP health check request. The default value is /.",
           "type": "string"
+        },
+        "response": {
+          "description": "The string to match anywhere in the first 1024 bytes of the response body. If left empty (the default value), the status code determines health. The response data can only be ASCII.",
+          "type": "string"
         }
       },
       "type": "object"
@@ -21091,6 +21099,10 @@
         },
         "requestPath": {
           "description": "The request path of the HTTPS health check request. The default value is /.",
+          "type": "string"
+        },
+        "response": {
+          "description": "The string to match anywhere in the first 1024 bytes of the response body. If left empty (the default value), the status code determines health. The response data can only be ASCII.",
           "type": "string"
         }
       },
@@ -25242,7 +25254,7 @@
               "compute.images.insert"
             ]
           },
-          "description": "[Output Only] Name of the resource. The name is 1-63 characters long and complies with RFC1035.",
+          "description": "Name of the resource. The name must be 1-63 characters long and comply with RFC1035.",
           "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
           "type": "string"
         },
@@ -26031,7 +26043,7 @@
       "type": "object"
     },
     "Network": {
-      "description": "Represents a Network resource. Read Networks and Firewalls for more information. (== resource_for v1.networks ==) (== resource_for beta.networks ==)",
+      "description": "Represents a Network resource. Read Virtual Private Cloud (VPC) Network Overview for more information. (== resource_for v1.networks ==) (== resource_for beta.networks ==)",
       "id": "Network",
       "properties": {
         "IPv4Range": {
@@ -26040,7 +26052,7 @@
           "type": "string"
         },
         "autoCreateSubnetworks": {
-          "description": "When set to true, the network is created in \"auto subnet mode\". When set to false, the network is in \"custom subnet mode\".\n\nIn \"auto subnet mode\", a newly created network is assigned the default CIDR of 10.128.0.0/9 and it automatically creates one subnetwork per region.",
+          "description": "When set to true, the VPC network is created in \"auto\" mode. When set to false, the VPC network is created in \"custom\" mode.\n\nAn auto mode VPC network starts with one subnet per region. Each subnet has a predetermined range as described in Auto mode VPC network IP ranges.",
           "type": "boolean"
         },
         "creationTimestamp": {
@@ -26052,7 +26064,7 @@
           "type": "string"
         },
         "gatewayIPv4": {
-          "description": "A gateway address for default routing to other networks. This value is read only and is selected by the Google Compute Engine, typically as the first usable address in the IPv4Range.",
+          "description": "[Output Only] The gateway address for default routing out of the network. This value is read only and is selected by GCP.",
           "pattern": "[0-9]{1,3}(?:\\.[0-9]{1,3}){3}",
           "type": "string"
         },
@@ -26092,7 +26104,7 @@
           "type": "string"
         },
         "subnetworks": {
-          "description": "[Output Only] Server-defined fully-qualified URLs for all subnetworks in this network.",
+          "description": "[Output Only] Server-defined fully-qualified URLs for all subnetworks in this VPC network.",
           "items": {
             "type": "string"
           },
@@ -26300,7 +26312,7 @@
       "id": "NetworkRoutingConfig",
       "properties": {
         "routingMode": {
-          "description": "The network-wide routing mode to use. If set to REGIONAL, this network's cloud routers will only advertise routes with subnetworks of this network in the same region as the router. If set to GLOBAL, this network's cloud routers will advertise routes with all subnetworks of this network, across regions.",
+          "description": "The network-wide routing mode to use. If set to REGIONAL, this network's cloud routers will only advertise routes with subnets of this network in the same region as the router. If set to GLOBAL, this network's cloud routers will advertise routes with all subnets of this network, across regions.",
           "enum": [
             "GLOBAL",
             "REGIONAL"
@@ -28443,6 +28455,7 @@
             "DISKS_TOTAL_GB",
             "FIREWALLS",
             "FORWARDING_RULES",
+            "GLOBAL_INTERNAL_ADDRESSES",
             "GPUS_ALL_REGIONS",
             "HEALTH_CHECKS",
             "IMAGES",
@@ -28463,6 +28476,8 @@
             "NVIDIA_P100_VWS_GPUS",
             "NVIDIA_P4_GPUS",
             "NVIDIA_P4_VWS_GPUS",
+            "NVIDIA_T4_GPUS",
+            "NVIDIA_T4_VWS_GPUS",
             "NVIDIA_V100_GPUS",
             "PREEMPTIBLE_CPUS",
             "PREEMPTIBLE_LOCAL_SSD_GB",
@@ -28471,6 +28486,8 @@
             "PREEMPTIBLE_NVIDIA_P100_VWS_GPUS",
             "PREEMPTIBLE_NVIDIA_P4_GPUS",
             "PREEMPTIBLE_NVIDIA_P4_VWS_GPUS",
+            "PREEMPTIBLE_NVIDIA_T4_GPUS",
+            "PREEMPTIBLE_NVIDIA_T4_VWS_GPUS",
             "PREEMPTIBLE_NVIDIA_V100_GPUS",
             "REGIONAL_AUTOSCALERS",
             "REGIONAL_INSTANCE_GROUP_MANAGERS",
@@ -28495,6 +28512,11 @@
             "VPN_TUNNELS"
           ],
           "enumDescriptions": [
+            "",
+            "",
+            "",
+            "",
+            "",
             "",
             "",
             "",
@@ -31584,7 +31606,7 @@
           "type": "string"
         },
         "enableFlowLogs": {
-          "description": "Whether to enable flow logging for this subnetwork.",
+          "description": "Whether to enable flow logging for this subnetwork. If this field is not explicitly set, it will not appear in get listings. If not set the default behavior is to disable flow logging.",
           "type": "boolean"
         },
         "fingerprint": {
