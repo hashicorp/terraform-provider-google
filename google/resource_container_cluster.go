@@ -186,6 +186,41 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"cluster_autoscaling": {
+				Type:     schema.TypeList,
+				Computed: true,
+				MaxItems: 1,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"resource_limits": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"minimum": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"maximum": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"cluster_ipv4_cidr": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1493,6 +1528,63 @@ func expandMaintenancePolicy(configured interface{}) *containerBeta.MaintenanceP
 	}
 }
 
+func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *containerBeta.ClusterAutoscaling {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		// Before master version 1.11.2, we must send 'nil' values if autoscaling isn't
+		// turned on - the cluster will return an error even if we're setting
+		// EnableNodeAutoprovisioning to false.
+		cmv, err := version.NewVersion(d.Get("master_version").(string))
+		if err != nil {
+			log.Printf("[DEBUG] Could not parse master_version into version (%q), trying min_master_version.", d.Get("master_version").(string))
+			cmv, err = version.NewVersion(d.Get("min_master_version").(string))
+			if err != nil {
+				log.Printf("[DEBUG] Could not parse min_master_version into version (%q), assuming we are not already using cluster autoscaling.", d.Get("min_master_version").(string))
+				// This deserves a little explanation.  The only reason we would ever want to send
+				// `EnableNodeAutoprovisioning: false` is because we think we might need to
+				// disable it (e.g. it is already enabled).  Otherwise, there is no difference
+				// between sending `nil` and sending `EnableNodeAutoprovisioning: false`.
+				// The only circumstance in which neither master_version nor min_master_version
+				// can be parsed into version objects would be if the user has not set either one,
+				// and we have not yet had a `read` call.  e.g. first-time creates, and possibly
+				// some circumstance related to import.  It is probably safe to assume that
+				// we are not going to be changing cluster autoscaling from on to off in those
+				// circumstances.  Therefore, if we don't know what version we're running, and
+				// the user has not requested cluster autoscaling, we'll fail "safe" and not touch
+				// it.
+				cmv, _ = version.NewVersion("0.0.0")
+			}
+		}
+		dmv, _ := version.NewVersion("1.11.2")
+		if cmv.LessThan(dmv) {
+			return nil
+		} else {
+			return &containerBeta.ClusterAutoscaling{
+				EnableNodeAutoprovisioning: false,
+				ForceSendFields:            []string{"EnableNodeAutoprovisioning"},
+			}
+		}
+	}
+	r := &containerBeta.ClusterAutoscaling{}
+	if config, ok := l[0].(map[string]interface{}); ok {
+		r.EnableNodeAutoprovisioning = config["enabled"].(bool)
+		if limits, ok := config["resource_limits"]; ok {
+			if lmts, ok := limits.([]interface{}); ok {
+				for _, v := range lmts {
+					limit := v.(map[string]interface{})
+					r.ResourceLimits = append(r.ResourceLimits, &containerBeta.ResourceLimit{
+						ResourceType: limit["resource_type"].(string),
+						// Here we're relying on *not* setting ForceSendFields for 0-values.
+						Minimum: int64(limit["minimum"].(int)),
+						Maximum: int64(limit["maximum"].(int)),
+					})
+				}
+			}
+		}
+	}
+	return r
+}
+
 func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1720,6 +1812,25 @@ func flattenMasterAuth(ma *containerBeta.MasterAuth) []map[string]interface{} {
 		}
 	}
 	return masterAuth
+}
+
+func flattenClusterAutoscaling(a *containerBeta.ClusterAutoscaling) []map[string]interface{} {
+	r := make(map[string]interface{})
+	if a == nil || !a.EnableNodeAutoprovisioning {
+		r["enabled"] = false
+	} else {
+		resourceLimits := make([]interface{}, 0, len(a.ResourceLimits))
+		for _, rl := range a.ResourceLimits {
+			resourceLimits = append(resourceLimits, map[string]interface{}{
+				"resource_type": rl.ResourceType,
+				"minimum":       rl.Minimum,
+				"maximum":       rl.Maximum,
+			})
+		}
+		r["resource_limits"] = resourceLimits
+		r["enabled"] = true
+	}
+	return []map[string]interface{}{r}
 }
 
 func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetworksConfig) []map[string]interface{} {
