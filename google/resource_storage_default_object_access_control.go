@@ -297,6 +297,9 @@ func flattenStorageDefaultObjectAccessControlProjectTeam(v interface{}) interfac
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["project_number"] =
 		flattenStorageDefaultObjectAccessControlProjectTeamProjectNumber(original["projectNumber"])

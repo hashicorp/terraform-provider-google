@@ -396,6 +396,9 @@ func flattenComputeRouterBgp(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["asn"] =
 		flattenComputeRouterBgpAsn(original["asn"])
@@ -433,6 +436,10 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"]),
 			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"]),

@@ -601,6 +601,9 @@ func flattenComputeHealthCheckHttpHealthCheck(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["host"] =
 		flattenComputeHealthCheckHttpHealthCheckHost(original["host"])
@@ -639,6 +642,9 @@ func flattenComputeHealthCheckHttpsHealthCheck(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["host"] =
 		flattenComputeHealthCheckHttpsHealthCheckHost(original["host"])
@@ -677,6 +683,9 @@ func flattenComputeHealthCheckTcpHealthCheck(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["request"] =
 		flattenComputeHealthCheckTcpHealthCheckRequest(original["request"])
@@ -715,6 +724,9 @@ func flattenComputeHealthCheckSslHealthCheck(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["request"] =
 		flattenComputeHealthCheckSslHealthCheckRequest(original["request"])
