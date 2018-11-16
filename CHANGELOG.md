@@ -5,6 +5,8 @@ FEATURES:
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 * **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. [GH-2290]
+* **New Resource**: `google_monitoring_notification_channel` [GH-2452]
+* **New Resource**: `google_monitoring_group` [GH-2451]
 
 ENHANCEMENTS:
 * cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
