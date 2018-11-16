@@ -595,6 +595,10 @@ func flattenComputeSubnetworkSecondaryIpRange(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"range_name":    flattenComputeSubnetworkSecondaryIpRangeRangeName(original["rangeName"]),
 			"ip_cidr_range": flattenComputeSubnetworkSecondaryIpRangeIpCidrRange(original["ipCidrRange"]),

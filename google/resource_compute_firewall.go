@@ -593,6 +593,10 @@ func flattenComputeFirewallAllow(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"protocol": flattenComputeFirewallAllowProtocol(original["IPProtocol"]),
 			"ports":    flattenComputeFirewallAllowPorts(original["ports"]),
@@ -620,6 +624,10 @@ func flattenComputeFirewallDeny(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"protocol": flattenComputeFirewallDenyProtocol(original["IPProtocol"]),
 			"ports":    flattenComputeFirewallDenyPorts(original["ports"]),
