@@ -412,6 +412,9 @@ func flattenComputeRegionAutoscalerAutoscalingPolicy(v interface{}) interface{} 
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["min_replicas"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyMinReplicas(original["minNumReplicas"])
@@ -462,6 +465,9 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyCpuUtilization(v interface{}
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["target"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["utilizationTarget"])
@@ -479,6 +485,10 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}) interf
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"name":   flattenComputeRegionAutoscalerAutoscalingPolicyMetricName(original["metric"]),
 			"target": flattenComputeRegionAutoscalerAutoscalingPolicyMetricTarget(original["utilizationTarget"]),
@@ -504,6 +514,9 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilization(v i
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["target"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["utilizationTarget"])

@@ -913,6 +913,9 @@ func flattenComputeDiskSourceImageEncryptionKey(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeDiskSourceImageEncryptionKeyRawKey(original["rawKey"])
@@ -937,6 +940,9 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeDiskDiskEncryptionKeyRawKey(original["rawKey"])
@@ -964,6 +970,9 @@ func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(original["rawKey"])
