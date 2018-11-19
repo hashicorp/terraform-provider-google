@@ -33,6 +33,7 @@ for more details.
 * **New Resource**: `google_sql_ssl_cert` for managing a Google SQL SSL Cert on a Google SQL Instance. [GH-2290]
 * **New Resource**: `google_monitoring_notification_channel` [GH-2452]
 * **New Resource**: `google_monitoring_group` [GH-2451]
+* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
 
 ENHANCEMENTS:
 * bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
