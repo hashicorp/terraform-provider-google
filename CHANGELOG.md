@@ -7,6 +7,7 @@ FEATURES:
 * **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. [GH-2290]
 * **New Resource**: `google_monitoring_notification_channel` [GH-2452]
 * **New Resource**: `google_monitoring_group` [GH-2451]
+* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
 
 ENHANCEMENTS:
 * cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
