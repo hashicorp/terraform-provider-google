@@ -1,4 +1,4 @@
-// Copyright 2015 Google Inc. All Rights Reserved.
+// Copyright 2015 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,7 +59,9 @@ func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc
 	if o.GRPCConn != nil {
 		return o.GRPCConn, nil
 	}
-	var grpcOpts []grpc.DialOption
+	grpcOpts := []grpc.DialOption{
+		grpc.WithWaitForHandshake(),
+	}
 	if insecure {
 		grpcOpts = []grpc.DialOption{grpc.WithInsecure()}
 	} else if !o.NoAuth {
