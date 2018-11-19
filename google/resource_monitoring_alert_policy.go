@@ -555,6 +555,9 @@ func flattenMonitoringAlertPolicyCreationRecord(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["mutate_time"] =
 		flattenMonitoringAlertPolicyCreationRecordMutateTime(original["mutateTime"])
@@ -582,6 +585,10 @@ func flattenMonitoringAlertPolicyConditions(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"condition_absent":    flattenMonitoringAlertPolicyConditionsConditionAbsent(original["conditionAbsent"]),
 			"name":                flattenMonitoringAlertPolicyConditionsName(original["name"]),
@@ -596,6 +603,9 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}) interf
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["aggregations"] =
 		flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(original["aggregations"])
@@ -615,6 +625,10 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interfa
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(original["perSeriesAligner"]),
 			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(original["groupByFields"]),
@@ -645,6 +659,9 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{})
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["percent"] =
 		flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(original["percent"])
@@ -683,6 +700,9 @@ func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}) int
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["threshold_value"] =
 		flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(original["thresholdValue"])
@@ -718,6 +738,10 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregat
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(original["perSeriesAligner"]),
 			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(original["groupByFields"]),
@@ -756,6 +780,9 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["percent"] =
 		flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(original["percent"])
@@ -785,6 +812,10 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(v inte
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(original["perSeriesAligner"]),
 			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(original["groupByFields"]),
@@ -831,6 +862,9 @@ func flattenMonitoringAlertPolicyDocumentation(v interface{}) interface{} {
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["content"] =
 		flattenMonitoringAlertPolicyDocumentationContent(original["content"])

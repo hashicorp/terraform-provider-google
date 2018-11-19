@@ -321,6 +321,9 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}) 
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["tag8021q"] =
 		flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(original["tag8021q"])

@@ -473,6 +473,10 @@ func flattenComputeUrlMapHost_rule(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"description":  flattenComputeUrlMapHost_ruleDescription(original["description"]),
 			"hosts":        flattenComputeUrlMapHost_ruleHosts(original["hosts"]),
@@ -522,6 +526,10 @@ func flattenComputeUrlMapPath_matcher(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"default_service": flattenComputeUrlMapPath_matcherDefaultService(original["defaultService"]),
 			"description":     flattenComputeUrlMapPath_matcherDescription(original["description"]),
@@ -554,6 +562,10 @@ func flattenComputeUrlMapPath_matcherPath_rule(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"paths":   flattenComputeUrlMapPath_matcherPath_rulePaths(original["paths"]),
 			"service": flattenComputeUrlMapPath_matcherPath_ruleService(original["service"]),
@@ -583,6 +595,10 @@ func flattenComputeUrlMapTest(v interface{}) interface{} {
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
 			"description": flattenComputeUrlMapTestDescription(original["description"]),
 			"host":        flattenComputeUrlMapTestHost(original["host"]),
