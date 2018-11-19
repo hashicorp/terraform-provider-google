@@ -11,7 +11,6 @@ package composer // import "google.golang.org/api/composer/v1beta1"
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
 )
@@ -38,6 +39,7 @@ var _ = googleapi.Version
 var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
+var _ = ctxhttp.Do
 
 const apiId = "composer:v1beta1"
 const apiName = "composer"
