@@ -34,6 +34,7 @@ for more details.
 * **New Resource**: `google_monitoring_notification_channel` [GH-2452]
 * **New Resource**: `google_monitoring_group` [GH-2451]
 * **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
+* **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. [GH-2482]
 
 ENHANCEMENTS:
 * bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
