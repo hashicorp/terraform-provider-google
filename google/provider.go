@@ -101,6 +101,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: mergeResourceMaps(
 			GeneratedComputeResourcesMap,
+			GeneratedDnsResourcesMap,
 			GeneratedRedisResourcesMap,
 			GeneratedResourceManagerResourcesMap,
 			GeneratedStorageResourcesMap,
@@ -159,7 +160,6 @@ func Provider() terraform.ResourceProvider {
 				"google_dataflow_job":                          resourceDataflowJob(),
 				"google_dataproc_cluster":                      resourceDataprocCluster(),
 				"google_dataproc_job":                          resourceDataprocJob(),
-				"google_dns_managed_zone":                      resourceDnsManagedZone(),
 				"google_dns_record_set":                        resourceDnsRecordSet(),
 				"google_endpoints_service":                     resourceEndpointsService(),
 				"google_folder":                                resourceGoogleFolder(),

@@ -21,7 +21,6 @@ BACKWARDS INCOMPATIBILITIES:
 * storage: `google_storage_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. Use `google_storage_object_access_control` for fine-grained management. [GH-2316]
 * storage: `google_storage_default_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. [GH-2345]
 
-
 FEATURES: 
 * `2.0.0` is the first release including Open in Cloud Shell. Examples in the documentation for Magic Modules resources now
 have Open in Cloud Shell links in their documentation that open them in an interactive editor and shell - all without
@@ -31,6 +30,9 @@ for more details.
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 * **New Resource**: `google_access_context_manager_access_policy` for managing the container for an organization's access levels. ([`google-beta`#96](https://github.com/terraform-providers/terraform-provider-google-beta/pull/96))
+* **New Resource**: `google_sql_ssl_cert` for managing a Google SQL SSL Cert on a Google SQL Instance. [GH-2290]
+* **New Resource**: `google_monitoring_notification_channel` [GH-2452]
+* **New Resource**: `google_monitoring_group` [GH-2451]
 
 ENHANCEMENTS:
 * bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
