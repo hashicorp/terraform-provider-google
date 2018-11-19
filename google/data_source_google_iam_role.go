@@ -39,7 +39,7 @@ func dataSourceGoogleIamRoleRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Error reading IAM Role %s: %s", roleName, err))
 	}
 
-	d.SetId(GetResourceNameFromSelfLink(role.Name))
+	d.SetId(role.Name)
 	d.Set("title", role.Title)
 	d.Set("stage", role.Stage)
 	d.Set("included_permissions", role.IncludedPermissions)
