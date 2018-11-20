@@ -171,6 +171,14 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+
 	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"])); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
@@ -193,13 +201,6 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"])); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 

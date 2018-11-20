@@ -249,6 +249,14 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+
 	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"])); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
@@ -283,13 +291,6 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 
