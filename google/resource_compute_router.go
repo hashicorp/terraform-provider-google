@@ -225,6 +225,14 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouter %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Router: %s", err)
+	}
+
 	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"])); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
@@ -244,13 +252,6 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 
