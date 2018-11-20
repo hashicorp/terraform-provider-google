@@ -339,6 +339,14 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHealthCheck %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading HealthCheck: %s", err)
+	}
+
 	if err := d.Set("check_interval_sec", flattenComputeHealthCheckCheckIntervalSec(res["checkIntervalSec"])); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
@@ -376,13 +384,6 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
 

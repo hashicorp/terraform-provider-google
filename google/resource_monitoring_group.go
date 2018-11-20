@@ -145,6 +145,14 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGroup %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+
 	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"])); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
@@ -158,13 +166,6 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"])); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 

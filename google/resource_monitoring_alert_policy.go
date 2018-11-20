@@ -395,6 +395,14 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringAlertPolicy %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading AlertPolicy: %s", err)
+	}
+
 	if err := d.Set("name", flattenMonitoringAlertPolicyName(res["name"])); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
@@ -420,13 +428,6 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
 	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"])); err != nil {
-		return fmt.Errorf("Error reading AlertPolicy: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
 
