@@ -85,16 +85,17 @@ resource.TestStep{
 
 ## Running a local copy of the provider
 If you are building Terraform from source with a Google provider built from source, Terraform will automatically use the
-local `terraform-provider-google` plugin in `$GOPATH/bin`.
+local `terraform-provider-google` and `terraform-provider-google-beta` plugins in `$GOPATH/bin`.
 
 In order to use a release copy of Terrafom with a local provider, you can use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery)
 at `~/.terraform.d/plugins`. When a copy of the Google provider is present in the discovery directory, `terraform init` will
 use that copy instead of downloading a release version.
 
-To use a single locally built version, such as one built by a CI or build server, you can copy a `terraform-provider-google`
+To use a single locally built version, such as one built by a CI or build server, you can copy a `google` or `google-beta`
 binary into the discovery directory. If you're testing a local provider in active development and want the new binary each
 time you run `make build`, you can symlink the built binary into the directory:
 
 ```bash
 ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
+ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
 ```
