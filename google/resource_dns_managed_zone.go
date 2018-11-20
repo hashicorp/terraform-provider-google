@@ -136,6 +136,14 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsManagedZone %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+
 	if err := d.Set("description", flattenDnsManagedZoneDescription(res["description"])); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
@@ -149,13 +157,6 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("labels", flattenDnsManagedZoneLabels(res["labels"])); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 

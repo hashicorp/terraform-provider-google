@@ -359,6 +359,14 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeFirewall %q", d.Id()))
 	}
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Firewall: %s", err)
+	}
+
 	if err := d.Set("allow", flattenComputeFirewallAllow(res["allowed"])); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
@@ -405,13 +413,6 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 
