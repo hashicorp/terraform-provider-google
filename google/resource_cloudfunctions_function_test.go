@@ -23,6 +23,7 @@ const testHTTPTriggerPath = "./test-fixtures/cloudfunctions/http_trigger.js"
 const testHTTPTriggerUpdatePath = "./test-fixtures/cloudfunctions/http_trigger_update.js"
 const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
+const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
 
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
@@ -195,6 +196,34 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 			},
 			{
 				Config: testAccCloudFunctionsFunction_bucketNoRetry(functionName, bucketName, zipFilePath),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_firestore(t *testing.T) {
+	t.Parallel()
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	zipFilePath, err := createZIPArchiveForIndexJs(testFirestoreTriggerPath)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_firestore(functionName, bucketName, zipFilePath),
 			},
 			{
 				ResourceName:      funcResourceName,
@@ -505,6 +534,33 @@ resource "google_cloudfunctions_function" "function" {
   event_trigger {
     event_type = "google.storage.object.finalize"
     resource   = "${google_storage_bucket.bucket.name}"
+  }
+}`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_firestore(functionName string, bucketName string,
+	zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  timeout               = 61
+  entry_point           = "helloFirestore"
+  event_trigger {
+    event_type = "providers/cloud.firestore/eventTypes/document.write"
+    resource   = "messages/{messageId}"
   }
 }`, bucketName, zipFilePath, functionName)
 }
