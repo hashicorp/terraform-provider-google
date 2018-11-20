@@ -10,6 +10,8 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_subnetwork_iam_binding`, `google_compute_subnetwork_iam_member`, `google_compute_subnetwork_iam_policy` are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2398]
 * compute: `google_compute_backend_service.custom_request_headers` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2405]
 * container: `google_container_node_pool.max_pods_per_node` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2391]
+* compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields removed from the `google` provider. They must be used in the `google-beta` provider. `rolling_update_policy` was renamed `update_policy` in that provider. [GH-2392]
+* compute: `google_compute_region_instance_group_manager.update_strategy` in the `google-beta` provider has no functionality anymore and has been deprecated.
 * container: `google_container_cluster` fields (`private_cluster`, `master_ipv4_cidr_block`) are removed. Use `private_cluster_config` and `private_cluster_config.master_ipv4_cidr_block` instead. [GH-2395]
 * container: `google_container_cluster` fields (`enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2395]
 * sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
