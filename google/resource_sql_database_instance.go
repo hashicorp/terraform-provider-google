@@ -265,6 +265,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"type": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"time_to_retire": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
@@ -614,10 +618,12 @@ func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
 	}
 
 	_ipConfiguration := configured[0].(map[string]interface{})
+
 	return &sqladmin.IpConfiguration{
 		Ipv4Enabled:        _ipConfiguration["ipv4_enabled"].(bool),
 		RequireSsl:         _ipConfiguration["require_ssl"].(bool),
 		AuthorizedNetworks: expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
+		ForceSendFields:    []string{"Ipv4Enabled"},
 	}
 }
 func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
@@ -696,7 +702,6 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
-
 	ipAddresses := flattenIpAddresses(instance.IpAddresses)
 	if err := d.Set("ip_address", ipAddresses); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
@@ -950,6 +955,7 @@ func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interfac
 	for _, ip := range ipAddresses {
 		data := map[string]interface{}{
 			"ip_address":     ip.IpAddress,
+			"type":           ip.Type,
 			"time_to_retire": ip.TimeToRetire,
 		}
 
