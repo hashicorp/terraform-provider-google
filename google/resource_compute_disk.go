@@ -565,58 +565,58 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 
-	if err := d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"])); err != nil {
+	if err := d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("description", flattenComputeDiskDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeDiskDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("last_attach_timestamp", flattenComputeDiskLastAttachTimestamp(res["lastAttachTimestamp"])); err != nil {
+	if err := d.Set("last_attach_timestamp", flattenComputeDiskLastAttachTimestamp(res["lastAttachTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("last_detach_timestamp", flattenComputeDiskLastDetachTimestamp(res["lastDetachTimestamp"])); err != nil {
+	if err := d.Set("last_detach_timestamp", flattenComputeDiskLastDetachTimestamp(res["lastDetachTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("labels", flattenComputeDiskLabels(res["labels"])); err != nil {
+	if err := d.Set("labels", flattenComputeDiskLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("name", flattenComputeDiskName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeDiskName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("size", flattenComputeDiskSize(res["sizeGb"])); err != nil {
+	if err := d.Set("size", flattenComputeDiskSize(res["sizeGb"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("users", flattenComputeDiskUsers(res["users"])); err != nil {
+	if err := d.Set("users", flattenComputeDiskUsers(res["users"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("type", flattenComputeDiskType(res["type"])); err != nil {
+	if err := d.Set("type", flattenComputeDiskType(res["type"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"])); err != nil {
+	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeDiskZone(res["zone"])); err != nil {
+	if err := d.Set("zone", flattenComputeDiskZone(res["zone"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"])); err != nil {
+	if err := d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"])); err != nil {
+	if err := d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("disk_encryption_key", flattenComputeDiskDiskEncryptionKey(res["diskEncryptionKey"])); err != nil {
+	if err := d.Set("disk_encryption_key", flattenComputeDiskDiskEncryptionKey(res["diskEncryptionKey"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("snapshot", flattenComputeDiskSnapshot(res["sourceSnapshot"])); err != nil {
+	if err := d.Set("snapshot", flattenComputeDiskSnapshot(res["sourceSnapshot"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("source_snapshot_encryption_key", flattenComputeDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"])); err != nil {
+	if err := d.Set("source_snapshot_encryption_key", flattenComputeDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-	if err := d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"])); err != nil {
+	if err := d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"], d)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -846,35 +846,35 @@ func resourceComputeDiskImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeDiskLabelFingerprint(v interface{}) interface{} {
+func flattenComputeDiskLabelFingerprint(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskCreationTimestamp(v interface{}) interface{} {
+func flattenComputeDiskCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskDescription(v interface{}) interface{} {
+func flattenComputeDiskDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskLastAttachTimestamp(v interface{}) interface{} {
+func flattenComputeDiskLastAttachTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskLastDetachTimestamp(v interface{}) interface{} {
+func flattenComputeDiskLastDetachTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskLabels(v interface{}) interface{} {
+func flattenComputeDiskLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskName(v interface{}) interface{} {
+func flattenComputeDiskName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSize(v interface{}) interface{} {
+func flattenComputeDiskSize(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -884,32 +884,32 @@ func flattenComputeDiskSize(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeDiskUsers(v interface{}) interface{} {
+func flattenComputeDiskUsers(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeDiskType(v interface{}) interface{} {
+func flattenComputeDiskType(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenComputeDiskImage(v interface{}) interface{} {
+func flattenComputeDiskImage(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskZone(v interface{}) interface{} {
+func flattenComputeDiskZone(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenComputeDiskSourceImageEncryptionKey(v interface{}) interface{} {
+func flattenComputeDiskSourceImageEncryptionKey(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -919,24 +919,24 @@ func flattenComputeDiskSourceImageEncryptionKey(v interface{}) interface{} {
 	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
-		flattenComputeDiskSourceImageEncryptionKeyRawKey(original["rawKey"])
+		flattenComputeDiskSourceImageEncryptionKeyRawKey(original["rawKey"], d)
 	transformed["sha256"] =
-		flattenComputeDiskSourceImageEncryptionKeySha256(original["sha256"])
+		flattenComputeDiskSourceImageEncryptionKeySha256(original["sha256"], d)
 	return []interface{}{transformed}
 }
-func flattenComputeDiskSourceImageEncryptionKeyRawKey(v interface{}) interface{} {
+func flattenComputeDiskSourceImageEncryptionKeyRawKey(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSourceImageEncryptionKeySha256(v interface{}) interface{} {
+func flattenComputeDiskSourceImageEncryptionKeySha256(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSourceImageId(v interface{}) interface{} {
+func flattenComputeDiskSourceImageId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskDiskEncryptionKey(v interface{}) interface{} {
+func flattenComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -946,27 +946,27 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}) interface{} {
 	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
-		flattenComputeDiskDiskEncryptionKeyRawKey(original["rawKey"])
+		flattenComputeDiskDiskEncryptionKeyRawKey(original["rawKey"], d)
 	transformed["sha256"] =
-		flattenComputeDiskDiskEncryptionKeySha256(original["sha256"])
+		flattenComputeDiskDiskEncryptionKeySha256(original["sha256"], d)
 	return []interface{}{transformed}
 }
-func flattenComputeDiskDiskEncryptionKeyRawKey(v interface{}) interface{} {
+func flattenComputeDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskDiskEncryptionKeySha256(v interface{}) interface{} {
+func flattenComputeDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSnapshot(v interface{}) interface{} {
+func flattenComputeDiskSnapshot(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}) interface{} {
+func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -976,20 +976,20 @@ func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}) interface{} {
 	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
-		flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(original["rawKey"])
+		flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(original["rawKey"], d)
 	transformed["sha256"] =
-		flattenComputeDiskSourceSnapshotEncryptionKeySha256(original["sha256"])
+		flattenComputeDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d)
 	return []interface{}{transformed}
 }
-func flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(v interface{}) interface{} {
+func flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}) interface{} {
+func flattenComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeDiskSourceSnapshotId(v interface{}) interface{} {
+func flattenComputeDiskSourceSnapshotId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

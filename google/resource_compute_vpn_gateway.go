@@ -174,19 +174,19 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeVpnGatewayCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeVpnGatewayCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("description", flattenComputeVpnGatewayDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeVpnGatewayDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("name", flattenComputeVpnGatewayName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeVpnGatewayName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("network", flattenComputeVpnGatewayNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeVpnGatewayNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("region", flattenComputeVpnGatewayRegion(res["region"])); err != nil {
+	if err := d.Set("region", flattenComputeVpnGatewayRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -247,26 +247,26 @@ func resourceComputeVpnGatewayImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeVpnGatewayCreationTimestamp(v interface{}) interface{} {
+func flattenComputeVpnGatewayCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnGatewayDescription(v interface{}) interface{} {
+func flattenComputeVpnGatewayDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnGatewayName(v interface{}) interface{} {
+func flattenComputeVpnGatewayName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnGatewayNetwork(v interface{}) interface{} {
+func flattenComputeVpnGatewayNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeVpnGatewayRegion(v interface{}) interface{} {
+func flattenComputeVpnGatewayRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}

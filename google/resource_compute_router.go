@@ -233,22 +233,22 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("name", flattenComputeRouterName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeRouterName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("description", flattenComputeRouterDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeRouterDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("network", flattenComputeRouterNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeRouterNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"])); err != nil {
+	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("region", flattenComputeRouterRegion(res["region"])); err != nil {
+	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -373,26 +373,26 @@ func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouterCreationTimestamp(v interface{}) interface{} {
+func flattenComputeRouterCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterName(v interface{}) interface{} {
+func flattenComputeRouterName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterDescription(v interface{}) interface{} {
+func flattenComputeRouterDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterNetwork(v interface{}) interface{} {
+func flattenComputeRouterNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRouterBgp(v interface{}) interface{} {
+func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -402,16 +402,16 @@ func flattenComputeRouterBgp(v interface{}) interface{} {
 	}
 	transformed := make(map[string]interface{})
 	transformed["asn"] =
-		flattenComputeRouterBgpAsn(original["asn"])
+		flattenComputeRouterBgpAsn(original["asn"], d)
 	transformed["advertise_mode"] =
-		flattenComputeRouterBgpAdvertiseMode(original["advertiseMode"])
+		flattenComputeRouterBgpAdvertiseMode(original["advertiseMode"], d)
 	transformed["advertised_groups"] =
-		flattenComputeRouterBgpAdvertisedGroups(original["advertisedGroups"])
+		flattenComputeRouterBgpAdvertisedGroups(original["advertisedGroups"], d)
 	transformed["advertised_ip_ranges"] =
-		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"])
+		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"], d)
 	return []interface{}{transformed}
 }
-func flattenComputeRouterBgpAsn(v interface{}) interface{} {
+func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -421,15 +421,15 @@ func flattenComputeRouterBgpAsn(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertiseMode(v interface{}) interface{} {
+func flattenComputeRouterBgpAdvertiseMode(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertisedGroups(v interface{}) interface{} {
+func flattenComputeRouterBgpAdvertisedGroups(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -442,21 +442,21 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"]),
-			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"]),
+			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"], d),
+			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouterRegion(v interface{}) interface{} {
+func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
