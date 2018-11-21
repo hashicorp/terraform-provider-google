@@ -30,7 +30,9 @@ Upgrade topics:
 - [Resource: `google_compute_image`](#resource-google_compute_image)
 - [Resource: `google_compute_instance`](#resource-google_compute_instance)
 - [Resource: `google_compute_instance_from_template`](#resource-google_compute_instance_from_template)
+- [Resource: `google_compute_instance_group_manager`](#resource-google_compute_instance_group_manager)
 - [Resource: `google_compute_project_metadata`](#resource-google_compute_project_metadata)
+- [Resource: `google_compute_region_instance_group_manager`](#resource-google_compute_region_instance_group_manager)
 - [Resource: `google_compute_subnetwork_iam_*`](#resource-google_compute_subnetwork_iam_*)
 - [Resource: `google_compute_target_pool`](#resource-google_compute_target_pool)
 - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
@@ -301,12 +303,31 @@ Use `network_interface.*.network_ip` instead.
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
 
+## Resource: `google_compute_instance_group_manager`
+
+### `version`, `auto_healing_policies`, `rolling_update_policy` have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these fields.
+`rolling_update_policy` has been renamed to `update_policy` in `google-beta`.
+
 ## Resource: `google_compute_project_metadata`
 
 ### `metadata` is now authoritative
 
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
+
+## Resource: `google_compute_region_instance_group_manager`
+
+### `version`, `auto_healing_policies`, `rolling_update_policy` have been removed from the GA provider
+
+Use the [`google-beta` provider](#google-beta-provider) to use these fields.
+`rolling_update_policy` has been renamed to `update_policy` in `google-beta`.
+
+### `update_strategy` no longer has any effect and is deprecated
+
+With `rolling_update_policy` removed, `update_strategy` has no effect anymore.
+Remove it from your config at your convenience.
 
 ## Resource: `google_compute_subnetwork_iam_*`
 
