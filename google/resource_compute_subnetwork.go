@@ -323,37 +323,37 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeSubnetworkCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeSubnetworkCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("description", flattenComputeSubnetworkDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeSubnetworkDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"])); err != nil {
+	if err := d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("ip_cidr_range", flattenComputeSubnetworkIpCidrRange(res["ipCidrRange"])); err != nil {
+	if err := d.Set("ip_cidr_range", flattenComputeSubnetworkIpCidrRange(res["ipCidrRange"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("name", flattenComputeSubnetworkName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeSubnetworkName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("enable_flow_logs", flattenComputeSubnetworkEnableFlowLogs(res["enableFlowLogs"])); err != nil {
+	if err := d.Set("enable_flow_logs", flattenComputeSubnetworkEnableFlowLogs(res["enableFlowLogs"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("fingerprint", flattenComputeSubnetworkFingerprint(res["fingerprint"])); err != nil {
+	if err := d.Set("fingerprint", flattenComputeSubnetworkFingerprint(res["fingerprint"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"])); err != nil {
+	if err := d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"])); err != nil {
+	if err := d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("region", flattenComputeSubnetworkRegion(res["region"])); err != nil {
+	if err := d.Set("region", flattenComputeSubnetworkRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -553,42 +553,42 @@ func resourceComputeSubnetworkImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSubnetworkCreationTimestamp(v interface{}) interface{} {
+func flattenComputeSubnetworkCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkDescription(v interface{}) interface{} {
+func flattenComputeSubnetworkDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkGatewayAddress(v interface{}) interface{} {
+func flattenComputeSubnetworkGatewayAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkIpCidrRange(v interface{}) interface{} {
+func flattenComputeSubnetworkIpCidrRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkName(v interface{}) interface{} {
+func flattenComputeSubnetworkName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkNetwork(v interface{}) interface{} {
+func flattenComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeSubnetworkEnableFlowLogs(v interface{}) interface{} {
+func flattenComputeSubnetworkEnableFlowLogs(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkFingerprint(v interface{}) interface{} {
+func flattenComputeSubnetworkFingerprint(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkSecondaryIpRange(v interface{}) interface{} {
+func flattenComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -601,25 +601,25 @@ func flattenComputeSubnetworkSecondaryIpRange(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"range_name":    flattenComputeSubnetworkSecondaryIpRangeRangeName(original["rangeName"]),
-			"ip_cidr_range": flattenComputeSubnetworkSecondaryIpRangeIpCidrRange(original["ipCidrRange"]),
+			"range_name":    flattenComputeSubnetworkSecondaryIpRangeRangeName(original["rangeName"], d),
+			"ip_cidr_range": flattenComputeSubnetworkSecondaryIpRangeIpCidrRange(original["ipCidrRange"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeSubnetworkSecondaryIpRangeRangeName(v interface{}) interface{} {
+func flattenComputeSubnetworkSecondaryIpRangeRangeName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkSecondaryIpRangeIpCidrRange(v interface{}) interface{} {
+func flattenComputeSubnetworkSecondaryIpRangeIpCidrRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkPrivateIpGoogleAccess(v interface{}) interface{} {
+func flattenComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSubnetworkRegion(v interface{}) interface{} {
+func flattenComputeSubnetworkRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}

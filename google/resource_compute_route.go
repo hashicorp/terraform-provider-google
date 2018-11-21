@@ -257,37 +257,37 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 
-	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"])); err != nil {
+	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("description", flattenComputeRouteDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeRouteDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("name", flattenComputeRouteName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeRouteName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("network", flattenComputeRouteNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeRouteNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("priority", flattenComputeRoutePriority(res["priority"])); err != nil {
+	if err := d.Set("priority", flattenComputeRoutePriority(res["priority"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("tags", flattenComputeRouteTags(res["tags"])); err != nil {
+	if err := d.Set("tags", flattenComputeRouteTags(res["tags"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_gateway", flattenComputeRouteNextHopGateway(res["nextHopGateway"])); err != nil {
+	if err := d.Set("next_hop_gateway", flattenComputeRouteNextHopGateway(res["nextHopGateway"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_instance", flattenComputeRouteNextHopInstance(res["nextHopInstance"])); err != nil {
+	if err := d.Set("next_hop_instance", flattenComputeRouteNextHopInstance(res["nextHopInstance"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_ip", flattenComputeRouteNextHopIp(res["nextHopIp"])); err != nil {
+	if err := d.Set("next_hop_ip", flattenComputeRouteNextHopIp(res["nextHopIp"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_vpn_tunnel", flattenComputeRouteNextHopVpnTunnel(res["nextHopVpnTunnel"])); err != nil {
+	if err := d.Set("next_hop_vpn_tunnel", flattenComputeRouteNextHopVpnTunnel(res["nextHopVpnTunnel"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"])); err != nil {
+	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -348,26 +348,26 @@ func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouteDestRange(v interface{}) interface{} {
+func flattenComputeRouteDestRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteDescription(v interface{}) interface{} {
+func flattenComputeRouteDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteName(v interface{}) interface{} {
+func flattenComputeRouteName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteNetwork(v interface{}) interface{} {
+func flattenComputeRouteNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRoutePriority(v interface{}) interface{} {
+func flattenComputeRoutePriority(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -377,30 +377,30 @@ func flattenComputeRoutePriority(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeRouteTags(v interface{}) interface{} {
+func flattenComputeRouteTags(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeRouteNextHopGateway(v interface{}) interface{} {
+func flattenComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopInstance(v interface{}) interface{} {
+func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopIp(v interface{}) interface{} {
+func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopVpnTunnel(v interface{}) interface{} {
+func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopNetwork(v interface{}) interface{} {
+func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

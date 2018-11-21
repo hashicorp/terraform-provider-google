@@ -167,19 +167,19 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
-	if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
-	if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"])); err != nil {
+	if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
-	if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
-	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"])); err != nil {
+	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -289,15 +289,15 @@ func resourceComputeTargetHttpProxyImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetHttpProxyCreationTimestamp(v interface{}) interface{} {
+func flattenComputeTargetHttpProxyCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeTargetHttpProxyDescription(v interface{}) interface{} {
+func flattenComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeTargetHttpProxyProxyId(v interface{}) interface{} {
+func flattenComputeTargetHttpProxyProxyId(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -307,11 +307,11 @@ func flattenComputeTargetHttpProxyProxyId(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeTargetHttpProxyName(v interface{}) interface{} {
+func flattenComputeTargetHttpProxyName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeTargetHttpProxyUrlMap(v interface{}) interface{} {
+func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}

@@ -273,49 +273,49 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"])); err != nil {
+	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("authorized_network", flattenRedisInstanceAuthorizedNetwork(res["authorizedNetwork"])); err != nil {
+	if err := d.Set("authorized_network", flattenRedisInstanceAuthorizedNetwork(res["authorizedNetwork"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("create_time", flattenRedisInstanceCreateTime(res["createTime"])); err != nil {
+	if err := d.Set("create_time", flattenRedisInstanceCreateTime(res["createTime"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("current_location_id", flattenRedisInstanceCurrentLocationId(res["currentLocationId"])); err != nil {
+	if err := d.Set("current_location_id", flattenRedisInstanceCurrentLocationId(res["currentLocationId"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("display_name", flattenRedisInstanceDisplayName(res["displayName"])); err != nil {
+	if err := d.Set("display_name", flattenRedisInstanceDisplayName(res["displayName"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("host", flattenRedisInstanceHost(res["host"])); err != nil {
+	if err := d.Set("host", flattenRedisInstanceHost(res["host"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("labels", flattenRedisInstanceLabels(res["labels"])); err != nil {
+	if err := d.Set("labels", flattenRedisInstanceLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("redis_configs", flattenRedisInstanceRedisConfigs(res["redisConfigs"])); err != nil {
+	if err := d.Set("redis_configs", flattenRedisInstanceRedisConfigs(res["redisConfigs"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("location_id", flattenRedisInstanceLocationId(res["locationId"])); err != nil {
+	if err := d.Set("location_id", flattenRedisInstanceLocationId(res["locationId"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("name", flattenRedisInstanceName(res["name"])); err != nil {
+	if err := d.Set("name", flattenRedisInstanceName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("memory_size_gb", flattenRedisInstanceMemorySizeGb(res["memorySizeGb"])); err != nil {
+	if err := d.Set("memory_size_gb", flattenRedisInstanceMemorySizeGb(res["memorySizeGb"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("port", flattenRedisInstancePort(res["port"])); err != nil {
+	if err := d.Set("port", flattenRedisInstancePort(res["port"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"])); err != nil {
+	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("reserved_ip_range", flattenRedisInstanceReservedIpRange(res["reservedIpRange"])); err != nil {
+	if err := d.Set("reserved_ip_range", flattenRedisInstanceReservedIpRange(res["reservedIpRange"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"])); err != nil {
+	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -454,50 +454,50 @@ func resourceRedisInstanceImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenRedisInstanceAlternativeLocationId(v interface{}) interface{} {
+func flattenRedisInstanceAlternativeLocationId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceAuthorizedNetwork(v interface{}) interface{} {
+func flattenRedisInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceCreateTime(v interface{}) interface{} {
+func flattenRedisInstanceCreateTime(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceCurrentLocationId(v interface{}) interface{} {
+func flattenRedisInstanceCurrentLocationId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceDisplayName(v interface{}) interface{} {
+func flattenRedisInstanceDisplayName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceHost(v interface{}) interface{} {
+func flattenRedisInstanceHost(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceLabels(v interface{}) interface{} {
+func flattenRedisInstanceLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceRedisConfigs(v interface{}) interface{} {
+func flattenRedisInstanceRedisConfigs(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceLocationId(v interface{}) interface{} {
+func flattenRedisInstanceLocationId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceName(v interface{}) interface{} {
+func flattenRedisInstanceName(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenRedisInstanceMemorySizeGb(v interface{}) interface{} {
+func flattenRedisInstanceMemorySizeGb(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -507,7 +507,7 @@ func flattenRedisInstanceMemorySizeGb(v interface{}) interface{} {
 	return v
 }
 
-func flattenRedisInstancePort(v interface{}) interface{} {
+func flattenRedisInstancePort(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -517,15 +517,15 @@ func flattenRedisInstancePort(v interface{}) interface{} {
 	return v
 }
 
-func flattenRedisInstanceRedisVersion(v interface{}) interface{} {
+func flattenRedisInstanceRedisVersion(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceReservedIpRange(v interface{}) interface{} {
+func flattenRedisInstanceReservedIpRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenRedisInstanceTier(v interface{}) interface{} {
+func flattenRedisInstanceTier(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
