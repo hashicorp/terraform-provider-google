@@ -535,6 +535,10 @@ func expandEventTrigger(configured []interface{}, project string) *cloudfunction
 		shape = "projects/%s/buckets/%s"
 	case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
 		shape = "projects/%s/topics/%s"
+	case strings.HasPrefix(eventType, "providers/cloud.firestore/eventTypes/"):
+		// Firestore doesn't not yet support multiple databases, so "(default)" is assumed.
+		// https://cloud.google.com/functions/docs/calling/cloud-firestore#deploying_your_function
+		shape = "projects/%s/databases/(default)/documents/%s"
 	}
 
 	return &cloudfunctions.EventTrigger{
@@ -550,9 +554,28 @@ func flattenEventTrigger(eventTrigger *cloudfunctions.EventTrigger) []map[string
 		return result
 	}
 
+	resource := ""
+	switch {
+	case strings.HasPrefix(eventTrigger.EventType, "google.storage.object."):
+		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
+	case strings.HasPrefix(eventTrigger.EventType, "google.pubsub.topic."):
+		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
+		// Legacy style triggers
+	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.storage/eventTypes/"):
+		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
+	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.pubsub/eventTypes/"):
+		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
+	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.firestore/eventTypes/"):
+		// Simply taking the substring after the last "/" is not sufficient for firestore as resources may have slashes.
+		// For the eventTrigger.Resource "projects/my-project/databases/(default)/documents/messages/{messageId}" we extract
+		// the resource "messages/{messageId}" by taking the everything after the 5th "/"
+		parts := strings.SplitN(eventTrigger.Resource, "/", 6)
+		resource = parts[len(parts)-1]
+	}
+
 	result = append(result, map[string]interface{}{
 		"event_type":     eventTrigger.EventType,
-		"resource":       GetResourceNameFromSelfLink(eventTrigger.Resource),
+		"resource":       resource,
 		"failure_policy": flattenFailurePolicy(eventTrigger.FailurePolicy),
 	})
 
