@@ -286,31 +286,31 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"])); err != nil {
+	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("host_rule", flattenComputeUrlMapHost_rule(res["hostRules"])); err != nil {
+	if err := d.Set("host_rule", flattenComputeUrlMapHost_rule(res["hostRules"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("map_id", flattenComputeUrlMapMap_id(res["id"])); err != nil {
+	if err := d.Set("map_id", flattenComputeUrlMapMap_id(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"])); err != nil {
+	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("name", flattenComputeUrlMapName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("path_matcher", flattenComputeUrlMapPath_matcher(res["pathMatchers"])); err != nil {
+	if err := d.Set("path_matcher", flattenComputeUrlMapPath_matcher(res["pathMatchers"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"])); err != nil {
+	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -451,22 +451,22 @@ func resourceComputeUrlMapImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeUrlMapCreationTimestamp(v interface{}) interface{} {
+func flattenComputeUrlMapCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultService(v interface{}) interface{} {
+func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDescription(v interface{}) interface{} {
+func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHost_rule(v interface{}) interface{} {
+func flattenComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -479,29 +479,29 @@ func flattenComputeUrlMapHost_rule(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"description":  flattenComputeUrlMapHost_ruleDescription(original["description"]),
-			"hosts":        flattenComputeUrlMapHost_ruleHosts(original["hosts"]),
-			"path_matcher": flattenComputeUrlMapHost_rulePathMatcher(original["pathMatcher"]),
+			"description":  flattenComputeUrlMapHost_ruleDescription(original["description"], d),
+			"hosts":        flattenComputeUrlMapHost_ruleHosts(original["hosts"], d),
+			"path_matcher": flattenComputeUrlMapHost_rulePathMatcher(original["pathMatcher"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapHost_ruleDescription(v interface{}) interface{} {
+func flattenComputeUrlMapHost_ruleDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHost_ruleHosts(v interface{}) interface{} {
+func flattenComputeUrlMapHost_ruleHosts(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapHost_rulePathMatcher(v interface{}) interface{} {
+func flattenComputeUrlMapHost_rulePathMatcher(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapMap_id(v interface{}) interface{} {
+func flattenComputeUrlMapMap_id(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -511,15 +511,15 @@ func flattenComputeUrlMapMap_id(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapFingerprint(v interface{}) interface{} {
+func flattenComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapName(v interface{}) interface{} {
+func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPath_matcher(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcher(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -532,30 +532,30 @@ func flattenComputeUrlMapPath_matcher(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"default_service": flattenComputeUrlMapPath_matcherDefaultService(original["defaultService"]),
-			"description":     flattenComputeUrlMapPath_matcherDescription(original["description"]),
-			"name":            flattenComputeUrlMapPath_matcherName(original["name"]),
-			"path_rule":       flattenComputeUrlMapPath_matcherPath_rule(original["pathRules"]),
+			"default_service": flattenComputeUrlMapPath_matcherDefaultService(original["defaultService"], d),
+			"description":     flattenComputeUrlMapPath_matcherDescription(original["description"], d),
+			"name":            flattenComputeUrlMapPath_matcherName(original["name"], d),
+			"path_rule":       flattenComputeUrlMapPath_matcherPath_rule(original["pathRules"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPath_matcherDefaultService(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherDefaultService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPath_matcherDescription(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPath_matcherName(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPath_matcherPath_rule(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherPath_rule(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -568,27 +568,27 @@ func flattenComputeUrlMapPath_matcherPath_rule(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"paths":   flattenComputeUrlMapPath_matcherPath_rulePaths(original["paths"]),
-			"service": flattenComputeUrlMapPath_matcherPath_ruleService(original["service"]),
+			"paths":   flattenComputeUrlMapPath_matcherPath_rulePaths(original["paths"], d),
+			"service": flattenComputeUrlMapPath_matcherPath_ruleService(original["service"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPath_matcherPath_rulePaths(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherPath_rulePaths(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapPath_matcherPath_ruleService(v interface{}) interface{} {
+func flattenComputeUrlMapPath_matcherPath_ruleService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapTest(v interface{}) interface{} {
+func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -601,27 +601,27 @@ func flattenComputeUrlMapTest(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"description": flattenComputeUrlMapTestDescription(original["description"]),
-			"host":        flattenComputeUrlMapTestHost(original["host"]),
-			"path":        flattenComputeUrlMapTestPath(original["path"]),
-			"service":     flattenComputeUrlMapTestService(original["service"]),
+			"description": flattenComputeUrlMapTestDescription(original["description"], d),
+			"host":        flattenComputeUrlMapTestHost(original["host"], d),
+			"path":        flattenComputeUrlMapTestPath(original["path"], d),
+			"service":     flattenComputeUrlMapTestService(original["service"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapTestDescription(v interface{}) interface{} {
+func flattenComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestHost(v interface{}) interface{} {
+func flattenComputeUrlMapTestHost(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestPath(v interface{}) interface{} {
+func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestService(v interface{}) interface{} {
+func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}

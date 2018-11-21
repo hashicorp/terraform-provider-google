@@ -7,7 +7,7 @@
 exports.helloFirestore = function (event, callback) {
     const messageId = event.params.messageId;
 
-     console.log(`Received message ${messageId}`);
+    console.log(`Received message ${messageId}`);
 
-     callback();
+    callback();
 };

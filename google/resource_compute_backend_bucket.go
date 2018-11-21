@@ -171,19 +171,19 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 
-	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"])); err != nil {
+	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"])); err != nil {
+	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("name", flattenComputeBackendBucketName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeBackendBucketName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -306,23 +306,23 @@ func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeBackendBucketBucketName(v interface{}) interface{} {
+func flattenComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketCreationTimestamp(v interface{}) interface{} {
+func flattenComputeBackendBucketCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketDescription(v interface{}) interface{} {
+func flattenComputeBackendBucketDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketEnableCdn(v interface{}) interface{} {
+func flattenComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketName(v interface{}) interface{} {
+func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

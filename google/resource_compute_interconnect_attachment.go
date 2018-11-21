@@ -213,34 +213,34 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 
-	if err := d.Set("cloud_router_ip_address", flattenComputeInterconnectAttachmentCloudRouterIpAddress(res["cloudRouterIpAddress"])); err != nil {
+	if err := d.Set("cloud_router_ip_address", flattenComputeInterconnectAttachmentCloudRouterIpAddress(res["cloudRouterIpAddress"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("customer_router_ip_address", flattenComputeInterconnectAttachmentCustomerRouterIpAddress(res["customerRouterIpAddress"])); err != nil {
+	if err := d.Set("customer_router_ip_address", flattenComputeInterconnectAttachmentCustomerRouterIpAddress(res["customerRouterIpAddress"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("interconnect", flattenComputeInterconnectAttachmentInterconnect(res["interconnect"])); err != nil {
+	if err := d.Set("interconnect", flattenComputeInterconnectAttachmentInterconnect(res["interconnect"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("private_interconnect_info", flattenComputeInterconnectAttachmentPrivateInterconnectInfo(res["privateInterconnectInfo"])); err != nil {
+	if err := d.Set("private_interconnect_info", flattenComputeInterconnectAttachmentPrivateInterconnectInfo(res["privateInterconnectInfo"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("google_reference_id", flattenComputeInterconnectAttachmentGoogleReferenceId(res["googleReferenceId"])); err != nil {
+	if err := d.Set("google_reference_id", flattenComputeInterconnectAttachmentGoogleReferenceId(res["googleReferenceId"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("router", flattenComputeInterconnectAttachmentRouter(res["router"])); err != nil {
+	if err := d.Set("router", flattenComputeInterconnectAttachmentRouter(res["router"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeInterconnectAttachmentCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeInterconnectAttachmentCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("name", flattenComputeInterconnectAttachmentName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeInterconnectAttachmentName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"])); err != nil {
+	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -301,23 +301,23 @@ func resourceComputeInterconnectAttachmentImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeInterconnectAttachmentCloudRouterIpAddress(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentCloudRouterIpAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentCustomerRouterIpAddress(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentCustomerRouterIpAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentInterconnect(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentInterconnect(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentDescription(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -327,10 +327,10 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}) 
 	}
 	transformed := make(map[string]interface{})
 	transformed["tag8021q"] =
-		flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(original["tag8021q"])
+		flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(original["tag8021q"], d)
 	return []interface{}{transformed}
 }
-func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -340,26 +340,26 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v inter
 	return v
 }
 
-func flattenComputeInterconnectAttachmentGoogleReferenceId(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentGoogleReferenceId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentRouter(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentRouter(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeInterconnectAttachmentCreationTimestamp(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentName(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeInterconnectAttachmentRegion(v interface{}) interface{} {
+func flattenComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}

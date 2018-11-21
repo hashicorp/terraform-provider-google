@@ -307,49 +307,49 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("description", flattenComputeForwardingRuleDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeForwardingRuleDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeForwardingRuleIPAddress(res["IPAddress"])); err != nil {
+	if err := d.Set("ip_address", flattenComputeForwardingRuleIPAddress(res["IPAddress"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_protocol", flattenComputeForwardingRuleIPProtocol(res["IPProtocol"])); err != nil {
+	if err := d.Set("ip_protocol", flattenComputeForwardingRuleIPProtocol(res["IPProtocol"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"])); err != nil {
+	if err := d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"])); err != nil {
+	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"])); err != nil {
+	if err := d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("name", flattenComputeForwardingRuleName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeForwardingRuleName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("network", flattenComputeForwardingRuleNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeForwardingRuleNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("port_range", flattenComputeForwardingRulePortRange(res["portRange"])); err != nil {
+	if err := d.Set("port_range", flattenComputeForwardingRulePortRange(res["portRange"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("ports", flattenComputeForwardingRulePorts(res["ports"])); err != nil {
+	if err := d.Set("ports", flattenComputeForwardingRulePorts(res["ports"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeForwardingRuleSubnetwork(res["subnetwork"])); err != nil {
+	if err := d.Set("subnetwork", flattenComputeForwardingRuleSubnetwork(res["subnetwork"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"])); err != nil {
+	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"])); err != nil {
+	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
-	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"])); err != nil {
+	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -459,78 +459,78 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeForwardingRuleCreationTimestamp(v interface{}) interface{} {
+func flattenComputeForwardingRuleCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleDescription(v interface{}) interface{} {
+func flattenComputeForwardingRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleIPAddress(v interface{}) interface{} {
+func flattenComputeForwardingRuleIPAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleIPProtocol(v interface{}) interface{} {
+func flattenComputeForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleBackendService(v interface{}) interface{} {
+func flattenComputeForwardingRuleBackendService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeForwardingRuleIpVersion(v interface{}) interface{} {
+func flattenComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleLoadBalancingScheme(v interface{}) interface{} {
+func flattenComputeForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleName(v interface{}) interface{} {
+func flattenComputeForwardingRuleName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleNetwork(v interface{}) interface{} {
+func flattenComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeForwardingRulePortRange(v interface{}) interface{} {
+func flattenComputeForwardingRulePortRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRulePorts(v interface{}) interface{} {
+func flattenComputeForwardingRulePorts(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeForwardingRuleSubnetwork(v interface{}) interface{} {
+func flattenComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeForwardingRuleTarget(v interface{}) interface{} {
+func flattenComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeForwardingRuleNetworkTier(v interface{}) interface{} {
+func flattenComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeForwardingRuleRegion(v interface{}) interface{} {
+func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
