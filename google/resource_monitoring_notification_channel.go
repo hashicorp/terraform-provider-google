@@ -179,28 +179,28 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 
-	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"])); err != nil {
+	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"])); err != nil {
+	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"])); err != nil {
+	if err := d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("type", flattenMonitoringNotificationChannelType(res["type"])); err != nil {
+	if err := d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"])); err != nil {
+	if err := d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"])); err != nil {
+	if err := d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"])); err != nil {
+	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 
@@ -306,35 +306,35 @@ func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringNotificationChannelLabels(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelName(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelVerificationStatus(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelVerificationStatus(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelType(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelUserLabels(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDescription(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDisplayName(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelEnabled(v interface{}) interface{} {
+func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

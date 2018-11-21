@@ -144,19 +144,19 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
-	if err := d.Set("description", flattenDnsManagedZoneDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenDnsManagedZoneDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("dns_name", flattenDnsManagedZoneDnsName(res["dnsName"])); err != nil {
+	if err := d.Set("dns_name", flattenDnsManagedZoneDnsName(res["dnsName"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("name", flattenDnsManagedZoneName(res["name"])); err != nil {
+	if err := d.Set("name", flattenDnsManagedZoneName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("name_servers", flattenDnsManagedZoneNameServers(res["nameServers"])); err != nil {
+	if err := d.Set("name_servers", flattenDnsManagedZoneNameServers(res["nameServers"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("labels", flattenDnsManagedZoneLabels(res["labels"])); err != nil {
+	if err := d.Set("labels", flattenDnsManagedZoneLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
@@ -234,23 +234,23 @@ func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDnsManagedZoneDescription(v interface{}) interface{} {
+func flattenDnsManagedZoneDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnsName(v interface{}) interface{} {
+func flattenDnsManagedZoneDnsName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneName(v interface{}) interface{} {
+func flattenDnsManagedZoneName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneNameServers(v interface{}) interface{} {
+func flattenDnsManagedZoneNameServers(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneLabels(v interface{}) interface{} {
+func flattenDnsManagedZoneLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

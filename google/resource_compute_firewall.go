@@ -367,49 +367,49 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 
-	if err := d.Set("allow", flattenComputeFirewallAllow(res["allowed"])); err != nil {
+	if err := d.Set("allow", flattenComputeFirewallAllow(res["allowed"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeFirewallCreationTimestamp(res["creationTimestamp"])); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeFirewallCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("deny", flattenComputeFirewallDeny(res["denied"])); err != nil {
+	if err := d.Set("deny", flattenComputeFirewallDeny(res["denied"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("description", flattenComputeFirewallDescription(res["description"])); err != nil {
+	if err := d.Set("description", flattenComputeFirewallDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("destination_ranges", flattenComputeFirewallDestinationRanges(res["destinationRanges"])); err != nil {
+	if err := d.Set("destination_ranges", flattenComputeFirewallDestinationRanges(res["destinationRanges"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("direction", flattenComputeFirewallDirection(res["direction"])); err != nil {
+	if err := d.Set("direction", flattenComputeFirewallDirection(res["direction"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("disabled", flattenComputeFirewallDisabled(res["disabled"])); err != nil {
+	if err := d.Set("disabled", flattenComputeFirewallDisabled(res["disabled"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("name", flattenComputeFirewallName(res["name"])); err != nil {
+	if err := d.Set("name", flattenComputeFirewallName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("network", flattenComputeFirewallNetwork(res["network"])); err != nil {
+	if err := d.Set("network", flattenComputeFirewallNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("priority", flattenComputeFirewallPriority(res["priority"])); err != nil {
+	if err := d.Set("priority", flattenComputeFirewallPriority(res["priority"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("source_ranges", flattenComputeFirewallSourceRanges(res["sourceRanges"])); err != nil {
+	if err := d.Set("source_ranges", flattenComputeFirewallSourceRanges(res["sourceRanges"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("source_service_accounts", flattenComputeFirewallSourceServiceAccounts(res["sourceServiceAccounts"])); err != nil {
+	if err := d.Set("source_service_accounts", flattenComputeFirewallSourceServiceAccounts(res["sourceServiceAccounts"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("source_tags", flattenComputeFirewallSourceTags(res["sourceTags"])); err != nil {
+	if err := d.Set("source_tags", flattenComputeFirewallSourceTags(res["sourceTags"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("target_service_accounts", flattenComputeFirewallTargetServiceAccounts(res["targetServiceAccounts"])); err != nil {
+	if err := d.Set("target_service_accounts", flattenComputeFirewallTargetServiceAccounts(res["targetServiceAccounts"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-	if err := d.Set("target_tags", flattenComputeFirewallTargetTags(res["targetTags"])); err != nil {
+	if err := d.Set("target_tags", flattenComputeFirewallTargetTags(res["targetTags"], d)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -586,7 +586,7 @@ func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeFirewallAllow(v interface{}) interface{} {
+func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -599,25 +599,25 @@ func flattenComputeFirewallAllow(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"protocol": flattenComputeFirewallAllowProtocol(original["IPProtocol"]),
-			"ports":    flattenComputeFirewallAllowPorts(original["ports"]),
+			"protocol": flattenComputeFirewallAllowProtocol(original["IPProtocol"], d),
+			"ports":    flattenComputeFirewallAllowPorts(original["ports"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeFirewallAllowProtocol(v interface{}) interface{} {
+func flattenComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallAllowPorts(v interface{}) interface{} {
+func flattenComputeFirewallAllowPorts(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallCreationTimestamp(v interface{}) interface{} {
+func flattenComputeFirewallCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDeny(v interface{}) interface{} {
+func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -630,51 +630,51 @@ func flattenComputeFirewallDeny(v interface{}) interface{} {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"protocol": flattenComputeFirewallDenyProtocol(original["IPProtocol"]),
-			"ports":    flattenComputeFirewallDenyPorts(original["ports"]),
+			"protocol": flattenComputeFirewallDenyProtocol(original["IPProtocol"], d),
+			"ports":    flattenComputeFirewallDenyPorts(original["ports"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeFirewallDenyProtocol(v interface{}) interface{} {
+func flattenComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDenyPorts(v interface{}) interface{} {
+func flattenComputeFirewallDenyPorts(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDescription(v interface{}) interface{} {
+func flattenComputeFirewallDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDestinationRanges(v interface{}) interface{} {
+func flattenComputeFirewallDestinationRanges(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallDirection(v interface{}) interface{} {
+func flattenComputeFirewallDirection(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDisabled(v interface{}) interface{} {
+func flattenComputeFirewallDisabled(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallName(v interface{}) interface{} {
+func flattenComputeFirewallName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeFirewallNetwork(v interface{}) interface{} {
+func flattenComputeFirewallNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeFirewallPriority(v interface{}) interface{} {
+func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -684,35 +684,35 @@ func flattenComputeFirewallPriority(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeFirewallSourceRanges(v interface{}) interface{} {
+func flattenComputeFirewallSourceRanges(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallSourceServiceAccounts(v interface{}) interface{} {
+func flattenComputeFirewallSourceServiceAccounts(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallSourceTags(v interface{}) interface{} {
+func flattenComputeFirewallSourceTags(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallTargetServiceAccounts(v interface{}) interface{} {
+func flattenComputeFirewallTargetServiceAccounts(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallTargetTags(v interface{}) interface{} {
+func flattenComputeFirewallTargetTags(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
