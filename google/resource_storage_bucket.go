@@ -358,7 +358,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 			// Setting fields to "" to be explicit that the PATCH call will
 			// delete this field.
-			if len(websites) == 0 {
+			if len(websites) == 0 || websites[0] == nil {
 				sb.Website.NotFoundPage = ""
 				sb.Website.MainPageSuffix = ""
 			} else {
