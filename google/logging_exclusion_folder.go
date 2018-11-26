@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/logging/v2"
@@ -59,7 +60,7 @@ func (u *FolderLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*loggin
 	exclusion, err := u.Config.clientLogging.Folders.Exclusions.Get(id).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving logging exclusion for %s: %s", u.DescribeResource(), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
 
 	return exclusion, nil
