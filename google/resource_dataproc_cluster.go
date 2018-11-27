@@ -442,9 +442,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes, 3)
 	if waitErr != nil {
 		// The resource didn't actually create
-		// Note that we do not remove the ID here - this resource tends to leave
-		// partially created clusters behind, so we'll let the next Read remove
-		// it.
+		d.SetId("")
 		return waitErr
 	}
 
