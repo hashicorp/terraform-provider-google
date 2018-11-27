@@ -19,6 +19,7 @@ Upgrade topics:
 - [Provider Version Configuration](#provider-version-configuration)
 - [`google-beta` provider](#google-beta-provider)
 - [Open in Cloud Shell](#open-in-cloud-shell)
+- [Data Sources](#data-sources)
 - [Resource: `google_bigquery_dataset`](#resource-google_bigquery_dataset)
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
 - [Resource: `google_binary_authorizaton_attestor`](#resource-google_binary_authorization_attestor)
@@ -137,6 +138,10 @@ Magic Modules resources now have Open in Cloud Shell links in their documentatio
 them in an interactive editor and shell - all without leaving the browser. See the
 [blog post announcing the feature](https://www.hashicorp.com/blog/kickstart-terraform-on-gcp-with-google-cloud-shell)
 for more details.
+
+## Data Sources
+
+See the `Resource` sections in this document for properties that may have been removed.
 
 ## Resource: `google_bigquery_dataset`
 
