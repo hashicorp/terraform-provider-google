@@ -80,7 +80,7 @@ The following arguments are supported:
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance to update its properties.
   If you try to update a property that requires stopping the instance without setting this field, the update will fail.
 
-* `attached_disk` - (Optional) List of disks to attach to the instance. Structure is documented below.
+* `attached_disk` - (Optional) Additional disks to attach to the instance. Can be repeated multiple times for multiple disks. Structure is documented below.
 
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of
     packets with non-matching source or destination IPs.
