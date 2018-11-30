@@ -139,7 +139,10 @@ output "cluster_ca_certificate" {
     will auto-update the master to new versions, so this does not guarantee the
     current master version--use the read-only `master_version` field to obtain that.
     If unset, the cluster's version will be set by GKE to the version of the most recent
-    official release (which is not necessarily the latest version).
+    official release (which is not necessarily the latest version).  Most users will find
+    the `google_container_engine_versions` data source useful - it indicates which versions
+    are available.  If you intend to specify versions manually, [the docs](https://cloud.google.com/kubernetes-engine/versioning-and-upgrades#specifying_cluster_version)
+    describe the various acceptable formats for this field.
 
 -> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
 to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a 
