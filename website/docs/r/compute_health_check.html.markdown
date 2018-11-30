@@ -138,12 +138,6 @@ The `http_health_check` block supports:
   The request path of the HTTP health check request.
   The default value is /.
 
-* `response` -
-  (Optional)
-  The bytes to match against the beginning of the response data. If left empty
-  (the default value), any response will indicate health. The response data
-  can only be ASCII.
-
 * `port` -
   (Optional)
   The TCP port number for the HTTP health check request.
@@ -166,12 +160,6 @@ The `https_health_check` block supports:
   (Optional)
   The request path of the HTTPS health check request.
   The default value is /.
-
-* `response` -
-  (Optional)
-  The bytes to match against the beginning of the response data. If left empty
-  (the default value), any response will indicate health. The response data
-  can only be ASCII.
 
 * `port` -
   (Optional)

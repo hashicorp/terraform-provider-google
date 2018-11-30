@@ -89,10 +89,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Optional: true,
 							Default:  "/",
 						},
-						"response": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
 					},
 				},
 				ConflictsWith: []string{"https_health_check", "tcp_health_check", "ssl_health_check"},
@@ -122,10 +118,6 @@ func resourceComputeHealthCheck() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "/",
-						},
-						"response": {
-							Type:     schema.TypeString,
-							Optional: true,
 						},
 					},
 				},
@@ -618,8 +610,6 @@ func flattenComputeHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceD
 		flattenComputeHealthCheckHttpHealthCheckHost(original["host"], d)
 	transformed["request_path"] =
 		flattenComputeHealthCheckHttpHealthCheckRequestPath(original["requestPath"], d)
-	transformed["response"] =
-		flattenComputeHealthCheckHttpHealthCheckResponse(original["response"], d)
 	transformed["port"] =
 		flattenComputeHealthCheckHttpHealthCheckPort(original["port"], d)
 	transformed["proxy_header"] =
@@ -631,10 +621,6 @@ func flattenComputeHealthCheckHttpHealthCheckHost(v interface{}, d *schema.Resou
 }
 
 func flattenComputeHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -665,8 +651,6 @@ func flattenComputeHealthCheckHttpsHealthCheck(v interface{}, d *schema.Resource
 		flattenComputeHealthCheckHttpsHealthCheckHost(original["host"], d)
 	transformed["request_path"] =
 		flattenComputeHealthCheckHttpsHealthCheckRequestPath(original["requestPath"], d)
-	transformed["response"] =
-		flattenComputeHealthCheckHttpsHealthCheckResponse(original["response"], d)
 	transformed["port"] =
 		flattenComputeHealthCheckHttpsHealthCheckPort(original["port"], d)
 	transformed["proxy_header"] =
@@ -678,10 +662,6 @@ func flattenComputeHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.Reso
 }
 
 func flattenComputeHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -828,13 +808,6 @@ func expandComputeHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceDa
 		transformed["requestPath"] = transformedRequestPath
 	}
 
-	transformedResponse, err := expandComputeHealthCheckHttpHealthCheckResponse(original["response"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !isEmptyValue(val) {
-		transformed["response"] = transformedResponse
-	}
-
 	transformedPort, err := expandComputeHealthCheckHttpHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
@@ -857,10 +830,6 @@ func expandComputeHealthCheckHttpHealthCheckHost(v interface{}, d *schema.Resour
 }
 
 func expandComputeHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -895,13 +864,6 @@ func expandComputeHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceD
 		transformed["requestPath"] = transformedRequestPath
 	}
 
-	transformedResponse, err := expandComputeHealthCheckHttpsHealthCheckResponse(original["response"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !isEmptyValue(val) {
-		transformed["response"] = transformedResponse
-	}
-
 	transformedPort, err := expandComputeHealthCheckHttpsHealthCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
@@ -924,10 +886,6 @@ func expandComputeHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.Resou
 }
 
 func expandComputeHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
