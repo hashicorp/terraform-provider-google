@@ -29,10 +29,12 @@ var ignoredReplicaConfigurationFields = []string{
 }
 
 func init() {
-	resource.AddTestSweepers("gcp_sql_db_instance", &resource.Sweeper{
-		Name: "gcp_sql_db_instance",
-		F:    testSweepDatabases,
-	})
+	/*
+		resource.AddTestSweepers("gcp_sql_db_instance", &resource.Sweeper{
+			Name: "gcp_sql_db_instance",
+			F:    testSweepDatabases,
+		})
+	*/
 }
 
 func testSweepDatabases(region string) error {
