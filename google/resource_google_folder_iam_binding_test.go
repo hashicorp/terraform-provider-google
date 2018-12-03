@@ -32,7 +32,7 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -63,7 +63,7 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -73,11 +73,11 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.multiple", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
 						Members: []string{"user:paddy@hashicorp.com"},
 					}, org, fname),
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.multiple", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -108,11 +108,11 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.multiple", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -143,7 +143,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -153,7 +153,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingUpdated(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.updated", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
 					}, org, fname),
@@ -163,7 +163,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingDropMemberFromBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.dropped", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:paddy@hashicorp.com"},
 					}, org, fname),
@@ -194,11 +194,11 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 			{
 				Config: testAccFolderAssociateBindingMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.multiple", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
 						Members: []string{"user:paddy@hashicorp.com"},
 					}, org, fname),
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_binding.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -215,7 +215,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleFolderIamBindingExists(key string, expected *cloudresourcemanager.Binding, org, fname string) resource.TestCheckFunc {
+func testAccCheckGoogleFolderIamBindingExists(expected *cloudresourcemanager.Binding, org, fname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		folderPolicy, err := getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, config)
@@ -314,7 +314,7 @@ resource "google_folder" "acceptance" {
   display_name = "%s"
 }
 
-resource "google_folder_iam_binding" "dropped" {
+resource "google_folder_iam_binding" "acceptance" {
   folder = "${google_folder.acceptance.name}"
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
