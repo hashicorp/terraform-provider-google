@@ -158,7 +158,8 @@ func resourceComputeFirewall() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:           schema.HashString,
+				ConflictsWith: []string{"destination_ranges"},
 			},
 			"source_service_accounts": {
 				Type:     schema.TypeSet,
@@ -176,7 +177,8 @@ func resourceComputeFirewall() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:           schema.HashString,
+				ConflictsWith: []string{"destination_ranges", "source_service_accounts", "target_service_accounts"},
 			},
 			"target_service_accounts": {
 				Type:     schema.TypeSet,
@@ -194,7 +196,8 @@ func resourceComputeFirewall() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:           schema.HashString,
+				ConflictsWith: []string{"source_service_accounts", "target_service_accounts"},
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
