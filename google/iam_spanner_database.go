@@ -51,17 +51,8 @@ func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (Resou
 }
 
 func SpannerDatabaseIdParseFunc(d *schema.ResourceData, config *Config) error {
-	id, err := extractSpannerDatabaseId(d.Id())
-	if err != nil {
-		return err
-	}
-	d.Set("instance", id.Instance)
-	d.Set("project", id.Project)
-	d.Set("database", id.Database)
-
-	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
-	d.SetId(id.terraformId())
-	return nil
+	_, err := resourceSpannerDatabaseImport(d, config)
+	return err
 }
 
 func (u *SpannerDatabaseIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {

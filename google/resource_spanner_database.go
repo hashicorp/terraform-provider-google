@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"strings"
-
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"google.golang.org/api/googleapi"
@@ -194,18 +192,6 @@ func (s spannerDatabaseId) parentInstanceUri() string {
 
 func (s spannerDatabaseId) databaseUri() string {
 	return fmt.Sprintf("%s/databases/%s", s.parentInstanceUri(), s.Database)
-}
-
-func extractSpannerDatabaseId(id string) (*spannerDatabaseId, error) {
-	if !regexp.MustCompile(fmt.Sprintf("^%s/[a-z0-9-]+/%s$", ProjectRegex, spannerDatabaseNameFormat)).Match([]byte(id)) {
-		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}/{databaseId}")
-	}
-	parts := strings.Split(id, "/")
-	return &spannerDatabaseId{
-		Project:  parts[0],
-		Instance: parts[1],
-		Database: parts[2],
-	}, nil
 }
 
 func validateResourceSpannerDatabaseName(v interface{}, k string) (ws []string, errors []error) {
