@@ -1,5 +1,4 @@
-## 1.19.2 (Unreleased)
-
+## 1.20.0 (Unreleased)
 
 FEATURES: 
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
