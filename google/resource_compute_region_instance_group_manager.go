@@ -145,6 +145,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "NONE",
+				Deprecated:   "This field will have no functionality in 2.0.0, and will be removed. If you're using ROLLING_UPDATE, use the google-beta provider. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "ROLLING_UPDATE"}, false),
 			},
 

@@ -124,7 +124,9 @@ The following arguments are supported:
     resource is modified, a value of `"NONE"` will prevent any of the managed
     instances from being restarted by Terraform. A value of `"ROLLING_UPDATE"`
     is supported as a beta feature. A value of `"ROLLING_UPDATE"` requires
-    `rolling_update_policy` block to be set. 
+    `rolling_update_policy` block to be set. This field is deprecated as in
+    `2.0.0` it has no functionality anymore. It will be removed then. This field
+    is only present in the `google` provider.
 
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
