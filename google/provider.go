@@ -146,6 +146,7 @@ func Provider() terraform.ResourceProvider {
 				"google_compute_route":                         resourceComputeRoute(),
 				"google_compute_router":                        resourceComputeRouter(),
 				"google_compute_router_interface":              resourceComputeRouterInterface(),
+				"google_compute_router_nat":                    resourceComputeRouterNat(),
 				"google_compute_router_peer":                   resourceComputeRouterPeer(),
 				"google_compute_security_policy":               resourceComputeSecurityPolicy(),
 				"google_compute_shared_vpc_host_project":       resourceComputeSharedVpcHostProject(),
