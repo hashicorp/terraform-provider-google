@@ -251,6 +251,9 @@ The `cluster_config.master_config` block supports:
    to create for the master. If not specified, GCP will default to a predetermined
    computed value (currently `n1-standard-4`).
 
+* `image_uri` (Optional) The URI for the image to use for this worker.  See [the guide](https://cloud.google.com/dataproc/docs/guides/dataproc-images)
+    for more information.
+
 * `disk_config` (Optional) Disk Config
 
 	* `boot_disk_type` - (Optional) The disk type of the primary disk attached to each node.
@@ -317,6 +320,9 @@ The `cluster_config.worker_config` block supports:
 
     * `num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each worker cluster node. Defaults to 0.
+
+* `image_uri` (Optional) The URI for the image to use for this worker.  See [the guide](https://cloud.google.com/dataproc/docs/guides/dataproc-images)
+    for more information.
 
 * `accelerators` (Optional) The Compute Engine accelerator configuration for these instances. Can be specified multiple times.
 
