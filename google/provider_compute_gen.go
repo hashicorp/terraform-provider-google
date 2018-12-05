@@ -32,6 +32,7 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_region_disk":             resourceComputeRegionDisk(),
 	"google_compute_route":                   resourceComputeRoute(),
 	"google_compute_router":                  resourceComputeRouter(),
+	"google_compute_snapshot":                resourceComputeSnapshot(),
 	"google_compute_ssl_certificate":         resourceComputeSslCertificate(),
 	"google_compute_ssl_policy":              resourceComputeSslPolicy(),
 	"google_compute_subnetwork":              resourceComputeSubnetwork(),

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"reflect"
@@ -67,7 +68,7 @@ func TestAccComputeSnapshot_update(t *testing.T) {
 	})
 }
 
-func TestAccComputeSnapshot_encryption(t *testing.T) {
+func TestAccComputeSnapshot_encryptionBasic(t *testing.T) {
 	t.Parallel()
 
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -85,6 +86,321 @@ func TestAccComputeSnapshot_encryption(t *testing.T) {
 					testAccCheckComputeSnapshotExists(
 						"google_compute_snapshot.foobar", &snapshot),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionModify(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionDelta(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionModifyBad(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config:      testAccComputeSnapshot_encryptionDeltaBad(snapshotName, diskName),
+				ExpectError: regexp.MustCompile("customerEncryptionKeyIsIncorrect"),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionOld(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOld(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionUpgrade(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOld(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionUpgradeModify(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOld(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionDelta(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionUpgradeModifyBad(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOld(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config:      testAccComputeSnapshot_encryptionDeltaBad(snapshotName, diskName),
+				ExpectError: regexp.MustCompile("customerEncryptionKeyIsIncorrect"),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionDowngrade(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOldGuarded(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionDowngradeModify(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOldDelta1(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOldDelta2(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionDowngradeModifyBad(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config:      testAccComputeSnapshot_encryptionOldDeltaBad(snapshotName, diskName),
+				ExpectError: regexp.MustCompile("customerEncryptionKeyIsIncorrect"),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionOldRemove(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryptionOld(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config:      testAccComputeSnapshot_encryptionNone(snapshotName, diskName),
+				ExpectError: regexp.MustCompile("resourceIsEncryptedWithCustomerEncryptionKey"),
+			},
+		},
+	})
+}
+
+func TestAccComputeSnapshot_encryptionRemove(t *testing.T) {
+	t.Parallel()
+
+	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var snapshot compute.Snapshot
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSnapshotExists(
+						"google_compute_snapshot.foobar", &snapshot),
+				),
+			},
+			resource.TestStep{
+				Config:      testAccComputeSnapshot_encryptionNone(snapshotName, diskName),
+				ExpectError: regexp.MustCompile("resourceIsEncryptedWithCustomerEncryptionKey"),
 			},
 		},
 	})
@@ -250,11 +566,260 @@ resource "google_compute_disk" "foobar" {
 		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	}
 }
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+
+	source_disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionOld(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
 resource "google_compute_snapshot" "foobar" {
 	name = "%s"
 	source_disk = "${google_compute_disk.foobar.name}"
 	zone = "us-central1-a"
 	source_disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	snapshot_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionOldGuarded(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = ""
+	}
+
+	source_disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	snapshot_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionDelta(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+
+	source_disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionOldDelta1(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = ""
+	}
+
+	source_disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+
+	snapshot_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionOldDelta2(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = ""
+	}
+
+	source_disk_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	snapshot_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionDeltaBad(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+
+	source_disk_encryption_key {
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	}
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionOldDeltaBad(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = ""
+	}
+
+	source_disk_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+	snapshot_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
+}`, diskName, snapshotName)
+}
+
+func testAccComputeSnapshot_encryptionNone(snapshotName string, diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
+resource "google_compute_snapshot" "foobar" {
+	name = "%s"
+	source_disk = "${google_compute_disk.foobar.name}"
+	zone = "us-central1-a"
 }`, diskName, snapshotName)
 }
