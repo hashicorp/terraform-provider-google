@@ -179,6 +179,7 @@ resource "google_project_services" "test_project" {
   services = [
      "cloudkms.googleapis.com",
      "iam.googleapis.com",
+     "iamcredentials.googleapis.com",
   ]
 }
 
@@ -217,6 +218,7 @@ resource "google_project_services" "test_project" {
   services = [
      "cloudkms.googleapis.com",
      "iam.googleapis.com",
+     "iamcredentials.googleapis.com",
   ]
 }
 
@@ -264,6 +266,7 @@ resource "google_project_services" "test_project" {
   services = [
      "cloudkms.googleapis.com",
      "iam.googleapis.com",
+     "iamcredentials.googleapis.com",
   ]
 }
 
@@ -302,6 +305,7 @@ resource "google_project_services" "test_project" {
   services = [
      "cloudkms.googleapis.com",
      "iam.googleapis.com",
+     "iamcredentials.googleapis.com",
   ]
 }
 
