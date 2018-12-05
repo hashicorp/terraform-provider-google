@@ -46,6 +46,63 @@ func isDiskShrinkage(old, new, _ interface{}) bool {
 	return new.(int) < old.(int)
 }
 
+func customDiffComputeDiskDiskEncryptionKeys(diff *schema.ResourceDiff, meta interface{}) error {
+	oldConvenience, newConvenience := diff.GetChange("disk_encryption_key_raw")
+	oldNewField, newNewField := diff.GetChange("disk_encryption_key.0.raw_key")
+
+	// Either field has a value and then has another value
+	// We need to handle _EVERY_ ForceNew case in this diff
+	if oldConvenience != "" && newConvenience != "" && oldConvenience != newConvenience {
+		return diff.ForceNew("disk_encryption_key_raw")
+	}
+
+	if oldNewField != "" && newNewField != "" && oldNewField != newNewField {
+		return diff.ForceNew("disk_encryption_key.0.raw_key")
+	}
+
+	// Our resource isn't using either field, then uses one;
+	// ForceNew on whichever one is now using it.
+	if (oldConvenience == "" && oldNewField == "" && newConvenience != "") || (oldConvenience == "" && oldNewField == "" && newNewField != "") {
+		if oldConvenience == "" && newConvenience != "" {
+			return diff.ForceNew("disk_encryption_key_raw")
+		} else {
+			return diff.ForceNew("disk_encryption_key.0.raw_key")
+		}
+	}
+
+	// convenience no longer used
+	if oldConvenience != "" && newConvenience == "" {
+		if newNewField == "" {
+			// convenience is being nulled, and the new field is empty as well
+			// we've stopped using the field altogether
+			return diff.ForceNew("disk_encryption_key_raw")
+		} else if oldConvenience != newNewField {
+			// convenience is being nulled, and the new field has a new value
+			// so we ForceNew on either field
+			return diff.ForceNew("disk_encryption_key_raw")
+		} else {
+			// If we reach it here, we're using the same value in the new field as we had in the convenience field
+		}
+	}
+
+	// new no longer used
+	if oldNewField != "" && newNewField == "" {
+		if newConvenience == "" {
+			// new field is being nulled, and the convenience field is empty as well
+			// we've stopped using the field altogether
+			return diff.ForceNew("disk_encryption_key.0.raw_key")
+		} else if newConvenience != oldNewField {
+			// new is being nulled, and the convenience field has a new value
+			// so we ForceNew on either field
+			return diff.ForceNew("disk_encryption_key.0.raw_key")
+		} else {
+			// If we reach it here, we're using the same value in the convenience field as we had in the new field
+		}
+	}
+
+	return nil
+}
+
 // We cannot suppress the diff for the case when family name is not part of the image name since we can't
 // make a network call in a DiffSuppressFunc.
 func diskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
@@ -232,26 +289,6 @@ func suppressWindowsFamilyDiff(imageName, familyName string) bool {
 	return false
 }
 
-func diskEncryptionKeyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if strings.HasSuffix(k, "#") {
-		if old == "1" && new == "0" {
-			// If we have a disk_encryption_key_raw, we can trust that the diff will be handled there
-			// and we don't need to worry about it here.
-			return d.Get("disk_encryption_key_raw").(string) != ""
-		} else if new == "1" && old == "0" {
-			// This will be handled by diffing the 'raw_key' attribute.
-			return true
-		}
-	} else if strings.HasSuffix(k, "raw_key") {
-		disk_key := d.Get("disk_encryption_key_raw").(string)
-		return disk_key == old && old != "" && new == ""
-	} else if k == "disk_encryption_key_raw" {
-		disk_key := d.Get("disk_encryption_key.0.raw_key").(string)
-		return disk_key == old && old != "" && new == ""
-	}
-	return false
-}
-
 func resourceComputeDisk() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeDiskCreate,
@@ -269,7 +306,9 @@ func resourceComputeDisk() *schema.Resource {
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("size", isDiskShrinkage)),
+			customdiff.ForceNewIfChange("size", isDiskShrinkage),
+			customDiffComputeDiskDiskEncryptionKeys,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -283,11 +322,11 @@ func resourceComputeDisk() *schema.Resource {
 				ForceNew: true,
 			},
 			"disk_encryption_key": {
-				Type:             schema.TypeList,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: diskEncryptionKeyDiffSuppress,
-				MaxItems:         1,
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"raw_key": {
@@ -409,12 +448,10 @@ func resourceComputeDisk() *schema.Resource {
 				},
 			},
 			"disk_encryption_key_raw": &schema.Schema{
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				Sensitive:        true,
-				DiffSuppressFunc: diskEncryptionKeyDiffSuppress,
-				Deprecated:       "Use disk_encryption_key.raw_key instead.",
+				Type:       schema.TypeString,
+				Optional:   true,
+				Sensitive:  true,
+				Deprecated: "Use disk_encryption_key.raw_key instead.",
 			},
 
 			"disk_encryption_key_sha256": &schema.Schema{
