@@ -321,6 +321,13 @@ func instanceConfigSchema() *schema.Schema {
 					Computed: true,
 				},
 
+				"image_uri": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+
 				"machine_type": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -618,6 +625,9 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 	if v, ok := cfg["machine_type"]; ok {
 		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
 	}
+	if v, ok := cfg["image_uri"]; ok {
+		icg.ImageUri = v.(string)
+	}
 
 	if dc, ok := cfg["disk_config"]; ok {
 		d := dc.([]interface{})
@@ -873,6 +883,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
 		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
+		data["image_uri"] = icg.ImageUri
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
