@@ -318,7 +318,7 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	})
 }
 
-func TestAccComputeDisk_encryption(t *testing.T) {
+func TestAccComputeDisk_encryptionBasic(t *testing.T) {
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -338,9 +338,23 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 						"google_compute_disk.foobar", &disk),
 				),
 			},
-			// Update from top-level attribute to nested.
+		},
+	})
+}
+
+func TestAccComputeDisk_encryptionOld(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeDisk_encryptionMigrate(diskName),
+				Config: testAccComputeDisk_encryptionOld(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.foobar", &disk),
@@ -348,9 +362,132 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 						"google_compute_disk.foobar", &disk),
 				),
 			},
-			// Update from nested attribute back to top-level.
+		},
+	})
+}
+
+func TestAccComputeDisk_encryptionUpgrade(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionOld(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			// Update from top-level attribute to nested.
 			resource.TestStep{
 				Config: testAccComputeDisk_encryption(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_encryptionDowngrade(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_encryption(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionOld(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_encryptionChange(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_encryption(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionDelta(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_encryptionOldChange(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionOld(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			resource.TestStep{
+				Config: testAccComputeDisk_encryptionOldDelta(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.foobar", &disk),
@@ -571,11 +708,15 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		attr := rs.Primary.Attributes["disk_encryption_key_sha256"]
+		oldAttr := rs.Primary.Attributes["disk_encryption_key_sha256"]
+		attr := rs.Primary.Attributes["disk_encryption_key.0.sha256"]
 		if disk.DiskEncryptionKey == nil {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", n, attr)
+		} else if oldAttr != disk.DiskEncryptionKey.Sha256 && attr == "" {
+			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State (old attr): %+v.\nGCP State: %+v",
+				n, oldAttr, disk.DiskEncryptionKey.Sha256)
 		} else if attr != disk.DiskEncryptionKey.Sha256 {
-			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State (new attr): %+v.\nGCP State: %+v",
 				n, attr, disk.DiskEncryptionKey.Sha256)
 		}
 		return nil
@@ -707,11 +848,30 @@ resource "google_compute_disk" "foobar" {
 	size = 50
 	type = "pd-ssd"
 	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}`, diskName)
+}
+
+func testAccComputeDisk_encryptionOld(diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
 	disk_encryption_key_raw = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 }`, diskName)
 }
 
-func testAccComputeDisk_encryptionMigrate(diskName string) string {
+func testAccComputeDisk_encryptionDelta(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -725,8 +885,25 @@ resource "google_compute_disk" "foobar" {
 	type = "pd-ssd"
 	zone = "us-central1-a"
 	disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+		raw_key = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
 	}
+}`, diskName)
+}
+
+func testAccComputeDisk_encryptionOldDelta(diskName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 50
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key_raw = "Sznt5GBBAJky3BgBVbDOMLY3TlStz7RikXujsFQ0GlA="
 }`, diskName)
 }
 
