@@ -21,7 +21,14 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigtableInstance(instanceName),
+				Config: testAccBigtableInstance(instanceName, 3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableInstanceExists(
+						"google_bigtable_instance.instance"),
+				),
+			},
+			{
+				Config: testAccBigtableInstance(instanceName, 4),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
 						"google_bigtable_instance.instance"),
@@ -125,18 +132,18 @@ func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccBigtableInstance(instanceName string) string {
+func testAccBigtableInstance(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
 	name = "%s"
 	cluster {
 		cluster_id   = "%s"
 		zone         = "us-central1-b"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 }
-`, instanceName, instanceName)
+`, instanceName, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_cluster(instanceName string) string {
