@@ -143,10 +143,9 @@ func TestAccRegionInstanceGroupManager_updateStrategy(t *testing.T) {
 				Config: testAccRegionInstanceGroupManager_updateStrategy(igm),
 			},
 			{
-				ResourceName:            "google_compute_region_instance_group_manager.igm-update-strategy",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"update_strategy"},
+				ResourceName:      "google_compute_region_instance_group_manager.igm-update-strategy",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -648,7 +647,6 @@ resource "google_compute_region_instance_group_manager" "igm-update-strategy" {
 	base_instance_name         = "rigm-update-strategy"
 	region                     = "us-central1"
 	target_size                = 2
-	update_strategy            = "NONE"
 	named_port {
 		name = "customhttp"
 		port = 8080
