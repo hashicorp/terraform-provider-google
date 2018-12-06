@@ -16,6 +16,7 @@ BACKWARDS INCOMPATIBILITIES:
 * container: `google_container_cluster` fields (`private_cluster`, `master_ipv4_cidr_block`) are removed. Use `private_cluster_config` and `private_cluster_config.master_ipv4_cidr_block` instead. [GH-2395]
 * container: `google_container_cluster` fields (`enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2395]
 * container: `google_container_cluster.node_config` fields (`taints`, `workload_metadata_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2601]
+* container: `google_container_node_pool.node_config` fields (`taints`, `workload_metadata_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2601]
 * sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
 * bigtable: `google_bigtable_instance` `zone` field is no longer inferred from the provider.
 * endpoints: `google_endpoints_service.protoc_output` was removed. Use `google_endpoints_service.protoc_output_base64` instead. [GH-2396]
