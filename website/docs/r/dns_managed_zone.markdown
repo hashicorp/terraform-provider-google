@@ -58,6 +58,6 @@ Managed zones can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_dns_managed_zone.prod projects/{{project-id}}/managedZones/{{zone}}
-$ terraform import google_compute_disk.default {{project-id}}/managedZones/{{zone}}
-$ terraform import google_compute_disk.default {{zone}}
+$ terraform import google_dns_managed_zone.prod {{project-id}}/managedZones/{{zone}}
+$ terraform import google_dns_managed_zone.prod {{zone}}
 ```
