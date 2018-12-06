@@ -21,6 +21,7 @@ BACKWARDS INCOMPATIBILITIES:
 * resourcemanager: `google_project_iam_policy` is now authoritative and will remove values not explicitly set in config. Several fields were removed that made it authoritative: `authoritative`, `restore_policy`, and `disable_project`. This resource is very dangerous! Ensure you are not using the removed fields (`authoritative`, `restore_policy`, `disable_project`). [GH-2315]
 * resourcemanager: Datasource `google_service_account_key.service_account_id` has been removed. Use the `name` field instead. [GH-2397]
 * resourcemanager: `google_project.app_engine` has been removed. Use the `google_app_engine_application` resource instead. [GH-2386]
+* resourcemanager: `google_organization_custom_role.deleted` is now an output-only attribute. Use `terraform destroy`, or remove the resource from your config instead. [GH-2596]
 * storage: `google_storage_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. Use `google_storage_object_access_control` for fine-grained management. [GH-2316]
 * storage: `google_storage_default_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. [GH-2345]
 
