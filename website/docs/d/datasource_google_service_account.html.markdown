@@ -42,7 +42,7 @@ resource "kubernetes_secret" "google-application-credentials" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The Service account id.
+* `account_id` - (Required) The Service account id.  (This is the part of the service account's email field that comes before the @ symbol.)
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
