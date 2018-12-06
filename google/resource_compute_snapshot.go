@@ -749,7 +749,10 @@ func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d *schema.Resou
 }
 
 func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("source_disk_link", res["sourceDisk"])
-	d.Set("snapshot_encryption_key_sha256", res["snapshotEncryptionKey"].((map[string]interface{}))["sha256"])
+	d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string)))
+	if snapshotEncryptionKey := res["snapshotEncryptionKey"]; snapshotEncryptionKey != nil {
+		d.Set("snapshot_encryption_key_sha256", snapshotEncryptionKey.((map[string]interface{}))["sha256"])
+	}
+
 	return res, nil
 }
