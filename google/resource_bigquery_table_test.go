@@ -123,14 +123,20 @@ resource "google_bigquery_table" "test" {
   time_partitioning {
     type = "DAY"
     field = "ts"	
-  }
+	}
+	
+	clustering = ["ts", "uuid"]
 
   schema = <<EOH
 [
   {
     "name": "ts",
     "type": "TIMESTAMP"
-  },
+	},
+	{
+		"name": "uuid",
+		"type": "STRING"
+	},
   {
     "name": "city",
     "type": "RECORD",

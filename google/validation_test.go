@@ -248,15 +248,15 @@ func TestOrEmpty(t *testing.T) {
 		ExpectValidationErrors bool
 	}{
 		"accept empty value": {
-			Value:                  "",
+			Value: "",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is accepted when valid": {
-			Value:                  "valid",
+			Value: "valid",
 			ExpectValidationErrors: false,
 		},
 		"non empty value is rejected if invalid": {
-			Value:                  "invalid",
+			Value: "invalid",
 			ExpectValidationErrors: true,
 		},
 	}

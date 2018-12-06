@@ -1,3 +1,19 @@
+// Copyright 2018 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// AUTO-GENERATED CODE. DO NOT EDIT.
+
 // Package bigquery provides access to the BigQuery API.
 //
 // This package is DEPRECATED. Use package cloud.google.com/go/bigquery instead.
@@ -13,18 +29,18 @@ package bigquery // import "google.golang.org/api/bigquery/v2"
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -40,7 +56,6 @@ var _ = googleapi.Version
 var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
-var _ = ctxhttp.Do
 
 const apiId = "bigquery:v2"
 const apiName = "bigquery"
@@ -1466,6 +1481,10 @@ type JobConfiguration struct {
 	// limit is exceeded, BigQuery may attempt to terminate the job.
 	JobTimeoutMs int64 `json:"jobTimeoutMs,omitempty,string"`
 
+	// JobType: [Output-only] The type of the job. Can be QUERY, LOAD,
+	// EXTRACT, COPY or UNKNOWN.
+	JobType string `json:"jobType,omitempty"`
+
 	// Labels: The labels associated with this job. You can use these to
 	// organize and group your jobs. Label keys and values can be no longer
 	// than 63 characters, can only contain lowercase letters, numeric
@@ -1665,6 +1684,11 @@ type JobConfigurationLoad struct {
 	// Default: "
 	Quote *string `json:"quote,omitempty"`
 
+	// RangePartitioning: [Experimental] Range partitioning specification
+	// for this table. Only one of timePartitioning and rangePartitioning
+	// should be specified.
+	RangePartitioning *RangePartitioning `json:"rangePartitioning,omitempty"`
+
 	// Schema: [Optional] The schema for the destination table. The schema
 	// can be omitted if the destination table already exists, or if you're
 	// loading data from Google Cloud Datastore.
@@ -1716,8 +1740,15 @@ type JobConfigurationLoad struct {
 	SourceUris []string `json:"sourceUris,omitempty"`
 
 	// TimePartitioning: Time-based partitioning specification for the
-	// destination table.
+	// destination table. Only one of timePartitioning and rangePartitioning
+	// should be specified.
 	TimePartitioning *TimePartitioning `json:"timePartitioning,omitempty"`
+
+	// UseAvroLogicalTypes: [Optional] If sourceFormat is set to "AVRO",
+	// indicates whether to enable interpreting logical types into their
+	// corresponding types (ie. TIMESTAMP), instead of only using their raw
+	// types (ie. INTEGER).
+	UseAvroLogicalTypes bool `json:"useAvroLogicalTypes,omitempty"`
 
 	// WriteDisposition: [Optional] Specifies the action that occurs if the
 	// destination table already exists. The following values are supported:
@@ -1779,7 +1810,8 @@ type JobConfigurationQuery struct {
 	CreateDisposition string `json:"createDisposition,omitempty"`
 
 	// DefaultDataset: [Optional] Specifies the default dataset to use for
-	// unqualified table names in the query.
+	// unqualified table names in the query. Note that this does not alter
+	// behavior of unqualified dataset names.
 	DefaultDataset *DatasetReference `json:"defaultDataset,omitempty"`
 
 	// DestinationEncryptionConfiguration: Custom encryption configuration
@@ -1835,6 +1867,11 @@ type JobConfigurationQuery struct {
 	// QueryParameters: Query parameters for standard SQL queries.
 	QueryParameters []*QueryParameter `json:"queryParameters,omitempty"`
 
+	// RangePartitioning: [Experimental] Range partitioning specification
+	// for this table. Only one of timePartitioning and rangePartitioning
+	// should be specified.
+	RangePartitioning *RangePartitioning `json:"rangePartitioning,omitempty"`
+
 	// SchemaUpdateOptions: Allows the schema of the destination table to be
 	// updated as a side effect of the query job. Schema update options are
 	// supported in two cases: when writeDisposition is WRITE_APPEND; when
@@ -1853,7 +1890,8 @@ type JobConfigurationQuery struct {
 	TableDefinitions map[string]ExternalDataConfiguration `json:"tableDefinitions,omitempty"`
 
 	// TimePartitioning: Time-based partitioning specification for the
-	// destination table.
+	// destination table. Only one of timePartitioning and rangePartitioning
+	// should be specified.
 	TimePartitioning *TimePartitioning `json:"timePartitioning,omitempty"`
 
 	// UseLegacySql: Specifies whether to use BigQuery's legacy SQL dialect
@@ -2076,9 +2114,8 @@ type JobReference struct {
 	// maximum length is 1,024 characters.
 	JobId string `json:"jobId,omitempty"`
 
-	// Location: The geographic location of the job. Required except for US
-	// and EU. See details at
-	// https://cloud.google.com/bigquery/docs/dataset-locations#specifying_your_location.
+	// Location: The geographic location of the job. See details at
+	// https://cloud.google.com/bigquery/docs/locations#specifying_your_location.
 	Location string `json:"location,omitempty"`
 
 	// ProjectId: [Required] The ID of the project containing this job.
@@ -2189,19 +2226,19 @@ type JobStatistics2 struct {
 	// query cache.
 	CacheHit bool `json:"cacheHit,omitempty"`
 
-	// DdlOperationPerformed: [Output-only, Beta] The DDL operation
-	// performed, possibly dependent on the pre-existence of the DDL target.
-	// Possible values (new values might be added in the future): "CREATE":
-	// The query created the DDL target. "SKIP": No-op. Example cases: the
-	// query is CREATE TABLE IF NOT EXISTS while the table already exists,
-	// or the query is DROP TABLE IF EXISTS while the table does not exist.
+	// DdlOperationPerformed: The DDL operation performed, possibly
+	// dependent on the pre-existence of the DDL target. Possible values
+	// (new values might be added in the future): "CREATE": The query
+	// created the DDL target. "SKIP": No-op. Example cases: the query is
+	// CREATE TABLE IF NOT EXISTS while the table already exists, or the
+	// query is DROP TABLE IF EXISTS while the table does not exist.
 	// "REPLACE": The query replaced the DDL target. Example case: the query
 	// is CREATE OR REPLACE TABLE, and the table already exists. "DROP": The
 	// query deleted the DDL target.
 	DdlOperationPerformed string `json:"ddlOperationPerformed,omitempty"`
 
-	// DdlTargetTable: [Output-only, Beta] The DDL target table. Present
-	// only for CREATE/DROP TABLE/VIEW queries.
+	// DdlTargetTable: The DDL target table. Present only for CREATE/DROP
+	// TABLE/VIEW queries.
 	DdlTargetTable *TableReference `json:"ddlTargetTable,omitempty"`
 
 	// EstimatedBytesProcessed: [Output-only] The original estimate of bytes
@@ -2241,9 +2278,9 @@ type JobStatistics2 struct {
 	// successful dry run of non-legacy SQL queries.
 	Schema *TableSchema `json:"schema,omitempty"`
 
-	// StatementType: [Output-only, Beta] The type of query statement, if
-	// valid. Possible values (new values might be added in the future):
-	// "SELECT": SELECT query. "INSERT": INSERT query; see
+	// StatementType: The type of query statement, if valid. Possible values
+	// (new values might be added in the future): "SELECT": SELECT query.
+	// "INSERT": INSERT query; see
 	// https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language "UPDATE": UPDATE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language "DELETE": DELETE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language "MERGE": MERGE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language "CREATE_TABLE": CREATE [OR REPLACE] TABLE without AS SELECT. "CREATE_TABLE_AS_SELECT": CREATE [OR REPLACE] TABLE ... AS SELECT ... "DROP_TABLE": DROP TABLE query. "CREATE_VIEW": CREATE [OR REPLACE] VIEW ... AS SELECT ... "DROP_VIEW": DROP VIEW
 	// query.
 	StatementType string `json:"statementType,omitempty"`
@@ -2264,9 +2301,8 @@ type JobStatistics2 struct {
 	// TotalSlotMs: [Output-only] Slot-milliseconds for the job.
 	TotalSlotMs int64 `json:"totalSlotMs,omitempty,string"`
 
-	// UndeclaredQueryParameters: [Output-only, Beta] Standard SQL only:
-	// list of undeclared query parameters detected during a dry run
-	// validation.
+	// UndeclaredQueryParameters: Standard SQL only: list of undeclared
+	// query parameters detected during a dry run validation.
 	UndeclaredQueryParameters []*QueryParameter `json:"undeclaredQueryParameters,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "BillingTier") to
@@ -2974,6 +3010,76 @@ func (s *QueryTimelineSample) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+type RangePartitioning struct {
+	// Field: [Experimental] [Required] The table is partitioned by this
+	// field. The field must be a top-level NULLABLE/REQUIRED field. The
+	// only supported type is INTEGER/INT64.
+	Field string `json:"field,omitempty"`
+
+	// Range: [Experimental] [Required] Defines the ranges for range
+	// partitioning.
+	Range *RangePartitioningRange `json:"range,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Field") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Field") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RangePartitioning) MarshalJSON() ([]byte, error) {
+	type NoMethod RangePartitioning
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// RangePartitioningRange: [Experimental] [Required] Defines the ranges
+// for range partitioning.
+type RangePartitioningRange struct {
+	// End: [Experimental] [Required] The end of range partitioning,
+	// exclusive.
+	End int64 `json:"end,omitempty,string"`
+
+	// Interval: [Experimental] [Required] The width of each interval.
+	Interval int64 `json:"interval,omitempty,string"`
+
+	// Start: [Experimental] [Required] The start of range partitioning,
+	// inclusive.
+	Start int64 `json:"start,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "End") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "End") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RangePartitioningRange) MarshalJSON() ([]byte, error) {
+	type NoMethod RangePartitioningRange
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 type Streamingbuffer struct {
 	// EstimatedBytes: [Output-only] A lower-bound estimate of the number of
 	// bytes currently in the streaming buffer.
@@ -3013,9 +3119,9 @@ func (s *Streamingbuffer) MarshalJSON() ([]byte, error) {
 }
 
 type Table struct {
-	// Clustering: [Beta] Clustering specification for the table. Must be
-	// specified with time-based partitioning, data in the table will be
-	// first partitioned and subsequently clustered.
+	// Clustering: [Experimental] Clustering specification for the table.
+	// Must be specified with partitioning, data in the table will be first
+	// partitioned and subsequently clustered.
 	Clustering *Clustering `json:"clustering,omitempty"`
 
 	// CreationTime: [Output-only] The time when this table was created, in
@@ -3088,9 +3194,24 @@ type Table struct {
 	// are considered "long-term storage".
 	NumLongTermBytes int64 `json:"numLongTermBytes,omitempty,string"`
 
+	// NumPhysicalBytes: [Output-only] [Experimental] The physical size of
+	// this table in bytes, excluding any data in the streaming buffer. This
+	// includes compression and storage used for time travel.
+	NumPhysicalBytes int64 `json:"numPhysicalBytes,omitempty,string"`
+
 	// NumRows: [Output-only] The number of rows of data in this table,
 	// excluding any data in the streaming buffer.
 	NumRows uint64 `json:"numRows,omitempty,string"`
+
+	// RangePartitioning: [Experimental] Range partitioning specification
+	// for this table. Only one of timePartitioning and rangePartitioning
+	// should be specified.
+	RangePartitioning *RangePartitioning `json:"rangePartitioning,omitempty"`
+
+	// RequirePartitionFilter: [Experimental] [Optional] If set to true,
+	// queries over this table require a partition filter that can be used
+	// for partition elimination to be specified.
+	RequirePartitionFilter bool `json:"requirePartitionFilter,omitempty"`
 
 	// Schema: [Optional] Describes the schema of this table.
 	Schema *TableSchema `json:"schema,omitempty"`
@@ -3109,7 +3230,8 @@ type Table struct {
 	TableReference *TableReference `json:"tableReference,omitempty"`
 
 	// TimePartitioning: Time-based partitioning specification for this
-	// table.
+	// table. Only one of timePartitioning and rangePartitioning should be
+	// specified.
 	TimePartitioning *TimePartitioning `json:"timePartitioning,omitempty"`
 
 	// Type: [Output-only] Describes the table type. The following values
@@ -3941,9 +4063,13 @@ func (c *DatasetsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("DELETE", urls, body)
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4066,9 +4192,13 @@ func (c *DatasetsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4206,9 +4336,13 @@ func (c *DatasetsInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4379,9 +4513,13 @@ func (c *DatasetsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4558,9 +4696,13 @@ func (c *DatasetsPatchCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4704,9 +4846,13 @@ func (c *DatasetsUpdateCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PUT", urls, body)
+	req, err := http.NewRequest("PUT", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -4853,9 +4999,13 @@ func (c *JobsCancelCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/jobs/{jobId}/cancel")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -5017,9 +5167,13 @@ func (c *JobsGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/jobs/{jobId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -5210,9 +5364,13 @@ func (c *JobsGetQueryResultsCall) doRequest(alt string) (*http.Response, error) 
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/queries/{jobId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -5440,6 +5598,7 @@ func (c *JobsInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/jobs")
 	if c.mediaInfo_ != nil {
 		urls = strings.Replace(urls, "https://www.googleapis.com/", "https://www.googleapis.com/upload/", 1)
@@ -5452,7 +5611,10 @@ func (c *JobsInsertCall) doRequest(alt string) (*http.Response, error) {
 	body, getBody, cleanup := c.mediaInfo_.UploadRequest(reqHeaders, body)
 	defer cleanup()
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	gensupport.SetGetBody(req, getBody)
 	googleapi.Expand(req.URL, map[string]string{
@@ -5692,9 +5854,13 @@ func (c *JobsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/jobs")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -5903,9 +6069,13 @@ func (c *JobsQueryCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/queries")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -6046,9 +6216,13 @@ func (c *ProjectsGetServiceAccountCall) doRequest(alt string) (*http.Response, e
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/serviceAccount")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -6198,9 +6372,13 @@ func (c *ProjectsListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
@@ -6355,9 +6533,13 @@ func (c *TabledataInsertAllCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}/insertAll")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -6547,9 +6729,13 @@ func (c *TabledataListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}/data")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -6736,9 +6922,13 @@ func (c *TablesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("DELETE", urls, body)
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -6876,9 +7066,13 @@ func (c *TablesGetCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -7031,9 +7225,13 @@ func (c *TablesInsertCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -7197,9 +7395,13 @@ func (c *TablesListCall) doRequest(alt string) (*http.Response, error) {
 	}
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -7376,9 +7578,13 @@ func (c *TablesPatchCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PATCH", urls, body)
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,
@@ -7532,9 +7738,13 @@ func (c *TablesUpdateCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "projects/{projectId}/datasets/{datasetId}/tables/{tableId}")
 	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("PUT", urls, body)
+	req, err := http.NewRequest("PUT", urls, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header = reqHeaders
 	googleapi.Expand(req.URL, map[string]string{
 		"projectId": c.projectId,

@@ -77,12 +77,12 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 
 			"global/images/" + name:          "global/images/" + name,
 			"global/images/family/" + family: "global/images/family/" + family,
-			name:                             "global/images/" + name,
-			family:                           "global/images/family/" + family,
-			"family/" + family:               "global/images/family/" + family,
-			project + "/" + name:             "projects/" + project + "/global/images/" + name,
-			project + "/" + family:           "projects/" + project + "/global/images/family/" + family,
-			link:                             link,
+			name:                   "global/images/" + name,
+			family:                 "global/images/family/" + family,
+			"family/" + family:     "global/images/family/" + family,
+			project + "/" + name:   "projects/" + project + "/global/images/" + name,
+			project + "/" + family: "projects/" + project + "/global/images/family/" + family,
+			link: link,
 		}
 
 		for input, expectation := range images {

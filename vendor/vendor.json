@@ -1375,10 +1375,10 @@
 			"revisionTime": "2018-08-29T00:05:35Z"
 		},
 		{
-			"checksumSHA1": "MTvGk9R8eieLnok6bXbT4i+C9QQ=",
+			"checksumSHA1": "niJ8PSKnLHYz7L+lM4jxuvPG660=",
 			"path": "google.golang.org/api/bigquery/v2",
-			"revision": "087779f1d2c96357d4c45bd04c4d10d7b5f22736",
-			"revisionTime": "2018-08-29T00:05:35Z"
+			"revision": "af4fc4062c262223ddc2d92f5f35a93690db383a",
+			"revisionTime": "2018-11-29T21:17:37Z"
 		},
 		{
 			"checksumSHA1": "M6UWZjiDthOLBA7Uwx41metBc18=",

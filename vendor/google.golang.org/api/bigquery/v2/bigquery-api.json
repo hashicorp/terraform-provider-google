@@ -32,7 +32,7 @@
   "description": "A data platform for customers to create, manage, share and query data.",
   "discoveryVersion": "v1",
   "documentationLink": "https://cloud.google.com/bigquery/",
-  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/VdW6yLWLV4EG3GBmsDZLc41_FBk\"",
+  "etag": "\"J3WqvAcMk4eQjJXvfSI4Yr8VouA/iR9vcxX0WBCms4jkbIj3mFOSrj4\"",
   "icons": {
     "x16": "https://www.google.com/images/icons/product/search-16.gif",
     "x32": "https://www.google.com/images/icons/product/search-32.gif"
@@ -998,7 +998,7 @@
       }
     }
   },
-  "revision": "20180805",
+  "revision": "20181105",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "BigQueryModelTraining": {
@@ -1792,6 +1792,10 @@
           "format": "int64",
           "type": "string"
         },
+        "jobType": {
+          "description": "[Output-only] The type of the job. Can be QUERY, LOAD, EXTRACT, COPY or UNKNOWN.",
+          "type": "string"
+        },
         "labels": {
           "additionalProperties": {
             "type": "string"
@@ -1917,6 +1921,10 @@
           "pattern": ".?",
           "type": "string"
         },
+        "rangePartitioning": {
+          "$ref": "RangePartitioning",
+          "description": "[Experimental] Range partitioning specification for this table. Only one of timePartitioning and rangePartitioning should be specified."
+        },
         "schema": {
           "$ref": "TableSchema",
           "description": "[Optional] The schema for the destination table. The schema can be omitted if the destination table already exists, or if you're loading data from Google Cloud Datastore."
@@ -1954,7 +1962,11 @@
         },
         "timePartitioning": {
           "$ref": "TimePartitioning",
-          "description": "Time-based partitioning specification for the destination table."
+          "description": "Time-based partitioning specification for the destination table. Only one of timePartitioning and rangePartitioning should be specified."
+        },
+        "useAvroLogicalTypes": {
+          "description": "[Optional] If sourceFormat is set to \"AVRO\", indicates whether to enable interpreting logical types into their corresponding types (ie. TIMESTAMP), instead of only using their raw types (ie. INTEGER).",
+          "type": "boolean"
         },
         "writeDisposition": {
           "description": "[Optional] Specifies the action that occurs if the destination table already exists. The following values are supported: WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data. WRITE_APPEND: If the table already exists, BigQuery appends the data to the table. WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result. The default value is WRITE_APPEND. Each action is atomic and only occurs if BigQuery is able to complete the job successfully. Creation, truncation and append actions occur as one atomic update upon job completion.",
@@ -1981,7 +1993,7 @@
         },
         "defaultDataset": {
           "$ref": "DatasetReference",
-          "description": "[Optional] Specifies the default dataset to use for unqualified table names in the query."
+          "description": "[Optional] Specifies the default dataset to use for unqualified table names in the query. Note that this does not alter behavior of unqualified dataset names."
         },
         "destinationEncryptionConfiguration": {
           "$ref": "EncryptionConfiguration",
@@ -2030,6 +2042,10 @@
           },
           "type": "array"
         },
+        "rangePartitioning": {
+          "$ref": "RangePartitioning",
+          "description": "[Experimental] Range partitioning specification for this table. Only one of timePartitioning and rangePartitioning should be specified."
+        },
         "schemaUpdateOptions": {
           "description": "Allows the schema of the destination table to be updated as a side effect of the query job. Schema update options are supported in two cases: when writeDisposition is WRITE_APPEND; when writeDisposition is WRITE_TRUNCATE and the destination table is a partition of a table, specified by partition decorators. For normal tables, WRITE_TRUNCATE will always overwrite the schema. One or more of the following values are specified: ALLOW_FIELD_ADDITION: allow adding a nullable field to the schema. ALLOW_FIELD_RELAXATION: allow relaxing a required field in the original schema to nullable.",
           "items": {
@@ -2046,7 +2062,7 @@
         },
         "timePartitioning": {
           "$ref": "TimePartitioning",
-          "description": "Time-based partitioning specification for the destination table."
+          "description": "Time-based partitioning specification for the destination table. Only one of timePartitioning and rangePartitioning should be specified."
         },
         "useLegacySql": {
           "default": "true",
@@ -2183,7 +2199,7 @@
           "type": "string"
         },
         "location": {
-          "description": "The geographic location of the job. Required except for US and EU. See details at https://cloud.google.com/bigquery/docs/dataset-locations#specifying_your_location.",
+          "description": "The geographic location of the job. See details at https://cloud.google.com/bigquery/docs/locations#specifying_your_location.",
           "type": "string"
         },
         "projectId": {
@@ -2261,12 +2277,12 @@
           "type": "boolean"
         },
         "ddlOperationPerformed": {
-          "description": "[Output-only, Beta] The DDL operation performed, possibly dependent on the pre-existence of the DDL target. Possible values (new values might be added in the future): \"CREATE\": The query created the DDL target. \"SKIP\": No-op. Example cases: the query is CREATE TABLE IF NOT EXISTS while the table already exists, or the query is DROP TABLE IF EXISTS while the table does not exist. \"REPLACE\": The query replaced the DDL target. Example case: the query is CREATE OR REPLACE TABLE, and the table already exists. \"DROP\": The query deleted the DDL target.",
+          "description": "The DDL operation performed, possibly dependent on the pre-existence of the DDL target. Possible values (new values might be added in the future): \"CREATE\": The query created the DDL target. \"SKIP\": No-op. Example cases: the query is CREATE TABLE IF NOT EXISTS while the table already exists, or the query is DROP TABLE IF EXISTS while the table does not exist. \"REPLACE\": The query replaced the DDL target. Example case: the query is CREATE OR REPLACE TABLE, and the table already exists. \"DROP\": The query deleted the DDL target.",
           "type": "string"
         },
         "ddlTargetTable": {
           "$ref": "TableReference",
-          "description": "[Output-only, Beta] The DDL target table. Present only for CREATE/DROP TABLE/VIEW queries."
+          "description": "The DDL target table. Present only for CREATE/DROP TABLE/VIEW queries."
         },
         "estimatedBytesProcessed": {
           "description": "[Output-only] The original estimate of bytes processed for the job.",
@@ -2329,7 +2345,7 @@
           "description": "[Output-only] The schema of the results. Present only for successful dry run of non-legacy SQL queries."
         },
         "statementType": {
-          "description": "[Output-only, Beta] The type of query statement, if valid. Possible values (new values might be added in the future): \"SELECT\": SELECT query. \"INSERT\": INSERT query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"UPDATE\": UPDATE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"DELETE\": DELETE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"MERGE\": MERGE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"CREATE_TABLE\": CREATE [OR REPLACE] TABLE without AS SELECT. \"CREATE_TABLE_AS_SELECT\": CREATE [OR REPLACE] TABLE ... AS SELECT ... \"DROP_TABLE\": DROP TABLE query. \"CREATE_VIEW\": CREATE [OR REPLACE] VIEW ... AS SELECT ... \"DROP_VIEW\": DROP VIEW query.",
+          "description": "The type of query statement, if valid. Possible values (new values might be added in the future): \"SELECT\": SELECT query. \"INSERT\": INSERT query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"UPDATE\": UPDATE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"DELETE\": DELETE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"MERGE\": MERGE query; see https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language \"CREATE_TABLE\": CREATE [OR REPLACE] TABLE without AS SELECT. \"CREATE_TABLE_AS_SELECT\": CREATE [OR REPLACE] TABLE ... AS SELECT ... \"DROP_TABLE\": DROP TABLE query. \"CREATE_VIEW\": CREATE [OR REPLACE] VIEW ... AS SELECT ... \"DROP_VIEW\": DROP VIEW query.",
           "type": "string"
         },
         "timeline": {
@@ -2360,7 +2376,7 @@
           "type": "string"
         },
         "undeclaredQueryParameters": {
-          "description": "[Output-only, Beta] Standard SQL only: list of undeclared query parameters detected during a dry run validation.",
+          "description": "Standard SQL only: list of undeclared query parameters detected during a dry run validation.",
           "items": {
             "$ref": "QueryParameter"
           },
@@ -2778,6 +2794,37 @@
       },
       "type": "object"
     },
+    "RangePartitioning": {
+      "id": "RangePartitioning",
+      "properties": {
+        "field": {
+          "description": "[Experimental] [Required] The table is partitioned by this field. The field must be a top-level NULLABLE/REQUIRED field. The only supported type is INTEGER/INT64.",
+          "type": "string"
+        },
+        "range": {
+          "description": "[Experimental] [Required] Defines the ranges for range partitioning.",
+          "properties": {
+            "end": {
+              "description": "[Experimental] [Required] The end of range partitioning, exclusive.",
+              "format": "int64",
+              "type": "string"
+            },
+            "interval": {
+              "description": "[Experimental] [Required] The width of each interval.",
+              "format": "int64",
+              "type": "string"
+            },
+            "start": {
+              "description": "[Experimental] [Required] The start of range partitioning, inclusive.",
+              "format": "int64",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "Streamingbuffer": {
       "id": "Streamingbuffer",
       "properties": {
@@ -2804,7 +2851,7 @@
       "properties": {
         "clustering": {
           "$ref": "Clustering",
-          "description": "[Beta] Clustering specification for the table. Must be specified with time-based partitioning, data in the table will be first partitioned and subsequently clustered."
+          "description": "[Experimental] Clustering specification for the table. Must be specified with partitioning, data in the table will be first partitioned and subsequently clustered."
         },
         "creationTime": {
           "description": "[Output-only] The time when this table was created, in milliseconds since the epoch.",
@@ -2875,10 +2922,24 @@
           "format": "int64",
           "type": "string"
         },
+        "numPhysicalBytes": {
+          "description": "[Output-only] [Experimental] The physical size of this table in bytes, excluding any data in the streaming buffer. This includes compression and storage used for time travel.",
+          "format": "int64",
+          "type": "string"
+        },
         "numRows": {
           "description": "[Output-only] The number of rows of data in this table, excluding any data in the streaming buffer.",
           "format": "uint64",
           "type": "string"
+        },
+        "rangePartitioning": {
+          "$ref": "RangePartitioning",
+          "description": "[Experimental] Range partitioning specification for this table. Only one of timePartitioning and rangePartitioning should be specified."
+        },
+        "requirePartitionFilter": {
+          "default": "false",
+          "description": "[Experimental] [Optional] If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified.",
+          "type": "boolean"
         },
         "schema": {
           "$ref": "TableSchema",
@@ -2898,7 +2959,7 @@
         },
         "timePartitioning": {
           "$ref": "TimePartitioning",
-          "description": "Time-based partitioning specification for this table."
+          "description": "Time-based partitioning specification for this table. Only one of timePartitioning and rangePartitioning should be specified."
         },
         "type": {
           "description": "[Output-only] Describes the table type. The following values are supported: TABLE: A normal BigQuery table. VIEW: A virtual table defined by a SQL query. EXTERNAL: A table that references data stored in an external storage system, such as Google Cloud Storage. The default value is TABLE.",
