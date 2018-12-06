@@ -75,7 +75,7 @@ output "cluster_ca_certificate" {
     in `initial_node_count` should be created in. Only one of `zone` and `region`
     may be set. If neither zone nor region are set, the provider zone is used.
 
-* `region` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+* `region` (Optional)
     The region to create the cluster in, for
     [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
     In a Regional Cluster, the number of nodes specified in `initial_node_count` is 
@@ -182,7 +182,7 @@ to the datasource. A `region` can have a different set of supported versions tha
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
 
-* `private_cluster_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) A set of options for creating
+* `private_cluster_config` - (Optional) A set of options for creating
     a private cluster. Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
@@ -473,8 +473,7 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `project` , `zone` or `region` (`region`
-is deprecated, see above), and `name`. If the project is omitted, the default
+GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If the project is omitted, the default
 provider value will be used. Examples:
 
 ```
