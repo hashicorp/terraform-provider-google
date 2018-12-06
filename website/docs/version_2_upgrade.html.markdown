@@ -43,6 +43,7 @@ Upgrade topics:
 - [Resource: `google_dataproc_cluster`](#resource-google_dataproc_cluster)
 - [Resource: `google_endpoints_service`](#resource-google_endpoints_service)
 - [Resource: `google_filestore_instance`](#resource-google_filestore_instance)
+- [Resource: `google_organization_custom_role`](#resource-google_organization_custom_role)
 - [Resource: `google_project`](#resource-google_project)
 - [Resource: `google_project_iam_policy`](#resource-google_project_iam_policy)
 - [Resource: `google_service_account`](#resource-google_service_account)
@@ -472,6 +473,13 @@ that can be deleted, please create a new one and set the `staging_bucket` field.
 ### filestore resources have been removed from the GA provider
 
 Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
+
+## Resource: `google_organization_custom_role`
+
+### `deleted` field is now an output-only attribute
+
+Use `terraform destroy`, or remove the resource from your config instead.
 
 ## Resource: `google_project`
 
