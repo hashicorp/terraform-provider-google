@@ -76,10 +76,21 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
+	disk := d.Get("disk").(string)
+	diskName := GetResourceNameFromSelfLink(disk)
+	diskSrc := fmt.Sprintf("projects/%s/zones/%s/disks/%s", zv.Project, zv.Zone, diskName)
+
+	// Check if the disk is a regional disk
+	if strings.Contains(disk, "regions") {
+		rv, err := ParseRegionDiskFieldValue(disk, d, config)
+		if err != nil {
+			return err
+		}
+		diskSrc = rv.RelativeLink()
+	}
 
 	attachedDisk := compute.AttachedDisk{
-		Source:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", zv.Project, zv.Zone, diskName),
+		Source:     diskSrc,
 		Mode:       d.Get("mode").(string),
 		DeviceName: d.Get("device_name").(string),
 	}
