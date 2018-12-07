@@ -68,6 +68,33 @@ func TestAccComputeAttachedDisk_full(t *testing.T) {
 
 }
 
+func TestAccComputeAttachedDisk_region(t *testing.T) {
+	t.Parallel()
+
+	diskName := acctest.RandomWithPrefix("tf-test")
+	instanceName := acctest.RandomWithPrefix("tf-test")
+	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAttachedDiskResource_region(diskName, instanceName),
+			},
+			resource.TestStep{
+				ResourceName:      "google_compute_attached_disk.test",
+				ImportStateId:     importID,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+}
+
 func TestAccComputeAttachedDisk_count(t *testing.T) {
 	t.Parallel()
 
@@ -150,6 +177,43 @@ resource "google_compute_attached_disk" "test" {
   mode        = "READ_ONLY"
   device_name = "test-device-name"
 }`)
+}
+
+func testAttachedDiskResource_region(diskName, instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_attached_disk" "test" {
+  disk        = "${google_compute_region_disk.region.self_link}"
+  instance    = "${google_compute_instance.test.self_link}"
+}
+
+resource "google_compute_region_disk" "region" {
+  name = "%s"
+	region = "us-central1"
+	size = 10
+  replica_zones = ["us-central1-b", "us-central1-a"]
+}
+
+resource "google_compute_instance" "test" {
+  name         = "%s"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+
+  lifecycle {
+    ignore_changes = [
+      "attached_disk",
+    ]
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}`, diskName, instanceName)
 }
 
 func testAttachedDiskResource(diskName, instanceName string) string {
