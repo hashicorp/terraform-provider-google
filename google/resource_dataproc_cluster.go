@@ -215,10 +215,12 @@ func resourceDataprocCluster() *schema.Resource {
 
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-
-												// API does not honour this if set ...
-												// It simply ignores it completely
-												// "num_local_ssds": { ... }
+												"num_local_ssds": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+													ForceNew: true,
+												},
 
 												"boot_disk_size_gb": {
 													Type:         schema.TypeInt,
@@ -226,6 +228,14 @@ func resourceDataprocCluster() *schema.Resource {
 													Computed:     true,
 													ForceNew:     true,
 													ValidateFunc: validation.IntAtLeast(10),
+												},
+
+												"boot_disk_type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", ""}, false),
+													Default:      "pd-standard",
 												},
 											},
 										},
@@ -611,6 +621,12 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 			if v, ok := dcfg["boot_disk_size_gb"]; ok {
 				icg.DiskConfig.BootDiskSizeGb = int64(v.(int))
 			}
+			if v, ok := dcfg["num_local_ssds"]; ok {
+				icg.DiskConfig.NumLocalSsds = int64(v.(int))
+			}
+			if v, ok := dcfg["boot_disk_type"]; ok {
+				icg.DiskConfig.BootDiskType = v.(string)
+			}
 		}
 	}
 	return icg
@@ -869,6 +885,8 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
+			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
+			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
 		}
 	}
 
