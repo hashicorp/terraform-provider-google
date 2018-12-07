@@ -41,6 +41,7 @@ To get more information about AlertPolicy, see:
 resource "google_monitoring_alert_policy" "basic" {
   display_name = "Test Policy Basic"
   combiner = "OR"
+  enabled = "true"
   conditions = [
     {
       display_name = "test condition"
