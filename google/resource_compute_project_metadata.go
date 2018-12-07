@@ -112,9 +112,12 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 	md := flattenMetadata(project.CommonInstanceMetadata)
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 	// Remove all keys not explicitly mentioned in the terraform config
-	for k := range md {
-		if _, ok := existingMetadata[k]; !ok {
-			delete(md, k)
+	// unless you're doing an import.
+	if len(existingMetadata) > 0 {
+		for k := range md {
+			if _, ok := existingMetadata[k]; !ok {
+				delete(md, k)
+			}
 		}
 	}
 
@@ -122,8 +125,8 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
-	d.Set("project", d.Id())
-	d.SetId(d.Id())
+	d.Set("project", project.Name)
+	d.SetId(project.Name)
 	return nil
 }
 
