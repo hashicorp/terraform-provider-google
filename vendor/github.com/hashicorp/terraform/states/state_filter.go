@@ -40,7 +40,7 @@ func (f *Filter) Filter(fs ...string) ([]*FilterResult, error) {
 			as[i] = addr
 			continue
 		}
-		return nil, fmt.Errorf("Error parsing address '%s'", v)
+		return nil, fmt.Errorf("Error parsing address: %s", v)
 	}
 
 	// If we weren't given any filters, then we list all
@@ -63,8 +63,19 @@ func (f *Filter) Filter(fs ...string) ([]*FilterResult, error) {
 		results = append(results, v)
 	}
 
-	// Sort them and return
-	sort.Sort(FilterResultSlice(results))
+	// Sort the results
+	sort.Slice(results, func(i, j int) bool {
+		a, b := results[i], results[j]
+
+		// If the addresses are different it is just lexographic sorting
+		if a.Address.String() != b.Address.String() {
+			return a.Address.String() < b.Address.String()
+		}
+
+		// Addresses are the same, which means it matters on the type
+		return a.SortedType() < b.SortedType()
+	})
+
 	return results, nil
 }
 
@@ -91,7 +102,7 @@ func (f *Filter) filterSingle(addr addrs.Targetable) []*FilterResult {
 			if (addr == nil && !m.Addr.IsRoot()) ||
 				(!filter.IsRoot() && (filter.Equal(m.Addr) || filter.IsAncestor(m.Addr))) {
 				results = append(results, &FilterResult{
-					Address: m.Addr.String(),
+					Address: m.Addr,
 					Value:   m,
 				})
 			}
@@ -104,7 +115,7 @@ func (f *Filter) filterSingle(addr addrs.Targetable) []*FilterResult {
 		for _, rs := range m.Resources {
 			if f.relevant(addr, rs.Addr.Absolute(m.Addr), addrs.NoKey) {
 				results = append(results, &FilterResult{
-					Address: rs.Addr.Absolute(m.Addr).String(),
+					Address: rs.Addr.Absolute(m.Addr),
 					Value:   rs,
 				})
 			}
@@ -112,7 +123,7 @@ func (f *Filter) filterSingle(addr addrs.Targetable) []*FilterResult {
 			for key, is := range rs.Instances {
 				if f.relevant(addr, rs.Addr.Absolute(m.Addr), key) {
 					results = append(results, &FilterResult{
-						Address: rs.Addr.Absolute(m.Addr).Instance(key).String(),
+						Address: rs.Addr.Absolute(m.Addr).Instance(key),
 						Value:   is,
 					})
 				}
@@ -144,7 +155,7 @@ func (f *Filter) relevant(filter addrs.Targetable, rs addrs.AbsResource, key add
 // match multiple things within a state (curently modules and resources).
 type FilterResult struct {
 	// Address is the address that can be used to reference this exact result.
-	Address string
+	Address addrs.Targetable
 
 	// Value is the actual value. This must be type switched on. It can be
 	// any either a `Module` or `ResourceInstance`.
@@ -155,7 +166,7 @@ func (r *FilterResult) String() string {
 	return fmt.Sprintf("%T: %s", r.Value, r.Address)
 }
 
-func (r *FilterResult) sortedType() int {
+func (r *FilterResult) SortedType() int {
 	switch r.Value.(type) {
 	case *Module:
 		return 0
@@ -166,23 +177,4 @@ func (r *FilterResult) sortedType() int {
 	default:
 		return 50
 	}
-}
-
-// FilterResultSlice is a slice of results that implements
-// sort.Interface. The sorting goal is what is most appealing to
-// human output.
-type FilterResultSlice []*FilterResult
-
-func (s FilterResultSlice) Len() int      { return len(s) }
-func (s FilterResultSlice) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s FilterResultSlice) Less(i, j int) bool {
-	a, b := s[i], s[j]
-
-	// If the addresses are different it is just lexographic sorting
-	if a.Address != b.Address {
-		return a.Address < b.Address
-	}
-
-	// Addresses are the same, which means it matters on the type
-	return a.sortedType() < b.sortedType()
 }
