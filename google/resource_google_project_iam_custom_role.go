@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/iam/v1"
@@ -51,9 +52,10 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 				Optional: true,
 			},
 			"deleted": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    false,
+				Deprecated: `deleted will be converted to a computed-only field soon - if you want to delete this role, please use destroy`,
 			},
 		},
 	}
