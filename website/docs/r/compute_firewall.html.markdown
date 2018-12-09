@@ -54,6 +54,7 @@ To get more information about Firewall, see:
 resource "google_compute_firewall" "default" {
   name    = "test-firewall"
   network = "${google_compute_network.default.name}"
+  project = "${provider.google.project}"
 
   allow {
     protocol = "icmp"
@@ -90,7 +91,11 @@ The following arguments are supported:
 * `network` -
   (Required)
   The name or self_link of the network to attach this firewall to.
-
+  
+* `project` -
+  (Required)
+  The ID of the project in which the resource belongs.
+  If it is not provided, the provider project is used.
 
 - - -
 
@@ -98,7 +103,8 @@ The following arguments are supported:
 * `allow` -
   (Optional)
   The list of ALLOW rules specified by this firewall. Each rule
-  specifies a protocol and port-range tuple that describes a permitted
+  specifies a 
+  tocol and port-range tuple that describes a permitted
   connection.  Structure is documented below.
 
 * `deny` -
@@ -199,9 +205,6 @@ The following arguments are supported:
   network that may make network connections as specified in allowed[].
   If no targetTags are specified, the firewall rule applies to all
   instances on the specified network.
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 The `allow` block supports:
 
