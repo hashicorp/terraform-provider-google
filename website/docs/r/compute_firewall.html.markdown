@@ -103,8 +103,7 @@ The following arguments are supported:
 * `allow` -
   (Optional)
   The list of ALLOW rules specified by this firewall. Each rule
-  specifies a 
-  tocol and port-range tuple that describes a permitted
+  specifies a protocol and port-range tuple that describes a permitted
   connection.  Structure is documented below.
 
 * `deny` -
