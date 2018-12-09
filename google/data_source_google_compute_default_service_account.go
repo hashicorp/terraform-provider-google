@@ -34,7 +34,7 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 		return handleNotFoundError(err, d, "GCE service account not found")
 	}
 
-	d.SetId(projectCompResource.DefaultServiceAccount)
+	d.SetId("projects/" + project + "/serviceAccounts/" + projectCompResource.DefaultServiceAccount)
 	d.Set("email", projectCompResource.DefaultServiceAccount)
 	d.Set("project", project)
 	return nil
