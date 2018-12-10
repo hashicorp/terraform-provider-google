@@ -40,6 +40,39 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_rename(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceGroupName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var backendName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var healthName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroup_rename(instanceName, instanceGroupName, backendName, healthName),
+			},
+			{
+				ResourceName:      "google_compute_instance_group.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceGroup_rename(instanceName, instanceGroupName+"2", backendName, healthName),
+			},
+			{
+				ResourceName:      "google_compute_instance_group.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceGroup_recreatedInstances(t *testing.T) {
 	t.Parallel()
 
@@ -357,6 +390,69 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 			port = "8443"
 		}
 	}`, instance, instance, instance)
+}
+
+func testAccComputeInstanceGroup_rename(instance, instanceGroup, backend, health string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "ig_instance" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+	zone = "us-central1-c"
+	boot_disk {
+		initialize_params {
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_instance_group" "basic" {
+	name = "%s"
+	zone = "us-central1-c"
+	instances = [ "${google_compute_instance.ig_instance.self_link}" ]
+	named_port {
+		name = "http"
+		port = "8080"
+	}
+
+	named_port {
+		name = "https"
+		port = "8443"
+	}
+
+	lifecycle {
+		create_before_destroy = true
+	}
+}
+
+resource "google_compute_backend_service" "default_backend" {
+	name      = "%s"
+	port_name = "https"
+	protocol  = "HTTPS"
+
+	backend {
+		group = "${google_compute_instance_group.basic.self_link}"
+	}
+
+	health_checks = [
+		"${google_compute_https_health_check.healthcheck.self_link}",
+	]
+}
+
+resource "google_compute_https_health_check" "healthcheck" {
+	name         = "%s"
+	request_path = "/health_check"
+}
+`, instance, instanceGroup, backend, health)
 }
 
 func testAccComputeInstanceGroup_update(instance string) string {
