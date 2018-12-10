@@ -64,6 +64,10 @@ The following arguments are supported:
 - - -
 
 
+* `address` -
+  (Optional)
+  The static external IP address represented by this resource.
+
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -87,9 +91,6 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-
-* `address` -
-  The static external IP address represented by this resource.
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
