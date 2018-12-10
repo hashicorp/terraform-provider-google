@@ -52,7 +52,7 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  resource.TestCheckResourceAttr("google_project_iam_custom_role.foo", "deleted", "false"),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
 			},
 			{
 				ResourceName:      "google_project_iam_custom_role.foo",
@@ -61,18 +61,15 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 			},
 			// Soft-delete
 			{
-				Config: testAccCheckGoogleProjectIamCustomRole_deleted(roleId),
-				Check:  resource.TestCheckResourceAttr("google_project_iam_custom_role.foo", "deleted", "true"),
+				Config:  testAccCheckGoogleProjectIamCustomRole_basic(roleId),
+				Check:   testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", true),
+				Destroy: true,
 			},
-			{
-				ResourceName:      "google_project_iam_custom_role.foo",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
+			// Terraform doesn't have a config because of Destroy: true, so an import step would fail
 			// Undelete
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  resource.TestCheckResourceAttr("google_project_iam_custom_role.foo", "deleted", "false"),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
 			},
 			{
 				ResourceName:      "google_project_iam_custom_role.foo",
@@ -141,6 +138,32 @@ func testAccCheckGoogleProjectIamCustomRoleDestroy(s *terraform.State) error {
 	return nil
 }
 
+func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		role, err := config.clientIAM.Projects.Roles.Get(rs.Primary.ID).Do()
+
+		if err != nil {
+			return err
+		}
+
+		if deleted != role.Deleted {
+			return fmt.Errorf("Incorrect deletion status. Expected %t, got %t", deleted, role.Deleted)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckGoogleProjectIamCustomRole_basic(roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project_iam_custom_role" "foo" {
@@ -148,18 +171,6 @@ resource "google_project_iam_custom_role" "foo" {
   title       = "My Custom Role"
   description = "foo"
   permissions = ["iam.roles.list"]
-}
-`, roleId)
-}
-
-func testAccCheckGoogleProjectIamCustomRole_deleted(roleId string) string {
-	return fmt.Sprintf(`
-resource "google_project_iam_custom_role" "foo" {
-  role_id     = "%s"
-  title       = "My Custom Role"
-  description = "foo"
-  permissions = ["iam.roles.list"]
-  deleted     = true
 }
 `, roleId)
 }
