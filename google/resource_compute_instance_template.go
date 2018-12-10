@@ -215,17 +215,8 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
-						"address": &schema.Schema{
-							Type:       schema.TypeString,
-							Computed:   true, // Computed because it is set if network_ip is set.
-							Optional:   true,
-							ForceNew:   true,
-							Deprecated: "Please use network_ip",
-						},
-
 						"network_ip": &schema.Schema{
 							Type:     schema.TypeString,
-							Computed: true, // Computed because it is set if address is set.
 							Optional: true,
 							ForceNew: true,
 						},
@@ -291,6 +282,13 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									},
 								},
 							},
+						},
+
+						"address": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Removed:  "Please use network_ip",
 						},
 					},
 				},

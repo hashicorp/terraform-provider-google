@@ -167,14 +167,6 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
-						"address": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-							Removed:  "Please use network_ip",
-						},
-
 						"network_ip": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
@@ -230,6 +222,14 @@ func resourceComputeInstance() *schema.Resource {
 									},
 								},
 							},
+						},
+
+						"address": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							Removed:  "Please use network_ip",
 						},
 					},
 				},
