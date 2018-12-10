@@ -116,9 +116,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `update_strategy` - (Optional, Default `"NONE"`) This field is deprecated as it has no functionality anymore.
-It previously turned update behaviour on and off. This field is only present in the `google` provider.
-
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
      an autoscaler, in which case it should never be set. Defaults to `0`.
