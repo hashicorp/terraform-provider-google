@@ -17,7 +17,7 @@ testacc: fmtcheck
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."
-	gofmt -s -w ./$(PKG_NAME)
+	gofmt -w ./$(PKG_NAME)
 
 # Currently required by tf-deploy compile
 fmtcheck:
