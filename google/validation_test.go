@@ -169,7 +169,7 @@ func testStringValidation(testCase StringValidationTestCase, validationFunc sche
 		if len(es) > 0 {
 			return nil
 		} else {
-			return []error{fmt.Errorf("Didn't see expected error in case \"%s\" with string \"%s\"", testCase.TestName, testCase.Value)}
+			return []error{fmt.Errorf("didn't see expected error in case \"%s\" with string \"%s\"", testCase.TestName, testCase.Value)}
 		}
 	}
 
@@ -192,7 +192,7 @@ func testRFC1918Network(testCase RFC1918NetworkTestCase) []error {
 		if len(es) > 0 {
 			return nil
 		}
-		return []error{fmt.Errorf("Didn't see expected error in case \"%s\" with CIDR=\"%s\" MinPrefix=%v MaxPrefix=%v",
+		return []error{fmt.Errorf("didn't see expected error in case \"%s\" with CIDR=\"%s\" MinPrefix=%v MaxPrefix=%v",
 			testCase.TestName, testCase.CIDR, testCase.MinPrefix, testCase.MaxPrefix)}
 	}
 

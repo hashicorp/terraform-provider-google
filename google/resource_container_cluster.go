@@ -773,7 +773,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			return resource.NonRetryableError(err)
 		}
 		if cluster.Status != "RUNNING" {
-			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
+			return resource.RetryableError(fmt.Errorf("cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
 		}
 		return nil
 	})
@@ -1326,13 +1326,13 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
+			return resource.NonRetryableError(fmt.Errorf("error retrying to delete cluster %s", clusterName))
 		}
 		return nil
 	})
 
 	if err != nil {
-		return fmt.Errorf("Error deleting Cluster: %s", err)
+		return fmt.Errorf("error deleting Cluster: %s", err)
 	}
 
 	// Wait until it's deleted
@@ -1365,7 +1365,7 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 		matches := instanceGroupManagerURL.FindStringSubmatch(u)
 		instanceGroupManager, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			return nil, fmt.Errorf("error reading instance group manager returned as an instance group URL: %s", err)
 		}
 		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 	}
@@ -1716,7 +1716,7 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 		}
 		d.Set("name", parts[2])
 	default:
-		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
+		return nil, fmt.Errorf("invalid container cluster specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
 	}
 
 	d.SetId(parts[len(parts)-1])

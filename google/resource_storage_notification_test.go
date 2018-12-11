@@ -115,7 +115,7 @@ func testAccStorageNotificationDestroy(s *terraform.State) error {
 
 		_, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
 		if err == nil {
-			return fmt.Errorf("Notification configuration still exists")
+			return fmt.Errorf("notification configuration still exists")
 		}
 	}
 
@@ -126,11 +126,11 @@ func testAccCheckStorageNotificationExists(resource string, notification *storag
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resource)
+			return fmt.Errorf("not found: %s", resource)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -143,7 +143,7 @@ func testAccCheckStorageNotificationExists(resource string, notification *storag
 		}
 
 		if found.Id != notificationID {
-			return fmt.Errorf("Storage notification configuration not found")
+			return fmt.Errorf("storage notification configuration not found")
 		}
 
 		*notification = *found
@@ -155,7 +155,7 @@ func testAccCheckStorageNotificationExists(resource string, notification *storag
 func testAccCheckStorageNotificationCheckEventType(notification *storage.Notification, eventTypes []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if !reflect.DeepEqual(notification.EventTypes, eventTypes) {
-			return fmt.Errorf("Target event types are incorrect. Expected %s, got %s", eventTypes, notification.EventTypes)
+			return fmt.Errorf("target event types are incorrect. Expected %s, got %s", eventTypes, notification.EventTypes)
 		}
 		return nil
 	}
@@ -165,11 +165,11 @@ func testAccCheckStorageNotificationCheckAttributes(notification *storage.Notifi
 	return func(s *terraform.State) error {
 		val, ok := notification.CustomAttributes[key]
 		if !ok {
-			return fmt.Errorf("Custom attribute with key %s not found", key)
+			return fmt.Errorf("custom attribute with key %s not found", key)
 		}
 
 		if val != value {
-			return fmt.Errorf("Custom attribute value did not match for key %s: expected %s but found %s", key, value, val)
+			return fmt.Errorf("custom attribute value did not match for key %s: expected %s but found %s", key, value, val)
 		}
 		return nil
 	}

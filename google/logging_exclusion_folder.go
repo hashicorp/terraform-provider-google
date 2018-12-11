@@ -40,7 +40,7 @@ func folderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error 
 	}
 
 	if "folders" != loggingExclusionId.resourceType {
-		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
+		return fmt.Errorf("error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
 	d.Set("folder", loggingExclusionId.resourceId)
@@ -78,7 +78,7 @@ func (u *FolderLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclus
 func (u *FolderLoggingExclusionUpdater) DeleteLoggingExclusion(id string) error {
 	_, err := u.Config.clientLogging.Folders.Exclusions.Delete(id).Do()
 	if err != nil {
-		return errwrap.Wrap(fmt.Errorf("Error deleting logging exclusion for %s.", u.DescribeResource()), err)
+		return errwrap.Wrap(fmt.Errorf("error deleting logging exclusion for %s.", u.DescribeResource()), err)
 	}
 
 	return nil

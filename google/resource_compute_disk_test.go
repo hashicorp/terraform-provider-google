@@ -469,11 +469,11 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -485,7 +485,7 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Disk not found")
+			return fmt.Errorf("disk not found")
 		}
 
 		*disk = *found
@@ -498,11 +498,11 @@ func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) reso
 	return func(s *terraform.State) error {
 		val, ok := disk.Labels[key]
 		if !ok {
-			return fmt.Errorf("Label with key %s not found", key)
+			return fmt.Errorf("label with key %s not found", key)
 		}
 
 		if val != value {
-			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+			return fmt.Errorf("label value did not match for key %s: expected %s but found %s", key, value, val)
 		}
 		return nil
 	}
@@ -512,12 +512,12 @@ func testAccCheckComputeDiskHasLabelFingerprint(disk *compute.Disk, resourceName
 	return func(s *terraform.State) error {
 		state := s.RootModule().Resources[resourceName]
 		if state == nil {
-			return fmt.Errorf("Unable to find resource named %s", resourceName)
+			return fmt.Errorf("unable to find resource named %s", resourceName)
 		}
 
 		labelFingerprint := state.Primary.Attributes["label_fingerprint"]
 		if labelFingerprint != disk.LabelFingerprint {
-			return fmt.Errorf("Label fingerprints do not match: api returned %s but state has %s",
+			return fmt.Errorf("label fingerprints do not match: api returned %s but state has %s",
 				disk.LabelFingerprint, labelFingerprint)
 		}
 
@@ -529,14 +529,14 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		attr := rs.Primary.Attributes["disk_encryption_key.0.sha256"]
 		if disk.DiskEncryptionKey == nil {
-			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", n, attr)
+			return fmt.Errorf("disk %s has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", n, attr)
 		} else if attr != disk.DiskEncryptionKey.Sha256 {
-			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, disk.DiskEncryptionKey.Sha256)
 		}
 		return nil
@@ -547,17 +547,17 @@ func testAccCheckComputeDiskInstances(n string, disk *compute.Disk) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		attr := rs.Primary.Attributes["users.#"]
 		if strconv.Itoa(len(disk.Users)) != attr {
-			return fmt.Errorf("Disk %s has mismatched users.\nTF State: %+v\nGCP State: %+v", n, rs.Primary.Attributes["users"], disk.Users)
+			return fmt.Errorf("disk %s has mismatched users.\nTF State: %+v\nGCP State: %+v", n, rs.Primary.Attributes["users"], disk.Users)
 		}
 
 		for pos, user := range disk.Users {
 			if rs.Primary.Attributes["users."+strconv.Itoa(pos)] != user {
-				return fmt.Errorf("Disk %s has mismatched users.\nTF State: %+v.\nGCP State: %+v",
+				return fmt.Errorf("disk %s has mismatched users.\nTF State: %+v.\nGCP State: %+v",
 					n, rs.Primary.Attributes["users"], disk.Users)
 			}
 		}

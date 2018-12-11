@@ -105,7 +105,7 @@ func TestAccRuntimeconfig_updateEmptyDescription(t *testing.T) {
 func testAccCheckRuntimeConfigDescription(runtimeConfig *runtimeconfig.RuntimeConfig, description string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if runtimeConfig.Description != description {
-			return fmt.Errorf("On runtime config '%s', expected description '%s', but found '%s'",
+			return fmt.Errorf("on runtime config '%s', expected description '%s', but found '%s'",
 				runtimeConfig.Name, description, runtimeConfig.Description)
 		}
 		return nil
@@ -116,11 +116,11 @@ func testAccCheckRuntimeConfigExists(resourceName string, runtimeConfig *runtime
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -147,7 +147,7 @@ func testAccCheckRuntimeconfigConfigDestroy(s *terraform.State) error {
 		_, err := config.clientRuntimeconfig.Projects.Configs.Get(rs.Primary.ID).Do()
 
 		if err == nil {
-			return fmt.Errorf("Runtimeconfig still exists")
+			return fmt.Errorf("runtimeconfig still exists")
 		}
 	}
 

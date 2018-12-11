@@ -62,7 +62,7 @@ func testAccCheckComputeRouterInterfaceDestroy(s *terraform.State) error {
 		_, err = routersService.Get(project, region, routerName).Do()
 
 		if err == nil {
-			return fmt.Errorf("Error, Router %s in region %s still exists",
+			return fmt.Errorf("error, Router %s in region %s still exists",
 				routerName, region)
 		}
 	}
@@ -97,14 +97,14 @@ func testAccCheckComputeRouterInterfaceDelete(n string) resource.TestCheckFunc {
 			router, err := routersService.Get(project, region, routerName).Do()
 
 			if err != nil {
-				return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
+				return fmt.Errorf("error Reading Router %s: %s", routerName, err)
 			}
 
 			ifaces := router.Interfaces
 			for _, iface := range ifaces {
 
 				if iface.Name == name {
-					return fmt.Errorf("Interface %s still exists on router %s/%s", name, region, router.Name)
+					return fmt.Errorf("interface %s still exists on router %s/%s", name, region, router.Name)
 				}
 			}
 		}
@@ -117,11 +117,11 @@ func testAccCheckComputeRouterInterfaceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -143,7 +143,7 @@ func testAccCheckComputeRouterInterfaceExists(n string) resource.TestCheckFunc {
 		router, err := routersService.Get(project, region, routerName).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
+			return fmt.Errorf("error Reading Router %s: %s", routerName, err)
 		}
 
 		for _, iface := range router.Interfaces {
@@ -153,7 +153,7 @@ func testAccCheckComputeRouterInterfaceExists(n string) resource.TestCheckFunc {
 			}
 		}
 
-		return fmt.Errorf("Interface %s not found for router %s", name, router.Name)
+		return fmt.Errorf("interface %s not found for router %s", name, router.Name)
 	}
 }
 

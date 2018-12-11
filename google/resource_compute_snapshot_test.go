@@ -420,11 +420,11 @@ func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 				return nil
 			} else if ok {
-				return fmt.Errorf("Error while requesting Google Cloud Plateform: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+				return fmt.Errorf("error while requesting Google Cloud Plateform: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
 			}
-			return fmt.Errorf("Error while requesting Google Cloud Plateform")
+			return fmt.Errorf("error while requesting Google Cloud Plateform")
 		}
-		return fmt.Errorf("Snapshot still exists")
+		return fmt.Errorf("snapshot still exists")
 	}
 
 	return nil
@@ -434,11 +434,11 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -450,30 +450,30 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Snapshot %s not found", n)
+			return fmt.Errorf("snapshot %s not found", n)
 		}
 
 		attr := rs.Primary.Attributes["snapshot_encryption_key_sha256"]
 		if found.SnapshotEncryptionKey != nil && found.SnapshotEncryptionKey.Sha256 != attr {
-			return fmt.Errorf("Snapshot %s has mismatched encryption key (Sha256).\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched encryption key (Sha256).\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SnapshotEncryptionKey.Sha256)
 		} else if found.SnapshotEncryptionKey == nil && attr != "" {
-			return fmt.Errorf("Snapshot %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SnapshotEncryptionKey)
 		}
 
 		attr = rs.Primary.Attributes["source_disk_encryption_key_sha256"]
 		if found.SourceDiskEncryptionKey != nil && found.SourceDiskEncryptionKey.Sha256 != attr {
-			return fmt.Errorf("Snapshot %s has mismatched source disk encryption key (Sha256).\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched source disk encryption key (Sha256).\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SourceDiskEncryptionKey.Sha256)
 		} else if found.SourceDiskEncryptionKey == nil && attr != "" {
-			return fmt.Errorf("Snapshot %s has mismatched source disk encryption key.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched source disk encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SourceDiskEncryptionKey)
 		}
 
 		attr = rs.Primary.Attributes["source_disk_link"]
 		if found.SourceDisk != attr {
-			return fmt.Errorf("Snapshot %s has mismatched source disk link.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched source disk link.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SourceDisk)
 		}
 
@@ -483,20 +483,20 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 			return errDisk
 		}
 		if foundDisk.SelfLink != attr {
-			return fmt.Errorf("Snapshot %s has mismatched source disk\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched source disk\nTF State: %+v.\nGCP State: %+v",
 				n, attr, foundDisk.SelfLink)
 		}
 
 		attr = rs.Primary.Attributes["self_link"]
 		if found.SelfLink != attr {
-			return fmt.Errorf("Snapshot %s has mismatched self link.\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched self link.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.SelfLink)
 		}
 
 		// We should have a map
 		attr, ok = rs.Primary.Attributes["labels.%"]
 		if !ok {
-			return fmt.Errorf("Snapshot %s has no labels map in attributes", n)
+			return fmt.Errorf("snapshot %s has no labels map in attributes", n)
 		}
 		// Parse out our map
 		attrMap := make(map[string]string)
@@ -508,13 +508,13 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 			attrMap[key] = v
 		}
 		if (len(attrMap) != 0 || len(found.Labels) != 0) && !reflect.DeepEqual(attrMap, found.Labels) {
-			return fmt.Errorf("Snapshot %s has mismatched labels.\nTF State: %+v\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched labels.\nTF State: %+v\nGCP State: %+v",
 				n, attrMap, found.Labels)
 		}
 
 		attr = rs.Primary.Attributes["label_fingerprint"]
 		if found.LabelFingerprint != attr {
-			return fmt.Errorf("Snapshot %s has mismatched label fingerprint\nTF State: %+v.\nGCP State: %+v",
+			return fmt.Errorf("snapshot %s has mismatched label fingerprint\nTF State: %+v.\nGCP State: %+v",
 				n, attr, found.LabelFingerprint)
 		}
 

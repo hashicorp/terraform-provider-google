@@ -314,13 +314,13 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Creating new Firewall: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Firewall: %s", err)
+		return fmt.Errorf("error creating Firewall: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -341,7 +341,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Firewall: %s", waitErr)
+		return fmt.Errorf("error waiting to create Firewall: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Firewall %q: %#v", d.Id(), res)
@@ -367,56 +367,56 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 
 	if err := d.Set("allow", flattenComputeFirewallAllow(res["allowed"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeFirewallCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("deny", flattenComputeFirewallDeny(res["denied"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("description", flattenComputeFirewallDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("destination_ranges", flattenComputeFirewallDestinationRanges(res["destinationRanges"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("direction", flattenComputeFirewallDirection(res["direction"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("disabled", flattenComputeFirewallDisabled(res["disabled"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("name", flattenComputeFirewallName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("network", flattenComputeFirewallNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("priority", flattenComputeFirewallPriority(res["priority"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("source_ranges", flattenComputeFirewallSourceRanges(res["sourceRanges"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("source_service_accounts", flattenComputeFirewallSourceServiceAccounts(res["sourceServiceAccounts"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("source_tags", flattenComputeFirewallSourceTags(res["sourceTags"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("target_service_accounts", flattenComputeFirewallTargetServiceAccounts(res["targetServiceAccounts"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("target_tags", flattenComputeFirewallTargetTags(res["targetTags"], d)); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Firewall: %s", err)
+		return fmt.Errorf("error reading Firewall: %s", err)
 	}
 
 	return nil
@@ -514,7 +514,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	res, err := sendRequest(config, "PATCH", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating Firewall %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating Firewall %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -582,7 +582,7 @@ func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -822,7 +822,7 @@ func expandComputeFirewallName(v interface{}, d *schema.ResourceData, config *Co
 func expandComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
+		return nil, fmt.Errorf("invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

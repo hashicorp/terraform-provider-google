@@ -22,7 +22,7 @@ func resourceGoogleProjectMigrateState(v int, s *terraform.InstanceState, meta i
 		}
 		return s, nil
 	default:
-		return s, fmt.Errorf("Unexpected schema version: %d", v)
+		return s, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 
@@ -37,7 +37,7 @@ func migrateGoogleProjectStateV0toV1(s *terraform.InstanceState, config *Config)
 	if s.Attributes["policy_data"] != "" {
 		p, err := getProjectIamPolicy(s.ID, config)
 		if err != nil {
-			return s, fmt.Errorf("Could not retrieve project's IAM policy while attempting to migrate state from V0 to V1: %v", err)
+			return s, fmt.Errorf("could not retrieve project's IAM policy while attempting to migrate state from V0 to V1: %v", err)
 		}
 		s.Attributes["policy_etag"] = p.Etag
 	}

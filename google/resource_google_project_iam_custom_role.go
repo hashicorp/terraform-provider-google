@@ -70,7 +70,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 	}
 
 	if d.Get("deleted").(bool) {
-		return fmt.Errorf("Cannot create a custom project role with a deleted state. `deleted` field should be false.")
+		return fmt.Errorf("cannot create a custom project role with a deleted state. `deleted` field should be false.")
 	}
 
 	roleId := fmt.Sprintf("projects/%s/roles/%s", project, d.Get("role_id").(string))
@@ -86,7 +86,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 			}
 		} else {
 			// If a role with same name exists and is enabled, just return error
-			return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
+			return fmt.Errorf("custom project role %s already exists and must be imported", roleId)
 		}
 	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
 		// If no role is found, actually create a new role.
@@ -100,12 +100,12 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 			},
 		}).Do()
 		if err != nil {
-			return fmt.Errorf("Error creating the custom project role %s: %v", roleId, err)
+			return fmt.Errorf("error creating the custom project role %s: %v", roleId, err)
 		}
 
 		d.SetId(role.Name)
 	} else {
-		return fmt.Errorf("Unable to verify whether custom project role %s already exists and must be undeleted: %v", roleId, err)
+		return fmt.Errorf("unable to verify whether custom project role %s already exists and must be undeleted: %v", roleId, err)
 	}
 
 	return resourceGoogleProjectIamCustomRoleRead(d, meta)
@@ -194,7 +194,7 @@ func resourceGoogleProjectIamCustomRoleUpdateNonDeletedFields(d *schema.Resource
 		}).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating the custom project role %s: %s", d.Get("title").(string), err)
+			return fmt.Errorf("error updating the custom project role %s: %s", d.Get("title").(string), err)
 		}
 		d.SetPartial("title")
 		d.SetPartial("description")
@@ -209,7 +209,7 @@ func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta inter
 
 	_, err := config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting the custom project role %s: %s", d.Get("title").(string), err)
+		return fmt.Errorf("error deleting the custom project role %s: %s", d.Get("title").(string), err)
 	}
 
 	return nil
@@ -220,7 +220,7 @@ func resourceGoogleProjectIamCustomRoleUndelete(d *schema.ResourceData, meta int
 
 	_, err := config.clientIAM.Projects.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
 	if err != nil {
-		return fmt.Errorf("Error undeleting the custom project role %s: %s", d.Get("title").(string), err)
+		return fmt.Errorf("error undeleting the custom project role %s: %s", d.Get("title").(string), err)
 	}
 
 	return nil

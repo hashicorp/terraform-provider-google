@@ -59,15 +59,15 @@ func testAccCheckComputeSharedVpcHostProject(hostProject string, enabled bool) r
 
 		found, err := config.clientCompute.Projects.Get(hostProject).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading project %s: %s", hostProject, err)
+			return fmt.Errorf("error reading project %s: %s", hostProject, err)
 		}
 
 		if found.Name != hostProject {
-			return fmt.Errorf("Project %s not found", hostProject)
+			return fmt.Errorf("project %s not found", hostProject)
 		}
 
 		if enabled != (found.XpnProjectStatus == "HOST") {
-			return fmt.Errorf("Project %q shared VPC status was not expected, got %q", hostProject, found.XpnProjectStatus)
+			return fmt.Errorf("project %q shared VPC status was not expected, got %q", hostProject, found.XpnProjectStatus)
 		}
 
 		return nil
@@ -80,13 +80,13 @@ func testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject stri
 		serviceHostProject, err := config.clientCompute.Projects.GetXpnHost(serviceProject).Do()
 		if err != nil {
 			if enabled {
-				return fmt.Errorf("Expected service project to be enabled.")
+				return fmt.Errorf("expected service project to be enabled.")
 			}
 			return nil
 		}
 
 		if enabled != (serviceHostProject.Name == hostProject) {
-			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Name)
+			return fmt.Errorf("wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Name)
 		}
 
 		return nil

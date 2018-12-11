@@ -254,7 +254,7 @@ func parseLoggingExclusionId(id string) (*LoggingExclusionId, error) {
 	}
 
 	if !validLoggingExclusionResourceType {
-		return nil, fmt.Errorf("Logging resource type %s is not valid. Valid resource types: %#v", parts[1],
+		return nil, fmt.Errorf("logging resource type %s is not valid. Valid resource types: %#v", parts[1],
 			loggingExclusionResourceTypes)
 	}
 	return &LoggingExclusionId{

@@ -62,7 +62,7 @@ func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResource
 
 	rs, ok := s.RootModule().Resources[cryptoKeyResourceName]
 	if !ok {
-		return "", nil, fmt.Errorf("Resource not found: %s", cryptoKeyResourceName)
+		return "", nil, fmt.Errorf("resource not found: %s", cryptoKeyResourceName)
 	}
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["id"], config)
@@ -78,7 +78,7 @@ func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResource
 	encryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
 
 	if err != nil {
-		return "", nil, fmt.Errorf("Error encrypting plaintext: %s", err)
+		return "", nil, fmt.Errorf("error encrypting plaintext: %s", err)
 	}
 
 	log.Printf("[INFO] Successfully encrypted plaintext and got ciphertext: %s", encryptResponse.Ciphertext)

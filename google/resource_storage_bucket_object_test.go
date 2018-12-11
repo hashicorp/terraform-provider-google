@@ -240,11 +240,11 @@ func testAccCheckGoogleStorageObject(bucket, object, md5 string) resource.TestCh
 		res, err := getCall.Do()
 
 		if err != nil {
-			return fmt.Errorf("Error retrieving contents of object %s: %s", object, err)
+			return fmt.Errorf("error retrieving contents of object %s: %s", object, err)
 		}
 
 		if md5 != res.Md5Hash {
-			return fmt.Errorf("Error contents of %s garbled, md5 hashes don't match (%s, %s)", object, md5, res.Md5Hash)
+			return fmt.Errorf("error contents of %s garbled, md5 hashes don't match (%s, %s)", object, md5, res.Md5Hash)
 		}
 
 		return nil
@@ -268,7 +268,7 @@ func testAccStorageObjectDestroy(s *terraform.State) error {
 		_, err := getCall.Do()
 
 		if err == nil {
-			return fmt.Errorf("Object %s still exists", name)
+			return fmt.Errorf("object %s still exists", name)
 		}
 	}
 

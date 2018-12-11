@@ -240,7 +240,7 @@ func resourceSqlDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

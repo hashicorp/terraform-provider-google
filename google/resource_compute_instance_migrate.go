@@ -66,7 +66,7 @@ func resourceComputeInstanceMigrateState(
 		// when adding case 6, make sure to turn this into a fallthrough
 		return is, err
 	default:
-		return is, fmt.Errorf("Unexpected schema version: %d", v)
+		return is, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 

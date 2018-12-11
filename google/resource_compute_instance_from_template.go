@@ -90,7 +90,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Loading zone: %s", z)
 	zone, err := config.clientCompute.Zones.Get(project, z).Do()
 	if err != nil {
-		return fmt.Errorf("Error loading zone '%s': %s", z, err)
+		return fmt.Errorf("error loading zone '%s': %s", z, err)
 	}
 
 	instance, err := expandComputeInstance(project, zone, d, config)
@@ -124,7 +124,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	log.Printf("[INFO] Requesting instance creation")
 	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating instance: %s", err)
+		return fmt.Errorf("error creating instance: %s", err)
 	}
 
 	// Store the ID now

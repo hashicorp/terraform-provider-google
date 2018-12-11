@@ -119,7 +119,7 @@ func testAccCheckRedisInstanceDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("RedisInstance still exists at %s", url)
+			return fmt.Errorf("redisInstance still exists at %s", url)
 		}
 	}
 

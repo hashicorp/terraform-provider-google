@@ -144,14 +144,14 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
-		return fmt.Errorf("Error starting instance admin client. %s", err)
+		return fmt.Errorf("error starting instance admin client. %s", err)
 	}
 
 	defer c.Close()
 
 	err = c.CreateInstanceWithClusters(ctx, conf)
 	if err != nil {
-		return fmt.Errorf("Error creating instance. %s", err)
+		return fmt.Errorf("error creating instance. %s", err)
 	}
 
 	d.SetId(conf.InstanceID)
@@ -170,7 +170,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
-		return fmt.Errorf("Error starting instance admin client. %s", err)
+		return fmt.Errorf("error starting instance admin client. %s", err)
 	}
 
 	defer c.Close()
@@ -179,7 +179,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", d.Id())
 		d.SetId("")
-		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
+		return fmt.Errorf("error retrieving instance. Could not find %s. %s", d.Id(), err)
 	}
 
 	d.Set("project", project)
@@ -194,14 +194,14 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 				log.Printf("[WARN] Cluster %q not found, not setting it in state", cluster["cluster_id"].(string))
 				continue
 			}
-			return fmt.Errorf("Error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
+			return fmt.Errorf("error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
 		}
 		clusterState = append(clusterState, flattenBigtableCluster(clus, cluster["storage_type"].(string)))
 	}
 
 	err = d.Set("cluster", clusterState)
 	if err != nil {
-		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
+		return fmt.Errorf("error setting clusters in state: %s", err.Error())
 	}
 
 	d.Set("name", instance.Name)
@@ -221,7 +221,7 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
-		return fmt.Errorf("Error starting instance admin client. %s", err)
+		return fmt.Errorf("error starting instance admin client. %s", err)
 	}
 
 	defer c.Close()
@@ -229,7 +229,7 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	name := d.Id()
 	err = c.DeleteInstance(ctx, name)
 	if err != nil {
-		return fmt.Errorf("Error deleting instance. %s", err)
+		return fmt.Errorf("error deleting instance. %s", err)
 	}
 
 	d.SetId("")

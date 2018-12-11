@@ -120,7 +120,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
-			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
+			return nil, fmt.Errorf("folder not found: %s,%s", parent, displayName)
 		}
 
 		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
@@ -128,7 +128,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 
 	folders := searchResponse.Folders
 	if len(folders) != 1 {
-		return nil, fmt.Errorf("More than one folder found")
+		return nil, fmt.Errorf("more than one folder found")
 	}
 
 	return getFolderIamPolicyByFolderName(folders[0].Name, config)

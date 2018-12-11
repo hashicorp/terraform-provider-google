@@ -108,13 +108,13 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Creating new ManagedZone: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating ManagedZone: %s", err)
+		return fmt.Errorf("error creating ManagedZone: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -141,23 +141,23 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 
 	if err := d.Set("description", flattenDnsManagedZoneDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("dns_name", flattenDnsManagedZoneDnsName(res["dnsName"], d)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("name", flattenDnsManagedZoneName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("name_servers", flattenDnsManagedZoneNameServers(res["nameServers"], d)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("labels", flattenDnsManagedZoneLabels(res["labels"], d)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+		return fmt.Errorf("error reading ManagedZone: %s", err)
 	}
 
 	return nil
@@ -189,7 +189,7 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 		_, err = sendRequest(config, "PATCH", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating ManagedZone %q: %s", d.Id(), err)
 		}
 
 		d.SetPartial("description")
@@ -227,7 +227,7 @@ func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

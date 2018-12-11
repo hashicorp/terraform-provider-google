@@ -220,7 +220,7 @@ func testAccCheckComputeRegionBackendServiceDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.RegionBackendServices.Get(
 			config.Project, config.Region, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Backend service still exists")
+			return fmt.Errorf("backend service still exists")
 		}
 	}
 
@@ -231,11 +231,11 @@ func testAccCheckComputeRegionBackendServiceExists(n string, svc *compute.Backen
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -247,7 +247,7 @@ func testAccCheckComputeRegionBackendServiceExists(n string, svc *compute.Backen
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend service not found")
+			return fmt.Errorf("backend service not found")
 		}
 
 		*svc = *found

@@ -178,7 +178,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	op, err := config.clientCompute.Images.Insert(
 		project, image).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating image: %s", err)
+		return fmt.Errorf("error creating image: %s", err)
 	}
 
 	// Store the ID
@@ -213,7 +213,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		// `raw_disk.*.sha1` is not supported, the value is simply discarded by the server.
 		// Leaving `raw_disk` to current state value.
 	} else {
-		return fmt.Errorf("Either raw_disk or source_disk configuration is required.")
+		return fmt.Errorf("either raw_disk or source_disk configuration is required.")
 	}
 
 	d.Set("name", image.Name)
@@ -285,7 +285,7 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 	op, err := config.clientCompute.Images.Delete(
 		project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting image: %s", err)
+		return fmt.Errorf("error deleting image: %s", err)
 	}
 
 	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting image", int(d.Timeout(schema.TimeoutDelete).Minutes()))

@@ -31,7 +31,7 @@ func testAccCheckGoogleComputeRegionsMeta(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find regions data source: %s", n)
+			return fmt.Errorf("can't find regions data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
@@ -59,7 +59,7 @@ func testAccCheckGoogleComputeRegionsMeta(n string) resource.TestCheckFunc {
 				return fmt.Errorf("region list is corrupt (%q not found), this is definitely a bug", idx)
 			}
 			if len(v) < 1 {
-				return fmt.Errorf("Empty region name (%q), this is definitely a bug", idx)
+				return fmt.Errorf("empty region name (%q), this is definitely a bug", idx)
 			}
 		}
 

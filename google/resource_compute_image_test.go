@@ -144,7 +144,7 @@ func testAccCheckComputeImageDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.Images.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Image still exists")
+			return fmt.Errorf("image still exists")
 		}
 	}
 
@@ -155,11 +155,11 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -171,7 +171,7 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Image not found")
+			return fmt.Errorf("image not found")
 		}
 
 		*image = *found
@@ -183,7 +183,7 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 func testAccCheckComputeImageDescription(image *compute.Image, description string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if image.Description != description {
-			return fmt.Errorf("Wrong image description: expected '%s' got '%s'", description, image.Description)
+			return fmt.Errorf("wrong image description: expected '%s' got '%s'", description, image.Description)
 		}
 		return nil
 	}
@@ -192,7 +192,7 @@ func testAccCheckComputeImageDescription(image *compute.Image, description strin
 func testAccCheckComputeImageFamily(image *compute.Image, family string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if image.Family != family {
-			return fmt.Errorf("Wrong image family: expected '%s' got '%s'", family, image.Family)
+			return fmt.Errorf("wrong image family: expected '%s' got '%s'", family, image.Family)
 		}
 		return nil
 	}
@@ -202,10 +202,10 @@ func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, val
 	return func(s *terraform.State) error {
 		v, ok := image.Labels[key]
 		if !ok {
-			return fmt.Errorf("Expected label with key '%s' not found", key)
+			return fmt.Errorf("expected label with key '%s' not found", key)
 		}
 		if v != value {
-			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+			return fmt.Errorf("incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
 		}
 		return nil
 	}
@@ -220,14 +220,14 @@ func testAccCheckComputeImageContainsLicense(image *compute.Image, expectedLicen
 			}
 		}
 
-		return fmt.Errorf("Expected license '%s' was not found", expectedLicense)
+		return fmt.Errorf("expected license '%s' was not found", expectedLicense)
 	}
 }
 
 func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if v, ok := image.Labels[key]; ok {
-			return fmt.Errorf("Expected no label for key '%s' but found one with value '%s'", key, v)
+			return fmt.Errorf("expected no label for key '%s' but found one with value '%s'", key, v)
 		}
 
 		return nil
@@ -238,17 +238,17 @@ func testAccCheckComputeImageHasComputedFingerprint(image *compute.Image, resour
 	return func(s *terraform.State) error {
 		// First ensure we actually have a fingerprint
 		if image.LabelFingerprint == "" {
-			return fmt.Errorf("No fingerprint set in API read result")
+			return fmt.Errorf("no fingerprint set in API read result")
 		}
 
 		state := s.RootModule().Resources[resource]
 		if state == nil {
-			return fmt.Errorf("Unable to find resource named %s in resources", resource)
+			return fmt.Errorf("unable to find resource named %s in resources", resource)
 		}
 
 		storedFingerprint := state.Primary.Attributes["label_fingerprint"]
 		if storedFingerprint != image.LabelFingerprint {
-			return fmt.Errorf("Stored fingerprint doesn't match fingerprint found on server; stored '%s', server '%s'",
+			return fmt.Errorf("stored fingerprint doesn't match fingerprint found on server; stored '%s', server '%s'",
 				storedFingerprint, image.LabelFingerprint)
 		}
 
@@ -259,7 +259,7 @@ func testAccCheckComputeImageHasComputedFingerprint(image *compute.Image, resour
 func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if image.SourceType == "" {
-			return fmt.Errorf("No source disk")
+			return fmt.Errorf("no source disk")
 		}
 		return nil
 	}

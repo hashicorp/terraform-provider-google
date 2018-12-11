@@ -96,7 +96,7 @@ func testAccCheckSpannerDatabaseDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Unable to verify delete of spanner database, ID is empty")
+			return fmt.Errorf("unable to verify delete of spanner database, ID is empty")
 		}
 
 		project, err := getTestProject(rs.Primary, config)
@@ -113,7 +113,7 @@ func testAccCheckSpannerDatabaseDestroy(s *terraform.State) error {
 			id.databaseUri()).Do()
 
 		if err == nil {
-			return fmt.Errorf("Spanner database still exists")
+			return fmt.Errorf("spanner database still exists")
 		}
 
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {

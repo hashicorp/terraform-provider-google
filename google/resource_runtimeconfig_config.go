@@ -142,7 +142,7 @@ func resourceRuntimeconfigConfigImport(d *schema.ResourceData, meta interface{})
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "projects/{{project}}/configs/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -160,7 +160,7 @@ func resourceRuntimeconfigFullName(project, name string) string {
 func resourceRuntimeconfigParseFullName(fullName string) (project, name string, err error) {
 	matches := runtimeConfigFullName.FindStringSubmatch(fullName)
 	if matches == nil {
-		return "", "", fmt.Errorf("Given full name doesn't match expected regexp; fullname = '%s'", fullName)
+		return "", "", fmt.Errorf("given full name doesn't match expected regexp; fullname = '%s'", fullName)
 	}
 	return matches[1], matches[2], nil
 }

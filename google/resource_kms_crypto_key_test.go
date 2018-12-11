@@ -204,7 +204,7 @@ func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) reso
 		_, ok := s.RootModule().Resources[resourceName]
 
 		if ok {
-			return fmt.Errorf("Resource was not removed from state: %s", resourceName)
+			return fmt.Errorf("resource was not removed from state: %s", resourceName)
 		}
 
 		return nil
@@ -224,14 +224,14 @@ func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRin
 		response, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
 
 		if err != nil {
-			return fmt.Errorf("Unexpected failure to list versions: %s", err)
+			return fmt.Errorf("unexpected failure to list versions: %s", err)
 		}
 
 		versions := response.CryptoKeyVersions
 
 		for _, v := range versions {
 			if v.State != "DESTROY_SCHEDULED" && v.State != "DESTROYED" {
-				return fmt.Errorf("CryptoKey %s should have no versions, but version %s has state %s", cryptoKeyName, v.Name, v.State)
+				return fmt.Errorf("cryptoKey %s should have no versions, but version %s has state %s", cryptoKeyName, v.Name, v.State)
 			}
 		}
 

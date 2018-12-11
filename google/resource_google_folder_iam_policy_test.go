@@ -106,7 +106,7 @@ func testAccCheckGoogleFolderIamPolicyDestroy(s *terraform.State) error {
 		policy, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
 
 		if err != nil && len(policy.Bindings) > 0 {
-			return fmt.Errorf("Folder '%s' policy hasn't been deleted.", folder)
+			return fmt.Errorf("folder '%s' policy hasn't been deleted.", folder)
 		}
 	}
 	return nil
@@ -116,11 +116,11 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -131,15 +131,15 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 		}
 
 		if !reflect.DeepEqual(p.Bindings, policy.Bindings) {
-			return fmt.Errorf("Incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, p.Bindings)
+			return fmt.Errorf("incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, p.Bindings)
 		}
 
 		if _, ok = rs.Primary.Attributes["etag"]; !ok {
-			return fmt.Errorf("Etag should be set.")
+			return fmt.Errorf("etag should be set.")
 		}
 
 		if rs.Primary.Attributes["etag"] != p.Etag {
-			return fmt.Errorf("Incorrect etag value. Expected '%s', got '%s'", p.Etag, rs.Primary.Attributes["etag"])
+			return fmt.Errorf("incorrect etag value. Expected '%s', got '%s'", p.Etag, rs.Primary.Attributes["etag"])
 		}
 
 		return nil
@@ -153,10 +153,10 @@ func testAccFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
 		var err error
 		originalPolicy, err = getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, c)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM Policy for folder %q: %s", fname, err)
+			return fmt.Errorf("failed to retrieve IAM Policy for folder %q: %s", fname, err)
 		}
 		if len(originalPolicy.Bindings) == 0 {
-			return fmt.Errorf("Refuse to run test against folder with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a folder.")
+			return fmt.Errorf("refuse to run test against folder with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a folder.")
 		}
 		return nil
 	}

@@ -84,7 +84,7 @@ func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	_, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	return nil
@@ -103,7 +103,7 @@ func dataprocJobOperationWait(config *Config, region, projectId, jobId string, a
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	_, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for operation %s: %s", activity, err)
+		return fmt.Errorf("error waiting for operation %s: %s", activity, err)
 	}
 
 	return nil

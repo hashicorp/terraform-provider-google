@@ -48,7 +48,7 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find versions data source: %s", n)
+			return fmt.Errorf("can't find versions data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
@@ -76,7 +76,7 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 				return fmt.Errorf("valid node versions list is corrupt (%q not found), this is definitely a bug", idx)
 			}
 			if len(v) < 1 {
-				return fmt.Errorf("Empty node version (%q), this is definitely a bug", idx)
+				return fmt.Errorf("empty node version (%q), this is definitely a bug", idx)
 			}
 		}
 
@@ -101,7 +101,7 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 				return fmt.Errorf("valid master versions list is corrupt (%q not found), this is definitely a bug", idx)
 			}
 			if len(v) < 1 {
-				return fmt.Errorf("Empty master version (%q), this is definitely a bug", idx)
+				return fmt.Errorf("empty master version (%q), this is definitely a bug", idx)
 			}
 		}
 

@@ -122,7 +122,7 @@ func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		s := strings.Fields(d.Id())
 		if len(s) != 2 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
+			return nil, fmt.Errorf("wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
 		}
 		id, role := s[0], s[1]
 

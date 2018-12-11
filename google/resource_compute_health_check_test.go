@@ -219,11 +219,11 @@ func testAccCheckComputeHealthCheckExists(n string, healthCheck *compute.HealthC
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -261,7 +261,7 @@ func testAccCheckComputeHealthCheckThresholds(healthy, unhealthy int64, healthCh
 func testAccCheckComputeHealthCheckTcpPort(port int64, healthCheck *compute.HealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if healthCheck.TcpHealthCheck.Port != port {
-			return fmt.Errorf("Port doesn't match: expected %v, got %v", port, healthCheck.TcpHealthCheck.Port)
+			return fmt.Errorf("port doesn't match: expected %v, got %v", port, healthCheck.TcpHealthCheck.Port)
 		}
 		return nil
 	}

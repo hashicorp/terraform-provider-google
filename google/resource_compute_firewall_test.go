@@ -287,11 +287,11 @@ func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -303,7 +303,7 @@ func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) res
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Firewall not found")
+			return fmt.Errorf("firewall not found")
 		}
 
 		*firewall = *found
@@ -316,11 +316,11 @@ func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firew
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -332,7 +332,7 @@ func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firew
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Firewall not found")
+			return fmt.Errorf("firewall not found")
 		}
 
 		*firewall = *found
@@ -344,7 +344,7 @@ func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firew
 func testAccCheckComputeFirewallHasPriority(firewall *compute.Firewall, priority int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if firewall.Priority != int64(priority) {
-			return fmt.Errorf("Priority for firewall does not match: expected %d, found %d", priority, firewall.Priority)
+			return fmt.Errorf("priority for firewall does not match: expected %d, found %d", priority, firewall.Priority)
 		}
 		return nil
 	}
@@ -392,10 +392,10 @@ func testAccCheckComputeFirewallEgress(firewall *compute.Firewall) resource.Test
 func testAccCheckComputeFirewallServiceAccounts(sourceSa, targetSa string, firewall *compute.Firewall) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(firewall.SourceServiceAccounts) != 1 || firewall.SourceServiceAccounts[0] != sourceSa {
-			return fmt.Errorf("Expected sourceServiceAccount of %s, got %v", sourceSa, firewall.SourceServiceAccounts)
+			return fmt.Errorf("expected sourceServiceAccount of %s, got %v", sourceSa, firewall.SourceServiceAccounts)
 		}
 		if len(firewall.TargetServiceAccounts) != 1 || firewall.TargetServiceAccounts[0] != targetSa {
-			return fmt.Errorf("Expected targetServiceAccount of %s, got %v", targetSa, firewall.TargetServiceAccounts)
+			return fmt.Errorf("expected targetServiceAccount of %s, got %v", targetSa, firewall.TargetServiceAccounts)
 		}
 
 		return nil

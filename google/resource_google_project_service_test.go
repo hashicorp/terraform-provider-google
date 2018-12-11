@@ -94,7 +94,7 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 
 		apiServices, err := getApiServices(pid, config, map[string]struct{}{})
 		if err != nil {
-			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
+			return fmt.Errorf("error listing services for project %q: %v", pid, err)
 		}
 
 		for _, expected := range services {
@@ -105,10 +105,10 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 				}
 			}
 			if expectEnabled && !exists {
-				return fmt.Errorf("Expected service %s is not enabled server-side (found %v)", expected, apiServices)
+				return fmt.Errorf("expected service %s is not enabled server-side (found %v)", expected, apiServices)
 			}
 			if !expectEnabled && exists {
-				return fmt.Errorf("Expected disabled service %s is enabled server-side", expected)
+				return fmt.Errorf("expected disabled service %s is enabled server-side", expected)
 			}
 		}
 

@@ -53,7 +53,7 @@ func testAccCheckGoogleSqlClientCertExists(n string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		instance := rs.Primary.Attributes["instance"]
@@ -68,7 +68,7 @@ func testAccCheckGoogleSqlClientCertExists(n string) resource.TestCheckFunc {
 			return nil
 		}
 
-		return fmt.Errorf("Not found: %s: %s", n, err)
+		return fmt.Errorf("not found: %s: %s", n, err)
 	}
 }
 
@@ -85,7 +85,7 @@ func testAccSqlClientCertDestroy(s *terraform.State) error {
 
 		commonName := rs.Primary.Attributes["common_name"]
 		if sslCert != nil {
-			return fmt.Errorf("Client cert %q still exists, should have been destroyed", commonName)
+			return fmt.Errorf("client cert %q still exists, should have been destroyed", commonName)
 		}
 
 		return nil

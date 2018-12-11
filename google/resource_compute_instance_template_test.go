@@ -515,7 +515,7 @@ func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.InstanceTemplates.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Instance template still exists")
+			return fmt.Errorf("instance template still exists")
 		}
 	}
 
@@ -530,11 +530,11 @@ func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTem
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -546,7 +546,7 @@ func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTem
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Instance template not found")
+			return fmt.Errorf("instance template not found")
 		}
 
 		*instanceTemplate = *found
@@ -597,7 +597,7 @@ func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *compute.In
 	return func(s *terraform.State) error {
 		for _, i := range instanceTemplate.Properties.NetworkInterfaces {
 			if !strings.Contains(i.Network, network) {
-				return fmt.Errorf("Network doesn't match expected value, Expected: %s Actual: %s", network, i.Network[strings.LastIndex("/", i.Network)+1:])
+				return fmt.Errorf("network doesn't match expected value, Expected: %s Actual: %s", network, i.Network[strings.LastIndex("/", i.Network)+1:])
 			}
 		}
 
@@ -636,7 +636,7 @@ func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTe
 func testAccCheckComputeInstanceTemplatePreemptible(instanceTemplate *compute.InstanceTemplate, preemptible bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Scheduling.Preemptible != preemptible {
-			return fmt.Errorf("Expected preemptible value %v, got %v", preemptible, instanceTemplate.Properties.Scheduling.Preemptible)
+			return fmt.Errorf("expected preemptible value %v, got %v", preemptible, instanceTemplate.Properties.Scheduling.Preemptible)
 		}
 		return nil
 	}
@@ -646,10 +646,10 @@ func testAccCheckComputeInstanceTemplateAutomaticRestart(instanceTemplate *compu
 	return func(s *terraform.State) error {
 		ar := instanceTemplate.Properties.Scheduling.AutomaticRestart
 		if ar == nil {
-			return fmt.Errorf("Expected to see a value for AutomaticRestart, but got nil")
+			return fmt.Errorf("expected to see a value for AutomaticRestart, but got nil")
 		}
 		if *ar != automaticRestart {
-			return fmt.Errorf("Expected automatic restart value %v, got %v", automaticRestart, ar)
+			return fmt.Errorf("expected automatic restart value %v, got %v", automaticRestart, ar)
 		}
 		return nil
 	}
@@ -660,7 +660,7 @@ func testAccCheckComputeInstanceTemplateStartupScript(instanceTemplate *compute.
 		if instanceTemplate.Properties.Metadata == nil && n == "" {
 			return nil
 		} else if instanceTemplate.Properties.Metadata == nil && n != "" {
-			return fmt.Errorf("Expected metadata.startup-script to be '%s', metadata wasn't set at all", n)
+			return fmt.Errorf("expected metadata.startup-script to be '%s', metadata wasn't set at all", n)
 		}
 		for _, item := range instanceTemplate.Properties.Metadata.Items {
 			if item.Key != "startup-script" {
@@ -671,12 +671,12 @@ func testAccCheckComputeInstanceTemplateStartupScript(instanceTemplate *compute.
 			} else if item.Value == nil && n == "" {
 				return nil
 			} else if item.Value == nil && n != "" {
-				return fmt.Errorf("Expected metadata.startup-script to be '%s', wasn't set", n)
+				return fmt.Errorf("expected metadata.startup-script to be '%s', wasn't set", n)
 			} else if *item.Value != n {
-				return fmt.Errorf("Expected metadata.startup-script to be '%s', got '%s'", n, *item.Value)
+				return fmt.Errorf("expected metadata.startup-script to be '%s', got '%s'", n, *item.Value)
 			}
 		}
-		return fmt.Errorf("This should never be reached.")
+		return fmt.Errorf("this should never be reached.")
 	}
 }
 
@@ -706,10 +706,10 @@ func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.
 	return func(s *terraform.State) error {
 		v, ok := instanceTemplate.Properties.Labels[key]
 		if !ok {
-			return fmt.Errorf("Expected label with key '%s' not found", key)
+			return fmt.Errorf("expected label with key '%s' not found", key)
 		}
 		if v != value {
-			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+			return fmt.Errorf("incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
 		}
 		return nil
 	}
@@ -725,22 +725,22 @@ func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *comput
 			}
 		}
 
-		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
+		return fmt.Errorf("alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
 	}
 }
 
 func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *compute.InstanceTemplate, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instanceTemplate.Properties.GuestAccelerators) != 1 {
-			return fmt.Errorf("Expected only one guest accelerator")
+			return fmt.Errorf("expected only one guest accelerator")
 		}
 
 		if !strings.HasSuffix(instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType, acceleratorType) {
-			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType)
+			return fmt.Errorf("wrong accelerator type: expected %v, got %v", acceleratorType, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType)
 		}
 
 		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
-			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+			return fmt.Errorf("wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
 		}
 
 		return nil
@@ -750,7 +750,7 @@ func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *co
 func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instanceTemplate.Properties.GuestAccelerators) > 0 {
-			return fmt.Errorf("Expected no guest accelerators")
+			return fmt.Errorf("expected no guest accelerators")
 		}
 
 		return nil
@@ -760,7 +760,7 @@ func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *
 func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *compute.InstanceTemplate, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
-			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
+			return fmt.Errorf("wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
 		}
 
 		return nil

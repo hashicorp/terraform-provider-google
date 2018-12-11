@@ -76,12 +76,12 @@ func testAccCheckGoogleOrganizationIamBindingExists(bindingResourceName, roleRes
 	return func(s *terraform.State) error {
 		bindingRs, ok := s.RootModule().Resources["google_organization_iam_binding."+bindingResourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", bindingResourceName)
+			return fmt.Errorf("not found: %s", bindingResourceName)
 		}
 
 		roleRs, ok := s.RootModule().Resources["google_organization_iam_custom_role."+roleResourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", roleResourceName)
+			return fmt.Errorf("not found: %s", roleResourceName)
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -99,11 +99,11 @@ func testAccCheckGoogleOrganizationIamBindingExists(bindingResourceName, roleRes
 					return nil
 				}
 
-				return fmt.Errorf("Binding found but expected members is %v, got %v", members, binding.Members)
+				return fmt.Errorf("binding found but expected members is %v, got %v", members, binding.Members)
 			}
 		}
 
-		return fmt.Errorf("No binding for role %q", roleRs.Primary.ID)
+		return fmt.Errorf("no binding for role %q", roleRs.Primary.ID)
 	}
 }
 
@@ -111,7 +111,7 @@ func testAccCheckGoogleOrganizationIamMemberExists(n, role, member string) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["google_organization_iam_member."+n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -128,11 +128,11 @@ func testAccCheckGoogleOrganizationIamMemberExists(n, role, member string) resou
 					}
 				}
 
-				return fmt.Errorf("Missing member %q, got %v", member, binding.Members)
+				return fmt.Errorf("missing member %q, got %v", member, binding.Members)
 			}
 		}
 
-		return fmt.Errorf("No binding for role %q", role)
+		return fmt.Errorf("no binding for role %q", role)
 	}
 }
 

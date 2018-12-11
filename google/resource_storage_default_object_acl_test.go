@@ -147,11 +147,11 @@ func testAccCheckGoogleStorageDefaultObjectAcl(bucket, roleEntityS string) resou
 			roleEntity.Entity).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error retrieving contents of storage default Acl for bucket %s: %s", bucket, err)
+			return fmt.Errorf("error retrieving contents of storage default Acl for bucket %s: %s", bucket, err)
 		}
 
 		if res.Role != roleEntity.Role {
-			return fmt.Errorf("Error, Role mismatch %s != %s", res.Role, roleEntity.Role)
+			return fmt.Errorf("error, Role mismatch %s != %s", res.Role, roleEntity.Role)
 		}
 
 		return nil
@@ -171,7 +171,7 @@ func testAccStorageDefaultObjectAclDestroy(s *terraform.State) error {
 
 		_, err := config.clientStorage.DefaultObjectAccessControls.List(bucket).Do()
 		if err == nil {
-			return fmt.Errorf("Default Storage Object Acl for bucket %s still exists", bucket)
+			return fmt.Errorf("default Storage Object Acl for bucket %s still exists", bucket)
 		}
 	}
 	return nil
@@ -188,7 +188,7 @@ func testAccCheckGoogleStorageDefaultObjectAclDelete(bucket, roleEntityS string)
 			return nil
 		}
 
-		return fmt.Errorf("Error, Object Default Acl Entity still exists %s for bucket %s",
+		return fmt.Errorf("error, Object Default Acl Entity still exists %s for bucket %s",
 			roleEntity.Entity, bucket)
 	}
 }

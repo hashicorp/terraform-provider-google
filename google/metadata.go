@@ -42,7 +42,7 @@ func MetadataRetryWrapper(update func() error) error {
 		attempt++
 	}
 
-	return fmt.Errorf("Failed to update metadata after %d retries", attempt)
+	return fmt.Errorf("failed to update metadata after %d retries", attempt)
 }
 
 // Update the metadata (serverMD) according to the provided diff (oldMDMap v

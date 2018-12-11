@@ -102,11 +102,11 @@ func testAccCheckComputeTargetPoolExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -129,17 +129,17 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 	return func(s *terraform.State) error {
 		targetPoolRes, ok := s.RootModule().Resources[targetPool]
 		if !ok {
-			return fmt.Errorf("Not found: %s", targetPool)
+			return fmt.Errorf("not found: %s", targetPool)
 		}
 
 		healthCheckRes, ok := s.RootModule().Resources[healthCheck]
 		if !ok {
-			return fmt.Errorf("Not found: %s", healthCheck)
+			return fmt.Errorf("not found: %s", healthCheck)
 		}
 
 		hcLink := healthCheckRes.Primary.Attributes["self_link"]
 		if targetPoolRes.Primary.Attributes["health_checks.0"] != hcLink {
-			return fmt.Errorf("Health check not set up. Expected %q", hcLink)
+			return fmt.Errorf("health check not set up. Expected %q", hcLink)
 		}
 
 		return nil

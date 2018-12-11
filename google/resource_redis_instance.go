@@ -217,13 +217,13 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Creating new Instance: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Instance: %s", err)
+		return fmt.Errorf("error creating Instance: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -244,7 +244,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Instance: %s", waitErr)
+		return fmt.Errorf("error waiting to create Instance: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
@@ -270,53 +270,53 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 
 	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("authorized_network", flattenRedisInstanceAuthorizedNetwork(res["authorizedNetwork"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("create_time", flattenRedisInstanceCreateTime(res["createTime"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("current_location_id", flattenRedisInstanceCurrentLocationId(res["currentLocationId"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("display_name", flattenRedisInstanceDisplayName(res["displayName"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("host", flattenRedisInstanceHost(res["host"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("labels", flattenRedisInstanceLabels(res["labels"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("redis_configs", flattenRedisInstanceRedisConfigs(res["redisConfigs"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("location_id", flattenRedisInstanceLocationId(res["locationId"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("name", flattenRedisInstanceName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("memory_size_gb", flattenRedisInstanceMemorySizeGb(res["memorySizeGb"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("port", flattenRedisInstancePort(res["port"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("reserved_ip_range", flattenRedisInstanceReservedIpRange(res["reservedIpRange"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+		return fmt.Errorf("error reading Instance: %s", err)
 	}
 
 	return nil
@@ -379,7 +379,7 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	res, err := sendRequest(config, "PATCH", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating Instance %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -447,7 +447,7 @@ func resourceRedisInstanceImport(d *schema.ResourceData, meta interface{}) ([]*s
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

@@ -19,7 +19,7 @@ func resourceComputeInstanceTemplateMigrateState(
 		log.Println("[INFO] Found Compute Instance Template State v0; migrating to v1")
 		return migrateComputeInstanceTemplateStateV0toV1(is)
 	default:
-		return is, fmt.Errorf("Unexpected schema version: %d", v)
+		return is, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 
@@ -33,7 +33,7 @@ func migrateComputeInstanceTemplateStateV0toV1(is *terraform.InstanceState) (*te
 
 	schedulingCount, ok := is.Attributes["scheduling.#"]
 	if ok && schedulingCount != "0" && schedulingCount != "1" {
-		return nil, fmt.Errorf("Found multiple scheduling blocks when there should only be one")
+		return nil, fmt.Errorf("found multiple scheduling blocks when there should only be one")
 	}
 
 	if !ok || schedulingCount == "0" {
@@ -46,7 +46,7 @@ func migrateComputeInstanceTemplateStateV0toV1(is *terraform.InstanceState) (*te
 	if ar != schedAr {
 		// Here we could try to choose one value over the other, but in reality they should never be out of sync; error
 		// for now
-		return nil, fmt.Errorf("Found differing values for automatic_restart in state, unsure how to proceed. automatic_restart = %#v, scheduling.0.automatic_restart = %#v", ar, schedAr)
+		return nil, fmt.Errorf("found differing values for automatic_restart in state, unsure how to proceed. automatic_restart = %#v, scheduling.0.automatic_restart = %#v", ar, schedAr)
 	}
 
 	// We also nuke "on_host_maintenance" as it's been deprecated as well. Here we don't check the current value though

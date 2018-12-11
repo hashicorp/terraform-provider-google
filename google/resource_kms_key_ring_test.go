@@ -109,7 +109,7 @@ func testAccCheckGoogleKmsKeyRingWasRemovedFromState(resourceName string) resour
 		_, ok := s.RootModule().Resources[resourceName]
 
 		if ok {
-			return fmt.Errorf("Resource was not removed from state: %s", resourceName)
+			return fmt.Errorf("resource was not removed from state: %s", resourceName)
 		}
 
 		return nil

@@ -66,7 +66,7 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 	// Get the policy in the template
 	policy, err := getResourceIamPolicy(d)
 	if err != nil {
-		return fmt.Errorf("Could not get valid 'policy_data' from resource: %v", err)
+		return fmt.Errorf("could not get valid 'policy_data' from resource: %v", err)
 	}
 
 	log.Printf("[DEBUG] Setting IAM policy for project %q", project)
@@ -91,7 +91,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 	// we only marshal the bindings, because only the bindings get set in the config
 	policyBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: policy.Bindings})
 	if err != nil {
-		return fmt.Errorf("Error marshaling IAM policy: %v", err)
+		return fmt.Errorf("error marshaling IAM policy: %v", err)
 	}
 
 	d.Set("etag", policy.Etag)
@@ -111,13 +111,13 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 	// Get the policy in the template
 	policy, err := getResourceIamPolicy(d)
 	if err != nil {
-		return fmt.Errorf("Could not get valid 'policy_data' from resource: %v", err)
+		return fmt.Errorf("could not get valid 'policy_data' from resource: %v", err)
 	}
 
 	log.Printf("[DEBUG] Updating IAM policy for project %q", project)
 	err = setProjectIamPolicy(policy, config, project)
 	if err != nil {
-		return fmt.Errorf("Error setting project IAM policy: %v", err)
+		return fmt.Errorf("error setting project IAM policy: %v", err)
 	}
 
 	return resourceGoogleProjectIamPolicyRead(d, meta)
@@ -135,12 +135,12 @@ func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface
 	// Get the existing IAM policy from the API so we can repurpose the etag and audit config
 	ep, err := getProjectIamPolicy(project, config)
 	if err != nil {
-		return fmt.Errorf("Error retrieving IAM policy from project API: %v", err)
+		return fmt.Errorf("error retrieving IAM policy from project API: %v", err)
 	}
 
 	ep.Bindings = make([]*cloudresourcemanager.Binding, 0)
 	if err = setProjectIamPolicy(ep, config, project); err != nil {
-		return fmt.Errorf("Error applying IAM policy to project: %v", err)
+		return fmt.Errorf("error applying IAM policy to project: %v", err)
 	}
 
 	d.SetId("")
@@ -171,7 +171,7 @@ func getResourceIamPolicy(d *schema.ResourceData) (*cloudresourcemanager.Policy,
 	// The policy string is just a marshaled cloudresourcemanager.Policy.
 	policy := &cloudresourcemanager.Policy{}
 	if err := json.Unmarshal([]byte(ps), policy); err != nil {
-		return nil, fmt.Errorf("Could not unmarshal %s:\n: %v", ps, err)
+		return nil, fmt.Errorf("could not unmarshal %s:\n: %v", ps, err)
 	}
 	return policy, nil
 }
@@ -182,7 +182,7 @@ func getProjectIamPolicy(project string, config *Config) (*cloudresourcemanager.
 		&cloudresourcemanager.GetIamPolicyRequest{}).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for project %q: %s", project, err)
+		return nil, fmt.Errorf("error retrieving IAM policy for project %q: %s", project, err)
 	}
 	return p, nil
 }

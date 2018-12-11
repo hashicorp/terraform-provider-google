@@ -142,13 +142,13 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Creating new SslCertificate: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating SslCertificate: %s", err)
+		return fmt.Errorf("error creating SslCertificate: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -169,7 +169,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create SslCertificate: %s", waitErr)
+		return fmt.Errorf("error waiting to create SslCertificate: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating SslCertificate %q: %#v", d.Id(), res)
@@ -195,26 +195,26 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 
 	if err := d.Set("certificate", flattenComputeSslCertificateCertificate(res["certificate"], d)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeSslCertificateCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificate_id(res["id"], d)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("name", flattenComputeSslCertificateName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+		return fmt.Errorf("error reading SslCertificate: %s", err)
 	}
 
 	return nil
@@ -264,7 +264,7 @@ func resourceComputeSslCertificateImport(d *schema.ResourceData, meta interface{
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

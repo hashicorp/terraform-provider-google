@@ -262,13 +262,13 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new RegionDisk: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating RegionDisk: %s", err)
+		return fmt.Errorf("error creating RegionDisk: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -289,7 +289,7 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionDisk: %s", waitErr)
+		return fmt.Errorf("error waiting to create RegionDisk: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating RegionDisk %q: %#v", d.Id(), res)
@@ -320,59 +320,59 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 
 	if err := d.Set("label_fingerprint", flattenComputeRegionDiskLabelFingerprint(res["labelFingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeRegionDiskCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRegionDiskDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("last_attach_timestamp", flattenComputeRegionDiskLastAttachTimestamp(res["lastAttachTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("last_detach_timestamp", flattenComputeRegionDiskLastDetachTimestamp(res["lastDetachTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("labels", flattenComputeRegionDiskLabels(res["labels"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("name", flattenComputeRegionDiskName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("size", flattenComputeRegionDiskSize(res["sizeGb"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("users", flattenComputeRegionDiskUsers(res["users"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("replica_zones", flattenComputeRegionDiskReplicaZones(res["replicaZones"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("type", flattenComputeRegionDiskType(res["type"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRegionDiskRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("disk_encryption_key", flattenComputeRegionDiskDiskEncryptionKey(res["diskEncryptionKey"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("snapshot", flattenComputeRegionDiskSnapshot(res["sourceSnapshot"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("source_snapshot_encryption_key", flattenComputeRegionDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("source_snapshot_id", flattenComputeRegionDiskSourceSnapshotId(res["sourceSnapshotId"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
+		return fmt.Errorf("error reading RegionDisk: %s", err)
 	}
 
 	return nil
@@ -404,7 +404,7 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -443,7 +443,7 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -488,7 +488,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		self := d.Get("self_link").(string)
 		for _, instance := range instances {
 			if !computeDiskUserRegex.MatchString(instance.(string)) {
-				return fmt.Errorf("Unknown user %q of disk %q", instance, self)
+				return fmt.Errorf("unknown user %q of disk %q", instance, self)
 			}
 			matches := computeDiskUserRegex.FindStringSubmatch(instance.(string))
 			instanceProject := matches[1]
@@ -500,7 +500,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance.(string))
 					continue
 				}
-				return fmt.Errorf("Error retrieving instance %s: %s", instance.(string), err.Error())
+				return fmt.Errorf("error retrieving instance %s: %s", instance.(string), err.Error())
 			}
 			for _, disk := range i.Disks {
 				if disk.Source == self {
@@ -516,7 +516,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		for _, call := range detachCalls {
 			op, err := config.clientCompute.Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
 			if err != nil {
-				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
+				return fmt.Errorf("error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
 			err = computeOperationWait(config.clientCompute, op, call.project,
@@ -565,7 +565,7 @@ func resourceComputeRegionDiskImport(d *schema.ResourceData, meta interface{}) (
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -728,7 +728,7 @@ func expandComputeRegionDiskReplicaZones(v interface{}, d *schema.ResourceData, 
 	for _, raw := range l {
 		f, err := parseGlobalFieldValue("zones", raw.(string), "project", d, config, true)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid value for replica_zones: %s", err)
+			return nil, fmt.Errorf("invalid value for replica_zones: %s", err)
 		}
 		req = append(req, f.RelativeLink())
 	}
@@ -738,7 +738,7 @@ func expandComputeRegionDiskReplicaZones(v interface{}, d *schema.ResourceData, 
 func expandComputeRegionDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("diskTypes", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for type: %s", err)
+		return nil, fmt.Errorf("invalid value for type: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -746,7 +746,7 @@ func expandComputeRegionDiskType(v interface{}, d *schema.ResourceData, config *
 func expandComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -788,7 +788,7 @@ func expandComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d *schema.Res
 func expandComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("snapshots", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for snapshot: %s", err)
+		return nil, fmt.Errorf("invalid value for snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -849,7 +849,7 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 		diskType, err := readRegionDiskType(config, region, project, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
-				"Error loading disk type '%s': %s",
+				"error loading disk type '%s': %s",
 				v.(string), err)
 		}
 
@@ -861,7 +861,7 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 		imageUrl, err := resolveImage(config, project, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
-				"Error resolving image name '%s': %s",
+				"error resolving image name '%s': %s",
 				v.(string), err)
 		}
 

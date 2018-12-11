@@ -539,7 +539,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 				imageUrl, err := resolveImage(config, project, imageName)
 				if err != nil {
 					return nil, fmt.Errorf(
-						"Error resolving image name '%s': %s",
+						"error resolving image name '%s': %s",
 						imageName, err)
 				}
 				disk.InitializeParams.SourceImage = imageUrl
@@ -637,7 +637,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	if v, ok := d.GetOk("scheduling"); ok {
 		_schedulings := v.([]interface{})
 		if len(_schedulings) > 1 {
-			return fmt.Errorf("Error, at most one `scheduling` block can be defined")
+			return fmt.Errorf("error, at most one `scheduling` block can be defined")
 		}
 		_scheduling := _schedulings[0].(map[string]interface{})
 
@@ -688,7 +688,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	op, err := config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating instance template: %s", err)
+		return fmt.Errorf("error creating instance template: %s", err)
 	}
 
 	// Store the ID now
@@ -759,7 +759,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	// Set the metadata fingerprint if there is one.
 	if instanceTemplate.Properties.Metadata != nil {
 		if err = d.Set("metadata_fingerprint", instanceTemplate.Properties.Metadata.Fingerprint); err != nil {
-			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
+			return fmt.Errorf("error setting metadata_fingerprint: %s", err)
 		}
 
 		md := instanceTemplate.Properties.Metadata
@@ -768,19 +768,19 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 			if err = d.Set("metadata_startup_script", script); err != nil {
-				return fmt.Errorf("Error setting metadata_startup_script: %s", err)
+				return fmt.Errorf("error setting metadata_startup_script: %s", err)
 			}
 			delete(_md, "startup-script")
 		}
 		if err = d.Set("metadata", _md); err != nil {
-			return fmt.Errorf("Error setting metadata: %s", err)
+			return fmt.Errorf("error setting metadata: %s", err)
 		}
 	}
 
 	// Set the tags fingerprint if there is one.
 	if instanceTemplate.Properties.Tags != nil {
 		if err = d.Set("tags_fingerprint", instanceTemplate.Properties.Tags.Fingerprint); err != nil {
-			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
+			return fmt.Errorf("error setting tags_fingerprint: %s", err)
 		}
 	} else {
 		d.Set("tags_fingerprint", "")
@@ -789,10 +789,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		d.Set("labels", instanceTemplate.Properties.Labels)
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
-		return fmt.Errorf("Error setting self_link: %s", err)
+		return fmt.Errorf("error setting self_link: %s", err)
 	}
 	if err = d.Set("name", instanceTemplate.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+		return fmt.Errorf("error setting name: %s", err)
 	}
 	if instanceTemplate.Properties.Disks != nil {
 		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d, project)
@@ -800,28 +800,28 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("error flattening disks: %s", err)
 		}
 		if err = d.Set("disk", disks); err != nil {
-			return fmt.Errorf("Error setting disk: %s", err)
+			return fmt.Errorf("error setting disk: %s", err)
 		}
 	}
 	if err = d.Set("description", instanceTemplate.Description); err != nil {
-		return fmt.Errorf("Error setting description: %s", err)
+		return fmt.Errorf("error setting description: %s", err)
 	}
 	if err = d.Set("machine_type", instanceTemplate.Properties.MachineType); err != nil {
-		return fmt.Errorf("Error setting machine_type: %s", err)
+		return fmt.Errorf("error setting machine_type: %s", err)
 	}
 	if err = d.Set("min_cpu_platform", instanceTemplate.Properties.MinCpuPlatform); err != nil {
-		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
+		return fmt.Errorf("error setting min_cpu_platform: %s", err)
 	}
 
 	if err = d.Set("can_ip_forward", instanceTemplate.Properties.CanIpForward); err != nil {
-		return fmt.Errorf("Error setting can_ip_forward: %s", err)
+		return fmt.Errorf("error setting can_ip_forward: %s", err)
 	}
 
 	if err = d.Set("instance_description", instanceTemplate.Properties.Description); err != nil {
-		return fmt.Errorf("Error setting instance_description: %s", err)
+		return fmt.Errorf("error setting instance_description: %s", err)
 	}
 	if err = d.Set("project", project); err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
+		return fmt.Errorf("error setting project: %s", err)
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
 		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
@@ -829,38 +829,38 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return err
 		}
 		if err = d.Set("network_interface", networkInterfaces); err != nil {
-			return fmt.Errorf("Error setting network_interface: %s", err)
+			return fmt.Errorf("error setting network_interface: %s", err)
 		}
 		// region is where to look up the subnetwork if there is one attached to the instance template
 		if region != "" {
 			if err = d.Set("region", region); err != nil {
-				return fmt.Errorf("Error setting region: %s", err)
+				return fmt.Errorf("error setting region: %s", err)
 			}
 		}
 	}
 	if instanceTemplate.Properties.Scheduling != nil {
 		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
 		if err = d.Set("scheduling", scheduling); err != nil {
-			return fmt.Errorf("Error setting scheduling: %s", err)
+			return fmt.Errorf("error setting scheduling: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.Tags != nil {
 		if err = d.Set("tags", instanceTemplate.Properties.Tags.Items); err != nil {
-			return fmt.Errorf("Error setting tags: %s", err)
+			return fmt.Errorf("error setting tags: %s", err)
 		}
 	} else {
 		if err = d.Set("tags", nil); err != nil {
-			return fmt.Errorf("Error setting empty tags: %s", err)
+			return fmt.Errorf("error setting empty tags: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.ServiceAccounts != nil {
 		if err = d.Set("service_account", flattenServiceAccounts(instanceTemplate.Properties.ServiceAccounts)); err != nil {
-			return fmt.Errorf("Error setting service_account: %s", err)
+			return fmt.Errorf("error setting service_account: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.GuestAccelerators != nil {
 		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
-			return fmt.Errorf("Error setting guest_accelerator: %s", err)
+			return fmt.Errorf("error setting guest_accelerator: %s", err)
 		}
 	}
 	return nil
@@ -877,7 +877,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	op, err := config.clientCompute.InstanceTemplates.Delete(
 		project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting instance template: %s", err)
+		return fmt.Errorf("error deleting instance template: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Deleting Instance Template")

@@ -82,11 +82,11 @@ func testAccCheckComputeBackendBucketExists(n string, svc *compute.BackendBucket
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -98,7 +98,7 @@ func testAccCheckComputeBackendBucketExists(n string, svc *compute.BackendBucket
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend bucket %s not found", rs.Primary.ID)
+			return fmt.Errorf("backend bucket %s not found", rs.Primary.ID)
 		}
 
 		*svc = *found

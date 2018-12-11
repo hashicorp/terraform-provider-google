@@ -161,7 +161,7 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 	log.Printf("[INFO] build trigger request: %s", string(tstr))
 	trigger, err := config.clientBuild.Projects.Triggers.Create(project, buildTrigger).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating build trigger: %s", err)
+		return fmt.Errorf("error creating build trigger: %s", err)
 	}
 
 	d.SetId(trigger.Id)
@@ -357,7 +357,7 @@ func resourceCloudbuildBuildTriggerDelete(d *schema.ResourceData, meta interface
 	_, err = config.clientBuild.Projects.Triggers.Delete(
 		project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting build trigger: %s", err)
+		return fmt.Errorf("error deleting build trigger: %s", err)
 	}
 
 	d.SetId("")
@@ -374,6 +374,6 @@ func resourceCloudBuildTriggerImportState(d *schema.ResourceData, meta interface
 		d.SetId(parts[1])
 		return []*schema.ResourceData{d}, nil
 	} else {
-		return nil, fmt.Errorf("Invalid import id %q. Expecting {trigger_name} or {project}/{trigger_name}", d.Id())
+		return nil, fmt.Errorf("invalid import id %q. Expecting {trigger_name} or {project}/{trigger_name}", d.Id())
 	}
 }

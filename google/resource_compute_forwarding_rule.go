@@ -251,13 +251,13 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Creating new ForwardingRule: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating ForwardingRule: %s", err)
+		return fmt.Errorf("error creating ForwardingRule: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -278,7 +278,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create ForwardingRule: %s", waitErr)
+		return fmt.Errorf("error waiting to create ForwardingRule: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating ForwardingRule %q: %#v", d.Id(), res)
@@ -304,56 +304,56 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("description", flattenComputeForwardingRuleDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("ip_address", flattenComputeForwardingRuleIPAddress(res["IPAddress"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("ip_protocol", flattenComputeForwardingRuleIPProtocol(res["IPProtocol"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("name", flattenComputeForwardingRuleName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("network", flattenComputeForwardingRuleNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("port_range", flattenComputeForwardingRulePortRange(res["portRange"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("ports", flattenComputeForwardingRulePorts(res["ports"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("subnetwork", flattenComputeForwardingRuleSubnetwork(res["subnetwork"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+		return fmt.Errorf("error reading ForwardingRule: %s", err)
 	}
 
 	return nil
@@ -379,7 +379,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating ForwardingRule %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -452,7 +452,7 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -593,7 +593,7 @@ func expandComputeForwardingRuleName(v interface{}, d *schema.ResourceData, conf
 func expandComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
+		return nil, fmt.Errorf("invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -609,7 +609,7 @@ func expandComputeForwardingRulePorts(v interface{}, d *schema.ResourceData, con
 func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
+		return nil, fmt.Errorf("invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -650,7 +650,7 @@ func expandComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceDat
 func expandComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

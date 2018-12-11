@@ -230,13 +230,13 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Creating new UrlMap: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating UrlMap: %s", err)
+		return fmt.Errorf("error creating UrlMap: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -257,7 +257,7 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create UrlMap: %s", waitErr)
+		return fmt.Errorf("error waiting to create UrlMap: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating UrlMap %q: %#v", d.Id(), res)
@@ -283,38 +283,38 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("host_rule", flattenComputeUrlMapHost_rule(res["hostRules"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("map_id", flattenComputeUrlMapMap_id(res["id"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("path_matcher", flattenComputeUrlMapPath_matcher(res["pathMatchers"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+		return fmt.Errorf("error reading UrlMap: %s", err)
 	}
 
 	return nil
@@ -376,7 +376,7 @@ func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error
 	res, err := sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating UrlMap %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating UrlMap %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -444,7 +444,7 @@ func resourceComputeUrlMapImport(d *schema.ResourceData, meta interface{}) ([]*s
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

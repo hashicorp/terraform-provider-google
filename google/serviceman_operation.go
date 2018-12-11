@@ -47,7 +47,7 @@ func serviceManagementOperationWait(config *Config, op *servicemanagement.Operat
 func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMin int) (googleapi.RawMessage, error) {
 	if op.Done {
 		if op.Error != nil {
-			return nil, fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+			return nil, fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 		}
 		return op.Response, nil
 	}
@@ -63,12 +63,12 @@ func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Op
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return nil, fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return nil, fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	op = opRaw.(*servicemanagement.Operation)
 	if op.Error != nil {
-		return nil, fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		return nil, fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 	}
 
 	return op.Response, nil

@@ -145,11 +145,11 @@ func testAccCheckGoogleOrganizationIamCustomRole(n, title, description, stage st
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -160,21 +160,21 @@ func testAccCheckGoogleOrganizationIamCustomRole(n, title, description, stage st
 		}
 
 		if title != role.Title {
-			return fmt.Errorf("Incorrect title. Expected %q, got %q", title, role.Title)
+			return fmt.Errorf("incorrect title. Expected %q, got %q", title, role.Title)
 		}
 
 		if description != role.Description {
-			return fmt.Errorf("Incorrect description. Expected %q, got %q", description, role.Description)
+			return fmt.Errorf("incorrect description. Expected %q, got %q", description, role.Description)
 		}
 
 		if stage != role.Stage {
-			return fmt.Errorf("Incorrect stage. Expected %q, got %q", stage, role.Stage)
+			return fmt.Errorf("incorrect stage. Expected %q, got %q", stage, role.Stage)
 		}
 
 		sort.Strings(permissions)
 		sort.Strings(role.IncludedPermissions)
 		if !reflect.DeepEqual(permissions, role.IncludedPermissions) {
-			return fmt.Errorf("Incorrect permissions. Expected %q, got %q", permissions, role.IncludedPermissions)
+			return fmt.Errorf("incorrect permissions. Expected %q, got %q", permissions, role.IncludedPermissions)
 		}
 
 		return nil
@@ -185,11 +185,11 @@ func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(n string, deleted
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -200,7 +200,7 @@ func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(n string, deleted
 		}
 
 		if deleted != role.Deleted {
-			return fmt.Errorf("Incorrect deletion status. Expected %t, got %t", deleted, role.Deleted)
+			return fmt.Errorf("incorrect deletion status. Expected %t, got %t", deleted, role.Deleted)
 		}
 
 		return nil

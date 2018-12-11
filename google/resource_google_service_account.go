@@ -75,7 +75,7 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 	sa, err = config.clientIAM.Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating service account: %s", err)
+		return fmt.Errorf("error creating service account: %s", err)
 	}
 
 	d.SetId(sa.Name)
@@ -117,7 +117,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if ok := d.HasChange("display_name"); ok {
 		sa, err := config.clientIAM.Projects.ServiceAccounts.Get(d.Id()).Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving service account %q: %s", d.Id(), err)
+			return fmt.Errorf("error retrieving service account %q: %s", d.Id(), err)
 		}
 		_, err = config.clientIAM.Projects.ServiceAccounts.Update(d.Id(),
 			&iam.ServiceAccount{
@@ -125,7 +125,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 				Etag:        sa.Etag,
 			}).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating service account %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating service account %q: %s", d.Id(), err)
 		}
 	}
 
@@ -137,7 +137,7 @@ func getServiceAccountIamPolicy(sa string, config *Config) (*iam.Policy, error) 
 	p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(sa).Do()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for service account %q: %s", sa, err)
+		return nil, fmt.Errorf("error retrieving IAM policy for service account %q: %s", sa, err)
 	}
 	return p, nil
 }
@@ -205,7 +205,7 @@ func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "projects/{{project}}/serviceAccounts/{{email}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

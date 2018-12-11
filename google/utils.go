@@ -106,7 +106,7 @@ func getZonalResourceFromRegion(getResource func(string) (interface{}, error), r
 					// Resource was not found in this zone
 					continue
 				}
-				return nil, fmt.Errorf("Error reading Resource: %s", err)
+				return nil, fmt.Errorf("error reading Resource: %s", err)
 			}
 			// Resource was found
 			return resource, nil
@@ -130,7 +130,7 @@ func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error
 					// Resource was not found in this zone
 					continue
 				}
-				return nil, fmt.Errorf("Error reading Resource: %s", err)
+				return nil, fmt.Errorf("error reading Resource: %s", err)
 			}
 			// Resource was found
 			return resource, nil
@@ -153,7 +153,7 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 		return nil
 	}
 
-	return fmt.Errorf("Error reading %s: %s", resource, err)
+	return fmt.Errorf("error reading %s: %s", resource, err)
 }
 
 func isGoogleApiErrorWithCode(err error, errCode int) bool {

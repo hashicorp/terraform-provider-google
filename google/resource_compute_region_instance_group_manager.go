@@ -309,7 +309,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Insert(project, region, manager).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error creating RegionInstanceGroupManager: %s", err)
+		return fmt.Errorf("error creating RegionInstanceGroupManager: %s", err)
 	}
 
 	d.SetId(regionInstanceGroupManagerId{Project: project, Region: region, Name: manager.Name}.terraformId())
@@ -401,10 +401,10 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("project", regionalID.Project)
 	d.Set("target_size", manager.TargetSize)
 	if err := d.Set("target_pools", manager.TargetPools); err != nil {
-		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+		return fmt.Errorf("error setting target_pools in state: %s", err.Error())
 	}
 	if err := d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
-		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
+		return fmt.Errorf("error setting named_port in state: %s", err.Error())
 	}
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
@@ -460,7 +460,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			project, region, d.Get("name").(string), setTargetPools).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating RegionInstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -482,7 +482,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			project, region, d.Get("name").(string), setInstanceTemplate).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating RegionInstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -506,7 +506,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			project, region, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating RegionInstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete:
@@ -524,7 +524,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			project, region, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error resizing RegionInstanceGroupManager: %s", err)
+			return fmt.Errorf("error resizing RegionInstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -566,7 +566,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Delete(regionalID.Project, regionalID.Region, regionalID.Name).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error deleting region instance group manager: %s", err)
+		return fmt.Errorf("error deleting region instance group manager: %s", err)
 	}
 
 	// Wait for the operation to complete
@@ -648,6 +648,6 @@ func parseRegionInstanceGroupManagerId(id string) (*regionInstanceGroupManagerId
 			Name: id,
 		}, nil
 	default:
-		return nil, fmt.Errorf("Invalid region instance group manager specifier. Expecting either {projectId}/{region}/{name} or {name}, where {projectId} and {region} will be derived from the provider.")
+		return nil, fmt.Errorf("invalid region instance group manager specifier. Expecting either {projectId}/{region}/{name} or {name}, where {projectId} and {region} will be derived from the provider.")
 	}
 }

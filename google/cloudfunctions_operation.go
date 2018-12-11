@@ -65,7 +65,7 @@ func cloudFunctionsOperationWaitTime(client *cloudfunctions.Service, op *cloudfu
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	resultOp := opRaw.(*cloudfunctions.Operation)

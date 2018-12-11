@@ -177,13 +177,13 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Creating new Router: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Router: %s", err)
+		return fmt.Errorf("error creating Router: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -204,7 +204,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Router: %s", waitErr)
+		return fmt.Errorf("error waiting to create Router: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Router %q: %#v", d.Id(), res)
@@ -230,29 +230,29 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("name", flattenComputeRouterName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRouterDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("network", flattenComputeRouterNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+		return fmt.Errorf("error reading Router: %s", err)
 	}
 
 	return nil
@@ -291,7 +291,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	res, err := sendRequest(config, "PATCH", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating Router %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating Router %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -366,7 +366,7 @@ func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*s
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -474,7 +474,7 @@ func expandComputeRouterDescription(v interface{}, d *schema.ResourceData, confi
 func expandComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
+		return nil, fmt.Errorf("invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -571,7 +571,7 @@ func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schem
 func expandComputeRouterRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

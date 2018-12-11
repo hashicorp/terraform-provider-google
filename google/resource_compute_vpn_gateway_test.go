@@ -36,11 +36,11 @@ func testAccCheckComputeVpnGatewayExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -52,7 +52,7 @@ func testAccCheckComputeVpnGatewayExists(n string) resource.TestCheckFunc {
 		_, err := vpnGatewaysService.Get(project, region, name).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error Reading VPN Gateway %s: %s", name, err)
+			return fmt.Errorf("error Reading VPN Gateway %s: %s", name, err)
 		}
 
 		return nil

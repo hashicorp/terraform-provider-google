@@ -112,7 +112,7 @@ func testAccCheckComputeProjectMetadataDestroy(s *terraform.State) error {
 
 		project, err := config.clientCompute.Projects.Get(rs.Primary.ID).Do()
 		if err == nil && len(project.CommonInstanceMetadata.Items) > 0 {
-			return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
+			return fmt.Errorf("error, metadata items still exist in %s", rs.Primary.ID)
 		}
 	}
 

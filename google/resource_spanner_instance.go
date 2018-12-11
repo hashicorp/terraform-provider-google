@@ -131,9 +131,9 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		id.parentProjectUri(), cir).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusConflict {
-			return fmt.Errorf("Error, the name %s is not unique within project %s", id.Instance, id.Project)
+			return fmt.Errorf("error, the name %s is not unique within project %s", id.Instance, id.Project)
 		}
-		return fmt.Errorf("Error, failed to create instance %s: %s", id.terraformId(), err)
+		return fmt.Errorf("error, failed to create instance %s: %s", id.terraformId(), err)
 	}
 
 	d.SetId(id.terraformId())
@@ -230,7 +230,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	_, err = config.clientSpanner.Projects.Instances.Delete(
 		id.instanceUri()).Do()
 	if err != nil {
-		return fmt.Errorf("Error, failed to delete Spanner Instance %s in project %s: %s", id.Instance, id.Project, err)
+		return fmt.Errorf("error, failed to delete Spanner Instance %s in project %s: %s", id.Instance, id.Project, err)
 	}
 
 	d.SetId("")
@@ -316,7 +316,7 @@ func importSpannerInstanceId(id string) (*spannerInstanceId, error) {
 
 func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
 	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
-		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
+		return nil, fmt.Errorf("invalid spanner id format, expecting {projectId}/{instanceId}")
 	}
 	parts := strings.Split(id, "/")
 	return &spannerInstanceId{

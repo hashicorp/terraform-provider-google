@@ -133,13 +133,13 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Creating new GlobalAddress: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating GlobalAddress: %s", err)
+		return fmt.Errorf("error creating GlobalAddress: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -160,7 +160,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create GlobalAddress: %s", waitErr)
+		return fmt.Errorf("error waiting to create GlobalAddress: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating GlobalAddress %q: %#v", d.Id(), res)
@@ -186,29 +186,29 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 
 	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+		return fmt.Errorf("error reading GlobalAddress: %s", err)
 	}
 
 	return nil
@@ -258,7 +258,7 @@ func resourceComputeGlobalAddressImport(d *schema.ResourceData, meta interface{}
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

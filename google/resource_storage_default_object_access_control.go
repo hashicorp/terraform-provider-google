@@ -129,13 +129,13 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	log.Printf("[DEBUG] Creating new DefaultObjectAccessControl: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error creating DefaultObjectAccessControl: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -158,28 +158,28 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 	}
 
 	if err := d.Set("domain", flattenStorageDefaultObjectAccessControlDomain(res["domain"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("email", flattenStorageDefaultObjectAccessControlEmail(res["email"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("entity", flattenStorageDefaultObjectAccessControlEntity(res["entity"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("entity_id", flattenStorageDefaultObjectAccessControlEntityId(res["entityId"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("generation", flattenStorageDefaultObjectAccessControlGeneration(res["generation"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("object", flattenStorageDefaultObjectAccessControlObject(res["object"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("project_team", flattenStorageDefaultObjectAccessControlProjectTeam(res["projectTeam"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 	if err := d.Set("role", flattenStorageDefaultObjectAccessControlRole(res["role"], d)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+		return fmt.Errorf("error reading DefaultObjectAccessControl: %s", err)
 	}
 
 	return nil
@@ -223,7 +223,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	_, err = sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating DefaultObjectAccessControl %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating DefaultObjectAccessControl %q: %s", d.Id(), err)
 	}
 
 	return resourceStorageDefaultObjectAccessControlRead(d, meta)
@@ -255,7 +255,7 @@ func resourceStorageDefaultObjectAccessControlImport(d *schema.ResourceData, met
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

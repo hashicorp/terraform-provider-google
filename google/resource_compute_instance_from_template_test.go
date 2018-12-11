@@ -48,7 +48,7 @@ func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.Instances.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Instance still exists")
+			return fmt.Errorf("instance still exists")
 		}
 	}
 

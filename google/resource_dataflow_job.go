@@ -224,7 +224,7 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	return fmt.Errorf("There was a problem canceling the dataflow job '%s' - the final state was %s.", d.Id(), d.Get("state").(string))
+	return fmt.Errorf("there was a problem canceling the dataflow job '%s' - the final state was %s.", d.Id(), d.Get("state").(string))
 
 }
 
@@ -235,7 +235,7 @@ func mapOnDelete(policy string) (string, error) {
 	case "drain":
 		return "JOB_STATE_DRAINING", nil
 	default:
-		return "", fmt.Errorf("Invalid `on_delete` policy: %s", policy)
+		return "", fmt.Errorf("invalid `on_delete` policy: %s", policy)
 	}
 }
 

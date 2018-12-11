@@ -588,7 +588,7 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 			project, zone.Name, mt.(string)).Do()
 		if err != nil {
 			return nil, fmt.Errorf(
-				"Error loading machine type: %s",
+				"error loading machine type: %s",
 				err)
 		}
 		machineTypeUrl = machineType.SelfLink
@@ -635,17 +635,17 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating metadata: %s", err)
+		return nil, fmt.Errorf("error creating metadata: %s", err)
 	}
 
 	networkInterfaces, err := expandNetworkInterfaces(d, config)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating network interfaces: %s", err)
+		return nil, fmt.Errorf("error creating network interfaces: %s", err)
 	}
 
 	accels, err := expandInstanceGuestAccelerators(d, config)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
+		return nil, fmt.Errorf("error creating guest accelerators: %s", err)
 	}
 
 	// Create the instance information
@@ -685,7 +685,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	zone, err := config.clientCompute.Zones.Get(
 		project, z).Do()
 	if err != nil {
-		return fmt.Errorf("Error loading zone '%s': %s", z, err)
+		return fmt.Errorf("error loading zone '%s': %s", z, err)
 	}
 
 	instance, err := expandComputeInstance(project, zone, d, config)
@@ -699,7 +699,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[INFO] Requesting instance creation")
 	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating instance: %s", err)
+		return fmt.Errorf("error creating instance: %s", err)
 	}
 
 	// Store the ID now
@@ -745,7 +745,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if err = d.Set("metadata", md); err != nil {
-		return fmt.Errorf("Error setting metadata: %s", err)
+		return fmt.Errorf("error setting metadata: %s", err)
 	}
 
 	d.Set("metadata_fingerprint", instance.Metadata.Fingerprint)
@@ -913,7 +913,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("metadata") {
 		metadata, err := resourceInstanceMetadata(d)
 		if err != nil {
-			return fmt.Errorf("Error parsing metadata: %s", err)
+			return fmt.Errorf("error parsing metadata: %s", err)
 		}
 
 		metadataV1 := &compute.Metadata{}
@@ -923,7 +923,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating metadata: %s", err)
+			return fmt.Errorf("error updating metadata: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -943,7 +943,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		op, err := config.clientCompute.Instances.SetTags(
 			project, zone, d.Id(), tagsV1).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating tags: %s", err)
+			return fmt.Errorf("error updating tags: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "tags to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -961,7 +961,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		op, err := config.clientCompute.Instances.SetLabels(project, zone, d.Id(), &req).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating labels: %s", err)
+			return fmt.Errorf("error updating labels: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "labels to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -985,7 +985,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			zone, d.Id(), scheduling).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating scheduling policy: %s", err)
+			return fmt.Errorf("error updating scheduling policy: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "scheduling policy update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -999,7 +999,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	networkInterfacesCount := d.Get("network_interface.#").(int)
 	// Sanity check
 	if networkInterfacesCount != len(instance.NetworkInterfaces) {
-		return fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
+		return fmt.Errorf("instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
 	}
 	for i := 0; i < networkInterfacesCount; i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
@@ -1010,7 +1010,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		networkName = instNetworkInterface.Name
 		// Sanity check
 		if networkName != instNetworkInterface.Name {
-			return fmt.Errorf("Instance networkInterface had unexpected name: %s", instNetworkInterface.Name)
+			return fmt.Errorf("instance networkInterface had unexpected name: %s", instNetworkInterface.Name)
 		}
 
 		if d.HasChange(prefix + ".access_config") {
@@ -1026,7 +1026,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				op, err := config.clientCompute.Instances.DeleteAccessConfig(
 					project, zone, d.Id(), ac.Name, networkName).Do()
 				if err != nil {
-					return fmt.Errorf("Error deleting old access_config: %s", err)
+					return fmt.Errorf("error deleting old access_config: %s", err)
 				}
 				opErr := computeOperationWaitTime(config.clientCompute, op, project, "old access_config to delete", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 				if opErr != nil {
@@ -1051,7 +1051,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				op, err := config.clientComputeBeta.Instances.AddAccessConfig(
 					project, zone, d.Id(), networkName, ac).Do()
 				if err != nil {
-					return fmt.Errorf("Error adding new access_config: %s", err)
+					return fmt.Errorf("error adding new access_config: %s", err)
 				}
 				opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "new access_config to add")
 				if opErr != nil {
@@ -1221,7 +1221,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		op, err := config.clientCompute.Instances.SetDeletionProtection(project, zone, d.Id()).DeletionProtection(nDeletionProtection).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating deletion protection flag: %s", err)
+			return fmt.Errorf("error updating deletion protection flag: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "deletion protection to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -1407,12 +1407,12 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 
 	old, ok := oldi.([]interface{})
 	if !ok {
-		return fmt.Errorf("Expected old guest accelerator diff to be a slice")
+		return fmt.Errorf("expected old guest accelerator diff to be a slice")
 	}
 
 	new, ok := newi.([]interface{})
 	if !ok {
-		return fmt.Errorf("Expected new guest accelerator diff to be a slice")
+		return fmt.Errorf("expected new guest accelerator diff to be a slice")
 	}
 
 	if len(old) != 0 && len(new) != 1 {
@@ -1421,7 +1421,7 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 
 	firstAccel, ok := new[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to type assert guest accelerator")
+		return fmt.Errorf("unable to type assert guest accelerator")
 	}
 
 	if firstAccel["count"].(int) == 0 {
@@ -1448,11 +1448,11 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Id())
 
 	if d.Get("deletion_protection").(bool) {
-		return fmt.Errorf("Cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \"terraform apply\" before attempting to delete it.", d.Id())
+		return fmt.Errorf("cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \\"terraform apply\\" before attempting to delete it.", d.Id())
 	} else {
 		op, err := config.clientCompute.Instances.Delete(project, zone, d.Id()).Do()
 		if err != nil {
-			return fmt.Errorf("Error deleting instance: %s", err)
+			return fmt.Errorf("error deleting instance: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -1470,7 +1470,7 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	parts := strings.Split(d.Id(), "/")
 
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
+		return nil, fmt.Errorf("invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
 	}
 
 	d.Set("project", parts[0])
@@ -1515,7 +1515,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 			diskTypeName := v.(string)
 			diskType, err := readDiskType(config, zone, project, diskTypeName)
 			if err != nil {
-				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
+				return nil, fmt.Errorf("error loading disk type '%s': %s", diskTypeName, err)
 			}
 			disk.InitializeParams.DiskType = diskType.SelfLink
 		}
@@ -1524,7 +1524,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 			imageName := v.(string)
 			imageUrl, err := resolveImage(config, project, imageName)
 			if err != nil {
-				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
+				return nil, fmt.Errorf("error resolving image name '%s': %s", imageName, err)
 			}
 
 			disk.InitializeParams.SourceImage = imageUrl
@@ -1574,7 +1574,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
 	diskType, err := readDiskType(config, zone, project, "local-ssd")
 	if err != nil {
-		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
+		return nil, fmt.Errorf("error loading disk type 'local-ssd': %s", err)
 	}
 
 	n := d.Get("scratch_disk.#").(int)

@@ -49,7 +49,7 @@ func parseLoggingSinkId(id string) (*LoggingSinkId, error) {
 	}
 
 	if !validLoggingSinkResourceType {
-		return nil, fmt.Errorf("Logging resource type %s is not valid. Valid resource types: %#v", parts[1],
+		return nil, fmt.Errorf("logging resource type %s is not valid. Valid resource types: %#v", parts[1],
 			loggingSinkResourceTypes)
 	}
 	return &LoggingSinkId{

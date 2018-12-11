@@ -171,13 +171,13 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Creating new HttpsHealthCheck: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error creating HttpsHealthCheck: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -198,7 +198,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create HttpsHealthCheck: %s", waitErr)
+		return fmt.Errorf("error waiting to create HttpsHealthCheck: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating HttpsHealthCheck %q: %#v", d.Id(), res)
@@ -224,41 +224,41 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 
 	if err := d.Set("check_interval_sec", flattenComputeHttpsHealthCheckCheckIntervalSec(res["checkIntervalSec"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeHttpsHealthCheckCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("description", flattenComputeHttpsHealthCheckDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("healthy_threshold", flattenComputeHttpsHealthCheckHealthyThreshold(res["healthyThreshold"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("host", flattenComputeHttpsHealthCheckHost(res["host"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("name", flattenComputeHttpsHealthCheckName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("port", flattenComputeHttpsHealthCheckPort(res["port"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("request_path", flattenComputeHttpsHealthCheckRequestPath(res["requestPath"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("timeout_sec", flattenComputeHttpsHealthCheckTimeoutSec(res["timeoutSec"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("unhealthy_threshold", flattenComputeHttpsHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d)); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
+		return fmt.Errorf("error reading HttpsHealthCheck: %s", err)
 	}
 
 	return nil
@@ -332,7 +332,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 	res, err := sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating HttpsHealthCheck %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating HttpsHealthCheck %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -400,7 +400,7 @@ func resourceComputeHttpsHealthCheckImport(d *schema.ResourceData, meta interfac
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

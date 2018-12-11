@@ -50,7 +50,7 @@ func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		topic, _ := config.clientPubsub.Projects.Topics.Get(rs.Primary.ID).Do()
 		if topic != nil {
-			return fmt.Errorf("Topic still present")
+			return fmt.Errorf("topic still present")
 		}
 	}
 

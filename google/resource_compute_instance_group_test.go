@@ -214,11 +214,11 @@ func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.Instanc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -239,11 +239,11 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -268,11 +268,11 @@ func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, inst
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -306,10 +306,10 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 
 		rsInstanceGroup, ok := s.RootModule().Resources[nInstanceGroup]
 		if !ok {
-			return fmt.Errorf("Not found: %s", nInstanceGroup)
+			return fmt.Errorf("not found: %s", nInstanceGroup)
 		}
 		if rsInstanceGroup.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
 			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.Attributes["name"]).Do()
@@ -319,10 +319,10 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 
 		rsNetwork, ok := s.RootModule().Resources[nNetwork]
 		if !ok {
-			return fmt.Errorf("Not found: %s", nNetwork)
+			return fmt.Errorf("not found: %s", nNetwork)
 		}
 		if rsNetwork.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		network, err := config.clientCompute.Networks.Get(
 			config.Project, rsNetwork.Primary.ID).Do()

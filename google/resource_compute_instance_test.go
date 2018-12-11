@@ -1047,22 +1047,22 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		op, err := config.clientCompute.Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Could not stop instance: %s", err)
+			return fmt.Errorf("could not stop instance: %s", err)
 		}
 		err = computeOperationWait(config.clientCompute, op, config.Project, "Waiting on stop")
 		if err != nil {
-			return fmt.Errorf("Could not stop instance: %s", err)
+			return fmt.Errorf("could not stop instance: %s", err)
 		}
 
 		machineType := compute.InstancesSetMachineTypeRequest{
@@ -1072,11 +1072,11 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		op, err = config.clientCompute.Instances.SetMachineType(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID, &machineType).Do()
 		if err != nil {
-			return fmt.Errorf("Could not change machine type: %s", err)
+			return fmt.Errorf("could not change machine type: %s", err)
 		}
 		err = computeOperationWait(config.clientCompute, op, config.Project, "Waiting machine type change")
 		if err != nil {
-			return fmt.Errorf("Could not change machine type: %s", err)
+			return fmt.Errorf("could not change machine type: %s", err)
 		}
 		return nil
 	}
@@ -1093,7 +1093,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.Instances.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Instance still exists")
+			return fmt.Errorf("instance still exists")
 		}
 	}
 
@@ -1108,11 +1108,11 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -1124,7 +1124,7 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Instance not found")
+			return fmt.Errorf("instance not found")
 		}
 
 		*instance = *found
@@ -1209,7 +1209,7 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 			}
 		}
 
-		return fmt.Errorf("Disk not found: %s", source)
+		return fmt.Errorf("disk not found: %s", source)
 	}
 }
 
@@ -1217,14 +1217,14 @@ func testAccCheckComputeInstanceHasInstanceId(instance *compute.Instance, n stri
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		remote := fmt.Sprintf("%d", instance.Id)
 		local := rs.Primary.Attributes["instance_id"]
 
 		if remote != local {
-			return fmt.Errorf("Instance id stored does not match: remote has %#v but local has %#v", remote,
+			return fmt.Errorf("instance id stored does not match: remote has %#v but local has %#v", remote,
 				local)
 		}
 
@@ -1246,7 +1246,7 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 			}
 		}
 
-		return fmt.Errorf("Boot disk not found with source %q", source)
+		return fmt.Errorf("boot disk not found with source %q", source)
 	}
 }
 
@@ -1263,7 +1263,7 @@ func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType strin
 			return nil
 		}
 
-		return fmt.Errorf("Boot disk not found with type %q", diskType)
+		return fmt.Errorf("boot disk not found with type %q", diskType)
 	}
 }
 
@@ -1277,10 +1277,10 @@ func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfac
 		for _, disk := range instance.Disks {
 			if disk.Type == "SCRATCH" {
 				if i >= len(interfaces) {
-					return fmt.Errorf("Expected %d scratch disks, found more", len(interfaces))
+					return fmt.Errorf("expected %d scratch disks, found more", len(interfaces))
 				}
 				if disk.Interface != interfaces[i] {
-					return fmt.Errorf("Mismatched interface on scratch disk #%d, expected: %q, found: %q",
+					return fmt.Errorf("mismatched interface on scratch disk #%d, expected: %q, found: %q",
 						i, interfaces[i], disk.Interface)
 				}
 				i++
@@ -1288,7 +1288,7 @@ func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfac
 		}
 
 		if i != len(interfaces) {
-			return fmt.Errorf("Expected %d scratch disks, found %d", len(interfaces), i)
+			return fmt.Errorf("expected %d scratch disks, found %d", len(interfaces), i)
 		}
 
 		return nil
@@ -1299,27 +1299,27 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		for i, disk := range instance.Disks {
 			if disk.Boot {
 				attr := rs.Primary.Attributes["boot_disk.0.disk_encryption_key_sha256"]
 				if attr != bootDiskEncryptionKey {
-					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
+					return fmt.Errorf("boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
 				}
 				if disk.DiskEncryptionKey == nil && attr != "" {
-					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+					return fmt.Errorf("disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
 				}
 				if disk.DiskEncryptionKey != nil && attr != disk.DiskEncryptionKey.Sha256 {
-					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
+					return fmt.Errorf("disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
 						i, attr, disk.DiskEncryptionKey.Sha256)
 				}
 			} else {
 				if disk.DiskEncryptionKey != nil {
 					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].Sha256
 					if disk.DiskEncryptionKey.Sha256 != expectedKey {
-						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
+						return fmt.Errorf("disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
 					}
 				}
 			}
@@ -1327,7 +1327,7 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 
 		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
 		if err != nil {
-			return fmt.Errorf("Error converting value of attached_disk.#")
+			return fmt.Errorf("error converting value of attached_disk.#")
 		}
 		for i := 0; i < numAttachedDisks; i++ {
 			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
@@ -1335,7 +1335,7 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			if key, ok := diskNameToEncryptionKey[diskName]; ok {
 				expectedEncryptionKey := key.Sha256
 				if encryptionKey != expectedEncryptionKey {
-					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
+					return fmt.Errorf("attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
 				}
 			}
 		}
@@ -1367,10 +1367,10 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 
 		v, ok := instance.Labels[key]
 		if !ok {
-			return fmt.Errorf("No label found with key %s on instance %s", key, instance.Name)
+			return fmt.Errorf("no label found with key %s on instance %s", key, instance.Name)
 		}
 		if v != value {
-			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
+			return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
 		}
 
 		return nil
@@ -1380,7 +1380,7 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 func testAccCheckComputeInstanceServiceAccount(instance *compute.Instance, scope string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if count := len(instance.ServiceAccounts); count != 1 {
-			return fmt.Errorf("Wrong number of ServiceAccounts: expected 1, got %d", count)
+			return fmt.Errorf("wrong number of ServiceAccounts: expected 1, got %d", count)
 		}
 
 		for _, val := range instance.ServiceAccounts[0].Scopes {
@@ -1389,7 +1389,7 @@ func testAccCheckComputeInstanceServiceAccount(instance *compute.Instance, scope
 			}
 		}
 
-		return fmt.Errorf("Scope not found: %s", scope)
+		return fmt.Errorf("scope not found: %s", scope)
 	}
 }
 
@@ -1421,7 +1421,7 @@ func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, network
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
 			if i.NetworkIP != networkIP {
-				return fmt.Errorf("Wrong network_ip found: expected %v, got %v", networkIP, i.NetworkIP)
+				return fmt.Errorf("wrong network_ip found: expected %v, got %v", networkIP, i.NetworkIP)
 			}
 		}
 
@@ -1442,15 +1442,15 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.GuestAccelerators) != 1 {
-			return fmt.Errorf("Expected only one guest accelerator")
+			return fmt.Errorf("expected only one guest accelerator")
 		}
 
 		if !strings.HasSuffix(instance.GuestAccelerators[0].AcceleratorType, acceleratorType) {
-			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instance.GuestAccelerators[0].AcceleratorType)
+			return fmt.Errorf("wrong accelerator type: expected %v, got %v", acceleratorType, instance.GuestAccelerators[0].AcceleratorType)
 		}
 
 		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
-			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
+			return fmt.Errorf("wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
 		}
 
 		return nil
@@ -1460,7 +1460,7 @@ func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, 
 func testAccCheckComputeInstanceLacksGuestAccelerator(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.GuestAccelerators) > 0 {
-			return fmt.Errorf("Expected no guest accelerators")
+			return fmt.Errorf("expected no guest accelerators")
 		}
 
 		return nil
@@ -1470,7 +1470,7 @@ func testAccCheckComputeInstanceLacksGuestAccelerator(instance *compute.Instance
 func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.MinCpuPlatform != minCpuPlatform {
-			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
+			return fmt.Errorf("wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
 		}
 
 		return nil
@@ -1487,7 +1487,7 @@ func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subn
 			}
 		}
 
-		return fmt.Errorf("Alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
+		return fmt.Errorf("alias ip range with name %s and cidr %s not present", subnetworkRangeName, iPCidrRange)
 	}
 }
 
@@ -1498,7 +1498,7 @@ func testAccCheckComputeInstanceHasAssignedNatIP(s *terraform.State) error {
 		}
 		ip := rs.Primary.Attributes["network_interface.0.access_config.0.nat_ip"]
 		if ip == "" {
-			return fmt.Errorf("No assigned NatIP for instance %s", rs.Primary.Attributes["name"])
+			return fmt.Errorf("no assigned NatIP for instance %s", rs.Primary.Attributes["name"])
 		}
 	}
 	return nil
@@ -1507,7 +1507,7 @@ func testAccCheckComputeInstanceHasAssignedNatIP(s *terraform.State) error {
 func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *compute.Instance, configuredDeletionProtection bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.DeletionProtection != configuredDeletionProtection {
-			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+			return fmt.Errorf("wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
 		}
 
 		return nil

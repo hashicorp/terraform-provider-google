@@ -73,11 +73,11 @@ func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -93,12 +93,12 @@ func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.
 		}
 
 		if found.ProxyHeader != proxyHeader {
-			return fmt.Errorf("Wrong proxy header. Expected '%s', got '%s'", proxyHeader, found.ProxyHeader)
+			return fmt.Errorf("wrong proxy header. Expected '%s', got '%s'", proxyHeader, found.ProxyHeader)
 		}
 
 		foundCertName := GetResourceNameFromSelfLink(found.SslCertificates[0])
 		if foundCertName != sslCert {
-			return fmt.Errorf("Wrong ssl certificates. Expected '%s', got '%s'", sslCert, foundCertName)
+			return fmt.Errorf("wrong ssl certificates. Expected '%s', got '%s'", sslCert, foundCertName)
 		}
 
 		return nil

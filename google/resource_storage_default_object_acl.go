@@ -48,20 +48,20 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
-		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
+		return fmt.Errorf("error reading bucket %s: %v", bucket, err)
 	}
 
 	// Even with ForceSendFields the empty array wasn't working. Luckily, this is the same thing
 	if len(defaultObjectAcl) == 0 {
 		_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 		if err != nil {
-			return fmt.Errorf("Error updating default object acl to empty for bucket %s: %v", bucket, err)
+			return fmt.Errorf("error updating default object acl to empty for bucket %s: %v", bucket, err)
 		}
 	} else {
 		res.DefaultObjectAcl = defaultObjectAcl
 		_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating default object acl for bucket %s: %v", bucket, err)
+			return fmt.Errorf("error updating default object acl for bucket %s: %v", bucket, err)
 		}
 	}
 
@@ -99,12 +99,12 @@ func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interfac
 	bucket := d.Get("bucket").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
-		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
+		return fmt.Errorf("error reading bucket %s: %v", bucket, err)
 	}
 
 	_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting (updating to private) default object acl for bucket %s: %v", bucket, err)
+		return fmt.Errorf("error deleting (updating to private) default object acl for bucket %s: %v", bucket, err)
 	}
 
 	return nil

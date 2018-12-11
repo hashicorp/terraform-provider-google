@@ -167,7 +167,7 @@ func testAccCheckGoogleStorageBucketAclDelete(bucket, roleEntityS string) resour
 			return nil
 		}
 
-		return fmt.Errorf("Error, entity %s still exists", roleEntity.Entity)
+		return fmt.Errorf("error, entity %s still exists", roleEntity.Entity)
 	}
 }
 
@@ -179,11 +179,11 @@ func testAccCheckGoogleStorageBucketAcl(bucket, roleEntityS string) resource.Tes
 		res, err := config.clientStorage.BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error retrieving contents of acl for bucket %s: %s", bucket, err)
+			return fmt.Errorf("error retrieving contents of acl for bucket %s: %s", bucket, err)
 		}
 
 		if res.Role != roleEntity.Role {
-			return fmt.Errorf("Error, Role mismatch %s != %s", res.Role, roleEntity.Role)
+			return fmt.Errorf("error, Role mismatch %s != %s", res.Role, roleEntity.Role)
 		}
 
 		return nil
@@ -203,7 +203,7 @@ func testAccStorageBucketAclDestroy(s *terraform.State) error {
 		_, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
 
 		if err == nil {
-			return fmt.Errorf("Acl for bucket %s still exists", bucket)
+			return fmt.Errorf("acl for bucket %s still exists", bucket)
 		}
 	}
 

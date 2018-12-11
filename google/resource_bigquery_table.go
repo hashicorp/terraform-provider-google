@@ -480,7 +480,7 @@ func parseBigQueryTableId(id string) (*bigQueryTableId, error) {
 	parts := strings.FieldsFunc(id, func(r rune) bool { return r == ':' || r == '.' })
 
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid BigQuery table specifier. Expecting {project}:{dataset-id}.{table-id}, got %s", id)
+		return nil, fmt.Errorf("invalid BigQuery table specifier. Expecting {project}:{dataset-id}.{table-id}, got %s", id)
 	}
 
 	return &bigQueryTableId{

@@ -108,7 +108,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 			// The resource doesn't have any instances, which is okay.
 			d.Set("instances", nil)
 		} else {
-			return fmt.Errorf("Error reading RegionInstanceGroup Members: %s", err)
+			return fmt.Errorf("error reading RegionInstanceGroup Members: %s", err)
 		}
 	} else {
 		d.Set("instances", flattenInstancesWithNamedPorts(members.Items))

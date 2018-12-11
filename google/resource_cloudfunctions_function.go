@@ -144,7 +144,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 					availableMemoryMB := v.(int)
 
 					if functionAllowedMemory[availableMemoryMB] != true {
-						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
+						errors = append(errors, fmt.Errorf("allowed values for memory (in MB) are: %s . Got %d",
 							joinMapKeys(&functionAllowedMemory), availableMemoryMB))
 					}
 					return
@@ -481,7 +481,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 			UpdateMask(updateMask).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
+			return fmt.Errorf("error while updating cloudfunction configuration: %s", err)
 		}
 
 		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op,

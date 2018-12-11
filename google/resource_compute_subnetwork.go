@@ -267,13 +267,13 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new Subnetwork: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Subnetwork: %s", err)
+		return fmt.Errorf("error creating Subnetwork: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -294,7 +294,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Subnetwork: %s", waitErr)
+		return fmt.Errorf("error waiting to create Subnetwork: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Subnetwork %q: %#v", d.Id(), res)
@@ -320,44 +320,44 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeSubnetworkCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("description", flattenComputeSubnetworkDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("ip_cidr_range", flattenComputeSubnetworkIpCidrRange(res["ipCidrRange"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("name", flattenComputeSubnetworkName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("enable_flow_logs", flattenComputeSubnetworkEnableFlowLogs(res["enableFlowLogs"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeSubnetworkFingerprint(res["fingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("region", flattenComputeSubnetworkRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+		return fmt.Errorf("error reading Subnetwork: %s", err)
 	}
 
 	return nil
@@ -383,7 +383,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Subnetwork %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -433,7 +433,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		res, err := sendRequest(config, "PATCH", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Subnetwork %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -473,7 +473,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Subnetwork %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -546,7 +546,7 @@ func resourceComputeSubnetworkImport(d *schema.ResourceData, meta interface{}) (
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -641,7 +641,7 @@ func expandComputeSubnetworkName(v interface{}, d *schema.ResourceData, config *
 func expandComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
+		return nil, fmt.Errorf("invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -698,7 +698,7 @@ func expandComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d *schema.Resou
 func expandComputeSubnetworkRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

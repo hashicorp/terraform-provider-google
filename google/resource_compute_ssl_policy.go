@@ -34,11 +34,11 @@ func sslPolicyCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
 	if diff.HasChange("profile") || diff.HasChange("custom_features") {
 		if profile.(string) == "CUSTOM" {
 			if customFeaturesCount.(int) == 0 {
-				return fmt.Errorf("Error in SSL Policy %s: the profile is set to %s but no custom_features are set.", diff.Get("name"), profile.(string))
+				return fmt.Errorf("error in SSL Policy %s: the profile is set to %s but no custom_features are set.", diff.Get("name"), profile.(string))
 			}
 		} else {
 			if customFeaturesCount != 0 {
-				return fmt.Errorf("Error in SSL Policy %s: the profile is set to %s but using custom_features requires the profile to be CUSTOM.", diff.Get("name"), profile.(string))
+				return fmt.Errorf("error in SSL Policy %s: the profile is set to %s but using custom_features requires the profile to be CUSTOM.", diff.Get("name"), profile.(string))
 			}
 		}
 		return nil
@@ -168,13 +168,13 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Creating new SslPolicy: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating SslPolicy: %s", err)
+		return fmt.Errorf("error creating SslPolicy: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -195,7 +195,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create SslPolicy: %s", waitErr)
+		return fmt.Errorf("error waiting to create SslPolicy: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating SslPolicy %q: %#v", d.Id(), res)
@@ -221,35 +221,35 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("description", flattenComputeSslPolicyDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("name", flattenComputeSslPolicyName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("profile", flattenComputeSslPolicyProfile(res["profile"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("min_tls_version", flattenComputeSslPolicyMinTlsVersion(res["minTlsVersion"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("enabled_features", flattenComputeSslPolicyEnabledFeatures(res["enabledFeatures"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("custom_features", flattenComputeSslPolicyCustomFeatures(res["customFeatures"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+		return fmt.Errorf("error reading SslPolicy: %s", err)
 	}
 
 	return nil
@@ -289,7 +289,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	res, err := sendRequest(config, "PATCH", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating SslPolicy %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating SslPolicy %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -357,7 +357,7 @@ func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

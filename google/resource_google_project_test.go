@@ -191,15 +191,15 @@ func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmt.Errorf("Not found: %s", r)
+			return fmt.Errorf("not found: %s", r)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		if rs.Primary.ID != pid {
-			return fmt.Errorf("Expected project %q to match ID %q in state", pid, rs.Primary.ID)
+			return fmt.Errorf("expected project %q to match ID %q in state", pid, rs.Primary.ID)
 		}
 
 		return nil
@@ -210,12 +210,12 @@ func testAccCheckGoogleProjectHasBillingAccount(r, pid, billingId string) resour
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmt.Errorf("Not found: %s", r)
+			return fmt.Errorf("not found: %s", r)
 		}
 
 		// State should match expected
 		if rs.Primary.Attributes["billing_account"] != billingId {
-			return fmt.Errorf("Billing ID in state (%s) does not match expected value (%s)", rs.Primary.Attributes["billing_account"], billingId)
+			return fmt.Errorf("billing ID in state (%s) does not match expected value (%s)", rs.Primary.Attributes["billing_account"], billingId)
 		}
 
 		// Actual value in API should match state and expected
@@ -223,10 +223,10 @@ func testAccCheckGoogleProjectHasBillingAccount(r, pid, billingId string) resour
 		config := testAccProvider.Meta().(*Config)
 		ba, err := config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading billing account for project %q: %v", prefixedProject(pid), err)
+			return fmt.Errorf("error reading billing account for project %q: %v", prefixedProject(pid), err)
 		}
 		if billingId != strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/") {
-			return fmt.Errorf("Billing ID returned by API (%s) did not match expected value (%s)", ba.BillingAccountName, billingId)
+			return fmt.Errorf("billing ID returned by API (%s) did not match expected value (%s)", ba.BillingAccountName, billingId)
 		}
 		return nil
 	}
@@ -236,12 +236,12 @@ func testAccCheckGoogleProjectHasLabels(r, pid string, expected map[string]strin
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmt.Errorf("Not found: %s", r)
+			return fmt.Errorf("not found: %s", r)
 		}
 
 		// State should have the same number of labels
 		if rs.Primary.Attributes["labels.%"] != strconv.Itoa(len(expected)) {
-			return fmt.Errorf("Expected %d labels, got %s", len(expected), rs.Primary.Attributes["labels.%"])
+			return fmt.Errorf("expected %d labels, got %s", len(expected), rs.Primary.Attributes["labels.%"])
 		}
 
 		// Actual value in API should match state and expected
@@ -278,12 +278,12 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmt.Errorf("Not found: %s", r)
+			return fmt.Errorf("not found: %s", r)
 		}
 
 		// State should have zero labels
 		if rs.Primary.Attributes["labels.%"] != "0" {
-			return fmt.Errorf("Expected 0 labels, got %s", rs.Primary.Attributes["labels.%"])
+			return fmt.Errorf("expected 0 labels, got %s", rs.Primary.Attributes["labels.%"])
 		}
 
 		// Actual value in API should match state and expected
@@ -297,7 +297,7 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 		spewConf := spew.NewDefaultConfig()
 		spewConf.SortKeys = true
 		if found.Labels != nil {
-			return fmt.Errorf("Labels should be empty. Actual \n%s", spewConf.Sdump(found.Labels))
+			return fmt.Errorf("labels should be empty. Actual \n%s", spewConf.Sdump(found.Labels))
 		}
 		return nil
 	}

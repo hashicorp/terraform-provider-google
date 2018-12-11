@@ -43,20 +43,20 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		if rs.Primary.Attributes["name"] == "" {
-			return fmt.Errorf("No image name is set")
+			return fmt.Errorf("no image name is set")
 		}
 		if rs.Primary.Attributes["family"] == "" {
-			return fmt.Errorf("No image family is set")
+			return fmt.Errorf("no image family is set")
 		}
 		if rs.Primary.Attributes["self_link"] == "" {
-			return fmt.Errorf("No self_link is set")
+			return fmt.Errorf("no self_link is set")
 		}
 
 		name := rs.Primary.Attributes["name"]
@@ -65,7 +65,7 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 
 		latestDebian, err := config.clientCompute.Images.GetFromFamily("debian-cloud", "debian-9").Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving latest debian: %s", err)
+			return fmt.Errorf("error retrieving latest debian: %s", err)
 		}
 
 		images := map[string]string{
@@ -88,10 +88,10 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 		for input, expectation := range images {
 			result, err := resolveImage(config, project, input)
 			if err != nil {
-				return fmt.Errorf("Error resolving input %s to image: %+v\n", input, err)
+				return fmt.Errorf("error resolving input %s to image: %+v\n", input, err)
 			}
 			if result != expectation {
-				return fmt.Errorf("Expected input '%s' to resolve to '%s', it resolved to '%s' instead.\n", input, expectation, result)
+				return fmt.Errorf("expected input '%s' to resolve to '%s', it resolved to '%s' instead.\n", input, expectation, result)
 			}
 		}
 		return nil

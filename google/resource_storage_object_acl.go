@@ -77,7 +77,7 @@ func resourceStorageObjectAclDiff(diff *schema.ResourceDiff, meta interface{}) e
 		res := getValidatedRoleEntityPair(v.(string))
 
 		if res.Entity == objectOwner && res.Role != "OWNER" {
-			return fmt.Errorf("New state tried setting object owner entity (%s) to non-'OWNER' role", objectOwner)
+			return fmt.Errorf("new state tried setting object owner entity (%s) to non-'OWNER' role", objectOwner)
 		}
 	}
 
@@ -107,41 +107,41 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 	if predefinedAcl, ok := d.GetOk("predefined_acl"); ok {
 		res, err := config.clientStorage.Objects.Get(bucket, object).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 		}
 
 		res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(predefinedAcl.(string)).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error updating object %s in %s: %v", object, bucket, err)
 		}
 
 		return resourceStorageObjectAclRead(d, meta)
 	} else if reMap := d.Get("role_entity").(*schema.Set); reMap.Len() > 0 {
 		sObject, err := config.clientStorage.Objects.Get(bucket, object).Projection("full").Do()
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 		}
 
 		objectOwner := sObject.Owner.Entity
 		roleEntitiesUpstream, err := getRoleEntitiesAsStringsFromApi(config, bucket, object)
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 		}
 
 		create, update, remove, err := getRoleEntityChange(roleEntitiesUpstream, convertStringSet(reMap), objectOwner)
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s. Invalid schema: %v", object, bucket, err)
 		}
 
 		err = performStorageObjectRoleEntityOperations(create, update, remove, config, bucket, object)
 		if err != nil {
-			return fmt.Errorf("Error creating object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error creating object %s in %s: %v", object, bucket, err)
 		}
 
 		return resourceStorageObjectAclRead(d, meta)
 	}
 
-	return fmt.Errorf("Error, you must specify either \"predefined_acl\" or \"role_entity\"")
+	return fmt.Errorf("error, you must specify either \\"predefined_acl\\" or \\"role_entity\")
 }
 
 func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) error {
@@ -173,19 +173,19 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 	if _, ok := d.GetOk("predefined_acl"); d.HasChange("predefined_acl") && ok {
 		res, err := config.clientStorage.Objects.Get(bucket, object).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 		}
 
 		res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(d.Get("predefined_acl").(string)).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error updating object %s in %s: %v", object, bucket, err)
 		}
 
 		return resourceStorageObjectAclRead(d, meta)
 	} else {
 		sObject, err := config.clientStorage.Objects.Get(bucket, object).Projection("full").Do()
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 		}
 
 		objectOwner := sObject.Owner.Entity
@@ -196,12 +196,12 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 			convertStringSet(n.(*schema.Set)),
 			objectOwner)
 		if err != nil {
-			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)
+			return fmt.Errorf("error reading object %s in %s. Invalid schema: %v", object, bucket, err)
 		}
 
 		err = performStorageObjectRoleEntityOperations(create, update, remove, config, bucket, object)
 		if err != nil {
-			return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
+			return fmt.Errorf("error updating object %s in %s: %v", object, bucket, err)
 		}
 
 		return resourceStorageObjectAclRead(d, meta)
@@ -216,12 +216,12 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 
 	res, err := config.clientStorage.Objects.Get(bucket, object).Do()
 	if err != nil {
-		return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
+		return fmt.Errorf("error reading object %s in %s: %v", object, bucket, err)
 	}
 
 	res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl("private").Do()
 	if err != nil {
-		return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
+		return fmt.Errorf("error updating object %s in %s: %v", object, bucket, err)
 	}
 
 	return nil
@@ -250,7 +250,7 @@ func getRoleEntityChange(old []string, new []string, owner string) (create, upda
 	for _, v := range new {
 		res := getValidatedRoleEntityPair(v)
 		if _, ok := newEntitiesUsed[res.Entity]; ok {
-			return nil, nil, nil, fmt.Errorf("New state has duplicate Entity: %v", res.Entity)
+			return nil, nil, nil, fmt.Errorf("new state has duplicate Entity: %v", res.Entity)
 		}
 
 		newEntitiesUsed[res.Entity] = struct{}{}
@@ -307,7 +307,7 @@ func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*Ro
 		}
 		_, err := config.clientStorage.ObjectAccessControls.Insert(bucket, object, objectAccessControl).Do()
 		if err != nil {
-			return fmt.Errorf("Error inserting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
+			return fmt.Errorf("error inserting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
 		}
 	}
 
@@ -318,14 +318,14 @@ func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*Ro
 		}
 		_, err := config.clientStorage.ObjectAccessControls.Update(bucket, object, v.Entity, objectAccessControl).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
+			return fmt.Errorf("error updating ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
 		}
 	}
 
 	for _, v := range remove {
 		err := config.clientStorage.ObjectAccessControls.Delete(bucket, object, v.Entity).Do()
 		if err != nil {
-			return fmt.Errorf("Error deleting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
+			return fmt.Errorf("error deleting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
 		}
 	}
 
@@ -335,7 +335,7 @@ func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*Ro
 func validateRoleEntityPair(v interface{}, k string) (ws []string, errors []error) {
 	split := strings.Split(v.(string), ":")
 	if len(split) != 2 {
-		errors = append(errors, fmt.Errorf("Role entity pairs must be formatted as 'ROLE:entity': %s", v))
+		errors = append(errors, fmt.Errorf("role entity pairs must be formatted as 'ROLE:entity': %s", v))
 	}
 
 	return

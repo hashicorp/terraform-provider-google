@@ -119,14 +119,14 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		res, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
+			return fmt.Errorf("error reading bucket %s: %v", bucket, err)
 		}
 
 		res, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedAcl(predefined_acl).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating bucket %s: %v", bucket, err)
+			return fmt.Errorf("error updating bucket %s: %v", bucket, err)
 		}
 
 	}
@@ -134,7 +134,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 	if len(role_entity) > 0 {
 		current, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving current ACLs: %s", err)
+			return fmt.Errorf("error retrieving current ACLs: %s", err)
 		}
 		for _, v := range role_entity {
 			pair, err := getRoleEntityPair(v.(string))
@@ -162,7 +162,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 			_, err = config.clientStorage.BucketAccessControls.Insert(bucket, bucketAccessControl).Do()
 
 			if err != nil {
-				return fmt.Errorf("Error updating ACL for bucket %s: %v", bucket, err)
+				return fmt.Errorf("error updating ACL for bucket %s: %v", bucket, err)
 			}
 		}
 
@@ -172,14 +172,14 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		res, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
+			return fmt.Errorf("error reading bucket %s: %v", bucket, err)
 		}
 
 		res, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedDefaultObjectAcl(default_acl).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating bucket %s: %v", bucket, err)
+			return fmt.Errorf("error updating bucket %s: %v", bucket, err)
 		}
 
 	}
@@ -231,7 +231,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("role_entity") {
 		bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading bucket %q: %v", bucket, err)
+			return fmt.Errorf("error reading bucket %q: %v", bucket, err)
 		}
 
 		project := strconv.FormatUint(bkt.ProjectNumber, 10)
@@ -244,7 +244,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 			if err != nil {
 				return fmt.Errorf(
-					"Old state has malformed Role/Entity pair: %v", err)
+					"old state has malformed Role/Entity pair: %v", err)
 			}
 
 			old_re_map[res.Entity] = res.Role
@@ -268,7 +268,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 			delete(old_re_map, pair.Entity)
 
 			if err != nil {
-				return fmt.Errorf("Error updating ACL for bucket %s: %v", bucket, err)
+				return fmt.Errorf("error updating ACL for bucket %s: %v", bucket, err)
 			}
 		}
 
@@ -281,7 +281,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 			err := config.clientStorage.BucketAccessControls.Delete(bucket, entity).Do()
 
 			if err != nil {
-				return fmt.Errorf("Error updating ACL for bucket %s: %v", bucket, err)
+				return fmt.Errorf("error updating ACL for bucket %s: %v", bucket, err)
 			}
 		}
 
@@ -294,14 +294,14 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 		res, err := config.clientStorage.Buckets.Get(bucket).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
+			return fmt.Errorf("error reading bucket %s: %v", bucket, err)
 		}
 
 		res, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedDefaultObjectAcl(default_acl).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating bucket %s: %v", bucket, err)
+			return fmt.Errorf("error updating bucket %s: %v", bucket, err)
 		}
 
 		return resourceStorageBucketAclRead(d, meta)
@@ -317,7 +317,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 
 	bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
-		return fmt.Errorf("Error retrieving bucket %q: %v", bucket, err)
+		return fmt.Errorf("error retrieving bucket %q: %v", bucket, err)
 	}
 	project := strconv.FormatUint(bkt.ProjectNumber, 10)
 
@@ -338,7 +338,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 		err = config.clientStorage.BucketAccessControls.Delete(bucket, res.Entity).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error deleting entity %s ACL: %s", res.Entity, err)
+			return fmt.Errorf("error deleting entity %s ACL: %s", res.Entity, err)
 		}
 	}
 

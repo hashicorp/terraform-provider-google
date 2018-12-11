@@ -64,7 +64,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	op, err := config.clientSourceRepo.Projects.Repos.Create(parent, repo).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating the Source Repo: %s", err)
+		return fmt.Errorf("error creating the Source Repo: %s", err)
 	}
 	d.SetId(op.Name)
 
@@ -108,7 +108,7 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 
 	_, err = config.clientSourceRepo.Projects.Repos.Delete(name).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting the Source Repo: %s", err)
+		return fmt.Errorf("error deleting the Source Repo: %s", err)
 	}
 
 	return nil
@@ -126,7 +126,7 @@ func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

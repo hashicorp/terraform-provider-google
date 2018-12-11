@@ -90,14 +90,14 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
 		if err != nil {
-			return fmt.Errorf("Error starting instance admin client. %s", err)
+			return fmt.Errorf("error starting instance admin client. %s", err)
 		}
 
 		defer c.Close()
 
 		_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
 		if err == nil {
-			return fmt.Errorf("Instance %s still exists.", rs.Primary.Attributes["name"])
+			return fmt.Errorf("instance %s still exists.", rs.Primary.Attributes["name"])
 		}
 	}
 
@@ -109,23 +109,23 @@ func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
 		if err != nil {
-			return fmt.Errorf("Error starting instance admin client. %s", err)
+			return fmt.Errorf("error starting instance admin client. %s", err)
 		}
 
 		defer c.Close()
 
 		_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
 		if err != nil {
-			return fmt.Errorf("Error retrieving instance %s.", rs.Primary.Attributes["name"])
+			return fmt.Errorf("error retrieving instance %s.", rs.Primary.Attributes["name"])
 		}
 
 		return nil

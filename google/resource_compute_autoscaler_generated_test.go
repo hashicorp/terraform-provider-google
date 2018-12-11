@@ -121,7 +121,7 @@ func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeAutoscaler still exists at %s", url)
+			return fmt.Errorf("computeAutoscaler still exists at %s", url)
 		}
 	}
 

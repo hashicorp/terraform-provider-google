@@ -26,7 +26,7 @@ func (w *AppEngineOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		matches := appEngineOperationIdRegexp.FindStringSubmatch(w.Op.Name)
 		if len(matches) != 2 {
-			return nil, "", fmt.Errorf("Expected %d results of parsing operation name, got %d from %s", 2, len(matches), w.Op.Name)
+			return nil, "", fmt.Errorf("expected %d results of parsing operation name, got %d from %s", 2, len(matches), w.Op.Name)
 		}
 		op, err := w.Service.Apps.Operations.Get(w.AppId, matches[1]).Do()
 		if err != nil {
@@ -78,7 +78,7 @@ func appEngineOperationWaitTime(client *appengine.APIService, op *appengine.Oper
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	resultOp := opRaw.(*appengine.Operation)

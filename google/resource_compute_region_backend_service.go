@@ -172,7 +172,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	op, err := config.clientComputeBeta.RegionBackendServices.Insert(
 		project, region, &service).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating backend service: %s", err)
+		return fmt.Errorf("error creating backend service: %s", err)
 	}
 
 	log.Printf("[DEBUG] Waiting for new backend service, operation: %#v", op)
@@ -282,7 +282,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	op, err := config.clientComputeBeta.RegionBackendServices.Update(
 		project, region, d.Id(), &service).Do()
 	if err != nil {
-		return fmt.Errorf("Error updating backend service: %s", err)
+		return fmt.Errorf("error updating backend service: %s", err)
 	}
 
 	d.SetId(service.Name)
@@ -312,7 +312,7 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 	op, err := config.clientCompute.RegionBackendServices.Delete(
 		project, region, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting backend service: %s", err)
+		return fmt.Errorf("error deleting backend service: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Service")

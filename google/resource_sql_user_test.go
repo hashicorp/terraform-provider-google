@@ -82,7 +82,7 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		name := rs.Primary.Attributes["name"]
@@ -101,7 +101,7 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 			}
 		}
 
-		return fmt.Errorf("Not found: %s: %s", n, err)
+		return fmt.Errorf("not found: %s: %s", n, err)
 	}
 }
 
@@ -120,7 +120,7 @@ func testAccSqlUserDestroy(s *terraform.State) error {
 
 		for _, user := range users.Items {
 			if user.Name == name && user.Host == host {
-				return fmt.Errorf("User still %s exists %s", name, err)
+				return fmt.Errorf("user still %s exists %s", name, err)
 			}
 		}
 

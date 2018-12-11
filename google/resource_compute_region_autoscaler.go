@@ -196,13 +196,13 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Creating new RegionAutoscaler: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating RegionAutoscaler: %s", err)
+		return fmt.Errorf("error creating RegionAutoscaler: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -223,7 +223,7 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionAutoscaler: %s", waitErr)
+		return fmt.Errorf("error waiting to create RegionAutoscaler: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating RegionAutoscaler %q: %#v", d.Id(), res)
@@ -249,29 +249,29 @@ func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeRegionAutoscalerCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("name", flattenComputeRegionAutoscalerName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRegionAutoscalerDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("autoscaling_policy", flattenComputeRegionAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("target", flattenComputeRegionAutoscalerTarget(res["target"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRegionAutoscalerRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		return fmt.Errorf("error reading RegionAutoscaler: %s", err)
 	}
 
 	return nil
@@ -321,7 +321,7 @@ func resourceComputeRegionAutoscalerUpdate(d *schema.ResourceData, meta interfac
 	res, err := sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating RegionAutoscaler %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating RegionAutoscaler %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -389,7 +389,7 @@ func resourceComputeRegionAutoscalerImport(d *schema.ResourceData, meta interfac
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -713,7 +713,7 @@ func expandComputeRegionAutoscalerTarget(v interface{}, d *schema.ResourceData, 
 func expandComputeRegionAutoscalerRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

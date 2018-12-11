@@ -161,7 +161,7 @@ func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.Networks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Network still exists")
+			return fmt.Errorf("network still exists")
 		}
 	}
 
@@ -172,11 +172,11 @@ func testAccCheckComputeNetworkExists(n string, network *compute.Network) resour
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -188,7 +188,7 @@ func testAccCheckComputeNetworkExists(n string, network *compute.Network) resour
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Network not found")
+			return fmt.Errorf("network not found")
 		}
 
 		*network = *found
@@ -247,11 +247,11 @@ func testAccCheckComputeNetworkHasRoutingMode(n string, network *compute.Network
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.Attributes["routing_mode"] == "" {
-			return fmt.Errorf("Routing mode not found on resource")
+			return fmt.Errorf("routing mode not found on resource")
 		}
 
 		found, err := config.clientCompute.Networks.Get(
@@ -263,7 +263,7 @@ func testAccCheckComputeNetworkHasRoutingMode(n string, network *compute.Network
 		foundRoutingMode := found.RoutingConfig.RoutingMode
 
 		if routingMode != foundRoutingMode {
-			return fmt.Errorf("Expected routing mode %s to match actual routing mode %s", routingMode, foundRoutingMode)
+			return fmt.Errorf("expected routing mode %s to match actual routing mode %s", routingMode, foundRoutingMode)
 		}
 
 		return nil

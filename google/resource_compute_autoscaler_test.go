@@ -108,11 +108,11 @@ func testAccCheckComputeAutoscalerExists(n string, ascaler *compute.Autoscaler) 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -139,11 +139,11 @@ func testAccCheckComputeAutoscalerMultifunction(n string) resource.TestCheckFunc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -163,7 +163,7 @@ func testAccCheckComputeAutoscalerMultifunction(n string) resource.TestCheckFunc
 		if found.AutoscalingPolicy.CpuUtilization.UtilizationTarget == 0.5 && found.AutoscalingPolicy.LoadBalancingUtilization.UtilizationTarget == 0.5 {
 			return nil
 		}
-		return fmt.Errorf("Util target for CPU: %f, for LB: %f - should have been 0.5 for each.",
+		return fmt.Errorf("util target for CPU: %f, for LB: %f - should have been 0.5 for each.",
 			found.AutoscalingPolicy.CpuUtilization.UtilizationTarget,
 			found.AutoscalingPolicy.LoadBalancingUtilization.UtilizationTarget)
 
@@ -174,11 +174,11 @@ func testAccCheckComputeAutoscalerUpdated(n string, max int64) resource.TestChec
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)

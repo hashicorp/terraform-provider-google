@@ -220,11 +220,11 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -237,7 +237,7 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 		}
 
 		if found.Name != subnet_name {
-			return fmt.Errorf("Subnetwork not found")
+			return fmt.Errorf("subnetwork not found")
 		}
 
 		*subnetwork = *found
@@ -253,11 +253,11 @@ func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *compute.Subnet
 				if secondaryRange.IpCidrRange == ipCidrRange {
 					return nil
 				}
-				return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
+				return fmt.Errorf("secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
 			}
 		}
 
-		return fmt.Errorf("Secondary range %s not found", rangeName)
+		return fmt.Errorf("secondary range %s not found", rangeName)
 	}
 }
 
@@ -266,7 +266,7 @@ func testAccCheckComputeSubnetworkHasNotSecondaryIpRange(subnetwork *compute.Sub
 		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
 			if secondaryRange.RangeName == rangeName {
 				if secondaryRange.IpCidrRange == ipCidrRange {
-					return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
+					return fmt.Errorf("secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
 				}
 			}
 		}

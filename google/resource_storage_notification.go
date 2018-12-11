@@ -99,7 +99,7 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 
 	res, err := config.clientStorage.Notifications.Insert(bucket, storageNotification).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating notification config for bucket %s: %v", bucket, err)
+		return fmt.Errorf("error creating notification config for bucket %s: %v", bucket, err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/notificationConfigs/%s", bucket, res.Id))
@@ -135,7 +135,7 @@ func resourceStorageNotificationDelete(d *schema.ResourceData, meta interface{})
 
 	err := config.clientStorage.Notifications.Delete(bucket, notificationID).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting notification configuration %s for bucket %s: %v", notificationID, bucket, err)
+		return fmt.Errorf("error deleting notification configuration %s for bucket %s: %v", notificationID, bucket, err)
 	}
 
 	return nil

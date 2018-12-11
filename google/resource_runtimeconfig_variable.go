@@ -135,7 +135,7 @@ func resourceRuntimeconfigVariableImport(d *schema.ResourceData, meta interface{
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "projects/{{project}}/configs/{{parent}}/variables/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -155,7 +155,7 @@ func resourceRuntimeconfigVariableParseFullName(fullName string) (project, confi
 	re := regexp.MustCompile("^projects/([^/]+)/configs/([^/]+)/variables/(.+)$")
 	matches := re.FindStringSubmatch(fullName)
 	if matches == nil {
-		return "", "", "", fmt.Errorf("Given full name doesn't match expected regexp; fullname = '%s'", fullName)
+		return "", "", "", fmt.Errorf("given full name doesn't match expected regexp; fullname = '%s'", fullName)
 	}
 	return matches[1], matches[2], matches[3], nil
 }
@@ -168,7 +168,7 @@ func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project st
 	value, valueSet := d.GetOk("value")
 
 	if !textSet && !valueSet {
-		return nil, "", fmt.Errorf("You must specify one of value or text.")
+		return nil, "", fmt.Errorf("you must specify one of value or text.")
 	}
 
 	// TODO(selmanj) here we assume it's a simple name, not a full name. Should probably support full name as well

@@ -103,7 +103,7 @@ func testAccCheckGoogleKmsCryptoKeyIamBindingExists(bindingResourceName, roleId 
 	return func(s *terraform.State) error {
 		bindingRs, ok := s.RootModule().Resources[fmt.Sprintf("google_kms_crypto_key_iam_binding.%s", bindingResourceName)]
 		if !ok {
-			return fmt.Errorf("Not found: %s", bindingResourceName)
+			return fmt.Errorf("not found: %s", bindingResourceName)
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -127,11 +127,11 @@ func testAccCheckGoogleKmsCryptoKeyIamBindingExists(bindingResourceName, roleId 
 					return nil
 				}
 
-				return fmt.Errorf("Binding found but expected members is %v, got %v", members, binding.Members)
+				return fmt.Errorf("binding found but expected members is %v, got %v", members, binding.Members)
 			}
 		}
 
-		return fmt.Errorf("No binding for role %q", roleId)
+		return fmt.Errorf("no binding for role %q", roleId)
 	}
 }
 
@@ -139,7 +139,7 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["google_kms_crypto_key_iam_member."+n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -162,11 +162,11 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 					}
 				}
 
-				return fmt.Errorf("Missing member %q, got %v", member, binding.Members)
+				return fmt.Errorf("missing member %q, got %v", member, binding.Members)
 			}
 		}
 
-		return fmt.Errorf("No binding for role %q", role)
+		return fmt.Errorf("no binding for role %q", role)
 	}
 }
 

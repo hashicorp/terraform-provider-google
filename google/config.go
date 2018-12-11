@@ -110,12 +110,12 @@ func (c *Config) loadAndValidate() error {
 	if c.Credentials != "" {
 		contents, _, err := pathorcontents.Read(c.Credentials)
 		if err != nil {
-			return fmt.Errorf("Error loading credentials: %s", err)
+			return fmt.Errorf("error loading credentials: %s", err)
 		}
 
 		// Assume account_file is a JSON string
 		if err := parseJSON(&account, contents); err != nil {
-			return fmt.Errorf("Error parsing credentials '%s': %s", contents, err)
+			return fmt.Errorf("error parsing credentials '%s': %s", contents, err)
 		}
 
 		// Get the token for use in our requests

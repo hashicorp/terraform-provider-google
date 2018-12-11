@@ -108,14 +108,14 @@ func resourceComputeRouterPeerCreate(d *schema.ResourceData, meta interface{}) e
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error Reading router %s/%s: %s", region, routerName, err)
 	}
 
 	peers := router.BgpPeers
 	for _, peer := range peers {
 		if peer.Name == peerName {
 			d.SetId("")
-			return fmt.Errorf("Router %s has peer %s already", routerName, peerName)
+			return fmt.Errorf("router %s has peer %s already", routerName, peerName)
 		}
 	}
 
@@ -145,13 +145,13 @@ func resourceComputeRouterPeerCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Updating router %s/%s with peers: %+v", region, routerName, peers)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {
-		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, peerName))
 	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
 
 	return resourceComputeRouterPeerRead(d, meta)
@@ -184,7 +184,7 @@ func resourceComputeRouterPeerRead(d *schema.ResourceData, meta interface{}) err
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error Reading router %s/%s: %s", region, routerName, err)
 	}
 
 	for _, peer := range router.BgpPeers {
@@ -237,7 +237,7 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
+		return fmt.Errorf("error Reading Router %s: %s", routerName, err)
 	}
 
 	var newPeers []*compute.RouterBgpPeer = make([]*compute.RouterBgpPeer, 0, len(router.BgpPeers))
@@ -268,12 +268,12 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Updating router %s/%s with peers: %+v", region, routerName, newPeers)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {
-		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error patching router %s/%s: %s", region, routerName, err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
 	if err != nil {
-		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
 
 	d.SetId("")
@@ -283,7 +283,7 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 func resourceComputeRouterPeerImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid router peer specifier. Expecting {region}/{router}/{peer}")
+		return nil, fmt.Errorf("invalid router peer specifier. Expecting {region}/{router}/{peer}")
 	}
 
 	d.Set("region", parts[0])

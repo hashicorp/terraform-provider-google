@@ -49,13 +49,13 @@ func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) err
 	decryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Decrypt(cryptoKeyId.cryptoKeyId(), kmsDecryptRequest).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error decrypting ciphertext: %s", err)
+		return fmt.Errorf("error decrypting ciphertext: %s", err)
 	}
 
 	plaintext, err := base64.StdEncoding.DecodeString(decryptResponse.Plaintext)
 
 	if err != nil {
-		return fmt.Errorf("Error decoding base64 response: %s", err)
+		return fmt.Errorf("error decoding base64 response: %s", err)
 	}
 
 	log.Printf("[INFO] Successfully decrypted ciphertext: %s", ciphertext)

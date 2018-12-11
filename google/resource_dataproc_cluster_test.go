@@ -166,28 +166,28 @@ func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, masterCou
 
 		master := cluster.Config.MasterConfig.Accelerators
 		if len(master) != 1 {
-			return fmt.Errorf("Saw %d master accelerator types instead of 1", len(master))
+			return fmt.Errorf("saw %d master accelerator types instead of 1", len(master))
 		}
 
 		if int(master[0].AcceleratorCount) != masterCount {
-			return fmt.Errorf("Saw %d master accelerators instead of %d", int(master[0].AcceleratorCount), masterCount)
+			return fmt.Errorf("saw %d master accelerators instead of %d", int(master[0].AcceleratorCount), masterCount)
 		}
 
 		if master[0].AcceleratorTypeUri != masterAccelerator {
-			return fmt.Errorf("Saw %s master accelerator type instead of %s", master[0].AcceleratorTypeUri, masterAccelerator)
+			return fmt.Errorf("saw %s master accelerator type instead of %s", master[0].AcceleratorTypeUri, masterAccelerator)
 		}
 
 		worker := cluster.Config.WorkerConfig.Accelerators
 		if len(worker) != 1 {
-			return fmt.Errorf("Saw %d worker accelerator types instead of 1", len(worker))
+			return fmt.Errorf("saw %d worker accelerator types instead of 1", len(worker))
 		}
 
 		if int(worker[0].AcceleratorCount) != workerCount {
-			return fmt.Errorf("Saw %d worker accelerators instead of %d", int(worker[0].AcceleratorCount), workerCount)
+			return fmt.Errorf("saw %d worker accelerators instead of %d", int(worker[0].AcceleratorCount), workerCount)
 		}
 
 		if worker[0].AcceleratorTypeUri != workerAccelerator {
-			return fmt.Errorf("Saw %s worker accelerator type instead of %s", worker[0].AcceleratorTypeUri, workerAccelerator)
+			return fmt.Errorf("saw %s worker accelerator type instead of %s", worker[0].AcceleratorTypeUri, workerAccelerator)
 		}
 
 		return nil
@@ -490,7 +490,7 @@ func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 			}
 
 			if rs.Primary.ID == "" {
-				return fmt.Errorf("Unable to verify delete of dataproc cluster, ID is empty")
+				return fmt.Errorf("unable to verify delete of dataproc cluster, ID is empty")
 			}
 
 			attributes := rs.Primary.Attributes
@@ -506,11 +506,11 @@ func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 					return nil
 				} else if ok {
-					return fmt.Errorf("Error validating cluster deleted. Code: %d. Message: %s", gerr.Code, gerr.Message)
+					return fmt.Errorf("error validating cluster deleted. Code: %d. Message: %s", gerr.Code, gerr.Message)
 				}
-				return fmt.Errorf("Error validating cluster deleted. %s", err.Error())
+				return fmt.Errorf("error validating cluster deleted. %s", err.Error())
 			}
-			return fmt.Errorf("Dataproc cluster still exists")
+			return fmt.Errorf("dataproc cluster still exists")
 		}
 
 		return nil
@@ -521,7 +521,7 @@ func testAccCheckDataprocClusterHasServiceScopes(t *testing.T, cluster *dataproc
 	return func(s *terraform.State) error {
 
 		if !reflect.DeepEqual(scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes) {
-			return fmt.Errorf("Cluster does not contain expected set of service account scopes : %v : instead %v",
+			return fmt.Errorf("cluster does not contain expected set of service account scopes : %v : instead %v",
 				scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes)
 		}
 		return nil
@@ -535,9 +535,9 @@ func validateBucketExists(bucket string, config *Config) (bool, error) {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
 			return false, nil
 		} else if ok {
-			return false, fmt.Errorf("Error validating bucket exists: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+			return false, fmt.Errorf("error validating bucket exists: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
 		}
-		return false, fmt.Errorf("Error validating bucket exists: %s", err.Error())
+		return false, fmt.Errorf("error validating bucket exists: %s", err.Error())
 	}
 	return true, nil
 }
@@ -552,7 +552,7 @@ func testAccCheckDataprocStagingBucketExists(bucketName string) resource.TestChe
 			return err
 		}
 		if !exists {
-			return fmt.Errorf("Staging Bucket %s does not exist", bucketName)
+			return fmt.Errorf("staging Bucket %s does not exist", bucketName)
 		}
 		return nil
 	}
@@ -567,7 +567,7 @@ func testAccCheckDataprocClusterInitActionSucceeded(bucket, object string) resou
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientStorage.Objects.Get(bucket, object).Do()
 		if err != nil {
-			return fmt.Errorf("Unable to verify init action success: Error reading object %s in bucket %s: %v", object, bucket, err)
+			return fmt.Errorf("unable to verify init action success: Error reading object %s in bucket %s: %v", object, bucket, err)
 		}
 
 		return nil
@@ -585,7 +585,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Terraform resource Not found: %s", n)
+			return fmt.Errorf("terraform resource Not found: %s", n)
 		}
 
 		if cluster.Config.MasterConfig == nil || cluster.Config.WorkerConfig == nil || cluster.Config.SecondaryWorkerConfig == nil {
@@ -634,7 +634,7 @@ func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) reso
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set for Dataproc cluster")
+			return fmt.Errorf("no ID is set for Dataproc cluster")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -650,7 +650,7 @@ func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) reso
 		}
 
 		if found.ClusterName != rs.Primary.ID {
-			return fmt.Errorf("Dataproc cluster %s not found, found %s instead", rs.Primary.ID, cluster.ClusterName)
+			return fmt.Errorf("dataproc cluster %s not found, found %s instead", rs.Primary.ID, cluster.ClusterName)
 		}
 
 		*cluster = *found

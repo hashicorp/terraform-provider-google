@@ -58,7 +58,7 @@ func selfLinkRelativePathHash(selfLink interface{}) int {
 func getRelativePath(selfLink string) (string, error) {
 	stringParts := strings.SplitAfterN(selfLink, "projects/", 2)
 	if len(stringParts) != 2 {
-		return "", fmt.Errorf("String was not a self link: %s", selfLink)
+		return "", fmt.Errorf("string was not a self link: %s", selfLink)
 	}
 
 	return "projects/" + stringParts[1], nil

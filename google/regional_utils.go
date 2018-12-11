@@ -32,7 +32,7 @@ func getZone(d TerraformResourceData, config *Config) (string, error) {
 		if config.Zone != "" {
 			return config.Zone, nil
 		}
-		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
+		return "", fmt.Errorf("cannot determine zone: set in this resource, or set provider-level zone.")
 	}
 	return GetResourceNameFromSelfLink(res.(string)), nil
 }

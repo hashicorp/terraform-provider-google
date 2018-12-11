@@ -96,7 +96,7 @@ func testAccCheckGoogleFolderDestroy(s *terraform.State) error {
 
 		folder, err := config.clientResourceManagerV2Beta1.Folders.Get(rs.Primary.ID).Do()
 		if err != nil || folder.LifecycleState != "DELETE_REQUESTED" {
-			return fmt.Errorf("Folder '%s' hasn't been marked for deletion", rs.Primary.Attributes["display_name"])
+			return fmt.Errorf("folder '%s' hasn't been marked for deletion", rs.Primary.Attributes["display_name"])
 		}
 	}
 
@@ -107,11 +107,11 @@ func testAccCheckGoogleFolderExists(n string, folder *resourceManagerV2Beta1.Fol
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -130,7 +130,7 @@ func testAccCheckGoogleFolderExists(n string, folder *resourceManagerV2Beta1.Fol
 func testAccCheckGoogleFolderDisplayName(folder *resourceManagerV2Beta1.Folder, displayName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if folder.DisplayName != displayName {
-			return fmt.Errorf("Incorrect display name . Expected '%s', got '%s'", displayName, folder.DisplayName)
+			return fmt.Errorf("incorrect display name . Expected '%s', got '%s'", displayName, folder.DisplayName)
 		}
 		return nil
 	}
@@ -139,7 +139,7 @@ func testAccCheckGoogleFolderDisplayName(folder *resourceManagerV2Beta1.Folder, 
 func testAccCheckGoogleFolderParent(folder *resourceManagerV2Beta1.Folder, parent string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if folder.Parent != parent {
-			return fmt.Errorf("Incorrect parent. Expected '%s', got '%s'", parent, folder.Parent)
+			return fmt.Errorf("incorrect parent. Expected '%s', got '%s'", parent, folder.Parent)
 		}
 		return nil
 	}
