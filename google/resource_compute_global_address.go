@@ -46,6 +46,12 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
 			"address_type": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -65,10 +71,6 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
-			},
-			"address": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
@@ -92,6 +94,12 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	addressProp, err := expandComputeGlobalAddressAddress(d.Get("address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("address"); !isEmptyValue(reflect.ValueOf(addressProp)) && (ok || !reflect.DeepEqual(v, addressProp)) {
+		obj["address"] = addressProp
+	}
 	descriptionProp, err := expandComputeGlobalAddressDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -279,6 +287,10 @@ func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData)
 
 func flattenComputeGlobalAddressAddressType(v interface{}, d *schema.ResourceData) interface{} {
 	return v
+}
+
+func expandComputeGlobalAddressAddress(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
