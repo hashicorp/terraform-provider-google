@@ -67,10 +67,10 @@ func getStatePrimaryResource(s *terraform.State, res, expectedID string) (*terra
 	// Get the project resource
 	resource, ok := s.RootModule().Resources[res]
 	if !ok {
-		return nil, fmt.Errorf("Not found: %s", res)
+		return nil, fmt.Errorf("not found: %s", res)
 	}
 	if resource.Primary.Attributes["id"] != expectedID && expectedID != "" {
-		return nil, fmt.Errorf("Expected project %q to match ID %q in state", resource.Primary.ID, expectedID)
+		return nil, fmt.Errorf("expected project %q to match ID %q in state", resource.Primary.ID, expectedID)
 	}
 	return resource.Primary, nil
 }
@@ -79,10 +79,10 @@ func getGoogleProjectIamPolicyFromResource(resource *terraform.InstanceState) (c
 	var p cloudresourcemanager.Policy
 	ps, ok := resource.Attributes["policy_data"]
 	if !ok {
-		return p, fmt.Errorf("Resource %q did not have a 'policy_data' attribute. Attributes were %#v", resource.ID, resource.Attributes)
+		return p, fmt.Errorf("resource %q did not have a 'policy_data' attribute. Attributes were %#v", resource.ID, resource.Attributes)
 	}
 	if err := json.Unmarshal([]byte(ps), &p); err != nil {
-		return p, fmt.Errorf("Could not unmarshal %s:\n: %v", ps, err)
+		return p, fmt.Errorf("could not unmarshal %s:\n: %v", ps, err)
 	}
 	return p, nil
 }
@@ -107,16 +107,16 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 	return func(s *terraform.State) error {
 		projectPolicy, err := getGoogleProjectIamPolicyFromState(s, projectRes, pid)
 		if err != nil {
-			return fmt.Errorf("Error retrieving IAM policy for project from state: %s", err)
+			return fmt.Errorf("error retrieving IAM policy for project from state: %s", err)
 		}
 		policyPolicy, err := getGoogleProjectIamPolicyFromState(s, policyRes, "")
 		if err != nil {
-			return fmt.Errorf("Error retrieving IAM policy for data_policy from state: %s", err)
+			return fmt.Errorf("error retrieving IAM policy for data_policy from state: %s", err)
 		}
 
 		// The bindings in both policies should be identical
 		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
+			return fmt.Errorf("project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
 		}
 		return nil
 	}
@@ -252,10 +252,10 @@ func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
 		var err error
 		originalPolicy, err = getProjectIamPolicy(pid, c)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
+			return fmt.Errorf("failed to retrieve IAM Policy for project %q: %s", pid, err)
 		}
 		if len(originalPolicy.Bindings) == 0 {
-			return fmt.Errorf("Refuse to run test against project with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a project.")
+			return fmt.Errorf("refuse to run test against project with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a project.")
 		}
 		return nil
 	}

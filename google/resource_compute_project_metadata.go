@@ -77,7 +77,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 
 	err = d.Set("metadata", flattenMetadata(project.CommonInstanceMetadata))
 	if err != nil {
-		return fmt.Errorf("Error setting metadata: %s", err)
+		return fmt.Errorf("error setting metadata: %s", err)
 	}
 
 	d.Set("project", d.Id())
@@ -107,7 +107,7 @@ func resourceComputeProjectMetadataSet(projectID string, config *Config, md *com
 		log.Printf("[DEBUG] Loading project service: %s", projectID)
 		project, err := config.clientCompute.Projects.Get(projectID).Do()
 		if err != nil {
-			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
+			return fmt.Errorf("error loading project '%s': %s", projectID, err)
 		}
 
 		md.Fingerprint = project.CommonInstanceMetadata.Fingerprint

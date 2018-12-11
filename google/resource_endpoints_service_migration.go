@@ -18,6 +18,6 @@ func migrateEndpointsService(v int, is *terraform.InstanceState, meta interface{
 		is.Attributes["protoc_output"] = ""
 		return is, nil
 	default:
-		return nil, fmt.Errorf("Unexpected schema version: %d", v)
+		return nil, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }

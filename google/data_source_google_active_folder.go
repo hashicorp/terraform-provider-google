@@ -51,5 +51,5 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 			return nil
 		}
 	}
-	return fmt.Errorf("Folder not found")
+	return fmt.Errorf("folder not found")
 }

@@ -197,13 +197,13 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new Autoscaler: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Autoscaler: %s", err)
+		return fmt.Errorf("error creating Autoscaler: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{zone}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -224,7 +224,7 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Autoscaler: %s", waitErr)
+		return fmt.Errorf("error waiting to create Autoscaler: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Autoscaler %q: %#v", d.Id(), res)
@@ -250,29 +250,29 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeAutoscalerCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("name", flattenComputeAutoscalerName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("description", flattenComputeAutoscalerDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("autoscaling_policy", flattenComputeAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("target", flattenComputeAutoscalerTarget(res["target"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeAutoscalerZone(res["zone"], d)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+		return fmt.Errorf("error reading Autoscaler: %s", err)
 	}
 
 	return nil
@@ -322,7 +322,7 @@ func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) e
 	res, err := sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating Autoscaler %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating Autoscaler %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -390,7 +390,7 @@ func resourceComputeAutoscalerImport(d *schema.ResourceData, meta interface{}) (
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{zone}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -716,7 +716,7 @@ func expandComputeAutoscalerTarget(v interface{}, d *schema.ResourceData, config
 	}
 	f, err := parseZonalFieldValue("instanceGroupManagers", v.(string), "project", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for target: %s", err)
+		return nil, fmt.Errorf("invalid value for target: %s", err)
 	}
 	return "https://www.googleapis.com/compute/v1/" + f.RelativeLink(), nil
 }
@@ -724,7 +724,7 @@ func expandComputeAutoscalerTarget(v interface{}, d *schema.ResourceData, config
 func expandComputeAutoscalerZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for zone: %s", err)
+		return nil, fmt.Errorf("invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

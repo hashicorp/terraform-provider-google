@@ -107,7 +107,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		log.Printf("[DEBUG] DNS record list request for %q", zone)
 		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
+			return fmt.Errorf("error retrieving record sets for %q: %s", zone, err)
 		}
 		var deletions []*dns.ResourceRecordSet
 
@@ -125,7 +125,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record create request: %#v", chg)
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating DNS RecordSet: %s", err)
+		return fmt.Errorf("error creating DNS RecordSet: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", zone, name, rType))
@@ -138,7 +138,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	_, err = w.Conf().WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+		return fmt.Errorf("error waiting for Google DNS change: %s", err)
 	}
 
 	return resourceDnsRecordSetRead(d, meta)
@@ -170,7 +170,7 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(resp.Rrsets) > 1 {
-		return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))
+		return fmt.Errorf("only expected 1 record set, got %d", len(resp.Rrsets))
 	}
 
 	d.Set("type", resp.Rrsets[0].Type)
@@ -201,7 +201,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	if d.Get("type").(string) == "NS" {
 		mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
 		if err != nil {
-			return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
+			return fmt.Errorf("error retrieving managed zone %q from %q: %s", zone, project, err)
 		}
 		domain := mz.DnsName
 
@@ -226,7 +226,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting DNS RecordSet: %s", err)
+		return fmt.Errorf("error deleting DNS RecordSet: %s", err)
 	}
 
 	w := &DnsChangeWaiter{
@@ -237,7 +237,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	_, err = w.Conf().WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+		return fmt.Errorf("error waiting for Google DNS change: %s", err)
 	}
 
 	d.SetId("")
@@ -288,7 +288,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record change request: %#v old: %#v new: %#v", chg, chg.Deletions[0], chg.Additions[0])
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return fmt.Errorf("Error changing DNS RecordSet: %s", err)
+		return fmt.Errorf("error changing DNS RecordSet: %s", err)
 	}
 
 	w := &DnsChangeWaiter{
@@ -298,7 +298,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 		ManagedZone: zone,
 	}
 	if _, err = w.Conf().WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+		return fmt.Errorf("error waiting for Google DNS change: %s", err)
 	}
 
 	return resourceDnsRecordSetRead(d, meta)
@@ -307,7 +307,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")
+		return nil, fmt.Errorf("invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")
 	}
 
 	d.Set("managed_zone", parts[0])

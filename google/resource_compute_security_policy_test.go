@@ -105,7 +105,7 @@ func testAccCheckComputeSecurityPolicyDestroy(s *terraform.State) error {
 
 		_, err := config.clientComputeBeta.SecurityPolicies.Get(config.Project, pol).Do()
 		if err == nil {
-			return fmt.Errorf("Security policy %q still exists", pol)
+			return fmt.Errorf("security policy %q still exists", pol)
 		}
 	}
 

@@ -86,7 +86,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		keyRing, err := config.clientKms.Projects.Locations.KeyRings.Create(keyRingId.parentId(), &cloudkms.KeyRing{}).KeyRingId(keyRingId.Name).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error creating KeyRing: %s", err)
+			return fmt.Errorf("error creating KeyRing: %s", err)
 		}
 
 		log.Printf("[DEBUG] Created KeyRing %s", keyRing.Name)
@@ -119,7 +119,7 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	keyRing, err := config.clientKms.Projects.Locations.KeyRings.Get(keyRingId.keyRingId()).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error reading KeyRing: %s", err)
+		return fmt.Errorf("error reading KeyRing: %s", err)
 	}
 
 	d.Set("project", project)
@@ -165,7 +165,7 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 
 	if keyRingIdWithoutProjectRegex.MatchString(id) {
 		if config.Project == "" {
-			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{keyRingName}` id format.")
+			return nil, fmt.Errorf("the default project for the provider must be set when using the `{location}/{keyRingName}` id format.")
 		}
 
 		return &kmsKeyRingId{
@@ -182,7 +182,7 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 			Name:     parts[3],
 		}, nil
 	}
-	return nil, fmt.Errorf("Invalid KeyRing id format, expecting `{projectId}/{locationId}/{keyRingName}` or `{locationId}/{keyRingName}.`")
+	return nil, fmt.Errorf("invalid KeyRing id format, expecting `{projectId}/{locationId}/{keyRingName}` or `{locationId}/{keyRingName}.`")
 }
 
 func resourceKmsKeyRingImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

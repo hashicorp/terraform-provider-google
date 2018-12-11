@@ -161,7 +161,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		}).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating subscription %q: %s", d.Get("name"), err)
+			return fmt.Errorf("error updating subscription %q: %s", d.Get("name"), err)
 		}
 	}
 

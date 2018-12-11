@@ -180,11 +180,11 @@ func testAccCheckComputeRegionDiskExists(n string, disk *computeBeta.Disk) resou
 		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -209,11 +209,11 @@ func testAccCheckComputeRegionDiskHasLabel(disk *computeBeta.Disk, key, value st
 	return func(s *terraform.State) error {
 		val, ok := disk.Labels[key]
 		if !ok {
-			return fmt.Errorf("Label with key %s not found", key)
+			return fmt.Errorf("label with key %s not found", key)
 		}
 
 		if val != value {
-			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+			return fmt.Errorf("label value did not match for key %s: expected %s but found %s", key, value, val)
 		}
 		return nil
 	}
@@ -223,12 +223,12 @@ func testAccCheckComputeRegionDiskHasLabelFingerprint(disk *computeBeta.Disk, re
 	return func(s *terraform.State) error {
 		state := s.RootModule().Resources[resourceName]
 		if state == nil {
-			return fmt.Errorf("Unable to find resource named %s", resourceName)
+			return fmt.Errorf("unable to find resource named %s", resourceName)
 		}
 
 		labelFingerprint := state.Primary.Attributes["label_fingerprint"]
 		if labelFingerprint != disk.LabelFingerprint {
-			return fmt.Errorf("Label fingerprints do not match: api returned %s but state has %s",
+			return fmt.Errorf("label fingerprints do not match: api returned %s but state has %s",
 				disk.LabelFingerprint, labelFingerprint)
 		}
 
@@ -240,7 +240,7 @@ func testAccCheckRegionDiskEncryptionKey(n string, disk *computeBeta.Disk) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		attr := rs.Primary.Attributes["disk_encryption_key.0.sha256"]
@@ -258,7 +258,7 @@ func testAccCheckComputeRegionDiskInstances(n string, disk *computeBeta.Disk) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		attr := rs.Primary.Attributes["users.#"]

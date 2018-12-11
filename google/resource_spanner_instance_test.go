@@ -231,7 +231,7 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Unable to verify delete of spanner instance, ID is empty")
+			return fmt.Errorf("unable to verify delete of spanner instance, ID is empty")
 		}
 
 		instanceName := rs.Primary.Attributes["name"]
@@ -248,7 +248,7 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 			id.instanceUri()).Do()
 
 		if err == nil {
-			return fmt.Errorf("Spanner instance still exists")
+			return fmt.Errorf("spanner instance still exists")
 		}
 
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {

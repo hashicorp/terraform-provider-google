@@ -49,7 +49,7 @@ func resolveImageImageExists(c *Config, project, name string) (bool, error) {
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil
 	} else {
-		return false, fmt.Errorf("Error checking if image %s exists: %s", name, err)
+		return false, fmt.Errorf("error checking if image %s exists: %s", name, err)
 	}
 }
 
@@ -59,13 +59,13 @@ func resolveImageFamilyExists(c *Config, project, name string) (bool, error) {
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil
 	} else {
-		return false, fmt.Errorf("Error checking if family %s exists: %s", name, err)
+		return false, fmt.Errorf("error checking if family %s exists: %s", name, err)
 	}
 }
 
 func sanityTestRegexMatches(expected int, got []string, regexType, name string) error {
 	if len(got)-1 != expected { // subtract one, index zero is the entire matched expression
-		return fmt.Errorf("Expected %d %s regex matches, got %d for %s", expected, regexType, len(got)-1, name)
+		return fmt.Errorf("expected %d %s regex matches, got %d for %s", expected, regexType, len(got)-1, name)
 	}
 	return nil
 }
@@ -194,7 +194,7 @@ func resolveImage(c *Config, project, name string) (string, error) {
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find image or family %s", name)
+	return "", fmt.Errorf("could not find image or family %s", name)
 }
 
 // resolvedImageSelfLink takes the output of resolveImage and coerces it into a self_link.
@@ -229,6 +229,6 @@ func resolvedImageSelfLink(providerProject, name string) (string, error) {
 		}
 		return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/images/family/%s", providerProject, res[1]), nil
 	}
-	return "", fmt.Errorf("Could not expand image or family %q into a self_link", name)
+	return "", fmt.Errorf("could not expand image or family %q into a self_link", name)
 
 }

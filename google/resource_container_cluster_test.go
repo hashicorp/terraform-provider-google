@@ -1152,7 +1152,7 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 		_, err := config.clientContainer.Projects.Zones.Clusters.Get(
 			config.Project, attributes["zone"], attributes["name"]).Do()
 		if err == nil {
-			return fmt.Errorf("Cluster still exists")
+			return fmt.Errorf("cluster still exists")
 		}
 	}
 
@@ -1162,11 +1162,11 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 func getResourceAttributes(n string, s *terraform.State) (map[string]string, error) {
 	rs, ok := s.RootModule().Resources[n]
 	if !ok {
-		return nil, fmt.Errorf("Not found: %s", n)
+		return nil, fmt.Errorf("not found: %s", n)
 	}
 
 	if rs.Primary.ID == "" {
-		return nil, fmt.Errorf("No ID is set")
+		return nil, fmt.Errorf("no ID is set")
 	}
 
 	return rs.Primary.Attributes, nil

@@ -504,13 +504,13 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating new Disk: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Disk: %s", err)
+		return fmt.Errorf("error creating Disk: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -531,7 +531,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Disk: %s", waitErr)
+		return fmt.Errorf("error waiting to create Disk: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Disk %q: %#v", d.Id(), res)
@@ -562,65 +562,65 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 
 	if err := d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("description", flattenComputeDiskDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("last_attach_timestamp", flattenComputeDiskLastAttachTimestamp(res["lastAttachTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("last_detach_timestamp", flattenComputeDiskLastDetachTimestamp(res["lastDetachTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("labels", flattenComputeDiskLabels(res["labels"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("name", flattenComputeDiskName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("size", flattenComputeDiskSize(res["sizeGb"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("users", flattenComputeDiskUsers(res["users"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("type", flattenComputeDiskType(res["type"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeDiskZone(res["zone"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("disk_encryption_key", flattenComputeDiskDiskEncryptionKey(res["diskEncryptionKey"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("snapshot", flattenComputeDiskSnapshot(res["sourceSnapshot"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("source_snapshot_encryption_key", flattenComputeDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"], d)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+		return fmt.Errorf("error reading Disk: %s", err)
 	}
 
 	return nil
@@ -652,7 +652,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Disk %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -691,7 +691,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Disk %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -736,7 +736,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		self := d.Get("self_link").(string)
 		for _, instance := range instances {
 			if !computeDiskUserRegex.MatchString(instance.(string)) {
-				return fmt.Errorf("Unknown user %q of disk %q", instance, self)
+				return fmt.Errorf("unknown user %q of disk %q", instance, self)
 			}
 			matches := computeDiskUserRegex.FindStringSubmatch(instance.(string))
 			instanceProject := matches[1]
@@ -748,7 +748,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance.(string))
 					continue
 				}
-				return fmt.Errorf("Error retrieving instance %s: %s", instance.(string), err.Error())
+				return fmt.Errorf("error retrieving instance %s: %s", instance.(string), err.Error())
 			}
 			for _, disk := range i.Disks {
 				if disk.Source == self {
@@ -764,7 +764,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		for _, call := range detachCalls {
 			op, err := config.clientCompute.Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
 			if err != nil {
-				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
+				return fmt.Errorf("error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
 			err = computeOperationWait(config.clientCompute, op, call.project,
@@ -813,7 +813,7 @@ func resourceComputeDiskImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 	// In the end, it's possible that someone has tried to import
@@ -1023,7 +1023,7 @@ func expandComputeDiskSize(v interface{}, d *schema.ResourceData, config *Config
 func expandComputeDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("diskTypes", v.(string), "project", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for type: %s", err)
+		return nil, fmt.Errorf("invalid value for type: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -1035,7 +1035,7 @@ func expandComputeDiskImage(v interface{}, d *schema.ResourceData, config *Confi
 func expandComputeDiskZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for zone: %s", err)
+		return nil, fmt.Errorf("invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -1111,7 +1111,7 @@ func expandComputeDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceD
 func expandComputeDiskSnapshot(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("snapshots", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for snapshot: %s", err)
+		return nil, fmt.Errorf("invalid value for snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -1172,7 +1172,7 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 		diskType, err := readDiskType(config, zone, project, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
-				"Error loading disk type '%s': %s",
+				"error loading disk type '%s': %s",
 				v.(string), err)
 		}
 
@@ -1184,7 +1184,7 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 		imageUrl, err := resolveImage(config, project, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
-				"Error resolving image name '%s': %s",
+				"error resolving image name '%s': %s",
 				v.(string), err)
 		}
 

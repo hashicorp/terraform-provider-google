@@ -285,7 +285,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 			return resource.NonRetryableError(err)
 		}
 		if nodePool.Status != "RUNNING" {
-			return resource.RetryableError(fmt.Errorf("Nodepool %q has status %q with message %q", d.Get("name"), nodePool.Status, nodePool.StatusMessage))
+			return resource.RetryableError(fmt.Errorf("nodepool %q has status %q with message %q", d.Get("name"), nodePool.Status, nodePool.StatusMessage))
 		}
 		return nil
 	})
@@ -359,13 +359,13 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		}
 
 		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete node pool %s", name))
+			return resource.NonRetryableError(fmt.Errorf("error retrying to delete node pool %s", name))
 		}
 		return nil
 	})
 
 	if err != nil {
-		return fmt.Errorf("Error deleting NodePool: %s", err)
+		return fmt.Errorf("error deleting NodePool: %s", err)
 	}
 
 	// Wait until it's deleted
@@ -432,7 +432,7 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 		// override the inputted ID with the <location>/<cluster>/<name> format
 		d.SetId(strings.Join(parts[1:], "/"))
 	default:
-		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
+		return nil, fmt.Errorf("invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -452,7 +452,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 	}
 	if nc, ok := d.GetOk(prefix + "node_count"); ok {
 		if nodeCount != 0 {
-			return nil, fmt.Errorf("Cannot set both initial_node_count and node_count on node pool %s", name)
+			return nil, fmt.Errorf("cannot set both initial_node_count and node_count on node pool %s", name)
 		}
 		nodeCount = nc.(int)
 	}
@@ -499,11 +499,11 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
 		if len(matches) < 4 {
-			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
+			return nil, fmt.Errorf("error reading instance group manage URL '%q'", url)
 		}
 		igm, err := config.clientComputeBeta.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
+			return nil, fmt.Errorf("error reading instance group manager returned as an instance group URL: %q", err)
 		}
 		size += int(igm.TargetSize)
 	}

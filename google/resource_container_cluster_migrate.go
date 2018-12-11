@@ -22,7 +22,7 @@ func resourceContainerClusterMigrateState(
 		log.Println("[INFO] Found Container Cluster State v0; migrating to v1")
 		return migrateClusterStateV0toV1(is)
 	default:
-		return is, fmt.Errorf("Unexpected schema version: %d", v)
+		return is, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 

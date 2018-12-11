@@ -167,7 +167,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOk("content"); ok {
 		media = bytes.NewReader([]byte(v.(string)))
 	} else {
-		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
+		return fmt.Errorf("error, either \\"content\\" or \\"source\\" must be specified")
 	}
 
 	objectsService := storage.NewObjectsService(config.clientStorage)
@@ -204,7 +204,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	_, err := insertCall.Do()
 
 	if err != nil {
-		return fmt.Errorf("Error uploading object %s: %s", name, err)
+		return fmt.Errorf("error uploading object %s: %s", name, err)
 	}
 
 	return resourceStorageBucketObjectRead(d, meta)
@@ -260,7 +260,7 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return fmt.Errorf("Error deleting contents of object %s: %s", name, err)
+		return fmt.Errorf("error deleting contents of object %s: %s", name, err)
 	}
 
 	return nil

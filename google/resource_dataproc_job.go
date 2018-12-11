@@ -240,7 +240,7 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if jobConfCount != 1 {
-		return fmt.Errorf("You must define and configure exactly one xxx_config block")
+		return fmt.Errorf("you must define and configure exactly one xxx_config block")
 	}
 
 	// Submit the job

@@ -39,7 +39,7 @@ func (w *DataprocClusterOperationWaiter) RefreshFunc() resource.StateRefreshFunc
 func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity string, timeoutMinutes, minTimeoutSeconds int) error {
 	if op.Done {
 		if op.Error != nil {
-			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+			return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 		}
 		return nil
 	}
@@ -54,12 +54,12 @@ func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activi
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	op = opRaw.(*dataproc.Operation)
 	if op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 	}
 
 	return nil

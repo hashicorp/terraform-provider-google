@@ -98,11 +98,11 @@ func lookupOrganizationName(folder *resourceManagerV2Beta1.Folder, config *Confi
 		parentFolder, err := config.clientResourceManagerV2Beta1.Folders.Get(parent).Do()
 
 		if err != nil {
-			return "", fmt.Errorf("Error getting parent folder '%s': %s", parent, err)
+			return "", fmt.Errorf("error getting parent folder '%s': %s", parent, err)
 		}
 
 		return lookupOrganizationName(parentFolder, config)
 	} else {
-		return "", fmt.Errorf("Unknown parent type '%s' on folder '%s'", parent, folder.Name)
+		return "", fmt.Errorf("unknown parent type '%s' on folder '%s'", parent, folder.Name)
 	}
 }

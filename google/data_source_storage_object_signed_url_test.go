@@ -161,7 +161,7 @@ func testAccSignedUrlRetrieval(n string, headers map[string]string) resource.Tes
 	return func(s *terraform.State) error {
 		r := s.RootModule().Resources[n]
 		if r == nil {
-			return fmt.Errorf("Datasource not found")
+			return fmt.Errorf("datasource not found")
 		}
 		a := r.Primary.Attributes
 
@@ -208,7 +208,7 @@ func testAccSignedUrlRetrieval(n string, headers map[string]string) resource.Tes
 			return err
 		}
 		if string(body) != "once upon a time..." {
-			return fmt.Errorf("Got unexpected object contents: %s\n\tURL: %s", string(body), url)
+			return fmt.Errorf("got unexpected object contents: %s\n\tURL: %s", string(body), url)
 		}
 
 		return nil

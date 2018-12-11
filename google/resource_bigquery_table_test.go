@@ -103,7 +103,7 @@ func testAccCheckBigQueryTableDestroy(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
 		if err == nil {
-			return fmt.Errorf("Table still present")
+			return fmt.Errorf("table still present")
 		}
 	}
 

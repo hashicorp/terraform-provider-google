@@ -166,13 +166,13 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Creating new Address: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Address: %s", err)
+		return fmt.Errorf("error creating Address: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -193,7 +193,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Address: %s", waitErr)
+		return fmt.Errorf("error waiting to create Address: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Address %q: %#v", d.Id(), res)
@@ -219,38 +219,38 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 
 	if err := d.Set("address", flattenComputeAddressAddress(res["address"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("address_type", flattenComputeAddressAddressType(res["addressType"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("description", flattenComputeAddressDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("name", flattenComputeAddressName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("network_tier", flattenComputeAddressNetworkTier(res["networkTier"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("subnetwork", flattenComputeAddressSubnetwork(res["subnetwork"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Address: %s", err)
+		return fmt.Errorf("error reading Address: %s", err)
 	}
 
 	return nil
@@ -300,7 +300,7 @@ func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -375,7 +375,7 @@ func expandComputeAddressNetworkTier(v interface{}, d *schema.ResourceData, conf
 func expandComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
+		return nil, fmt.Errorf("invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -383,7 +383,7 @@ func expandComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, confi
 func expandComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

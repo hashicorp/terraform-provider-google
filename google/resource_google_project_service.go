@@ -121,7 +121,7 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	if err = disableService(id.service, id.project, config); err != nil {
-		return fmt.Errorf("Error disabling service: %s", err)
+		return fmt.Errorf("error disabling service: %s", err)
 	}
 
 	d.SetId("")
@@ -149,7 +149,7 @@ func (id projectServiceId) terraformId() string {
 func parseProjectServiceId(id string) (*projectServiceId, error) {
 	parts := strings.Split(id, "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid google_project_service id format, expecting `{project}/{service}`, found %s", id)
+		return nil, fmt.Errorf("invalid google_project_service id format, expecting `{project}/{service}`, found %s", id)
 	}
 
 	return &projectServiceId{parts[0], parts[1]}, nil

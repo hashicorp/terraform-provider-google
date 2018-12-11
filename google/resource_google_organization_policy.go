@@ -197,7 +197,7 @@ func resourceGoogleOrganizationPolicyDelete(d *schema.ResourceData, meta interfa
 func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), ":")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid id format. Expecting {org_id}:{constraint}, got '%s' instead.", d.Id())
+		return nil, fmt.Errorf("invalid id format. Expecting {org_id}:{constraint}, got '%s' instead.", d.Id())
 	}
 
 	d.Set("org_id", parts[0])
@@ -285,7 +285,7 @@ func expandRestoreOrganizationPolicy(configured []interface{}) (*cloudresourcema
 		return &cloudresourcemanager.RestoreDefault{}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid value for restore_policy. Expecting default = true")
+	return nil, fmt.Errorf("invalid value for restore_policy. Expecting default = true")
 }
 
 func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []map[string]interface{} {

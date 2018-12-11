@@ -101,7 +101,7 @@ func resourcePubsubTopicStateImporter(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if config.Project == "" {
-		return nil, fmt.Errorf("The default project for the provider must be set when using the `{name}` id format.")
+		return nil, fmt.Errorf("the default project for the provider must be set when using the `{name}` id format.")
 	}
 
 	id := fmt.Sprintf("projects/%s/topics/%s", config.Project, d.Id())

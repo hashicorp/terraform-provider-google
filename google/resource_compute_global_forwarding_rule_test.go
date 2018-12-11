@@ -135,11 +135,11 @@ func testAccCheckComputeGlobalForwardingRuleExists(n string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -162,11 +162,11 @@ func testAccCheckComputeBetaGlobalForwardingRuleExists(n string, frule *computeB
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -191,11 +191,11 @@ func testAccCheckComputeBetaGlobalForwardingRuleIpVersion(n, version string) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -206,7 +206,7 @@ func testAccCheckComputeBetaGlobalForwardingRuleIpVersion(n, version string) res
 		}
 
 		if frule.IpVersion != version {
-			return fmt.Errorf("Expected IP version to be %s, got %s", version, frule.IpVersion)
+			return fmt.Errorf("expected IP version to be %s, got %s", version, frule.IpVersion)
 		}
 
 		return nil

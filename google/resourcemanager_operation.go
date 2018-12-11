@@ -44,7 +44,7 @@ func resourceManagerOperationWait(service *cloudresourcemanager.Service, op *clo
 func resourceManagerOperationWaitTime(service *cloudresourcemanager.Service, op *cloudresourcemanager.Operation, activity string, timeoutMin int) error {
 	if op.Done {
 		if op.Error != nil {
-			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+			return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 		}
 		return nil
 	}
@@ -60,12 +60,12 @@ func resourceManagerOperationWaitTime(service *cloudresourcemanager.Service, op 
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	op = opRaw.(*cloudresourcemanager.Operation)
 	if op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 	}
 
 	return nil

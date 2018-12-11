@@ -17,7 +17,7 @@ func resourceContainerNodePoolMigrateState(v int, is *terraform.InstanceState, m
 		log.Println("[INFO] Found Container Node Pool State v0; migrating to v1")
 		return migrateNodePoolStateV0toV1(is)
 	default:
-		return is, fmt.Errorf("Unexpected schema version: %d", v)
+		return is, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 

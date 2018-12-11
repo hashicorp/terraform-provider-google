@@ -54,14 +54,14 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 			Filter: filter,
 		}).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading organization: %s", err)
+			return fmt.Errorf("error reading organization: %s", err)
 		}
 
 		if len(resp.Organizations) == 0 {
-			return fmt.Errorf("Organization not found: %s", v)
+			return fmt.Errorf("organization not found: %s", v)
 		}
 		if len(resp.Organizations) > 1 {
-			return fmt.Errorf("More than one matching organization found")
+			return fmt.Errorf("more than one matching organization found")
 		}
 
 		organization = resp.Organizations[0]

@@ -328,7 +328,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		project, zone, manager).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error creating InstanceGroupManager: %s", err)
+		return fmt.Errorf("error creating InstanceGroupManager: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -459,10 +459,10 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
 	if err = d.Set("target_pools", manager.TargetPools); err != nil {
-		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+		return fmt.Errorf("error setting target_pools in state: %s", err.Error())
 	}
 	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
-		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
+		return fmt.Errorf("error setting named_port in state: %s", err.Error())
 	}
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
@@ -501,7 +501,7 @@ func performZoneUpdate(config *Config, id string, updateStrategy string, project
 	if updateStrategy == "RESTART" || updateStrategy == "REPLACE" {
 		managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, id).Do()
 		if err != nil {
-			return fmt.Errorf("Error getting instance group managers instances: %s", err)
+			return fmt.Errorf("error getting instance group managers instances: %s", err)
 		}
 
 		managedInstanceCount := len(managedInstances.ManagedInstances)
@@ -516,7 +516,7 @@ func performZoneUpdate(config *Config, id string, updateStrategy string, project
 
 		op, err := config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(project, zone, id, recreateInstances).Do()
 		if err != nil {
-			return fmt.Errorf("Error restarting instance group managers instances: %s", err)
+			return fmt.Errorf("error restarting instance group managers instances: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -565,7 +565,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			zonalID.Project, zonalID.Zone, zonalID.Name, setTargetPools).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -591,7 +591,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			zonalID.Project, zonalID.Zone, zonalID.Name, setNamedPorts).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete:
@@ -609,7 +609,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			zonalID.Project, zonalID.Zone, zonalID.Name, targetSize).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -631,7 +631,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		op, err := config.clientComputeBeta.InstanceGroupManagers.SetInstanceTemplate(zonalID.Project, zonalID.Zone, zonalID.Name, setInstanceTemplate).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
+			return fmt.Errorf("error updating InstanceGroupManager: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -681,7 +681,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error deleting instance group manager: %s", err)
+		return fmt.Errorf("error deleting instance group manager: %s", err)
 	}
 
 	currentSize := int64(d.Get("target_size").(int))
@@ -697,13 +697,13 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 		instanceGroup, err := config.clientComputeBeta.InstanceGroups.Get(
 			zonalID.Project, zonalID.Zone, zonalID.Name).Do()
 		if err != nil {
-			return fmt.Errorf("Error getting instance group size: %s", err)
+			return fmt.Errorf("error getting instance group size: %s", err)
 		}
 
 		instanceGroupSize := instanceGroup.Size
 
 		if instanceGroupSize >= currentSize {
-			return fmt.Errorf("Error, instance group isn't shrinking during delete")
+			return fmt.Errorf("error, instance group isn't shrinking during delete")
 		}
 
 		log.Printf("[INFO] timeout occured, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
@@ -722,7 +722,7 @@ func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta inte
 		return nil, err
 	}
 	if zonalID.Zone == "" || zonalID.Project == "" {
-		return nil, fmt.Errorf("Invalid instance group manager import ID. Expecting {projectId}/{zone}/{name}.")
+		return nil, fmt.Errorf("invalid instance group manager import ID. Expecting {projectId}/{zone}/{name}.")
 	}
 	d.Set("project", zonalID.Project)
 	d.Set("zone", zonalID.Zone)
@@ -754,6 +754,6 @@ func parseInstanceGroupManagerId(id string) (*instanceGroupManagerId, error) {
 			Name: id,
 		}, nil
 	default:
-		return nil, fmt.Errorf("Invalid instance group manager specifier. Expecting either {projectId}/{zone}/{name} or {name}, where {projectId} and {zone} will be derived from the provider.")
+		return nil, fmt.Errorf("invalid instance group manager specifier. Expecting either {projectId}/{zone}/{name} or {name}, where {projectId} and {zone} will be derived from the provider.")
 	}
 }

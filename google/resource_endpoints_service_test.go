@@ -171,7 +171,7 @@ func testAccCheckEndpointExistsByName(random_name string) resource.TestCheckFunc
 		if service != nil {
 			return nil
 		} else {
-			return fmt.Errorf("Service %s.endpoints.%s.cloud.goog does not seem to exist.", random_name, config.Project)
+			return fmt.Errorf("service %s.endpoints.%s.cloud.goog does not seem to exist.", random_name, config.Project)
 		}
 	}
 }

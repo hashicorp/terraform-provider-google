@@ -100,7 +100,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 
 	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccountName, r).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating service account key: %s", err)
+		return fmt.Errorf("error creating service account key: %s", err)
 	}
 
 	d.SetId(sak.Name)

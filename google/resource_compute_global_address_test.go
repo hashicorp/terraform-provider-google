@@ -71,11 +71,11 @@ func testAccCheckComputeGlobalAddressExists(n string, addr *compute.Address) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -87,7 +87,7 @@ func testAccCheckComputeGlobalAddressExists(n string, addr *compute.Address) res
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Addr not found")
+			return fmt.Errorf("addr not found")
 		}
 
 		*addr = *found
@@ -100,11 +100,11 @@ func testAccCheckComputeGlobalAddressIpVersion(n, version string) resource.TestC
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -115,7 +115,7 @@ func testAccCheckComputeGlobalAddressIpVersion(n, version string) resource.TestC
 		}
 
 		if addr.IpVersion != version {
-			return fmt.Errorf("Expected IP version to be %s, got %s", version, addr.IpVersion)
+			return fmt.Errorf("expected IP version to be %s, got %s", version, addr.IpVersion)
 		}
 
 		return nil

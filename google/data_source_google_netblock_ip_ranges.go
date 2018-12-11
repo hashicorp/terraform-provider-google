@@ -55,14 +55,14 @@ func netblock_request(name string) (string, error) {
 	response, err := http.Get(fmt.Sprintf("https://dns.google.com/resolve?name=%s&type=TXT", name))
 
 	if err != nil {
-		return "", fmt.Errorf("Error from _cloud-netblocks: %s", err)
+		return "", fmt.Errorf("error from _cloud-netblocks: %s", err)
 	}
 
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		return "", fmt.Errorf("Error to retrieve the domains list: %s", err)
+		return "", fmt.Errorf("error to retrieve the domains list: %s", err)
 	}
 
 	return string(body), nil

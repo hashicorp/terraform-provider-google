@@ -106,7 +106,7 @@ func testAccCheckAlertPolicyDestroy(s *terraform.State) error {
 		_, err := sendRequest(config, "GET", url, nil)
 
 		if err == nil {
-			return fmt.Errorf("Error, alert policy %s still exists", name)
+			return fmt.Errorf("error, alert policy %s still exists", name)
 		}
 	}
 

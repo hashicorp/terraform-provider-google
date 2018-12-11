@@ -106,7 +106,7 @@ func parseGlobalFieldValue(resourceType, fieldValue, projectSchemaField string, 
 		if isEmptyValid {
 			return &GlobalFieldValue{resourceType: resourceType}, nil
 		}
-		return nil, fmt.Errorf("The global field for resource %s cannot be empty", resourceType)
+		return nil, fmt.Errorf("the global field for resource %s cannot be empty", resourceType)
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(globalLinkBasePattern, resourceType))
@@ -162,7 +162,7 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 		if isEmptyValid {
 			return &ZonalFieldValue{resourceType: resourceType}, nil
 		}
-		return nil, fmt.Errorf("The zonal field for resource %s cannot be empty.", resourceType)
+		return nil, fmt.Errorf("the zonal field for resource %s cannot be empty.", resourceType)
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, resourceType))
@@ -191,14 +191,14 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 	}
 
 	if len(zoneSchemaField) == 0 {
-		return nil, fmt.Errorf("Invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(globalLinkTemplate, "{project}", resourceType, "{name}"))
+		return nil, fmt.Errorf("invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(globalLinkTemplate, "{project}", resourceType, "{name}"))
 	}
 
 	zone, ok := d.GetOk(zoneSchemaField)
 	if !ok {
 		zone = config.Zone
 		if zone == "" {
-			return nil, fmt.Errorf("A zone must be specified")
+			return nil, fmt.Errorf("a zone must be specified")
 		}
 	}
 
@@ -243,7 +243,7 @@ func parseOrganizationFieldValue(resourceType, fieldValue string, isEmptyValid b
 		if isEmptyValid {
 			return &OrganizationFieldValue{resourceType: resourceType}, nil
 		}
-		return nil, fmt.Errorf("The organization field for resource %s cannot be empty", resourceType)
+		return nil, fmt.Errorf("the organization field for resource %s cannot be empty", resourceType)
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(organizationBasePattern, resourceType))
@@ -256,7 +256,7 @@ func parseOrganizationFieldValue(resourceType, fieldValue string, isEmptyValid b
 		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(organizationLinkTemplate, "{org_id}", resourceType, "{name}"))
+	return nil, fmt.Errorf("invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(organizationLinkTemplate, "{org_id}", resourceType, "{name}"))
 }
 
 type RegionalFieldValue struct {
@@ -289,7 +289,7 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 		if isEmptyValid {
 			return &RegionalFieldValue{resourceType: resourceType}, nil
 		}
-		return nil, fmt.Errorf("The regional field for resource %s cannot be empty.", resourceType)
+		return nil, fmt.Errorf("the regional field for resource %s cannot be empty.", resourceType)
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf(regionalLinkBasePattern, resourceType))
@@ -349,5 +349,5 @@ func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformR
 		return getRegionFromZone(config.Zone), nil
 	}
 
-	return "", fmt.Errorf("Cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
+	return "", fmt.Errorf("cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
 }

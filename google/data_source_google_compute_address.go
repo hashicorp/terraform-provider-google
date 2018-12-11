@@ -115,7 +115,7 @@ func parseComputeAddressId(id string, config *Config) (*computeAddressId, error)
 	} else if len(parts) == 2 {
 		// Project is optional.
 		if config.Project == "" {
-			return nil, fmt.Errorf("The default project for the provider must be set when using the `{region}/{name}` id format.")
+			return nil, fmt.Errorf("the default project for the provider must be set when using the `{region}/{name}` id format.")
 		}
 
 		return &computeAddressId{
@@ -126,10 +126,10 @@ func parseComputeAddressId(id string, config *Config) (*computeAddressId, error)
 	} else if len(parts) == 1 {
 		// Project and region is optional
 		if config.Project == "" {
-			return nil, fmt.Errorf("The default project for the provider must be set when using the `{name}` id format.")
+			return nil, fmt.Errorf("the default project for the provider must be set when using the `{name}` id format.")
 		}
 		if config.Region == "" {
-			return nil, fmt.Errorf("The default region for the provider must be set when using the `{name}` id format.")
+			return nil, fmt.Errorf("the default region for the provider must be set when using the `{name}` id format.")
 		}
 
 		return &computeAddressId{
@@ -139,5 +139,5 @@ func parseComputeAddressId(id string, config *Config) (*computeAddressId, error)
 		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid compute address id. Expecting resource link, `{project}/{region}/{name}`, `{region}/{name}` or `{name}` format.")
+	return nil, fmt.Errorf("invalid compute address id. Expecting resource link, `{project}/{region}/{name}`, `{region}/{name}` or `{name}` format.")
 }

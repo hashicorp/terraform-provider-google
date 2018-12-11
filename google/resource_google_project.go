@@ -254,11 +254,11 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if !d.Get("auto_create_network").(bool) {
 		// The compute API has to be enabled before we can delete a network.
 		if err = enableService("compute.googleapis.com", project.ProjectId, config); err != nil {
-			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
+			return fmt.Errorf("error enabling the Compute Engine API required to delete the default network: %s", err)
 		}
 
 		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
-			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+			return fmt.Errorf("error deleting default network in project %s: %s", project.ProjectId, err)
 		}
 	}
 	return nil
@@ -304,7 +304,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	// Read the billing account
 	ba, err := config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
 	if err != nil && !isApiNotEnabledError(err) {
-		return fmt.Errorf("Error reading billing account for project %q: %v", prefixedProject(pid), err)
+		return fmt.Errorf("error reading billing account for project %q: %v", prefixedProject(pid), err)
 	} else if isApiNotEnabledError(err) {
 		log.Printf("[WARN] Billing info API not enabled, please enable it to read billing info about project %q: %s", pid, err.Error())
 	} else if ba.BillingAccountName != "" {
@@ -316,7 +316,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		// recognize.
 		_ba := strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/")
 		if ba.BillingAccountName == _ba {
-			return fmt.Errorf("Error parsing billing account for project %q. Expected value to begin with 'billingAccounts/' but got %s", prefixedProject(pid), ba.BillingAccountName)
+			return fmt.Errorf("error parsing billing account for project %q. Expected value to begin with 'billingAccounts/' but got %s", prefixedProject(pid), ba.BillingAccountName)
 		}
 		d.Set("billing_account", _ba)
 	}
@@ -372,9 +372,9 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	p, err := config.clientResourceManager.Projects.Get(pid).Do()
 	if err != nil {
 		if v, ok := err.(*googleapi.Error); ok && v.Code == http.StatusNotFound {
-			return fmt.Errorf("Project %q does not exist.", pid)
+			return fmt.Errorf("project %q does not exist.", pid)
 		}
-		return fmt.Errorf("Error checking project %q: %s", pid, err)
+		return fmt.Errorf("error checking project %q: %s", pid, err)
 	}
 
 	d.Partial(true)
@@ -385,7 +385,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		// Do update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+			return fmt.Errorf("error updating project %q: %s", project_name, err)
 		}
 		d.SetPartial("name")
 	}
@@ -399,7 +399,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		// Do update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+			return fmt.Errorf("error updating project %q: %s", project_name, err)
 		}
 		d.SetPartial("org_id")
 		d.SetPartial("folder_id")
@@ -420,7 +420,7 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		// Do Update on project
 		p, err = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+			return fmt.Errorf("error updating project %q: %s", project_name, err)
 		}
 		d.SetPartial("labels")
 	}
@@ -436,7 +436,7 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		pid := d.Id()
 		_, err := config.clientResourceManager.Projects.Delete(pid).Do()
 		if err != nil {
-			return fmt.Errorf("Error deleting project %q: %s", pid, err)
+			return fmt.Errorf("error deleting project %q: %s", pid, err)
 		}
 	}
 	d.SetId("")
@@ -459,7 +459,7 @@ func forceDeleteComputeNetwork(projectId, networkName string, config *Config) er
 		filter := fmt.Sprintf("network eq %s", networkLink)
 		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
-			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+			return fmt.Errorf("error listing firewall rules in proj: %s", err)
 		}
 
 		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
@@ -467,7 +467,7 @@ func forceDeleteComputeNetwork(projectId, networkName string, config *Config) er
 		for _, firewall := range resp.Items {
 			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
 			if err != nil {
-				return fmt.Errorf("Error deleting firewall: %s", err)
+				return fmt.Errorf("error deleting firewall: %s", err)
 			}
 			err = computeSharedOperationWait(config.clientCompute, op, projectId, "Deleting Firewall")
 			if err != nil {
@@ -494,9 +494,9 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		d.Set("billing_account", "")
 		if _err, ok := err.(*googleapi.Error); ok {
-			return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
+			return fmt.Errorf("error setting billing account %q for project %q: %v", name, prefixedProject(pid), _err)
 		}
-		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
+		return fmt.Errorf("error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
 	}
 	for retries := 0; retries < 3; retries++ {
 		ba, err = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
@@ -509,6 +509,6 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 		}
 		time.Sleep(3 * time.Second)
 	}
-	return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
+	return fmt.Errorf("timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
 		name, strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/"))
 }

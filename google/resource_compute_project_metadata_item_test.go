@@ -127,10 +127,10 @@ func testAccCheckProjectMetadataItem_hasMetadata(key, value string) resource.Tes
 
 		val, ok := metadata[key]
 		if !ok {
-			return fmt.Errorf("Unable to find a value for key '%s'", key)
+			return fmt.Errorf("unable to find a value for key '%s'", key)
 		}
 		if val != value {
-			return fmt.Errorf("Value for key '%s' does not match. Expected '%s' but found '%s'", key, value, val)
+			return fmt.Errorf("value for key '%s' does not match. Expected '%s' but found '%s'", key, value, val)
 		}
 		return nil
 	}
@@ -153,7 +153,7 @@ func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
 
 		_, ok := metadata[rs.Primary.ID]
 		if ok {
-			return fmt.Errorf("Metadata key/value '%s': '%s' still exist", rs.Primary.Attributes["key"], rs.Primary.Attributes["value"])
+			return fmt.Errorf("metadata key/value '%s': '%s' still exist", rs.Primary.Attributes["key"], rs.Primary.Attributes["value"])
 		}
 	}
 

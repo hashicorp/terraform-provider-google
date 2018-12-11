@@ -276,11 +276,11 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -295,7 +295,7 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) 
 		found, err := config.clientCompute.SslPolicies.Get(
 			project, name).Do()
 		if err != nil {
-			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)
+			return fmt.Errorf("error Reading SSL Policy %s: %s", name, err)
 		}
 
 		if found.Name != rs.Primary.ID {

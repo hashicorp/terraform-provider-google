@@ -235,7 +235,7 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 		d.Set("host", parts[1])
 		d.Set("name", parts[2])
 	} else {
-		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for postgres instance and {instance}/{host}/{name} for MySQL instance")
+		return nil, fmt.Errorf("invalid specifier. Expecting {instance}/{name} for postgres instance and {instance}/{host}/{name} for MySQL instance")
 	}
 
 	return []*schema.ResourceData{d}, nil

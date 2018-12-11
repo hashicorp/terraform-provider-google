@@ -107,13 +107,13 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Lien: %s", err)
+		return fmt.Errorf("error creating Lien: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -178,22 +178,22 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"], d)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+		return fmt.Errorf("error reading Lien: %s", err)
 	}
 
 	return nil
@@ -229,7 +229,7 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 	parent, err := replaceVars(d, config, "projects/{{parent}}")

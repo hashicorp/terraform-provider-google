@@ -45,7 +45,7 @@ func testAccComputeNetworkPeeringDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.Networks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Network peering still exists")
+			return fmt.Errorf("network peering still exists")
 		}
 	}
 
@@ -56,18 +56,18 @@ func testAccCheckComputeNetworkPeeringExist(n string, peering *compute.NetworkPe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		parts := strings.Split(rs.Primary.ID, "/")
 		if len(parts) != 2 {
-			return fmt.Errorf("Invalid network peering identifier: %s", rs.Primary.ID)
+			return fmt.Errorf("invalid network peering identifier: %s", rs.Primary.ID)
 		}
 
 		networkName, peeringName := parts[0], parts[1]
@@ -79,7 +79,7 @@ func testAccCheckComputeNetworkPeeringExist(n string, peering *compute.NetworkPe
 
 		found := findPeeringFromNetwork(network, peeringName)
 		if found == nil {
-			return fmt.Errorf("Network peering '%s' not found in network '%s'", peeringName, network.Name)
+			return fmt.Errorf("network peering '%s' not found in network '%s'", peeringName, network.Name)
 		}
 		*peering = *found
 

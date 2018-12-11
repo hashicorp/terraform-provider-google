@@ -145,7 +145,7 @@ func convertInstancesToUrls(project string, names *schema.Set) ([]string, error)
 		} else {
 			splitName := strings.Split(name, "/")
 			if len(splitName) != 2 {
-				return nil, fmt.Errorf("Invalid instance name, require URL or zone/name: %s", name)
+				return nil, fmt.Errorf("invalid instance name, require URL or zone/name: %s", name)
 			} else {
 				urls[i] = fmt.Sprintf(
 					"https://www.googleapis.com/compute/v1/projects/%s/zones/%s/instances/%s",
@@ -196,9 +196,9 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		project, region, tpool).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 && strings.Contains(gerr.Message, "httpHealthChecks") {
-			return fmt.Errorf("Health check %s is not a valid HTTP health check", d.Get("health_checks").([]interface{})[0])
+			return fmt.Errorf("health check %s is not a valid HTTP health check", d.Get("health_checks").([]interface{})[0])
 		}
-		return fmt.Errorf("Error creating TargetPool: %s", err)
+		return fmt.Errorf("error creating TargetPool: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -278,7 +278,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		op, err := config.clientCompute.TargetPools.RemoveHealthCheck(
 			project, region, d.Id(), removeReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating health_check: %s", err)
+			return fmt.Errorf("error updating health_check: %s", err)
 		}
 
 		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
@@ -294,7 +294,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		op, err = config.clientCompute.TargetPools.AddHealthCheck(
 			project, region, d.Id(), addReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating health_check: %s", err)
+			return fmt.Errorf("error updating health_check: %s", err)
 		}
 
 		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
@@ -328,7 +328,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		op, err := config.clientCompute.TargetPools.AddInstance(
 			project, region, d.Id(), addReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating instances: %s", err)
+			return fmt.Errorf("error updating instances: %s", err)
 		}
 
 		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
@@ -344,7 +344,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		op, err = config.clientCompute.TargetPools.RemoveInstance(
 			project, region, d.Id(), removeReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating instances: %s", err)
+			return fmt.Errorf("error updating instances: %s", err)
 		}
 		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
 		if err != nil {
@@ -361,7 +361,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		op, err := config.clientCompute.TargetPools.SetBackup(
 			project, region, d.Id(), tref).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating backup_pool: %s", err)
+			return fmt.Errorf("error updating backup_pool: %s", err)
 		}
 
 		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
@@ -439,7 +439,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 	op, err := config.clientCompute.TargetPools.Delete(
 		project, region, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting TargetPool: %s", err)
+		return fmt.Errorf("error deleting TargetPool: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Deleting Target Pool")

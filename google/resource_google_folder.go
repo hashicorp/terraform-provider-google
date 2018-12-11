@@ -60,19 +60,19 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	}).Parent(parent).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
+		return fmt.Errorf("error creating folder '%s' in '%s': %s", displayName, parent, err)
 	}
 
 	err = resourceManagerV2Beta1OperationWait(config.clientResourceManager, op, "creating folder")
 
 	if err != nil {
-		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
+		return fmt.Errorf("error creating folder '%s' in '%s': %s", displayName, parent, err)
 	}
 
 	// Since we waited above, the operation is guaranteed to have been successful by this point.
 	waitOp, err := config.clientResourceManager.Operations.Get(op.Name).Do()
 	if err != nil {
-		return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import': %s", displayName, err)
+		return fmt.Errorf("the folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import': %s", displayName, err)
 	}
 
 	// Requires 3 successive checks for safety. Nested IFs are used to avoid 3 error statement with the same message.
@@ -85,7 +85,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 			}
 		}
 	}
-	return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import'", displayName)
+	return fmt.Errorf("the folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import'", displayName)
 }
 
 func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
@@ -116,7 +116,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 		}).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error updating display_name to '%s': %s", displayName, err)
+			return fmt.Errorf("error updating display_name to '%s': %s", displayName, err)
 		}
 
 		d.SetPartial("display_name")
@@ -129,12 +129,12 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 		}).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
+			return fmt.Errorf("error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}
 
 		err = resourceManagerV2Beta1OperationWait(config.clientResourceManager, op, "move folder")
 		if err != nil {
-			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
+			return fmt.Errorf("error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}
 
 		d.SetPartial("parent")
@@ -151,7 +151,7 @@ func resourceGoogleFolderDelete(d *schema.ResourceData, meta interface{}) error 
 
 	_, err := config.clientResourceManagerV2Beta1.Folders.Delete(d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting folder %s", displayName)
+		return fmt.Errorf("error deleting folder %s", displayName)
 	}
 
 	return nil

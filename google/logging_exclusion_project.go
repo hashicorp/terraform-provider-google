@@ -43,7 +43,7 @@ func projectLoggingExclusionIdParseFunc(d *schema.ResourceData, config *Config) 
 	}
 
 	if "projects" != loggingExclusionId.resourceType {
-		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
+		return fmt.Errorf("error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
 	if config.Project != loggingExclusionId.resourceId {

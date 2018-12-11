@@ -337,7 +337,7 @@ func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
 		_, err := config.clientCompute.BackendServices.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Backend service %s still exists", rs.Primary.ID)
+			return fmt.Errorf("backend service %s still exists", rs.Primary.ID)
 		}
 	}
 
@@ -348,11 +348,11 @@ func testAccCheckComputeBackendServiceExists(n string, svc *compute.BackendServi
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -364,7 +364,7 @@ func testAccCheckComputeBackendServiceExists(n string, svc *compute.BackendServi
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend service %s not found", rs.Primary.ID)
+			return fmt.Errorf("backend service %s not found", rs.Primary.ID)
 		}
 
 		*svc = *found
@@ -377,11 +377,11 @@ func testAccCheckComputeBackendServiceExistsWithIAP(n string, svc *compute.Backe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -393,11 +393,11 @@ func testAccCheckComputeBackendServiceExistsWithIAP(n string, svc *compute.Backe
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend service %s not found", rs.Primary.ID)
+			return fmt.Errorf("backend service %s not found", rs.Primary.ID)
 		}
 
 		if found.Iap == nil || found.Iap.Enabled == false {
-			return fmt.Errorf("IAP not found or not enabled.")
+			return fmt.Errorf("iAP not found or not enabled.")
 		}
 
 		*svc = *found
@@ -410,11 +410,11 @@ func testAccCheckComputeBackendServiceExistsWithoutIAP(n string, svc *compute.Ba
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -426,7 +426,7 @@ func testAccCheckComputeBackendServiceExistsWithoutIAP(n string, svc *compute.Ba
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend service %s not found", rs.Primary.ID)
+			return fmt.Errorf("backend service %s not found", rs.Primary.ID)
 		}
 
 		if found.Iap != nil && found.Iap.Enabled == true {

@@ -83,7 +83,7 @@ func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeFirewall still exists at %s", url)
+			return fmt.Errorf("computeFirewall still exists at %s", url)
 		}
 	}
 

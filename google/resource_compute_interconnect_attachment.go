@@ -157,13 +157,13 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] Creating new InterconnectAttachment: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating InterconnectAttachment: %s", err)
+		return fmt.Errorf("error creating InterconnectAttachment: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -184,7 +184,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", waitErr)
+		return fmt.Errorf("error waiting to create InterconnectAttachment: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
@@ -210,41 +210,41 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 
 	if err := d.Set("cloud_router_ip_address", flattenComputeInterconnectAttachmentCloudRouterIpAddress(res["cloudRouterIpAddress"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("customer_router_ip_address", flattenComputeInterconnectAttachmentCustomerRouterIpAddress(res["customerRouterIpAddress"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("interconnect", flattenComputeInterconnectAttachmentInterconnect(res["interconnect"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("private_interconnect_info", flattenComputeInterconnectAttachmentPrivateInterconnectInfo(res["privateInterconnectInfo"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("google_reference_id", flattenComputeInterconnectAttachmentGoogleReferenceId(res["googleReferenceId"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("router", flattenComputeInterconnectAttachmentRouter(res["router"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeInterconnectAttachmentCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("name", flattenComputeInterconnectAttachmentName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+		return fmt.Errorf("error reading InterconnectAttachment: %s", err)
 	}
 
 	return nil
@@ -294,7 +294,7 @@ func resourceComputeInterconnectAttachmentImport(d *schema.ResourceData, meta in
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -377,7 +377,7 @@ func expandComputeInterconnectAttachmentDescription(v interface{}, d *schema.Res
 func expandComputeInterconnectAttachmentRouter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("routers", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for router: %s", err)
+		return nil, fmt.Errorf("invalid value for router: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -389,7 +389,7 @@ func expandComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceDa
 func expandComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
+		return nil, fmt.Errorf("invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

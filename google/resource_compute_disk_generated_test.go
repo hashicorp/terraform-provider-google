@@ -73,7 +73,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeDisk still exists at %s", url)
+			return fmt.Errorf("computeDisk still exists at %s", url)
 		}
 	}
 

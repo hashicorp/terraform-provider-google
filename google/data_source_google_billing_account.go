@@ -57,7 +57,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if openOk && resp.Open != open.(bool) {
-			return fmt.Errorf("Billing account not found: %s", v)
+			return fmt.Errorf("billing account not found: %s", v)
 		}
 
 		billingAccount = resp
@@ -66,7 +66,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 		for paginate := true; paginate; {
 			resp, err := config.clientBilling.BillingAccounts.List().PageToken(token).Do()
 			if err != nil {
-				return fmt.Errorf("Error reading billing accounts: %s", err)
+				return fmt.Errorf("error reading billing accounts: %s", err)
 			}
 
 			for _, ba := range resp.BillingAccounts {
@@ -75,7 +75,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 						continue
 					}
 					if billingAccount != nil {
-						return fmt.Errorf("More than one matching billing account found")
+						return fmt.Errorf("more than one matching billing account found")
 					}
 					billingAccount = ba
 				}
@@ -86,7 +86,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if billingAccount == nil {
-			return fmt.Errorf("Billing account not found: %s", v)
+			return fmt.Errorf("billing account not found: %s", v)
 		}
 	} else {
 		return fmt.Errorf("one of billing_account or display_name must be set")
@@ -94,7 +94,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 
 	resp, err := config.clientBilling.BillingAccounts.Projects.List(billingAccount.Name).Do()
 	if err != nil {
-		return fmt.Errorf("Error reading billing account projects: %s", err)
+		return fmt.Errorf("error reading billing account projects: %s", err)
 	}
 	projectIds := flattenBillingProjects(resp.ProjectBillingInfo)
 

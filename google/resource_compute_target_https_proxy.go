@@ -148,13 +148,13 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Creating new TargetHttpsProxy: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error creating TargetHttpsProxy: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -175,7 +175,7 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create TargetHttpsProxy: %s", waitErr)
+		return fmt.Errorf("error waiting to create TargetHttpsProxy: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating TargetHttpsProxy %q: %#v", d.Id(), res)
@@ -201,35 +201,35 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeTargetHttpsProxyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("description", flattenComputeTargetHttpsProxyDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("proxy_id", flattenComputeTargetHttpsProxyProxyId(res["id"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("name", flattenComputeTargetHttpsProxyName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("quic_override", flattenComputeTargetHttpsProxyQuicOverride(res["quicOverride"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("ssl_certificates", flattenComputeTargetHttpsProxySslCertificates(res["sslCertificates"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeTargetHttpsProxyUrlMap(res["urlMap"], d)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+		return fmt.Errorf("error reading TargetHttpsProxy: %s", err)
 	}
 
 	return nil
@@ -255,7 +255,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating TargetHttpsProxy %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -293,7 +293,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating TargetHttpsProxy %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -331,7 +331,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating TargetHttpsProxy %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -369,7 +369,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 		res, err := sendRequest(config, "POST", url, obj)
 		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating TargetHttpsProxy %q: %s", d.Id(), err)
 		}
 
 		project, err := getProject(d, config)
@@ -442,7 +442,7 @@ func resourceComputeTargetHttpsProxyImport(d *schema.ResourceData, meta interfac
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -514,7 +514,7 @@ func expandComputeTargetHttpsProxySslCertificates(v interface{}, d *schema.Resou
 	for _, raw := range l {
 		f, err := parseGlobalFieldValue("sslCertificates", raw.(string), "project", d, config, true)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid value for ssl_certificates: %s", err)
+			return nil, fmt.Errorf("invalid value for ssl_certificates: %s", err)
 		}
 		req = append(req, f.RelativeLink())
 	}
@@ -524,7 +524,7 @@ func expandComputeTargetHttpsProxySslCertificates(v interface{}, d *schema.Resou
 func expandComputeTargetHttpsProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for ssl_policy: %s", err)
+		return nil, fmt.Errorf("invalid value for ssl_policy: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
@@ -532,7 +532,7 @@ func expandComputeTargetHttpsProxySslPolicy(v interface{}, d *schema.ResourceDat
 func expandComputeTargetHttpsProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
+		return nil, fmt.Errorf("invalid value for url_map: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

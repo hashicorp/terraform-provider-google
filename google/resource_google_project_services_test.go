@@ -296,13 +296,13 @@ func testProjectServicesMatch(services []string, pid string) resource.TestCheckF
 
 		apiServices, err := getApiServices(pid, config, ignoreProjectServices)
 		if err != nil {
-			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
+			return fmt.Errorf("error listing services for project %q: %v", pid, err)
 		}
 
 		sort.Strings(services)
 		sort.Strings(apiServices)
 		if !reflect.DeepEqual(services, apiServices) {
-			return fmt.Errorf("Services in config (%v) do not exactly match services returned by API (%v)", services, apiServices)
+			return fmt.Errorf("services in config (%v) do not exactly match services returned by API (%v)", services, apiServices)
 		}
 
 		return nil

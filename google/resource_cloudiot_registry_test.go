@@ -101,7 +101,7 @@ func testAccCheckCloudIoTRegistryDestroy(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		registry, _ := config.clientCloudIoT.Projects.Locations.Registries.Get(rs.Primary.ID).Do()
 		if registry != nil {
-			return fmt.Errorf("Registry still present")
+			return fmt.Errorf("registry still present")
 		}
 	}
 	return nil
@@ -111,15 +111,15 @@ func testAccCloudIoTRegistryExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientCloudIoT.Projects.Locations.Registries.Get(rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Registry does not exist")
+			return fmt.Errorf("registry does not exist")
 		}
 		return nil
 	}

@@ -43,7 +43,7 @@ func redisOperationWait(service *redis.Service, op *redis.Operation, project, ac
 func redisOperationWaitTime(service *redis.Service, op *redis.Operation, project, activity string, timeoutMin int) error {
 	if op.Done {
 		if op.Error != nil {
-			return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+			return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 		}
 		return nil
 	}
@@ -59,12 +59,12 @@ func redisOperationWaitTime(service *redis.Service, op *redis.Operation, project
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	op = opRaw.(*redis.Operation)
 	if op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", op.Error.Code, op.Error.Message)
+		return fmt.Errorf("error code %v, message: %s", op.Error.Code, op.Error.Message)
 	}
 
 	return nil

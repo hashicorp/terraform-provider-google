@@ -257,7 +257,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	op, err := config.clientComputeBeta.BackendServices.Insert(
 		project, service).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating backend service: %s", err)
+		return fmt.Errorf("error creating backend service: %s", err)
 	}
 
 	log.Printf("[DEBUG] Waiting for new backend service, operation: %#v", op)
@@ -345,7 +345,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	op, err := config.clientComputeBeta.BackendServices.Update(
 		project, d.Id(), service).Do()
 	if err != nil {
-		return fmt.Errorf("Error updating backend service: %s", err)
+		return fmt.Errorf("error updating backend service: %s", err)
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Backend Service")
@@ -386,7 +386,7 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	op, err := config.clientCompute.BackendServices.Delete(
 		project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting backend service: %s", err)
+		return fmt.Errorf("error deleting backend service: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Deleting Backend Service")

@@ -50,11 +50,11 @@ func testAccCheckResourceManagerLienExists(n, projectName string, lien *resource
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -83,7 +83,7 @@ func testAccCheckResourceManagerLienDestroy(s *terraform.State) error {
 
 		_, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", rs.Primary.Attributes["parent"])).Do()
 		if err == nil {
-			return fmt.Errorf("Lien %s still exists", rs.Primary.ID)
+			return fmt.Errorf("lien %s still exists", rs.Primary.ID)
 		}
 	}
 

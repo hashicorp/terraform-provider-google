@@ -157,7 +157,7 @@ func marshalIamPolicy(policy *cloudresourcemanager.Policy) string {
 func unmarshalIamPolicy(policyData string) (*cloudresourcemanager.Policy, error) {
 	policy := &cloudresourcemanager.Policy{}
 	if err := json.Unmarshal([]byte(policyData), policy); err != nil {
-		return nil, fmt.Errorf("Could not unmarshal policy data %s:\n%s", policyData, err)
+		return nil, fmt.Errorf("could not unmarshal policy data %s:\n%s", policyData, err)
 	}
 	return policy, nil
 }

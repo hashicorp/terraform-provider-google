@@ -291,7 +291,7 @@ func resourceCloudIoTRegistryUpdate(d *schema.ResourceData, meta interface{}) er
 		_, err := config.clientCloudIoT.Projects.Locations.Registries.Patch(d.Id(),
 			deviceRegistry).UpdateMask(strings.Join(updateMask, ",")).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating registry %s: %s", d.Get("name").(string), err)
+			return fmt.Errorf("error updating registry %s: %s", d.Get("name").(string), err)
 		}
 		for _, updateMaskItem := range updateMask {
 			d.SetPartial(updateMaskItem)

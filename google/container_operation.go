@@ -122,7 +122,7 @@ func waitForState(state *resource.StateChangeConf, activity string, timeoutMinut
 	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
 	_, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 	return nil
 }

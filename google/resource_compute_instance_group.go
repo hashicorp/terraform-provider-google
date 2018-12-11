@@ -175,7 +175,7 @@ func customDiffInstanceGroupInstancesField(diff *schema.ResourceDiff, meta inter
 			return nil
 		} else {
 			// Any other errors return them
-			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
+			return fmt.Errorf("error reading InstanceGroup Members: %s", err)
 		}
 	}
 	for _, member := range members.Items {
@@ -249,7 +249,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	op, err := config.clientCompute.InstanceGroups.Insert(
 		project, zone, instanceGroup).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating InstanceGroup: %s", err)
+		return fmt.Errorf("error creating InstanceGroup: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -265,7 +265,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	if v, ok := d.GetOk("instances"); ok {
 		instanceUrls := convertStringArr(v.(*schema.Set).List())
 		if !validInstanceURLs(instanceUrls) {
-			return fmt.Errorf("Error invalid instance URLs: %v", instanceUrls)
+			return fmt.Errorf("error invalid instance URLs: %v", instanceUrls)
 		}
 
 		addInstanceReq := &compute.InstanceGroupsAddInstancesRequest{
@@ -276,7 +276,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		op, err := config.clientCompute.InstanceGroups.AddInstances(
 			project, zone, name, addInstanceReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error adding instances to InstanceGroup: %s", err)
+			return fmt.Errorf("error adding instances to InstanceGroup: %s", err)
 		}
 
 		// Wait for the operation to complete
@@ -322,7 +322,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 			d.Set("instances", nil)
 		} else {
 			// any other errors return them
-			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
+			return fmt.Errorf("error reading InstanceGroup Members: %s", err)
 		}
 	} else {
 		for _, member := range members.Items {
@@ -376,10 +376,10 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		to := convertStringArr(to_.(*schema.Set).List())
 
 		if !validInstanceURLs(from) {
-			return fmt.Errorf("Error invalid instance URLs: %v", from)
+			return fmt.Errorf("error invalid instance URLs: %v", from)
 		}
 		if !validInstanceURLs(to) {
-			return fmt.Errorf("Error invalid instance URLs: %v", to)
+			return fmt.Errorf("error invalid instance URLs: %v", to)
 		}
 
 		add, remove := calcAddRemove(from, to)
@@ -396,7 +396,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 					log.Printf("[WARN] Instances already removed from InstanceGroup: %s", remove)
 				} else {
-					return fmt.Errorf("Error removing instances from InstanceGroup: %s", err)
+					return fmt.Errorf("error removing instances from InstanceGroup: %s", err)
 				}
 			} else {
 				// Wait for the operation to complete
@@ -417,7 +417,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			addOp, err := config.clientCompute.InstanceGroups.AddInstances(
 				project, zone, name, addReq).Do()
 			if err != nil {
-				return fmt.Errorf("Error adding instances from InstanceGroup: %s", err)
+				return fmt.Errorf("error adding instances from InstanceGroup: %s", err)
 			}
 
 			// Wait for the operation to complete
@@ -444,7 +444,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		op, err := config.clientCompute.InstanceGroups.SetNamedPorts(
 			project, zone, name, namedPortsReq).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
+			return fmt.Errorf("error updating named ports for InstanceGroup: %s", err)
 		}
 
 		err = computeOperationWait(config.clientCompute, op, project, "Updating InstanceGroup")
@@ -474,7 +474,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	op, err := config.clientCompute.InstanceGroups.Delete(project, zone, name).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
+		return fmt.Errorf("error deleting InstanceGroup: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Deleting InstanceGroup")
@@ -489,7 +489,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name}")
+		return nil, fmt.Errorf("invalid compute instance group specifier. Expecting {zone}/{name}")
 	}
 
 	d.Set("zone", parts[0])

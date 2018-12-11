@@ -80,7 +80,7 @@ func sqladminOperationWaitTime(config *Config, op *sqladmin.Operation, project, 
 	state.Delay = 5 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s (op %s): %s", activity, op.Name, err)
+		return fmt.Errorf("error waiting for %s (op %s): %s", activity, op.Name, err)
 	}
 
 	op = opRaw.(*sqladmin.Operation)

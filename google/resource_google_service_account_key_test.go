@@ -85,11 +85,11 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmt.Errorf("Not found: %s", r)
+			return fmt.Errorf("not found: %s", r)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 

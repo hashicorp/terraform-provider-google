@@ -26,7 +26,7 @@ func resourceComputeFirewallMigrateState(
 		}
 		return is, nil
 	default:
-		return is, fmt.Errorf("Unexpected schema version: %d", v)
+		return is, fmt.Errorf("unexpected schema version: %d", v)
 	}
 }
 

@@ -196,13 +196,13 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Creating new Route: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating Route: %s", err)
+		return fmt.Errorf("error creating Route: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -223,7 +223,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Route: %s", waitErr)
+		return fmt.Errorf("error waiting to create Route: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Route %q: %#v", d.Id(), res)
@@ -254,44 +254,44 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 
 	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRouteDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("name", flattenComputeRouteName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("network", flattenComputeRouteNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("priority", flattenComputeRoutePriority(res["priority"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("tags", flattenComputeRouteTags(res["tags"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_gateway", flattenComputeRouteNextHopGateway(res["nextHopGateway"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_instance", flattenComputeRouteNextHopInstance(res["nextHopInstance"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_ip", flattenComputeRouteNextHopIp(res["nextHopIp"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_vpn_tunnel", flattenComputeRouteNextHopVpnTunnel(res["nextHopVpnTunnel"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d)); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+		return fmt.Errorf("error reading Route: %s", err)
 	}
 
 	return nil
@@ -341,7 +341,7 @@ func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -419,7 +419,7 @@ func expandComputeRouteName(v interface{}, d *schema.ResourceData, config *Confi
 func expandComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
+		return nil, fmt.Errorf("invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

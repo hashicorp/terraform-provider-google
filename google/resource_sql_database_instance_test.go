@@ -129,7 +129,7 @@ func testSweepDatabases(region string) error {
 					continue
 				}
 
-				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
+				return fmt.Errorf("error, failed to delete instance %s: %s", db, err)
 			}
 
 			err = sqladminOperationWait(config, op, config.Project, "Delete Instance")
@@ -604,7 +604,7 @@ func testAccSqlDatabaseInstanceDestroy(s *terraform.State) error {
 		_, err := config.clientSqlAdmin.Instances.Get(config.Project,
 			rs.Primary.Attributes["name"]).Do()
 		if err == nil {
-			return fmt.Errorf("Database Instance still exists")
+			return fmt.Errorf("database Instance still exists")
 		}
 	}
 
@@ -618,7 +618,7 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(instance string) resource
 		users, err := config.clientSqlAdmin.Users.List(config.Project, instance).Do()
 
 		if err != nil {
-			return fmt.Errorf("Could not list database users for %q: %s", instance, err)
+			return fmt.Errorf("could not list database users for %q: %s", instance, err)
 		}
 
 		for _, u := range users.Items {

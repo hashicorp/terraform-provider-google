@@ -86,7 +86,7 @@ func computeOperationWaitTime(client *compute.Service, op *compute.Operation, pr
 	state.MinTimeout = 2 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("error waiting for %s: %s", activity, err)
 	}
 
 	resultOp := opRaw.(*compute.Operation)

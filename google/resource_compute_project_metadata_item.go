@@ -77,7 +77,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Loading project metadata: %s", projectID)
 	project, err := config.clientCompute.Projects.Get(projectID).Do()
 	if err != nil {
-		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
+		return fmt.Errorf("error loading project '%s': %s", projectID, err)
 	}
 
 	md := flattenMetadata(project.CommonInstanceMetadata)
@@ -140,7 +140,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
 		project, err := config.clientCompute.Projects.Get(projectID).Do()
 		if err != nil {
-			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
+			return fmt.Errorf("error loading project '%s': %s", projectID, err)
 		}
 
 		md := flattenMetadata(project.CommonInstanceMetadata)

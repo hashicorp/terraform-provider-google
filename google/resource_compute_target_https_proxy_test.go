@@ -82,11 +82,11 @@ func testAccCheckComputeTargetHttpsProxyExists(n string, proxy *compute.TargetHt
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -110,7 +110,7 @@ func testAccCheckComputeTargetHttpsProxyExists(n string, proxy *compute.TargetHt
 func testAccComputeTargetHttpsProxyDescription(description string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if proxy.Description != description {
-			return fmt.Errorf("Wrong description: expected '%s' got '%s'", description, proxy.Description)
+			return fmt.Errorf("wrong description: expected '%s' got '%s'", description, proxy.Description)
 		}
 		return nil
 	}
@@ -127,7 +127,7 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(cert string, proxy *compute
 			}
 		}
 
-		return fmt.Errorf("Ssl certificate not found: expected'%s'", certUrl)
+		return fmt.Errorf("ssl certificate not found: expected'%s'", certUrl)
 	}
 }
 

@@ -119,7 +119,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	op, err := config.clientCompute.Networks.Insert(
 		project, network).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating network: %s", err)
+		return fmt.Errorf("error creating network: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -176,7 +176,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 	}).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error updating network: %s", err)
+		return fmt.Errorf("error updating network: %s", err)
 	}
 
 	err = computeSharedOperationWait(config.clientCompute, op, project, "UpdateNetwork")
@@ -202,7 +202,7 @@ func deleteComputeNetwork(project, network string, config *Config) error {
 	op, err := config.clientCompute.Networks.Delete(
 		project, network).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting network: %s", err)
+		return fmt.Errorf("error deleting network: %s", err)
 	}
 
 	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Network", 10)

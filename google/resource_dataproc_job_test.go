@@ -274,7 +274,7 @@ func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Unable to verify delete of dataproc job ID is empty")
+			return fmt.Errorf("unable to verify delete of dataproc job ID is empty")
 		}
 		attributes := rs.Primary.Attributes
 
@@ -289,11 +289,11 @@ func testAccCheckDataprocJobDestroy(s *terraform.State) error {
 			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 				return nil
 			} else if ok {
-				return fmt.Errorf("Error making GCP platform call: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
+				return fmt.Errorf("error making GCP platform call: http code error : %d, http message error: %s", gerr.Code, gerr.Message)
 			}
-			return fmt.Errorf("Error making GCP platform call: %s", err.Error())
+			return fmt.Errorf("error making GCP platform call: %s", err.Error())
 		}
-		return fmt.Errorf("Dataproc job still exists")
+		return fmt.Errorf("dataproc job still exists")
 	}
 
 	return nil
@@ -324,11 +324,11 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 		}
 		if completeJob.Status.State == "ERROR" {
 			if !strings.HasPrefix(completeJob.DriverOutputResourceUri, "gs://") {
-				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
+				return fmt.Errorf("job completed in ERROR state but no valid log URI found")
 			}
 			u := strings.SplitN(strings.TrimPrefix(completeJob.DriverOutputResourceUri, "gs://"), "/", 2)
 			if len(u) != 2 {
-				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
+				return fmt.Errorf("job completed in ERROR state but no valid log URI found")
 			}
 			l, err := config.clientStorage.Objects.List(u[0]).Prefix(u[1]).Do()
 			if err != nil {
@@ -346,9 +346,9 @@ func testAccCheckDataprocJobCompletesSuccessfully(n string, job *dataproc.Job) r
 				}
 				log.Printf("[ERROR] Job failed, driver logs:\n%s", body)
 			}
-			return fmt.Errorf("Job completed in ERROR state, check logs for details")
+			return fmt.Errorf("job completed in ERROR state, check logs for details")
 		} else if completeJob.Status.State != "DONE" {
-			return fmt.Errorf("Job did not complete successfully, instead status: %s", completeJob.Status.State)
+			return fmt.Errorf("job did not complete successfully, instead status: %s", completeJob.Status.State)
 		}
 
 		return nil
@@ -363,7 +363,7 @@ func testAccCheckDataprocJobExists(n string, job *dataproc.Job) resource.TestChe
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set for Dataproc job")
+			return fmt.Errorf("no ID is set for Dataproc job")
 		}
 
 		config := testAccProvider.Meta().(*Config)

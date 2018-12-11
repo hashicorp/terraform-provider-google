@@ -220,7 +220,7 @@ func testAccCheckGoogleFolderIamBindingExists(expected *cloudresourcemanager.Bin
 		config := testAccProvider.Meta().(*Config)
 		folderPolicy, err := getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, config)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM policy for folder %q: %s", fname, err)
+			return fmt.Errorf("failed to retrieve IAM policy for folder %q: %s", fname, err)
 		}
 
 		var result *cloudresourcemanager.Binding
@@ -231,16 +231,16 @@ func testAccCheckGoogleFolderIamBindingExists(expected *cloudresourcemanager.Bin
 			}
 		}
 		if result == nil {
-			return fmt.Errorf("IAM policy for folder %q had no role %q, got %#v", fname, expected.Role, folderPolicy.Bindings)
+			return fmt.Errorf("iAM policy for folder %q had no role %q, got %#v", fname, expected.Role, folderPolicy.Bindings)
 		}
 		if len(result.Members) != len(expected.Members) {
-			return fmt.Errorf("Got %v as members for role %q of folder %q, expected %v", result.Members, expected.Role, fname, expected.Members)
+			return fmt.Errorf("got %v as members for role %q of folder %q, expected %v", result.Members, expected.Role, fname, expected.Members)
 		}
 		sort.Strings(result.Members)
 		sort.Strings(expected.Members)
 		for pos, exp := range expected.Members {
 			if result.Members[pos] != exp {
-				return fmt.Errorf("Expected members for role %q of folder %q to be %v, got %v", expected.Role, fname, expected.Members, result.Members)
+				return fmt.Errorf("expected members for role %q of folder %q to be %v, got %v", expected.Role, fname, expected.Members, result.Members)
 			}
 		}
 		return nil

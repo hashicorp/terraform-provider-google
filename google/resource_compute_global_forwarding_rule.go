@@ -125,7 +125,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 
 	op, err := config.clientComputeBeta.GlobalForwardingRules.Insert(project, frule).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating Global Forwarding Rule: %s", err)
+		return fmt.Errorf("error creating Global Forwarding Rule: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -156,7 +156,7 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 		op, err := config.clientCompute.GlobalForwardingRules.SetTarget(
 			project, d.Id(), targetRef).Do()
 		if err != nil {
-			return fmt.Errorf("Error updating target: %s", err)
+			return fmt.Errorf("error updating target: %s", err)
 		}
 
 		err = computeSharedOperationWait(config.clientCompute, op, project, "Updating Global Forwarding Rule")
@@ -212,7 +212,7 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] GlobalForwardingRule delete request")
 	op, err := config.clientCompute.GlobalForwardingRules.Delete(project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting GlobalForwardingRule: %s", err)
+		return fmt.Errorf("error deleting GlobalForwardingRule: %s", err)
 	}
 	err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting GlobalForwarding Rule")
 	if err != nil {

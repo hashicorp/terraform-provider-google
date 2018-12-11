@@ -72,7 +72,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 
 	addOp, err := config.clientCompute.Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
-		return fmt.Errorf("Error adding network peering: %s", err)
+		return fmt.Errorf("error adding network peering: %s", err)
 	}
 
 	err = computeOperationWait(config.clientCompute, addOp, networkFieldValue.Project, "Adding Network Peering")
@@ -142,7 +142,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			log.Printf("[WARN] Peering `%s` already removed from network `%s`", name, networkFieldValue.Name)
 		} else {
-			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
+			return fmt.Errorf("error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
 		err = computeOperationWait(config.clientCompute, removeOp, networkFieldValue.Project, "Removing Network Peering")

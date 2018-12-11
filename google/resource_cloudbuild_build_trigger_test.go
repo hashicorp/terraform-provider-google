@@ -85,11 +85,11 @@ func TestAccCloudBuildTrigger_filename(t *testing.T) {
 func testAccGetBuildTrigger(s *terraform.State, resourceName string) (*cloudbuild.BuildTrigger, error) {
 	rs, ok := s.RootModule().Resources[resourceName]
 	if !ok {
-		return nil, fmt.Errorf("Resource not found: %s", resourceName)
+		return nil, fmt.Errorf("resource not found: %s", resourceName)
 	}
 
 	if rs.Primary.ID == "" {
-		return nil, fmt.Errorf("No ID is set")
+		return nil, fmt.Errorf("no ID is set")
 	}
 
 	config := testAccProvider.Meta().(*Config)
@@ -97,7 +97,7 @@ func testAccGetBuildTrigger(s *terraform.State, resourceName string) (*cloudbuil
 
 	trigger, err := config.clientBuild.Projects.Triggers.Get(project, rs.Primary.ID).Do()
 	if err != nil {
-		return nil, fmt.Errorf("Trigger does not exist")
+		return nil, fmt.Errorf("trigger does not exist")
 	}
 
 	return trigger, nil
@@ -108,7 +108,7 @@ func testAccCheckGoogleCloudBuildTriggerExists(resourceName string) resource.Tes
 		_, err := testAccGetBuildTrigger(s, resourceName)
 
 		if err != nil {
-			return fmt.Errorf("Trigger does not exist")
+			return fmt.Errorf("trigger does not exist")
 		}
 
 		return nil
@@ -120,11 +120,11 @@ func testAccCheckGoogleCloudFilenameConfig(resourceName string) resource.TestChe
 		trigger, err := testAccGetBuildTrigger(s, resourceName)
 
 		if err != nil {
-			return fmt.Errorf("Trigger does not exist")
+			return fmt.Errorf("trigger does not exist")
 		}
 
 		if trigger.Filename != "cloudbuild.yaml" {
-			return fmt.Errorf("Config filename mismatch: %s", trigger.Filename)
+			return fmt.Errorf("config filename mismatch: %s", trigger.Filename)
 		}
 
 		return nil
@@ -136,7 +136,7 @@ func testAccCheckGoogleCloudBuildTriggerWasRemovedFromState(resourceName string)
 		_, ok := s.RootModule().Resources[resourceName]
 
 		if ok {
-			return fmt.Errorf("Resource was not removed from state: %s", resourceName)
+			return fmt.Errorf("resource was not removed from state: %s", resourceName)
 		}
 
 		return nil
@@ -152,13 +152,13 @@ func testAccCheckGoogleCloudBuildTriggerVersionsDestroyed(s *terraform.State) er
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		project := rs.Primary.Attributes["project"]
 
 		_, err := config.clientBuild.Projects.Triggers.Get(project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("Trigger still exists")
+			return fmt.Errorf("trigger still exists")
 		}
 
 	}

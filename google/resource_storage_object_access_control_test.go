@@ -89,7 +89,7 @@ func testAccStorageObjectAccessControlDestroy(s *terraform.State) error {
 
 		rePairs, err := config.clientStorage.ObjectAccessControls.List(bucket, object).Do()
 		if err != nil {
-			return fmt.Errorf("Can't list role entity acl for object %s in bucket %s", object, bucket)
+			return fmt.Errorf("can't list role entity acl for object %s in bucket %s", object, bucket)
 		}
 
 		for _, v := range rePairs.Items {

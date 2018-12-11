@@ -157,7 +157,7 @@ func testAccCheckGoogleProjectOrganizationPolicyDestroy(s *terraform.State) erro
 		}
 
 		if policy.ListPolicy != nil || policy.BooleanPolicy != nil {
-			return fmt.Errorf("Org policy with constraint '%s' hasn't been cleared", constraint)
+			return fmt.Errorf("org policy with constraint '%s' hasn't been cleared", constraint)
 		}
 	}
 	return nil
@@ -171,7 +171,7 @@ func testAccCheckGoogleProjectOrganizationBooleanPolicy(n string, enforced bool)
 		}
 
 		if policy.BooleanPolicy.Enforced != enforced {
-			return fmt.Errorf("Expected boolean policy enforcement to be '%t', got '%t'", enforced, policy.BooleanPolicy.Enforced)
+			return fmt.Errorf("expected boolean policy enforcement to be '%t', got '%t'", enforced, policy.BooleanPolicy.Enforced)
 		}
 
 		return nil
@@ -190,11 +190,11 @@ func testAccCheckGoogleProjectOrganizationListPolicyAll(n, policyType string) re
 		}
 
 		if len(policy.ListPolicy.AllowedValues) > 0 || len(policy.ListPolicy.DeniedValues) > 0 {
-			return fmt.Errorf("The `values` field shouldn't be set")
+			return fmt.Errorf("the `values` field shouldn't be set")
 		}
 
 		if policy.ListPolicy.AllValues != policyType {
-			return fmt.Errorf("The list policy should %s all values", policyType)
+			return fmt.Errorf("the list policy should %s all values", policyType)
 		}
 
 		return nil
@@ -211,7 +211,7 @@ func testAccCheckGoogleProjectOrganizationListPolicyAllowedValues(n string, valu
 		sort.Strings(policy.ListPolicy.AllowedValues)
 		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.AllowedValues, values) {
-			return fmt.Errorf("Expected the list policy to allow '%s', instead allowed '%s'", values, policy.ListPolicy.AllowedValues)
+			return fmt.Errorf("expected the list policy to allow '%s', instead allowed '%s'", values, policy.ListPolicy.AllowedValues)
 		}
 
 		return nil
@@ -228,7 +228,7 @@ func testAccCheckGoogleProjectOrganizationListPolicyDeniedValues(n string, value
 		sort.Strings(policy.ListPolicy.DeniedValues)
 		sort.Strings(values)
 		if !reflect.DeepEqual(policy.ListPolicy.DeniedValues, values) {
-			return fmt.Errorf("Expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
+			return fmt.Errorf("expected the list policy to deny '%s', instead denied '%s'", values, policy.ListPolicy.DeniedValues)
 		}
 
 		return nil
@@ -244,7 +244,7 @@ func getGoogleProjectOrganizationRestoreDefaultTrue(n string, policyDefault *clo
 		}
 
 		if !reflect.DeepEqual(policy.RestoreDefault, policyDefault) {
-			return fmt.Errorf("Expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
+			return fmt.Errorf("expected the restore default '%s', instead denied, %s", policyDefault, policy.RestoreDefault)
 		}
 
 		return nil
@@ -255,11 +255,11 @@ func getGoogleProjectOrganizationPolicyTestResource(s *terraform.State, n string
 	rn := "google_project_organization_policy." + n
 	rs, ok := s.RootModule().Resources[rn]
 	if !ok {
-		return nil, fmt.Errorf("Not found: %s", rn)
+		return nil, fmt.Errorf("not found: %s", rn)
 	}
 
 	if rs.Primary.ID == "" {
-		return nil, fmt.Errorf("No ID is set")
+		return nil, fmt.Errorf("no ID is set")
 	}
 
 	config := testAccProvider.Meta().(*Config)

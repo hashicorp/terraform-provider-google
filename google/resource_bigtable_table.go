@@ -70,7 +70,7 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 	instanceName := d.Get("instance_name").(string)
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
-		return fmt.Errorf("Error starting admin client. %s", err)
+		return fmt.Errorf("error starting admin client. %s", err)
 	}
 
 	defer c.Close()
@@ -82,14 +82,14 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		// it exists in the future.
 		err = c.CreatePresplitTable(ctx, name, splitKeys)
 		if err != nil {
-			return fmt.Errorf("Error creating presplit table. %s", err)
+			return fmt.Errorf("error creating presplit table. %s", err)
 		}
 	} else {
 		// This method may return before the table's creation is complete - we may need to wait until
 		// it exists in the future.
 		err = c.CreateTable(ctx, name)
 		if err != nil {
-			return fmt.Errorf("Error creating table. %s", err)
+			return fmt.Errorf("error creating table. %s", err)
 		}
 	}
 
@@ -101,7 +101,7 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 			if v, ok := column["family"]; ok {
 				if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
-					return fmt.Errorf("Error creating column family %s. %s", v, err)
+					return fmt.Errorf("error creating column family %s. %s", v, err)
 				}
 			}
 		}
@@ -124,7 +124,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	instanceName := d.Get("instance_name").(string)
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
-		return fmt.Errorf("Error starting admin client. %s", err)
+		return fmt.Errorf("error starting admin client. %s", err)
 	}
 
 	defer c.Close()
@@ -134,7 +134,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", name)
 		d.SetId("")
-		return fmt.Errorf("Error retrieving table. Could not find %s in %s. %s", name, instanceName, err)
+		return fmt.Errorf("error retrieving table. Could not find %s in %s. %s", name, instanceName, err)
 	}
 
 	d.Set("project", project)
@@ -155,7 +155,7 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 	instanceName := d.Get("instance_name").(string)
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
-		return fmt.Errorf("Error starting admin client. %s", err)
+		return fmt.Errorf("error starting admin client. %s", err)
 	}
 
 	defer c.Close()
@@ -163,7 +163,7 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 	name := d.Get("name").(string)
 	err = c.DeleteTable(ctx, name)
 	if err != nil {
-		return fmt.Errorf("Error deleting table. %s", err)
+		return fmt.Errorf("error deleting table. %s", err)
 	}
 
 	d.SetId("")

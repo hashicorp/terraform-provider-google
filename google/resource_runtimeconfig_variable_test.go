@@ -142,11 +142,11 @@ func testAccCheckRuntimeconfigVariableExists(resourceName string, variable *runt
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -166,18 +166,18 @@ func testAccCheckRuntimeconfigVariableUpdateTime(resourceName string) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		updateTime := rs.Primary.Attributes["update_time"]
 		if updateTime == "" {
-			return fmt.Errorf("No update time set for resource %s", resourceName)
+			return fmt.Errorf("no update time set for resource %s", resourceName)
 		}
 
 		// Make sure it's a valid rfc 3339 date
 		_, err := time.Parse(time.RFC3339, updateTime)
 		if err != nil {
-			return fmt.Errorf("Error while parsing update time for resource %s: %s", resourceName, err.Error())
+			return fmt.Errorf("error while parsing update time for resource %s: %s", resourceName, err.Error())
 		}
 
 		return nil
@@ -187,7 +187,7 @@ func testAccCheckRuntimeconfigVariableUpdateTime(resourceName string) resource.T
 func testAccCheckRuntimeconfigVariableText(variable *runtimeconfig.Variable, text string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Text != text {
-			return fmt.Errorf("Variable %s had incorrect text: expected '%s' but found '%s'", variable.Name,
+			return fmt.Errorf("variable %s had incorrect text: expected '%s' but found '%s'", variable.Name,
 				text, variable.Text)
 		}
 
@@ -198,7 +198,7 @@ func testAccCheckRuntimeconfigVariableText(variable *runtimeconfig.Variable, tex
 func testAccCheckRuntimeconfigVariableValue(variable *runtimeconfig.Variable, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Value != value {
-			return fmt.Errorf("Variable %s had incorrect value: expected '%s' but found '%s'", variable.Name,
+			return fmt.Errorf("variable %s had incorrect value: expected '%s' but found '%s'", variable.Name,
 				value, variable.Value)
 		}
 
@@ -217,7 +217,7 @@ func testAccCheckRuntimeconfigVariableDestroy(s *terraform.State) error {
 		_, err := config.clientRuntimeconfig.Projects.Configs.Variables.Get(rs.Primary.ID).Do()
 
 		if err == nil {
-			return fmt.Errorf("Runtimeconfig variable still exists")
+			return fmt.Errorf("runtimeconfig variable still exists")
 		}
 	}
 

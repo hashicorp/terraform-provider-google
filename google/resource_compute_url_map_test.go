@@ -127,11 +127,11 @@ func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -143,7 +143,7 @@ func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Url map not found")
+			return fmt.Errorf("url map not found")
 		}
 		return nil
 	}

@@ -97,7 +97,7 @@ func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
 
 		_, err := config.clientBigQuery.Datasets.Get(config.Project, rs.Primary.Attributes["dataset_id"]).Do()
 		if err == nil {
-			return fmt.Errorf("Dataset still exists")
+			return fmt.Errorf("dataset still exists")
 		}
 	}
 

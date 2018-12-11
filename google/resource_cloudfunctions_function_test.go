@@ -252,7 +252,7 @@ func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 		}
 		_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err == nil {
-			return fmt.Errorf("Function still exists")
+			return fmt.Errorf("function still exists")
 		}
 
 	}
@@ -264,11 +264,11 @@ func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.Clou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		name := rs.Primary.Attributes["name"]
@@ -281,7 +281,7 @@ func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.Clou
 		}
 		found, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err != nil {
-			return fmt.Errorf("CloudFunctions Function not present")
+			return fmt.Errorf("cloudFunctions Function not present")
 		}
 
 		*function = *found
@@ -293,7 +293,7 @@ func testAccCloudFunctionsFunctionExists(n string, function *cloudfunctions.Clou
 func testAccCloudFunctionsFunctionSource(n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if n != function.SourceArchiveUrl {
-			return fmt.Errorf("Expected source to be %v, got %v", n, function.EntryPoint)
+			return fmt.Errorf("expected source to be %v, got %v", n, function.EntryPoint)
 		}
 		return nil
 	}
@@ -304,7 +304,7 @@ func testAccCloudFunctionsFunctionTrigger(n int, function *cloudfunctions.CloudF
 		switch n {
 		case FUNCTION_TRIGGER_HTTP:
 			if function.HttpsTrigger == nil {
-				return fmt.Errorf("Expected HttpsTrigger to be set")
+				return fmt.Errorf("expected HttpsTrigger to be set")
 			}
 		default:
 			return fmt.Errorf("testAccCloudFunctionsFunctionTrigger expects only FUNCTION_TRIGGER_HTTP, ")
@@ -318,11 +318,11 @@ func testAccCloudFunctionsFunctionHasLabel(key, value string,
 	return func(s *terraform.State) error {
 		val, ok := function.Labels[key]
 		if !ok {
-			return fmt.Errorf("Label with key %s not found", key)
+			return fmt.Errorf("label with key %s not found", key)
 		}
 
 		if val != value {
-			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
+			return fmt.Errorf("label value did not match for key %s: expected %s but found %s", key, value, val)
 		}
 		return nil
 	}
@@ -333,11 +333,11 @@ func testAccCloudFunctionsFunctionHasEnvironmentVariable(key, value string,
 	return func(s *terraform.State) error {
 		if val, ok := function.EnvironmentVariables[key]; ok {
 			if val != value {
-				return fmt.Errorf("Environment Variable value did not match for key %s: expected %s but found %s",
+				return fmt.Errorf("environment Variable value did not match for key %s: expected %s but found %s",
 					key, value, val)
 			}
 		} else {
-			return fmt.Errorf("Environment Variable with key %s not found", key)
+			return fmt.Errorf("environment Variable with key %s not found", key)
 		}
 		return nil
 	}

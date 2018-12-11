@@ -55,7 +55,7 @@ func testAccCheckDataflowJobDestroy(s *terraform.State) error {
 		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if job != nil {
 			if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
-				return fmt.Errorf("Job still present")
+				return fmt.Errorf("job still present")
 			}
 		} else if err != nil {
 			return err
@@ -75,7 +75,7 @@ func testAccCheckDataflowJobRegionDestroy(s *terraform.State) error {
 		job, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 		if job != nil {
 			if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
-				return fmt.Errorf("Job still present")
+				return fmt.Errorf("job still present")
 			}
 		} else if err != nil {
 			return err
@@ -89,16 +89,16 @@ func testAccDataflowJobExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Job does not exist")
+			return fmt.Errorf("job does not exist")
 		}
 
 		return nil
@@ -109,16 +109,16 @@ func testAccDataflowJobRegionExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Job does not exist")
+			return fmt.Errorf("job does not exist")
 		}
 
 		return nil

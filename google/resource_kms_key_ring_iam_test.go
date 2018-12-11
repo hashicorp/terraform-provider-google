@@ -154,11 +154,11 @@ func testAccCheckGoogleKmsKeyRingIam(keyRingId, role string, members []string) r
 					return nil
 				}
 
-				return fmt.Errorf("Binding found but expected members is %v, got %v", members, binding.Members)
+				return fmt.Errorf("binding found but expected members is %v, got %v", members, binding.Members)
 			}
 		}
 
-		return fmt.Errorf("No binding for role %q", role)
+		return fmt.Errorf("no binding for role %q", role)
 	}
 }
 

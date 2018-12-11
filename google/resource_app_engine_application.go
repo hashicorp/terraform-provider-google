@@ -136,7 +136,7 @@ func appEngineApplicationFeatureSettingsResource() *schema.Resource {
 func appEngineApplicationLocationIDCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
 	old, new := d.GetChange("location_id")
 	if old != "" && old != new {
-		return fmt.Errorf("Cannot change location_id once the resource is created.")
+		return fmt.Errorf("cannot change location_id once the resource is created.")
 	}
 	return nil
 }
@@ -155,7 +155,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Creating App Engine App")
 	op, err := config.clientAppEngine.Apps.Create(app).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating App Engine application: %s", err.Error())
+		return fmt.Errorf("error creating App Engine application: %s", err.Error())
 	}
 
 	d.SetId(project)
@@ -193,7 +193,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	}
 	err = d.Set("url_dispatch_rule", dispatchRules)
 	if err != nil {
-		return fmt.Errorf("Error setting dispatch rules in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
+		return fmt.Errorf("error setting dispatch rules in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
 	}
 	featureSettings, err := flattenAppEngineApplicationFeatureSettings(app.FeatureSettings)
 	if err != nil {
@@ -201,7 +201,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	}
 	err = d.Set("feature_settings", featureSettings)
 	if err != nil {
-		return fmt.Errorf("Error setting feature settings in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
+		return fmt.Errorf("error setting feature settings in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
 	}
 	return nil
 }
@@ -216,7 +216,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Updating App Engine App")
 	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks").Do()
 	if err != nil {
-		return fmt.Errorf("Error updating App Engine application: %s", err.Error())
+		return fmt.Errorf("error updating App Engine application: %s", err.Error())
 	}
 
 	// Wait for the operation to complete

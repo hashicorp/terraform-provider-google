@@ -55,11 +55,11 @@ func testAccCheckSourceRepoRepositoryExists(resourceType, resourceName string) r
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceType]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -69,11 +69,11 @@ func testAccCheckSourceRepoRepositoryExists(resourceType, resourceName string) r
 		resp, err := config.clientSourceRepo.Projects.Repos.Get(repositoryName).Do()
 
 		if err != nil {
-			return fmt.Errorf("Error confirming Source Repository existence: %#v", err)
+			return fmt.Errorf("error confirming Source Repository existence: %#v", err)
 		}
 
 		if resp.Name != repositoryName {
-			return fmt.Errorf("Failed to verify Source Repository by name")
+			return fmt.Errorf("failed to verify Source Repository by name")
 		}
 		return nil
 	}

@@ -133,7 +133,7 @@ func testAccCheckGoogleProjectIamCustomRoleDestroy(s *terraform.State) error {
 		}
 
 		if !role.Deleted {
-			return fmt.Errorf("Iam custom role still exists")
+			return fmt.Errorf("iam custom role still exists")
 		}
 
 	}

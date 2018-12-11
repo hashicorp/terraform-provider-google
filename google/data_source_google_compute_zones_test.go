@@ -31,7 +31,7 @@ func testAccCheckGoogleComputeZonesMeta(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find zones data source: %s", n)
+			return fmt.Errorf("can't find zones data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
@@ -59,7 +59,7 @@ func testAccCheckGoogleComputeZonesMeta(n string) resource.TestCheckFunc {
 				return fmt.Errorf("zone list is corrupt (%q not found), this is definitely a bug", idx)
 			}
 			if len(v) < 1 {
-				return fmt.Errorf("Empty zone name (%q), this is definitely a bug", idx)
+				return fmt.Errorf("empty zone name (%q), this is definitely a bug", idx)
 			}
 		}
 

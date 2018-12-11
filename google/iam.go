@@ -95,7 +95,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				} else {
 					fetchBackoff = fetchBackoff * 2
 					if fetchBackoff > 30*time.Second {
-						return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
+						return fmt.Errorf("error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
 					}
 				}
 			}
@@ -106,7 +106,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to %s: too many concurrent policy changes.\n", updater.DescribeResource())
+				return fmt.Errorf("error applying IAM policy to %s: too many concurrent policy changes.\n", updater.DescribeResource())
 			}
 			continue
 		}

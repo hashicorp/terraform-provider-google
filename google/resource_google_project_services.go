@@ -67,14 +67,14 @@ func resourceGoogleProjectServicesCreate(d *schema.ResourceData, meta interface{
 	// Get services from API
 	apiServices, err := getApiServices(pid, config, ignoreProjectServices)
 	if err != nil {
-		return fmt.Errorf("Error creating services: %v", err)
+		return fmt.Errorf("error creating services: %v", err)
 	}
 
 	// This call disables any APIs that aren't defined in cfgServices,
 	// and enables all of those that are
 	err = reconcileServices(cfgServices, apiServices, config, pid)
 	if err != nil {
-		return fmt.Errorf("Error creating services: %v", err)
+		return fmt.Errorf("error creating services: %v", err)
 	}
 
 	d.SetId(pid)
@@ -104,14 +104,14 @@ func resourceGoogleProjectServicesUpdate(d *schema.ResourceData, meta interface{
 	// Get services from API
 	apiServices, err := getApiServices(d.Id(), config, ignoreProjectServices)
 	if err != nil {
-		return fmt.Errorf("Error updating services: %v", err)
+		return fmt.Errorf("error updating services: %v", err)
 	}
 
 	// This call disables any APIs that aren't defined in cfgServices,
 	// and enables all of those that are
 	err = reconcileServices(cfgServices, apiServices, config, d.Id())
 	if err != nil {
-		return fmt.Errorf("Error updating services: %v", err)
+		return fmt.Errorf("error updating services: %v", err)
 	}
 
 	return resourceGoogleProjectServicesRead(d, meta)
@@ -349,7 +349,7 @@ func disableService(s, pid string, config *Config) error {
 		return nil
 	}, 10)
 	if err != nil {
-		return fmt.Errorf("Error disabling service %q for project %q: %v", s, pid, err)
+		return fmt.Errorf("error disabling service %q for project %q: %v", s, pid, err)
 	}
 	return nil
 }

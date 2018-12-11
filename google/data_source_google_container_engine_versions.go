@@ -63,13 +63,13 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return err
 	}
 	if len(location) == 0 {
-		return fmt.Errorf("Cannot determine location: set zone or region in this data source or at provider-level")
+		return fmt.Errorf("cannot determine location: set zone or region in this data source or at provider-level")
 	}
 
 	location = fmt.Sprintf("projects/%s/locations/%s", project, location)
 	resp, err := config.clientContainerBeta.Projects.Locations.GetServerConfig(location).Do()
 	if err != nil {
-		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
+		return fmt.Errorf("error retrieving available container cluster versions: %s", err.Error())
 	}
 
 	d.Set("valid_master_versions", resp.ValidMasterVersions)

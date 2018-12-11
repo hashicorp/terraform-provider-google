@@ -164,16 +164,16 @@ func testAccCheckComposerEnvironmentExists(n string, environment *composer.Envir
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		idTokens := strings.Split(rs.Primary.ID, "/")
 		if len(idTokens) != 3 {
-			return fmt.Errorf("Invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
+			return fmt.Errorf("invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
 		}
 		envName := &composerEnvironmentName{
 			Project:     idTokens[0],
@@ -190,7 +190,7 @@ func testAccCheckComposerEnvironmentExists(n string, environment *composer.Envir
 		}
 
 		if found.Name != nameFromId {
-			return fmt.Errorf("Environment not found")
+			return fmt.Errorf("environment not found")
 		}
 
 		*environment = *found
@@ -208,7 +208,7 @@ func testAccComposerEnvironmentDestroy(s *terraform.State) error {
 
 		idTokens := strings.Split(rs.Primary.ID, "/")
 		if len(idTokens) != 3 {
-			return fmt.Errorf("Invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
+			return fmt.Errorf("invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
 		}
 		envName := &composerEnvironmentName{
 			Project:     idTokens[0],
@@ -388,12 +388,12 @@ func testSweepComposerEnvironments(config *Config) error {
 		default:
 			op, deleteErr := config.clientComposer.Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, deleteErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
 			waitErr := composerOperationWaitTime(config.clientComposer, op, config.Project, "Sweeping old test environments", 10)
 			if waitErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, waitErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("unable to delete environment %q: %s", e.Name, waitErr))
 			}
 		}
 	}
@@ -438,22 +438,22 @@ func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.B
 	objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
 	if err != nil {
 		allErrors = multierror.Append(allErrors,
-			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
+			fmt.Errorf("unable to list objects to delete for bucket %q: %s", bucket.Name, err))
 	}
 
 	for _, o := range objList.Items {
 		if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
 			allErrors = multierror.Append(allErrors,
-				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
+				fmt.Errorf("unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
 	}
 
 	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
-		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
+		allErrors = multierror.Append(allErrors, fmt.Errorf("unable to delete bucket %q: %s", bucket.Name, err))
 	}
 
 	if allErrors != nil {
-		return fmt.Errorf("Unable to clean up bucket %q: %v", bucket.Name, allErrors)
+		return fmt.Errorf("unable to clean up bucket %q: %v", bucket.Name, allErrors)
 	}
 
 	log.Printf("Cleaned up bucket %q for composer environment tests", bucket.Name)
@@ -476,7 +476,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 
 		foundFirewalls, err := config.clientCompute.Firewalls.List(config.Project).Do()
 		if err != nil {
-			return fmt.Errorf("Unable to list firewalls for network %q: %s", network.Name, err)
+			return fmt.Errorf("unable to list firewalls for network %q: %s", network.Name, err)
 		}
 
 		var allErrors error
@@ -488,7 +488,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 			op, err := config.clientCompute.Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {
 				allErrors = multierror.Append(allErrors,
-					fmt.Errorf("Unable to delete firewalls for network %q: %s", network.Name, err))
+					fmt.Errorf("unable to delete firewalls for network %q: %s", network.Name, err))
 				continue
 			}
 
@@ -496,7 +496,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 				"Sweeping test composer environment firewalls", 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors,
-					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
+					fmt.Errorf("error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
 			}
 		}
 		return allErrors

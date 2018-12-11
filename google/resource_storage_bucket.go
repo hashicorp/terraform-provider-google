@@ -285,7 +285,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		websites := v.([]interface{})
 
 		if len(websites) > 1 {
-			return fmt.Errorf("At most one website block is allowed")
+			return fmt.Errorf("at most one website block is allowed")
 		}
 
 		sb.Website = &storage.BucketWebsite{}
@@ -353,7 +353,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			websites := v.([]interface{})
 
 			if len(websites) > 1 {
-				return fmt.Errorf("At most one website block is allowed")
+				return fmt.Errorf("at most one website block is allowed")
 			}
 
 			// Setting fields to "" to be explicit that the PATCH call will
@@ -709,7 +709,7 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 						target_lifecycle_rule.Action.StorageClass = v.(string)
 					}
 				} else {
-					return fmt.Errorf("Exactly one action is required")
+					return fmt.Errorf("exactly one action is required")
 				}
 			}
 
@@ -747,7 +747,7 @@ func resourceGCSBucketLifecycleCreateOrUpdate(d *schema.ResourceData, sb *storag
 						target_lifecycle_rule.Condition.NumNewerVersions = int64(v.(int))
 					}
 				} else {
-					return fmt.Errorf("Exactly one condition is required")
+					return fmt.Errorf("exactly one condition is required")
 				}
 			}
 

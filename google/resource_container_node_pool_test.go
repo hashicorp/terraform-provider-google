@@ -395,7 +395,7 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 		}
 
 		if err == nil {
-			return fmt.Errorf("NodePool still exists")
+			return fmt.Errorf("nodePool still exists")
 		}
 	}
 

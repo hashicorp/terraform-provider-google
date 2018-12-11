@@ -476,9 +476,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
 	if err != nil {
 		if googleapiError, ok := err.(*googleapi.Error); ok && googleapiError.Code == 409 {
-			return fmt.Errorf("Error, the name %s is unavailable because it was used recently", instance.Name)
+			return fmt.Errorf("error, the name %s is unavailable because it was used recently", instance.Name)
 		} else {
-			return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
+			return fmt.Errorf("error, failed to create instance %s: %s", instance.Name, err)
 		}
 	}
 
@@ -504,7 +504,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 			return err
 		}, 5)
 		if err != nil {
-			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
+			return fmt.Errorf("error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
@@ -516,7 +516,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 					return err
 				})
 				if err != nil {
-					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
+					return fmt.Errorf("error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
 				}
 			}
 		}
@@ -745,7 +745,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	op, err := config.clientSqlAdmin.Instances.Update(project, d.Get("name").(string), instance).Do()
 	if err != nil {
-		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		return fmt.Errorf("error, failed to update instance settings for %s: %s", instance.Name, err)
 	}
 
 	err = sqladminOperationWaitTime(config, op, project, "Update Instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
@@ -774,7 +774,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	op, err := config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
 
 	if err != nil {
-		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
+		return fmt.Errorf("error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
 
 	err = sqladminOperationWaitTime(config, op, project, "Delete Instance", int(d.Timeout(schema.TimeoutDelete).Minutes()))
@@ -795,7 +795,7 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

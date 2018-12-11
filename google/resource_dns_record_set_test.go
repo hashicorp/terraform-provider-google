@@ -228,14 +228,14 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceType]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		dnsName := rs.Primary.Attributes["name"]
 		dnsType := rs.Primary.Attributes["type"]
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
@@ -243,7 +243,7 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 		resp, err := config.clientDns.ResourceRecordSets.List(
 			config.Project, resourceName).Name(dnsName).Type(dnsType).Do()
 		if err != nil {
-			return fmt.Errorf("Error confirming DNS RecordSet existence: %#v", err)
+			return fmt.Errorf("error confirming DNS RecordSet existence: %#v", err)
 		}
 		switch len(resp.Rrsets) {
 		case 0:
@@ -252,7 +252,7 @@ func testAccCheckDnsRecordSetExists(resourceType, resourceName string) resource.
 		case 1:
 			return nil
 		default:
-			return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))
+			return fmt.Errorf("only expected 1 record set, got %d", len(resp.Rrsets))
 		}
 	}
 }

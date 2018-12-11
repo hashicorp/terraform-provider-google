@@ -116,7 +116,7 @@ func testAccCheckBigtableTableDestroy(s *terraform.State) error {
 
 		_, err = c.TableInfo(ctx, rs.Primary.Attributes["name"])
 		if err == nil {
-			return fmt.Errorf("Table still present. Found %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
+			return fmt.Errorf("table still present. Found %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
 		}
 
 		c.Close()
@@ -130,21 +130,21 @@ func testAccBigtableTableExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
 		c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
-			return fmt.Errorf("Error starting admin client. %s", err)
+			return fmt.Errorf("error starting admin client. %s", err)
 		}
 
 		_, err = c.TableInfo(ctx, rs.Primary.Attributes["name"])
 		if err != nil {
-			return fmt.Errorf("Error retrieving table. Could not find %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
+			return fmt.Errorf("error retrieving table. Could not find %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
 		}
 
 		c.Close()

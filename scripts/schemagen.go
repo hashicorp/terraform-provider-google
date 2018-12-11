@@ -53,17 +53,17 @@ func main() {
 	// Discovery API doesn't need authentication
 	client, err := google.DefaultClient(oauth2.NoContext, []string{}...)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Error creating client: %v", err))
+		log.Fatal(fmt.Errorf("error creating client: %v", err))
 	}
 
 	discoveryService, err := discovery.New(client)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Error creating service: %v", err))
+		log.Fatal(fmt.Errorf("error creating service: %v", err))
 	}
 
 	resp, err := discoveryService.Apis.GetRest(*api, *version).Fields("schemas").Do()
 	if err != nil {
-		log.Fatal(fmt.Errorf("Error reading API: %v", err))
+		log.Fatal(fmt.Errorf("error reading API: %v", err))
 	}
 
 	fileName := fmt.Sprintf("gen_resource_%s_%s.go", *api, underscore(*resource))
@@ -150,7 +150,7 @@ func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v 
 		s.Type = schema.TypeList
 		elem, err := generateField(jsonSchemas, "", *v.Items, true)
 		if err != nil {
-			return "", fmt.Errorf("Unable to generate Elem for %q: %s", field, err)
+			return "", fmt.Errorf("unable to generate Elem for %q: %s", field, err)
 		}
 		s.Elem = elem
 	case "object":
@@ -171,7 +171,7 @@ func generateField(jsonSchemas map[string]discovery.JsonSchema, field string, v 
 		}
 		s.Elem = elem
 	default:
-		return "", fmt.Errorf("Unable to process: %s %s", field, v.Type)
+		return "", fmt.Errorf("unable to process: %s %s", field, v.Type)
 	}
 
 	return schemaCode(s, isNested)

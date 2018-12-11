@@ -32,7 +32,7 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 	hostProject := d.Get("project").(string)
 	op, err := config.clientCompute.Projects.EnableXpnHost(hostProject).Do()
 	if err != nil {
-		return fmt.Errorf("Error enabling Shared VPC Host %q: %s", hostProject, err)
+		return fmt.Errorf("error enabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
 	d.SetId(hostProject)
@@ -72,7 +72,7 @@ func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta inte
 
 	op, err := config.clientCompute.Projects.DisableXpnHost(hostProject).Do()
 	if err != nil {
-		return fmt.Errorf("Error disabling Shared VPC Host %q: %s", hostProject, err)
+		return fmt.Errorf("error disabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, hostProject, "Disabling Shared VPC Host")

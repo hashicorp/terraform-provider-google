@@ -429,7 +429,7 @@ func parseBigQueryDatasetId(id string) (*bigQueryDatasetId, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
+	return nil, fmt.Errorf("invalid BigQuery dataset specifier. Expecting {project}:{dataset-id}, got %s", id)
 }
 
 func flattenAccess(a []*bigquery.DatasetAccess) []map[string]interface{} {

@@ -66,7 +66,7 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 
 	split := strings.Split(d.Id(), "/")
 	if len(split) != 2 {
-		return fmt.Errorf("Error parsing resource ID %s", d.Id())
+		return fmt.Errorf("error parsing resource ID %s", d.Id())
 	}
 	hostProject := split[0]
 	serviceProject := split[1]
@@ -99,7 +99,7 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	if err := disableXpnResource(config, hostProject, serviceProject); err != nil {
 		// Don't fail if the service project is already disabled.
 		if !isDisabledXpnResourceError(err) {
-			return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", serviceProject, err)
+			return fmt.Errorf("error disabling Shared VPC Resource %q: %s", serviceProject, err)
 		}
 	}
 

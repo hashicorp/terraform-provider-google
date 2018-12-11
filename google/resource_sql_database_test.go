@@ -108,7 +108,7 @@ func testAccCheckGoogleSqlDatabaseEquals(n string,
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		database_name := rs.Primary.Attributes["name"]
@@ -117,19 +117,19 @@ func testAccCheckGoogleSqlDatabaseEquals(n string,
 		collation := rs.Primary.Attributes["collation"]
 
 		if database_name != database.Name {
-			return fmt.Errorf("Error name mismatch, (%s, %s)", database_name, database.Name)
+			return fmt.Errorf("error name mismatch, (%s, %s)", database_name, database.Name)
 		}
 
 		if instance_name != database.Instance {
-			return fmt.Errorf("Error instance_name mismatch, (%s, %s)", instance_name, database.Instance)
+			return fmt.Errorf("error instance_name mismatch, (%s, %s)", instance_name, database.Instance)
 		}
 
 		if charset != database.Charset {
-			return fmt.Errorf("Error charset mismatch, (%s, %s)", charset, database.Charset)
+			return fmt.Errorf("error charset mismatch, (%s, %s)", charset, database.Charset)
 		}
 
 		if collation != database.Collation {
-			return fmt.Errorf("Error collation mismatch, (%s, %s)", collation, database.Collation)
+			return fmt.Errorf("error collation mismatch, (%s, %s)", collation, database.Collation)
 		}
 
 		return nil
@@ -142,7 +142,7 @@ func testAccCheckGoogleSqlDatabaseExists(n string,
 		config := testAccProvider.Meta().(*Config)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		database_name := rs.Primary.Attributes["name"]
@@ -151,7 +151,7 @@ func testAccCheckGoogleSqlDatabaseExists(n string,
 			instance_name, database_name).Do()
 
 		if err != nil {
-			return fmt.Errorf("Not found: %s: %s", n, err)
+			return fmt.Errorf("not found: %s: %s", n, err)
 		}
 
 		*database = *found
@@ -173,7 +173,7 @@ func testAccSqlDatabaseDestroy(s *terraform.State) error {
 			instance_name, database_name).Do()
 
 		if err == nil {
-			return fmt.Errorf("Database resource still exists")
+			return fmt.Errorf("database resource still exists")
 		}
 	}
 

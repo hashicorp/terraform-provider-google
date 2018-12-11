@@ -30,7 +30,7 @@ func testAccCheckGoogleIAMRoleCheck(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find iam role data source: %s", n)
+			return fmt.Errorf("can't find iam role data source: %s", n)
 		}
 
 		_, ok = ds.Primary.Attributes["included_permissions.#"]

@@ -238,7 +238,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -257,7 +257,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 				"error: %s.", errMsg, err)
 		}
 
-		return fmt.Errorf("Error waiting to create Environment: %s", waitErr)
+		return fmt.Errorf("error waiting to create Environment: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating Environment %q: %#v", d.Id(), op)
@@ -284,20 +284,20 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	// Set from getProject(d)
 	if err := d.Set("project", envName.Project); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("error reading Environment: %s", err)
 	}
 	// Set from getRegion(d)
 	if err := d.Set("region", envName.Region); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("error reading Environment: %s", err)
 	}
 	if err := d.Set("name", GetResourceNameFromSelfLink(res.Name)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("error reading Environment: %s", err)
 	}
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("error reading Environment: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("error reading Environment: %s", err)
 	}
 	return nil
 }
@@ -443,7 +443,7 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
 		// The resource didn't actually update.
-		return fmt.Errorf("Error waiting to update Environment: %s", waitErr)
+		return fmt.Errorf("error waiting to update Environment: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished updating Environment %q (updateMask = %q)", d.Id(), updateMask)
@@ -482,7 +482,7 @@ func resourceComposerEnvironmentImport(d *schema.ResourceData, meta interface{})
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -815,7 +815,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	log.Printf("[WARNING] Environment %q from failed creation operation was created, deleting.", id)
 	op, err := config.clientComposer.Projects.Locations.Environments.Delete(envName.resourceName()).Do()
 	if err != nil {
-		return fmt.Errorf("Could not delete the invalid created environment with state %q: %s", env.State, err)
+		return fmt.Errorf("could not delete the invalid created environment with state %q: %s", env.State, err)
 	}
 
 	waitErr := composerOperationWaitTime(
@@ -823,7 +823,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State),
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
-		return fmt.Errorf("Error waiting to delete invalid Environment with state %q: %s", env.State, waitErr)
+		return fmt.Errorf("error waiting to delete invalid Environment with state %q: %s", env.State, waitErr)
 	}
 
 	return nil

@@ -299,13 +299,13 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[DEBUG] Creating new HealthCheck: %#v", obj)
 	res, err := sendRequest(config, "POST", url, obj)
 	if err != nil {
-		return fmt.Errorf("Error creating HealthCheck: %s", err)
+		return fmt.Errorf("error creating HealthCheck: %s", err)
 	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 
@@ -326,7 +326,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create HealthCheck: %s", waitErr)
+		return fmt.Errorf("error waiting to create HealthCheck: %s", waitErr)
 	}
 
 	log.Printf("[DEBUG] Finished creating HealthCheck %q: %#v", d.Id(), res)
@@ -352,47 +352,47 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 
 	if err := d.Set("check_interval_sec", flattenComputeHealthCheckCheckIntervalSec(res["checkIntervalSec"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeHealthCheckCreationTimestamp(res["creationTimestamp"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("description", flattenComputeHealthCheckDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("healthy_threshold", flattenComputeHealthCheckHealthyThreshold(res["healthyThreshold"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("name", flattenComputeHealthCheckName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("timeout_sec", flattenComputeHealthCheckTimeoutSec(res["timeoutSec"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("unhealthy_threshold", flattenComputeHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("type", flattenComputeHealthCheckType(res["type"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("http_health_check", flattenComputeHealthCheckHttpHealthCheck(res["httpHealthCheck"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("https_health_check", flattenComputeHealthCheckHttpsHealthCheck(res["httpsHealthCheck"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("tcp_health_check", flattenComputeHealthCheckTcpHealthCheck(res["tcpHealthCheck"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("ssl_health_check", flattenComputeHealthCheckSslHealthCheck(res["sslHealthCheck"], d)); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HealthCheck: %s", err)
+		return fmt.Errorf("error reading HealthCheck: %s", err)
 	}
 
 	return nil
@@ -474,7 +474,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	res, err := sendRequest(config, "PUT", url, obj)
 
 	if err != nil {
-		return fmt.Errorf("Error updating HealthCheck %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating HealthCheck %q: %s", d.Id(), err)
 	}
 
 	project, err := getProject(d, config)
@@ -542,7 +542,7 @@ func resourceComputeHealthCheckImport(d *schema.ResourceData, meta interface{}) 
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+		return nil, fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

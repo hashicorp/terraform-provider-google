@@ -91,14 +91,14 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error Reading router %s/%s: %s", region, routerName, err)
 	}
 
 	ifaces := router.Interfaces
 	for _, iface := range ifaces {
 		if iface.Name == ifaceName {
 			d.SetId("")
-			return fmt.Errorf("Router %s has interface %s already", routerName, ifaceName)
+			return fmt.Errorf("router %s has interface %s already", routerName, ifaceName)
 		}
 	}
 
@@ -123,13 +123,13 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Updating router %s/%s with interfaces: %+v", region, routerName, ifaces)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {
-		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
 	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
 
 	return resourceComputeRouterInterfaceRead(d, meta)
@@ -162,7 +162,7 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error Reading router %s/%s: %s", region, routerName, err)
 	}
 
 	for _, iface := range router.Interfaces {
@@ -212,7 +212,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 			return nil
 		}
 
-		return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
+		return fmt.Errorf("error Reading Router %s: %s", routerName, err)
 	}
 
 	var ifaceFound bool
@@ -247,12 +247,12 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Updating router %s/%s with interfaces: %+v", region, routerName, newIfaces)
 	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
 	if err != nil {
-		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error patching router %s/%s: %s", region, routerName, err)
 	}
 
 	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
 	if err != nil {
-		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
+		return fmt.Errorf("error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
 
 	d.SetId("")
@@ -262,7 +262,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid router interface specifier. Expecting {region}/{router}/{interface}")
+		return nil, fmt.Errorf("invalid router interface specifier. Expecting {region}/{router}/{interface}")
 	}
 
 	d.Set("region", parts[0])
