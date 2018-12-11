@@ -1,0 +1,15 @@
+{
+  "Deadline": "10m",
+  "Enable": [
+    "vet"
+  ],
+  "EnableGC": true,
+  "Linters": {
+  },
+  "Sort": [
+    "path",
+    "line"
+  ],
+  "Vendor": true,
+  "WarnUnmatchedDirective": true
+}
