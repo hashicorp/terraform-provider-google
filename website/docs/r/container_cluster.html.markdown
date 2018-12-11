@@ -461,6 +461,10 @@ exported:
     be different than the `min_master_version` set in the config if the master
     has been updated by GKE.
 
+* `tpu_ipv4_cidr_block` - The IP address range of the Cloud TPUs in this cluster, in
+    [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
+    notation (e.g. `1.2.3.4/29`).
+
 <a id="timeouts"></a>
 ## Timeouts
 
