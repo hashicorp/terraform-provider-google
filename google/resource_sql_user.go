@@ -227,15 +227,17 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 
-	if len(parts) == 2 {
-		d.Set("instance", parts[0])
-		d.Set("name", parts[1])
-	} else if len(parts) == 3 {
-		d.Set("instance", parts[0])
-		d.Set("host", parts[1])
+	if len(parts) == 3 {
+		d.Set("project", parts[0])
+		d.Set("instance", parts[1])
 		d.Set("name", parts[2])
+	} else if len(parts) == 4 {
+		d.Set("project", parts[0])
+		d.Set("instance", parts[1])
+		d.Set("host", parts[2])
+		d.Set("name", parts[3])
 	} else {
-		return nil, fmt.Errorf("Invalid specifier. Expecting {instance}/{name} for postgres instance and {instance}/{host}/{name} for MySQL instance")
+		return nil, fmt.Errorf("Invalid specifier. Expecting {project}/{instance}/{name} for postgres instance and {project}/{instance}/{host}/{name} for MySQL instance")
 	}
 
 	return []*schema.ResourceData{d}, nil
