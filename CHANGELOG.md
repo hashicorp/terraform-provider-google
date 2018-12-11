@@ -1,5 +1,8 @@
 ## 1.20.0 (Unreleased)
 
+DEPRECATIONS:
+* **Deprecated `google_compute_disk`'s top-level encryption fields.** [GH-2572]
+
 FEATURES: 
 * **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
