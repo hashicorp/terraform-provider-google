@@ -594,9 +594,10 @@ func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWind
 
 	window := configured[0].(map[string]interface{})
 	return &sqladmin.MaintenanceWindow{
-		Day:         int64(window["day"].(int)),
-		Hour:        int64(window["hour"].(int)),
-		UpdateTrack: window["update_track"].(string),
+		Day:             int64(window["day"].(int)),
+		Hour:            int64(window["hour"].(int)),
+		UpdateTrack:     window["update_track"].(string),
+		ForceSendFields: []string{"Hour"},
 	}
 }
 
@@ -623,7 +624,7 @@ func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
 		Ipv4Enabled:        _ipConfiguration["ipv4_enabled"].(bool),
 		RequireSsl:         _ipConfiguration["require_ssl"].(bool),
 		AuthorizedNetworks: expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
-		ForceSendFields:    []string{"Ipv4Enabled"},
+		ForceSendFields:    []string{"Ipv4Enabled", "RequireSsl"},
 	}
 }
 func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
