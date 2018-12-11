@@ -71,7 +71,11 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 		if err == nil {
 			fetchBackoff := 1 * time.Second
 			for successfulFetches := 0; successfulFetches < 3; {
+				if fetchBackoff > 30*time.Second {
+					return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
+				}
 				time.Sleep(fetchBackoff)
+				log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 				new_p, err := updater.GetResourceIamPolicy()
 				if err != nil {
 					// Quota for Read is pretty limited, so watch out for running out of quota.
@@ -80,6 +84,12 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 					} else {
 						return err
 					}
+				}
+				log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
+				if new_p == nil {
+					// https://github.com/terraform-providers/terraform-provider-google/issues/2625
+					fetchBackoff = fetchBackoff * 2
+					continue
 				}
 				modified_p := new_p
 				// This relies on the fact that `modify` is idempotent: since other changes might have
@@ -94,9 +104,6 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 					successfulFetches += 1
 				} else {
 					fetchBackoff = fetchBackoff * 2
-					if fetchBackoff > 30*time.Second {
-						return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
-					}
 				}
 			}
 			break
