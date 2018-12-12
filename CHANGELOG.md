@@ -56,6 +56,7 @@ BUG FIXES:
 * runtimeconfig: allow more characters in runtimeconfig name [GH-2643]
 * sql: send maintenance_window.hour even if it's zero, since that's a valid value [GH-2630]
 * sql: allow cross-project imports for sql user [GH-2632]
+* sql: mark region as computed in sql db instance since we use getregion [GH-2635]
 
 
 ## 1.20.0 (Unreleased)
