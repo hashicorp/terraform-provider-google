@@ -62,10 +62,11 @@ BUG FIXES:
 
 * bigquery: added australia and europe regions to the validate function [GH-2333]
 * compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
+* compute: attached_disk now supports region disks [GH-2441]
+* compute: extract vpn tunnel region/project from vpn gateway [GH-2640]
 * iam: fix permadiff when stage is ALPHA [GH-2370]
 * iam: add another retry if iam read returns nil [GH-2629]
 * pubsub: fix issue where not all attributes were saved in state [GH-2469]
-* compute: attached_disk now supports region disks [GH-2441]
 * sql: send maintenance_window.hour even if it's zero, since that's a valid value [GH-2630]
 
 ## 1.19.1 (October 12, 2018)
