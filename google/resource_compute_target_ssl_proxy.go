@@ -148,7 +148,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new TargetSslProxy: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TargetSslProxy: %s", err)
 	}
@@ -255,7 +255,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
@@ -293,7 +293,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
@@ -331,7 +331,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
@@ -369,7 +369,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
@@ -410,7 +410,7 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TargetSslProxy %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "TargetSslProxy")
 	}

@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -33,6 +34,12 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceMonitoringUptimeCheckConfigImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -296,7 +303,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new UptimeCheckConfig: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating UptimeCheckConfig: %s", err)
 	}
@@ -459,7 +466,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating UptimeCheckConfig %q: %#v", d.Id(), obj)
-	_, err = sendRequest(config, "PATCH", url, obj)
+	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating UptimeCheckConfig %q: %s", d.Id(), err)
@@ -478,7 +485,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting UptimeCheckConfig %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "UptimeCheckConfig")
 	}

@@ -248,6 +248,7 @@ func resourceComputeDisk() *schema.Resource {
 			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
+
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", isDiskShrinkage)),
 
@@ -502,7 +503,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Disk: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Disk: %s", err)
 	}
@@ -650,7 +651,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
 		}
@@ -689,7 +690,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
 		}
@@ -779,7 +780,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	log.Printf("[DEBUG] Deleting Disk %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Disk")
 	}
