@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
 * **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. [GH-2290]
 * **New Resource**: `google_monitoring_notification_channel` [GH-2452]
+* **New Resource**: `google_cloud_router_nat` [GH-2576]
 * **New Resource**: `google_monitoring_group` [GH-2451]
 * **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
 * **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. [GH-2482]
