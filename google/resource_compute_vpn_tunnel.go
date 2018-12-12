@@ -326,6 +326,11 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		obj["region"] = regionProp
 	}
 
+	obj, err = resourceComputeVpnTunnelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels")
 	if err != nil {
 		return err
@@ -693,4 +698,19 @@ func expandComputeVpnTunnelRegion(v interface{}, d *schema.ResourceData, config 
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeVpnTunnelEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*Config)
+	f, err := parseRegionalFieldValue("targetVpnGateways", d.Get("target_vpn_gateway").(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := d.GetOk("project"); !ok {
+		d.Set("project", f.Project)
+	}
+	if _, ok := d.GetOk("region"); !ok {
+		d.Set("region", f.Region)
+	}
+	return obj, nil
 }
