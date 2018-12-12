@@ -144,7 +144,7 @@ func resourceDataprocCluster() *schema.Resource {
 									},
 
 									"tags": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Optional: true,
 										ForceNew: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
@@ -541,7 +541,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 		conf.SubnetworkUri = snf.RelativeLink()
 	}
 	if v, ok := cfg["tags"]; ok {
-		conf.Tags = convertStringArr(v.([]interface{}))
+		conf.Tags = convertStringSet(v.(*schema.Set))
 	}
 	if v, ok := cfg["service_account"]; ok {
 		conf.ServiceAccount = v.(string)
@@ -840,7 +840,7 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
 
 	gceConfig := map[string]interface{}{
-		"tags":             gcc.Tags,
+		"tags":             schema.NewSet(schema.HashString, convertStringArrToInterface(gcc.Tags)),
 		"service_account":  gcc.ServiceAccount,
 		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,

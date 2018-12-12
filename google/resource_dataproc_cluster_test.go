@@ -217,7 +217,7 @@ func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_withMetadata(t *testing.T) {
+func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	t.Parallel()
 
 	var cluster dataproc.Cluster
@@ -228,12 +228,13 @@ func TestAccDataprocCluster_withMetadata(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMetadata(rnd),
+				Config: testAccDataprocCluster_withMetadataAndTags(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
 
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.foo", "bar"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.baz", "qux"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.tags.#", "4"),
 				),
 			},
 		},
@@ -785,7 +786,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_withMetadata(rnd string) string {
+func testAccDataprocCluster_withMetadataAndTags(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
 	name   = "dproc-cluster-test-%s"
@@ -797,6 +798,7 @@ resource "google_dataproc_cluster" "basic" {
 				foo = "bar"
 				baz = "qux"
 			}
+			tags = ["my-tag", "your-tag", "our-tag", "their-tag"]
 		}
 	}
 }
