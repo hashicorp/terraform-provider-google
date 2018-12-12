@@ -65,6 +65,7 @@ BUG FIXES:
 * compute: attached_disk now supports region disks [GH-2441]
 * compute: extract vpn tunnel region/project from vpn gateway [GH-2640]
 * compute: send instance scheduling block with automaticrestart true if there is none in cfg [GH-2638]
+* dataproc: convert dataproc_cluster.cluster_config.gce_cluster_config.tags into a set [GH-2633]
 * iam: fix permadiff when stage is ALPHA [GH-2370]
 * iam: add another retry if iam read returns nil [GH-2629]
 * pubsub: fix issue where not all attributes were saved in state [GH-2469]
