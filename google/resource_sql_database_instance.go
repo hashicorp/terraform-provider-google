@@ -56,6 +56,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
