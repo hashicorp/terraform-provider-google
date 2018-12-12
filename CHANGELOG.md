@@ -52,6 +52,7 @@ BUG FIXES:
 * iam: add another retry if iam read returns nil [GH-2629]
 * pubsub: fix issue where not all attributes were saved in state [GH-2469]
 * compute: attached_disk now supports region disks [GH-2441]
+* sql: send maintenance_window.hour even if it's zero, since that's a valid value [GH-2630]
 
 
 ## 1.20.0 (Unreleased)
