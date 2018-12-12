@@ -171,7 +171,7 @@ The following arguments are supported:
 
 * `region` -
   (Optional)
-  The region where the tunnel is located.
+  The region where the tunnel is located. If unset, is set to the region of `target_vpn_gateway`.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
