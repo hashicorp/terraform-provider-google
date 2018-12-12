@@ -625,12 +625,22 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		disks = append(disks, disk)
 	}
 
-	prefix := "scheduling.0"
-	scheduling := &computeBeta.Scheduling{
-		AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-		Preemptible:       d.Get(prefix + ".preemptible").(bool),
-		OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-		ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+	sch := d.Get("scheduling").([]interface{})
+	var scheduling *computeBeta.Scheduling
+	if len(sch) == 0 {
+		// TF doesn't do anything about defaults inside of nested objects, so if
+		// scheduling hasn't been set, then send it with its default values.
+		scheduling = &computeBeta.Scheduling{
+			AutomaticRestart: googleapi.Bool(true),
+		}
+	} else {
+		prefix := "scheduling.0"
+		scheduling = &computeBeta.Scheduling{
+			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
+			Preemptible:       d.Get(prefix + ".preemptible").(bool),
+			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
+			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+		}
 	}
 
 	metadata, err := resourceInstanceMetadata(d)
