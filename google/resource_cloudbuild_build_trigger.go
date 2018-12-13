@@ -122,6 +122,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 						"project": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 						"repo_name": &schema.Schema{
 							Type:     schema.TypeString,
