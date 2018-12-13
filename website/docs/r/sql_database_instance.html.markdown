@@ -205,6 +205,8 @@ The optional `settings.ip_configuration` subblock supports:
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
 
+* `private_network` - (Optional) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP.
+
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
 * `expiration_time` - (Optional) The [RFC 3339](https://tools.ietf.org/html/rfc3339)
