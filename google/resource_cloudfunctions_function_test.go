@@ -234,6 +234,29 @@ func TestAccCloudFunctionsFunction_firestore(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
+	t.Parallel()
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_sourceRepo(functionName),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -563,4 +586,23 @@ resource "google_cloudfunctions_function" "function" {
     resource   = "messages/{messageId}"
   }
 }`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_sourceRepo(functionName string) string {
+	return fmt.Sprintf(`
+resource "google_cloudfunctions_function" "function" {
+  name = "%s"
+
+  source_repository {
+    // There isn't yet an API that'll allow us to create a source repository and
+    // put code in it, so we created this repository outside the test to be used
+    // here. If this test is run outside of CI, it may fail because of permissions
+    // errors.
+    url = "https://source.developers.google.com/projects/hc-terraform-testing/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
+  }
+
+  trigger_http = true
+  entry_point  = "helloGET"
+}
+`, functionName)
 }
