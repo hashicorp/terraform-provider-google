@@ -57,6 +57,7 @@ ENHANCEMENTS:
 * dataproc: Add `accelerators` support to `google_dataproc_cluster` to allow using GPU accelerators. [GH-2411]
 * container: regional and private clusters are in GA now [GH-2364]
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
+* resourcemanager: add `inherit_from_parent` to all org policy resources [GH-2653]
 * storage: `google_storage_object_acl` can more easily swap between `role_entity` and `predefined_acl` ACL definitions. [GH-2316]
 
 BUG FIXES:
