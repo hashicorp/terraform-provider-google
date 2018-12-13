@@ -46,6 +46,7 @@ ENHANCEMENTS:
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
 * resourcemanager: add `inherit_from_parent` to all org policy resources [GH-2653]
 * storage: `google_storage_object_acl` can more easily swap between `role_entity` and `predefined_acl` ACL definitions. [GH-2316]
+* sql: support for private ip [GH-2662]
 
 BUG FIXES:
 
