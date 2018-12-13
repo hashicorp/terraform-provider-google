@@ -241,7 +241,7 @@ The optional `settings.ip_configuration` subblock supports:
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
 
-* `private_network` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP.
+* `private_network` - (Optional) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
