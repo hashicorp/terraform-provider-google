@@ -16,6 +16,8 @@ import (
 	"google.golang.org/api/sqladmin/v1beta4"
 )
 
+const privateNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
+
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"expiration_time": &schema.Schema{
@@ -179,6 +181,12 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"require_ssl": &schema.Schema{
 										Type:     schema.TypeBool,
 										Optional: true,
+									},
+									"private_network": &schema.Schema{
+										Type:             schema.TypeString,
+										Optional:         true,
+										ValidateFunc:     validateRegexp(privateNetworkLinkRegex),
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 									},
 								},
 							},
@@ -615,6 +623,7 @@ func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
 	return &sqladmin.IpConfiguration{
 		Ipv4Enabled:        _ipConfiguration["ipv4_enabled"].(bool),
 		RequireSsl:         _ipConfiguration["require_ssl"].(bool),
+		PrivateNetwork:     _ipConfiguration["private_network"].(string),
 		AuthorizedNetworks: expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 	}
 }
@@ -1121,8 +1130,9 @@ func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]
 
 func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface{} {
 	data := map[string]interface{}{
-		"ipv4_enabled": ipConfiguration.Ipv4Enabled,
-		"require_ssl":  ipConfiguration.RequireSsl,
+		"ipv4_enabled":    ipConfiguration.Ipv4Enabled,
+		"private_network": ipConfiguration.PrivateNetwork,
+		"require_ssl":     ipConfiguration.RequireSsl,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
