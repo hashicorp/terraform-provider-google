@@ -123,12 +123,31 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"source_archive_bucket": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"source_archive_object": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+			},
+
+			"source_repository": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      1,
+				ConflictsWith: []string{"source_archive_bucket", "source_archive_object"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"url": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"deployed_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 
 			"description": {
@@ -302,9 +321,17 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		ForceSendFields: []string{},
 	}
 
-	sourceArchiveBucket := d.Get("source_archive_bucket").(string)
-	sourceArchiveObj := d.Get("source_archive_object").(string)
-	function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
+	sourceRepos := d.Get("source_repository").([]interface{})
+	if len(sourceRepos) > 0 {
+		function.SourceRepository = expandSourceRepository(sourceRepos)
+	} else {
+		sourceArchiveBucket := d.Get("source_archive_bucket").(string)
+		sourceArchiveObj := d.Get("source_archive_object").(string)
+		if sourceArchiveBucket == "" || sourceArchiveObj == "" {
+			return fmt.Errorf("either source_repository or both of source_archive_bucket+source_archive_object must be set")
+		}
+		function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
+	}
 
 	if v, ok := d.GetOk("available_memory_mb"); ok {
 		availableMemoryMb := v.(int)
@@ -396,6 +423,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("source_archive_bucket", bucket)
 		d.Set("source_archive_object", object)
 	}
+	d.Set("source_repository", flattenSourceRepository(function.SourceRepository))
 
 	if function.HttpsTrigger != nil {
 		d.Set("trigger_http", true)
@@ -442,6 +470,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		sourceArchiveObj := d.Get("source_archive_object").(string)
 		function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
 		updateMaskArr = append(updateMaskArr, "sourceArchiveUrl")
+	}
+
+	if d.HasChange("source_repository") {
+		function.SourceRepository = expandSourceRepository(d.Get("source_repository").([]interface{}))
+		updateMaskArr = append(updateMaskArr, "sourceRepository")
 	}
 
 	if d.HasChange("description") {
@@ -604,6 +637,31 @@ func flattenFailurePolicy(failurePolicy *cloudfunctions.FailurePolicy) []map[str
 
 	result = append(result, map[string]interface{}{
 		"retry": failurePolicy.Retry != nil,
+	})
+
+	return result
+}
+
+func expandSourceRepository(configured []interface{}) *cloudfunctions.SourceRepository {
+	if len(configured) == 0 || configured[0] == nil {
+		return &cloudfunctions.SourceRepository{}
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &cloudfunctions.SourceRepository{
+		Url: data["url"].(string),
+	}
+}
+
+func flattenSourceRepository(sourceRepo *cloudfunctions.SourceRepository) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	if sourceRepo == nil {
+		return nil
+	}
+
+	result = append(result, map[string]interface{}{
+		"url":          sourceRepo.Url,
+		"deployed_url": sourceRepo.DeployedUrl,
 	})
 
 	return result
