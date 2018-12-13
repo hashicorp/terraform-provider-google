@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -31,6 +32,12 @@ func resourceMonitoringGroup() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceMonitoringGroupImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -107,7 +114,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Group: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
@@ -214,7 +221,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Group %q: %#v", d.Id(), obj)
-	_, err = sendRequest(config, "PUT", url, obj)
+	_, err = sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
@@ -240,7 +247,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Group %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
 	}

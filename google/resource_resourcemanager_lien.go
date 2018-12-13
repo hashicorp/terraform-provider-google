@@ -20,6 +20,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -32,6 +33,11 @@ func resourceResourceManagerLien() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceResourceManagerLienImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -105,7 +111,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -213,7 +219,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}

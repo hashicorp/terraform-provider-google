@@ -155,7 +155,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Creating new InterconnectAttachment: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating InterconnectAttachment: %s", err)
 	}
@@ -260,7 +260,7 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting InterconnectAttachment %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "InterconnectAttachment")
 	}
