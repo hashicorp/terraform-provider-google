@@ -20,12 +20,13 @@ var DENIED_ORG_POLICIES = []string{
 // avoid race conditions and aborted operations.
 func TestAccOrganizationPolicy(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"boolean":        testAccOrganizationPolicy_boolean,
-		"list_allowAll":  testAccOrganizationPolicy_list_allowAll,
-		"list_allowSome": testAccOrganizationPolicy_list_allowSome,
-		"list_denySome":  testAccOrganizationPolicy_list_denySome,
-		"list_update":    testAccOrganizationPolicy_list_update,
-		"restore_policy": testAccOrganizationPolicy_restore_defaultTrue,
+		"boolean":                testAccOrganizationPolicy_boolean,
+		"list_allowAll":          testAccOrganizationPolicy_list_allowAll,
+		"list_allowSome":         testAccOrganizationPolicy_list_allowSome,
+		"list_denySome":          testAccOrganizationPolicy_list_denySome,
+		"list_update":            testAccOrganizationPolicy_list_update,
+		"list_inheritFromParent": testAccOrganizationPolicy_list_inheritFromParent,
+		"restore_policy":         testAccOrganizationPolicy_restore_defaultTrue,
 	}
 
 	for name, tc := range testCases {
@@ -156,6 +157,25 @@ func testAccOrganizationPolicy_list_update(t *testing.T) {
 			{
 				Config: testAccOrganizationPolicyConfig_list_denySome(org),
 				Check:  testAccCheckGoogleOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
+			},
+			{
+				ResourceName:      "google_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccOrganizationPolicy_list_inheritFromParent(t *testing.T) {
+	org := getTestOrgTargetFromEnv(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOrganizationPolicyConfig_list_inheritFromParent(org),
 			},
 			{
 				ResourceName:      "google_organization_policy.list",
@@ -372,6 +392,25 @@ resource "google_organization_policy" "list" {
                 "replicapoolupdater.googleapis.com",
             ]
         }
+    }
+}
+`, org)
+}
+
+func testAccOrganizationPolicyConfig_list_inheritFromParent(org string) string {
+	return fmt.Sprintf(`
+resource "google_organization_policy" "list" {
+    org_id = "%s"
+    constraint = "serviceuser.services"
+
+    list_policy {
+        deny {
+            values = [
+                "doubleclicksearch.googleapis.com",
+                "replicapoolupdater.googleapis.com",
+            ]
+        }
+        inherit_from_parent = true
     }
 }
 `, org)
