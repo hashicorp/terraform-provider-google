@@ -47,6 +47,35 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_requesterPays(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-requester-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_requesterPays(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "requester_pays", "true"),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 	t.Parallel()
 
@@ -202,6 +231,38 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 				ResourceName:      "google_storage_bucket.bucket",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+func TestAccStorageBucket_update_requesterPays(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := fmt.Sprintf("tf-test-requester-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccStorageBucket_requesterPays(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "requester_pays", "true"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccStorageBucket_requesterPays(bucketName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						"google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "requester_pays", "false"),
+				),
 			},
 		},
 	})
@@ -744,6 +805,15 @@ resource "google_storage_bucket" "bucket" {
 	name = "%s"
 }
 `, bucketName)
+}
+
+func testAccStorageBucket_requesterPays(bucketName string, pays bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	requester_pays = %t
+}
+`, bucketName, pays)
 }
 
 func testAccStorageBucket_lowercaseLocation(bucketName string) string {
