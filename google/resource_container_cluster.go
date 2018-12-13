@@ -584,13 +584,13 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"master_ipv4_cidr_block": {
-				Deprecated:   "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:         schema.TypeString,
+				Deprecated:    "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:          schema.TypeString,
 				ConflictsWith: []string{"private_cluster_config"},
 				Computed:      true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.CIDRNetwork(28, 28),
+				Optional:      true,
+				ForceNew:      true,
+				ValidateFunc:  validation.CIDRNetwork(28, 28),
 			},
 
 			"resource_labels": {
