@@ -2,9 +2,10 @@ package google
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"strings"
 )
 
 var schemaOrganizationPolicy = map[string]*schema.Schema{
@@ -82,6 +83,10 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
+				},
+				"inherit_from_parent": {
+					Type:     schema.TypeBool,
+					Optional: true,
 				},
 			},
 		},
@@ -295,7 +300,10 @@ func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []ma
 		return lPolicies
 	}
 
-	listPolicy := map[string]interface{}{}
+	listPolicy := map[string]interface{}{
+		"suggested_value":     policy.SuggestedValue,
+		"inherit_from_parent": policy.InheritFromParent,
+	}
 	switch {
 	case policy.AllValues == "ALLOW":
 		listPolicy["allow"] = []interface{}{map[string]interface{}{
@@ -359,10 +367,12 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 
 	listPolicy := configured[0].(map[string]interface{})
 	return &cloudresourcemanager.ListPolicy{
-		AllValues:      allValues,
-		AllowedValues:  allowedValues,
-		DeniedValues:   deniedValues,
-		SuggestedValue: listPolicy["suggested_value"].(string),
+		AllValues:         allValues,
+		AllowedValues:     allowedValues,
+		DeniedValues:      deniedValues,
+		SuggestedValue:    listPolicy["suggested_value"].(string),
+		InheritFromParent: listPolicy["inherit_from_parent"].(bool),
+		ForceSendFields:   []string{"InheritFromParent"},
 	}, nil
 }
 
