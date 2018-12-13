@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -31,6 +32,12 @@ func resourceDnsManagedZone() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceDnsManagedZoneImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -106,7 +113,7 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new ManagedZone: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ManagedZone: %s", err)
 	}
@@ -187,7 +194,7 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		_, err = sendRequest(config, "PATCH", url, obj)
+		_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
 		}
@@ -211,7 +218,7 @@ func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ManagedZone")
 	}

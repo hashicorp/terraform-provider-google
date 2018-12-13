@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -33,6 +34,12 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceStorageDefaultObjectAccessControlImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -127,7 +134,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new DefaultObjectAccessControl: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DefaultObjectAccessControl: %s", err)
 	}
@@ -220,7 +227,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Updating DefaultObjectAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequest(config, "PUT", url, obj)
+	_, err = sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DefaultObjectAccessControl %q: %s", d.Id(), err)
@@ -239,7 +246,7 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting DefaultObjectAccessControl %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DefaultObjectAccessControl")
 	}

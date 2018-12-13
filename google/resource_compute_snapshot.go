@@ -176,6 +176,7 @@ func resourceComputeSnapshot() *schema.Resource {
 			Update: schema.DefaultTimeout(300 * time.Second),
 			Delete: schema.DefaultTimeout(300 * time.Second),
 		},
+
 		CustomizeDiff: customdiff.All(
 			customDiffComputeSnapshotSnapshotEncryptionKeys,
 			customDiffComputeSnapshotSourceDiskEncryptionKeys,
@@ -374,7 +375,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Snapshot: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Snapshot: %s", err)
 	}
@@ -501,7 +502,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
 		}
@@ -543,7 +544,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Snapshot %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Snapshot")
 	}
