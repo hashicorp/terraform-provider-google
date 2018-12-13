@@ -50,10 +50,6 @@ The following arguments are supported:
 
 * `name` - (Required) A user-defined name of the function. Function names must be unique globally.
 
-* `source_archive_bucket` - (Required) The GCS bucket containing the zip archive which contains the function.
-
-* `source_archive_object` - (Required) The source archive object (file) in archive bucket.
-
 - - -
 
 * `description` - (Optional) Description of the function.
@@ -74,6 +70,13 @@ The following arguments are supported:
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
+* `source_archive_bucket` - (Optional) The GCS bucket containing the zip archive which contains the function.
+
+* `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
+
+* `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
+  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
+
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
@@ -90,12 +93,22 @@ The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
+The `source_reposoitory` block supports:
+
+* `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
+
+    * To refer to a specific commit: `https://source.developers.google.com/projects/*/repos/*/revisions/*/paths/*`
+    * To refer to a moveable alias (branch): `https://source.developers.google.com/projects/*/repos/*/moveable-aliases/*/paths/*`. To refer to HEAD, use the `master` moveable alias.
+    * To refer to a specific fixed alias (tag): `https://source.developers.google.com/projects/*/repos/*/fixed-aliases/*/paths/*`
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
+
+* `source_reposoitory.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 
