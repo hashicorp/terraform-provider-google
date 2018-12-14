@@ -1,31 +1,31 @@
-## 1.20.0 (Unreleased)
+## 1.20.0 (December 14, 2018)
 
 DEPRECATIONS:
-* **Deprecated `google_compute_snapshot`'s top-level encryption fields.** [GH-2572]
+* **Deprecated `google_compute_snapshot`'s top-level encryption fields.** ([#2572](https://github.com/terraform-providers/terraform-provider-google/issues/2572))
 
 FEATURES: 
-* **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
-* **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
-* **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. [GH-2290]
-* **New Resource**: `google_monitoring_notification_channel` [GH-2452]
-* **New Resource**: `google_cloud_router_nat` [GH-2576]
-* **New Resource**: `google_monitoring_group` [GH-2451]
-* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
-* **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. [GH-2482]
+* **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects ([#2256](https://github.com/terraform-providers/terraform-provider-google/issues/2256))
+* **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets ([#2358](https://github.com/terraform-providers/terraform-provider-google/issues/2358))
+* **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. ([#2290](https://github.com/terraform-providers/terraform-provider-google/issues/2290))
+* **New Resource**: `google_monitoring_notification_channel` ([#2452](https://github.com/terraform-providers/terraform-provider-google/issues/2452))
+* **New Resource**: `google_cloud_router_nat` ([#2576](https://github.com/terraform-providers/terraform-provider-google/issues/2576))
+* **New Resource**: `google_monitoring_group` ([#2451](https://github.com/terraform-providers/terraform-provider-google/issues/2451))
+* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. ([#2143](https://github.com/terraform-providers/terraform-provider-google/issues/2143))
+* **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. ([#2482](https://github.com/terraform-providers/terraform-provider-google/issues/2482))
 
 ENHANCEMENTS:
-* cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
-* cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
-* cloudfunctions: Add new-style Storage and Pub/Sub trigger support to `google_cloudfunctions_function` [GH-2412]
-* compute: `google_compute_health_check` supports for content-based load balancing (`response` field) in HTTP(S) checks. [GH-2550]
-* container: regional and private clusters are in GA now [GH-2364]
-* iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
-* sql: add support for private IP for SQL instances. [GH-2662]
+* cloudbuild: Added Update support for `google_cloudbuild_trigger`.  ([#2121](https://github.com/terraform-providers/terraform-provider-google/issues/2121))
+* cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` ([#2340](https://github.com/terraform-providers/terraform-provider-google/issues/2340))
+* cloudfunctions: Add new-style Storage and Pub/Sub trigger support to `google_cloudfunctions_function` ([#2412](https://github.com/terraform-providers/terraform-provider-google/issues/2412))
+* compute: `google_compute_health_check` supports for content-based load balancing (`response` field) in HTTP(S) checks. ([#2550](https://github.com/terraform-providers/terraform-provider-google/issues/2550))
+* container: regional and private clusters are in GA now ([#2364](https://github.com/terraform-providers/terraform-provider-google/issues/2364))
+* iam: `google_service_accounts` now supports multiple import formats. ([#2261](https://github.com/terraform-providers/terraform-provider-google/issues/2261))
+* sql: add support for private IP for SQL instances. ([#2662](https://github.com/terraform-providers/terraform-provider-google/issues/2662))
 
 BUG FIXES:
-* bigquery: added australia and europe regions to the validate function [GH-2333]
-* compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
-* pubsub: fix issue where not all attributes were saved in state [GH-2469]
+* bigquery: added australia and europe regions to the validate function ([#2333](https://github.com/terraform-providers/terraform-provider-google/issues/2333))
+* compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. ([#2450](https://github.com/terraform-providers/terraform-provider-google/issues/2450))
+* pubsub: fix issue where not all attributes were saved in state ([#2469](https://github.com/terraform-providers/terraform-provider-google/issues/2469))
 
 ## 1.19.1 (October 12, 2018)
 
