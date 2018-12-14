@@ -145,7 +145,7 @@ func resourceStorageBucketObject() *schema.Resource {
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
