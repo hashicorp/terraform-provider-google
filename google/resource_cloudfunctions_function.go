@@ -170,12 +170,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional: true,
 			},
 
-			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
 			"environment_variables": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -322,7 +316,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	function := &cloudfunctions.CloudFunction{
 		Name:            cloudFuncId.cloudFunctionId(),
-		Runtime:         d.Get("runtime").(string),
 		ForceSendFields: []string{},
 	}
 
@@ -433,7 +426,6 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("timeout", timeout)
 	d.Set("labels", function.Labels)
-	d.Set("runtime", function.Runtime)
 	d.Set("environment_variables", function.EnvironmentVariables)
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
@@ -527,11 +519,6 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "labels")
 	}
 
-	if d.HasChange("runtime") {
-		function.Runtime = d.Get("runtime").(string)
-		updateMaskArr = append(updateMaskArr, "runtime")
-	}
-
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "environment_variables")
@@ -607,11 +594,6 @@ func expandEventTrigger(configured []interface{}, project string) *cloudfunction
 	eventType := data["event_type"].(string)
 	shape := ""
 	switch {
-	case strings.HasPrefix(eventType, "google.storage.object."):
-		shape = "projects/%s/buckets/%s"
-	case strings.HasPrefix(eventType, "google.pubsub.topic."):
-		shape = "projects/%s/topics/%s"
-	// Legacy style triggers
 	case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
 		shape = "projects/%s/buckets/%s"
 	case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):

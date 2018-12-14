@@ -14,9 +14,6 @@ func resourceComputeProjectMetadata() *schema.Resource {
 		Read:   resourceComputeProjectMetadataRead,
 		Update: resourceComputeProjectMetadataUpdate,
 		Delete: resourceComputeProjectMetadataDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 
 		SchemaVersion: 0,
 
@@ -94,30 +91,24 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	if d.Id() == "" {
-		projectID, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		d.SetId(projectID)
+	projectID, err := getProject(d, config)
+	if err != nil {
+		return err
 	}
 
 	// Load project service
-	log.Printf("[DEBUG] Loading project service: %s", d.Id())
-	project, err := config.clientCompute.Projects.Get(d.Id()).Do()
+	log.Printf("[DEBUG] Loading project service: %s", projectID)
+	project, err := config.clientCompute.Projects.Get(projectID).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
 	}
 
 	md := flattenMetadata(project.CommonInstanceMetadata)
 	existingMetadata := d.Get("metadata").(map[string]interface{})
 	// Remove all keys not explicitly mentioned in the terraform config
-	// unless you're doing an import.
-	if len(existingMetadata) > 0 {
-		for k := range md {
-			if _, ok := existingMetadata[k]; !ok {
-				delete(md, k)
-			}
+	for k := range md {
+		if _, ok := existingMetadata[k]; !ok {
+			delete(md, k)
 		}
 	}
 
@@ -125,8 +116,9 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
-	d.Set("project", project.Name)
-	d.SetId(project.Name)
+	d.Set("project", projectID)
+	d.SetId("common_metadata")
+
 	return nil
 }
 

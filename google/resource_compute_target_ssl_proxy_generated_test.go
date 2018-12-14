@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeTargetSslProxy_targetSslProxyBasicExample(t *testing.T) {
@@ -73,26 +72,4 @@ resource "google_compute_health_check" "default" {
 }
 `, val, val, val, val,
 	)
-}
-
-func testAccCheckComputeTargetSslProxyDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_ssl_proxy" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetSslProxies/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeTargetSslProxy still exists at %s", url)
-		}
-	}
-
-	return nil
 }

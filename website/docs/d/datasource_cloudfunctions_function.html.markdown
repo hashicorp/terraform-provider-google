@@ -45,7 +45,6 @@ exported:
 * `description` - Description of the function.
 * `available_memory_mb` - Available memory (in MB) to the function.
 * `timeout` - Function execution timeout (in seconds).
-* `runtime` - The runtime in which the function is running.
 * `entry_point` - Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
 * `trigger_http` - If function is triggered by HTTP, this boolean is set.
 * `event_trigger` - A source that fires events in response to a condition in another service. Structure is documented below.

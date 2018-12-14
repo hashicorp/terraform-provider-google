@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccCloudIoTRegistry_basic(t *testing.T) {
+func TestAccCloudIoTRegistryCreate_basic(t *testing.T) {
 	t.Parallel()
 
 	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
@@ -26,16 +26,11 @@ func TestAccCloudIoTRegistry_basic(t *testing.T) {
 						"google_cloudiot_registry.foobar"),
 				),
 			},
-			{
-				ResourceName:      "google_cloudiot_registry.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
 
-func TestAccCloudIoTRegistry_extended(t *testing.T) {
+func TestAccCloudIoTRegistryCreate_extended(t *testing.T) {
 	t.Parallel()
 
 	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
@@ -52,16 +47,11 @@ func TestAccCloudIoTRegistry_extended(t *testing.T) {
 						"google_cloudiot_registry.foobar"),
 				),
 			},
-			{
-				ResourceName:      "google_cloudiot_registry.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
 
-func TestAccCloudIoTRegistry_update(t *testing.T) {
+func TestAccCloudIoTRegistryUpdate(t *testing.T) {
 	t.Parallel()
 
 	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
@@ -83,11 +73,6 @@ func TestAccCloudIoTRegistry_update(t *testing.T) {
 			},
 			resource.TestStep{
 				Config: testAccCloudIoTRegistry_basic(registryName),
-			},
-			{
-				ResourceName:      "google_cloudiot_registry.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
