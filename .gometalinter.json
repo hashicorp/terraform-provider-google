@@ -1,6 +1,7 @@
 {
   "Deadline": "10m",
   "Enable": [
+    "gofmt",
     "vet"
   ],
   "EnableGC": true,
