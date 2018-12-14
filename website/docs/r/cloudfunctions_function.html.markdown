@@ -76,8 +76,6 @@ Deprecated. Use `event_trigger` instead.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
-* `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
-
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
 * `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
@@ -85,11 +83,9 @@ Deprecated. Use `event_trigger.failure_policy.retry` instead.
 
 The `event_trigger` block supports:
 
-* `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
-See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a full reference.
-Only Cloud Storage and Cloud Pub/Sub triggers are supported at this time.
-Legacy Cloud Storage and Cloud Pub/Sub triggers are also supported, such as `"providers/cloud.storage/eventTypes/object.change"`
-and `"providers/cloud.pubsub/eventTypes/topic.publish"`.
+* `event_type` - (Required) The type of event to observe. For example: `"providers/cloud.storage/eventTypes/object.change"`
+    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+    for a full reference. Only Cloud Storage and Cloud Pub/Sub triggers are supported at this time.
 
 * `resource` - (Required) Required. The name of the resource from which to observe events, for example, `"myBucket"`   
 

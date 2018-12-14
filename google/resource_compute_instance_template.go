@@ -131,23 +131,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							ForceNew: true,
 							Computed: true,
 						},
-
-						"disk_encryption_key": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"kms_key_self_link": {
-										Type:             schema.TypeString,
-										Optional:         true,
-										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -216,18 +199,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						},
 
 						"address": &schema.Schema{
-							Type:       schema.TypeString,
-							Computed:   true, // Computed because it is set if network_ip is set.
-							Optional:   true,
-							ForceNew:   true,
-							Deprecated: "Please use network_ip",
+							Type:     schema.TypeString,
+							Computed: true, // Computed because it is set if network_ip is set.
+							Optional: true,
+							ForceNew: true,
 						},
 
 						"network_ip": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true, // Computed because it is set if address is set.
-							Optional: true,
-							ForceNew: true,
+							Type:       schema.TypeString,
+							Computed:   true, // Computed because it is set if address is set.
+							Optional:   true,
+							ForceNew:   true,
+							Deprecated: "Please use address",
 						},
 
 						"subnetwork": &schema.Schema{
@@ -517,13 +500,6 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 			disk.DeviceName = v.(string)
 		}
 
-		if _, ok := d.GetOk(prefix + ".disk_encryption_key"); ok {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{}
-			if v, ok := d.GetOk(prefix + ".disk_encryption_key.0.kms_key_self_link"); ok {
-				disk.DiskEncryptionKey.KmsKeyName = v.(string)
-			}
-		}
-
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
 		} else {
@@ -730,14 +706,6 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, def
 			diskMap["disk_name"] = disk.InitializeParams.DiskName
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
-
-		if disk.DiskEncryptionKey != nil {
-			encryption := make([]map[string]interface{}, 1)
-			encryption[0] = make(map[string]interface{})
-			encryption[0]["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
-			diskMap["disk_encryption_key"] = encryption
-		}
-
 		diskMap["auto_delete"] = disk.AutoDelete
 		diskMap["boot"] = disk.Boot
 		diskMap["device_name"] = disk.DeviceName

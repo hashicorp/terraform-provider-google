@@ -76,7 +76,6 @@ func resourceCloudIoTRegistry() *schema.Resource {
 			},
 			"mqtt_config": &schema.Schema{
 				Type:     schema.TypeMap,
-				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -91,7 +90,6 @@ func resourceCloudIoTRegistry() *schema.Resource {
 			},
 			"http_config": &schema.Schema{
 				Type:     schema.TypeMap,
-				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -235,11 +233,6 @@ func resourceCloudIoTRegistryCreate(d *schema.ResourceData, meta interface{}) er
 		d.SetId("")
 		return err
 	}
-
-	// If we infer project and region, they are never actually set so we set them here
-	d.Set("project", project)
-	d.Set("region", region)
-
 	return resourceCloudIoTRegistryRead(d, meta)
 }
 
@@ -324,9 +317,19 @@ func resourceCloudIoTRegistryRead(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		d.Set("state_notification_config", nil)
 	}
-
-	d.Set("mqtt_config", map[string]string{"mqtt_enabled_state": res.MqttConfig.MqttEnabledState})
-	d.Set("http_config", map[string]string{"http_enabled_state": res.HttpConfig.HttpEnabledState})
+	// If no config exist for mqtt or http config default values are omitted.
+	mqttState := res.MqttConfig.MqttEnabledState
+	_, hasMqttConfig := d.GetOk("mqtt_config")
+	if mqttState != mqttEnabled || hasMqttConfig {
+		d.Set("mqtt_config",
+			map[string]string{"mqtt_enabled_state": mqttState})
+	}
+	httpState := res.HttpConfig.HttpEnabledState
+	_, hasHttpConfig := d.GetOk("http_config")
+	if httpState != httpEnabled || hasHttpConfig {
+		d.Set("http_config",
+			map[string]string{"http_enabled_state": httpState})
+	}
 
 	credentials := make([]map[string]interface{}, len(res.Credentials))
 	for i, item := range res.Credentials {

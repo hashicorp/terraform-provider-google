@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -36,12 +35,6 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 				ForceNew: true,
 			},
 		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
 	}
 }
 
@@ -56,7 +49,7 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 	key := d.Get("key").(string)
 	val := d.Get("value").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, &val, int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = updateComputeCommonInstanceMetadata(config, projectID, key, &val)
 	if err != nil {
 		return err
 	}
@@ -108,7 +101,7 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 		_, n := d.GetChange("value")
 		new := n.(string)
 
-		err = updateComputeCommonInstanceMetadata(config, projectID, key, &new, int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		err = updateComputeCommonInstanceMetadata(config, projectID, key, &new)
 		if err != nil {
 			return err
 		}
@@ -126,7 +119,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 
 	key := d.Get("key").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, nil, int(d.Timeout(schema.TimeoutDelete).Minutes()))
+	err = updateComputeCommonInstanceMetadata(config, projectID, key, nil)
 	if err != nil {
 		return err
 	}
@@ -135,7 +128,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-func updateComputeCommonInstanceMetadata(config *Config, projectID string, key string, afterVal *string, timeout int) error {
+func updateComputeCommonInstanceMetadata(config *Config, projectID string, key string, afterVal *string) error {
 	updateMD := func() error {
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
 		project, err := config.clientCompute.Projects.Get(projectID).Do()
@@ -180,7 +173,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 
 		log.Printf("[DEBUG] SetCommonInstanceMetadata: %d (%s)", op.Id, op.SelfLink)
 
-		return computeOperationWaitTime(config.clientCompute, op, project.Name, "SetCommonInstanceMetadata", timeout)
+		return computeOperationWait(config.clientCompute, op, project.Name, "SetCommonInstanceMetadata")
 	}
 
 	return MetadataRetryWrapper(updateMD)

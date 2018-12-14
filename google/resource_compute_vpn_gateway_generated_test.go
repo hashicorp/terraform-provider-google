@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
@@ -105,26 +104,4 @@ resource "google_compute_route" "route1" {
 }
 `, val, val, val, val, val, val, val, val,
 	)
-}
-
-func testAccCheckComputeVpnGatewayDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_vpn_gateway" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeVpnGateway still exists at %s", url)
-		}
-	}
-
-	return nil
 }

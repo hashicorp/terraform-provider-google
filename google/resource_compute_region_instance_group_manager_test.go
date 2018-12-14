@@ -193,7 +193,7 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRegionInstanceGroupManagerBetaExists(
@@ -212,7 +212,7 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 						"google_compute_region_instance_group_manager.igm-rolling-update-policy", "rolling_update_policy.0.min_ready_sec", "20"),
 				),
 			},
-			{
+			resource.TestStep{
 				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy2(igm),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRegionInstanceGroupManagerBetaExists(
@@ -1056,7 +1056,6 @@ resource "google_compute_http_health_check" "zero" {
 }
 	`, template, target, igm, hck)
 }
-
 func testAccRegionInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {

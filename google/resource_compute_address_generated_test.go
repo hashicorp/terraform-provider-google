@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
@@ -147,26 +146,4 @@ resource "google_compute_instance" "instance_with_ip" {
 }
 `, val, val,
 	)
-}
-
-func testAccCheckComputeAddressDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_address" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/addresses/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeAddress still exists at %s", url)
-		}
-	}
-
-	return nil
 }

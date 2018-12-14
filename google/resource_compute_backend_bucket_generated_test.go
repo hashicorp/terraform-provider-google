@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
@@ -58,26 +57,4 @@ resource "google_storage_bucket" "image_bucket" {
 }
 `, val, val,
 	)
-}
-
-func testAccCheckComputeBackendBucketDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_bucket" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeBackendBucket still exists at %s", url)
-		}
-	}
-
-	return nil
 }
