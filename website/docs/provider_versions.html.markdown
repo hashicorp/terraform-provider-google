@@ -10,20 +10,48 @@ description: |-
 
 Starting with version `1.19.0`, there are two versions of the Google provider:
 
-* terraform-provider-google
-* terraform-provider-google-beta
+* `google`
+* `google-beta`
 
-All GA products and features are available in both versions of the provider.
+All GA (generally available) products and features are available in both
+versions of the provider.
 
-From version `2.0.0` onwards, beta features are only available in the beta version of the provider (`google-beta`).
-Beta GCP Features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
+From version `2.0.0` onwards, beta GCP features are only available in the `google-beta` provider.
+Beta GCP features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
 available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
-The beta provider sends all requests to the beta endpoint for GCP if one exists for that product, regardless of whether the request contains any beta features.
+The beta provider sends all requests to the beta endpoint for GCP if one exists
+for that product, regardless of whether the request contains any beta features.
 
-## Using multiple provider versions together
+-> Using `google-beta` over `google` is similar to using `gcloud beta` over `gcloud`.
+Features that are exclusively available in `google-beta` are GCP features that
+are not yet GA, and they will be made available in `google` after their GA launch.
+
+## Using the `google-beta` provider
+
+To use the `google-beta` provider, explicitly define a `google-beta` provider
+block, and state on the resource which provider you wish to use.
+
+```hcl
+provider "google-beta" {
+  credentials = "${file("account.json")}"
+  project     = "my-project-id"
+  region      = "us-central1"
+}
+
+resource "google_compute_instance" "beta-instance" {
+  provider = "google-beta"
+
+  # ...
+}
+```
+
+~> If the `provider` field is omitted, Terraform will implicitly use the `google`
+ provider by default even if you have only defined a `google-beta` provider block.
+
+## Using both provider versions together
 
 To have resources at different API versions, set up provider blocks for each version:
 
@@ -56,8 +84,6 @@ resource "google_compute_instance" "beta-instance" {
   # ...
 }
 ```
-
-If the `provider` field is omitted, Terraform will choose one of the versions available to it. To be in control of which version Terraform chooses, be sure to set the `provider` field.
 
 ## Converting resources between versions
 
