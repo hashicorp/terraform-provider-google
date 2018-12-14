@@ -122,7 +122,7 @@ resource "google_service_account" "test_account" {
 }
 
 resource "google_service_account_iam_binding" "foo" {
-  service_account_id = "${google_service_account.test_account.id}"
+  service_account_id = "${google_service_account.test_account.name}"
   role        = "roles/viewer"
   members     = ["serviceAccount:${google_service_account.test_account.email}"]
 }
@@ -137,7 +137,7 @@ resource "google_service_account" "test_account" {
 }
 
 resource "google_service_account_iam_member" "foo" {
-  service_account_id = "${google_service_account.test_account.id}"
+  service_account_id = "${google_service_account.test_account.name}"
   role   = "roles/editor"
   member = "serviceAccount:${google_service_account.test_account.email}"
 }
@@ -160,7 +160,7 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_service_account_iam_policy" "foo" {
-  service_account_id = "${google_service_account.test_account.id}"
+  service_account_id = "${google_service_account.test_account.name}"
   policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, account)
