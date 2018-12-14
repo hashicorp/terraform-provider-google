@@ -24,14 +24,14 @@ func TestAccComputeRegionAutoscaler_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(
 						"google_compute_region_autoscaler.foobar", &ascaler),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -53,14 +53,14 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(
 						"google_compute_region_autoscaler.foobar", &ascaler),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(

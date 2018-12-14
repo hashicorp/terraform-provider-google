@@ -17,7 +17,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceDnsManagedZone_basic(),
 				Check:  testAccDataSourceDnsManagedZoneCheck("data.google_dns_managed_zone.qa", "google_dns_managed_zone.foo"),
 			},

@@ -43,14 +43,14 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_dns_record_set.foobar",
 				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./A", zoneName, zoneName),
 				ImportState:       true,
@@ -69,21 +69,21 @@ func TestAccDnsRecordSet_modify(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 600),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
@@ -103,14 +103,14 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_bigChange(zoneName, 600),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
@@ -130,14 +130,14 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_ns(zoneName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
 						"google_dns_record_set.foobar", zoneName),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_dns_record_set.foobar",
 				ImportStateId:     fmt.Sprintf("%s/%s.hashicorptest.com./NS", zoneName, zoneName),
 				ImportState:       true,
@@ -156,7 +156,7 @@ func TestAccDnsRecordSet_nestedNS(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_nestedNS(zoneName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
@@ -176,7 +176,7 @@ func TestAccDnsRecordSet_quotedTXT(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_quotedTXT(zoneName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(
@@ -196,7 +196,7 @@ func TestAccDnsRecordSet_uppercaseMX(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDnsRecordSet_uppercaseMX(zoneName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDnsRecordSetExists(

@@ -11,75 +11,75 @@ func dataSourceGoogleComputeForwardingRule() *schema.Resource {
 		Read: dataSourceGoogleComputeForwardingRuleRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"target": &schema.Schema{
+			"target": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"backend_service": &schema.Schema{
+			"backend_service": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"ip_protocol": &schema.Schema{
+			"ip_protocol": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"load_balancing_scheme": &schema.Schema{
+			"load_balancing_scheme": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"port_range": &schema.Schema{
+			"port_range": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"ports": &schema.Schema{
+			"ports": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"subnetwork": &schema.Schema{
+			"subnetwork": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

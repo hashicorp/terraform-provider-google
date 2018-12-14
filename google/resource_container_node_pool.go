@@ -36,24 +36,24 @@ func resourceContainerNodePool() *schema.Resource {
 		Schema: mergeSchemas(
 			schemaNodePool,
 			map[string]*schema.Schema{
-				"project": &schema.Schema{
+				"project": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 					ForceNew: true,
 				},
-				"zone": &schema.Schema{
+				"zone": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 					ForceNew: true,
 				},
-				"cluster": &schema.Schema{
+				"cluster": {
 					Type:     schema.TypeString,
 					Required: true,
 					ForceNew: true,
 				},
-				"region": &schema.Schema{
+				"region": {
 					Type:     schema.TypeString,
 					Optional: true,
 					ForceNew: true,
@@ -63,19 +63,19 @@ func resourceContainerNodePool() *schema.Resource {
 }
 
 var schemaNodePool = map[string]*schema.Schema{
-	"autoscaling": &schema.Schema{
+	"autoscaling": {
 		Type:     schema.TypeList,
 		Optional: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"min_node_count": &schema.Schema{
+				"min_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
 				},
 
-				"max_node_count": &schema.Schema{
+				"max_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(1),
@@ -84,7 +84,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"max_pods_per_node": &schema.Schema{
+	"max_pods_per_node": {
 		Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 		Type:     schema.TypeInt,
 		Optional: true,
@@ -92,7 +92,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed: true,
 	},
 
-	"initial_node_count": &schema.Schema{
+	"initial_node_count": {
 		Type:     schema.TypeInt,
 		Optional: true,
 		ForceNew: true,
@@ -127,14 +127,14 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"name": &schema.Schema{
+	"name": {
 		Type:     schema.TypeString,
 		Optional: true,
 		Computed: true,
 		ForceNew: true,
 	},
 
-	"name_prefix": &schema.Schema{
+	"name_prefix": {
 		Type:     schema.TypeString,
 		Optional: true,
 		Computed: true,
@@ -518,7 +518,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 
 	if np.Autoscaling != nil && np.Autoscaling.Enabled {
 		nodePool["autoscaling"] = []map[string]interface{}{
-			map[string]interface{}{
+			{
 				"min_node_count": np.Autoscaling.MinNodeCount,
 				"max_node_count": np.Autoscaling.MaxNodeCount,
 			},

@@ -35,7 +35,7 @@ func TestAccStorageBucketAcl_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasic1(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic1),
@@ -56,7 +56,7 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasic1(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic1),
@@ -64,7 +64,7 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasic2(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
@@ -72,7 +72,7 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasicDelete(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAclDelete(bucketName, roleEntityBasic1),
@@ -94,7 +94,7 @@ func TestAccStorageBucketAcl_downgrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasic2(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
@@ -102,7 +102,7 @@ func TestAccStorageBucketAcl_downgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasic3(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(bucketName, roleEntityBasic2),
@@ -110,7 +110,7 @@ func TestAccStorageBucketAcl_downgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclBasicDelete(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAclDelete(bucketName, roleEntityBasic1),
@@ -131,7 +131,7 @@ func TestAccStorageBucketAcl_predefined(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclPredefined(bucketName),
 			},
 		},
@@ -149,7 +149,7 @@ func TestAccStorageBucketAcl_unordered(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsAclUnordered(bucketName),
 			},
 		},

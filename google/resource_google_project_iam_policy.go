@@ -22,31 +22,31 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
-			"etag": &schema.Schema{
+			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"authoritative": &schema.Schema{
+			"authoritative": {
 				Removed:  "The authoritative field was removed. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"restore_policy": &schema.Schema{
+			"restore_policy": {
 				Removed:  "This field was removed alongside the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"disable_project": &schema.Schema{
+			"disable_project": {
 				Removed:  "This field was removed alongside the authoritative field. Use lifecycle.prevent_destroy instead.",
 				Type:     schema.TypeBool,
 				Optional: true,

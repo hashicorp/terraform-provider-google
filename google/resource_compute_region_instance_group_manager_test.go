@@ -139,7 +139,7 @@ func TestAccRegionInstanceGroupManager_updateStrategy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRegionInstanceGroupManager_updateStrategy(igm),
 			},
 			{

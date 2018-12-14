@@ -23,10 +23,10 @@ func TestAccMonitoringAlertPolicy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, "ALIGN_RATE", filter),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -49,18 +49,18 @@ func TestAccMonitoringAlertPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, aligner1, filter1),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, aligner2, filter2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -80,10 +80,10 @@ func TestAccMonitoringAlertPolicy_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccMonitoringAlertPolicy_full(alertName, conditionName1, conditionName2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_monitoring_alert_policy.full",
 				ImportState:       true,
 				ImportStateVerify: true,

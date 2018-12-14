@@ -104,7 +104,7 @@ func resourceComputeRoute() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"next_hop_instance_zone": &schema.Schema{
+			"next_hop_instance_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

@@ -26,19 +26,19 @@ func resourceAppEngineApplication() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validateProjectID(),
 			},
-			"auth_domain": &schema.Schema{
+			"auth_domain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"location_id": &schema.Schema{
+			"location_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -56,7 +56,7 @@ func resourceAppEngineApplication() *schema.Resource {
 					"australia-southeast1",
 				}, false),
 			},
-			"serving_status": &schema.Schema{
+			"serving_status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -67,35 +67,35 @@ func resourceAppEngineApplication() *schema.Resource {
 				}, false),
 				Computed: true,
 			},
-			"feature_settings": &schema.Schema{
+			"feature_settings": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
 				Elem:     appEngineApplicationFeatureSettingsResource(),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"url_dispatch_rule": &schema.Schema{
+			"url_dispatch_rule": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     appEngineApplicationURLDispatchRuleResource(),
 			},
-			"code_bucket": &schema.Schema{
+			"code_bucket": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"default_hostname": &schema.Schema{
+			"default_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"default_bucket": &schema.Schema{
+			"default_bucket": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"gcr_domain": &schema.Schema{
+			"gcr_domain": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -106,15 +106,15 @@ func resourceAppEngineApplication() *schema.Resource {
 func appEngineApplicationURLDispatchRuleResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"domain": &schema.Schema{
+			"domain": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"service": &schema.Schema{
+			"service": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -125,7 +125,7 @@ func appEngineApplicationURLDispatchRuleResource() *schema.Resource {
 func appEngineApplicationFeatureSettingsResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"split_health_checks": &schema.Schema{
+			"split_health_checks": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},

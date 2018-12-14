@@ -23,7 +23,7 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSharedVpc_basic(hostProject, serviceProject, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSharedVpcHostProject(hostProject, true),
@@ -31,18 +31,18 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 				),
 			},
 			// Test import.
-			resource.TestStep{
+			{
 				ResourceName:      hostProjectResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      serviceProjectResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
-			resource.TestStep{
+			{
 				Config: testAccComputeSharedVpc_disabled(hostProject, serviceProject, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSharedVpcHostProject(hostProject, false),

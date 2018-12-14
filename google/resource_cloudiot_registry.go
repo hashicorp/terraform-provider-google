@@ -30,30 +30,30 @@ func resourceCloudIoTRegistry() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateCloudIoTID,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"event_notification_config": &schema.Schema{
+			"event_notification_config": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"pubsub_topic_name": &schema.Schema{
+						"pubsub_topic_name": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -61,12 +61,12 @@ func resourceCloudIoTRegistry() *schema.Resource {
 					},
 				},
 			},
-			"state_notification_config": &schema.Schema{
+			"state_notification_config": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"pubsub_topic_name": &schema.Schema{
+						"pubsub_topic_name": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -74,13 +74,13 @@ func resourceCloudIoTRegistry() *schema.Resource {
 					},
 				},
 			},
-			"mqtt_config": &schema.Schema{
+			"mqtt_config": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"mqtt_enabled_state": &schema.Schema{
+						"mqtt_enabled_state": {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice(
@@ -89,13 +89,13 @@ func resourceCloudIoTRegistry() *schema.Resource {
 					},
 				},
 			},
-			"http_config": &schema.Schema{
+			"http_config": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"http_enabled_state": &schema.Schema{
+						"http_enabled_state": {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice(
@@ -104,24 +104,24 @@ func resourceCloudIoTRegistry() *schema.Resource {
 					},
 				},
 			},
-			"credentials": &schema.Schema{
+			"credentials": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"public_key_certificate": &schema.Schema{
+						"public_key_certificate": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"format": &schema.Schema{
+									"format": {
 										Type:     schema.TypeString,
 										Required: true,
 										ValidateFunc: validation.StringInSlice(
 											[]string{x509CertificatePEM}, false),
 									},
-									"certificate": &schema.Schema{
+									"certificate": {
 										Type:     schema.TypeString,
 										Required: true,
 									},

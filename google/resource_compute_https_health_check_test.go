@@ -22,7 +22,7 @@ func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHttpsHealthCheck_basic(hhckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHttpsHealthCheckExists(
@@ -33,7 +33,7 @@ func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_https_health_check.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,7 +54,7 @@ func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHttpsHealthCheck_update1(hhckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHttpsHealthCheckExists(
@@ -65,7 +65,7 @@ func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 						2, 2, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHttpsHealthCheck_update2(hhckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHttpsHealthCheckExists(

@@ -20,7 +20,7 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountKey(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
@@ -44,7 +44,7 @@ func TestAccServiceAccountKey_fromEmail(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountKey_fromEmail(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),
@@ -67,7 +67,7 @@ func TestAccServiceAccountKey_pgp(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountKey_pgp(accountID, displayName, testKeyPairPubKey1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleServiceAccountKeyExists(resourceName),

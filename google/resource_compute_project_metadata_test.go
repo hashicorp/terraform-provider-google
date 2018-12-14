@@ -22,10 +22,10 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_project_metadata.fizzbuzz",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -47,19 +47,19 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeProject_modify0_metadata(projectID, pname, org, billingId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_project_metadata.fizzbuzz",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeProject_modify1_metadata(projectID, pname, org, billingId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_project_metadata.fizzbuzz",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -81,19 +81,19 @@ func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_project_metadata.fizzbuzz",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeProject_basic1_metadata(projectID, pname, org, billingId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_project_metadata.fizzbuzz",
 				ImportState:       true,
 				ImportStateVerify: true,

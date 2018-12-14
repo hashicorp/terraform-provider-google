@@ -176,7 +176,7 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccComputeInstanceGroup_destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceGroup_network(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(

@@ -25,7 +25,7 @@ func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetHttpsProxy_basic1(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
@@ -34,7 +34,7 @@ func TestAccComputeTargetHttpsProxy_basic(t *testing.T) {
 					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_https_proxy.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,7 +54,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetHttpsProxy_basic1(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
@@ -64,7 +64,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetHttpsProxy_basic2(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(

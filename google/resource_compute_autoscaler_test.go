@@ -26,7 +26,7 @@ func TestAccComputeAutoscaler_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeAutoscalerExists(
@@ -34,7 +34,7 @@ func TestAccComputeAutoscaler_basic(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -58,14 +58,14 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeAutoscalerExists(
 						"google_compute_autoscaler.foobar", &ascaler),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeAutoscalerExists(
@@ -91,11 +91,11 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAutoscaler_multicondition(it_name, tp_name, igm_name, autoscaler_name),
 				Check:  testAccCheckComputeAutoscalerMultifunction("google_compute_autoscaler.foobar"),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

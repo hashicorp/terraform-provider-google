@@ -18,10 +18,10 @@ func TestAccRedisInstance_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRedisInstance_basic(name),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -40,18 +40,18 @@ func TestAccRedisInstance_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRedisInstance_update(name),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccRedisInstance_update2(name),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -71,10 +71,10 @@ func TestAccRedisInstance_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRedisInstance_full(name, network),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
