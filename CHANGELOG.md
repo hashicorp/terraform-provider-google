@@ -20,6 +20,7 @@ ENHANCEMENTS:
 * compute: `google_compute_health_check` supports for content-based load balancing (`response` field) in HTTP(S) checks. [GH-2550]
 * container: regional and private clusters are in GA now [GH-2364]
 * iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
+* sql: add support for private IP for SQL instances. [GH-2662]
 
 BUG FIXES:
 * bigquery: added australia and europe regions to the validate function [GH-2333]
