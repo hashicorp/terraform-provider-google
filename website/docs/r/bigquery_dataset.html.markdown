@@ -60,7 +60,9 @@ The following arguments are supported:
     multi-regional location is a large geographic area, such as the United States,
     that contains at least two geographic places
 
-    Possible regional values include: `asia-northeast1`
+    Possible regional values include: `asia-northeast1`, `australia-southeast1`,
+     `asia-southeast1` and `europe-west2`
+
     Possible multi-regional values:`EU` and `US`.
 
     The default value is multi-regional location `US`.

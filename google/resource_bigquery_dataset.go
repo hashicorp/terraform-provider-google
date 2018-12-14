@@ -72,7 +72,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1", "europe-west2", "australia-southeast1"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1", "europe-west2", "australia-southeast1", "asia-southeast1"}, false),
 			},
 
 			// defaultPartitionExpirationMs: [Optional] The default partition
