@@ -225,6 +225,11 @@ func resourceComputeBackendService() *schema.Resource {
 				Computed: true,
 			},
 
+			"affinity_cookie_ttl_sec": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
 			"timeout_sec": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -310,6 +315,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("port_name", service.PortName)
 	d.Set("protocol", service.Protocol)
 	d.Set("session_affinity", service.SessionAffinity)
+	d.Set("affinity_cookie_ttl_sec", service.AffinityCookieTtlSec)
 	d.Set("timeout_sec", service.TimeoutSec)
 	d.Set("fingerprint", service.Fingerprint)
 	d.Set("self_link", ConvertSelfLinkToV1(service.SelfLink))
@@ -560,6 +566,10 @@ func expandBackendService(d *schema.ResourceData) (*computeBeta.BackendService, 
 
 	if v, ok := d.GetOk("session_affinity"); ok {
 		service.SessionAffinity = v.(string)
+	}
+
+	if v, ok := d.GetOk("affinity_cookie_ttl_sec"); ok {
+		service.AffinityCookieTtlSec = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk("timeout_sec"); ok {
