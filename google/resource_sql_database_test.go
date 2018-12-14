@@ -25,38 +25,38 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testGoogleSqlDatabase_basic, instanceName, dbName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlDatabaseExists(resourceName, &database),
 					testAccCheckGoogleSqlDatabaseEquals(resourceName, &database),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportStateId:     fmt.Sprintf("%s/%s", instanceName, dbName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportStateId:     fmt.Sprintf("instances/%s/databases/%s", instanceName, dbName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportStateId:     fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), instanceName, dbName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportStateId:     fmt.Sprintf("projects/%s/instances/%s/databases/%s", getTestProjectFromEnv(), instanceName, dbName),
 				ImportState:       true,
@@ -79,7 +79,7 @@ func TestAccSqlDatabase_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabase_basic, instance_name, database_name),
 				Check: resource.ComposeTestCheckFunc(
@@ -89,7 +89,7 @@ func TestAccSqlDatabase_update(t *testing.T) {
 						"google_sql_database.database", &database),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabase_latin1, instance_name, database_name),
 				Check: resource.ComposeTestCheckFunc(

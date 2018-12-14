@@ -16,10 +16,10 @@ func TestAccComputeAddress_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_basic(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -36,10 +36,10 @@ func TestAccComputeAddress_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_networkTier(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,22 +54,22 @@ func TestAccComputeAddress_internal(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_internal(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal_with_subnet",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
 				ImportState:       true,
 				ImportStateVerify: true,

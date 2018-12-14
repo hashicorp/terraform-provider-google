@@ -35,7 +35,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// This step creates a new project
-			resource.TestStep{
+			{
 				Config: testAccProject_createWithoutOrg(pid, pname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
@@ -57,7 +57,7 @@ func TestAccProject_create(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// This step creates a new project
-			resource.TestStep{
+			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
@@ -81,27 +81,27 @@ func TestAccProject_billing(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
-			resource.TestStep{
+			{
 				Config: testAccProject_createBilling(pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId),
 				),
 			},
 			// Make sure import supports billing account
-			resource.TestStep{
+			{
 				ResourceName:      "google_project.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			// Update to a different  billing account
-			resource.TestStep{
+			{
 				Config: testAccProject_createBilling(pid, pname, org, billingId2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, billingId2),
 				),
 			},
 			// Unlink the billing account
-			resource.TestStep{
+			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount("google_project.acceptance", pid, ""),

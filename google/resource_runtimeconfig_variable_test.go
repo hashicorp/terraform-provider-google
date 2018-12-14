@@ -34,7 +34,7 @@ func TestAccRuntimeconfigVariable_basic(t *testing.T) {
 					testAccCheckRuntimeconfigVariableUpdateTime("google_runtimeconfig_variable.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_runtimeconfig_variable.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -99,7 +99,7 @@ func TestAccRuntimeconfigVariable_basicValue(t *testing.T) {
 					testAccCheckRuntimeconfigVariableUpdateTime("google_runtimeconfig_variable.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_runtimeconfig_variable.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

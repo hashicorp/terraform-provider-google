@@ -177,7 +177,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Default:  false,
 									},
 
-									"metadata": &schema.Schema{
+									"metadata": {
 										Type:     schema.TypeMap,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},

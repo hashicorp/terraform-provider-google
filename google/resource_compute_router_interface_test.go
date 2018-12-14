@@ -18,17 +18,17 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterInterfaceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterInterfaceBasic(testId),
 				Check: testAccCheckComputeRouterInterfaceExists(
 					"google_compute_router_interface.foobar"),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router_interface.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterInterfaceKeepRouter(testId),
 				Check: testAccCheckComputeRouterInterfaceDelete(
 					"google_compute_router_interface.foobar"),

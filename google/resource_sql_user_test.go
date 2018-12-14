@@ -18,14 +18,14 @@ func TestAccSqlUser_mysql(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleSqlUser_mysql(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
 				),
 			},
-			resource.TestStep{
+			{
 				// Update password
 				Config: testGoogleSqlUser_mysql(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
@@ -33,7 +33,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_sql_user.user2",
 				ImportStateId:           instance + "/gmail.com/admin",
 				ImportState:             true,
@@ -53,20 +53,20 @@ func TestAccSqlUser_postgres(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlUserDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleSqlUser_postgres(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
 			},
-			resource.TestStep{
+			{
 				// Update password
 				Config: testGoogleSqlUser_postgres(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_sql_user.user",
 				ImportStateId:           instance + "/admin",
 				ImportState:             true,

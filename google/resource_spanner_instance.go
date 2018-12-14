@@ -26,13 +26,13 @@ func resourceSpannerInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			"config": &schema.Schema{
+			"config": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -60,7 +60,7 @@ func resourceSpannerInstance() *schema.Resource {
 				},
 			},
 
-			"display_name": &schema.Schema{
+			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -74,7 +74,7 @@ func resourceSpannerInstance() *schema.Resource {
 				},
 			},
 
-			"num_nodes": &schema.Schema{
+			"num_nodes": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1,

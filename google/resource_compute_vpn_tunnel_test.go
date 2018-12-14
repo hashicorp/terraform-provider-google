@@ -16,10 +16,10 @@ func TestAccComputeVpnTunnel_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeVpnTunnel_basic(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -44,10 +44,10 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeVpnTunnel_regionFromGateway(region),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -66,10 +66,10 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeVpnTunnelRouter(router),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -87,10 +87,10 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,

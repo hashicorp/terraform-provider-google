@@ -19,7 +19,7 @@ func TestAccEndpointsService_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccEndpointsService_basic(random_name),
 				Check:  testAccCheckEndpointExistsByName(random_name),
 			},
@@ -35,7 +35,7 @@ func TestAccEndpointsService_grpc(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccEndpointsService_grpc(random_name),
 				Check:  testAccCheckEndpointExistsByName(random_name),
 			},

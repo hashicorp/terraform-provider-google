@@ -31,64 +31,64 @@ func resourceGoogleProject() *schema.Resource {
 		MigrateState: resourceGoogleProjectMigrateState,
 
 		Schema: map[string]*schema.Schema{
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateProjectID(),
 			},
-			"skip_delete": &schema.Schema{
+			"skip_delete": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-			"auto_create_network": &schema.Schema{
+			"auto_create_network": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateProjectName(),
 			},
-			"org_id": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"folder_id": &schema.Schema{
+			"folder_id": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Computed:  true,
 				StateFunc: parseFolderId,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				Removed:  "Use the 'google_project_iam_policy' resource to define policies for a Google Project",
 			},
-			"policy_etag": &schema.Schema{
+			"policy_etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "Use the the 'google_project_iam_policy' resource to define policies for a Google Project",
 			},
-			"number": &schema.Schema{
+			"number": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"billing_account": &schema.Schema{
+			"billing_account": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"app_engine": &schema.Schema{
+			"app_engine": {
 				Type:     schema.TypeList,
 				Elem:     appEngineResource(),
 				Computed: true,
@@ -101,58 +101,58 @@ func resourceGoogleProject() *schema.Resource {
 func appEngineResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"auth_domain": &schema.Schema{
+			"auth_domain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"location_id": &schema.Schema{
+			"location_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"serving_status": &schema.Schema{
+			"serving_status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"feature_settings": &schema.Schema{
+			"feature_settings": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 				Elem:     appEngineFeatureSettingsResource(),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"url_dispatch_rule": &schema.Schema{
+			"url_dispatch_rule": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 				Elem:     appEngineURLDispatchRuleResource(),
 			},
-			"code_bucket": &schema.Schema{
+			"code_bucket": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"default_hostname": &schema.Schema{
+			"default_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"default_bucket": &schema.Schema{
+			"default_bucket": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"gcr_domain": &schema.Schema{
+			"gcr_domain": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
@@ -164,17 +164,17 @@ func appEngineResource() *schema.Resource {
 func appEngineURLDispatchRuleResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"domain": &schema.Schema{
+			"domain": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
 			},
-			"service": &schema.Schema{
+			"service": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
@@ -186,7 +186,7 @@ func appEngineURLDispatchRuleResource() *schema.Resource {
 func appEngineFeatureSettingsResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"split_health_checks": &schema.Schema{
+			"split_health_checks": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Removed:  "This field has been removed. Use the google_app_engine_application resource instead.",
