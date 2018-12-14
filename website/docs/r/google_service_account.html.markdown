@@ -26,8 +26,10 @@ resource "google_service_account" "object_viewer" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The service account ID.
-    Changing this forces a new service account to be created.
+* `account_id` - (Required) The account id that is used to generate the service
+    account email address and a stable unique id. It is unique within a project,
+    must be 6-30 characters long, and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])`
+    to comply with RFC1035. Changing this forces a new service account to be created.
 
 * `display_name` - (Optional) The display name for the service account.
     Can be updated without creating a new resource.
