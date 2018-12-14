@@ -199,7 +199,7 @@ type Schema struct {
 	Sensitive bool
 }
 
-// SchemaDiffSuppressFunc is a function which can be used to determine
+// SchemaDiffSuppresFunc is a function which can be used to determine
 // whether a detected diff on a schema element is "valid" or not, and
 // suppress it from the plan if necessary.
 //

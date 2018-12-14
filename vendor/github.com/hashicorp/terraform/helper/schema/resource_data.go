@@ -315,7 +315,6 @@ func (d *ResourceData) State() *terraform.InstanceState {
 
 	mapW := &MapFieldWriter{Schema: d.schema}
 	if err := mapW.WriteField(nil, rawMap); err != nil {
-		log.Printf("[ERR] Error writing fields: %s", err)
 		return nil
 	}
 
