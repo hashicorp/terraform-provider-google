@@ -36,7 +36,7 @@ func resourceComputeFirewallRuleHash(v interface{}) int {
 
 	// We need to make sure to sort the strings below so that we always
 	// generate the same hash code no matter what is in the set.
-	if v, ok := m["ports"]; ok {
+	if v, ok := m["ports"]; ok && v != nil {
 		s := convertStringArr(v.([]interface{}))
 		sort.Strings(s)
 
@@ -81,44 +81,16 @@ func resourceComputeFirewall() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"allow": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"protocol": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"ports": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          computeFirewallAllowSchema(),
 				Set:           resourceComputeFirewallRuleHash,
 				ConflictsWith: []string{"deny"},
 			},
 			"deny": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"protocol": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"ports": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Elem:          computeFirewallDenySchema(),
 				Set:           resourceComputeFirewallRuleHash,
 				ConflictsWith: []string{"allow"},
 			},
@@ -213,6 +185,42 @@ func resourceComputeFirewall() *schema.Resource {
 			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func computeFirewallAllowSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"protocol": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ports": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func computeFirewallDenySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"protocol": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ports": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 		},
 	}
@@ -595,14 +603,14 @@ func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData) interfac
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(resourceComputeFirewallRuleHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"protocol": flattenComputeFirewallAllowProtocol(original["IPProtocol"], d),
 			"ports":    flattenComputeFirewallAllowPorts(original["ports"], d),
 		})
@@ -626,14 +634,14 @@ func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData) interface
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(resourceComputeFirewallRuleHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"protocol": flattenComputeFirewallDenyProtocol(original["IPProtocol"], d),
 			"ports":    flattenComputeFirewallDenyPorts(original["ports"], d),
 		})
