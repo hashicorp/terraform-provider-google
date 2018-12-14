@@ -159,6 +159,7 @@ func resourceComputeSubnetwork() *schema.Resource {
 		},
 	}
 }
+
 func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	keys := diff.GetChangedKeysPrefix("secondary_ip_range")
 	if len(keys) == 0 {
