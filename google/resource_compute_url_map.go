@@ -60,26 +60,7 @@ func resourceComputeUrlMap() *schema.Resource {
 			"host_rule": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"hosts": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-							Set: schema.HashString,
-						},
-						"path_matcher": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
+				Elem:     computeUrlMapHostRuleSchema(),
 				// Default schema.HashSchema is used.
 			},
 			"path_matcher": {
@@ -170,6 +151,29 @@ func resourceComputeUrlMap() *schema.Resource {
 			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func computeUrlMapHostRuleSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"hosts": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
+			"path_matcher": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -471,14 +475,14 @@ func flattenComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData) interf
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeUrlMapHostRuleSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"description":  flattenComputeUrlMapHost_ruleDescription(original["description"], d),
 			"hosts":        flattenComputeUrlMapHost_ruleHosts(original["hosts"], d),
 			"path_matcher": flattenComputeUrlMapHost_rulePathMatcher(original["pathMatcher"], d),
