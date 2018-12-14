@@ -21,14 +21,14 @@ func TestAccComputeTargetTcpProxy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetTcpProxy_basic1(target, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetTcpProxyExists(
 						"google_compute_target_tcp_proxy.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_tcp_proxy.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -49,14 +49,14 @@ func TestAccComputeTargetTcpProxy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetTcpProxy_basic1(target, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetTcpProxyExists(
 						"google_compute_target_tcp_proxy.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetTcpProxy_basic2(target, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetTcpProxyExists(

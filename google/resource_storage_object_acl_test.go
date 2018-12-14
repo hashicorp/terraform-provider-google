@@ -35,7 +35,7 @@ func TestAccStorageObjectAcl_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -65,7 +65,7 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -75,7 +75,7 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic2(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -85,7 +85,7 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasicDelete(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAclDelete(bucketName,
@@ -117,7 +117,7 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic2(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -127,7 +127,7 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic3(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -137,7 +137,7 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasicDelete(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAclDelete(bucketName,
@@ -169,7 +169,7 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclPredefined(bucketName, objectName),
 			},
 		},
@@ -193,10 +193,10 @@ func TestAccStorageObjectAcl_predefinedToExplicit(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclPredefined(bucketName, objectName),
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -226,7 +226,7 @@ func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectAcl(bucketName,
@@ -235,7 +235,7 @@ func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
 						objectName, roleEntityBasic2),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectsAclPredefined(bucketName, objectName),
 			},
 		},
@@ -260,7 +260,7 @@ func TestAccStorageObjectAcl_unordered(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectAclDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageObjectAclUnordered(bucketName, objectName),
 			},
 		},

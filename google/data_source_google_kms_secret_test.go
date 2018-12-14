@@ -29,7 +29,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 				Check: func(s *terraform.State) error {
 					ciphertext, cryptoKeyId, err := testAccEncryptSecretDataWithCryptoKey(s, "google_kms_crypto_key.crypto_key", plaintext)
@@ -43,7 +43,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 						PreCheck:  func() { testAccPreCheck(t) },
 						Providers: testAccProviders,
 						Steps: []resource.TestStep{
-							resource.TestStep{
+							{
 								Config: testGoogleKmsSecret_datasource(cryptoKeyId.terraformId(), ciphertext),
 								Check:  resource.TestCheckResourceAttr("data.google_kms_secret.acceptance", "plaintext", plaintext),
 							},

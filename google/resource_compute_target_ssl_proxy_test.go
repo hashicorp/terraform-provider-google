@@ -21,14 +21,14 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_ssl_proxy.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -51,14 +51,14 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert1, backend1, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic2(target, sslPolicy, cert1, cert2, backend1, backend2, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(

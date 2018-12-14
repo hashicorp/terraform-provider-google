@@ -19,7 +19,7 @@ func TestAccDataSourceGoogleForwardingRule(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceGoogleForwardingRuleConfig(poolName, ruleName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleForwardingRuleCheck("data.google_compute_forwarding_rule.my_forwarding_rule", "google_compute_forwarding_rule.foobar-fr"),

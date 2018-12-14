@@ -19,37 +19,37 @@ func resourceComputeNetwork() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"auto_create_subnetworks": &schema.Schema{
+			"auto_create_subnetworks": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"routing_mode": &schema.Schema{
+			"routing_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"gateway_ipv4": &schema.Schema{
+			"gateway_ipv4": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"ipv4_range": &schema.Schema{
+			"ipv4_range": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -57,14 +57,14 @@ func resourceComputeNetwork() *schema.Resource {
 				Deprecated: "Please use google_compute_subnetwork resources instead.",
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

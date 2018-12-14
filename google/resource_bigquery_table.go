@@ -75,7 +75,7 @@ func resourceBigQueryTable() *schema.Resource {
 			// characters are allowed. Label values are optional. Label keys must
 			// start with a letter and each label in the list must have a different
 			// key.
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -94,7 +94,7 @@ func resourceBigQueryTable() *schema.Resource {
 			},
 
 			// View: [Optional] If specified, configures this table as a view.
-			"view": &schema.Schema{
+			"view": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
@@ -121,7 +121,7 @@ func resourceBigQueryTable() *schema.Resource {
 
 			// TimePartitioning: [Experimental] If specified, configures time-based
 			// partitioning for this table.
-			"time_partitioning": &schema.Schema{
+			"time_partitioning": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,

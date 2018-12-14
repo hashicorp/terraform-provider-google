@@ -19,18 +19,18 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_basic(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_update(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -50,10 +50,10 @@ func TestAccComputeForwardingRule_singlePort(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_singlePort(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -74,10 +74,10 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -100,15 +100,15 @@ func TestAccComputeForwardingRule_internalLoadBalancing(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_internalLoadBalancing(serviceName, checkName, networkName, ruleName1, ruleName2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar2",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -128,11 +128,11 @@ func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_networkTier(poolName, ruleName),
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

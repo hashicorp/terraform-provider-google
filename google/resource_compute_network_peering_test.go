@@ -20,7 +20,7 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccComputeNetworkPeeringDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetworkPeering_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.foo", &peering),

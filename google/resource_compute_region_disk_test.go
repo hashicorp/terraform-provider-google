@@ -23,26 +23,26 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_basic(diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -63,19 +63,19 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_basicUpdated(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
@@ -86,7 +86,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 					testAccCheckComputeRegionDiskHasLabelFingerprint(&disk, "google_compute_region_disk.regiondisk"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -106,7 +106,7 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
@@ -133,7 +133,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
@@ -144,7 +144,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
@@ -154,7 +154,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 				),
 			},
 			// Change the disk name to destroy it, which detaches it from the instance
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
@@ -162,7 +162,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 				),
 			},
 			// Add the extra step like before
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(

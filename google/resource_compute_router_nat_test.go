@@ -18,15 +18,15 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterNatDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterNatBasic(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router_nat.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterNatKeepRouter(testId),
 				Check: testAccCheckComputeRouterNatDelete(
 					"google_compute_router_nat.foobar"),
@@ -44,10 +44,10 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterNatDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterNatWithManualIpAndSubnetConfiguration(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router_nat.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

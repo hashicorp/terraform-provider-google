@@ -20,14 +20,14 @@ func TestAccComputeUrlMap_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						"google_compute_url_map.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_url_map.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -48,7 +48,7 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
@@ -56,7 +56,7 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_basic2(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
@@ -75,7 +75,7 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_advanced1(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
@@ -83,7 +83,7 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 				),
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_advanced2(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
@@ -105,14 +105,14 @@ func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_noPathRules(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						"google_compute_url_map.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(

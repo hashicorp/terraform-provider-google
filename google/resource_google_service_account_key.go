@@ -17,13 +17,13 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 		Delete: resourceGoogleServiceAccountKeyDelete,
 		Schema: map[string]*schema.Schema{
 			// Required
-			"service_account_id": &schema.Schema{
+			"service_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			// Optional
-			"key_algorithm": &schema.Schema{
+			"key_algorithm": {
 				Type:         schema.TypeString,
 				Default:      "KEY_ALG_RSA_2048",
 				Optional:     true,
@@ -35,14 +35,14 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"private_key_type": &schema.Schema{
+			"private_key_type": {
 				Type:         schema.TypeString,
 				Default:      "TYPE_GOOGLE_CREDENTIALS_FILE",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "TYPE_PKCS12_FILE", "TYPE_GOOGLE_CREDENTIALS_FILE"}, false),
 			},
-			"public_key_type": &schema.Schema{
+			"public_key_type": {
 				Type:         schema.TypeString,
 				Default:      "TYPE_X509_PEM_FILE",
 				Optional:     true,
@@ -50,7 +50,7 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_NONE", "TYPE_X509_PEM_FILE", "TYPE_RAW_PUBLIC_KEY"}, false),
 			},
 			// Computed
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -60,16 +60,16 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"private_key": &schema.Schema{
+			"private_key": {
 				Type:      schema.TypeString,
 				Computed:  true,
 				Sensitive: true,
 			},
-			"valid_after": &schema.Schema{
+			"valid_after": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"valid_before": &schema.Schema{
+			"valid_before": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

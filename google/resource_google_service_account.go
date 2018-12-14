@@ -18,35 +18,35 @@ func resourceGoogleServiceAccount() *schema.Resource {
 			State: resourceGoogleServiceAccountImport,
 		},
 		Schema: map[string]*schema.Schema{
-			"email": &schema.Schema{
+			"email": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"unique_id": &schema.Schema{
+			"unique_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"account_id": &schema.Schema{
+			"account_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(6, 30),
 			},
-			"display_name": &schema.Schema{
+			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
@@ -150,7 +150,7 @@ func saRolesToMembersBinding(m map[string]map[string]bool) []*iam.Binding {
 			Role:    role,
 			Members: make([]string, 0),
 		}
-		for m, _ := range members {
+		for m := range members {
 			b.Members = append(b.Members, m)
 		}
 		bindings = append(bindings, &b)
@@ -186,7 +186,7 @@ func saMergeBindings(bindings []*iam.Binding) []*iam.Binding {
 		var b iam.Binding
 		b.Role = role
 		b.Members = make([]string, 0)
-		for m, _ := range members {
+		for m := range members {
 			b.Members = append(b.Members, m)
 		}
 		rb = append(rb, &b)

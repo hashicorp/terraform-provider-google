@@ -30,7 +30,7 @@ func TestAccRuntimeconfigConfig_basic(t *testing.T) {
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, description),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_runtimeconfig_config.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
