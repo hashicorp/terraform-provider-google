@@ -69,3 +69,5 @@ exported:
 * `crc32c` - (Computed) Base 64 CRC32 hash of the uploaded data.
 
 * `md5hash` - (Computed) Base 64 MD5 hash of the uploaded data.
+
+* `self_link` - (Computed) A url reference to this object.

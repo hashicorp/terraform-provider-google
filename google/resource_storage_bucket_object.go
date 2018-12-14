@@ -11,9 +11,10 @@ import (
 
 	"crypto/md5"
 	"encoding/base64"
+	"io/ioutil"
+
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
-	"io/ioutil"
 )
 
 func resourceStorageBucketObject() *schema.Resource {
@@ -143,6 +144,11 @@ func resourceStorageBucketObject() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -234,6 +240,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("content_language", res.ContentLanguage)
 	d.Set("content_type", res.ContentType)
 	d.Set("storage_class", res.StorageClass)
+	d.Set("self_link", res.SelfLink)
 
 	d.SetId(objectGetId(res))
 
