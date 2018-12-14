@@ -55,7 +55,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(res.Name)
 
-	return resourcePubsubTopicRead(d, meta)
+	return nil
 }
 
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {

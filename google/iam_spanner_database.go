@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/spanner/v1"
+	spanner "google.golang.org/api/spanner/v1"
 )
 
 var IamSpannerDatabaseSchema = map[string]*schema.Schema{
@@ -51,8 +51,17 @@ func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (Resou
 }
 
 func SpannerDatabaseIdParseFunc(d *schema.ResourceData, config *Config) error {
-	_, err := resourceSpannerDatabaseImport("database")(d, config)
-	return err
+	id, err := extractSpannerDatabaseId(d.Id())
+	if err != nil {
+		return err
+	}
+	d.Set("instance", id.Instance)
+	d.Set("project", id.Project)
+	d.Set("database", id.Database)
+
+	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
+	d.SetId(id.terraformId())
+	return nil
 }
 
 func (u *SpannerDatabaseIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {

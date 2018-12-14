@@ -19,9 +19,9 @@ func TestAccProjectServices_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
-	services1 := []string{"logging.googleapis.com", "cloudresourcemanager.googleapis.com"}
+	services1 := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services2 := []string{"cloudresourcemanager.googleapis.com"}
-	oobService := "logging.googleapis.com"
+	oobService := "iam.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -70,7 +70,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{"cloudresourcemanager.googleapis.com"}
-	oobService := "logging.googleapis.com"
+	oobService := "iam.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -106,8 +106,8 @@ func TestAccProjectServices_authoritative2(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
-	oobServices := []string{"logging.googleapis.com", "cloudresourcemanager.googleapis.com"}
-	services := []string{"logging.googleapis.com"}
+	oobServices := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
+	services := []string{"iam.googleapis.com"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -217,7 +217,6 @@ func TestAccProjectServices_pagination(t *testing.T) {
 		"firestore.googleapis.com",
 		"genomics.googleapis.com",
 		"iam.googleapis.com",
-		"iamcredentials.googleapis.com",
 		"language.googleapis.com",
 		"logging.googleapis.com",
 		"ml.googleapis.com",

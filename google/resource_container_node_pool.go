@@ -54,9 +54,10 @@ func resourceContainerNodePool() *schema.Resource {
 					ForceNew: true,
 				},
 				"region": &schema.Schema{
-					Type:     schema.TypeString,
-					Optional: true,
-					ForceNew: true,
+					Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+					Type:       schema.TypeString,
+					Optional:   true,
+					ForceNew:   true,
 				},
 			}),
 	}

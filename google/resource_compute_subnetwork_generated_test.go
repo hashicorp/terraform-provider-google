@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
@@ -62,26 +61,4 @@ resource "google_compute_network" "custom-test" {
 }
 `, val, val,
 	)
-}
-
-func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_subnetwork" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeSubnetwork still exists at %s", url)
-		}
-	}
-
-	return nil
 }

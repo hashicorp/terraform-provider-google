@@ -1,31 +1,4 @@
-## 1.20.0 (Unreleased)
-
-DEPRECATIONS:
-* **Deprecated `google_compute_snapshot`'s top-level encryption fields.** [GH-2572]
-
-FEATURES: 
-* **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
-* **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
-* **New Resource**: `google_sql_ssl_cert` for Google Cloud SQL client SSL certificates. [GH-2290]
-* **New Resource**: `google_monitoring_notification_channel` [GH-2452]
-* **New Resource**: `google_cloud_router_nat` [GH-2576]
-* **New Resource**: `google_monitoring_group` [GH-2451]
-* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
-* **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. [GH-2482]
-
-ENHANCEMENTS:
-* cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
-* cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
-* cloudfunctions: Add new-style Storage and Pub/Sub trigger support to `google_cloudfunctions_function` [GH-2412]
-* compute: `google_compute_health_check` supports for content-based load balancing (`response` field) in HTTP(S) checks. [GH-2550]
-* container: regional and private clusters are in GA now [GH-2364]
-* iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
-
-BUG FIXES:
-* bigquery: added australia and europe regions to the validate function [GH-2333]
-* compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
-* pubsub: fix issue where not all attributes were saved in state [GH-2469]
-
+## 1.19.2 (Unreleased)
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:

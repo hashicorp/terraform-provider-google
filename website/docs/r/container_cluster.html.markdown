@@ -94,11 +94,6 @@ output "cluster_ca_certificate" {
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
 
-* `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-    Configuration for cluster autoscaling (also called autoprovisioning), as described in
-    [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning).
-    Structure is documented below.
-
 * `description` - (Optional) Description of the cluster.
 
 * `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
@@ -175,10 +170,6 @@ output "cluster_ca_certificate" {
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
-    **Warning:** node pools defined inside a cluster can't be changed (or added/removed) after
-    cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability
-    to say "these are the _only_ node pools associated with this cluster", use the
-    [google_container_node_pool](container_node_pool.html) resource instead of this property.
 
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
@@ -244,21 +235,6 @@ addons_config {
   }
 }
 ```
-
-The `cluster_autoscaling` block supports:
-* `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
-    enabled.  To set this to true, make sure your config meets the rest of the
-    requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
-* `resource_limits` - (Optional) A list of limits on the autoprovisioning.
-    See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
-    for an explanation of what options are available.  If enabling autoprovisioning, make
-    sure to set at least `cpu` and `memory`.  Structure is documented below.
-
-The `resource_limits` block supports:
-* `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
-    for a list of permitted types - `cpu`, `memory`, and others.
-* `minimum` - (Optional) The minimum value for the resource type specified.
-* `maximum` - (Optional) The maximum value for the resource type specified.
 
 The `maintenance_policy` block supports:
 

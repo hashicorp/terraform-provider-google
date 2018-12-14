@@ -18,7 +18,6 @@ func TestAccServiceAccount_basic(t *testing.T) {
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
 	project := getTestProjectFromEnv()
-	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -33,19 +32,6 @@ func TestAccServiceAccount_basic(t *testing.T) {
 			},
 			resource.TestStep{
 				ResourceName:      "google_service_account.acceptance",
-				ImportStateId:     fmt.Sprintf("projects/%s/serviceAccounts/%s", project, expectedEmail),
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			resource.TestStep{
-				ResourceName:      "google_service_account.acceptance",
-				ImportStateId:     fmt.Sprintf("%s/%s", project, expectedEmail),
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			resource.TestStep{
-				ResourceName:      "google_service_account.acceptance",
-				ImportStateId:     expectedEmail,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
