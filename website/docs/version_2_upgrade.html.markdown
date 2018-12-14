@@ -32,8 +32,10 @@ Upgrade topics:
 - [Resource: `google_compute_instance`](#resource-google_compute_instance)
 - [Resource: `google_compute_instance_from_template`](#resource-google_compute_instance_from_template)
 - [Resource: `google_compute_instance_group_manager`](#resource-google_compute_instance_group_manager)
+- [Resource: `google_compute_instance_template`](#resource-google_compute_instance_template)
 - [Resource: `google_compute_project_metadata`](#resource-google_compute_project_metadata)
 - [Resource: `google_compute_region_instance_group_manager`](#resource-google_compute_region_instance_group_manager)
+- [Resource: `google_compute_snapshot`](#resource-google_compute_snapshot)
 - [Resource: `google_compute_subnetwork_iam_*`](#resource-google_compute_subnetwork_iam_*)
 - [Resource: `google_compute_target_pool`](#resource-google_compute_target_pool)
 - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
@@ -45,6 +47,7 @@ Upgrade topics:
 - [Resource: `google_filestore_instance`](#resource-google_filestore_instance)
 - [Resource: `google_organization_custom_role`](#resource-google_organization_custom_role)
 - [Resource: `google_project`](#resource-google_project)
+- [Resource: `google_project_custom_role`](#resource-google_project_custom_role)
 - [Resource: `google_project_iam_policy`](#resource-google_project_iam_policy)
 - [Resource: `google_service_account`](#resource-google_service_account)
 - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
@@ -309,12 +312,22 @@ Use `network_interface.*.network_ip` instead.
 Terraform will remove values not explicitly set in this field. Any `metadata` values
 that were added outside of Terraform should be added to the config.
 
+### `network_interface.*.address` has been removed
+
+Use `network_interface.*.network_ip` instead.
+
 ## Resource: `google_compute_instance_group_manager`
 
 ### `version`, `auto_healing_policies`, `rolling_update_policy` have been removed from the GA provider
 
 Use the [`google-beta` provider](#google-beta-provider) to use these fields.
 `rolling_update_policy` has been renamed to `update_policy` in `google-beta`.
+
+## Resource: `google_compute_instance_template`
+
+### `network_interface.*.address` has been removed
+
+Use `network_interface.*.network_ip` instead.
 
 ## Resource: `google_compute_project_metadata`
 
@@ -330,10 +343,70 @@ that were added outside of Terraform should be added to the config.
 Use the [`google-beta` provider](#google-beta-provider) to use these fields.
 `rolling_update_policy` has been renamed to `update_policy` in `google-beta`.
 
-### `update_strategy` no longer has any effect and is deprecated
+### `update_strategy` no longer has any effect and is removed
 
 With `rolling_update_policy` removed, `update_strategy` has no effect anymore.
-Remove it from your config at your convenience.
+Before updating, remove it from your config.
+
+## Resource: `google_compute_snapshot`
+
+### `snapshot_encryption_key_raw` and `snapshot_encryption_key_sha256` have been removed.
+
+Use the `snapshot_encryption_key` block instead:
+
+```hcl
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "my_disk" {
+	name = "my-disk"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "my_snapshot" {
+	name = "my-snapshot"
+	source_disk = "${google_compute_disk.my_disk.name}"
+	zone = "us-central1-a"
+	snapshot_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+```
+
+### `source_disk_encryption_key_raw` and `source_disk_encryption_key_sha256` have been removed.
+
+Use the `source_disk_encryption_key` block instead:
+
+```hcl
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+resource "google_compute_disk" "my_disk" {
+	name = "my-disk"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+	disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+resource "google_compute_snapshot" "my_snapshot" {
+	name = "my-snapshot"
+	source_disk = "${google_compute_disk.my_disk.name}"
+	zone = "us-central1-a"
+	source_disk_encryption_key {
+		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+	}
+}
+
+```
 
 ## Resource: `google_compute_subnetwork_iam_*`
 
@@ -499,6 +572,13 @@ To avoid errors trying to recreate the resource, import it into your state first
 ```
 terraform import google_app_engine_application.app your-project-id
 ```
+
+
+## Resource: `google_project_custom_role`
+
+### `deleted` field is now an output-only attribute
+
+Use `terraform destroy`, or remove the resource from your config instead.
 
 ## Resource: `google_project_iam_policy`
 
