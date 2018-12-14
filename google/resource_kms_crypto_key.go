@@ -23,23 +23,23 @@ func resourceKmsCryptoKey() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"key_ring": &schema.Schema{
+			"key_ring": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: kmsCryptoKeyRingsEquivalent,
 			},
-			"rotation_period": &schema.Schema{
+			"rotation_period": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
 			},
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

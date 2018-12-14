@@ -22,19 +22,19 @@ func resourceDnsRecordSet() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"managed_zone": &schema.Schema{
+			"managed_zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"rrdatas": &schema.Schema{
+			"rrdatas": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
@@ -51,17 +51,17 @@ func resourceDnsRecordSet() *schema.Resource {
 				},
 			},
 
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -86,7 +86,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	// Build the change
 	chg := &dns.Change{
 		Additions: []*dns.ResourceRecordSet{
-			&dns.ResourceRecordSet{
+			{
 				Name:    name,
 				Type:    rType,
 				Ttl:     int64(d.Get("ttl").(int)),
@@ -214,7 +214,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	// Build the change
 	chg := &dns.Change{
 		Deletions: []*dns.ResourceRecordSet{
-			&dns.ResourceRecordSet{
+			{
 				Name:    d.Get("name").(string),
 				Type:    d.Get("type").(string),
 				Ttl:     int64(d.Get("ttl").(int)),
@@ -263,7 +263,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	chg := &dns.Change{
 		Deletions: []*dns.ResourceRecordSet{
-			&dns.ResourceRecordSet{
+			{
 				Name:    recordName,
 				Type:    oldType.(string),
 				Ttl:     int64(oldTtl.(int)),
@@ -271,7 +271,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 			},
 		},
 		Additions: []*dns.ResourceRecordSet{
-			&dns.ResourceRecordSet{
+			{
 				Name:    recordName,
 				Type:    newType.(string),
 				Ttl:     int64(newTtl.(int)),

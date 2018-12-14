@@ -18,7 +18,7 @@ func TestAccSqlClientCert_mysql(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlClientCertDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleSqlClientCert_mysql(instance),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlClientCertExists("google_sql_ssl_cert.cert1"),
@@ -38,7 +38,7 @@ func TestAccSqlClientCert_postgres(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlClientCertDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleSqlClientCert_postgres(instance),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlClientCertExists("google_sql_ssl_cert.cert"),

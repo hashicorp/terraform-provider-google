@@ -36,46 +36,46 @@ func dataSourceGoogleSignedUrl() *schema.Resource {
 		Read: dataSourceGoogleSignedUrlRead,
 
 		Schema: map[string]*schema.Schema{
-			"bucket": &schema.Schema{
+			"bucket": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"content_md5": &schema.Schema{
+			"content_md5": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
-			"content_type": &schema.Schema{
+			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
-			"credentials": &schema.Schema{
+			"credentials": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"duration": &schema.Schema{
+			"duration": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "1h",
 			},
-			"extension_headers": &schema.Schema{
+			"extension_headers": {
 				Type:         schema.TypeMap,
 				Optional:     true,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 				ValidateFunc: validateExtensionHeaders,
 			},
-			"http_method": &schema.Schema{
+			"http_method": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "GET",
 				ValidateFunc: validation.StringInSlice([]string{"GET", "HEAD", "PUT", "DELETE"}, true),
 			},
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"signed_url": &schema.Schema{
+			"signed_url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -85,7 +85,7 @@ func dataSourceGoogleSignedUrl() *schema.Resource {
 
 func validateExtensionHeaders(v interface{}, k string) (ws []string, errors []error) {
 	hdrMap := v.(map[string]interface{})
-	for k, _ := range hdrMap {
+	for k := range hdrMap {
 		if !strings.HasPrefix(strings.ToLower(k), "x-goog-") {
 			errors = append(errors, fmt.Errorf(
 				"extension_header (%s) not valid, header name must begin with 'x-goog-'", k))

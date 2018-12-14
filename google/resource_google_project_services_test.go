@@ -27,21 +27,21 @@ func TestAccProjectServices_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project with some services
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociateServicesBasic(services1, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services1, pid),
 				),
 			},
 			// Update services to remove one
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociateServicesBasic(services2, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services2, pid),
 				),
 			},
 			// Add a service out-of-band and ensure it is removed
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
 					enableService(oobService, pid, config)
@@ -51,7 +51,7 @@ func TestAccProjectServices_basic(t *testing.T) {
 					testProjectServicesMatch(services2, pid),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_project_services.acceptance",
 				ImportState:             true,
 				ImportStateId:           pid,
@@ -76,7 +76,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project with no services
-			resource.TestStep{
+			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
@@ -84,7 +84,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 			},
 			// Add a service out-of-band, then apply a config that creates a service.
 			// It should remove the out-of-band service.
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
 					enableService(oobService, pid, config)
@@ -114,7 +114,7 @@ func TestAccProjectServices_authoritative2(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project with no services
-			resource.TestStep{
+			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
@@ -122,7 +122,7 @@ func TestAccProjectServices_authoritative2(t *testing.T) {
 			},
 			// Add a service out-of-band, then apply a config that creates a service.
 			// It should remove the out-of-band service.
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
 					for _, s := range oobServices {
@@ -168,7 +168,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
@@ -249,7 +249,7 @@ func TestAccProjectServices_pagination(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),

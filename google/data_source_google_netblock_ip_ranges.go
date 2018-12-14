@@ -93,7 +93,7 @@ func getCidrBlocks() (map[string][]string, error) {
 		dnsNetblock := dnsNetblockList[0]
 
 		dnsNetblockList[0] = ""
-		dnsNetblockList = dnsNetblockList[1:len(dnsNetblockList)]
+		dnsNetblockList = dnsNetblockList[1:]
 
 		response, err = netblock_request(dnsNetblock)
 

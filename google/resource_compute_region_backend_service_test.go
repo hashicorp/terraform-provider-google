@@ -23,14 +23,14 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_basic(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionBackendServiceExists(
 						"google_compute_region_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_basicModified(
 					serviceName, checkName, extraCheckName),
 				Check: resource.ComposeTestCheckFunc(
@@ -55,7 +55,7 @@ func TestAccComputeRegionBackendService_withBackend(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -90,7 +90,7 @@ func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -98,7 +98,7 @@ func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
 						"google_compute_region_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withBackend(
 					serviceName, igName, itName, checkName, 20),
 				Check: resource.ComposeTestCheckFunc(
@@ -132,7 +132,7 @@ func TestAccComputeRegionBackendService_withConnectionDraining(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionBackendServiceExists(
@@ -159,14 +159,14 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionBackendServiceExists(
 						"google_compute_region_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_basic(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionBackendServiceExists(
@@ -193,7 +193,7 @@ func TestAccComputeRegionBackendService_withSessionAffinity(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionBackendService_withSessionAffinity(
 					serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(

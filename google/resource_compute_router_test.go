@@ -18,10 +18,10 @@ func TestAccComputeRouter_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, resourceRegion),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -40,10 +40,10 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterNoRegion(testId, providerRegion),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -61,10 +61,10 @@ func TestAccComputeRouter_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterFull(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -83,26 +83,26 @@ func TestAccComputeRouter_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, region),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterFull(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, region),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

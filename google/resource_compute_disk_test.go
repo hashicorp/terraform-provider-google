@@ -216,7 +216,7 @@ func TestAccComputeDisk_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_basic(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -225,7 +225,7 @@ func TestAccComputeDisk_basic(t *testing.T) {
 					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_disk.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -242,7 +242,7 @@ func TestAccComputeDisk_timeout(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccComputeDisk_timeout(diskName),
 				ExpectError: regexp.MustCompile("timeout"),
 			},
@@ -300,14 +300,14 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"google_compute_disk.seconddisk", getTestProjectFromEnv(), &disk),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -329,7 +329,7 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -354,7 +354,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -365,7 +365,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -391,7 +391,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -402,7 +402,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -412,7 +412,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 				),
 			},
 			// Change the disk name to recreate the instances
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -420,7 +420,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 				),
 			},
 			// Add the extra step like before
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(

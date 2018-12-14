@@ -22,28 +22,28 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleCloudBuildTriggerVersionsDestroyed,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleCloudBuildTrigger_basic(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerExists("google_cloudbuild_trigger.build_trigger"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        "google_cloudbuild_trigger.build_trigger",
 				ImportState:         true,
 				ImportStateVerify:   true,
 				ImportStateIdPrefix: fmt.Sprintf("%s/", projectID),
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleCloudBuildTrigger_updated(projectID, projectOrg, projectBillingAccount),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        "google_cloudbuild_trigger.build_trigger",
 				ImportState:         true,
 				ImportStateVerify:   true,
 				ImportStateIdPrefix: fmt.Sprintf("%s/", projectID),
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.build_trigger"),
@@ -65,13 +65,13 @@ func TestAccCloudBuildTrigger_filename(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleCloudBuildTriggerVersionsDestroyed,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleCloudBuildTrigger_filename(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudFilenameConfig("google_cloudbuild_trigger.filename_build_trigger"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleCloudBuildTriggerWasRemovedFromState("google_cloudbuild_trigger.filename_build_trigger"),

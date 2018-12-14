@@ -19,33 +19,33 @@ func dataSourceGoogleComputeAddress() *schema.Resource {
 		Read: dataSourceGoogleComputeAddressRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"address": &schema.Schema{
+			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,

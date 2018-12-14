@@ -20,7 +20,7 @@ func TestAccComputeImage_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -46,7 +46,7 @@ func TestAccComputeImage_withLicense(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -75,7 +75,7 @@ func TestAccComputeImage_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -85,7 +85,7 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -96,7 +96,7 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -116,7 +116,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basedondisk(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -124,7 +124,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 					testAccCheckComputeImageHasSourceDisk(&image),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_image.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

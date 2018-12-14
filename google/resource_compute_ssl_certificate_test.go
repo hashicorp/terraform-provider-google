@@ -17,14 +17,14 @@ func TestAccComputeSslCertificate_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslCertificate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_ssl_certificate.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -42,14 +42,14 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslCertificate_no_name(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_ssl_certificate.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -67,14 +67,14 @@ func TestAccComputeSslCertificate_name_prefix(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslCertificate_name_prefix(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
 						"google_compute_ssl_certificate.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_ssl_certificate.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,

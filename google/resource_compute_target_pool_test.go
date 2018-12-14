@@ -17,7 +17,7 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetPool_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetPoolExists(
@@ -28,7 +28,7 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 					testAccCheckComputeTargetPoolHealthCheck("google_compute_target_pool.bar", "google_compute_http_health_check.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_pool.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -49,27 +49,27 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				// Create target pool with no instances attached
 				Config: testAccComputeTargetPool_update(tpname, "", name1, name2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_pool.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				// Add the two instances to the pool
 				Config: testAccComputeTargetPool_update(tpname,
 					`"${google_compute_instance.foo.self_link}", "${google_compute_instance.bar.self_link}"`,
 					name1, name2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_pool.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				// Reversing the order of instances or changing import format shouldn't matter
 				Config: testAccComputeTargetPool_update(tpname,
 					fmt.Sprintf(`"${google_compute_instance.bar.self_link}", "us-central1-a/%s"`, name1),

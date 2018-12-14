@@ -26,7 +26,7 @@ func TestAccComputeFirewall_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
@@ -34,7 +34,7 @@ func TestAccComputeFirewall_basic(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -55,7 +55,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
@@ -68,7 +68,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_update(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
@@ -83,7 +83,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
@@ -142,7 +142,7 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_noSource(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists(
@@ -150,7 +150,7 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -171,7 +171,7 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_denied(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
@@ -179,7 +179,7 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -200,7 +200,7 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_egress(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
@@ -208,7 +208,7 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -235,7 +235,7 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
@@ -243,7 +243,7 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 					testAccCheckComputeFirewallApiVersion(&firewall),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -263,18 +263,18 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_disabled(networkName, firewallName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_firewall.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

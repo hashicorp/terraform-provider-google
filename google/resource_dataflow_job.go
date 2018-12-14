@@ -30,37 +30,37 @@ func resourceDataflowJob() *schema.Resource {
 		Delete: resourceDataflowJobDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"template_gcs_path": &schema.Schema{
+			"template_gcs_path": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"temp_gcs_location": &schema.Schema{
+			"temp_gcs_location": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"max_workers": &schema.Schema{
+			"max_workers": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
@@ -72,7 +72,7 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"on_delete": &schema.Schema{
+			"on_delete": {
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{"cancel", "drain"}, false),
 				Optional:     true,
@@ -80,13 +80,13 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew:     true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"state": &schema.Schema{
+			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

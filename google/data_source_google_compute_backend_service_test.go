@@ -20,7 +20,7 @@ func TestAccDataSourceComputeBackendService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceComputeBackendService_basic(serviceName, checkName),
 				Check:  testAccDataSourceComputeBackendServiceCheck("data.google_compute_backend_service.baz", "google_compute_backend_service.foobar"),
 			},

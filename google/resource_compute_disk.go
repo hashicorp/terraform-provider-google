@@ -388,7 +388,7 @@ func resourceComputeDisk() *schema.Resource {
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
-			"disk_encryption_key_raw": &schema.Schema{
+			"disk_encryption_key_raw": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				ForceNew:  true,
@@ -396,7 +396,7 @@ func resourceComputeDisk() *schema.Resource {
 				Removed:   "Use disk_encryption_key.raw_key instead.",
 			},
 
-			"disk_encryption_key_sha256": &schema.Schema{
+			"disk_encryption_key_sha256": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Removed:  "Use disk_encryption_key.sha256 instead.",

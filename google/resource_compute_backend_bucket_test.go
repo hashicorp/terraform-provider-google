@@ -22,14 +22,14 @@ func TestAccComputeBackendBucket_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendBucketExists(
 						"google_compute_backend_bucket.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_bucket.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -55,14 +55,14 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendBucketExists(
 						"google_compute_backend_bucket.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basicModified(
 					backendName, storageName, secondStorageName),
 				Check: resource.ComposeTestCheckFunc(
@@ -119,7 +119,7 @@ func TestAccComputeBackendBucket_withCdnEnabled(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_withCdnEnabled(
 					backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(

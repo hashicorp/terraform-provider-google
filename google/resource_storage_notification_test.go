@@ -31,7 +31,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageNotificationDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageNotificationBasic(bucketName, topicName, topic),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
@@ -46,12 +46,12 @@ func TestAccStorageNotification_basic(t *testing.T) {
 						"google_storage_notification.notification_with_prefix", "object_name_prefix", "foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_storage_notification.notification",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_storage_notification.notification_with_prefix",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -77,7 +77,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageNotificationDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
@@ -94,7 +94,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 						&notification, "new-attribute", "new-attribute-value"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_storage_notification.notification",
 				ImportState:       true,
 				ImportStateVerify: true,

@@ -23,14 +23,14 @@ func resourceComputeBackendService() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
 			},
 
-			"health_checks": &schema.Schema{
+			"health_checks": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      selfLinkRelativePathHash,
@@ -39,17 +39,17 @@ func resourceComputeBackendService() *schema.Resource {
 				MaxItems: 1,
 			},
 
-			"iap": &schema.Schema{
+			"iap": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"oauth2_client_id": &schema.Schema{
+						"oauth2_client_id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"oauth2_client_secret": &schema.Schema{
+						"oauth2_client_secret": {
 							Type:      schema.TypeString,
 							Required:  true,
 							Sensitive: true,
@@ -64,48 +64,48 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
-			"backend": &schema.Schema{
+			"backend": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Set:      resourceGoogleComputeBackendServiceBackendHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"group": &schema.Schema{
+						"group": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 						},
-						"balancing_mode": &schema.Schema{
+						"balancing_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "UTILIZATION",
 						},
-						"capacity_scaler": &schema.Schema{
+						"capacity_scaler": {
 							Type:     schema.TypeFloat,
 							Optional: true,
 							Default:  1,
 						},
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"max_rate": &schema.Schema{
+						"max_rate": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"max_rate_per_instance": &schema.Schema{
+						"max_rate_per_instance": {
 							Type:     schema.TypeFloat,
 							Optional: true,
 						},
-						"max_connections": &schema.Schema{
+						"max_connections": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"max_connections_per_instance": &schema.Schema{
+						"max_connections_per_instance": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"max_utilization": &schema.Schema{
+						"max_utilization": {
 							Type:     schema.TypeFloat,
 							Optional: true,
 							Default:  0.8,
@@ -114,38 +114,38 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
-			"cdn_policy": &schema.Schema{
+			"cdn_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"cache_key_policy": &schema.Schema{
+						"cache_key_policy": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"include_host": &schema.Schema{
+									"include_host": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
-									"include_protocol": &schema.Schema{
+									"include_protocol": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
-									"include_query_string": &schema.Schema{
+									"include_query_string": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
-									"query_string_blacklist": &schema.Schema{
+									"query_string_blacklist": {
 										Type:          schema.TypeSet,
 										Optional:      true,
 										Elem:          &schema.Schema{Type: schema.TypeString},
 										ConflictsWith: []string{"cdn_policy.0.cache_key_policy.query_string_whitelist"},
 									},
-									"query_string_whitelist": &schema.Schema{
+									"query_string_whitelist": {
 										Type:          schema.TypeSet,
 										Optional:      true,
 										Elem:          &schema.Schema{Type: schema.TypeString},
@@ -158,7 +158,7 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
-			"custom_request_headers": &schema.Schema{
+			"custom_request_headers": {
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -166,72 +166,72 @@ func resourceComputeBackendService() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"enable_cdn": &schema.Schema{
+			"enable_cdn": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"fingerprint": &schema.Schema{
+			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"port_name": &schema.Schema{
+			"port_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Removed:  "region has been removed as it was never used. For internal load balancing, use google_compute_region_backend_service",
 			},
 
-			"security_policy": &schema.Schema{
+			"security_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"session_affinity": &schema.Schema{
+			"session_affinity": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"timeout_sec": &schema.Schema{
+			"timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 
-			"connection_draining_timeout_sec": &schema.Schema{
+			"connection_draining_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  300,

@@ -24,7 +24,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
-			resource.TestStep{
+			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(pid),
@@ -32,10 +32,10 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			},
 			// Apply an IAM policy from a data source. The application
 			// merges policies, so we validate the expected state.
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociatePolicyBasic(pid, pname, org),
 			},
-			resource.TestStep{
+			{
 				ResourceName: "google_project_iam_policy.acceptance",
 				ImportState:  true,
 			},
@@ -53,7 +53,7 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccProjectAssociatePolicyExpanded(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamPolicyExists("google_project_iam_policy.acceptance", "data.google_iam_policy.expanded", pid),
@@ -226,7 +226,7 @@ func TestIamMergeBindings(t *testing.T) {
 	for _, test := range table {
 		got := mergeBindings(test.input)
 		sort.Sort(sortableBindings(got))
-		for i, _ := range got {
+		for i := range got {
 			sort.Strings(got[i].Members)
 		}
 		if !reflect.DeepEqual(derefBindings(got), test.expect) {
