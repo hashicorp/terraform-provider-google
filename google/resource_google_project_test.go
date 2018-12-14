@@ -187,134 +187,6 @@ func TestAccProject_parentFolder(t *testing.T) {
 	})
 }
 
-func TestAccProject_appEngineBasic(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccProject_appEngineBasic(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_hostname"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_bucket"),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccProject_appEngineBasicWithBilling(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	billingId := getTestBillingAccountFromEnv(t)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccProject_appEngineBasicWithBilling(pid, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_hostname"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_bucket"),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccProject_appEngineUpdate(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccProject_appEngineNoApp(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-				),
-			},
-			{
-				Config: testAccProject_appEngineBasic(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.name"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.url_dispatch_rule.#"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.code_bucket"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_hostname"),
-					resource.TestCheckResourceAttrSet("google_project.acceptance", "app_engine.0.default_bucket"),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccProject_appEngineUpdate(pid, org),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccProject_appEngineFeatureSettings(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccProject_appEngineFeatureSettings(pid, org),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccProject_appEngineFeatureSettingsUpdate(pid, org),
-			},
-			resource.TestStep{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -431,6 +303,24 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 	}
 }
 
+func testAccProject_createWithoutOrg(pid, name string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+}`, pid, name)
+}
+
+func testAccProject_createBilling(pid, name, org, billing string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+    billing_account = "%s"
+}`, pid, name, org, billing)
+}
+
 func testAccProject_labels(pid, name, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -475,96 +365,6 @@ resource "google_folder" "folder1" {
 }
 
 `, pid, projectName, folderName, org)
-}
-
-func testAccProject_appEngineNoApp(pid, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-}`, pid, pid, org)
-}
-
-func testAccProject_appEngineBasic(pid, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-
-  app_engine {
-    auth_domain    = "hashicorptest.com"
-    location_id    = "us-central"
-    serving_status = "SERVING"
-  }
-}`, pid, pid, org)
-}
-
-func testAccProject_appEngineBasicWithBilling(pid, org, billing string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-
-  billing_account = "%s"
-
-  app_engine {
-    auth_domain    = "hashicorptest.com"
-    location_id    = "us-central"
-    serving_status = "SERVING"
-  }
-}`, pid, pid, org, billing)
-}
-
-func testAccProject_appEngineUpdate(pid, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-
-  app_engine {
-    auth_domain    = "tf-test.club"
-    location_id    = "us-central"
-    serving_status = "USER_DISABLED"
-  }
-}`, pid, pid, org)
-}
-
-func testAccProject_appEngineFeatureSettings(pid, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-
-  app_engine {
-    location_id = "us-central"
-
-    feature_settings {
-      "split_health_checks" = true
-    }
-  }
-}`, pid, pid, org)
-}
-
-func testAccProject_appEngineFeatureSettingsUpdate(pid, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-
-  app_engine {
-    location_id = "us-central"
-
-    feature_settings {
-      "split_health_checks" = false
-    }
-  }
-}`, pid, pid, org)
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {

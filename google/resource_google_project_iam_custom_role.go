@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/iam/v1"
@@ -41,10 +42,11 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 				ForceNew: true,
 			},
 			"stage": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "GA",
-				ValidateFunc: validation.StringInSlice([]string{"ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED", "EAP"}, false),
+				Type:             schema.TypeString,
+				Optional:         true,
+				Default:          "GA",
+				ValidateFunc:     validation.StringInSlice([]string{"ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED", "EAP"}, false),
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("ALPHA"),
 			},
 			"description": {
 				Type:     schema.TypeString,

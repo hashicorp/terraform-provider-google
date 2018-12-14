@@ -85,15 +85,9 @@ The following arguments are supported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `network_interface.0.address` - (Deprecated) The internal ip address of the instance, either manually or dynamically assigned.
-This attribute has been deprecated. Use `network_interface.0.network_ip` instead.
-
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
-
-* `network_interface.0.access_config.0.assigned_nat_ip` -  (Deprecated)  If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
-This attribute has been deprecated. Use `network_interface.0.access_config.0.nat_ip` instead.
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
@@ -149,9 +143,6 @@ The `network_interface` block supports:
 *  `subnetwork` - The name or self_link of the subnetwork attached to this interface.
 
 *  `subnetwork_project` - The project in which the subnetwork belongs.
-
-* `address` - (Deprecated) The private IP address assigned to the instance.
- This attribute has been deprecated. Use `network_interface.network_ip` instead.
 
 * `network_ip` - The private IP address assigned to the instance.
 

@@ -1,4 +1,65 @@
-## 1.19.2 (Unreleased)
+## 2.0.0 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES:
+* bigtable: `google_bigtable_instance.cluster.num_nodes` will fail at plan time if `DEVELOPMENT` instances have `num_nodes = "0"` set explicitly. If it has been set, unset the field. [GH-2401]
+* cloudfunctions: `google_cloudfunctions_function.retry_on_failure` has been removed. Use `event_trigger.failure_policy.retry` instead. [GH-2392]
+* compute: `google_compute_instance`, `google_compute_instance_from_template` `metadata` field is now authoritative and will remove values not explicitly set in config. [GH-2208]
+* compute: `google_compute_project_metadata` resource is now authoritative and will remove values not explicitly set in config. [GH-2205]
+* compute: `google_compute_url_map` resource is now authoritative and will remove values not explicitly set in config. [GH-2245]
+* compute: `google_compute_global_forwarding_rule.labels` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2399]
+* compute: `google_compute_subnetwork_iam_binding`, `google_compute_subnetwork_iam_member`, `google_compute_subnetwork_iam_policy` are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2398]
+* compute: `google_compute_backend_service.custom_request_headers` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2405]
+* container: `google_container_node_pool.max_pods_per_node` is removed from the `google` provider and must be used in the `google-beta` provider. [GH-2391]
+* compute: `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` have had their `version`, `auto_healing_policies`, and `rolling_update_policy` fields removed from the `google` provider. They must be used in the `google-beta` provider. `rolling_update_policy` was renamed `update_policy` in that provider. [GH-2392]
+* compute: `google_compute_region_instance_group_manager.update_strategy` in the `google-beta` provider has no functionality anymore and has been deprecated.
+* container: `google_container_cluster` fields (`private_cluster`, `master_ipv4_cidr_block`) are removed. Use `private_cluster_config` and `private_cluster_config.master_ipv4_cidr_block` instead. [GH-2395]
+* container: `google_container_cluster` fields (`enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2395]
+* sql: `google_sql_database_instance` resource is now authoritative and will remove values not explicitly set in config. [GH-2203]
+* bigtable: `google_bigtable_instance` `zone` field is no longer inferred from the provider.
+* endpoints: `google_endpoints_service.protoc_output` was removed. Use `google_endpoints_service.protoc_output_base64` instead. [GH-2396]
+* resourcemanager: `google_project_iam_policy` is now authoritative and will remove values not explicitly set in config. Several fields were removed that made it authoritative: `authoritative`, `restore_policy`, and `disable_project`. This resource is very dangerous! Ensure you are not using the removed fields (`authoritative`, `restore_policy`, `disable_project`). [GH-2315]
+* resourcemanager: Datasource `google_service_account_key.service_account_id` has been removed. Use the `name` field instead. [GH-2397]
+* resourcemanager: `google_project.app_engine` has been removed. Use the `google_app_engine_application` resource instead. [GH-2386]
+* storage: `google_storage_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. Use `google_storage_object_access_control` for fine-grained management. [GH-2316]
+* storage: `google_storage_default_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. [GH-2345]
+
+FEATURES: 
+* `2.0.0` is the first release including Open in Cloud Shell. Examples in the documentation for Magic Modules resources now
+have Open in Cloud Shell links in their documentation that open them in an interactive editor and shell - all without
+leaving the browser.
+See the [blog post announcing the feature](https://www.hashicorp.com/blog/kickstart-terraform-on-gcp-with-google-cloud-shell)
+for more details.
+* **New Resource**: `google_storage_object_access_control` for fine-grained management of ACLs on Google Cloud Storage objects [GH-2256]
+* **New Resource**: `google_storage_default_object_access_control` for fine-grained management of default object ACLs on Google Cloud Storage buckets [GH-2358]
+* **New Resource**: `google_access_context_manager_access_policy` for managing the container for an organization's access levels. ([`google-beta`#96](https://github.com/terraform-providers/terraform-provider-google-beta/pull/96))
+* **New Resource**: `google_access_context_manager_access_level` for managing an organization's access levels. ([`google-beta`#149](https://github.com/terraform-providers/terraform-provider-google-beta/pull/149))
+* **New Resource**: `google_sql_ssl_cert` for managing a Google SQL SSL Cert on a Google SQL Instance. [GH-2290]
+* **New Resource**: `google_monitoring_notification_channel` [GH-2452]
+* **New Resource**: `google_monitoring_group` [GH-2451]
+* **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. [GH-2143]
+* **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. [GH-2482]
+
+ENHANCEMENTS:
+* bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
+* bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228]
+* bigtable: Add multi-zone (inside one region) replication to `google_bigtable_instance`. [GH-2313] [GH-2289]
+* cloudbuild: Added Update support for `google_cloudbuild_trigger`.  [GH-2121]
+* cloudfunctions: Add `runtime` support to `google_cloudfunctions_function` [GH-2340]
+* cloudfunctions: Add new-style Storage and Pub/Sub trigger support as well as Firestore trigger support to `google_cloudfunctions_function` [GH-2412] [GH-2480]
+* compute: `google_compute_url_map` resource is now autogenerated and supports multiple import formats. [GH-2245]
+* compute: `google_compute_health_check` supports for content-based load balancing (`response` field) in HTTP(S) checks. [GH-2550]
+* dataproc: Add `accelerators` support to `google_dataproc_cluster` to allow using GPU accelerators. [GH-2411]
+* container: regional and private clusters are in GA now [GH-2364]
+* iam: `google_service_accounts` now supports multiple import formats. [GH-2261]
+* storage: `google_storage_object_acl` can more easily swap between `role_entity` and `predefined_acl` ACL definitions. [GH-2316]
+
+BUG FIXES:
+
+* bigquery: added australia and europe regions to the validate function [GH-2333]
+* compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
+* iam: fix permadiff when stage is ALPHA [GH-2370]
+* pubsub: fix issue where not all attributes were saved in state [GH-2469]
+
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
@@ -25,6 +86,7 @@ FEATURES:
 * **New Resource**: `google_compute_interconnect_attachment` ([#1140](https://github.com/terraform-providers/terraform-provider-google/issues/1140))
 * **New Resource**: `google_filestore_instance` ([#2088](https://github.com/terraform-providers/terraform-provider-google/issues/2088))
 * **New Resource**: `google_app_engine_application` ([#2147](https://github.com/terraform-providers/terraform-provider-google/issues/2147))
+* **New Resource**: `google_monitoring_alert_policy` ([#1044](https://github.com/terraform-providers/terraform-provider-google/issues/1044))
 
 ENHANCEMENTS:
 * container: Add `enable_tpu` flag to google_container_cluster ([#1974](https://github.com/terraform-providers/terraform-provider-google/issues/1974))

@@ -251,6 +251,13 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(job.Reference.JobId)
 
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
+	waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
+		"Creating Dataproc job", timeoutInMinutes, 1)
+	if waitErr != nil {
+		return waitErr
+	}
+
 	log.Printf("[INFO] Dataproc job %s has been submitted", job.Reference.JobId)
 	return resourceDataprocJobRead(d, meta)
 }

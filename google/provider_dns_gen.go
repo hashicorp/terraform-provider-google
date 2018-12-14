@@ -16,6 +16,6 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
-var GeneratedContainerAnalysisResourcesMap = map[string]*schema.Resource{
-	"google_container_analysis_note": resourceContainerAnalysisNote(),
+var GeneratedDnsResourcesMap = map[string]*schema.Resource{
+	"google_dns_managed_zone": resourceDnsManagedZone(),
 }

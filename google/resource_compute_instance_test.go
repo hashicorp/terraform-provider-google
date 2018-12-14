@@ -14,11 +14,10 @@ import (
 )
 
 func computeInstanceImportStep(zone, instanceName string, additionalImportIgnores []string) resource.TestStep {
-	// create_timeout has a default value, but it's deprecated so don't worry about it
 	// metadata is only read into state if set in the config
 	// since importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
 	// it guesses metadata_startup_script
-	ignores := []string{"create_timeout", "metadata.%", "metadata.startup-script", "metadata_startup_script"}
+	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script"}
 
 	return resource.TestStep{
 		ResourceName:            "google_compute_instance.foobar",
@@ -1545,8 +1544,6 @@ resource "google_compute_instance" "foobar" {
 		baz = "qux"
 	}
 
-	create_timeout = 5
-
 	metadata {
 		startup-script = "echo Hello"
 	}
@@ -1804,8 +1801,6 @@ resource "google_compute_instance" "foobar" {
 		startup-script = "echo Hello"
 	}
 
-	create_timeout = 5
-
 	labels {
 		only_me = "nothing_else"
 	}
@@ -1928,7 +1923,9 @@ resource "google_compute_disk" "foobar" {
 	type = "pd-ssd"
 	zone = "us-central1-a"
 
-	disk_encryption_key_raw = "%s"
+	disk_encryption_key {
+		raw_key = "%s"
+	}
 }
 
 resource "google_compute_disk" "foobar2" {
@@ -1937,7 +1934,9 @@ resource "google_compute_disk" "foobar2" {
 	type = "pd-ssd"
 	zone = "us-central1-a"
 
-	disk_encryption_key_raw = "%s"
+	disk_encryption_key {
+		raw_key = "%s"
+	}
 }
 
 resource "google_compute_disk" "foobar3" {
@@ -1946,7 +1945,9 @@ resource "google_compute_disk" "foobar3" {
 	type = "pd-ssd"
 	zone = "us-central1-a"
 
-	disk_encryption_key_raw = "%s"
+	disk_encryption_key {
+		raw_key = "%s"
+	}
 }
 
 resource "google_compute_disk" "foobar4" {
@@ -2214,7 +2215,9 @@ resource "google_compute_disk" "foobar" {
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
-	disk_encryption_key_raw = "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI"
+	disk_encryption_key {
+		raw_key = "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI"
+	}
 }
 
 resource "google_compute_instance" "foobar" {

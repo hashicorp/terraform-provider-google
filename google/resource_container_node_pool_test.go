@@ -32,52 +32,6 @@ func TestAccContainerNodePool_basic(t *testing.T) {
 	})
 }
 
-func TestAccContainerNodePool_maxPodsPerNode(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
-	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerNodePoolDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccContainerNodePool_maxPodsPerNode(cluster, np),
-			},
-			resource.TestStep{
-				ResourceName:      "google_container_node_pool.np",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccContainerNodePool_namePrefix(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerNodePoolDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccContainerNodePool_namePrefix(cluster, "tf-np-"),
-			},
-			resource.TestStep{
-				ResourceName:            "google_container_node_pool.np",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name_prefix"},
-			},
-		},
-	})
-}
-
 func TestAccContainerNodePool_noName(t *testing.T) {
 	t.Parallel()
 
@@ -536,58 +490,6 @@ resource "google_container_node_pool" "np" {
 }`, cluster, np)
 }
 
-func testAccContainerNodePool_maxPodsPerNode(cluster, np string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "container_network" {
-	name = "container-net-%s"
-	auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "container_subnetwork" {
-	name                     = "${google_compute_network.container_network.name}"
-	network                  = "${google_compute_network.container_network.name}"
-	ip_cidr_range            = "10.0.36.0/24"
-	region                   = "us-central1"
-	private_ip_google_access = true
-
-	secondary_ip_range {
-		range_name    = "pod"
-		ip_cidr_range = "10.0.0.0/19"
-	}
-
-	secondary_ip_range {
-		range_name    = "svc"
-		ip_cidr_range = "10.0.32.0/22"
-	}
-}
-
-resource "google_container_cluster" "cluster" {
-	name = "%s"
-	zone = "us-central1-a"
-	initial_node_count = 3
-
-	network = "${google_compute_network.container_network.name}"
-	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
-	private_cluster = true
-	master_ipv4_cidr_block = "10.42.0.0/28"
-	ip_allocation_policy {
-		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
-		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
-	}
-	master_authorized_networks_config {
-		cidr_blocks = []
-	}
-}
-
-resource "google_container_node_pool" "np" {
-	name = "%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
-	max_pods_per_node = 30
-	initial_node_count = 2
-}`, cluster, cluster, np)
-}
-
 func testAccContainerNodePool_regionalClusters(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
@@ -600,22 +502,6 @@ resource "google_container_node_pool" "np" {
 	name = "%s"
 	cluster = "${google_container_cluster.cluster.name}"
 	region = "us-central1"
-	initial_node_count = 2
-}`, cluster, np)
-}
-
-func testAccContainerNodePool_namePrefix(cluster, np string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-	name = "%s"
-	zone = "us-central1-a"
-	initial_node_count = 3
-}
-
-resource "google_container_node_pool" "np" {
-	name_prefix = "%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
 }`, cluster, np)
 }

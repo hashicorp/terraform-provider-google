@@ -1,9 +1,7 @@
 package google
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -17,7 +15,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 		Delete: resourceGoogleServiceAccountDelete,
 		Update: resourceGoogleServiceAccountUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceGoogleServiceAccountImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"email": &schema.Schema{
@@ -49,9 +47,9 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				ForceNew: true,
 			},
 			"policy_data": &schema.Schema{
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
+				Type:     schema.TypeString,
+				Optional: true,
+				Removed:  "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
 			},
 		},
 	}
@@ -82,36 +80,6 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 	d.SetId(sa.Name)
 
-	// Apply the IAM policy if it is set
-	if pString, ok := d.GetOk("policy_data"); ok {
-		// The policy string is just a marshaled cloudresourcemanager.Policy.
-		// Unmarshal it to a struct.
-		var policy iam.Policy
-		if err = json.Unmarshal([]byte(pString.(string)), &policy); err != nil {
-			return err
-		}
-
-		// Retrieve existing IAM policy from project. This will be merged
-		// with the policy defined here.
-		// TODO: overwrite existing policy, instead of merging it
-		p, err := getServiceAccountIamPolicy(sa.Name, config)
-		if err != nil {
-			return fmt.Errorf("Could not find service account %q when applying IAM policy: %s", sa.Name, err)
-		}
-		log.Printf("[DEBUG] Got existing bindings for service account: %#v", p.Bindings)
-
-		// Merge the existing policy bindings with those defined in this manifest.
-		p.Bindings = saMergeBindings(append(p.Bindings, policy.Bindings...))
-
-		// Apply the merged policy
-		log.Printf("[DEBUG] Setting new policy for service account: %#v", p)
-		_, err = config.clientIAM.Projects.ServiceAccounts.SetIamPolicy(sa.Name,
-			&iam.SetIamPolicyRequest{Policy: p}).Do()
-
-		if err != nil {
-			return fmt.Errorf("Error applying IAM policy for service account %q: %s", sa.Name, err)
-		}
-	}
 	return resourceGoogleServiceAccountRead(d, meta)
 }
 
@@ -146,7 +114,6 @@ func resourceGoogleServiceAccountDelete(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	var err error
 	if ok := d.HasChange("display_name"); ok {
 		sa, err := config.clientIAM.Projects.ServiceAccounts.Get(d.Id()).Do()
 		if err != nil {
@@ -162,95 +129,6 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 		}
 	}
 
-	if ok := d.HasChange("policy_data"); ok {
-		// The policy string is just a marshaled cloudresourcemanager.Policy.
-		// Unmarshal it to a struct that contains the old and new policies
-		oldP, newP := d.GetChange("policy_data")
-		oldPString := oldP.(string)
-		newPString := newP.(string)
-
-		// JSON Unmarshaling would fail
-		if oldPString == "" {
-			oldPString = "{}"
-		}
-		if newPString == "" {
-			newPString = "{}"
-		}
-
-		log.Printf("[DEBUG]: Old policy: %q\nNew policy: %q", string(oldPString), string(newPString))
-
-		var oldPolicy, newPolicy iam.Policy
-		if err = json.Unmarshal([]byte(newPString), &newPolicy); err != nil {
-			return err
-		}
-		if err = json.Unmarshal([]byte(oldPString), &oldPolicy); err != nil {
-			return err
-		}
-
-		// Find any Roles and Members that were removed (i.e., those that are present
-		// in the old but absent in the new
-		oldMap := saRolesToMembersMap(oldPolicy.Bindings)
-		newMap := saRolesToMembersMap(newPolicy.Bindings)
-		deleted := make(map[string]map[string]bool)
-
-		// Get each role and its associated members in the old state
-		for role, members := range oldMap {
-			// Initialize map for role
-			if _, ok := deleted[role]; !ok {
-				deleted[role] = make(map[string]bool)
-			}
-			// The role exists in the new state
-			if _, ok := newMap[role]; ok {
-				// Check each memeber
-				for member, _ := range members {
-					// Member does not exist in new state, so it was deleted
-					if _, ok = newMap[role][member]; !ok {
-						deleted[role][member] = true
-					}
-				}
-			} else {
-				// This indicates an entire role was deleted. Mark all members
-				// for delete.
-				for member, _ := range members {
-					deleted[role][member] = true
-				}
-			}
-		}
-		log.Printf("[DEBUG] Roles and Members to be deleted: %#v", deleted)
-
-		// Retrieve existing IAM policy from project. This will be merged
-		// with the policy in the current state
-		// TODO: overwrite existing policy instead of merging it
-		p, err := getServiceAccountIamPolicy(d.Id(), config)
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG] Got existing bindings from service account %q: %#v", d.Id(), p.Bindings)
-
-		// Merge existing policy with policy in the current state
-		log.Printf("[DEBUG] Merging new bindings from service account %q: %#v", d.Id(), newPolicy.Bindings)
-		mergedBindings := saMergeBindings(append(p.Bindings, newPolicy.Bindings...))
-
-		// Remove any roles and members that were explicitly deleted
-		mergedBindingsMap := saRolesToMembersMap(mergedBindings)
-		for role, members := range deleted {
-			for member, _ := range members {
-				delete(mergedBindingsMap[role], member)
-			}
-		}
-
-		p.Bindings = saRolesToMembersBinding(mergedBindingsMap)
-		log.Printf("[DEBUG] Setting new policy for project: %#v", p)
-
-		dump, _ := json.MarshalIndent(p.Bindings, " ", "  ")
-		log.Printf(string(dump))
-		_, err = config.clientIAM.Projects.ServiceAccounts.SetIamPolicy(d.Id(),
-			&iam.SetIamPolicyRequest{Policy: p}).Do()
-
-		if err != nil {
-			return fmt.Errorf("Error applying IAM policy for service account %q: %s", d.Id(), err)
-		}
-	}
 	return nil
 }
 
@@ -315,4 +193,21 @@ func saMergeBindings(bindings []*iam.Binding) []*iam.Binding {
 	}
 
 	return rb
+}
+
+func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	parseImportId([]string{
+		"projects/(?P<project>[^/]+)/serviceAccounts/(?P<email>[^/]+)",
+		"(?P<project>[^/]+)/(?P<email>[^/]+)",
+		"(?P<email>[^/]+)"}, d, config)
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/serviceAccounts/{{email}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

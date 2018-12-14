@@ -10,10 +10,13 @@ import (
 
 func resourceComputeProjectMetadata() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeProjectMetadataCreate,
+		Create: resourceComputeProjectMetadataCreateOrUpdate,
 		Read:   resourceComputeProjectMetadataRead,
-		Update: resourceComputeProjectMetadataUpdate,
+		Update: resourceComputeProjectMetadataCreateOrUpdate,
 		Delete: resourceComputeProjectMetadataDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		SchemaVersion: 0,
 
@@ -34,7 +37,7 @@ func resourceComputeProjectMetadata() *schema.Resource {
 	}
 }
 
-func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	projectID, err := getProject(d, config)
@@ -42,47 +45,13 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	createMD := func() error {
-		// Load project service
-		log.Printf("[DEBUG] Loading project service: %s", projectID)
-		project, err := config.clientCompute.Projects.Get(projectID).Do()
-		if err != nil {
-			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
-		}
-
-		md := project.CommonInstanceMetadata
-
-		newMDMap := d.Get("metadata").(map[string]interface{})
-		// Ensure that we aren't overwriting entries that already exist
-		for _, kv := range md.Items {
-			if _, ok := newMDMap[kv.Key]; ok {
-				return fmt.Errorf("Error, key '%s' already exists in project '%s'", kv.Key, projectID)
-			}
-		}
-
-		// Append new metadata to existing metadata
-		for key, val := range newMDMap {
-			v := val.(string)
-			md.Items = append(md.Items, &compute.MetadataItems{
-				Key:   key,
-				Value: &v,
-			})
-		}
-
-		op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(projectID, md).Do()
-
-		if err != nil {
-			return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
-		}
-
-		log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
-
-		return computeOperationWait(config.clientCompute, op, project.Name, "SetCommonMetadata")
+	md := &compute.Metadata{
+		Items: expandComputeMetadata(d.Get("metadata").(map[string]interface{})),
 	}
 
-	err = MetadataRetryWrapper(createMD)
+	err = resourceComputeProjectMetadataSet(projectID, config, md)
 	if err != nil {
-		return err
+		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
 	return resourceComputeProjectMetadataRead(d, meta)
@@ -91,82 +60,28 @@ func resourceComputeProjectMetadataCreate(d *schema.ResourceData, meta interface
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	projectID, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	// Load project service
-	log.Printf("[DEBUG] Loading project service: %s", projectID)
-	project, err := config.clientCompute.Projects.Get(projectID).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectID))
-	}
-
-	md := flattenMetadata(project.CommonInstanceMetadata)
-	existingMetadata := d.Get("metadata").(map[string]interface{})
-	// Remove all keys not explicitly mentioned in the terraform config
-	for k := range md {
-		if _, ok := existingMetadata[k]; !ok {
-			delete(md, k)
-		}
-	}
-
-	if err = d.Set("metadata", md); err != nil {
-		return fmt.Errorf("Error setting metadata: %s", err)
-	}
-
-	d.Set("project", projectID)
-	d.SetId("common_metadata")
-
-	return nil
-}
-
-func resourceComputeProjectMetadataUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	projectID, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	if d.HasChange("metadata") {
-		o, n := d.GetChange("metadata")
-
-		updateMD := func() error {
-			// Load project service
-			log.Printf("[DEBUG] Loading project service: %s", projectID)
-			project, err := config.clientCompute.Projects.Get(projectID).Do()
-			if err != nil {
-				return fmt.Errorf("Error loading project '%s': %s", projectID, err)
-			}
-
-			md := project.CommonInstanceMetadata
-
-			MetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
-
-			op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(projectID, md).Do()
-
-			if err != nil {
-				return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
-			}
-
-			log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
-
-			// Optimistic locking requires the fingerprint received to match
-			// the fingerprint we send the server, if there is a mismatch then we
-			// are working on old data, and must retry
-			return computeOperationWait(config.clientCompute, op, project.Name, "SetCommonMetadata")
-		}
-
-		err := MetadataRetryWrapper(updateMD)
+	if d.Id() == "" {
+		projectID, err := getProject(d, config)
 		if err != nil {
 			return err
 		}
-
-		return resourceComputeProjectMetadataRead(d, meta)
+		d.SetId(projectID)
 	}
 
+	// Load project service
+	log.Printf("[DEBUG] Loading project service: %s", d.Id())
+	project, err := config.clientCompute.Projects.Get(d.Id()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", d.Id()))
+	}
+
+	err = d.Set("metadata", flattenMetadata(project.CommonInstanceMetadata))
+	if err != nil {
+		return fmt.Errorf("Error setting metadata: %s", err)
+	}
+
+	d.Set("project", d.Id())
+	d.SetId(d.Id())
 	return nil
 }
 
@@ -178,30 +93,33 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	// Load project service
-	log.Printf("[DEBUG] Loading project service: %s", projectID)
-	project, err := config.clientCompute.Projects.Get(projectID).Do()
+	md := &compute.Metadata{}
+	err = resourceComputeProjectMetadataSet(projectID, config, md)
 	if err != nil {
-		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
-	}
-
-	md := project.CommonInstanceMetadata
-
-	// Remove all items
-	md.Items = nil
-
-	op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(projectID, md).Do()
-
-	if err != nil {
-		return fmt.Errorf("Error removing metadata from project %s: %s", projectID, err)
-	}
-
-	log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
-
-	err = computeOperationWait(config.clientCompute, op, project.Name, "SetCommonMetadata")
-	if err != nil {
-		return err
+		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
 	return resourceComputeProjectMetadataRead(d, meta)
+}
+
+func resourceComputeProjectMetadataSet(projectID string, config *Config, md *compute.Metadata) error {
+	createMD := func() error {
+		log.Printf("[DEBUG] Loading project service: %s", projectID)
+		project, err := config.clientCompute.Projects.Get(projectID).Do()
+		if err != nil {
+			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
+		}
+
+		md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
+		op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(projectID, md).Do()
+		if err != nil {
+			return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
+		}
+
+		log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
+		return computeOperationWait(config.clientCompute, op, project.Name, "SetCommonMetadata")
+	}
+
+	err := MetadataRetryWrapper(createMD)
+	return err
 }
