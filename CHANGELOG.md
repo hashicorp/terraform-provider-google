@@ -25,6 +25,7 @@ BACKWARDS INCOMPATIBILITIES:
 * resourcemanager: Datasource `google_service_account_key.service_account_id` has been removed. Use the `name` field instead. [GH-2397]
 * resourcemanager: `google_project.app_engine` has been removed. Use the `google_app_engine_application` resource instead. [GH-2386]
 * resourcemanager: `google_organization_custom_role.deleted` is now an output-only attribute. Use `terraform destroy`, or remove the resource from your config instead. [GH-2596]
+* resourcemanager: `google_project_custom_role.deleted` is now an output-only attribute. Use `terraform destroy`, or remove the resource from your config instead. [GH-2619]
 * storage: `google_storage_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. Use `google_storage_object_access_control` for fine-grained management. [GH-2316]
 * storage: `google_storage_default_object_acl.role_entity` is now authoritative and will remove values not explicitly set in config. [GH-2345]
 
