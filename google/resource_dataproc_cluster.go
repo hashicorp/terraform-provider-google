@@ -274,7 +274,7 @@ func resourceDataprocCluster() *schema.Resource {
 									// get a diff. To make this easier, 'properties' simply contains the computed
 									// values (including overrides) for all properties, whilst override_properties
 									// is only for properties the user specifically wants to override. If nothing
-									// is overriden, this will be empty.
+									// is overridden, this will be empty.
 								},
 							},
 						},
