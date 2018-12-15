@@ -63,7 +63,7 @@ func TestAccServiceAccount_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// The third step explicitely adds the same default project to the service account configuration
+			// The third step explicitly adds the same default project to the service account configuration
 			// and ensure the service account is not recreated by comparing the value of its unique_id with the one from the previous step
 			{
 				Config: testAccServiceAccountWithProject(project, accountId, displayName2),
@@ -107,22 +107,4 @@ resource "google_service_account" "acceptance" {
     display_name = "%v"
 }
 `, project, account, name)
-}
-
-func testAccServiceAccountPolicy(account, project string) string {
-	return fmt.Sprintf(`
-resource "google_service_account" "acceptance" {
-    account_id = "%v"
-    display_name = "%v"
-}
-
-data "google_iam_policy" "service_account" {
-    binding {
-        role = "roles/iam.serviceAccountActor"
-        members = [
-            "serviceAccount:%v@%v.iam.gserviceaccount.com",
-        ]
-    }
-}
-`, account, account, account, project)
 }

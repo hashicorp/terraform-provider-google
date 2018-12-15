@@ -66,10 +66,6 @@ func (s *kmsCryptoKeyId) cryptoKeyId() string {
 	return fmt.Sprintf("%s/cryptoKeys/%s", s.KeyRingId.keyRingId(), s.Name)
 }
 
-func (s *kmsCryptoKeyId) parentId() string {
-	return s.KeyRingId.keyRingId()
-}
-
 func (s *kmsCryptoKeyId) terraformId() string {
 	return fmt.Sprintf("%s/%s", s.KeyRingId.terraformId(), s.Name)
 }

@@ -355,31 +355,6 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 
 }
 
-func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(versions))
-	for _, version := range versions {
-		versionMap := make(map[string]interface{})
-		versionMap["name"] = version.Name
-		versionMap["instance_template"] = ConvertSelfLinkToV1(version.InstanceTemplate)
-		versionMap["target_size"] = flattenFixedOrPercent(version.TargetSize)
-		result = append(result, versionMap)
-	}
-
-	return result
-}
-
-func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[string]interface{} {
-	result := make(map[string]interface{})
-	if value := fixedOrPercent.Percent; value > 0 {
-		result["percent"] = value
-	} else if value := fixedOrPercent.Fixed; value > 0 {
-		result["fixed"] = fixedOrPercent.Fixed
-	} else {
-		return []map[string]interface{}{}
-	}
-	return []map[string]interface{}{result}
-}
-
 func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	config := meta.(*Config)
 	zonalID, err := parseInstanceGroupManagerId(d.Id())
@@ -706,7 +681,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error, instance group isn't shrinking during delete")
 		}
 
-		log.Printf("[INFO] timeout occured, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
+		log.Printf("[INFO] timeout occurred, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
 		currentSize = instanceGroupSize
 		err = computeSharedOperationWait(config.clientCompute, op, zonalID.Project, "Deleting InstanceGroupManager")
 	}

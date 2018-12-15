@@ -10,7 +10,6 @@ import (
 
 	"strings"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -312,35 +311,6 @@ func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) res
 	}
 }
 
-func testAccCheckComputeBetaFirewallExists(n string, firewall *computeBeta.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientComputeBeta.Firewalls.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Firewall not found")
-		}
-
-		*firewall = *found
-
-		return nil
-	}
-}
-
 func testAccCheckComputeFirewallHasPriority(firewall *compute.Firewall, priority int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if firewall.Priority != int64(priority) {
@@ -396,18 +366,6 @@ func testAccCheckComputeFirewallServiceAccounts(sourceSa, targetSa string, firew
 		}
 		if len(firewall.TargetServiceAccounts) != 1 || firewall.TargetServiceAccounts[0] != targetSa {
 			return fmt.Errorf("Expected targetServiceAccount of %s, got %v", targetSa, firewall.TargetServiceAccounts)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallBetaApiVersion(firewall *computeBeta.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		// The self-link of the network field is used to determine which API was used when fetching
-		// the state from the API.
-		if !strings.Contains(firewall.Network, "compute/beta") {
-			return fmt.Errorf("firewall beta API was not used")
 		}
 
 		return nil

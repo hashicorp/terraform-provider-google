@@ -121,7 +121,7 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 // testCheckAttachedDiskIsNowDetached queries a compute instance and iterates through the attached
 // disks to confirm that a specific disk is no longer attached to the instance
 //
-// This is being used instead of a CheckDestory method because destory will delete both the compute
+// This is being used instead of a CheckDestroy method because destroy will delete both the compute
 // instance and the disk, whereas destroying just the attached disk should only detach the disk but
 // leave the instance and disk around. So just using a normal check destroy could end up with a
 // situation where the detach fails but since the instance/disk get destroyed we wouldn't notice.
