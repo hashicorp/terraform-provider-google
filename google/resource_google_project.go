@@ -282,7 +282,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("project_id", pid)
-	d.Set("number", strconv.FormatInt(int64(p.ProjectNumber), 10))
+	d.Set("number", strconv.FormatInt(p.ProjectNumber, 10))
 	d.Set("name", p.Name)
 	d.Set("labels", p.Labels)
 

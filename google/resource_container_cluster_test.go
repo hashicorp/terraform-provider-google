@@ -1345,23 +1345,6 @@ resource "google_container_cluster" "with_master_auth" {
 }`, clusterName)
 }
 
-func testAccContainerCluster_updateMasterAuthNoCert() string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 3
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm.123456789"
-		client_certificate_config {
-			issue_client_certificate = false
-		}
-	}
-}`, acctest.RandString(10))
-}
-
 func testAccContainerCluster_withMasterAuthNoCert() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth_no_cert" {

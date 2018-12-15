@@ -44,7 +44,7 @@ func validatePeerAddr(i interface{}, val string) ([]string, []error) {
 	return nil, nil
 }
 
-// invalidPeerAddrs is a collection of IP addres ranges that represent
+// invalidPeerAddrs is a collection of IP address ranges that represent
 // a conflict with RFC 5735 (https://tools.ietf.org/html/rfc5735#page-3).
 // CIDR range notations in the RFC were converted to a (from, to) pair
 // for easy checking with bytes.Compare.

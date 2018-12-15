@@ -78,7 +78,7 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	d.Set("project", project)
 	d.Set("region", region)
 
-	d.SetId(strconv.FormatUint(uint64(address.Id), 10))
+	d.SetId(strconv.FormatUint(address.Id, 10))
 	return nil
 }
 
