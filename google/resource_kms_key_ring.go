@@ -93,7 +93,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 		d.SetId(keyRingId.keyRingId())
 		return nil
-	}, time.Duration(30*time.Second))
+	}, 30*time.Second)
 	if err != nil {
 		return err
 	}

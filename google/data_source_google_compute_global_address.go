@@ -59,6 +59,6 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 	d.Set("self_link", address.SelfLink)
 	d.Set("project", project)
 
-	d.SetId(strconv.FormatUint(uint64(address.Id), 10))
+	d.SetId(strconv.FormatUint(address.Id, 10))
 	return nil
 }
