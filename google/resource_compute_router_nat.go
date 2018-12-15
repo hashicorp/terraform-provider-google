@@ -17,18 +17,18 @@ import (
 var (
 	routerNatSubnetworkConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"source_ip_ranges_to_nat": &schema.Schema{
+			"source_ip_ranges_to_nat": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"secondary_ip_range_names": &schema.Schema{
+			"secondary_ip_range_names": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
@@ -54,73 +54,73 @@ func resourceComputeRouterNat() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(2, 63),
 			},
-			"router": &schema.Schema{
+			"router": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"nat_ip_allocate_option": &schema.Schema{
+			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
 			},
-			"nat_ips": &schema.Schema{
+			"nat_ips": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"source_subnetwork_ip_ranges_to_nat": &schema.Schema{
+			"source_subnetwork_ip_ranges_to_nat": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
 			},
-			"subnetwork": &schema.Schema{
+			"subnetwork": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem:     routerNatSubnetworkConfig,
 			},
-			"min_ports_per_vm": &schema.Schema{
+			"min_ports_per_vm": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-			"udp_idle_timeout_sec": &schema.Schema{
+			"udp_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-			"icmp_idle_timeout_sec": &schema.Schema{
+			"icmp_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-			"tcp_established_idle_timeout_sec": &schema.Schema{
+			"tcp_established_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-			"tcp_transitory_idle_timeout_sec": &schema.Schema{
+			"tcp_transitory_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

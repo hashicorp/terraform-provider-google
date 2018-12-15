@@ -26,13 +26,13 @@ func resourceGoogleProjectService() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"disable_on_destroy": &schema.Schema{
+			"disable_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,

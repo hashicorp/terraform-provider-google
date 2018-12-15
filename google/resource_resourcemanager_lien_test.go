@@ -23,14 +23,14 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourceManagerLienDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourceManagerLien_basic(projectName, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourceManagerLienExists(
 						"google_resource_manager_lien.lien", projectName, &lien),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_resource_manager_lien.lien",
 				ImportState:       true,
 				ImportStateVerify: true,

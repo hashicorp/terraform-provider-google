@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -43,20 +42,6 @@ func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
 }
 
-func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
-	res, ok := is.Attributes["region"]
-
-	if ok && res != "" {
-		return res, nil
-	}
-
-	if config.Region != "" {
-		return config.Region, nil
-	}
-
-	return "", fmt.Errorf("region: required field is not set")
-}
-
 // getProject reads the "project" field from the given resource data and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
@@ -76,20 +61,6 @@ func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) 
 		return config.Project, nil
 	}
 	return "", fmt.Errorf("%s: required field is not set", "project")
-}
-
-func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
-	res, ok := is.Attributes["project"]
-
-	if ok && res != "" {
-		return res, nil
-	}
-
-	if config.Project != "" {
-		return config.Project, nil
-	}
-
-	return "", fmt.Errorf("project: required field is not set")
 }
 
 func getZonalResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *compute.Service, project string) (interface{}, error) {

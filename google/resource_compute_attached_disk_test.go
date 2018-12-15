@@ -22,16 +22,16 @@ func TestAccComputeAttachedDisk_basic(t *testing.T) {
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachment(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_attached_disk.test",
 				ImportStateId:     importID,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAttachedDiskResource(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckAttachedDiskIsNowDetached(instanceName, diskName),
@@ -54,10 +54,10 @@ func TestAccComputeAttachedDisk_full(t *testing.T) {
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachmentFull(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_attached_disk.test",
 				ImportStateId:     importID,
 				ImportState:       true,
@@ -81,10 +81,10 @@ func TestAccComputeAttachedDisk_region(t *testing.T) {
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAttachedDiskResource_region(diskName, instanceName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_attached_disk.test",
 				ImportStateId:     importID,
 				ImportState:       true,
@@ -107,7 +107,7 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAttachedDiskResourceCount(diskPrefix, instanceName, count),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckAttachedDiskContainsManyDisks(instanceName, count),
@@ -121,7 +121,7 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 // testCheckAttachedDiskIsNowDetached queries a compute instance and iterates through the attached
 // disks to confirm that a specific disk is no longer attached to the instance
 //
-// This is being used instead of a CheckDestory method because destory will delete both the compute
+// This is being used instead of a CheckDestroy method because destroy will delete both the compute
 // instance and the disk, whereas destroying just the attached disk should only detach the disk but
 // leave the instance and disk around. So just using a normal check destroy could end up with a
 // situation where the detach fails but since the instance/disk get destroyed we wouldn't notice.

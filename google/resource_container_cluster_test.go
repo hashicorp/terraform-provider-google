@@ -855,7 +855,7 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerNodePoolDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolAutoscaling(clusterName, npName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "1"),
@@ -868,7 +868,7 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolUpdateAutoscaling(clusterName, npName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "1"),
@@ -881,7 +881,7 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccContainerCluster_withNodePoolBasic(clusterName, npName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count"),
@@ -1343,23 +1343,6 @@ resource "google_container_cluster" "with_master_auth" {
 		password = ""
 	}
 }`, clusterName)
-}
-
-func testAccContainerCluster_updateMasterAuthNoCert() string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 3
-
-	master_auth {
-		username = "mr.yoda"
-		password = "adoy.rm.123456789"
-		client_certificate_config {
-			issue_client_certificate = false
-		}
-	}
-}`, acctest.RandString(10))
 }
 
 func testAccContainerCluster_withMasterAuthNoCert() string {

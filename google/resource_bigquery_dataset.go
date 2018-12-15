@@ -121,7 +121,7 @@ func resourceBigQueryDataset() *schema.Resource {
 			// Labels: [Experimental] The labels associated with this dataset. You
 			// can use these to organize and group your datasets. You can set this
 			// property when inserting or updating a dataset.
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -131,35 +131,35 @@ func resourceBigQueryDataset() *schema.Resource {
 			// for one or more entities. You can set this property when inserting
 			// or updating a dataset in order to control who is allowed to access
 			// the data.
-			"access": &schema.Schema{
+			"access": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				// Computed because if unset, BQ adds 4 entries automatically
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"role": &schema.Schema{
+						"role": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
 						},
-						"domain": &schema.Schema{
+						"domain": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"group_by_email": &schema.Schema{
+						"group_by_email": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"special_group": &schema.Schema{
+						"special_group": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"user_by_email": &schema.Schema{
+						"user_by_email": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"view": &schema.Schema{
+						"view": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,

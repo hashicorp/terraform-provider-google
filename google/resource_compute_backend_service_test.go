@@ -24,14 +24,14 @@ func TestAccComputeBackendService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_basic(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_basicModified(
 					serviceName, checkName, extraCheckName),
 				Check: resource.ComposeTestCheckFunc(
@@ -39,7 +39,7 @@ func TestAccComputeBackendService_basic(t *testing.T) {
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -61,7 +61,7 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -69,7 +69,7 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 20),
 				Check: resource.ComposeTestCheckFunc(
@@ -77,7 +77,7 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -107,7 +107,7 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withBackendAndIAP(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -115,12 +115,12 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -155,7 +155,7 @@ func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "initial-description", "GENERATED_COOKIE"),
 				Check: resource.ComposeTestCheckFunc(
@@ -163,7 +163,7 @@ func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "updated-description", "GENERATED_COOKIE"),
 				Check: resource.ComposeTestCheckFunc(
@@ -191,14 +191,14 @@ func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withConnectionDraining(serviceName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -223,14 +223,14 @@ func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) 
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withConnectionDraining(serviceName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_basic(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
@@ -257,14 +257,14 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withHttpsHealthCheck(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -285,14 +285,14 @@ func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withCdnPolicy(serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -314,7 +314,7 @@ func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
@@ -450,7 +450,7 @@ func TestAccComputeBackendService_withCDNEnabled(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withCDNEnabled(
 					serviceName, checkName),
 				Check: resource.ComposeTestCheckFunc(
@@ -478,7 +478,7 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "description", "CLIENT_IP"),
 				Check: resource.ComposeTestCheckFunc(
@@ -486,7 +486,7 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 						"google_compute_backend_service.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "description", "GENERATED_COOKIE"),
 				Check: resource.ComposeTestCheckFunc(
@@ -547,7 +547,7 @@ func TestAccComputeBackendService_withMaxConnections(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withMaxConnections(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -555,7 +555,7 @@ func TestAccComputeBackendService_withMaxConnections(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withMaxConnections(
 					serviceName, igName, itName, checkName, 20),
 				Check: resource.ComposeTestCheckFunc(
@@ -563,7 +563,7 @@ func TestAccComputeBackendService_withMaxConnections(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -590,7 +590,7 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
@@ -598,7 +598,7 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
 					serviceName, igName, itName, checkName, 20),
 				Check: resource.ComposeTestCheckFunc(
@@ -606,7 +606,7 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 						"google_compute_backend_service.lipsum", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,

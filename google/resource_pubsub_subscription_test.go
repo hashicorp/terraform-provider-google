@@ -23,7 +23,7 @@ func TestAccPubsubSubscription_basic(t *testing.T) {
 			{
 				Config: testAccPubsubSubscription_basic(topic, subscription),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_pubsub_subscription.foo",
 				ImportStateId:     subscription,
 				ImportState:       true,
@@ -82,12 +82,12 @@ func TestGetComputedTopicName(t *testing.T) {
 	}
 
 	var testCases = []testData{
-		testData{
+		{
 			project:  "my-project",
 			topic:    "my-topic",
 			expected: "projects/my-project/topics/my-topic",
 		},
-		testData{
+		{
 			project:  "my-project",
 			topic:    "projects/another-project/topics/my-topic",
 			expected: "projects/another-project/topics/my-topic",

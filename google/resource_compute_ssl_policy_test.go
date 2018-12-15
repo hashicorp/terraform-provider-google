@@ -21,7 +21,7 @@ func TestAccComputeSslPolicy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslPolicyBasic(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -33,7 +33,7 @@ func TestAccComputeSslPolicy_basic(t *testing.T) {
 						"google_compute_ssl_policy.basic", "min_tls_version", "TLS_1_0"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -53,7 +53,7 @@ func TestAccComputeSslPolicy_profile(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslPolicyProfile(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -62,7 +62,7 @@ func TestAccComputeSslPolicy_profile(t *testing.T) {
 						"google_compute_ssl_policy.profile", "profile", "MODERN"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.profile",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -82,7 +82,7 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -93,12 +93,12 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_0"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate2(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -109,7 +109,7 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_2"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -129,7 +129,7 @@ func TestAccComputeSslPolicy_tls_version(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslPolicyTlsVersion(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -138,7 +138,7 @@ func TestAccComputeSslPolicy_tls_version(t *testing.T) {
 						"google_compute_ssl_policy.tlsversion", "min_tls_version", "TLS_1_2"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.tlsversion",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -158,7 +158,7 @@ func TestAccComputeSslPolicy_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslPolicyCustom(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -169,7 +169,7 @@ func TestAccComputeSslPolicy_custom(t *testing.T) {
 						"google_compute_ssl_policy.custom", "profile", "CUSTOM"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.custom",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -189,7 +189,7 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -200,12 +200,12 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_0"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate3(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -216,7 +216,7 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -236,7 +236,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate3(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -247,12 +247,12 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
@@ -263,7 +263,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_0"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_ssl_policy.update",
 				ImportState:       true,
 				ImportStateVerify: true,

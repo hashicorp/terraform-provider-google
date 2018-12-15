@@ -24,33 +24,33 @@ func TestAccServiceAccount_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountBasic(accountId, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_service_account.acceptance", "project", project),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_service_account.acceptance",
 				ImportStateId:     fmt.Sprintf("projects/%s/serviceAccounts/%s", project, expectedEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_service_account.acceptance",
 				ImportStateId:     fmt.Sprintf("%s/%s", project, expectedEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_service_account.acceptance",
 				ImportStateId:     expectedEmail,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			// The second step updates the service account
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountBasic(accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -58,14 +58,14 @@ func TestAccServiceAccount_basic(t *testing.T) {
 					testAccStoreServiceAccountUniqueId(&uniqueId),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// The third step explicitely adds the same default project to the service account configuration
+			// The third step explicitly adds the same default project to the service account configuration
 			// and ensure the service account is not recreated by comparing the value of its unique_id with the one from the previous step
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountWithProject(project, accountId, displayName2),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -74,7 +74,7 @@ func TestAccServiceAccount_basic(t *testing.T) {
 						"google_service_account.acceptance", "unique_id", &uniqueId),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -107,22 +107,4 @@ resource "google_service_account" "acceptance" {
     display_name = "%v"
 }
 `, project, account, name)
-}
-
-func testAccServiceAccountPolicy(account, project string) string {
-	return fmt.Sprintf(`
-resource "google_service_account" "acceptance" {
-    account_id = "%v"
-    display_name = "%v"
-}
-
-data "google_iam_policy" "service_account" {
-    binding {
-        role = "roles/iam.serviceAccountActor"
-        members = [
-            "serviceAccount:%v@%v.iam.gserviceaccount.com",
-        ]
-    }
-}
-`, account, account, account, project)
 }

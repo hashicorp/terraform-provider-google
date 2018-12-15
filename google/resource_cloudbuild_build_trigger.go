@@ -31,13 +31,13 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"filename": &schema.Schema{
+			"filename": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"build"},
@@ -49,28 +49,28 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"images": &schema.Schema{
+						"images": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
-						"step": &schema.Schema{
+						"step": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"args": &schema.Schema{
+									"args": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
 								},
 							},
 						},
-						"tags": &schema.Schema{
+						"tags": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -78,56 +78,56 @@ func resourceCloudBuildTrigger() *schema.Resource {
 					},
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"substitutions": &schema.Schema{
+			"substitutions": {
 				Optional: true,
 				Type:     schema.TypeMap,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"included_files": &schema.Schema{
+			"included_files": {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 50,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"ignored_files": &schema.Schema{
+			"ignored_files": {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 50,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"trigger_template": &schema.Schema{
+			"trigger_template": {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"branch_name": &schema.Schema{
+						"branch_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"commit_sha": &schema.Schema{
+						"commit_sha": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"dir": &schema.Schema{
+						"dir": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"project": &schema.Schema{
+						"project": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"repo_name": &schema.Schema{
+						"repo_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"tag_name": &schema.Schema{
+						"tag_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},

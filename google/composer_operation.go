@@ -36,10 +36,6 @@ func (w *ComposerOperationWaiter) Conf() *resource.StateChangeConf {
 	}
 }
 
-func composerOperationWait(service *composer.Service, op *composer.Operation, project, activity string) error {
-	return composerOperationWaitTime(service, op, project, activity, 10)
-}
-
 func composerOperationWaitTime(service *composer.Service, op *composer.Operation, project, activity string, timeoutMin int) error {
 	if op.Done {
 		if op.Error != nil {

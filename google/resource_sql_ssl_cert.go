@@ -17,50 +17,50 @@ func resourceSqlSslCert() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"common_name": &schema.Schema{
+			"common_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"instance": &schema.Schema{
+			"instance": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"cert": &schema.Schema{
+			"cert": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"cert_serial_number": &schema.Schema{
+			"cert_serial_number": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"expiration_time": &schema.Schema{
+			"expiration_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"private_key": &schema.Schema{
+			"private_key": {
 				Type:      schema.TypeString,
 				Computed:  true,
 				Sensitive: true,
 			},
 
-			"server_ca_cert": &schema.Schema{
+			"server_ca_cert": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"sha1_fingerprint": &schema.Schema{
+			"sha1_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

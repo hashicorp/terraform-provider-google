@@ -18,35 +18,35 @@ func resourceGoogleServiceAccount() *schema.Resource {
 			State: resourceGoogleServiceAccountImport,
 		},
 		Schema: map[string]*schema.Schema{
-			"email": &schema.Schema{
+			"email": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"unique_id": &schema.Schema{
+			"unique_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"account_id": &schema.Schema{
+			"account_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(6, 30),
 			},
-			"display_name": &schema.Schema{
+			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
@@ -130,69 +130,6 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
-}
-
-// Retrieve the existing IAM Policy for a service account
-func getServiceAccountIamPolicy(sa string, config *Config) (*iam.Policy, error) {
-	p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(sa).Do()
-
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for service account %q: %s", sa, err)
-	}
-	return p, nil
-}
-
-// Convert a map of roles->members to a list of Binding
-func saRolesToMembersBinding(m map[string]map[string]bool) []*iam.Binding {
-	bindings := make([]*iam.Binding, 0)
-	for role, members := range m {
-		b := iam.Binding{
-			Role:    role,
-			Members: make([]string, 0),
-		}
-		for m, _ := range members {
-			b.Members = append(b.Members, m)
-		}
-		bindings = append(bindings, &b)
-	}
-	return bindings
-}
-
-// Map a role to a map of members, allowing easy merging of multiple bindings.
-func saRolesToMembersMap(bindings []*iam.Binding) map[string]map[string]bool {
-	bm := make(map[string]map[string]bool)
-	// Get each binding
-	for _, b := range bindings {
-		// Initialize members map
-		if _, ok := bm[b.Role]; !ok {
-			bm[b.Role] = make(map[string]bool)
-		}
-		// Get each member (user/principal) for the binding
-		for _, m := range b.Members {
-			// Add the member
-			bm[b.Role][m] = true
-		}
-	}
-	return bm
-}
-
-// Merge multiple Bindings such that Bindings with the same Role result in
-// a single Binding with combined Members
-func saMergeBindings(bindings []*iam.Binding) []*iam.Binding {
-	bm := saRolesToMembersMap(bindings)
-	rb := make([]*iam.Binding, 0)
-
-	for role, members := range bm {
-		var b iam.Binding
-		b.Role = role
-		b.Members = make([]string, 0)
-		for m, _ := range members {
-			b.Members = append(b.Members, m)
-		}
-		rb = append(rb, &b)
-	}
-
-	return rb
 }
 
 func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

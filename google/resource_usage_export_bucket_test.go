@@ -18,11 +18,11 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourceUsageExportBucket(baseProject, org, billingId),
 			},
 			// Test import.
-			resource.TestStep{
+			{
 				ResourceName:      "google_project_usage_export_bucket.ueb",
 				ImportState:       true,
 				ImportStateVerify: true,

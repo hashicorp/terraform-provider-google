@@ -21,7 +21,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeGlobalAddress_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
@@ -31,7 +31,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -50,7 +50,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeGlobalAddress_ipv6(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
@@ -58,7 +58,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

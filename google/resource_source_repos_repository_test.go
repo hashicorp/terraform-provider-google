@@ -18,14 +18,14 @@ func TestAccSourceRepoRepository_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSourceRepoRepository_basic(repositoryName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSourceRepoRepositoryExists(
 						"google_sourcerepo_repository.acceptance", repositoryName),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_sourcerepo_repository.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,

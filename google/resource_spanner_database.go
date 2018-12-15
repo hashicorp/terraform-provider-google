@@ -25,13 +25,13 @@ func resourceSpannerDatabase() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"instance": &schema.Schema{
+			"instance": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -45,7 +45,7 @@ func resourceSpannerDatabase() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"ddl": &schema.Schema{
+			"ddl": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
