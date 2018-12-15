@@ -2,6 +2,11 @@
   "Deadline": "10m",
   "Enable": [
     "gofmt",
+    "misspell",
+    "structcheck",
+    "unconvert",
+    "unused",
+    "varcheck",
     "vet"
   ],
   "EnableGC": true,
