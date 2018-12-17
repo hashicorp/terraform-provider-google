@@ -65,6 +65,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * bigquery: added australia and europe regions to the validate function [GH-2333]
+* cloudbuild: allow `google_cloudbuild_trigger.trigger_template.project` to not be [GH-2655]
 * compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. [GH-2450]
 * compute: attached_disk now supports region disks [GH-2441]
 * compute: extract vpn tunnel region/project from vpn gateway [GH-2640]
